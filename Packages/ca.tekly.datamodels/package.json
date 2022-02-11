@@ -1,0 +1,15 @@
+{
+  "name": "ca.tekly.datamodels",
+  "version": "1.0.0",
+  "displayName": "Tekly DataModel",
+  "description": "Data models for UI",
+  "author": {
+    "name": "Matt King",
+    "email": "matt@tekly.ca"
+  },
+  "hideInEditor": false,
+  "type": "library",
+  "dependencies": {
+    "ca.tekly.localizations": "0.0.1"
+  }
+}

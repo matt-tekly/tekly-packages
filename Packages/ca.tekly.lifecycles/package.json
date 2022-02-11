@@ -1,0 +1,12 @@
+{
+  "name": "ca.tekly.lifecycles",
+  "version": "1.0.0",
+  "displayName": "Tekly Lifeycles",
+  "description": "Lifeycle events",
+  "author": {
+    "name": "Matt King",
+    "email": "matt@tekly.ca"
+  },
+  "hideInEditor": false,
+  "type": "library"
+}

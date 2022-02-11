@@ -1,0 +1,21 @@
+{
+    "name": "Tekly.DataModels.Tests",
+    "rootNamespace": "Tekly.DataModels",
+    "references": [
+        "GUID:1f5b8c5f6af6ca148a596861567504c4",
+        "GUID:b9160372c6c55a741932d482673e3abb"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "NSubstitute.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

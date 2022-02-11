@@ -1,0 +1,12 @@
+{
+  "name": "ca.tekly.localizations",
+  "version": "0.0.1",
+  "displayName": "Tekly Localizations",
+  "description": "Localization utilities",
+  "author": {
+    "name": "Matt King",
+    "email": "matt@tekly.ca"
+  },
+  "hideInEditor": false,
+  "type": "library"
+}

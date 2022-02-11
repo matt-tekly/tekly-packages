@@ -1,0 +1,15 @@
+{
+  "name": "ca.tekly.content",
+  "version": "0.0.1",
+  "displayName": "Tekly Content",
+  "description": "Addressable Content Library",
+  "author": {
+    "name": "Matt King",
+    "email": "matt@tekly.ca"
+  },
+  "hideInEditor": false,
+  "type": "library",
+  "dependencies": {
+    "com.unity.addressables": "1.19.18"
+  }
+}

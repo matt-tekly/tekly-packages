@@ -1,0 +1,15 @@
+{
+  "name": "ca.tekly.injectors",
+  "version": "1.0.0",
+  "displayName": "Tekly Injectors",
+  "description": "A very simple injector",
+  "author": {
+    "name": "Matt King",
+    "email": "matt@tekly.ca"
+  },
+  "hideInEditor": false,
+  "type": "library",
+  "dependencies": {
+    "ca.tekly.logger": "0.0.7"
+  }
+}

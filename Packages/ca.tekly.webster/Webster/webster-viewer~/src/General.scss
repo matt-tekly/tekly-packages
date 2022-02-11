@@ -1,0 +1,77 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    min-width: 100vw;
+    min-height: 100vh;
+	max-height: 100vh;
+	background-image:  linear-gradient(#32414d94, #29374296), url("images/dark-honeycomb.jpg");
+	background-repeat: repeat;
+	background-attachment: fixed;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+.app {
+    min-width: 100%;
+    min-height: inherit;
+    max-height: inherit;
+    padding: 0;
+	margin: 0;
+	overflow: hidden;
+}
+
+.app-container {
+    min-height: inherit;
+    max-height: inherit;
+	display: grid;
+	padding: 5px;
+	row-gap: 5px;
+	grid-template-rows: 50px 1fr;
+	overflow: hidden;
+}
+
+.app-content {
+	display: grid;
+	grid-template-rows: 1fr;
+	overflow: hidden;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.round-container {
+    box-shadow: 0 0 0 1px rgba(16, 22, 26, 0.4);
+    background-color: $dark-gray4;
+    border-radius: 3px;
+    padding: 5px;
+	margin: 1px;
+	overflow: hidden;
+}
+
+::-webkit-scrollbar-track {
+	box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+	border: rgba(0, 0, 0, 0.452);
+	border-style: solid;
+  	border-width: 1px;
+    background-color: #555;
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+    background-color: #F5F5F5;
+}
+
+::-webkit-scrollbar-thumb {
+	width: 14px;
+    height: 14px;
+	background-color: rgb(197, 197, 197);
+	border: rgba(0, 0, 0, 0.452);
+	border-style: solid;
+  	border-width: 1px;
+}

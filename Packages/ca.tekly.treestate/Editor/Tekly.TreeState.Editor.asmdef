@@ -1,0 +1,19 @@
+{
+    "name": "Tekly.TreeState.Editor",
+    "rootNamespace": "Tekly.TreeState",
+    "references": [
+        "GUID:5b1f54fb444ac8e448405d37773f1eb5",
+        "GUID:31f6ca066cb1421498e9be3571072338"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

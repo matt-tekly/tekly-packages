@@ -1,0 +1,18 @@
+{
+    "name": "Tekly.Common.Editor",
+    "rootNamespace": "Tekly.Common",
+    "references": [
+        "GUID:b9160372c6c55a741932d482673e3abb"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

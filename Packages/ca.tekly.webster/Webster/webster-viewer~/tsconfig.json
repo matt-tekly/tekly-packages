@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "experimentalDecorators": true,
+        "baseUrl": "./src",
+        "target": "es5",
+        "module": "commonjs",
+        "paths": {
+            "~*": ["./*"]
+        },
+        "strict": true,
+        "jsx": "react",
+        "lib": [
+            "dom",
+            "es2017"
+        ]
+    }
+}

@@ -1,0 +1,33 @@
+.tekly-table {
+	
+	&.sticky th {
+		position: sticky;
+		top: 0;
+		z-index: 2;
+		background-color: #394b59;
+		border-style: solid;
+		border-top-style: none;
+		border-left-style: none;
+		border-right-style: none;
+		border-width: 1px;
+	}
+
+	.sort-column {
+		*.heading-text {
+			margin-right: 0px;
+			font-weight: bold;
+		}
+	}
+
+	.column {
+		*.heading-text {
+			margin-right: 23px;
+		}
+
+		border-color: rgb(126, 153, 175);
+	}
+
+	.no-wrap {
+		white-space: nowrap;
+	}
+}

@@ -1,0 +1,19 @@
+{
+    "name": "Tekly.DataModels.Editor",
+    "rootNamespace": "Tekly.DataModels",
+    "references": [
+        "GUID:1f5b8c5f6af6ca148a596861567504c4",
+        "GUID:31f6ca066cb1421498e9be3571072338"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

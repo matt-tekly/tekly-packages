@@ -1,0 +1,58 @@
+@import "~@blueprintjs/core/lib/scss/variables";
+
+.tekly-tree {
+	color: $gray4;
+	overflow: auto;
+	height: 100%;
+	.node {
+		padding: 2px 4px 2px 4px;
+		display: grid;
+		grid-template-columns: 16px 1fr auto;
+		grid-column-gap: 2px;
+		justify-items: stretch;
+		align-items: center;
+		height: 24px;
+		cursor: pointer;
+	}
+
+	.node:hover {
+		background-color: $dark-gray5;
+	}
+
+	.node-selected {
+		@extend .node;
+		background-color: $gray1;
+	}
+
+	.node-selected:hover {
+		background-color: $gray1;
+	}
+
+	.node-caret {
+		margin-top: 2px;
+	}
+
+	.node-caret:hover {
+		color: $blue5;
+	}
+
+	.node-icon {
+		margin-right: 4px;
+	}
+
+	.node-label { 
+		color: $light-gray5;
+		min-height: 24px;
+		vertical-align: middle;
+		white-space: nowrap;
+	}
+}
+
+.tekly-search-tree {
+	overflow: auto;
+	height: 100%;
+	display: grid;
+	grid-template-rows: auto auto [column-end] 1fr;
+	align-items: start;
+	grid-row-gap: 3px;
+}

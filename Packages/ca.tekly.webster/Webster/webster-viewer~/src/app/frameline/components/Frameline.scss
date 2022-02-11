@@ -1,0 +1,21 @@
+
+@import './timeline/FramelineTimeline.scss';
+@import './table/FramelineTable.scss';
+
+.event-config-container {
+    display: grid;
+    grid-template-columns: 1fr 16px;
+    grid-column-gap: 10px;
+    justify-items: stretch;
+    align-items: stretch;
+}
+
+.event-config-color-box {
+    display: block;
+    width: 16px;
+    height: 16px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #13141575;
+    justify-self: end;
+}

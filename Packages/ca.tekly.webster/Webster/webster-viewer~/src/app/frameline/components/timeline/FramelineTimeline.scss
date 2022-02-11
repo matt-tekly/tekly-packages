@@ -1,0 +1,56 @@
+.frameline-container {
+	overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+}
+
+.fl-ui {
+    padding: $pt-grid-size;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 20px;
+    grid-row-gap: 20px;
+    justify-items: stretch;
+    align-items: stretch;
+}
+
+.fl-canvas-area {
+    overflow: hidden;
+    margin: 10px;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    justify-items: stretch;
+	align-items: stretch;
+	border-radius: 10px;
+}
+
+.fl-canvas-area-left {
+	background-color: $dark-gray4;
+	padding: 10px;
+
+    border-style: solid;
+    border-right-style: none;
+    border-width: 1px;
+    border-color: #131415;
+    border-radius: 10px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+.fl-canvas {
+	overflow: auto;
+    border-style: solid;
+    border-width: 1px;
+	border-color: #131415;
+	border-radius: 10px;
+    border-top-left-radius: 0px;
+	border-bottom-left-radius: 0px;
+	
+	background: #202528;
+}
+
+.fl-viewport {
+	overflow: hidden;
+	height: 100%;
+}

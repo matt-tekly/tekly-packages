@@ -1,0 +1,17 @@
+{
+    "name": "Tekly.Logger",
+    "rootNamespace": "Tekly.Logging",
+    "references": [
+        "GUID:2b288e27c120d9341a68d06a24c0318f",
+        "GUID:b9160372c6c55a741932d482673e3abb"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

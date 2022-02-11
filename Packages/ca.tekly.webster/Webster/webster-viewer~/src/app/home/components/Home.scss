@@ -1,0 +1,49 @@
+.home-view {
+
+	margin-top: 10px;
+
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+
+	.home-view-cards {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(200px, 700px));
+		column-gap: 20px;
+    	row-gap: 20px;
+	}
+}
+
+
+.home-view-card {
+
+	h5 {
+		text-decoration: underline;
+	}
+	
+	.home-data-table {
+		width: 100%;
+
+		td {
+			padding: 1px;
+		}
+
+		tr td:first-child {
+			font-weight: bold; 
+		}
+
+		tr td:last-child {
+			text-align: right;
+			padding-left: 20px;
+		}
+	}
+}
+
+.home-view-table {
+	box-shadow: 0 0 0 1px rgba(16, 22, 26, 0.4);
+    background-color: $dark-gray4;
+    border-radius: 3px;
+    padding: 5px;
+	margin: 1px;
+	overflow: hidden;
+}

@@ -1,0 +1,52 @@
+{
+    "name": "webster-viewer",
+    "version": "0.0.1",
+    "description": "Webster viewer",
+    "main": "src/index.html",
+    "author": "Matt King",
+    "license": "MIT",
+    "private": true,
+    "scripts": {
+        "start": "parcel watch src/index.html --out-dir build",
+        "build": "parcel build src/index.html --out-dir build",
+        "prod": "yarn prod:build && yarn prod:post",
+        "prod:build": "parcel build src/index.html --no-source-maps --no-cache --out-dir dist",
+        "prod:post": "node tools/postprocess.js",
+        "type-check": "tsc --noEmit",
+        "type-check:watch": "tsc --noEmit --watch"
+    },
+    "dependencies": {
+        "@blueprintjs/core": "^3.18.0",
+        "file-saver": "^2.0.2",
+        "konva": "^4.0.5",
+        "normalize.css": "^8.0.1",
+        "object-path-immutable": "^4.0.2",
+        "react": "^16.9.0",
+        "react-dom": "^16.9.0",
+        "react-redux": "^7.1.1",
+        "react-router": "^5.0.1",
+        "react-router-dom": "^5.0.1",
+        "redux": "^4.0.4",
+        "redux-devtools-extension": "^2.13.8",
+        "redux-thunk": "^2.3.0",
+        "rxjs": "^6.5.2"
+    },
+    "devDependencies": {
+        "@types/file-saver": "^2.0.1",
+        "@types/react": "^16.9.2",
+        "@types/react-dom": "^16.9.0",
+        "@types/react-redux": "^7.1.2",
+        "@types/react-router": "^5.0.3",
+        "@types/react-router-dom": "^4.3.5",
+        "parcel-bundler": "^1.12.3",
+        "parcel-plugin-bundle-visualiser": "^1.2.0",
+        "parcel-plugin-clean-dist": "^0.0.6",
+        "sass": "^1.22.10",
+        "tslint": "^5.19.0",
+        "typescript": "^3.8.3"
+    },
+    "parcelBuildClean": [
+        "build/*.*",
+        "dist/*.*"
+    ]
+}

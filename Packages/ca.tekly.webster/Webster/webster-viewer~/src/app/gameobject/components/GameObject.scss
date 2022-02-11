@@ -1,0 +1,133 @@
+
+.gameobjects-view {
+	//margin: 0 auto 0 auto;
+	display: grid;
+	grid-template-columns: minmax(200px, 400px) 1fr 1fr;
+	column-gap: 10px;
+	overflow: hidden;
+
+	.label-enabled {
+		// color: #a7b6c2;
+	}
+
+	.label-disabled {
+		color: #a7b6c2;
+	}
+}
+
+.gameobject-view {
+	overflow: auto;
+
+	.no-gameobject-selected {
+		height: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		font-size: 24px;
+	}
+
+	.heading {
+		box-shadow: 0 0 0 1px rgba(16, 22, 26, 0.4);
+		background-color: $dark-gray5;
+		border-radius: 3px;
+		margin: 1px;
+		color: #f5f8fa;
+		min-height: 50px;
+		padding: 5px;
+
+		display: grid;
+		grid-template-columns: repeat(2, auto);
+		grid-template-rows: repeat(2, auto);
+		align-content: space-between;
+
+		.layer {
+			justify-self: end;
+		}
+	}
+
+	.component {
+		box-shadow: 0 0 0 1px rgba(16, 22, 26, 0.4);
+		background-color: $dark-gray4;
+		border-radius: 3px;
+		margin: 1px;
+		color: #f5f8fa;
+		min-height: 50px;
+		margin-top: 5px;
+	}
+
+	.component-heading {
+		background-color: $dark-gray5;
+		padding: 5px;
+
+		border-style: solid;
+		border-top-style: none;
+		border-left-style: none;
+		border-right-style: none;
+		border-width: 1px;
+		border-color: #1314156c;
+		border-radius: 3px;
+		border-bottom-left-radius: 0px;
+		border-bottom-right-radius: 0px;
+	}
+
+	.component-body {
+		padding: 5px;
+		max-height: 500px;
+		overflow: auto;
+	}
+
+	.component-values-json {
+		white-space: pre;
+		font-size: 12px;
+		overflow: auto;
+		text-transform: none;
+		font-family: monospace;
+	}
+
+	.vector3 {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr 1fr;
+		column-gap: 5px;
+		justify-items: stretch;
+		align-items: stretch;
+	}
+}
+
+.gameobjects-stats-view {
+	overflow: hidden;
+	height: 100%;
+	box-shadow: 0 0 0 1px rgba(16, 22, 26, 0.4);
+	background-color: $dark-gray4;
+	border-radius: 3px;
+	margin: 1px;
+
+	display: grid;
+	grid-template-rows: auto 1fr;
+
+	.heading {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		align-items: center;
+		align-content: center;
+		justify-items: center;
+
+		background-color: $dark-gray5;
+		padding: 5px;
+
+		border-style: solid;
+		border-top-style: none;
+		border-left-style: none;
+		border-right-style: none;
+		border-width: 1px;
+		border-color: #1314156c;
+		border-radius: 3px;
+		border-bottom-left-radius: 0px;
+		border-bottom-right-radius: 0px;
+
+		font-size: 18px;
+	}
+
+	.table {
+		overflow: auto;
+	}
+}

@@ -1,0 +1,19 @@
+{
+    "name": "Tekly.DataModels.Runtime",
+    "rootNamespace": "Tekly.DataModels",
+    "references": [
+        "GUID:4bdc187487ea5db4e983b03012d17dcd",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:b9160372c6c55a741932d482673e3abb",
+        "GUID:fccf0c2a537abd14db080b44a0a81a76"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

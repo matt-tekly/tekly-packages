@@ -1,0 +1,64 @@
+@import "~@blueprintjs/core/lib/scss/variables";
+
+.api-root {
+	display: grid;
+	justify-content: stretch;
+	overflow: hidden;
+}
+
+.api-container {
+	display: grid;
+    grid-template-columns: 0.3fr 0.7fr;
+    grid-column-gap: 20px;
+    overflow: hidden;
+}
+
+.api-route {
+	@extend .round-container;
+	padding: 0px;
+	min-height: 30px;
+}
+
+.api-route-header {
+	padding: 5px;
+	box-shadow: 0 0 0 1px rgba(16, 22, 26, 0.4);
+	background-color: $dark-gray5;
+
+	display: grid;
+	grid-template-columns: 1fr auto;
+}
+
+.api-route-content {
+	padding: 10px;
+}
+
+.api-route-no-selection {
+	@extend .round-container;
+	min-height: 30px;
+}
+
+.api-info-container {
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    grid-row-gap: 10px;
+}
+
+.api-response {
+    @extend .round-container;
+
+    display: block;
+    white-space: pre;
+    font-size: 12px;
+    overflow: auto;
+    text-transform: none;
+    font-family: monospace;
+}
+
+.api-response-object {
+    white-space: pre;
+}
+
+.api-response-string {
+    white-space: pre-line;
+}
