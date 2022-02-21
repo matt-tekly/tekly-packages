@@ -1,4 +1,5 @@
 ﻿using Tekly.Balance;
+using Tekly.Common.Utils;
 using TeklySample.Game.Items;
 using UnityEngine;
 
@@ -10,7 +11,7 @@ namespace TeklySample.Game.Generators
         public ItemBalance Item;
         public float CompletionTime;
 
-        public ItemCount ItemGeneration;
-        public ItemCount[] Cost;
+        public Quantity<ItemBalance> ItemGeneration;
+        public Quantity<ItemBalance>[] Cost;
     }
 }

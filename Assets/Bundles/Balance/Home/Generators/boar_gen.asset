@@ -19,8 +19,8 @@ MonoBehaviour:
     Count: 5
   Cost:
   - Value: {fileID: 11400000, guid: 3fc9093c5cc0b7f468f219bcec441cbd, type: 2}
-    Count: 5
+    Count: 50
   - Value: {fileID: 11400000, guid: a0d7d4a60817087478135b338d788f0a, type: 2}
-    Count: 1000
+    Count: 10000
   - Value: {fileID: 11400000, guid: 45760d91ced160b40809bd4d98480a8a, type: 2}
     Count: 1

@@ -111,6 +111,8 @@ namespace Tekly.Logging
         /// </summary>
         private void CopyCommonFields(int startIndex)
         {
+            TkLogger.UpdateCommonProperties();
+            
             var index = 0;
             foreach (var commonField in TkLogger.CommonFields) {
                 Params[startIndex + index] = new TkLogParam(commonField.Key, commonField.Value);

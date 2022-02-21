@@ -39,6 +39,14 @@ MonoBehaviour:
     m_Address: en_US_loc
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: 6264441469e0be74fa61ecc4dfc98092
+    m_Address: generator_panel
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 2db6965a976910c43ab5cb811aad227b
+    m_Address: main_game_panel
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 67828c4cfc518be4baa8093e1a839969, type: 2}
   m_SchemaSet:

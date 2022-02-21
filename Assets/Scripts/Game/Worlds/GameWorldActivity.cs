@@ -16,11 +16,14 @@ namespace TeklySample.Game.Worlds
         [Inject] private RootDataModel m_rootDataModel;
         [Inject] private InjectorContainer m_injectorContainer;
 
-        private BalanceContainer m_balanceContainer;
-        private bool m_isLoading;
         private readonly TkLogger m_logger = TkLogger.Get<GameWorldActivity>();
+        
+        private bool m_isLoading;
+        
         private GameWorld m_gameWorld;
         private GameWorldModel m_gameWorldModel;
+        
+        private BalanceContainer m_balanceContainer;
         
         protected override bool IsDoneLoading()
         {

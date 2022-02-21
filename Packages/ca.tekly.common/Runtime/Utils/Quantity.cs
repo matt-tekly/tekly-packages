@@ -1,4 +1,6 @@
-﻿namespace Tekly.Common.Utils
+﻿using System;
+
+namespace Tekly.Common.Utils
 {
     public interface IQuantity<out T>
     {
@@ -6,6 +8,7 @@
         T GetValue();
     }
 
+    [Serializable]
     public struct Quantity<T> : IQuantity<T>
     {
         public double Count;

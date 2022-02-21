@@ -51,3 +51,9 @@ The sample game is a simple idle game
 ## Localization
 - Barely implemented
 - Should handle pluralizing
+
+## Client Builder
+- Need a build window
+
+## Addressables
+- Sort out content build process

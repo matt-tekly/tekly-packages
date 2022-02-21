@@ -55,7 +55,7 @@ namespace TeklySample.Game.Generators
         
         public readonly InventoryItem InventoryItem;
 
-        public readonly List<ItemCount> Cost = new List<ItemCount>(3);
+        public readonly List<Quantity<ItemBalance>> Cost = new List<Quantity<ItemBalance>>(3);
 
         public Generator(GeneratorBalance balance, InventoryItem inventoryItem, GeneratorSave save)
         {
@@ -66,8 +66,8 @@ namespace TeklySample.Game.Generators
             State = save.State;
 
             for (var index = 0; index < Balance.Cost.Length; index++) {
-                var itemAmount = Balance.Cost[index];
-                Cost.Add(itemAmount);
+                var itemCost = Balance.Cost[index];
+                Cost.Add(itemCost);
             }
         }
 
@@ -80,8 +80,8 @@ namespace TeklySample.Game.Generators
             State = mode == GeneratorMode.Automated ? GeneratorState.Running : GeneratorState.Idle;
             
             for (var index = 0; index < Balance.Cost.Length; index++) {
-                var itemAmount = Balance.Cost[index];
-                Cost.Add(itemAmount);
+                var itemCost = Balance.Cost[index];
+                Cost.Add(itemCost);
             }
         }
 

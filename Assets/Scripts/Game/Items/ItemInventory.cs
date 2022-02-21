@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Tekly.Balance;
+using Tekly.Common.Utils;
 
 namespace TeklySample.Game.Items
 {
@@ -45,14 +46,14 @@ namespace TeklySample.Game.Items
             item.Count += count;
         }
 
-        public void Spend(List<ItemCount> items, double count = 1)
+        public void Spend(List<Quantity<ItemBalance>> items, double count = 1)
         {
             foreach (var itemCount in items) {
                 ModifyCount(itemCount.Value.Id, -itemCount.Count * count);
             }
         }
         
-        public bool CanSpend(List<ItemCount> items, double count = 1)
+        public bool CanSpend(List<Quantity<ItemBalance>> items, double count = 1)
         {
             foreach (var itemCount in items) {
                 var inventoryItem = Get(itemCount.Value.Id);
@@ -78,9 +79,9 @@ namespace TeklySample.Game.Items
             };
         }
 
-        private InventoryItem CreateItem(string itemId, double amount = 0)
+        private InventoryItem CreateItem(string itemId, double count = 0)
         {
-            return new InventoryItem(m_balanceManager.Get<ItemBalance>(itemId), amount);
+            return new InventoryItem(m_balanceManager.Get<ItemBalance>(itemId), count);
         }
     }
 

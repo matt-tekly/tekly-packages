@@ -26,6 +26,9 @@ namespace Tekly.Logging
         private static readonly ConcurrentDictionary<Type, TkLogger> s_loggers = new ConcurrentDictionary<Type, TkLogger>();
         private static readonly ThreadLocal<StringBuilder> s_stringBuilders = new ThreadLocal<StringBuilder>(() => new StringBuilder(512));
         private static readonly TkLogLevelsTree s_levelsTree = new TkLogLevelsTree();
+
+        private static int s_frame;
+        private static float s_realtimeSinceStartup;
         
         public static TkLogger Get<T>()
         {
@@ -63,6 +66,8 @@ namespace Tekly.Logging
             s_unityLogDestination = new UnityLogDestination();
             Application.logMessageReceivedThreaded += HandleUnityLog;
             LifeCycle.Instance.Update += Update;
+
+            UpdateCommonProperties();
         }
 
         private static void LoadResourcesConfig()
@@ -90,16 +95,22 @@ namespace Tekly.Logging
         {
             s_levelsTree.Initialize(loggerConfig.DefaultProfile.Levels);
         }
+
+        public static void UpdateCommonProperties()
+        {
+            SetValue("_frame", Time.frameCount);
+            SetValue("_realTime", Time.realtimeSinceStartup);
+        }
         
         private static void Update()
         {
             if (EnableUnityLogger) {
                 s_unityLogDestination.Update();
             }
-            
-            SetValue("_frame", Time.frameCount);
-            SetValue("_realTime", Time.realtimeSinceStartup);
 
+            s_frame = Time.frameCount;
+            s_realtimeSinceStartup = Time.realtimeSinceStartup;
+            
             foreach (var destination in Destinations) {
                 destination.Update();
             }

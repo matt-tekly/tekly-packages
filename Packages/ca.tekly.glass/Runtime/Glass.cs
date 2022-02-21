@@ -7,6 +7,7 @@ namespace Tekly.Glass
     public class Glass : MonoBehaviour
     {
         [SerializeField] private LayerManager m_layerManager;
+        [SerializeField] private PanelProvider m_panelProvider;
 
         public async Task<T> DisplayModal<T>(string modalId) where T : Component
         {
@@ -23,6 +24,16 @@ namespace Tekly.Glass
             modalLayer.Add(instance);
 
             return instance;
+        }
+
+        public Layer GetLayer(string id)
+        {
+            return m_layerManager.Get(id);
+        }
+        
+        public Task<LoadedPanel> GetPanel(string id)
+        {
+            return m_panelProvider.Get(id);
         }
     }
 }

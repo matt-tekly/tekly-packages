@@ -1,5 +1,6 @@
 using Tekly.Balance;
 using Tekly.Content;
+using Tekly.Glass;
 using Tekly.Injectors;
 using Tekly.TreeState.StandardActivities;
 using UnityEngine;
@@ -8,6 +9,8 @@ namespace TeklySample.App
 {
     public class AppCore : MonoBehaviour, IInjectionProvider
     {
+        public Glass Glass;
+        
         private RootDataModel m_rootDataModel;
         
         public void Provide(InjectorContainer container)
@@ -21,6 +24,8 @@ namespace TeklySample.App
 
             m_rootDataModel = new RootDataModel(balanceManager);
             container.Register(m_rootDataModel);
+            
+            container.Register(Glass);
         }
 
         public void Update()

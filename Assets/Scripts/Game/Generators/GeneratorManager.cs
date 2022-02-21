@@ -16,8 +16,8 @@ namespace TeklySample.Game.Generators
     public class GeneratorManager
     {
         public readonly List<Generator> Generators = new List<Generator>();
-        
         private readonly ItemInventory m_inventory;
+        private readonly GeneratorSimulationResult m_simulationResult = new GeneratorSimulationResult();
         
         public GeneratorManager(WorldBalance worldBalance, ItemInventory inventory, GeneratorsSave save)
         {
@@ -48,15 +48,13 @@ namespace TeklySample.Game.Generators
 
         public void ApplyTime(float elapsedTime)
         {
-            var result = new GeneratorSimulationResult();
-            
             for (var index = Generators.Count - 1; index >= 0; index--) {
                 var generator = Generators[index];
-                result.Reset();
+                m_simulationResult.Reset();
                 
-                generator.SimulateTime(elapsedTime, result);
+                generator.SimulateTime(elapsedTime, m_simulationResult);
 
-                foreach (var generatedItem in result.GeneratedItems) {
+                foreach (var generatedItem in m_simulationResult.GeneratedItems) {
                     var inventoryItem = m_inventory.Get(generatedItem.Value.Id);
                     inventoryItem.Count += generatedItem.Count;
                 }

@@ -4,6 +4,7 @@ namespace Tekly.Balance
 {
     public class BalanceObject : ScriptableObject
     {
-        public string Id => name;
+        private string m_id;
+        public string Id => m_id ??= name;
     }
 }
