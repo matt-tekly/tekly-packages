@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using Tekly.Common.Utils;
 using Tekly.Logging;
 
 namespace Tekly.Localizations
 {
-    public class Localizer
+    public class Localizer : Singleton<Localizer, ILocalizer>, ILocalizer
     {
         private LocalizationData m_localizationData;
         private readonly Dictionary<string, LocalizationString> m_strings = new Dictionary<string, LocalizationString>();
 
         private readonly TkLogger m_logger = TkLogger.Get<Localizer>();
-
-        public static readonly Localizer Instance = new Localizer();
-
+        
         private readonly (string, object)[] m_emptyData = Array.Empty<(string, object)>();
         
         public void Clear()

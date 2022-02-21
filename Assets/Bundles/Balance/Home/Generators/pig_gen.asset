@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005de4c6d7f0410fa369ce7257c5b8b2, type: 3}
+  m_Name: pig_gen
+  m_EditorClassIdentifier: 
+  Item: {fileID: 11400000, guid: 3fc9093c5cc0b7f468f219bcec441cbd, type: 2}
+  CompletionTime: 4
+  ItemGeneration:
+    Value: {fileID: 11400000, guid: f619264ffe603754090f4b7069c109ee, type: 2}
+    Count: 4
+  Cost:
+  - Value: {fileID: 11400000, guid: f619264ffe603754090f4b7069c109ee, type: 2}
+    Count: 1
+  - Value: {fileID: 11400000, guid: a0d7d4a60817087478135b338d788f0a, type: 2}
+    Count: 10
+  - Value: {fileID: 11400000, guid: 45760d91ced160b40809bd4d98480a8a, type: 2}
+    Count: 1

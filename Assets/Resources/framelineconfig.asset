@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ee7fca1c691f3b4f8c5b7358a5e2a35, type: 3}
+  m_Name: framelineconfig
+  m_EditorClassIdentifier: 
+  Config:
+    Events:
+    - Color: '#ff6b6b'
+      Id: Event 1
+    - Color: '#d5703f'
+      Id: Event 2
+    - Color: '#a57324'
+      Id: Event 3
+    - Color: '#76701f'
+      Id: Event 4
+    - Color: '#4d672a'
+      Id: Event 5
+    - Color: '#295b36'
+      Id: Event 6
+    - Color: '#074d3d'
+      Id: Event 7
+    - Color: '#003d3d'
+      Id: Event 8
+    GeneralEvent:
+      Color: '#7C7C7CFF'
+      Id: General
+    LongFrameTimeMs: 70

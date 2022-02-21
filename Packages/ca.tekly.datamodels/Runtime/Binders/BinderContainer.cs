@@ -13,7 +13,7 @@ namespace Tekly.DataModels.Binders
 {
     public class BinderContainer : Binder
     {
-        [FormerlySerializedAs("Key2")] public ModelRef Key;
+        public ModelRef Key;
         
         public bool BindOnEnable;
 
@@ -55,6 +55,10 @@ namespace Tekly.DataModels.Binders
         public void Bind()
         {
             m_hasBound = true;
+
+            if (string.IsNullOrEmpty(GetKey())) {
+                return;
+            }
             
             foreach (var binder in Binders) {
                 if (binder == null) {
@@ -139,6 +143,10 @@ namespace Tekly.DataModels.Binders
         {
             var selfKey = ModelKey.Parse(GetKey());
 
+            if (selfKey == null) {
+                return "";
+            }
+            
             var container = this.GetComponentInAncestor<BinderContainer>();
             
             if (selfKey.IsRelative && container == null) {

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Tekly.DataModels.Binders
 {
-    public class Binder : MonoBehaviour
+    public abstract class Binder : MonoBehaviour
     {
         public virtual void Bind(BinderContainer container)
         {
@@ -16,12 +16,7 @@ namespace Tekly.DataModels.Binders
         public virtual string ResolveFullKey(string key)
         {
             var container = GetComponentInParent<BinderContainer>();
-            
-            if (container == null) {
-                return key;
-            }
-
-            return container.ResolveFullKey(key);
+            return container == null ? key : container.ResolveFullKey(key);
         }
     }
 }

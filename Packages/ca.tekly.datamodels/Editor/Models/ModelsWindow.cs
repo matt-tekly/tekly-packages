@@ -80,6 +80,10 @@ namespace Tekly.DataModels.Models
                 if (value is BasicValueModel basicValueModel) {
                     entry.Value = new GUIContent(basicValueModel.ToDisplayString());
                 }
+                
+                if (value is IValueModel valueModel) {
+                    entry.Value = new GUIContent(valueModel.ToDisplayString());
+                }
             
                 entries.Add(entry);
 

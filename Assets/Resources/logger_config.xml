@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LoggerConfig>
+    <DefaultProfile Name="Default">
+        <Levels Logger="*" Level="Info" />
+    </DefaultProfile>
+</LoggerConfig>

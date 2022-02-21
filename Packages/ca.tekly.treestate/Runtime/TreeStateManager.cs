@@ -82,10 +82,9 @@ namespace Tekly.TreeState
 			if (SetLoggerParams) {
 				TkLogger.SetValue("_state", treeActivity.name);
 				TkLogger.SetValue("_stateActivity", treeActivity.TypeName);
-				TkLogger.SetValue("_stateMode", treeActivity.Mode);	
+				TkLogger.SetValue("_stateMode", treeActivity.Mode);
 			}
-			
-			
+
 			if (LogActivityChanges) {
 				m_logger.Info($"[{treeActivity.Name}] -> [{treeActivity.Mode}]");	
 			}

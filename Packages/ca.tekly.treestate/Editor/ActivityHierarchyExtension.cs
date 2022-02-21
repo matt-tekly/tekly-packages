@@ -2,6 +2,7 @@
 // Copyright 2021 Matt King
 // ============================================================================
 using Tekly.Common;
+using Tekly.TreeState.StandardActivities;
 using UnityEditor;
 using UnityEngine;
 
@@ -64,9 +65,25 @@ namespace Tekly.TreeState
 				var content = EditorGUIUtility.ObjectContent(activity, typeof(TreeActivity));
 				
 				GUI.DrawTexture(imageRect, content.image);
-				
+
+				DrawInjectionContainer(imageRect, activity);
 				DrawWarning(imageRect, activity);
 			}
+		}
+		
+		private static Rect DrawInjectionContainer(Rect imageRect, TreeActivity activity)
+		{
+			var injectorContainerState = activity.GetComponent<InjectorContainerState>();
+			if (injectorContainerState != null) {
+				imageRect.xMin -= 16;
+				imageRect.width = 16;
+				imageRect.height = 16;
+				
+				var content = EditorGUIUtility.ObjectContent(injectorContainerState, typeof(InjectorContainerState));
+				GUI.DrawTexture(imageRect, content.image);
+			}
+			
+			return imageRect;
 		}
 
 		private static void DrawWarning(Rect imageRect, TreeActivity activity)

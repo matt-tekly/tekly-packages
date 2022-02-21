@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5f7f3bb1fed4d44b2f7fdb1c9a78af0, type: 3}
+  m_Name: home_world
+  m_EditorClassIdentifier: 
+  Generators:
+  - Generator: {fileID: 11400000, guid: 23a35fc7acd189049a3897a5a0310f17, type: 2}
+    StartingCount: 1
+    StartingMode: 1
+  - Generator: {fileID: 11400000, guid: 10dfdfef7f451534ba85d1898fe3687e, type: 2}
+    StartingCount: 1
+    StartingMode: 0
+  - Generator: {fileID: 11400000, guid: 85cca45e645aa1c4d9377d1e10acadaf, type: 2}
+    StartingCount: 0
+    StartingMode: 0
+  - Generator: {fileID: 11400000, guid: 8e05d353d79be254584ec81b21d51ae4, type: 2}
+    StartingCount: 0
+    StartingMode: 0
+  - Generator: {fileID: 11400000, guid: be3f905cefc6b1f4d94b467f5e452ed0, type: 2}
+    StartingCount: 0
+    StartingMode: 0
+  - Generator: {fileID: 11400000, guid: 0ee37477e7fc10649b2ba93c6eb27c85, type: 2}
+    StartingCount: 0
+    StartingMode: 0

@@ -12,4 +12,9 @@ namespace Tekly.DataModels.Models
         void Tick();
         void ToJson(StringBuilder sb);
     }
+    
+    public interface IValueModel : IModel
+    {
+        string ToDisplayString();
+    }
 }

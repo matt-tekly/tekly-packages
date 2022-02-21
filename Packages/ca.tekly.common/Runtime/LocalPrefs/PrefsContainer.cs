@@ -5,7 +5,7 @@ namespace Tekly.Common.LocalPrefs
 {
     public class PrefsContainer
     {
-        private const float TIME_DIRTY_TO_SAVE = 0.25f;
+        private const float DURATION_DIRTY_TO_SAVE = 0.25f;
         
         private bool m_dirty;
         private float m_timeMarkedDirty;
@@ -68,7 +68,7 @@ namespace Tekly.Common.LocalPrefs
                 return;
             }
 
-            if (m_timeMarkedDirty >= TIME_DIRTY_TO_SAVE) {
+            if (m_timeMarkedDirty >= DURATION_DIRTY_TO_SAVE) {
                 Save();
             }
         }
