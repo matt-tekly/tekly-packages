@@ -64,27 +64,24 @@ namespace Tekly.DataModels.Models
             
             GUI.EndScrollView();
         }
-        
+
         private void CreateEntries(ObjectModel objectModel, List<ObjectEntry> entries, int depth = 0)
         {
-            var myEnumerator = objectModel.Models;
-            
-            while (myEnumerator.MoveNext()) {
-                myEnumerator.Current.Deconstruct(out var key, out var value);
+            foreach (var (key, value) in objectModel.Models) {
                 var entry = new ObjectEntry {
                     Id = new GUIContent(key, value.GetType().ToString()),
                     Type = value.GetType().ToString(),
                     Depth = depth
                 };
-                
+
                 if (value is BasicValueModel basicValueModel) {
                     entry.Value = new GUIContent(basicValueModel.ToDisplayString());
                 }
-                
+
                 if (value is IValueModel valueModel) {
                     entry.Value = new GUIContent(valueModel.ToDisplayString());
                 }
-            
+
                 entries.Add(entry);
 
                 if (value is ObjectModel model) {

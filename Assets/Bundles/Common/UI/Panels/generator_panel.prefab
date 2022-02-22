@@ -577,7 +577,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &154337208719987384
 RectTransform:
   m_ObjectHideFlags: 0
@@ -613,7 +613,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Key:
     Path: gameworld.generators.salt_gen
-  BindOnEnable: 1
+  BindOnEnable: 0
   Binders:
   - {fileID: 154337209352836377}
   - {fileID: 154337208102233932}

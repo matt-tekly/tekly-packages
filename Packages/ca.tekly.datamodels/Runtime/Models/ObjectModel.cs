@@ -6,25 +6,32 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Tekly.Common.Observables;
 
 namespace Tekly.DataModels.Models
 {
     public class ObjectModel : IModel
     {
         public static ObjectModel Instance;
-        
-        private readonly Dictionary<string, IModel> m_models = new Dictionary<string, IModel>(StringComparer.OrdinalIgnoreCase);
 
-        public Dictionary<string, IModel>.Enumerator Models => m_models.GetEnumerator();
+        public IReadOnlyDictionary<string, IModel> Models => m_models;
         
+        public int Count => m_models.Count;
+        public ITriggerable<ObjectModel> Modified => m_modified;
+        
+        protected readonly Dictionary<string, IModel> m_models = new Dictionary<string, IModel>(StringComparer.OrdinalIgnoreCase);
+        private Triggerable<ObjectModel> m_modified = new Triggerable<ObjectModel>();
+
         public void Add(string name, IModel model)
         {
             m_models.Add(name, model);
+            m_modified.Emit(this);
         }
 
         public void RemoveModel(string name)
         {
             m_models.Remove(name);
+            m_modified.Emit(this);
         }
 
         public bool TryGetModel(ModelKey modelKey, int index, out IModel model)

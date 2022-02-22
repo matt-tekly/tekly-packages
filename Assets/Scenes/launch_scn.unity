@@ -293,7 +293,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1755965124}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -528,11 +528,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a1c8f4a87e5455d9405f5044db37539, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GeneratorContainer: {fileID: 0}
-  GeneratorTemplate: {fileID: 0}
-  GeneratorPanel: generator_panel
-  GameWorldPanel: main_game_panel
-  GeneratorAttachment: generators_att
+  Panel: main_game_panel
   Layer: Game
 --- !u!114 &990922720
 MonoBehaviour:
@@ -804,6 +800,42 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1449270785
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1449270786}
+  m_Layer: 5
+  m_Name: PanelPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1449270786
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1449270785}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1755965124}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1606198007
 GameObject:
   m_ObjectHideFlags: 0
@@ -969,7 +1001,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1755965124}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -1083,6 +1115,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1449270786}
   - {fileID: 317918318}
   - {fileID: 1741229648}
   m_Father: {fileID: 0}
@@ -1105,6 +1138,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e355e6cb76e4a14bf4aa02a0bc036f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PoolContainer: {fileID: 1449270786}
   m_panels:
   - {fileID: 154337208719987391, guid: 6264441469e0be74fa61ecc4dfc98092, type: 3}
 --- !u!114 &1755965126
@@ -1135,7 +1169,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_layerManager: {fileID: 1755965126}
-  m_panelProvider: {fileID: 1755965125}
+  PanelsProvider: {fileID: 1755965125}
 --- !u!1 &2134060053
 GameObject:
   m_ObjectHideFlags: 0

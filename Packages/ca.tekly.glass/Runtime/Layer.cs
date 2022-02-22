@@ -16,7 +16,7 @@ namespace Tekly.Glass
 
         public void Remove(GameObject panel)
         {
-            gameObject.transform.parent = null;
+            
         }
         
         public void ApplySourceRect(RectTransform localTransform, RectTransform sourceTransform)

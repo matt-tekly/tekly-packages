@@ -3,6 +3,7 @@
 // ============================================================================
 
 using System;
+using System.Collections.Generic;
 using Tekly.Common.Utils;
 using Tekly.DataModels.Models;
 using Tekly.Logging;
@@ -17,13 +18,13 @@ namespace Tekly.DataModels.Binders
         
         public bool BindOnEnable;
 
-        public Binder[] Binders;
+        public List<Binder> Binders;
 
-        private BinderContainer m_container;
-        private TkLogger m_logger => TkLogger.Get<BinderContainer>();
+        protected BinderContainer m_container;
+        protected TkLogger m_logger => TkLogger.Get<BinderContainer>();
         
-        [NonSerialized] private string m_keyOverride = null;
-        [NonSerialized] private bool m_hasBound;
+        [NonSerialized] protected string m_keyOverride = null;
+        [NonSerialized] protected bool m_hasBound;
         
         public void OnEnable()
         {
@@ -40,7 +41,7 @@ namespace Tekly.DataModels.Binders
                 Bind();    
             }
         }
-        
+
         public override void Bind(BinderContainer container)
         {
             m_container = container;
@@ -52,7 +53,7 @@ namespace Tekly.DataModels.Binders
             return m_keyOverride ?? Key.Path;
         }
 
-        public void Bind()
+        public virtual void Bind()
         {
             m_hasBound = true;
 

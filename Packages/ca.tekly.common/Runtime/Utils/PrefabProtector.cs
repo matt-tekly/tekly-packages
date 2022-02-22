@@ -25,11 +25,33 @@ namespace Tekly.Common.Utils
             if (!UnityEditor.PrefabUtility.IsPartOfAnyPrefab(gameObject)) {
                 return component;
             }
+
+            var wasActive = gameObject.activeSelf;
             
             gameObject.SetActive(false);
             var instance = Object.Instantiate(component, GetContainer());
             instance.gameObject.name = gameObject.name;
-            gameObject.SetActive(true);
+            gameObject.SetActive(wasActive);
+
+            return instance;
+#else
+            Panel = panel;
+#endif
+        }
+        
+        public static T Protect<T>(T component, bool active) where T : Component
+        {
+#if UNITY_EDITOR
+            var gameObject = component.gameObject;
+            
+            if (!UnityEditor.PrefabUtility.IsPartOfAnyPrefab(gameObject)) {
+                return component;
+            }
+            
+            gameObject.SetActive(false);
+            var instance = Object.Instantiate(component, GetContainer());
+            instance.gameObject.name = gameObject.name;
+            gameObject.SetActive(active);
 
             return instance;
 #else
