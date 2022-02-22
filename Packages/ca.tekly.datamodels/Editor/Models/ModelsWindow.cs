@@ -74,18 +74,18 @@ namespace Tekly.DataModels.Models
                     Depth = depth
                 };
 
-                if (value is BasicValueModel basicValueModel) {
-                    entry.Value = new GUIContent(basicValueModel.ToDisplayString());
-                }
-
-                if (value is IValueModel valueModel) {
-                    entry.Value = new GUIContent(valueModel.ToDisplayString());
-                }
-
                 entries.Add(entry);
-
-                if (value is ObjectModel model) {
-                    CreateEntries(model, entries, depth + 1);
+                
+                switch (value) {
+                    case IValueModel valueModel:
+                        entry.Value = new GUIContent(valueModel.ToDisplayString());
+                        break;
+                    case ObjectModel model:
+                        CreateEntries(model, entries, depth + 1);
+                        break;
+                    default:
+                        entry.Value = new GUIContent("UNKNOWN TYPE");
+                        break;
                 }
             }
         }

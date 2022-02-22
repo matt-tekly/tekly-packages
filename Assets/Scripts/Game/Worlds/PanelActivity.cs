@@ -10,17 +10,17 @@ namespace TeklySample.Game.Worlds
     {
         public string Panel = "main_game_panel";
         public string Layer = "Game";
-        
+
         [Inject] private Glass m_glass;
-        
+
         private readonly TkLogger m_logger = TkLogger.Get<PanelActivity>();
         private bool m_isLoading;
 
         private PanelProvider m_panelProvider;
-        
+
         private Panel m_panelInstance;
         private Layer m_layer;
-        
+
         protected override bool IsDoneLoading()
         {
             return !m_isLoading;
@@ -31,7 +31,7 @@ namespace TeklySample.Game.Worlds
             m_isLoading = true;
             LoadAsync();
         }
-        
+
         protected override void UnloadingStarted()
         {
             if (m_panelProvider != null) {
@@ -47,7 +47,7 @@ namespace TeklySample.Game.Worlds
             try {
                 m_panelProvider = m_glass.GetPanel(Panel);
                 m_panelInstance = await m_panelProvider.Get();
-                
+
                 m_layer = m_glass.GetLayer(Layer);
                 m_layer.Add(m_panelInstance.gameObject);
 

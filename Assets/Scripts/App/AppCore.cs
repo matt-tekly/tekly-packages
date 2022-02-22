@@ -33,9 +33,4 @@ namespace TeklySample.App
             m_rootDataModel.Tick();
         }
     }
-
-    public class AppData
-    {
-        public string ActiveWorld = "home";
-    }
 }

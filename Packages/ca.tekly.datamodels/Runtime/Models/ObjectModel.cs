@@ -16,7 +16,6 @@ namespace Tekly.DataModels.Models
 
         public IReadOnlyDictionary<string, IModel> Models => m_models;
         
-        public int Count => m_models.Count;
         public ITriggerable<ObjectModel> Modified => m_modified;
         
         protected readonly Dictionary<string, IModel> m_models = new Dictionary<string, IModel>(StringComparer.OrdinalIgnoreCase);

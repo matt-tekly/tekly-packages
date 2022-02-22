@@ -17,7 +17,7 @@ namespace Tekly.DataModels.Models
         String
     }
     
-    public class BasicValueModel : IModel
+    public class BasicValueModel : IValueModel
     {
         public readonly ValueType Type;
         

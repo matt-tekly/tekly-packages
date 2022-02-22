@@ -57,3 +57,10 @@ The sample game is a simple idle game
 
 ## Addressables
 - Sort out content build process
+
+## Data Models
+- Add better data model window
+  - Should be searchable
+- Add markup to ObjectModels so we can display all model types in the model window
+- ListBinder needs a way to sort models for different types of sorting the UI might need
+  - Such as sorting things by date added, rarity or price

@@ -1,5 +1,4 @@
-﻿using System.IO.Compression;
-using Tekly.Balance;
+﻿using Tekly.Balance;
 using Tekly.Content;
 using Tekly.Injectors;
 using Tekly.Logging;
@@ -13,7 +12,6 @@ namespace TeklySample.Game.Worlds
         [Inject] private AppData m_appData;
         [Inject] private BalanceManager m_balanceManager;
         [Inject] private IContentProvider m_contentProvider;
-        [Inject] private RootDataModel m_rootDataModel;
         [Inject] private InjectorContainer m_injectorContainer;
 
         private readonly TkLogger m_logger = TkLogger.Get<GameWorldActivity>();
@@ -39,8 +37,6 @@ namespace TeklySample.Game.Worlds
 
         protected override void UnloadingStarted()
         {
-            m_rootDataModel.RemoveModel("gameworld");
-            
             m_balanceManager.RemoveContainer(m_balanceContainer);
             m_balanceContainer.Dispose();
         }
@@ -63,9 +59,6 @@ namespace TeklySample.Game.Worlds
             var worldBalance = m_balanceManager.Get<WorldBalance>($"{m_appData.ActiveWorld}_world");
             m_gameWorld = new GameWorld(m_balanceManager, worldBalance);
 
-            m_gameWorldModel = new GameWorldModel(m_gameWorld);
-            m_rootDataModel.Add("gameworld", m_gameWorldModel);
-            
             m_injectorContainer.Register(m_gameWorld);
         }
 
