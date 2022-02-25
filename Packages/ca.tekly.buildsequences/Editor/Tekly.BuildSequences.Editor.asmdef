@@ -1,0 +1,16 @@
+{
+    "name": "Tekly.BuildSequences.Editor",
+    "rootNamespace": "Tekly.BuildSequencers.Editor",
+    "references": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
