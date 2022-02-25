@@ -35,7 +35,7 @@ namespace Tekly.Common.Utils
 
             return instance;
 #else
-            Panel = panel;
+            return component;
 #endif
         }
         
@@ -55,7 +55,7 @@ namespace Tekly.Common.Utils
 
             return instance;
 #else
-            Panel = panel;
+            return component;
 #endif
         }
         
@@ -73,7 +73,7 @@ namespace Tekly.Common.Utils
 
             return instance;
 #else
-            Panel = panel;
+            return gameObject;
 #endif
         }
     }

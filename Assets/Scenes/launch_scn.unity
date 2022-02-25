@@ -1154,8 +1154,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PoolContainer: {fileID: 1449270786}
-  m_panels:
-  - {fileID: 154337208719987391, guid: 6264441469e0be74fa61ecc4dfc98092, type: 3}
+  m_panels: []
 --- !u!114 &1755965126
 MonoBehaviour:
   m_ObjectHideFlags: 0

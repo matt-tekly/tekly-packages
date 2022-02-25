@@ -14,6 +14,7 @@ The sample game is a simple idle game
 - Have unlocks that generate premium currency
     - Every x upgrades gives you premium currency to collect
 - Must support offline time generation
+- Buy multiplier
 
 ## Managers
 - Gacha mechanic to collect managers
@@ -23,6 +24,7 @@ The sample game is a simple idle game
 - Can be upgraded
     - You need to collect a certain amount of cards to upgrade them
     - Also costs premium currency
+- Manager gallery
 
 ## Missions
 - Manually defined
@@ -47,10 +49,11 @@ The sample game is a simple idle game
 - Organized into Layers and Panels that attach to Layers
   - Though they're called Layers they don't strictly stack
   - Layers could be used to organize the screen into different areas
+- Modals
 
 ## Localization
 - Barely implemented
-- Should handle pluralizing
+- Need to handle pluralizing words
 
 ## Client Builder
 - Need a build window
@@ -64,3 +67,7 @@ The sample game is a simple idle game
 - Add markup to ObjectModels so we can display all model types in the model window
 - ListBinder needs a way to sort models for different types of sorting the UI might need
   - Such as sorting things by date added, rarity or price
+
+## Tree States
+- Add Editor window for easier tracking of what is happening
+  - Maybe use TreeView example for this
