@@ -17,7 +17,22 @@ namespace Tekly.DataModels.Models
         String
     }
     
-    public class BasicValueModel : IValueModel
+    public class StringValueModel : BasicValueModel
+    {
+        public StringValueModel(string value) : base(value) { }
+    }
+    
+    public class NumberValueModel : BasicValueModel
+    {
+        public NumberValueModel(double value) : base(value) { }
+    }
+
+    public class BoolValueModel : BasicValueModel
+    {
+        public BoolValueModel(bool value) : base(value) { }
+    }
+    
+    public abstract class BasicValueModel : ModelBase, IValueModel
     {
         public readonly ValueType Type;
         
@@ -134,17 +149,7 @@ namespace Tekly.DataModels.Models
             }
         }
 
-        public void Dispose()
-        {
-            
-        }
-
-        public void Tick()
-        {
-            
-        }
-
-        public void ToJson(StringBuilder sb)
+        public override void ToJson(StringBuilder sb)
         {
             switch (Type) {
                 case ValueType.Bool:

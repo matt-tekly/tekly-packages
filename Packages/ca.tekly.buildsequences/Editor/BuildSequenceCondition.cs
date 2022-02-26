@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace Tekly.BuildSequence.Editor
+namespace Tekly.BuildSequences.Editor
 {
     [CreateAssetMenu(menuName = "Tekly/Build Sequences/Condition")]
     public class BuildSequenceCondition : ScriptableObject

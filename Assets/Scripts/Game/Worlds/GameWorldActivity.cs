@@ -1,9 +1,11 @@
 ﻿using Tekly.Balance;
+using Tekly.Common.LocalFiles;
 using Tekly.Content;
 using Tekly.Injectors;
 using Tekly.Logging;
 using Tekly.TreeState.StandardActivities;
 using TeklySample.App;
+using UnityEngine;
 
 namespace TeklySample.Game.Worlds
 {
@@ -39,6 +41,11 @@ namespace TeklySample.Game.Worlds
         {
             m_balanceManager.RemoveContainer(m_balanceContainer);
             m_balanceContainer.Dispose();
+
+            var saveData = m_gameWorld.ToSave();
+            var saveJson = JsonUtility.ToJson(saveData);
+            
+            LocalFile.WriteAllText($"saves/{m_appData.ActiveWorld}.json", saveJson);
         }
 
         private async void LoadAsync()
@@ -57,7 +64,17 @@ namespace TeklySample.Game.Worlds
         private void CreateGameWorld()
         {
             var worldBalance = m_balanceManager.Get<WorldBalance>($"{m_appData.ActiveWorld}_world");
-            m_gameWorld = new GameWorld(m_balanceManager, worldBalance);
+
+            GameWorldSave save = null;
+            
+            var saveFile = $"saves/{m_appData.ActiveWorld}.json";
+            
+            if (LocalFile.Exists(saveFile)) {
+                var saveJson = LocalFile.ReadAllText(saveFile);
+                save = JsonUtility.FromJson<GameWorldSave>(saveJson);
+            }
+
+            m_gameWorld = new GameWorld(m_balanceManager, worldBalance, save);
 
             m_injectorContainer.Register(m_gameWorld);
         }

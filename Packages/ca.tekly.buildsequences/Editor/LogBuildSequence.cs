@@ -1,7 +1,7 @@
 ﻿using UnityEditor.Build.Reporting;
 using UnityEngine;
 
-namespace Tekly.BuildSequence.Editor
+namespace Tekly.BuildSequences.Editor
 {
     [CreateAssetMenu(menuName = "Tekly/Build Sequences/Log")]
     public class LogBuildSequence : BuildSequence

@@ -64,6 +64,7 @@ namespace TeklySample.Game.Generators
             
             Mode = save.Mode;
             State = save.State;
+            RatioComplete = save.RatioComplete;
 
             for (var index = 0; index < Balance.Cost.Length; index++) {
                 var itemCost = Balance.Cost[index];
@@ -124,7 +125,9 @@ namespace TeklySample.Game.Generators
         {
             return new GeneratorSave {
                 RatioComplete = RatioComplete,
-                GeneratorId = Balance.Id
+                GeneratorId = Balance.Id,
+                State = State,
+                Mode = Mode
             };
         }
     }

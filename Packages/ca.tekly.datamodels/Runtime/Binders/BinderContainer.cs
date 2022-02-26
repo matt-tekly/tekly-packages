@@ -115,16 +115,16 @@ namespace Tekly.DataModels.Binders
                     var fullPath = ResolveFullKey(key);
                     
                     m_logger.ErrorContext(
-                        "Found model with key [{key} {full_path}] but was wrong type. Expected [{expected}] actual [{actual}]",
+                        "Found model with key [{key} {fullPath}] but was wrong type. Expected [{expected}] actual [{actual}]",
                         this,
                         ("key", key),
-                        ("full_path", fullPath), 
+                        ("fullPath", fullPath), 
                         ("expected", typeof(T)), 
                         ("actual", genericModel.GetType()));
                 }
             } else {
                 var fullPath = ResolveFullKey(key);
-                m_logger.ErrorContext("Failed to find model [{key} {full_path}]", this, ("key", key), ("full_path", fullPath));
+                m_logger.ErrorContext("Failed to find model [{key} {fullPath}]", this, ("key", key), ("fullPath", fullPath));
                 model = null;
             }
             

@@ -67,21 +67,22 @@ namespace Tekly.DataModels.Models
 
         private void CreateEntries(ObjectModel objectModel, List<ObjectEntry> entries, int depth = 0)
         {
-            foreach (var (key, value) in objectModel.Models) {
+            foreach (var modelReference in objectModel.Models) {
+                var childModel = modelReference.Model;
                 var entry = new ObjectEntry {
-                    Id = new GUIContent(key, value.GetType().ToString()),
-                    Type = value.GetType().ToString(),
+                    Id = new GUIContent(modelReference.Key, childModel.GetType().ToString()),
+                    Type = childModel.GetType().ToString(),
                     Depth = depth
                 };
 
                 entries.Add(entry);
                 
-                switch (value) {
-                    case IValueModel valueModel:
-                        entry.Value = new GUIContent(valueModel.ToDisplayString());
+                switch (childModel) {
+                    case IValueModel childValueModel:
+                        entry.Value = new GUIContent(childValueModel.ToDisplayString());
                         break;
-                    case ObjectModel model:
-                        CreateEntries(model, entries, depth + 1);
+                    case ObjectModel childObjectModel:
+                        CreateEntries(childObjectModel, entries, depth + 1);
                         break;
                     default:
                         entry.Value = new GUIContent("UNKNOWN TYPE");

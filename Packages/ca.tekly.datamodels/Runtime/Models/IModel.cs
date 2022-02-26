@@ -12,6 +12,11 @@ namespace Tekly.DataModels.Models
         void Tick();
         void ToJson(StringBuilder sb);
     }
+
+    public interface ITickable
+    {
+        void Tick();
+    }
     
     public interface IValueModel : IModel
     {

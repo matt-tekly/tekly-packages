@@ -22,7 +22,7 @@ namespace TeklySample.Game.Generators
         }
     }
     
-    public class GeneratorModel : ObjectModel
+    public class GeneratorModel : ObjectModel, ITickable
     {
         private readonly Generator m_generator;
         private readonly GeneratorManager m_generatorManager;

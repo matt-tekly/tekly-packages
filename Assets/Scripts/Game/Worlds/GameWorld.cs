@@ -17,10 +17,10 @@ namespace TeklySample.Game.Worlds
         public readonly GeneratorManager GeneratorManager;
         public readonly ItemInventory ItemInventory;
         
-        public GameWorld(BalanceManager balanceManager, WorldBalance worldBalance)
+        public GameWorld(BalanceManager balanceManager, WorldBalance worldBalance, GameWorldSave gameWorldSave)
         {
-            ItemInventory = new ItemInventory(balanceManager, null);
-            GeneratorManager = new GeneratorManager(worldBalance, ItemInventory, null);
+            ItemInventory = new ItemInventory(balanceManager, gameWorldSave?.Inventory);
+            GeneratorManager = new GeneratorManager(worldBalance, ItemInventory, gameWorldSave?.Generators);
         }
 
         public void Update()

@@ -17,7 +17,7 @@ namespace TeklySample.App
         }
     }
 
-    public class AppBalanceModel : ObjectModel
+    public class AppBalanceModel : ObjectModel,ITickable
     {
         private readonly BalanceManager m_balanceManager;
         private readonly StringValueModel m_version = new("x.x.x");

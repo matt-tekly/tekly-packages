@@ -38,9 +38,9 @@ namespace Tekly.DataModels.Binders
         {
             Clear();
 
-            foreach (var (key, value) in objectModel.Models) {
+            foreach (var modelReference in objectModel.Models) {
                 var instance = Instantiate(m_template, Container);
-                instance.Key.Path = $"*.{key}";
+                instance.Key.Path = $"*.{modelReference.Key}";
                 instance.gameObject.SetActive(true);
 
                 m_instances.Add(instance);
@@ -52,27 +52,15 @@ namespace Tekly.DataModels.Binders
         {
             foreach (var instance in m_instances) {
                 Binders.Remove(instance);
-                Destroy(instance);
+                Destroy(instance.gameObject);
             }
+            
+            m_instances.Clear();
         }
 
         private void OnDestroy()
         {
             m_disposable?.Dispose();
-        }
-
-        private static readonly Dictionary<int, string> s_intPaths = new Dictionary<int, string>(100);
-
-        private static string GetKeyPath(int index)
-        {
-            if (s_intPaths.TryGetValue(index, out var path)) {
-                return path;
-            }
-            
-            path = $"*.{index}";
-            s_intPaths[index] = path;
-
-            return path;
         }
     }
 }

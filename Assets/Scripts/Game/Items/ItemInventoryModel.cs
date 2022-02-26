@@ -11,7 +11,7 @@ namespace TeklySample.Game.Items
             m_inventory = inventory;
         }
 
-        public override bool TryGetModel(string modelKey, out IModel model)
+        protected override bool TryGetModel(string modelKey, out IModel model)
         {
             if (!base.TryGetModel(modelKey, out model)) {
                 var inventoryItemModel = new InventoryItemModel(m_inventory.Get(modelKey));
@@ -23,7 +23,7 @@ namespace TeklySample.Game.Items
         }
     }
     
-    public class InventoryItemModel : ObjectModel
+    public class InventoryItemModel : ObjectModel, ITickable
     {
         private readonly InventoryItem m_item;
         

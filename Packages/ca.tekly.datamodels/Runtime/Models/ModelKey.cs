@@ -28,6 +28,14 @@ namespace Tekly.DataModels.Models
                 return modelKey;
             }
 
+            modelKey = ParseUncached(key);
+            s_cache.Add(key, modelKey);
+
+            return modelKey;
+        }
+
+        public static ModelKey ParseUncached(string key)
+        {
             string[] keys = key.Split('.');
 
             bool isRelative = key[0] == '*';
@@ -38,10 +46,7 @@ namespace Tekly.DataModels.Models
                 Array.Copy(oldKeys, 1, keys, 0, keys.Length);
             }
 
-            modelKey = new ModelKey(keys, isRelative);
-            s_cache.Add(key, modelKey);
-
-            return modelKey;
+            return new ModelKey(keys, isRelative);
         }
 
         public static string StripRelativePrefix(string key)
@@ -53,6 +58,6 @@ namespace Tekly.DataModels.Models
             return key.Substring(2);
         }
 
-        private static Dictionary<string, ModelKey> s_cache = new Dictionary<string, ModelKey>();
+        private static readonly Dictionary<string, ModelKey> s_cache = new Dictionary<string, ModelKey>();
     }
 }

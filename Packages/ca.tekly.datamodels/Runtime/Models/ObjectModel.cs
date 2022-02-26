@@ -2,34 +2,63 @@
 // Copyright 2021 Matt King
 // ============================================================================
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Tekly.Common.Observables;
 
 namespace Tekly.DataModels.Models
 {
-    public class ObjectModel : IModel
+    public enum ReferenceType
+    {
+        Owner,
+        Shared
+    }
+    
+    public struct ModelReference
+    {
+        public readonly IModel Model;
+        public readonly ReferenceType ReferenceType;
+        public readonly string Key;
+        public readonly int Hash;
+        
+        public ModelReference(IModel model, ReferenceType referenceType, string key, int hash)
+        {
+            Model = model;
+            ReferenceType = referenceType;
+            Key = key;
+            Hash = hash;
+        }
+    }
+    
+    // TODO: Make ObjectModel sortable
+    
+    public class ObjectModel : ModelBase
     {
         public static ObjectModel Instance;
 
-        public IReadOnlyDictionary<string, IModel> Models => m_models;
+        public IReadOnlyList<ModelReference> Models => m_models;
         
         public ITriggerable<ObjectModel> Modified => m_modified;
         
-        protected readonly Dictionary<string, IModel> m_models = new Dictionary<string, IModel>(StringComparer.OrdinalIgnoreCase);
-        private Triggerable<ObjectModel> m_modified = new Triggerable<ObjectModel>();
+        private readonly Triggerable<ObjectModel> m_modified = new Triggerable<ObjectModel>();
 
-        public void Add(string name, IModel model)
+        private readonly List<ModelReference> m_models = new List<ModelReference>(8);
+
+        public void Add(string name, IModel model, ReferenceType referenceType = ReferenceType.Owner)
         {
-            m_models.Add(name, model);
+            m_models.Add(new ModelReference(model, referenceType, name, name.GetHashCode()));
             m_modified.Emit(this);
         }
 
         public void RemoveModel(string name)
         {
-            m_models.Remove(name);
+            for (var index = 0; index < m_models.Count; index++) {
+                var modelReference = m_models[index];
+                if (modelReference.Key == name) {
+                    m_models.RemoveAt(index);
+                }
+            }
+            
             m_modified.Emit(this);
         }
 
@@ -57,50 +86,41 @@ namespace Tekly.DataModels.Models
             return false;
         }
 
-        public virtual bool TryGetModel(string modelKey, out IModel model)
+        protected virtual bool TryGetModel(string modelKey, out IModel model)
         {
-            return m_models.TryGetValue(modelKey, out model);
+            for (var index = 0; index < m_models.Count; index++) {
+                var modelReference = m_models[index];
+                if (modelReference.Key == modelKey) {
+                    model = modelReference.Model;
+                    return true;
+                }
+            }
+            
+            model = null;
+            return false;
         }
 
-        public void Dispose()
+        protected override void OnDispose()
         {
-            OnDispose();
-            
-            foreach (var model in m_models.Values) {
-                model.Dispose();
+            for (var index = 0; index < m_models.Count; index++) {
+                var modelReference = m_models[index];
+                if (modelReference.ReferenceType == ReferenceType.Owner) {
+                    modelReference.Model.Dispose();    
+                }
             }
         }
 
-        public void Tick()
-        {
-            OnTick();
-            
-            foreach (var value in m_models.Values) {
-                value.Tick();
-            }
-        }
-        
-        protected virtual void OnTick()
-        {
-            
-        }
-
-        protected virtual void OnDispose()
-        {
-            
-        }
-
-        public virtual void ToJson(StringBuilder stringBuilder)
+        public override void ToJson(StringBuilder stringBuilder)
         {
             stringBuilder.Append("{");
             
-            var keys = m_models.Keys.ToArray();
-            for (int i = 0; i < keys.Length; i++) {
-                var model = m_models[keys[i]];
-                stringBuilder.Append($"\"{keys[i]}\":");
-                model.ToJson(stringBuilder);
+            for (var index = 0; index < m_models.Count; index++) {
+                var modelReference = m_models[index];
                 
-                if (i < keys.Length - 1) {
+                stringBuilder.Append($"\"{modelReference.Key}\":");
+                modelReference.Model.ToJson(stringBuilder);
+                
+                if (index < m_models.Count - 1) {
                     stringBuilder.Append(",");    
                 }
             }

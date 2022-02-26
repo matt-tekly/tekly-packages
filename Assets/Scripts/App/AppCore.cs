@@ -1,5 +1,6 @@
 using Tekly.Balance;
 using Tekly.Content;
+using Tekly.DataModels.Models;
 using Tekly.Glass;
 using Tekly.Injectors;
 using Tekly.TreeState.StandardActivities;
@@ -30,7 +31,7 @@ namespace TeklySample.App
 
         public void Update()
         {
-            m_rootDataModel.Tick();
+            ModelManager.Instance.Tick();
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace Tekly.BuildSequence.Editor
+namespace Tekly.BuildSequences.Editor
 {
     [CreateAssetMenu(menuName = "Tekly/Build Sequences/Sequencer")]
     public class BuildSequencer : ScriptableObject

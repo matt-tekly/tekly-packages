@@ -67,6 +67,9 @@ The sample game is a simple idle game
 - Add markup to ObjectModels so we can display all model types in the model window
 - ListBinder needs a way to sort models for different types of sorting the UI might need
   - Such as sorting things by date added, rarity or price
+- Need a way to store a model in multiple ObjectModels
+  - As is a model in an ObjectModel will be disposed the ObjectModel is disposed
+  - This doesn't work well if you need a sorted collection
 
 ## Tree States
 - Add Editor window for easier tracking of what is happening
