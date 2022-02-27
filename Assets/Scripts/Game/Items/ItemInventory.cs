@@ -66,6 +66,20 @@ namespace TeklySample.Game.Items
             return true;
         }
 
+        public double PurchasableCount(List<Quantity<ItemBalance>> items)
+        {
+            var count = double.MaxValue;
+            
+            foreach (var itemCount in items) {
+                var inventoryItem = Get(itemCount.Value.Id);
+
+                var divisibleCount = Math.Floor(inventoryItem.Count / itemCount.Count);
+                count = Math.Min(count, divisibleCount);
+            }
+
+            return count;
+        }
+
         public void SetCount(string itemName, double count)
         {
             var item = Get(itemName);

@@ -76,11 +76,12 @@ namespace TeklySample.Game.Generators
 
         public double CalculateAffordableCount(Generator generator)
         {
-            if (m_inventory.CanSpend(generator.Cost, 1)) {
-                return 1;
-            }
-
-            return 0;
+            return m_inventory.PurchasableCount(generator.Cost);
+            // if (m_inventory.CanSpend(generator.Cost, 1)) {
+            //     return 1;
+            // }
+            //
+            // return 0;
         }
     }
 }

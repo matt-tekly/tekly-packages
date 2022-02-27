@@ -1,4 +1,5 @@
-﻿using Tekly.Balance;
+﻿using System;
+using Tekly.Balance;
 using Tekly.Common.LocalFiles;
 using Tekly.Content;
 using Tekly.Injectors;
@@ -42,6 +43,16 @@ namespace TeklySample.Game.Worlds
             m_balanceManager.RemoveContainer(m_balanceContainer);
             m_balanceContainer.Dispose();
 
+            Save();
+        }
+
+        private void OnApplicationQuit()
+        {
+            Save();
+        }
+
+        private void Save()
+        {
             var saveData = m_gameWorld.ToSave();
             var saveJson = JsonUtility.ToJson(saveData);
             

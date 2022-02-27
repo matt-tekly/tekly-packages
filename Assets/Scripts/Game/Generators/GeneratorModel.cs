@@ -1,6 +1,8 @@
-﻿using Tekly.DataModels.Models;
+﻿using Tekly.Common.Utils;
+using Tekly.DataModels.Models;
 using Tekly.Localizations;
 using TeklySample.Game.Items;
+using TeklySample.Game.Worlds.BuyMultipliers;
 
 namespace TeklySample.Game.Generators
 {
@@ -26,7 +28,8 @@ namespace TeklySample.Game.Generators
     {
         private readonly Generator m_generator;
         private readonly GeneratorManager m_generatorManager;
-        
+        private readonly BuyMultiplier m_buyMultiplier;
+
         private readonly StringValueModel m_name = new StringValueModel("");
         private readonly NumberValueModel m_progress = new NumberValueModel(0);
         private readonly NumberValueModel m_timeRemaining = new NumberValueModel(0);
@@ -39,11 +42,14 @@ namespace TeklySample.Game.Generators
         
         private readonly StringValueModel m_itemId = new StringValueModel("");
         private readonly ItemCountModel m_generation;
+
+        private readonly DisposableList m_disposableList = new DisposableList();
         
-        public GeneratorModel(Generator generator, GeneratorManager generatorManager)
+        public GeneratorModel(Generator generator, GeneratorManager generatorManager, BuyMultiplier buyMultiplier)
         {
             m_generator = generator;
             m_generatorManager = generatorManager;
+            m_buyMultiplier = buyMultiplier;
 
             m_generation = new ItemCountModel(generator.GenerationItem);
 
@@ -61,15 +67,14 @@ namespace TeklySample.Game.Generators
             m_name.AsString = Localizer.Instance.Localize(generator.Balance.Item.NameId);
             m_itemId.AsString = m_generator.InventoryItem.ItemId;
             m_iconModel.Value = m_generator.Balance.Item.Icon;
-            
-            m_runButton.Activation += RunButtonOnActivation;
-            m_buyButton.Activation += BuyButtonOnActivation;
+
+            m_runButton.Activated.Subscribe(RunButtonOnActivation).AddTo(m_disposableList);
+            m_buyButton.Activated.Subscribe(BuyButtonOnActivation).AddTo(m_disposableList);
         }
 
         protected override void OnDispose()
         {
-            m_runButton.Activation -= RunButtonOnActivation;
-            m_buyButton.Activation -= BuyButtonOnActivation;
+            m_disposableList.Dispose();
         }
         
         protected override void OnTick()
@@ -80,7 +85,7 @@ namespace TeklySample.Game.Generators
             m_count.AsDouble = m_generator.Count;
             m_generation.Count = m_generator.GenerationCount;
 
-            var affordable = m_generatorManager.CalculateAffordableCount(m_generator);
+            var affordable = m_buyMultiplier.CalculateAffordableCount(m_generator);
 
             if (affordable <= 0) {
                 m_affordableCount.AsDouble = 1;
@@ -89,16 +94,16 @@ namespace TeklySample.Game.Generators
                 m_affordableCount.AsDouble = affordable;
                 m_buyButton.Interactable.AsBool = true;
             }
-            
         }
         
         private void RunButtonOnActivation(ButtonModel _)
         {
             m_generator.Run();
         }
+        
         private void BuyButtonOnActivation(ButtonModel _)
         {
-            m_generatorManager.Buy(m_generator, 1);
+            m_generatorManager.Buy(m_generator, m_affordableCount.AsDouble);
         }
     }
 }

@@ -2,6 +2,7 @@
 using Tekly.Balance;
 using TeklySample.Game.Generators;
 using TeklySample.Game.Items;
+using TeklySample.Game.Worlds.BuyMultipliers;
 
 namespace TeklySample.Game.Worlds
 {
@@ -10,17 +11,20 @@ namespace TeklySample.Game.Worlds
     {
         public ItemInventorySave Inventory;
         public GeneratorsSave Generators;
+        public BuyMultiplierSave BuyMultiplier;
     }
     
     public class GameWorld
     {
         public readonly GeneratorManager GeneratorManager;
         public readonly ItemInventory ItemInventory;
+        public readonly BuyMultiplier BuyMultiplier;
         
         public GameWorld(BalanceManager balanceManager, WorldBalance worldBalance, GameWorldSave gameWorldSave)
         {
             ItemInventory = new ItemInventory(balanceManager, gameWorldSave?.Inventory);
             GeneratorManager = new GeneratorManager(worldBalance, ItemInventory, gameWorldSave?.Generators);
+            BuyMultiplier = new BuyMultiplier(ItemInventory, gameWorldSave?.BuyMultiplier);
         }
 
         public void Update()
@@ -32,7 +36,8 @@ namespace TeklySample.Game.Worlds
         {
             return new GameWorldSave {
                 Inventory = ItemInventory.ToSave(),
-                Generators = GeneratorManager.ToSave()
+                Generators = GeneratorManager.ToSave(),
+                BuyMultiplier = BuyMultiplier.ToSave()
             };
         }
     }

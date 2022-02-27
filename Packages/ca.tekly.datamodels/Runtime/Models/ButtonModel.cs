@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Tekly.Common.Observables;
 
 namespace Tekly.DataModels.Models
 {
     public class ButtonModel : ObjectModel
     {
-        public event Action<ButtonModel> Activation;
-
         public readonly BoolValueModel Interactable = new BoolValueModel(true);
+        public ITriggerable<ButtonModel> Activated => m_activated;
+        
+        private readonly Triggerable<ButtonModel> m_activated = new Triggerable<ButtonModel>();
 
         public ButtonModel()
         {
@@ -15,7 +16,7 @@ namespace Tekly.DataModels.Models
 
         public void Activate()
         {
-            Activation?.Invoke(this);
+            m_activated.Emit(this);
         }
     }
 }
