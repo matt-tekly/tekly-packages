@@ -37,7 +37,7 @@ namespace TeklySample.Game.Worlds.BuyMultipliers
         protected override void OnTick()
         {
             if (m_multiplierMode != m_buyMultiplier.Mode) {
-                m_shortText.AsString = GetModeText(m_buyMultiplier.Mode);
+                m_shortText.Value = GetModeText(m_buyMultiplier.Mode);
                 m_multiplierMode = m_buyMultiplier.Mode;
             }
         }

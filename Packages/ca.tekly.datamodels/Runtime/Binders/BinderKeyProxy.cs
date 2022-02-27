@@ -19,14 +19,13 @@ namespace Tekly.DataModels.Binders
             }
         }
 
-        private void BindKey(BasicValueModel value)
+        private void BindKey(string value)
         {
             if (string.IsNullOrEmpty(KeyFormat)) {
-                Target.OverrideKey(value.AsString);    
+                Target.OverrideKey(value);    
             } else {
-                Target.OverrideKey(string.Format(KeyFormat, value.AsString));
+                Target.OverrideKey(string.Format(KeyFormat, value));
             }
-            
         }
         
         private void OnDestroy()

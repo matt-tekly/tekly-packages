@@ -6,19 +6,19 @@ namespace Tekly.DataModels.Models
     public abstract class ModelBase : IModel
     {
         private bool m_isDisposed;
-        
-        public ModelBase()
+
+        protected ModelBase()
         {
-            ModelManager.Instance.AddModel(this);    
+            ModelManager.Instance.AddModel(this);
         }
-        
+
         public void Dispose()
         {
             if (m_isDisposed) {
                 TkLogger.Get<ModelBase>().Error("ModelBase being disposed multiple times");
                 return;
             }
-            
+
             m_isDisposed = true;
             ModelManager.Instance.RemoveModel(this);
             OnDispose();
@@ -29,19 +29,10 @@ namespace Tekly.DataModels.Models
             OnTick();
         }
 
-        public virtual void ToJson(StringBuilder sb)
-        {
-            
-        }
+        public virtual void ToJson(StringBuilder sb) { }
 
-        protected virtual void OnTick()
-        {
-            
-        }
-        
-        protected virtual void OnDispose()
-        {
-            
-        }
+        protected virtual void OnTick() { }
+
+        protected virtual void OnDispose() { }
     }
 }

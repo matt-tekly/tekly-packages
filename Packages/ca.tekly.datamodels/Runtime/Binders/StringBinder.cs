@@ -23,9 +23,9 @@ namespace Tekly.DataModels.Binders
             }
         }
 
-        private void BindString(BasicValueModel value)
+        private void BindString(string value)
         {
-            Text.text = value.AsString;
+            Text.text = value;
         }
         
         private void OnDestroy()

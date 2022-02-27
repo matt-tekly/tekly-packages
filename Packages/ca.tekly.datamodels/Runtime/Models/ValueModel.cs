@@ -5,40 +5,47 @@ using Tekly.Common.Observables;
 
 namespace Tekly.DataModels.Models
 {
-    public class ValueModel<T> : ModelBase, IValueModel
+    public abstract class ValueModel<T> : ModelBase, IValueModel
     {
-        public T Value
+        public virtual T Value
         {
             get => m_value;
             set {
-                if (Equals(m_value, value)) {
+                if (ValueEquals(value)) {
                     return;
                 }
-                
+
                 m_value = value;
                 NotifyChanged();
             }
         }
-        
+
         private T m_value;
 
         private List<IValueObserver<T>> m_observers;
-        
+
+        protected ValueModel(T value)
+        {
+            m_value = value;
+        }
+
+        protected ValueModel() { }
+
         public IDisposable Subscribe(IValueObserver<T> observer)
         {
             if (m_observers == null) {
                 m_observers = new List<IValueObserver<T>>();
             }
-            
+
             m_observers.Add(observer);
-            
+
             var unsubscriber = new Unsubscriber<IValueObserver<T>>(observer, m_observers);
 
             observer.Changed(m_value);
 
             return unsubscriber;
         }
-        
+
         public IDisposable Subscribe(Action<T> observer)
         {
             return Subscribe(new ActionObserver<T>(observer));
@@ -49,12 +56,12 @@ namespace Tekly.DataModels.Models
             if (m_observers == null) {
                 return;
             }
-                
+
             foreach (var observer in m_observers) {
                 observer.Changed(m_value);
             }
         }
-        
+
         public override void ToJson(StringBuilder sb)
         {
             sb.Append("[UNIMPLEMENTED]");
@@ -64,5 +71,7 @@ namespace Tekly.DataModels.Models
         {
             return "[UNIMPLEMENTED]";
         }
+
+        protected abstract bool ValueEquals(T value);
     }
 }

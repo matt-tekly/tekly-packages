@@ -19,23 +19,22 @@ namespace Tekly.DataModels.Tests
 
             var model = new BoolValueModel(false);
             
-            var observer = Substitute.For<IValueObserver<BasicValueModel>>();
+            var observer = Substitute.For<IValueObserver<bool>>();
 
             var disposable = model.Subscribe(observer);
             
-            observer.Received(1).Changed(model);
+            observer.Received(1).Changed(model.Value);
             observer.ClearReceivedCalls();
 
-            model.AsBool = testValueA;
-            Assert.That(model.AsObject, Is.EqualTo(testValueA));
-            
-            observer.Received(1).Changed(model);
+            model.Value = testValueA;
+
+            observer.Received(1).Changed(model.Value);
             observer.ClearReceivedCalls();
             
             disposable.Dispose();
 
-            model.AsBool = testValueB;
-            Assert.That(model.AsBool, Is.EqualTo(testValueB));
+            model.Value = testValueB;
+            Assert.That(model.Value, Is.EqualTo(testValueB));
             
             observer.DidNotReceiveWithAnyArgs().Changed(default);
         }
@@ -48,23 +47,22 @@ namespace Tekly.DataModels.Tests
 
             var model = new NumberValueModel(0);
             
-            var observer = Substitute.For<IValueObserver<BasicValueModel>>();
+            var observer = Substitute.For<IValueObserver<double>>();
 
             var disposable = model.Subscribe(observer);
             
-            observer.Received(1).Changed(model);
+            observer.Received(1).Changed(model.Value);
             observer.ClearReceivedCalls();
 
-            model.AsDouble = testValueA;
-            Assert.That(model.AsObject, Is.EqualTo(testValueA));
-            
-            observer.Received(1).Changed(model);
+            model.Value = testValueA;
+
+            observer.Received(1).Changed(model.Value);
             observer.ClearReceivedCalls();
             
             disposable.Dispose();
 
-            model.AsDouble = testValueB;
-            Assert.That(model.AsDouble, Is.EqualTo(testValueB));
+            model.Value = testValueB;
+            Assert.That(model.Value, Is.EqualTo(testValueB));
             
             observer.DidNotReceiveWithAnyArgs().Changed(default);
         }
@@ -77,23 +75,23 @@ namespace Tekly.DataModels.Tests
 
             var model = new StringValueModel(null);
             
-            var observer = Substitute.For<IValueObserver<BasicValueModel>>();
+            var observer = Substitute.For<IValueObserver<string>>();
 
             var disposable = model.Subscribe(observer);
             
-            observer.Received(1).Changed(model);
+            observer.Received(1).Changed(model.Value);
             observer.ClearReceivedCalls();
 
-            model.AsString = testValueA;
-            Assert.That(model.AsString, Is.EqualTo(testValueA));
+            model.Value = testValueA;
+            Assert.That(model.Value, Is.EqualTo(testValueA));
             
-            observer.Received(1).Changed(model);
+            observer.Received(1).Changed(model.Value);
             observer.ClearReceivedCalls();
             
             disposable.Dispose();
 
-            model.AsString = testValueB;
-            Assert.That(model.AsString, Is.EqualTo(testValueB));
+            model.Value = testValueB;
+            Assert.That(model.Value, Is.EqualTo(testValueB));
             
             observer.DidNotReceiveWithAnyArgs().Changed(default);
         }

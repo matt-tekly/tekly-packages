@@ -54,11 +54,11 @@ namespace Tekly.DataModels.Binders
             }
         }
 
-        private void BindValue(BasicValueModel value)
+        private void BindValue(double value)
         {
             m_startTime = Time.time;
             m_startValue = m_currentValue;
-            m_destinationValue = value.AsDouble;
+            m_destinationValue = value;
             
             Text.text = m_currentValue.ToString(Format);
 

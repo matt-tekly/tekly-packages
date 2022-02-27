@@ -18,13 +18,13 @@ namespace Tekly.DataModels.Binders
         {
             if (container.TryGet(Key.Path, out BoolValueModel stringModel)) {
                 m_disposable?.Dispose();
-                m_disposable = stringModel.Subscribe(BindString);
+                m_disposable = stringModel.Subscribe(BindBool);
             }
         }
 
-        private void BindString(BasicValueModel value)
+        private void BindBool(bool value)
         {
-            var active = value.AsBool != Invert;
+            var active = value != Invert;
             
             foreach (var target in Targets) {
                 target.SetActive(active);

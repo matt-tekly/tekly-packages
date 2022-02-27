@@ -29,9 +29,9 @@ namespace Tekly.DataModels.Binders
             Text.text = span.ToString(Format);
         }
 
-        private void BindValue(BasicValueModel value)
+        private void BindValue(double value)
         {
-            m_endTime = DateTime.FromOADate(value.AsDouble);
+            m_endTime = DateTime.FromOADate(value);
         }
         
         private void OnDestroy()

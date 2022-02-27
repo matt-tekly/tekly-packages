@@ -20,9 +20,9 @@ namespace Tekly.DataModels.Binders
             }
         }
 
-        private void BindString(BasicValueModel value)
+        private void BindString(string value)
         {
-            InputField.SetTextWithoutNotify(value.AsString);
+            InputField.SetTextWithoutNotify(value);
         }
 
         private void Awake()
@@ -32,7 +32,7 @@ namespace Tekly.DataModels.Binders
 
         private void OnValueChanged(string value)
         {
-            m_model.AsString = value;
+            m_model.Value = value;
         }
     }
 }

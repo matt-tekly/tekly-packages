@@ -8,25 +8,25 @@ namespace Tekly.DataModels.Binders
     {
         public ModelRef Key;
         public RectTransform Rect;
-        
+
         public float AnimationTime = 0.2f;
-        
+
         public float StartValue;
         public float EndValue = 1;
-        
+
         public AnimationCurve Animation;
-        
+
         private IDisposable m_disposable;
 
         private float m_startTime;
-        
+
         private float m_startValue;
         private float m_currentValue;
         private float m_destinationValue;
 
         private bool m_animating;
         private bool m_hasReceivedValue;
-        
+
         public override void Bind(BinderContainer container)
         {
             if (container.TryGet(Key.Path, out NumberValueModel numberValue)) {
@@ -40,7 +40,7 @@ namespace Tekly.DataModels.Binders
             if (!m_animating) {
                 return;
             }
-            
+
             var ratio = Mathf.InverseLerp(m_startTime, m_startTime + AnimationTime, Time.time);
             var animatedRatio = Animation.Evaluate(ratio);
 
@@ -48,29 +48,29 @@ namespace Tekly.DataModels.Binders
             Set(m_currentValue);
 
             if (Time.time > m_startTime + AnimationTime) {
-                m_animating = false;    
+                m_animating = false;
             }
         }
 
-        private void BindValue(BasicValueModel value)
+        private void BindValue(double value)
         {
             if (AnimationTime <= 0) {
-                Set((float) value.AsDouble);
+                Set((float) value);
                 return;
             }
-            
+
             m_startTime = Time.time;
-            
+
             if (m_hasReceivedValue) {
                 m_startValue = m_currentValue;
-                m_destinationValue = (float) value.AsDouble;    
+                m_destinationValue = (float) value;
             } else {
-                m_currentValue = (float)value.AsDouble;
+                m_currentValue = (float) value;
                 m_startValue = m_currentValue;
                 m_destinationValue = m_currentValue;
                 m_hasReceivedValue = true;
             }
-            
+
             Set(m_currentValue);
 
             m_animating = true;
@@ -80,7 +80,7 @@ namespace Tekly.DataModels.Binders
         {
             Rect.anchorMax = new Vector2(Mathf.Lerp(StartValue, EndValue, value), 1);
         }
-        
+
         private void OnDestroy()
         {
             m_disposable?.Dispose();

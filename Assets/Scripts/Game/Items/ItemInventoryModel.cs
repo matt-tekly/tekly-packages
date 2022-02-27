@@ -35,7 +35,7 @@ namespace TeklySample.Game.Items
         public InventoryItemModel(InventoryItem item)
         {
             m_item = item;
-            m_name.AsString = m_item.NameId;
+            m_name.Value = m_item.NameId;
             m_icon.Value = item.Icon;
             
             Add("name", m_name);
@@ -45,7 +45,7 @@ namespace TeklySample.Game.Items
 
         protected override void OnTick()
         {
-            m_count.AsDouble = m_item.Count;
+            m_count.Value = m_item.Count;
         }
     }
 }

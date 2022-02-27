@@ -32,8 +32,8 @@ namespace TeklySample.App
         
         protected override void OnTick()
         {
-            m_version.AsString = m_balanceManager.Version;
-            m_initialized.AsBool = m_balanceManager.IsInitialized;
+            m_version.Value = m_balanceManager.Version;
+            m_initialized.Value = m_balanceManager.IsInitialized;
         }
     }
 }

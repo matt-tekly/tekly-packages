@@ -20,7 +20,7 @@ namespace Tekly.DataModels.Binders
         public TMP_Text Text;
 
         private object[] m_values;
-        private Listener[] m_listeners;
+        private IDisposable[] m_listeners;
 
         private bool m_canFormat;
         private readonly TkLogger m_logger = TkLogger.Get<FormattedStringBinder>();
@@ -29,7 +29,7 @@ namespace Tekly.DataModels.Binders
         {
             if (m_values == null) {
                 m_values = new object[Keys.Length];
-                m_listeners = new Listener[Keys.Length];
+                m_listeners = new IDisposable[Keys.Length];
             } else {
                 Dispose();
             }
@@ -39,11 +39,24 @@ namespace Tekly.DataModels.Binders
             for (var index = 0; index < Keys.Length; index++) {
                 var key = Keys[index].Path;
 
-                if (!container.TryGet(key, out BasicValueModel model)) {
+                if (!container.TryGet(key, out IValueModel model)) {
                     m_logger.ErrorContext("Failed to find Model: [{key}]", this, ("key", key));
                 }
-                
-                m_listeners[index] = Listener.Create(this, index, model, m_values);
+
+                switch (model) {
+                    case BoolValueModel valueModel:
+                        m_listeners[index] = Listener<bool>.Create(this, index, valueModel, m_values);
+                        break;
+                    case StringValueModel valueModel:
+                        m_listeners[index] = Listener<string>.Create(this, index, valueModel, m_values);
+                        break;
+                    case NumberValueModel valueModel:
+                        m_listeners[index] = Listener<double>.Create(this, index, valueModel, m_values);
+                        break;
+                    default:
+                        m_logger.ErrorContext("Unsupported Model Type", this);
+                        break;
+                }
             }
 
             m_canFormat = true;
@@ -73,7 +86,7 @@ namespace Tekly.DataModels.Binders
             }
         }
 
-        private class Listener : IValueObserver<BasicValueModel>, IDisposable
+        private class Listener<T> : IValueObserver<T>, IDisposable
         {
             private FormattedStringBinder m_owner;
             private IDisposable m_disposable;
@@ -81,15 +94,15 @@ namespace Tekly.DataModels.Binders
             private int m_index;
             private object[] m_values;
             
-            public void Changed(BasicValueModel value)
+            public void Changed(T value)
             {
-                m_values[m_index] = value.AsObject;
+                m_values[m_index] = value;
                 m_owner.FormatString();
             }
 
-            public static Listener Create(FormattedStringBinder owner, int index, BasicValueModel valueModel, object[] values)
+            public static IDisposable Create(FormattedStringBinder owner, int index, ValueModel<T> valueModel, object[] values)
             {
-                Listener listener = new Listener();
+                Listener<T> listener = new Listener<T>();
                 listener.m_owner = owner;
                 listener.m_index = index;
                 listener.m_values = values;

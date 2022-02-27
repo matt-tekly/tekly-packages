@@ -10,8 +10,8 @@ namespace TeklySample.Game.Generators
     {
         public double Count
         {
-            set => m_count.AsDouble = value;
-            get => m_count.AsDouble;
+            set => m_count.Value = value;
+            get => m_count.Value;
         }
         
         private readonly SpriteValueModel m_iconModel = new SpriteValueModel();
@@ -64,8 +64,8 @@ namespace TeklySample.Game.Generators
             Add("affordable", m_affordableCount);
             Add("generation", m_generation);
 
-            m_name.AsString = Localizer.Instance.Localize(generator.Balance.Item.NameId);
-            m_itemId.AsString = m_generator.InventoryItem.ItemId;
+            m_name.Value = Localizer.Instance.Localize(generator.Balance.Item.NameId);
+            m_itemId.Value = m_generator.InventoryItem.ItemId;
             m_iconModel.Value = m_generator.Balance.Item.Icon;
 
             m_runButton.Activated.Subscribe(RunButtonOnActivation).AddTo(m_disposableList);
@@ -79,20 +79,20 @@ namespace TeklySample.Game.Generators
         
         protected override void OnTick()
         {
-            m_progress.AsDouble = m_generator.RatioComplete;
-            m_runButton.Interactable.AsBool = m_generator.Count > 0 && m_generator.State == GeneratorState.Idle;
-            m_timeRemaining.AsDouble = m_generator.TimeRemaining;
-            m_count.AsDouble = m_generator.Count;
+            m_progress.Value = m_generator.RatioComplete;
+            m_runButton.Interactable.Value = m_generator.Count > 0 && m_generator.State == GeneratorState.Idle;
+            m_timeRemaining.Value = m_generator.TimeRemaining;
+            m_count.Value = m_generator.Count;
             m_generation.Count = m_generator.GenerationCount;
 
             var affordable = m_buyMultiplier.CalculateAffordableCount(m_generator);
 
             if (affordable <= 0) {
-                m_affordableCount.AsDouble = 1;
-                m_buyButton.Interactable.AsBool = false;
+                m_affordableCount.Value = 1;
+                m_buyButton.Interactable.Value = false;
             } else {
-                m_affordableCount.AsDouble = affordable;
-                m_buyButton.Interactable.AsBool = true;
+                m_affordableCount.Value = affordable;
+                m_buyButton.Interactable.Value = true;
             }
         }
         
@@ -103,7 +103,7 @@ namespace TeklySample.Game.Generators
         
         private void BuyButtonOnActivation(ButtonModel _)
         {
-            m_generatorManager.Buy(m_generator, m_affordableCount.AsDouble);
+            m_generatorManager.Buy(m_generator, m_affordableCount.Value);
         }
     }
 }
