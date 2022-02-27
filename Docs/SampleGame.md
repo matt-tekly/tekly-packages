@@ -6,6 +6,7 @@ The sample game is a simple idle game
     - Effectively how many you have of the generator
 - Take a period of time to generate
 - After the period of time is up some resources are generated
+- Visibility Conditions
 - Can be buffed from multiple sources
     - Reducing cost
     - Increase resource output

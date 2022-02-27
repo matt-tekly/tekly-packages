@@ -14,10 +14,5 @@ namespace Tekly.DataModels.Models
         {
             return Value != null ? Value.name : "[null]";
         }
-
-        protected override bool ValueEquals(Sprite value)
-        {
-            return Value == value;
-        }
     }
 }

@@ -6,7 +6,7 @@ namespace Tekly.Localizations
 {
     public static class LocalizationStringifier
     {
-        private static readonly Regex s_splitRegex = new("({{?.*?}}?)");
+        private static readonly Regex s_splitRegex = new Regex("({{?.*?}}?)");
         
         public static void Stringify(string format, out string outFormat, out string[] outKeys)
         {

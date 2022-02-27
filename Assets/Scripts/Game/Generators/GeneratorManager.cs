@@ -73,15 +73,5 @@ namespace TeklySample.Game.Generators
                 Generators = Generators.Select(x => x.ToSave()).ToArray()
             };
         }
-
-        public double CalculateAffordableCount(Generator generator)
-        {
-            return m_inventory.PurchasableCount(generator.Cost);
-            // if (m_inventory.CanSpend(generator.Cost, 1)) {
-            //     return 1;
-            // }
-            //
-            // return 0;
-        }
     }
 }

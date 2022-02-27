@@ -31,7 +31,7 @@ namespace TeklySample.Game.Generators
 
     public class GeneratorSimulationResult
     {
-        public readonly List<ItemCount> GeneratedItems = new(3);
+        public readonly List<ItemCount> GeneratedItems = new List<ItemCount>(3);
 
         public void Reset()
         {
@@ -48,6 +48,8 @@ namespace TeklySample.Game.Generators
         public GeneratorMode Mode { get; set; }
         public GeneratorState State { get; private set; }
         public double TimeRemaining => (1f - RatioComplete) * CompletionTime;
+        
+        public bool Visible { get; private set; }
         
         public double Count => InventoryItem.Count;
         public ItemBalance GenerationItem => Balance.Item;
@@ -66,10 +68,7 @@ namespace TeklySample.Game.Generators
             State = save.State;
             RatioComplete = save.RatioComplete;
 
-            for (var index = 0; index < Balance.Cost.Length; index++) {
-                var itemCost = Balance.Cost[index];
-                Cost.Add(itemCost);
-            }
+            Cost.AddRange(balance.Cost);
         }
 
         public Generator(GeneratorBalance balance, InventoryItem inventoryItem, GeneratorMode mode)
@@ -80,10 +79,7 @@ namespace TeklySample.Game.Generators
             Mode = mode;
             State = mode == GeneratorMode.Automated ? GeneratorState.Running : GeneratorState.Idle;
             
-            for (var index = 0; index < Balance.Cost.Length; index++) {
-                var itemCost = Balance.Cost[index];
-                Cost.Add(itemCost);
-            }
+            Cost.AddRange(balance.Cost);
         }
 
         public void Run()

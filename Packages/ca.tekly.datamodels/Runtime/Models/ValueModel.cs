@@ -1,68 +1,46 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using Tekly.Common.Observables;
+using Tekly.Logging;
 
 namespace Tekly.DataModels.Models
 {
-    public abstract class ValueModel<T> : ModelBase, IValueModel
+    public abstract class ValueModel<T> : ObservableValue<T>, IValueModel
     {
-        public virtual T Value
-        {
-            get => m_value;
-            set {
-                if (ValueEquals(value)) {
-                    return;
-                }
-
-                m_value = value;
-                NotifyChanged();
-            }
-        }
-
-        private T m_value;
-
-        private List<IValueObserver<T>> m_observers;
-
-        protected ValueModel(T value)
+        private bool m_isDisposed;
+        
+        protected ValueModel(T value) : this()
         {
             m_value = value;
         }
 
-        protected ValueModel() { }
-
-        public IDisposable Subscribe(IValueObserver<T> observer)
+        protected ValueModel()
         {
-            if (m_observers == null) {
-                m_observers = new List<IValueObserver<T>>();
-            }
-
-            m_observers.Add(observer);
-
-            var unsubscriber = new Unsubscriber<IValueObserver<T>>(observer, m_observers);
-
-            observer.Changed(m_value);
-
-            return unsubscriber;
+            ModelManager.Instance.AddModel(this);
         }
 
-        public IDisposable Subscribe(Action<T> observer)
+        public void Dispose()
         {
-            return Subscribe(new ActionObserver<T>(observer));
-        }
-
-        private void NotifyChanged()
-        {
-            if (m_observers == null) {
+            if (m_isDisposed) {
+                TkLogger.Get<ModelBase>().Error("ModelBase being disposed multiple times");
                 return;
             }
 
-            foreach (var observer in m_observers) {
-                observer.Changed(m_value);
-            }
+            m_isDisposed = true;
+            ModelManager.Instance.RemoveModel(this);
+            OnDispose();
         }
 
-        public override void ToJson(StringBuilder sb)
+        public void Tick()
+        {
+            OnTick();
+        }
+        
+        protected virtual void OnTick() { }
+
+        protected virtual void OnDispose() { }
+
+        public virtual void ToJson(StringBuilder sb)
         {
             sb.Append("[UNIMPLEMENTED]");
         }
@@ -71,7 +49,5 @@ namespace Tekly.DataModels.Models
         {
             return "[UNIMPLEMENTED]";
         }
-
-        protected abstract bool ValueEquals(T value);
     }
 }

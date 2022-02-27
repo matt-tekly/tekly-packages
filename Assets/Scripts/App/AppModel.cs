@@ -7,7 +7,7 @@ namespace TeklySample.App
     public class AppModel : ObjectModel
     {
         public readonly AppBalanceModel AppBalance;
-        private readonly StringValueModel m_version = new(Application.version);
+        private readonly StringValueModel m_version = new StringValueModel(Application.version);
 
         public AppModel(BalanceManager balanceManager)
         {
@@ -20,8 +20,8 @@ namespace TeklySample.App
     public class AppBalanceModel : ObjectModel,ITickable
     {
         private readonly BalanceManager m_balanceManager;
-        private readonly StringValueModel m_version = new("x.x.x");
-        private readonly BoolValueModel m_initialized = new(false);
+        private readonly StringValueModel m_version = new StringValueModel("x.x.x");
+        private readonly BoolValueModel m_initialized = new BoolValueModel(false);
         
         public AppBalanceModel(BalanceManager balanceManager)
         {

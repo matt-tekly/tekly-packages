@@ -4,7 +4,7 @@ namespace Tekly.Common.Sequences
 {
     public class SequenceRunner
     {
-        private readonly SafeList<Sequence> m_sequences = new();
+        private readonly SafeList<Sequence> m_sequences = new SafeList<Sequence>();
 
         public bool AnyActive => m_sequences.Count > 0;
         

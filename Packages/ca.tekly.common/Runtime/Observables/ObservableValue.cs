@@ -1,21 +1,41 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Tekly.Common.Observables
 {
-    public interface ITriggerable<out T>
+    public class ObservableValue<T> : ITriggerable<T>, IObserverLinkedList<T>
     {
-        IDisposable Subscribe(IValueObserver<T> observer);
-        IDisposable Subscribe(Action<T> observer);
-    }
+        private static readonly IEqualityComparer<T> s_defaultEqualityComparer = EqualityComparer<T>.Default;
 
-    public class Triggerable<T> : ITriggerable<T>, IObserverLinkedList<T>
-    {
+        public T Value
+        {
+            get => m_value;
+            set {
+                if (s_defaultEqualityComparer.Equals(m_value, value)) {
+                    return;
+                }
+
+                m_value = value;
+                Emit(m_value);
+            }
+        }
+
+        protected T m_value;
+
         private ObserverNode<T> m_root;
         private ObserverNode<T> m_last;
+
+        public ObservableValue(T value)
+        {
+            m_value = value;
+        }
+        
+        public ObservableValue() { }
 
         public IDisposable Subscribe(IValueObserver<T> observer)
         {
             var next = new ObserverNode<T>(this, observer);
+            
             if (m_root == null) {
                 m_root = m_last = next;
             } else {
@@ -24,6 +44,8 @@ namespace Tekly.Common.Observables
                 m_last = next;
             }
 
+            observer.Changed(m_value);
+            
             return next;
         }
 
@@ -32,7 +54,7 @@ namespace Tekly.Common.Observables
             return Subscribe(new ActionObserver<T>(observer));
         }
 
-        public void Emit(T value)
+        private void Emit(T value)
         {
             var node = m_root;
             while (node != null) {

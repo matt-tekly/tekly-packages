@@ -14,9 +14,9 @@ namespace Tekly.DataModels.Binders
     public class FormattedStringBinder : Binder
     {
         public ModelRef[] Keys;
-        
+
         [TextArea] public string Format;
-        
+
         public TMP_Text Text;
 
         private object[] m_values;
@@ -27,15 +27,13 @@ namespace Tekly.DataModels.Binders
         
         public override void Bind(BinderContainer container)
         {
-            if (m_values == null) {
-                m_values = new object[Keys.Length];
-                m_listeners = new IDisposable[Keys.Length];
-            } else {
-                Dispose();
-            }
+            Clear();
+
+            Array.Resize(ref m_values, Keys.Length);
+            Array.Resize(ref m_listeners, Keys.Length);
             
             m_canFormat = false;
-            
+
             for (var index = 0; index < Keys.Length; index++) {
                 var key = Keys[index].Path;
 
@@ -45,13 +43,13 @@ namespace Tekly.DataModels.Binders
 
                 switch (model) {
                     case BoolValueModel valueModel:
-                        m_listeners[index] = Listener<bool>.Create(this, index, valueModel, m_values);
+                        m_listeners[index] = new Listener<bool>(this, index, valueModel, m_values);
                         break;
                     case StringValueModel valueModel:
-                        m_listeners[index] = Listener<string>.Create(this, index, valueModel, m_values);
+                        m_listeners[index] = new Listener<string>(this, index, valueModel, m_values);
                         break;
                     case NumberValueModel valueModel:
-                        m_listeners[index] = Listener<double>.Create(this, index, valueModel, m_values);
+                        m_listeners[index] = new Listener<double>(this, index, valueModel, m_values);
                         break;
                     default:
                         m_logger.ErrorContext("Unsupported Model Type", this);
@@ -62,16 +60,16 @@ namespace Tekly.DataModels.Binders
             m_canFormat = true;
             FormatString();
         }
-        
+
         private void FormatString()
         {
             if (!m_canFormat) {
                 return;
             }
-            
+
             Text.text = string.Format(Format, m_values);
         }
-        
+
         private void OnDestroy()
         {
             Dispose();
@@ -79,41 +77,48 @@ namespace Tekly.DataModels.Binders
 
         private void Dispose()
         {
-            if (m_listeners != null) {
-                foreach (var disposable in m_listeners) {
-                    disposable.Dispose();
-                }
+            Clear();
+            
+            m_listeners = null;
+            m_values = null;
+        }
+
+        private void Clear()
+        {
+            if (m_listeners == null) {
+                return;
+            }
+            
+            foreach (var disposable in m_listeners) {
+                disposable.Dispose();
             }
         }
 
         private class Listener<T> : IValueObserver<T>, IDisposable
         {
-            private FormattedStringBinder m_owner;
-            private IDisposable m_disposable;
-        
-            private int m_index;
-            private object[] m_values;
-            
-            public void Changed(T value)
+            private readonly FormattedStringBinder m_owner;
+            private readonly IDisposable m_disposable;
+
+            private readonly int m_index;
+            private readonly object[] m_values;
+
+            public Listener(FormattedStringBinder owner, int index, ITriggerable<T> triggerable, object[] values)
+            {
+                m_owner = owner;
+                m_index = index;
+                m_values = values;
+
+                if (triggerable != null) {
+                    m_disposable = triggerable.Subscribe(this);
+                } else {
+                    m_values[index] = "[NM]";
+                }
+            }
+
+            void IValueObserver<T>.Changed(T value)
             {
                 m_values[m_index] = value;
                 m_owner.FormatString();
-            }
-
-            public static IDisposable Create(FormattedStringBinder owner, int index, ValueModel<T> valueModel, object[] values)
-            {
-                Listener<T> listener = new Listener<T>();
-                listener.m_owner = owner;
-                listener.m_index = index;
-                listener.m_values = values;
-                
-                if (valueModel != null) {
-                    listener.m_disposable = valueModel.Subscribe(listener);
-                } else {
-                    listener.m_values[index] = "[NM]";
-                }
-                
-                return listener;
             }
 
             public void Dispose()

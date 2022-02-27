@@ -15,7 +15,7 @@ namespace TeklySample.Game.Items
     public class ItemInventory
     {
         private readonly BalanceManager m_balanceManager;
-        private readonly Dictionary<string, InventoryItem> m_items = new();
+        private readonly Dictionary<string, InventoryItem> m_items = new Dictionary<string, InventoryItem>();
 
         public ItemInventory(BalanceManager balanceManager, ItemInventorySave save)
         {
