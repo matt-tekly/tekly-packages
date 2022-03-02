@@ -7,6 +7,58 @@ namespace Tekly.Common.Observables
     {
         void UnsubscribeNode(ObserverNode<T> node);
     }
+
+    internal sealed class ObserverLinkedList<T> : IObserverLinkedList<T>
+    {
+        private ObserverNode<T> m_root;
+        private ObserverNode<T> m_last;
+        
+        public IDisposable Subscribe(IValueObserver<T> observer, T currentValue)
+        {
+            var next = new ObserverNode<T>(this, observer);
+            
+            if (m_root == null) {
+                m_root = m_last = next;
+            } else {
+                m_last.Next = next;
+                next.Previous = m_last;
+                m_last = next;
+            }
+
+            observer.Changed(currentValue);
+            
+            return next;
+        }
+
+        public void Emit(T value)
+        {
+            var node = m_root;
+            
+            while (node != null) {
+                node.Changed(value);
+                node = node.Next;
+            }
+        }
+        
+        void IObserverLinkedList<T>.UnsubscribeNode(ObserverNode<T> node)
+        {
+            if (node == m_root) {
+                m_root = node.Next;
+            }
+
+            if (node == m_last) {
+                m_last = node.Previous;
+            }
+
+            if (node.Previous != null) {
+                node.Previous.Next = node.Next;
+            }
+
+            if (node.Next != null) {
+                node.Next.Previous = node.Previous;
+            }
+        }
+    }
     
     internal sealed class ObserverNode<T> : IDisposable
     {

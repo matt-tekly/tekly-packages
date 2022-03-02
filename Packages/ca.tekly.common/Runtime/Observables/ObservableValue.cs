@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace Tekly.Common.Observables
 {
-    public class ObservableValue<T> : ITriggerable<T>, IObserverLinkedList<T>
+    public class ObservableValue<T> : ITriggerable<T>
     {
-        private static readonly IEqualityComparer<T> s_defaultEqualityComparer = EqualityComparer<T>.Default;
+        protected static readonly IEqualityComparer<T> s_defaultEqualityComparer = EqualityComparer<T>.Default;
 
-        public T Value
+        public virtual T Value
         {
             get => m_value;
             set {
@@ -21,9 +21,7 @@ namespace Tekly.Common.Observables
         }
 
         protected T m_value;
-
-        private ObserverNode<T> m_root;
-        private ObserverNode<T> m_last;
+        private ObserverLinkedList<T> m_observers;
 
         public ObservableValue(T value)
         {
@@ -34,19 +32,11 @@ namespace Tekly.Common.Observables
 
         public IDisposable Subscribe(IValueObserver<T> observer)
         {
-            var next = new ObserverNode<T>(this, observer);
-            
-            if (m_root == null) {
-                m_root = m_last = next;
-            } else {
-                m_last.Next = next;
-                next.Previous = m_last;
-                m_last = next;
+            if (m_observers == null) {
+                m_observers = new ObserverLinkedList<T>();
             }
 
-            observer.Changed(m_value);
-            
-            return next;
+            return m_observers.Subscribe(observer, m_value);
         }
 
         public IDisposable Subscribe(Action<T> observer)
@@ -54,32 +44,9 @@ namespace Tekly.Common.Observables
             return Subscribe(new ActionObserver<T>(observer));
         }
 
-        private void Emit(T value)
+        protected void Emit(T value)
         {
-            var node = m_root;
-            while (node != null) {
-                node.Changed(value);
-                node = node.Next;
-            }
-        }
-
-        void IObserverLinkedList<T>.UnsubscribeNode(ObserverNode<T> node)
-        {
-            if (node == m_root) {
-                m_root = node.Next;
-            }
-
-            if (node == m_last) {
-                m_last = node.Previous;
-            }
-
-            if (node.Previous != null) {
-                node.Previous.Next = node.Next;
-            }
-
-            if (node.Next != null) {
-                node.Next.Previous = node.Previous;
-            }
+            m_observers?.Emit(value);
         }
     }
 }

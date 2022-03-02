@@ -7,14 +7,14 @@ namespace Tekly.DataModels.Models
     public class ModelManager : Singleton<ModelManager>
     {
         private readonly List<IModel> m_models = new List<IModel>(2056);
-        private readonly SafeList<IModel> m_tickList = new SafeList<IModel>(2056);
+        private readonly SafeList<ITickable> m_tickList = new SafeList<ITickable>(2056);
         
         public void AddModel(IModel model)
         {
             m_models.Add(model);
             
-            if (model is ITickable) {
-                m_tickList.Add(model);
+            if (model is ITickable tickable) {
+                m_tickList.Add(tickable);
             }
         }
 
@@ -22,8 +22,8 @@ namespace Tekly.DataModels.Models
         {
             m_models.Remove(model);
             
-            if (model is ITickable) {
-                m_tickList.Remove(model);
+            if (model is ITickable tickable) {
+                m_tickList.Remove(tickable);
             }
         }
         
