@@ -15,6 +15,7 @@ MonoBehaviour:
   Item: {fileID: 11400000, guid: 63cda97399fe75249a76307395248d36, type: 2}
   CompletionTime: 1
   ItemGeneration:
-    Value: {fileID: 11400000, guid: 45760d91ced160b40809bd4d98480a8a, type: 2}
     Count: 1
+    Value: {fileID: 11400000, guid: 45760d91ced160b40809bd4d98480a8a, type: 2}
   Cost: []
+  Hidden: 1

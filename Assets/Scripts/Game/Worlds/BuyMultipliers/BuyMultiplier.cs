@@ -1,6 +1,8 @@
 ﻿using System;
+using Tekly.Common.Maths;
 using TeklySample.Game.Generators;
 using TeklySample.Game.Items;
+using UnityEngine;
 
 namespace TeklySample.Game.Worlds.BuyMultipliers
 {
@@ -48,19 +50,25 @@ namespace TeklySample.Game.Worlds.BuyMultipliers
         
         public double CalculateAffordableCount(Generator generator)
         {
+            var purchasableCount = m_inventory.PurchasableCount(generator.Cost);
+
+            if (purchasableCount <= 0) {
+                return 0;
+            }
+            
+            if (MathUtils.IsApproximately(1d, purchasableCount)) {
+                return 1;
+            }
+            
             switch (Mode) {
                 case BuyMultiplierMode.One:
-                    if (m_inventory.CanSpend(generator.Cost)) {
-                        return 1;
-                    }
-                    
-                    return 0;
+                    return purchasableCount >= 1 ? 1 : 0;
                 case BuyMultiplierMode.Percent10:
-                    return Math.Floor(m_inventory.PurchasableCount(generator.Cost) * 0.1d);
+                    return Math.Ceiling(purchasableCount * 0.1d);
                 case BuyMultiplierMode.Percent50:
-                    return Math.Floor(m_inventory.PurchasableCount(generator.Cost) * 0.5d);
+                    return Math.Ceiling(purchasableCount * 0.5d);
                 case BuyMultiplierMode.Percent100:
-                    return m_inventory.PurchasableCount(generator.Cost);
+                    return purchasableCount;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

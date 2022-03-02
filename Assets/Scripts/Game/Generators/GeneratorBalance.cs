@@ -13,5 +13,6 @@ namespace TeklySample.Game.Generators
 
         public Quantity<ItemBalance> ItemGeneration;
         public Quantity<ItemBalance>[] Cost;
+        public bool Hidden;
     }
 }

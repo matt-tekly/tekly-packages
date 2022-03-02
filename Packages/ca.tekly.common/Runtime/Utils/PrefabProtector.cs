@@ -48,10 +48,12 @@ namespace Tekly.Common.Utils
                 return component;
             }
             
+            var wasActive = gameObject.activeSelf;
+            
             gameObject.SetActive(false);
             var instance = Object.Instantiate(component, GetContainer());
             instance.gameObject.name = gameObject.name;
-            gameObject.SetActive(active);
+            gameObject.SetActive(wasActive);
 
             return instance;
 #else

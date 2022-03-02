@@ -48,9 +48,9 @@ namespace TeklySample.Game.Generators
         public GeneratorMode Mode { get; set; }
         public GeneratorState State { get; private set; }
         public double TimeRemaining => (1f - RatioComplete) * CompletionTime;
-        
-        public bool Visible { get; private set; }
-        
+
+        public bool Hidden => Balance.Hidden;
+
         public double Count => InventoryItem.Count;
         public ItemBalance GenerationItem => Balance.Item;
         public double GenerationCount => Balance.ItemGeneration.Count * Count;
@@ -78,7 +78,7 @@ namespace TeklySample.Game.Generators
             
             Mode = mode;
             State = mode == GeneratorMode.Automated ? GeneratorState.Running : GeneratorState.Idle;
-            
+
             Cost.AddRange(balance.Cost);
         }
 

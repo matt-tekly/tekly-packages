@@ -15,12 +15,13 @@ MonoBehaviour:
   Item: {fileID: 11400000, guid: a3ce1b236f89f114e80eb537874aa782, type: 2}
   CompletionTime: 8
   ItemGeneration:
-    Value: {fileID: 11400000, guid: 3fc9093c5cc0b7f468f219bcec441cbd, type: 2}
     Count: 5
+    Value: {fileID: 11400000, guid: 3fc9093c5cc0b7f468f219bcec441cbd, type: 2}
   Cost:
-  - Value: {fileID: 11400000, guid: 3fc9093c5cc0b7f468f219bcec441cbd, type: 2}
-    Count: 50
-  - Value: {fileID: 11400000, guid: a0d7d4a60817087478135b338d788f0a, type: 2}
-    Count: 10000
-  - Value: {fileID: 11400000, guid: 45760d91ced160b40809bd4d98480a8a, type: 2}
-    Count: 1
+  - Count: 50
+    Value: {fileID: 11400000, guid: 3fc9093c5cc0b7f468f219bcec441cbd, type: 2}
+  - Count: 10000
+    Value: {fileID: 11400000, guid: a0d7d4a60817087478135b338d788f0a, type: 2}
+  - Count: 1
+    Value: {fileID: 11400000, guid: 45760d91ced160b40809bd4d98480a8a, type: 2}
+  Hidden: 0

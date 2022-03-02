@@ -22,6 +22,10 @@ namespace TeklySample.Game.Worlds
             
             for (var index = 0; index < gameWorld.GeneratorManager.Generators.Count; index++) {
                 var generator = gameWorld.GeneratorManager.Generators[index];
+
+                if (generator.Hidden) {
+                    continue;
+                }
                 
                 var generatorModel = new GeneratorModel(generator, gameWorld.GeneratorManager, gameWorld.BuyMultiplier);
                 m_generators.Add(generator.Balance.Id, generatorModel);
