@@ -8,8 +8,8 @@ namespace TeklySample.Game.Worlds
 {
     public class PanelActivity : InjectableActivity
     {
-        public string Panel = "main_game_panel";
-        public string Layer = "Game";
+        public string Panel;
+        public string Layer;
 
         [Inject] private Glass m_glass;
 
