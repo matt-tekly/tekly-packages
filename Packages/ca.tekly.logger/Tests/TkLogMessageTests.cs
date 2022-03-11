@@ -1,10 +1,11 @@
 ﻿using System.Text;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Tekly.Logging.Tests
 {
-    public class TkLogMessageTests
+    public class TkLogMessageTests : IPostBuildCleanup
     {
         [Test]
         public void TestPrint()
@@ -16,6 +17,11 @@ namespace Tekly.Logging.Tests
             var sb = new StringBuilder();
             logMessage.Print(sb);
             Assert.That(sb.ToString(), Is.EqualTo("Test 1 2 3 Mr User"));
+        }
+
+        public void Cleanup()
+        {
+            TkLogger.Reset();
         }
     }
 }

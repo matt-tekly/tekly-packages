@@ -1,14 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using UnityEditor;
 using Debug = UnityEngine.Debug;
 
 namespace Tekly.Common.Utils
 {
     public static class UnityRuntimeEditorUtils
     {
-        private static readonly List<Action> s_onExitActions = new List<Action>();
-        
+        private static readonly List<Action> s_onEnterActions = new();
+        private static readonly List<Action> s_onExitActions = new();
+        private static bool s_currentlyRunning;
+
+        public static void OnEnterPlayMode(Action action)
+        {
+#if UNITY_EDITOR
+            if (s_currentlyRunning) {
+                action?.Invoke();
+            }
+
+            s_onEnterActions.Add(action);
+#else
+            action?.Invoke();
+#endif
+        }
+
         [Conditional("UNITY_EDITOR")]
         public static void OnExitPlayMode(Action action)
         {
@@ -16,30 +32,46 @@ namespace Tekly.Common.Utils
         }
         
 #if UNITY_EDITOR
-        [UnityEditor.InitializeOnEnterPlayMode]
+        [InitializeOnEnterPlayMode]
         private static void Initialize()
         {
-            UnityEditor.EditorApplication.playModeStateChanged += PlayModeStateChanged; 
+            EditorApplication.playModeStateChanged += PlayModeStateChanged;
+            PlayModeStateChanged(PlayModeStateChange.ExitingEditMode);
         }
 
-        private static void PlayModeStateChanged(UnityEditor.PlayModeStateChange change)
+        public static void MockPlayModeStart()
         {
-            if (change != UnityEditor.PlayModeStateChange.EnteredEditMode) {
-                return;
+            PlayModeStateChanged(PlayModeStateChange.ExitingEditMode);
+        }
+
+        public static void MockPlayModeEnd()
+        {
+            PlayModeStateChanged(PlayModeStateChange.EnteredEditMode);
+        }
+
+        private static void PlayModeStateChanged(PlayModeStateChange change)
+        {
+            if (change == PlayModeStateChange.ExitingEditMode) {
+                s_currentlyRunning = true;
+                RunActions(s_onEnterActions);
+            } else if (change == PlayModeStateChange.EnteredEditMode) {
+                EditorApplication.delayCall += () => {
+                    s_currentlyRunning = false;
+                    EditorApplication.playModeStateChanged -= PlayModeStateChanged;
+                    RunActions(s_onExitActions);
+                };
             }
-            
-            UnityEditor.EditorApplication.delayCall += () => {
-                UnityEditor.EditorApplication.playModeStateChanged -= PlayModeStateChanged;
-                foreach (var exitAction in s_onExitActions) {
-                    try {
-                        exitAction();
-                    } catch (Exception exception) {
-                        Debug.LogException(exception);
-                    }
+        }
+
+        private static void RunActions(List<Action> actions)
+        {
+            foreach (var a in actions) {
+                try {
+                    a.Invoke();
+                } catch (Exception exception) {
+                    Debug.LogException(exception);
                 }
-            
-                s_onExitActions.Clear();
-            };
+            }
         }
 #endif
     }

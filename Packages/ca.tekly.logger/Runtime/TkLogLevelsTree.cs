@@ -97,5 +97,10 @@ namespace Tekly.Logging
             targetNode = null;
             return false;
         }
+
+        public void Clear()
+        {
+            this.m_rootNode = new LevelNode();
+        }
     }
 }

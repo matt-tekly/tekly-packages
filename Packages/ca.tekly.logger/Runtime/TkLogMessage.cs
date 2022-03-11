@@ -112,7 +112,11 @@ namespace Tekly.Logging
         private void CopyCommonFields(int startIndex)
         {
             TkLogger.UpdateCommonProperties();
-            
+
+            if (this.Params.Length < startIndex + TkLogger.CommonFields.Count) {
+                Array.Resize(ref this.Params, startIndex + TkLogger.CommonFields.Count);
+            }
+
             var index = 0;
             foreach (var commonField in TkLogger.CommonFields) {
                 Params[startIndex + index] = new TkLogParam(commonField.Key, commonField.Value);

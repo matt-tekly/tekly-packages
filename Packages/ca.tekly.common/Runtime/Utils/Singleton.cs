@@ -6,8 +6,13 @@
 
         static Singleton()
         {
-            Instance = new T();
+            UnityRuntimeEditorUtils.OnEnterPlayMode(Init);
             UnityRuntimeEditorUtils.OnExitPlayMode(Reset);
+        }
+
+        private static void Init()
+        {
+            Instance = new T();
         }
 
         private static void Reset()
@@ -25,8 +30,13 @@
 
         static Singleton()
         {
-            Instance = new TImpl();
+            UnityRuntimeEditorUtils.OnEnterPlayMode(Init);
             UnityRuntimeEditorUtils.OnExitPlayMode(Reset);
+        }
+
+        private static void Init()
+        {
+            Instance = new TImpl();
         }
 
         private static void Reset()
