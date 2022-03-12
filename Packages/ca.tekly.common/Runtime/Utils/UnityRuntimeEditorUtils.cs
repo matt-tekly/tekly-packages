@@ -8,8 +8,8 @@ namespace Tekly.Common.Utils
 {
     public static class UnityRuntimeEditorUtils
     {
-        private static readonly List<Action> s_onEnterActions = new();
-        private static readonly List<Action> s_onExitActions = new();
+        private static readonly List<Action> s_onEnterActions = new List<Action>();
+        private static readonly List<Action> s_onExitActions = new List<Action>();
         private static bool s_currentlyRunning;
 
         public static void OnEnterPlayMode(Action action)

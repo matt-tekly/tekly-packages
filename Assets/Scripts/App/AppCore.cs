@@ -35,7 +35,7 @@ namespace TeklySample.App
                 Application.Quit();
                 return;
             }
-            
+
             ModelManager.Instance.Tick();
         }
     }
