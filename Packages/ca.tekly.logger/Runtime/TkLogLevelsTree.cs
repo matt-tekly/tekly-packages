@@ -100,7 +100,7 @@ namespace Tekly.Logging
 
         public void Clear()
         {
-            this.m_rootNode = new LevelNode();
+            m_rootNode = new LevelNode();
         }
     }
 }

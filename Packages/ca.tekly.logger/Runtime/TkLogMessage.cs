@@ -113,8 +113,8 @@ namespace Tekly.Logging
         {
             TkLogger.UpdateCommonProperties();
 
-            if (this.Params.Length < startIndex + TkLogger.CommonFields.Count) {
-                Array.Resize(ref this.Params, startIndex + TkLogger.CommonFields.Count);
+            if (Params.Length < startIndex + TkLogger.CommonFields.Count) {
+                Array.Resize(ref Params, startIndex + TkLogger.CommonFields.Count);
             }
 
             var index = 0;
