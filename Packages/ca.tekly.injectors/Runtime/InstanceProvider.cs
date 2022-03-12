@@ -2,6 +2,15 @@
 
 namespace Tekly.Injectors
 {
+    /// <summary>
+    /// Provides an instance of the BaseType
+    /// </summary>
+    public interface IInstanceProvider
+    {
+        object Instance { get; }    
+        Type BaseType { get; }
+    }
+    
     public class InstanceProvider : IInstanceProvider
     {
         public Type BaseType { get; private set; }

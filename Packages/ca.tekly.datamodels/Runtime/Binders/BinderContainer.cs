@@ -70,37 +70,6 @@ namespace Tekly.DataModels.Binders
                 binder.Bind(this);
             }
         }
-
-        public bool TryGet(string key, out IModel model)
-        {
-            var modelKey = ModelKey.Parse(key);
-            return TryGet(modelKey, out model);
-        }
-        
-        public bool TryGet(ModelKey modelKey, out IModel model)
-        {
-            var rootModel = ObjectModel.Instance;
-
-            if (!modelKey.IsRelative) {
-                return rootModel.TryGetModel(modelKey, 0, out model);
-            }
-            
-            var selfKey = ModelKey.Parse(GetKey());
-
-            if (selfKey.IsRelative) {
-                if (m_container != null) {
-                    m_container.TryGet(selfKey, out var targetRootModel);
-                    rootModel = targetRootModel as ObjectModel;
-                } else {
-                    m_logger.ErrorContext("BinderContainer [{name}] has relative key but no container", this, ("name", gameObject.name));
-                }
-            } else {
-                rootModel.TryGetModel(selfKey, 0, out var targetRootModel);
-                rootModel = targetRootModel as ObjectModel;
-            }
-            
-            return rootModel.TryGetModel(modelKey, 0, out model);
-        }
         
         public bool TryGet<T>(string key, out T model) where T : class, IModel
         {
@@ -129,6 +98,37 @@ namespace Tekly.DataModels.Binders
             }
             
             return foundModel;
+        }
+
+        private bool TryGet(string key, out IModel model)
+        {
+            var modelKey = ModelKey.Parse(key);
+            return TryGet(modelKey, out model);
+        }
+
+        private bool TryGet(ModelKey modelKey, out IModel model)
+        {
+            var rootModel = ObjectModel.Instance;
+
+            if (!modelKey.IsRelative) {
+                return rootModel.TryGetModel(modelKey, 0, out model);
+            }
+            
+            var selfKey = ModelKey.Parse(GetKey());
+
+            if (selfKey.IsRelative) {
+                if (m_container != null) {
+                    m_container.TryGet(selfKey, out var targetRootModel);
+                    rootModel = targetRootModel as ObjectModel;
+                } else {
+                    m_logger.ErrorContext("BinderContainer [{name}] has relative key but no container", this, ("name", gameObject.name));
+                }
+            } else {
+                rootModel.TryGetModel(selfKey, 0, out var targetRootModel);
+                rootModel = targetRootModel as ObjectModel;
+            }
+            
+            return rootModel.TryGetModel(modelKey, 0, out model);
         }
         
         public override string ResolveFullKey(string key)

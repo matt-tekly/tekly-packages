@@ -11,13 +11,13 @@ namespace Tekly.Injectors
     /// <summary>
     /// Injection data and injector for a specific type.
     /// </summary>
-    public class InjectableType
+    public class Injector
     {
         public readonly Type Type;
         
         private readonly List<InjectableField> m_fields = new List<InjectableField>();
         
-        public InjectableType(Type type)
+        public Injector(Type type)
         {
             Type = type;
             

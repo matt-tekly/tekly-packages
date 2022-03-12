@@ -8,17 +8,11 @@ using Tekly.Logging;
 
 namespace Tekly.Injectors
 {
-    public interface IInstanceProvider
-    {
-        object Instance { get; }    
-        Type BaseType { get; }
-    }
-
     public class InjectorContainer
     {
         private readonly Dictionary<Type, IInstanceProvider> m_instances = new Dictionary<Type, IInstanceProvider>();
         private readonly Dictionary<InstanceId, IInstanceProvider> m_instanceIds = new Dictionary<InstanceId, IInstanceProvider>();
-        private static readonly Dictionary<Type, InjectableType> s_injectableTypes = new Dictionary<Type, InjectableType>();
+        private static readonly Dictionary<Type, Injector> s_injectableTypes = new Dictionary<Type, Injector>();
 
         private readonly InjectorContainer m_parent;
         private readonly TkLogger m_logger = TkLogger.Get<InjectorContainer>();
@@ -124,28 +118,14 @@ namespace Tekly.Injectors
             injectionTypeData.Clear(instance);
         }
 
-        private static InjectableType GetInjectionTypeData(Type type)
+        private static Injector GetInjectionTypeData(Type type)
         {
             if (!s_injectableTypes.TryGetValue(type, out var injectionTypeData)) {
-                injectionTypeData = new InjectableType(type);
+                injectionTypeData = new Injector(type);
                 s_injectableTypes.Add(type, injectionTypeData);
             }
 
             return injectionTypeData;
-        }
-    }
-
-    public class InstanceProvider : IInstanceProvider
-    {
-        public Type BaseType { get; private set; }
-        public object Instance { get; private set; }
-
-        public static InstanceProvider Create<T>(T instance)
-        {
-            return new InstanceProvider {
-                BaseType = typeof(T),
-                Instance = instance
-            };
         }
     }
 }
