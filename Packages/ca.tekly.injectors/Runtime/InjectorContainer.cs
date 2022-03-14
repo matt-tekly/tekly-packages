@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using Tekly.Logging;
+using UnityEngine;
 
 namespace Tekly.Injectors
 {
@@ -16,7 +17,13 @@ namespace Tekly.Injectors
 
         private readonly InjectorContainer m_parent;
         private readonly TkLogger m_logger = TkLogger.Get<InjectorContainer>();
-        
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void Cleanup()
+        {
+            s_injectableTypes.Clear();
+        }
+
         public InjectorContainer()
         {
             Register(this);

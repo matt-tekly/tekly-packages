@@ -5,12 +5,26 @@
 using NSubstitute;
 using NUnit.Framework;
 using Tekly.Common.Observables;
+using Tekly.Common.Utils;
 using Tekly.DataModels.Models;
+using UnityEditor;
 
 namespace Tekly.DataModels.Tests
 {
     public class ValueModelTests
     {
+        [SetUp]
+        public void SetUp()
+        {
+            UnityRuntimeEditorUtils.MockPlayModeStart();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            UnityRuntimeEditorUtils.MockPlayModeEnd();
+        }
+
         [Test]
         public void TestBoolModelSubscribe()
         {

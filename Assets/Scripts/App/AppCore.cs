@@ -31,6 +31,11 @@ namespace TeklySample.App
 
         public void Update()
         {
+            if (Input.GetKeyDown(KeyCode.Escape)) {
+                Application.Quit();
+                return;
+            }
+
             ModelManager.Instance.Tick();
         }
     }

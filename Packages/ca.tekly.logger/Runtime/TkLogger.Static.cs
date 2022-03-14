@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using Tekly.Common.LocalFiles;
+using Tekly.Common.Utils;
 using Tekly.LifeCycles;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -19,7 +20,7 @@ namespace Tekly.Logging
 
         public static readonly List<ITkLogDestination> Destinations = new List<ITkLogDestination>();
 
-        public static readonly ConcurrentDictionary<string, string> CommonFields = new ConcurrentDictionary<string, string>();
+        public static readonly ConcurrentDictionary<string, string> CommonFields = new();
 
         private static UnityLogDestination s_unityLogDestination;
 
@@ -29,7 +30,7 @@ namespace Tekly.Logging
 
         private static int s_frame;
         private static float s_realtimeSinceStartup;
-        
+
         public static TkLogger Get<T>()
         {
             return Get(typeof(T));
@@ -68,6 +69,15 @@ namespace Tekly.Logging
             LifeCycle.Instance.Update += Update;
 
             UpdateCommonProperties();
+            UnityRuntimeEditorUtils.OnExitPlayMode(Reset);
+        }
+
+        public static void Reset()
+        {
+            Destinations.Clear();
+            CommonFields.Clear();
+            s_loggers.Clear();
+            s_levelsTree.Clear();
         }
 
         private static void LoadResourcesConfig()
@@ -98,8 +108,8 @@ namespace Tekly.Logging
 
         public static void UpdateCommonProperties()
         {
-            SetValue("_frame", Time.frameCount);
-            SetValue("_realTime", Time.realtimeSinceStartup);
+            SetValue("_frame", s_frame);
+            SetValue("_realTime", s_realtimeSinceStartup);
         }
         
         private static void Update()
@@ -110,7 +120,7 @@ namespace Tekly.Logging
 
             s_frame = Time.frameCount;
             s_realtimeSinceStartup = Time.realtimeSinceStartup;
-            
+
             foreach (var destination in Destinations) {
                 destination.Update();
             }
