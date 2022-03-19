@@ -1,7 +1,7 @@
 ﻿using Tekly.DataModels.Models;
-using TeklySample.Game.Generators;
+using TeklySample.Game.Worlds;
 
-namespace TeklySample.Game.Worlds
+namespace TeklySample.Game.Generators
 {
     public class GeneratorsModel : ObjectModel
     {
@@ -22,7 +22,7 @@ namespace TeklySample.Game.Worlds
                     continue;
                 }
                 
-                visible.Add(generator.Balance.Id, generatorModel);
+                visible.Add(generator.Balance.Id, generatorModel, ReferenceType.Shared);
             }
         }
     }

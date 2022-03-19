@@ -11,9 +11,7 @@ namespace TeklySample.App
     public class AppCore : MonoBehaviour, IInjectionProvider
     {
         public Glass Glass;
-        
-        private RootDataModel m_rootDataModel;
-        
+
         public void Provide(InjectorContainer container)
         {
             var balanceManager = new BalanceManager(ContentProvider.Instance);
@@ -22,11 +20,11 @@ namespace TeklySample.App
             container.Register(new AppData());
             container.Register(ContentProvider.Instance);
             container.Register(balanceManager);
-
-            m_rootDataModel = new RootDataModel(balanceManager);
-            container.Register(m_rootDataModel);
+            container.Register(RootModel.Instance);
             
             container.Register(Glass);
+            
+            RootModel.Instance.Add("app", new AppModel(balanceManager));
         }
 
         public void Update()

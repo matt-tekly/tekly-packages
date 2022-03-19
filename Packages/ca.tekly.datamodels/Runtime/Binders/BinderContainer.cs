@@ -108,7 +108,7 @@ namespace Tekly.DataModels.Binders
 
         private bool TryGet(ModelKey modelKey, out IModel model)
         {
-            var rootModel = ObjectModel.Instance;
+            ObjectModel rootModel = RootModel.Instance;
 
             if (!modelKey.IsRelative) {
                 return rootModel.TryGetModel(modelKey, 0, out model);

@@ -34,7 +34,7 @@ namespace Tekly.DataModels.Models
         {
             if (Application.isPlaying) {
                 m_entries.Clear();
-                CreateEntries(ObjectModel.Instance, m_entries);
+                CreateEntries(RootModel.Instance, m_entries);
             }
             
             var width = position.width;

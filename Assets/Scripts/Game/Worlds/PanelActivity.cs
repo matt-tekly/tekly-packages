@@ -54,7 +54,7 @@ namespace TeklySample.Game.Worlds
                 m_panelInstance.gameObject.SetActive(true);
             }
             catch (Exception exception) {
-                m_logger.ExceptionContext(exception, "Failed to Load PanelActivity", this);
+                m_logger.ExceptionContext(exception, "Failed to load panel {panel}", this, ("panel", Panel));
             }
 
             m_isLoading = false;

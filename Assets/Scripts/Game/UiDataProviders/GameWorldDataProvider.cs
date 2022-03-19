@@ -1,5 +1,5 @@
-﻿using Tekly.Injectors;
-using TeklySample.App;
+﻿using Tekly.DataModels.Models;
+using Tekly.Injectors;
 using TeklySample.Game.Worlds;
 using UnityEngine;
 
@@ -9,19 +9,19 @@ namespace TeklySample.Game.UiDataProviders
     public class GameWorldDataProvider : UiDataProvider
     {
         [Inject] private GameWorld m_gameWorld;
-        [Inject] private RootDataModel m_rootDataModel;
+        [Inject] private RootModel m_rootModel;
 
         private GameWorldModel m_gameWorldModel;
         
         public override void Bind()
         {
             m_gameWorldModel = new GameWorldModel(m_gameWorld);
-            m_rootDataModel.Add("gameworld", m_gameWorldModel);
+            m_rootModel.Add("gameworld", m_gameWorldModel);
         }
 
         public override void Unbind()
         {
-            m_rootDataModel.RemoveModel("gameworld");
+            m_rootModel.RemoveModel("gameworld");
             m_gameWorldModel.Dispose();
         }
     }

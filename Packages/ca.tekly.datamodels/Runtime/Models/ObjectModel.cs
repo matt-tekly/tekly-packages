@@ -34,8 +34,6 @@ namespace Tekly.DataModels.Models
     
     public class ObjectModel : ModelBase
     {
-        public static ObjectModel Instance;
-
         public IReadOnlyList<ModelReference> Models => m_models;
         
         public ITriggerable<ObjectModel> Modified => m_modified;
