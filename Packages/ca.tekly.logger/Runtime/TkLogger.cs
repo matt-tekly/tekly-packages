@@ -174,17 +174,14 @@ namespace Tekly.Logging
                 return;
             }
             
-            var newParams = new object[logParams.Length + 4];
+            var newParams = new (string, object)[logParams.Length + 2];
             
             for (var index = 0; index < logParams.Length; index++) {
                 newParams[index] = logParams[index];
             }
 
-            newParams[logParams.Length + 1] = TkLoggerConstants.EXCEPTION_MESSAGE_KEY;
-            newParams[logParams.Length + 2] = exception.Message;
-            
-            newParams[logParams.Length + 3] = TkLoggerConstants.EXCEPTION_STACKTRACE_KEY;
-            newParams[logParams.Length + 4] = StackTraceUtility.ExtractStringFromException(exception);
+            newParams[logParams.Length] = (TkLoggerConstants.EXCEPTION_MESSAGE_KEY, exception.Message);
+            newParams[logParams.Length + 1] = (TkLoggerConstants.EXCEPTION_STACKTRACE_KEY, StackTraceUtility.ExtractStringFromException(exception));
             
             LogMessage(TkLogLevel.Exception, message, logParams);
         }
@@ -211,18 +208,15 @@ namespace Tekly.Logging
                 return;
             }
             
-            var newParams = new object[logParams.Length + 4];
+            var newParams = new (string, object)[logParams.Length + 2];
             
             for (var index = 0; index < logParams.Length; index++) {
                 newParams[index] = logParams[index];
             }
 
-            newParams[logParams.Length + 1] = TkLoggerConstants.EXCEPTION_MESSAGE_KEY;
-            newParams[logParams.Length + 2] = exception.Message;
-            
-            newParams[logParams.Length + 3] = TkLoggerConstants.EXCEPTION_STACKTRACE_KEY;
-            newParams[logParams.Length + 4] = StackTraceUtility.ExtractStringFromException(exception);
-            
+            newParams[logParams.Length] = (TkLoggerConstants.EXCEPTION_MESSAGE_KEY, exception.Message);
+            newParams[logParams.Length + 1] = (TkLoggerConstants.EXCEPTION_STACKTRACE_KEY, StackTraceUtility.ExtractStringFromException(exception));
+
             LogMessage(TkLogLevel.Exception, message, context, logParams);
         }
 
