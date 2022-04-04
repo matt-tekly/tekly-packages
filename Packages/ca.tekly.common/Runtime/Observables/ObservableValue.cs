@@ -5,7 +5,7 @@ namespace Tekly.Common.Observables
 {
     public class ObservableValue<T> : ITriggerable<T>
     {
-        protected static readonly IEqualityComparer<T> s_defaultEqualityComparer = EqualityComparer<T>.Default;
+        private static readonly IEqualityComparer<T> s_defaultEqualityComparer = EqualityComparer<T>.Default;
 
         public virtual T Value
         {
@@ -23,12 +23,10 @@ namespace Tekly.Common.Observables
         protected T m_value;
         private ObserverLinkedList<T> m_observers;
 
-        public ObservableValue(T value)
+        public ObservableValue(T value = default)
         {
             m_value = value;
         }
-        
-        public ObservableValue() { }
 
         public IDisposable Subscribe(IValueObserver<T> observer)
         {
@@ -44,7 +42,7 @@ namespace Tekly.Common.Observables
             return Subscribe(new ActionObserver<T>(observer));
         }
 
-        protected void Emit(T value)
+        private void Emit(T value)
         {
             m_observers?.Emit(value);
         }

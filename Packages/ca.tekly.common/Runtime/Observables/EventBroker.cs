@@ -5,8 +5,6 @@ namespace Tekly.Common.Observables
 {
     public class EventBroker
     {
-        public static readonly EventBroker Instance = new EventBroker();
-        
         private readonly Dictionary<Type, object> m_triggerables = new Dictionary<Type, object>();
         
         public void Emit<T>(T value)

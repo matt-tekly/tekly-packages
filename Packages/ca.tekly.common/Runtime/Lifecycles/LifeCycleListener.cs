@@ -5,7 +5,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace Tekly.LifeCycles
+namespace Tekly.Common.LifeCycles
 {
     public class LifeCycleListener : MonoBehaviour
     {

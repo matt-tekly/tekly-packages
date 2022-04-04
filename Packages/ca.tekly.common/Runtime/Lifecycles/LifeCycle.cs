@@ -8,7 +8,7 @@ using Tekly.Common.Collections;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Tekly.LifeCycles
+namespace Tekly.Common.LifeCycles
 {
     public class LifeCycle : ILifeCycle
     {

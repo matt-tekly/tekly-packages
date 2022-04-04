@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using Tekly.Common.LocalFiles;
 using Tekly.Common.Utils;
-using Tekly.LifeCycles;
+using Tekly.Common.LifeCycles;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -20,7 +20,7 @@ namespace Tekly.Logging
 
         public static readonly List<ITkLogDestination> Destinations = new List<ITkLogDestination>();
 
-        public static readonly ConcurrentDictionary<string, string> CommonFields = new();
+        public static readonly ConcurrentDictionary<string, string> CommonFields = new ConcurrentDictionary<string, string>();
 
         private static UnityLogDestination s_unityLogDestination;
 

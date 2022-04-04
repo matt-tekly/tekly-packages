@@ -6,18 +6,16 @@ namespace TeklySample.App
 {
     public class AppModel : ObjectModel
     {
-        public readonly AppBalanceModel AppBalance;
         private readonly StringValueModel m_version = new StringValueModel(Application.version);
 
         public AppModel(BalanceManager balanceManager)
         {
-            AppBalance = new AppBalanceModel(balanceManager);
-            Add("balance", AppBalance);
+            Add("balance", new AppBalanceModel(balanceManager));
             Add("version", m_version);
         }
     }
 
-    public class AppBalanceModel : ObjectModel,ITickable
+    public class AppBalanceModel : ObjectModel, ITickable
     {
         private readonly BalanceManager m_balanceManager;
         private readonly StringValueModel m_version = new StringValueModel("x.x.x");

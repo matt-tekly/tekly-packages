@@ -8,11 +8,11 @@ namespace TeklySample.Game.Worlds.BuyMultipliers
 {
     public enum BuyMultiplierMode
     {
-        One = 0,
-        Percent10 = 1,
-        Percent50 = 2,
-        Percent100 = 3,
-        ModeCount = 4,
+        One,
+        Percent10,
+        Percent50,
+        Percent100,
+        ModeCount,
     }
 
     [Serializable]

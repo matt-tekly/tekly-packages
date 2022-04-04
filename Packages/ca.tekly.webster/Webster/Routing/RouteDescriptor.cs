@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using Tekly.Common.Utils;
 using UnityEngine.Scripting;
 
 namespace Tekly.Webster.Routing
@@ -34,20 +35,20 @@ namespace Tekly.Webster.Routing
 
 		public static RouteDescriptor FromMethod(MethodInfo method, string root, bool isMainThreadDefault)
 		{
-			var route = method.GetCustomAttribute<RouteAttribute>();
+			var route = method.GetAttribute<RouteAttribute>();
 
 			var desc = new RouteDescriptor();
 			desc.Method = method;
 			desc.Path = root + route.Route;
 			desc.Verb = route.Verb;
-			desc.ReturnType = TypeUtility.GetReturnType(method.ReturnType);
-			desc.Hidden = method.GetCustomAttribute<HiddenAttribute>() != null;
+			desc.ReturnType = RouteUtility.GetReturnType(method.ReturnType);
+			desc.Hidden = method.GetAttribute<HiddenAttribute>() != null;
 			desc.Description = DescriptionAttribute.GetDescription(method);
 			desc.QueryParams = method.GetParameters()
 				.Select(ValueDescriptor.FromParameter)
 				.ToArray();
 
-			var requestThreadAttribute = method.GetCustomAttribute<RequestMainThreadAttribute>();
+			var requestThreadAttribute = method.GetAttribute<RequestMainThreadAttribute>();
 			desc.IsMainThreadDefault = requestThreadAttribute != null ? requestThreadAttribute.IsMainThread : isMainThreadDefault;
 
 			return desc;
@@ -74,11 +75,11 @@ namespace Tekly.Webster.Routing
 				var value = queryParams.Get(valueDescriptor.Name);
 
 				if (value != null) {
-					invokeParams[index] = TypeUtility.Parse(valueDescriptor, value);
+					invokeParams[index] = TypeUtility.Parse(valueDescriptor.ActualType, value);
 				} else if (valueDescriptor.Optional) {
 					invokeParams[index] = valueDescriptor.DefaultValue;
 				} else {
-					throw new Exception(string.Format("Query missing required parameter: {0}", valueDescriptor.Name));
+					throw new Exception($"Query missing required parameter: {valueDescriptor.Name}");
 				}
 			}
 
@@ -103,7 +104,7 @@ namespace Tekly.Webster.Routing
 			var descriptor = new ValueDescriptor();
 			descriptor.ActualType = param.ParameterType;
 			descriptor.Name = param.Name;
-			descriptor.Type = TypeUtility.GetValueType(param);
+			descriptor.Type = RouteUtility.GetValueType(param);
 			descriptor.DefaultValue = param.DefaultValue != null ? param.DefaultValue.ToString() : "";
 			descriptor.Optional = param.IsOptional || TypeUtility.IsNullable(param.ParameterType);
 			descriptor.Description = DescriptionAttribute.GetDescription(param);

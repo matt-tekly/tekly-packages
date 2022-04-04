@@ -12,11 +12,11 @@ namespace Tekly.Common.Observables
     {
         private ObserverNode<T> m_root;
         private ObserverNode<T> m_last;
-        
+
         public IDisposable Subscribe(IValueObserver<T> observer, T currentValue)
         {
             var next = new ObserverNode<T>(this, observer);
-            
+
             if (m_root == null) {
                 m_root = m_last = next;
             } else {
@@ -26,21 +26,21 @@ namespace Tekly.Common.Observables
             }
 
             observer.Changed(currentValue);
-            
+
             return next;
         }
 
         public void Emit(T value)
         {
             var node = m_root;
-            
+
             while (node != null) {
                 node.Changed(value);
                 node = node.Next;
             }
         }
-        
-        void IObserverLinkedList<T>.UnsubscribeNode(ObserverNode<T> node)
+
+        public void UnsubscribeNode(ObserverNode<T> node)
         {
             if (node == m_root) {
                 m_root = node.Next;
@@ -59,7 +59,7 @@ namespace Tekly.Common.Observables
             }
         }
     }
-    
+
     internal sealed class ObserverNode<T> : IDisposable
     {
         public ObserverNode<T> Previous { get; internal set; }

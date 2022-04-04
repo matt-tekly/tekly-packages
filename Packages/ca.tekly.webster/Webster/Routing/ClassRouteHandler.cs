@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using Tekly.Common.Utils;
 using Tekly.Webster.Utility;
 using UnityEngine;
 using UnityEngine.Scripting;
@@ -83,14 +84,14 @@ namespace Tekly.Webster.Routing
 			m_context = context;
 			var methods = m_context.GetType().GetMethods();
 
-			var topLevelRoute = m_context.GetType().GetCustomAttribute<RouteAttribute>();
-			var requestThread = m_context.GetType().GetCustomAttribute<RequestMainThreadAttribute>();
+			var topLevelRoute = m_context.GetType().GetAttribute<RouteAttribute>();
+			var requestThread = m_context.GetType().GetAttribute<RequestMainThreadAttribute>();
 
 			var root = topLevelRoute != null ? topLevelRoute.Route ?? "" : "";
 			var isMainThreadDefault = requestThread?.IsMainThread ?? true;
 
 			foreach (var method in methods) {
-				var route = method.GetCustomAttribute<RouteAttribute>();
+				var route = method.GetAttribute<RouteAttribute>();
 
 				if (route == null) {
 					continue;

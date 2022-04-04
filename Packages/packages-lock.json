@@ -63,12 +63,6 @@
         "ca.tekly.logger": "0.0.7"
       }
     },
-    "ca.tekly.lifecycles": {
-      "version": "file:ca.tekly.lifecycles",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {}
-    },
     "ca.tekly.localizations": {
       "version": "file:ca.tekly.localizations",
       "depth": 0,
@@ -79,9 +73,7 @@
       "version": "file:ca.tekly.logger",
       "depth": 0,
       "source": "embedded",
-      "dependencies": {
-        "ca.tekly.lifecycles": "0.0.6"
-      }
+      "dependencies": {}
     },
     "ca.tekly.nsubstitute": {
       "version": "file:ca.tekly.nsubstitute",

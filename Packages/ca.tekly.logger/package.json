@@ -8,8 +8,5 @@
     "name": "Matt King",
     "email": "matt@tekly.ca"
   },
-  "dependencies": {
-    "ca.tekly.lifecycles": "0.0.6"
-  },
   "hideInEditor": false
 }

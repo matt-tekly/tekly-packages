@@ -19,6 +19,11 @@
         {
             Instance = null;
         }
+
+        protected static void ForceInit()
+        {
+            
+        }
     }
     
     /// <summary>
@@ -42,6 +47,11 @@
         private static void Reset()
         {
             Instance = null;
+        }
+        
+        protected static void ForceInit()
+        {
+            
         }
     }
 }
