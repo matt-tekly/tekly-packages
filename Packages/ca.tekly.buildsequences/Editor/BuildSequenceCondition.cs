@@ -29,7 +29,9 @@ namespace Tekly.BuildSequences.Editor
 
         private static bool IsStandaloneTarget(BuildTarget buildTarget)
         {
-            return buildTarget is BuildTarget.StandaloneWindows or BuildTarget.StandaloneLinux64 or BuildTarget.StandaloneOSX;
+            return buildTarget == BuildTarget.StandaloneWindows 
+            || buildTarget == BuildTarget.StandaloneLinux64 
+            || buildTarget == BuildTarget.StandaloneOSX;
         }
     }
 }

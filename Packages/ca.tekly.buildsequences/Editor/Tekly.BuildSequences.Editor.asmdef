@@ -1,6 +1,6 @@
 {
     "name": "Tekly.BuildSequences.Editor",
-    "rootNamespace": "Tekly.BuildSequencers.Editor",
+    "rootNamespace": "Tekly.BuildSequences",
     "references": [],
     "includePlatforms": [
         "Editor"
