@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Tekly.Terminal
+namespace Tekly.Common.Terminal
 {
     public interface IInputFilter
     {

@@ -1,5 +1,4 @@
-﻿using Tekly.Terminal;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Tekly.Common.Terminal.Commands
 {

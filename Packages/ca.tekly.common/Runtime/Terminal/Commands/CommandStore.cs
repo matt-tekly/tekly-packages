@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Tekly.Common.Utils;
-using Tekly.Terminal;
 using UnityEngine;
 
 namespace Tekly.Common.Terminal.Commands
@@ -43,48 +42,52 @@ namespace Tekly.Common.Terminal.Commands
     public class CommandStore : Singleton<CommandStore>
     {
         public IReadOnlyList<CommandDescriptor> Commands => m_commands;
-        private readonly List<CommandDescriptor> m_commands = new List<CommandDescriptor>();
-
-        public readonly List<CommandMessage> Messages = new List<CommandMessage>();
-        public readonly List<string> CommandHistory = new List<string>();
+        public IReadOnlyList<CommandMessage> Messages => m_messages;
+        public IReadOnlyList<string> CommandHistory => m_commandHistory;
 
         public event Action MessagesChanged;
         public event Action CommandExecuted;
 
-        private int m_maxCommandHistory = 10;
+        private readonly List<CommandDescriptor> m_commands = new List<CommandDescriptor>();
+        private readonly List<CommandMessage> m_messages = new List<CommandMessage>();
+        private readonly List<string> m_commandHistory = new List<string>();
+        
+        private readonly int m_maxCommandHistory = 10;
 
         public void Initialize(TerminalPrefs terminalPrefs)
         {
-            if (terminalPrefs != null && terminalPrefs.CommandHistory != null) {
-                CommandHistory.AddRange(terminalPrefs.CommandHistory);
+            if (terminalPrefs?.CommandHistory != null) {
+                m_commandHistory.AddRange(terminalPrefs.CommandHistory);
             }
         }
 
-        public void AddMessage(string message)
+        public void AddMessage(string message, LogType logType = LogType.Log)
         {
-            Messages.Add(new CommandMessage(""));
-            Messages.Add(new CommandMessage(message));
-            MessagesChanged?.Invoke();
-        }
-
-        public void AddMessage(CommandMessage message)
-        {
-            Messages.Add(new CommandMessage(""));
-            Messages.Add(message);
-            MessagesChanged?.Invoke();
+            AddMessage(new CommandMessage(message, logType));
         }
 
         public void AddError(string message)
         {
-            Messages.Add(new CommandMessage(""));
-            Messages.Add(new CommandMessage(message, LogType.Error));
+            AddMessage(message, LogType.Error);
+        }
+
+        public void AddMessage(CommandMessage message)
+        {
+            m_messages.Add(new CommandMessage(""));
+            m_messages.Add(message);
+
             MessagesChanged?.Invoke();
         }
 
         public void ClearMessages()
         {
-            Messages.Clear();
+            m_messages.Clear();
             MessagesChanged?.Invoke();
+        }
+        
+        public void ClearHistory()
+        {
+            m_commandHistory.Clear();
         }
 
         public void AddCommandSource(ICommandSource commandSource)
@@ -109,10 +112,10 @@ namespace Tekly.Common.Terminal.Commands
 
         public void Execute(string input)
         {
-            CommandHistory.Add(input);
+            m_commandHistory.Add(input);
 
-            while (CommandHistory.Count >= m_maxCommandHistory) {
-                CommandHistory.RemoveAt(0);
+            while (m_commandHistory.Count >= m_maxCommandHistory) {
+                m_commandHistory.RemoveAt(0);
             }
 
             var tokens = SplitArgs(input).ToArray();
@@ -128,9 +131,8 @@ namespace Tekly.Common.Terminal.Commands
                     } else {
                         command.Invoke(tokens.Skip(1).ToArray(), this);
                     }
-                }
-                catch (Exception ex) {
-                    AddError(ex.ToString());
+                } catch (Exception ex) {
+                    AddError(ex.InnerException != null ? ex.InnerException.Message : ex.Message);
                 }
             } else {
                 AddError($"> Unknown command [{commandId}]");

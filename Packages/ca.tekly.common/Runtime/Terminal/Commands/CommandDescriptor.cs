@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Tekly.Common.Utils;
-using Tekly.Terminal;
 using UnityEngine.Scripting;
 
 namespace Tekly.Common.Terminal.Commands

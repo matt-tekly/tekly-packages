@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Tekly.Terminal;
 
 namespace Tekly.Common.Terminal.Commands
 {

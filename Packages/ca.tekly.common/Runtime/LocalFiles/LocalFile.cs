@@ -3,6 +3,7 @@
 // ============================================================================
 
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace Tekly.Common.LocalFiles
@@ -25,6 +26,24 @@ namespace Tekly.Common.LocalFiles
         public static string GetPath(string file)
         {
             return Path.Combine(s_directory, file);
+        }
+
+        public static string[] GetFiles(string directory, string search, SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        {
+            var directoryPath = GetPath(directory);
+            var prefixLength = GetPath("").Length;
+            return Directory.GetFileSystemEntries(directoryPath, search, searchOption)
+                .Select(x => x.Substring(prefixLength))
+                .ToArray();;
+        }
+        
+        public static string[] GetFiles(string directory, SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        {
+            var directoryPath = GetPath(directory);
+            var prefixLength = GetPath("").Length;
+            return Directory.GetFileSystemEntries(directoryPath, "*", searchOption)
+                .Select(x => x.Substring(prefixLength))
+                .ToArray();
         }
 
         public static string ReadAllText(string relativeFile)
@@ -71,6 +90,26 @@ namespace Tekly.Common.LocalFiles
         {
             var directoryInfo = new FileInfo(file).Directory;
             directoryInfo?.Create();
+        }
+
+        public static FileStream GetStream(string relativeFile, FileMode fileMode)
+        {
+            var filePath = GetPath(relativeFile);
+            EnsureDirectoryExistsForFile(filePath);
+            
+            return new FileStream(filePath, fileMode);
+        }
+
+        public static void Rename(string sourceName, string destinationName)
+        {
+            var sourceFilePath = GetPath(sourceName);
+            var destinationFilePath = GetPath(destinationName);
+
+            if (File.Exists(destinationFilePath)) {
+                File.Delete(destinationFilePath);
+            }
+            
+            File.Move(sourceFilePath, destinationFilePath);
         }
     }
 }

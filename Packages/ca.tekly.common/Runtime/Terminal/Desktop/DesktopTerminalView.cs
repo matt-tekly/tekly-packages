@@ -5,7 +5,7 @@ using Tekly.Common.Terminal.Commands;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Tekly.Terminal.Desktop
+namespace Tekly.Common.Terminal.Desktop
 {
     public class DesktopTerminalView : TerminalView, IInputFilter
     {

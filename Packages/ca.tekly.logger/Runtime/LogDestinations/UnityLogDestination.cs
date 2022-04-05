@@ -4,7 +4,7 @@ using System.Threading;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Tekly.Logging
+namespace Tekly.Logging.LogDestinations
 {
     public class UnityLogDestination : ITkLogDestination
     {

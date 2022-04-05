@@ -1,4 +1,4 @@
-﻿namespace Tekly.Terminal
+﻿namespace Tekly.Common.Terminal
 {
     public static class StringExtensions
     {

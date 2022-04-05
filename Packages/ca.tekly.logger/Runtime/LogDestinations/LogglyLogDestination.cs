@@ -3,7 +3,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace Tekly.Logging
+namespace Tekly.Logging.LogDestinations
 {
     /// <summary>
     /// Sends logs to Loggly.

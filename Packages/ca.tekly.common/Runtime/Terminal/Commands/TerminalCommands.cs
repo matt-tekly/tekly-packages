@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Tekly.Terminal;
 using UnityEngine;
 
 namespace Tekly.Common.Terminal.Commands

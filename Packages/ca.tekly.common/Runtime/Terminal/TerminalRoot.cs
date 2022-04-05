@@ -4,15 +4,18 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Tekly.Common.LocalFiles;
 using Tekly.Common.Terminal.Commands;
 using UnityEngine;
 
-namespace Tekly.Terminal
+namespace Tekly.Common.Terminal
 {
     // TODO: Additional Terminal Tasks
     // - Mobile
     // - Async commands
-    // - make cli apps that can read their own input?
+    // - make cli apps that can read their own input?srminal messages
+    // - Add category attribute so we can display a list of categories with descriptions when you type help
     [Serializable]
     public class TerminalPrefs
     {
@@ -81,7 +84,7 @@ namespace Tekly.Terminal
             SetViewSize(DefaultViewSize);
             SetViewScale(DefaultViewScale);
             
-            m_commandStore.CommandHistory.Clear();
+            m_commandStore.ClearHistory();
             
             Save();
         }
@@ -116,6 +119,7 @@ namespace Tekly.Terminal
             if (EnableBasicCommands) {
                 m_commandStore.AddCommandSource(new BasicCommands());
                 m_commandStore.AddCommandSource(new PlayerPrefsCommands());
+                m_commandStore.AddCommandSource(new LocalFileCommands());
             }
             
             m_commandStore.AddCommandSource(new TerminalCommands(m_commandStore, this));
@@ -148,7 +152,7 @@ namespace Tekly.Terminal
             var prefs = new TerminalPrefs();
             prefs.ViewScale = m_terminalView.GetScale();
             prefs.ViewSize = m_terminalView.GetSize();
-            prefs.CommandHistory = m_commandStore.CommandHistory;
+            prefs.CommandHistory = m_commandStore.CommandHistory.ToList();
             
             PlayerPrefs.SetString(PLAYER_PREFS_KEY, JsonUtility.ToJson(prefs));
         }

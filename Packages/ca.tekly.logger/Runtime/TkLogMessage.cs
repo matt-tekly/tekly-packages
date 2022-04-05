@@ -14,6 +14,7 @@ namespace Tekly.Logging
         public string Message;
         public TkLogParam[] Params;
         public string Timestamp;
+        public DateTime DateTime;
         public string StackTrace;
 
         public TkLogMessage(TkLogLevel level, string loggerName, string loggerFullName, string message, string stackTrace)
@@ -23,7 +24,8 @@ namespace Tekly.Logging
             LoggerFullName = loggerFullName;
             Message = message;
             Params = null;
-            Timestamp = DateTime.UtcNow.ToString(TkLoggerConstants.TIME_FORMAT);
+            DateTime = DateTime.UtcNow;
+            Timestamp = DateTime.ToString(TkLoggerConstants.TIME_FORMAT_UTC);
             StackTrace = stackTrace;
             
             if (TkLogger.CommonFields.Count > 0) {
@@ -39,7 +41,8 @@ namespace Tekly.Logging
             LoggerFullName = loggerFullName;
             Message = message;
             Params = new TkLogParam[logParams.Count + TkLogger.CommonFields.Count];
-            Timestamp = DateTime.UtcNow.ToString(TkLoggerConstants.TIME_FORMAT);
+            DateTime = DateTime.UtcNow;
+            Timestamp = DateTime.ToString(TkLoggerConstants.TIME_FORMAT_UTC);
             StackTrace = stackTrace;
 
             for (var index = 0; index < logParams.Count; index++) {
@@ -56,7 +59,8 @@ namespace Tekly.Logging
             LoggerFullName = loggerFullName;
             Message = message;
             Params = new TkLogParam[logParams.Length + TkLogger.CommonFields.Count];
-            Timestamp = DateTime.UtcNow.ToString(TkLoggerConstants.TIME_FORMAT);
+            DateTime = DateTime.UtcNow;
+            Timestamp = DateTime.ToString(TkLoggerConstants.TIME_FORMAT_UTC);
             StackTrace = stackTrace;
 
             for (var index = 0; index < logParams.Length; index++) {
@@ -73,7 +77,8 @@ namespace Tekly.Logging
             LoggerFullName = loggerFullName;
             Message = message;
             Params = TkLogParam.CreateReserve(TkLogger.CommonFields.Count, logParams);
-            Timestamp = DateTime.UtcNow.ToString(TkLoggerConstants.TIME_FORMAT);
+            DateTime = DateTime.UtcNow;
+            Timestamp = DateTime.ToString(TkLoggerConstants.TIME_FORMAT_UTC);
             StackTrace = stackTrace;
             
             CopyCommonFields(logParams.Length / 2);
@@ -86,7 +91,8 @@ namespace Tekly.Logging
             LoggerFullName = loggerFullName;
             Message = message;
             Params = TkLogParam.CreateReserve(TkLogger.CommonFields.Count, logParams);
-            Timestamp = DateTime.UtcNow.ToString(TkLoggerConstants.TIME_FORMAT);
+            DateTime = DateTime.UtcNow;
+            Timestamp = DateTime.ToString(TkLoggerConstants.TIME_FORMAT_UTC);
             StackTrace = stackTrace;
             
             CopyCommonFields(logParams.Length);

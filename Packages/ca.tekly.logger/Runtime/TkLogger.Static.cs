@@ -6,6 +6,7 @@ using System.Threading;
 using Tekly.Common.LocalFiles;
 using Tekly.Common.Utils;
 using Tekly.Common.LifeCycles;
+using Tekly.Logging.LogDestinations;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -25,7 +26,9 @@ namespace Tekly.Logging
         private static UnityLogDestination s_unityLogDestination;
 
         private static readonly ConcurrentDictionary<Type, TkLogger> s_loggers = new ConcurrentDictionary<Type, TkLogger>();
+
         private static readonly ThreadLocal<StringBuilder> s_stringBuilders = new ThreadLocal<StringBuilder>(() => new StringBuilder(512));
+
         private static readonly TkLogLevelsTree s_levelsTree = new TkLogLevelsTree();
 
         private static int s_frame;
@@ -63,7 +66,7 @@ namespace Tekly.Logging
 
             LoadResourcesConfig();
             LoadLocalFileConfig();
-            
+
             s_unityLogDestination = new UnityLogDestination();
             Application.logMessageReceivedThreaded += HandleUnityLog;
             LifeCycle.Instance.Update += Update;
@@ -111,7 +114,7 @@ namespace Tekly.Logging
             SetValue("_frame", s_frame);
             SetValue("_realTime", s_realtimeSinceStartup);
         }
-        
+
         private static void Update()
         {
             if (EnableUnityLogger) {
@@ -128,10 +131,6 @@ namespace Tekly.Logging
 
         private static void HandleUnityLog(string message, string stacktrace, LogType type)
         {
-            if (!EnableUnityLogger) {
-                return;
-            }
-
             if (message[message.Length - 1] == TkLoggerConstants.UNITY_LOG_MARKER) {
                 return;
             }
@@ -151,7 +150,7 @@ namespace Tekly.Logging
         {
             CommonFields.TryRemove(id, out _);
         }
-        
+
         private static string GetStackTrace()
         {
             if (!EnableStackTrace) {
@@ -160,14 +159,14 @@ namespace Tekly.Logging
 
             var sb = s_stringBuilders.Value;
             sb.Clear();
-            
+
             StackTraceUtilities.ExtractStackTrace(sb, 4);
-            
+
             sb.Replace("\\", "/");
-            
+
             return sb.ToString();
         }
-        
+
         private static void LogToDestinations(TkLogMessage message, bool logToUnity = true)
         {
             if (EnableUnityLogger && logToUnity) {
