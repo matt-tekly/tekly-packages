@@ -24,6 +24,15 @@ namespace Tekly.Common.Terminal.Commands
             Debug.unityLogger.Log(logType, message);
         }
         
+#if UNITY_EDITOR || UNITY_STANDALONE
+        [Command("app.logfile")]
+        [Help("Get the log file")]
+        public string LogFile()
+        {
+            return Application.consoleLogPath;
+        }
+#endif
+        
         [Command("app.fps")]
         [Help("Get or set the target FPS")]
         public string Fps(int? targetFps)
@@ -31,18 +40,9 @@ namespace Tekly.Common.Terminal.Commands
             if (targetFps.HasValue) {
                 Application.targetFrameRate = targetFps.Value;    
             }
-
+            
             return Application.targetFrameRate.ToString();
         }
-        
-#if UNITY_EDITOR || UNITY_STANDALONE
-        [Command("app.logfile.show")]
-        [Help("Shows the current log file in Explorer or Finder")]
-        public void ShowLogFile()
-        {
-            Application.OpenURL(Path.GetDirectoryName(Application.consoleLogPath));
-        }
-#endif
         
         [Command("app.timescale")]
         [Help("Sets or gets the time scale")]

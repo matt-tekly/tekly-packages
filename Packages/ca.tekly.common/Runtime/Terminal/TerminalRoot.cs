@@ -9,11 +9,10 @@ using UnityEngine;
 
 namespace Tekly.Terminal
 {
-    #warning add prefs - font size?
-    #warning more basic commmands
-    #warning get mobile working
-    #warning async commands
-
+    // TODO: Additional Terminal Tasks
+    // - Mobile
+    // - Async commands
+    // - make cli apps that can read their own input?
     [Serializable]
     public class TerminalPrefs
     {
@@ -98,6 +97,11 @@ namespace Tekly.Terminal
         private void Awake()
         {
             Debug.Log("Terminal Enabled");
+            DontDestroyOnLoad(gameObject);
+            
+#if ENABLE_INPUT_SYSTEM
+            UnityEngine.InputSystem.EnhancedTouch.EnhancedTouchSupport.Enable();
+#endif
             
             m_commandStore = CommandStore.Instance;
             
@@ -151,7 +155,7 @@ namespace Tekly.Terminal
         
         private bool HasTapped()
         {
-            if (Input.touchCount >= 3) {
+            if (GetTouchCount() >= 3) {
                 m_touchTimer += Time.deltaTime;
             } else {
                 m_touchTimer = 0;
@@ -172,11 +176,28 @@ namespace Tekly.Terminal
             }
             
             // Checking if the it was active prevents opening the console again when it was closed by pressing backquote
-            if (!m_wasActive && Input.GetKeyDown(KeyCode.BackQuote)) {
+            if (!m_wasActive && IsBackTickPressed()) {
                 SetActive(true);
             }
             
             m_wasActive = m_active;
+        }
+
+        private bool IsBackTickPressed()
+        {
+#if ENABLE_INPUT_SYSTEM
+            return UnityEngine.InputSystem.Keyboard.current.backquoteKey.wasReleasedThisFrame;
+#elif ENABLE_LEGACY_INPUT_MANAGER
+            return Input.GetKeyDown(KeyCode.BackQuote);
+#endif
+        }
+        private int GetTouchCount()
+        {
+#if ENABLE_INPUT_SYSTEM
+            return UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches.Count;
+#elif ENABLE_LEGACY_INPUT_MANAGER
+            return Input.touchCount;
+#endif
         }
 #endif
     }
