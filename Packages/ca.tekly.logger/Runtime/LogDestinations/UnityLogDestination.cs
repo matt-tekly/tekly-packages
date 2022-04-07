@@ -12,6 +12,8 @@ namespace Tekly.Logging.LogDestinations
 
         private readonly ThreadLocal<StringBuilder> m_stringBuilders = new ThreadLocal<StringBuilder>(() => new StringBuilder(512));
 
+        public void Dispose() { }
+        
         public void LogMessage(TkLogMessage message)
         {
             LogMessage(message, null);

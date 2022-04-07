@@ -31,6 +31,8 @@ namespace Tekly.Logging.LogDestinations
             Url = string.Format(TEMPLATE_URL, Token, tags);
             MinLevel = minimumLevel;
         }
+        
+        public void Dispose() { }
 
         public void LogMessage(TkLogMessage message)
         {

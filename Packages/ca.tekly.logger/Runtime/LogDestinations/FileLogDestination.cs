@@ -19,7 +19,7 @@ namespace Tekly.Logging.LogDestinations
         private readonly ExpandingBuffer m_expandingBuffer = new ExpandingBuffer(1024);
 
         protected FileLogDestination(string fileName, TkLogLevel minimumLevel) 
-            : this(new FileStream(fileName, FileMode.Create), minimumLevel)
+            : this(new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite), minimumLevel)
         {
         }
 
@@ -86,6 +86,12 @@ namespace Tekly.Logging.LogDestinations
         {
             var thread = new Thread(param => action());
             thread.Start();
+        }
+
+        public void Dispose()
+        {
+            m_fileStream?.Dispose();
+            m_newLogEvent?.Dispose();
         }
     }
 }

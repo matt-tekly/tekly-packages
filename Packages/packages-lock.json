@@ -101,6 +101,16 @@
         "ca.tekly.common": "0.0.1"
       }
     },
+    "ca.tekly.zipfile": {
+      "version": "file:ca.tekly.zipfile",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "ca.tekly.logger": "0.0.7",
+        "ca.tekly.common": "0.0.1",
+        "com.unity.sharp-zip-lib": "1.2.2-preview.2"
+      }
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,
@@ -139,6 +149,13 @@
     },
     "com.unity.scriptablebuildpipeline": {
       "version": "1.19.6",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.sharp-zip-lib": {
+      "version": "1.2.2-preview.2",
       "depth": 1,
       "source": "registry",
       "dependencies": {},

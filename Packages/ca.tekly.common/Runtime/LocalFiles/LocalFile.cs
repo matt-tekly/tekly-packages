@@ -27,6 +27,11 @@ namespace Tekly.Common.LocalFiles
         {
             return Path.Combine(s_directory, file);
         }
+        
+        public static string GetFullPath(string file)
+        {
+            return Path.GetFullPath(Path.Combine(s_directory, file));
+        }
 
         public static string[] GetFiles(string directory, string search, SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
@@ -92,12 +97,20 @@ namespace Tekly.Common.LocalFiles
             directoryInfo?.Create();
         }
 
-        public static FileStream GetStream(string relativeFile, FileMode fileMode)
+        public static FileStream WriteStream(string relativeFile, FileAccess fileAccess = FileAccess.Write)
         {
             var filePath = GetPath(relativeFile);
             EnsureDirectoryExistsForFile(filePath);
             
-            return new FileStream(filePath, fileMode);
+            return new FileStream(filePath, FileMode.Create, fileAccess);
+        }
+        
+        public static FileStream GetStream(string relativeFile, FileMode fileMode, FileAccess fileAccess)
+        {
+            var filePath = GetPath(relativeFile);
+            EnsureDirectoryExistsForFile(filePath);
+            
+            return new FileStream(filePath, fileMode, fileAccess, FileShare.Read);
         }
 
         public static void Rename(string sourceName, string destinationName)

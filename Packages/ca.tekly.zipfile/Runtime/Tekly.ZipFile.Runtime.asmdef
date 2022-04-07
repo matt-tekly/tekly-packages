@@ -1,0 +1,16 @@
+{
+    "name": "Tekly.ZipFile.Runtime",
+    "rootNamespace": "Tekly.ZipFile",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Unity.SharpZipLib.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

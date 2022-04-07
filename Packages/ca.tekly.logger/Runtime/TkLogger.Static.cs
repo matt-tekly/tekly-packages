@@ -43,7 +43,7 @@ namespace Tekly.Logging
         {
             return s_loggers.GetOrAdd(type, Create);
         }
-
+        
         private static TkLogger Create(Type type)
         {
             var level = s_levelsTree.GetLevel(type.FullName);
@@ -77,8 +77,13 @@ namespace Tekly.Logging
 
         public static void Reset()
         {
+            foreach (var destination in Destinations) {
+                destination.Dispose();
+            }
+            
             Destinations.Clear();
             CommonFields.Clear();
+            
             s_loggers.Clear();
             s_levelsTree.Clear();
         }
