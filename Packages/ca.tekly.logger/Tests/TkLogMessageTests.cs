@@ -10,7 +10,7 @@ namespace Tekly.Logging.Tests
         [Test]
         public void TestPrint()
         {
-            TkLogger.SetValue("g_user", "Mr User");
+            TkLogger.SetCommonField("g_user", "Mr User");
             var logParams = TkLogParam.Create(("a", 1), ("b", 2), ("c", "3"));
             var logMessage = new TkLogMessage(TkLogLevel.Info, "Test", "Test", "Test {a} {b} {c} {g_user}", StackTraceUtility.ExtractStackTrace(), logParams);
             

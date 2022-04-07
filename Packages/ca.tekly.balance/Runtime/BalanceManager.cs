@@ -39,7 +39,7 @@ namespace Tekly.Balance
             if (m_balanceManifest != null) {
                 IsInitialized = true;
                 Version = m_balanceManifest.Version;
-                TkLogger.SetValue("balanceVersion", m_balanceManifest.Version);
+                TkLogger.SetCommonField("balanceVersion", m_balanceManifest.Version);
                 m_logger.Info("BalanceManager initialized with version [{balanceVersion}]");
             } else {
                 m_logger.Error("Failed to find BalanceManifest [{name}]", ("name", MANIFEST_ADDRESS));

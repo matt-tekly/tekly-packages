@@ -116,8 +116,8 @@ namespace Tekly.Logging
 
         public static void UpdateCommonProperties()
         {
-            SetValue("_frame", s_frame);
-            SetValue("_realTime", s_realtimeSinceStartup);
+            SetCommonField("_frame", s_frame);
+            SetCommonField("_realTime", s_realtimeSinceStartup);
         }
 
         private static void Update()
@@ -146,12 +146,12 @@ namespace Tekly.Logging
             LogToDestinations(new TkLogMessage(level, loggerName, loggerName, message, stacktrace), false);
         }
 
-        public static void SetValue(string id, object value)
+        public static void SetCommonField(string id, object value)
         {
             CommonFields[id] = value.ToString();
         }
 
-        public static void ClearValue(string id)
+        public static void ClearCommonField(string id)
         {
             CommonFields.TryRemove(id, out _);
         }
