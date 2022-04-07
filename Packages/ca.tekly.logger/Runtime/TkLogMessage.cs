@@ -139,7 +139,26 @@ namespace Tekly.Logging
             sb.Append($",\"Timestamp\":\"{Timestamp}\"");
             
             if (!string.IsNullOrEmpty(StackTrace)) {
-                sb.Append($",\"StackTrace\":\"{StackTrace}\"");    
+                var split = StackTrace.Split('\n');
+                sb.Append(",\"StackTrace\": [");
+                
+                for (var index = 0; index < split.Length; index++) {
+                    var line = split[index];
+
+                    if (string.IsNullOrEmpty(line)) {
+                        continue;
+                    }
+                    
+                    if (index > 0) {
+                        sb.Append(",");
+                    }
+                    
+                    sb.Append("\"");
+                    sb.Append(line);
+                    sb.Append("\"");
+                }
+
+                sb.Append("]");
             }
             
             if (Params != null) {
