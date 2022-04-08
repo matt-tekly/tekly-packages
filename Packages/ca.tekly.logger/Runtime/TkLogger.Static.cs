@@ -88,6 +88,7 @@ namespace Tekly.Logging
             s_levelsTree.Clear();
             
             Application.logMessageReceivedThreaded -= HandleUnityLog;
+            LifeCycle.Instance.Update -= Update;
         }
 
         private static void LoadResourcesConfig()
