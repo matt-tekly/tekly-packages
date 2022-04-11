@@ -18,7 +18,7 @@ namespace TeklySample.App
                 LocalFile.Rename(CURR_LOG_FILE, PREV_LOG_FILE);
             }
             
-            var fileStream = LocalFile.GetStream(CURR_LOG_FILE, FileMode.Create);
+            var fileStream = LocalFile.GetStream(CURR_LOG_FILE, FileMode.Create, FileAccess.Write);
             var destination = new FlatFileLogDestination(fileStream, TkLogLevel.Info);
             // var destination = new StructuredFileLogDestination(fileStream, TkLogLevel.Info);
             
