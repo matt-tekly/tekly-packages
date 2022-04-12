@@ -29,7 +29,7 @@ namespace Tekly.Webster.Routes
 		[Description("Get general info about the device")]
 		public InfoSummary GetInfo()
 		{
-			return new InfoSummary();
+			return InfoSummary.Get();
 		}
 
 		[Get("/hierarchy")]

@@ -10,34 +10,34 @@ namespace Tekly.Common.LocalFiles
 {
     public static class LocalFile
     {
-        private static readonly string s_directory;
+        public static readonly string Directory;
         private const string LocalFileDir = "LocalFiles";
         
         static LocalFile()
         {
             if (Application.isEditor) {
-                s_directory = LocalFileDir;
-                Directory.CreateDirectory(s_directory);
+                Directory = LocalFileDir;
+                System.IO.Directory.CreateDirectory(Directory);
             } else {
-                s_directory = Application.persistentDataPath;
+                Directory = Application.persistentDataPath;
             }
         }
 
         public static string GetPath(string file)
         {
-            return Path.Combine(s_directory, file);
+            return Path.Combine(Directory, file);
         }
         
         public static string GetFullPath(string file)
         {
-            return Path.GetFullPath(Path.Combine(s_directory, file));
+            return Path.GetFullPath(Path.Combine(Directory, file));
         }
 
         public static string[] GetFiles(string directory, string search, SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
             var directoryPath = GetPath(directory);
             var prefixLength = GetPath("").Length;
-            return Directory.GetFileSystemEntries(directoryPath, search, searchOption)
+            return System.IO.Directory.GetFileSystemEntries(directoryPath, search, searchOption)
                 .Select(x => x.Substring(prefixLength))
                 .ToArray();;
         }
@@ -46,7 +46,7 @@ namespace Tekly.Common.LocalFiles
         {
             var directoryPath = GetPath(directory);
             var prefixLength = GetPath("").Length;
-            return Directory.GetFileSystemEntries(directoryPath, "*", searchOption)
+            return System.IO.Directory.GetFileSystemEntries(directoryPath, "*", searchOption)
                 .Select(x => x.Substring(prefixLength))
                 .ToArray();
         }
@@ -105,12 +105,12 @@ namespace Tekly.Common.LocalFiles
             return new FileStream(filePath, FileMode.Create, fileAccess);
         }
         
-        public static FileStream GetStream(string relativeFile, FileMode fileMode, FileAccess fileAccess)
+        public static FileStream GetStream(string relativeFile, FileMode fileMode, FileAccess fileAccess, FileShare fileShare)
         {
             var filePath = GetPath(relativeFile);
             EnsureDirectoryExistsForFile(filePath);
             
-            return new FileStream(filePath, fileMode, fileAccess, FileShare.Read);
+            return new FileStream(filePath, fileMode, fileAccess, fileShare);
         }
 
         public static void Rename(string sourceName, string destinationName)

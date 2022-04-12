@@ -9,51 +9,47 @@ namespace Tekly.Logging
         public readonly Type Type;
         public readonly string Name;
         public readonly string FullName;
-        public TkLogLevel MinLogLevel { get; private set; }
-
-        public TkLogger(Type type, TkLogLevel minLogLevel)
+        public TkLogLevel MinLogLevel => LoggerSettings.Level;
+        public LoggerSettings LoggerSettings { get; set; }
+        
+        public TkLogger(Type type, LoggerSettings loggerSettings)
         {
             Type = type;
             Name = Type.Name;
             FullName = Type.FullName;
-            MinLogLevel = minLogLevel;
+            LoggerSettings = loggerSettings;
         }
 
-        public void OverrideMinLogLevel(TkLogLevel level)
-        {
-            MinLogLevel = level;
-        }
-
-#if TKLOG_DISABLE_TRACE
+#if TKLOG_DISABLE_DEBUG
         [Conditional("TK_UNDEFINED")]
 #endif
-        public void Trace(string message)
+        public void Debug(string message)
         {
-            LogMessage(TkLogLevel.Trace, message);
+            LogMessage(TkLogLevel.Debug, message);
         }
 
-#if TKLOG_DISABLE_TRACE
+#if TKLOG_DISABLE_DEBUG
         [Conditional("TK_UNDEFINED")]
 #endif
-        public void Trace(string message, params (string, object)[] logParams)
+        public void Debug(string message, params (string, object)[] logParams)
         {
-            LogMessage(TkLogLevel.Trace, message, logParams);
+            LogMessage(TkLogLevel.Debug, message, logParams);
         }
 
-#if TKLOG_DISABLE_TRACE
+#if TKLOG_DISABLE_DEBUG
         [Conditional("TK_UNDEFINED")]
 #endif
-        public void TraceContext(string message, Object context)
+        public void DebugContext(string message, Object context)
         {
-            LogMessage(TkLogLevel.Trace, message, context);
+            LogMessage(TkLogLevel.Debug, message, context);
         }
 
-#if TKLOG_DISABLE_TRACE
+#if TKLOG_DISABLE_DEBUG
         [Conditional("TK_UNDEFINED")]
 #endif
-        public void TraceContext(string message, Object context, params (string, object)[] logParams)
+        public void DebugContext(string message, Object context, params (string, object)[] logParams)
         {
-            LogMessage(TkLogLevel.Trace, message, context, logParams);
+            LogMessage(TkLogLevel.Debug, message, context, logParams);
         }
 
 #if TKLOG_DISABLE_INFO
@@ -162,7 +158,7 @@ namespace Tekly.Logging
             }
 
             StackTraceUtilities.ExtractStringFromExceptionInternal(exception, out var exMessage, out var stackTrace);
-            LogMessage(TkLogLevel.Exception, message, (TkLoggerConstants.EXCEPTION_MESSAGE_KEY, exMessage), (TkLoggerConstants.EXCEPTION_STACKTRACE_KEY, stackTrace));
+            LogMessage(TkLogLevel.Exception, message, (LoggerConstants.EXCEPTION_MESSAGE_KEY, exMessage), (LoggerConstants.EXCEPTION_STACKTRACE_KEY, stackTrace));
         }
 
 #if TKLOG_DISABLE_EXCEPTION
@@ -180,8 +176,8 @@ namespace Tekly.Logging
                 newParams[index] = logParams[index];
             }
 
-            newParams[logParams.Length] = (TkLoggerConstants.EXCEPTION_MESSAGE_KEY, exception.Message);
-            newParams[logParams.Length + 1] = (TkLoggerConstants.EXCEPTION_STACKTRACE_KEY, StackTraceUtility.ExtractStringFromException(exception));
+            newParams[logParams.Length] = (LoggerConstants.EXCEPTION_MESSAGE_KEY, exception.Message);
+            newParams[logParams.Length + 1] = (LoggerConstants.EXCEPTION_STACKTRACE_KEY, StackTraceUtility.ExtractStringFromException(exception));
             
             LogMessage(TkLogLevel.Exception, message, logParams);
         }
@@ -196,7 +192,7 @@ namespace Tekly.Logging
             }
             
             StackTraceUtilities.ExtractStringFromExceptionInternal(exception, out var exMessage, out var stackTrace);
-            LogMessage(TkLogLevel.Exception, message, context, (TkLoggerConstants.EXCEPTION_MESSAGE_KEY, exMessage), (TkLoggerConstants.EXCEPTION_STACKTRACE_KEY, stackTrace));
+            LogMessage(TkLogLevel.Exception, message, context, (LoggerConstants.EXCEPTION_MESSAGE_KEY, exMessage), (LoggerConstants.EXCEPTION_STACKTRACE_KEY, stackTrace));
         }
 
 #if TKLOG_DISABLE_EXCEPTION
@@ -214,8 +210,8 @@ namespace Tekly.Logging
                 newParams[index] = logParams[index];
             }
 
-            newParams[logParams.Length] = (TkLoggerConstants.EXCEPTION_MESSAGE_KEY, exception.Message);
-            newParams[logParams.Length + 1] = (TkLoggerConstants.EXCEPTION_STACKTRACE_KEY, StackTraceUtility.ExtractStringFromException(exception));
+            newParams[logParams.Length] = (LoggerConstants.EXCEPTION_MESSAGE_KEY, exception.Message);
+            newParams[logParams.Length + 1] = (LoggerConstants.EXCEPTION_STACKTRACE_KEY, StackTraceUtility.ExtractStringFromException(exception));
 
             LogMessage(TkLogLevel.Exception, message, context, logParams);
         }
@@ -226,7 +222,7 @@ namespace Tekly.Logging
                 return;
             }
             
-            LogToDestinations(new TkLogMessage(level, Name, FullName, message, GetStackTrace()));
+            LogToDestinations(LoggerSettings.Group, new TkLogMessage(level, Name, FullName, message, GetStackTrace()));
         }
 
         private void LogMessage(TkLogLevel level, string message, params (string, object)[] logParams)
@@ -235,7 +231,7 @@ namespace Tekly.Logging
                 return;
             }
 
-            LogToDestinations(new TkLogMessage(level, Name, FullName, message, GetStackTrace(), logParams));
+            LogToDestinations(LoggerSettings.Group, new TkLogMessage(level, Name, FullName, message, GetStackTrace(), logParams));
         }
 
         private void LogMessage(TkLogLevel level, string message, Object context)
@@ -244,7 +240,7 @@ namespace Tekly.Logging
                 return;
             }
 
-            LogToDestinations(new TkLogMessage(level, Name, FullName, message, GetStackTrace()), context);
+            LogToDestinations(LoggerSettings.Group, new TkLogMessage(level, Name, FullName, message, GetStackTrace()), context);
         }
 
         private void LogMessage(TkLogLevel level, string message, Object context, params (string, object)[] logParams)
@@ -253,7 +249,7 @@ namespace Tekly.Logging
                 return;
             }
 
-            LogToDestinations(new TkLogMessage(level, Name, FullName, message, GetStackTrace(), logParams), context);
+            LogToDestinations(LoggerSettings.Group, new TkLogMessage(level, Name, FullName, message, GetStackTrace(), logParams), context);
         }
     }
 }

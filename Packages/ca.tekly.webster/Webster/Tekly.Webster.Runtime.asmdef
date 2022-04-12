@@ -1,6 +1,6 @@
 {
     "name": "Tekly.Webster.Runtime",
-    "rootNamespace": "",
+    "rootNamespace": "Tekly",
     "references": [
         "GUID:b9160372c6c55a741932d482673e3abb"
     ],

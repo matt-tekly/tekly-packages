@@ -1,8 +1,10 @@
 using Tekly.Balance;
+using Tekly.Common.Terminal.Commands;
 using Tekly.Content;
 using Tekly.DataModels.Models;
 using Tekly.Glass;
 using Tekly.Injectors;
+using Tekly.Logging;
 using Tekly.TreeState.StandardActivities;
 using UnityEngine;
 
@@ -25,6 +27,8 @@ namespace TeklySample.App
             container.Register(Glass);
             
             RootModel.Instance.Add("app", new AppModel(balanceManager));
+            
+            CommandStore.Instance.AddCommandSource(new GameCommands());
         }
 
         public void Update()
@@ -35,6 +39,12 @@ namespace TeklySample.App
             }
 
             ModelManager.Instance.Tick();
+        }
+        
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void Initialize()
+        {
+            TkLogger.Initialize();
         }
     }
 }

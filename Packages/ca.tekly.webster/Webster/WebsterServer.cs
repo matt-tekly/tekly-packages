@@ -26,16 +26,14 @@ namespace Tekly.Webster
 
 		public static int HttpPort = 4649;
 
-		public static string PersistentDataPath { get; private set; }
-		public static string TemporaryCachePath { get; private set; }
-
-		public static IWebsterServerInstance Instance = CreateInstance();
+		public static IWebsterServerInstance Instance { get; private set; }
 
 #if !WEBSTER_DISABLE_AUTO_START && WEBSTER_ENABLE
 		[Preserve]
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 		private static void Initialize()
 		{
+			Instance = CreateInstance();
 			Start(true);
 		}
 #endif
@@ -48,8 +46,6 @@ namespace Tekly.Webster
 #endif
 		public static void Start(bool startFrameline)
 		{
-			PersistentDataPath = Application.persistentDataPath;
-			TemporaryCachePath = Application.temporaryCachePath;
 			Instance.Start(startFrameline);
 		}
 

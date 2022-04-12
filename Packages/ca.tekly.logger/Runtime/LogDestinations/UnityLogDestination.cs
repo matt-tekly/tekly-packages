@@ -6,21 +6,40 @@ using Object = UnityEngine.Object;
 
 namespace Tekly.Logging.LogDestinations
 {
-    public class UnityLogDestination : ITkLogDestination
+    public class UnityLogDestinationConfig : LogDestinationConfig
     {
+        public override ILogDestination CreateInstance()
+        {
+            return new UnityLogDestination(this);
+        }
+    }
+
+    public class UnityLogDestination : ILogDestination
+    {
+        public string Name { get; }
+        
         private int m_currentFrame;
 
         private readonly ThreadLocal<StringBuilder> m_stringBuilders = new ThreadLocal<StringBuilder>(() => new StringBuilder(512));
 
-        public void Dispose() { }
-        
-        public void LogMessage(TkLogMessage message)
+        public UnityLogDestination(LogDestinationConfig config)
         {
-            LogMessage(message, null);
+            Name = config.Name;
         }
 
-        public void LogMessage(TkLogMessage message, Object context)
+        public void Dispose() { }
+
+        public void LogMessage(TkLogMessage message, LogSource logSource)
         {
+            LogMessage(message, null, logSource);
+        }
+
+        public void LogMessage(TkLogMessage message, Object context, LogSource logSource)
+        {
+            if (logSource == LogSource.Unity) {
+                return;
+            }
+
             var sb = m_stringBuilders.Value;
             sb.Clear();
 
@@ -33,12 +52,12 @@ namespace Tekly.Logging.LogDestinations
 
             if (message.Params != null) {
                 foreach (var messageParam in message.Params) {
-                    if (string.Equals(messageParam.Id, TkLoggerConstants.EXCEPTION_MESSAGE_KEY)) {
+                    if (string.Equals(messageParam.Id, LoggerConstants.EXCEPTION_MESSAGE_KEY)) {
                         foundException = true;
                         sb.Append(messageParam.Value);
                     }
 
-                    if (string.Equals(messageParam.Id, TkLoggerConstants.EXCEPTION_STACKTRACE_KEY)) {
+                    if (string.Equals(messageParam.Id, LoggerConstants.EXCEPTION_STACKTRACE_KEY)) {
                         sb.Append("\n");
                         sb.Append(messageParam.Value);
                     }
@@ -49,13 +68,14 @@ namespace Tekly.Logging.LogDestinations
                 sb.Append(message.StackTrace);
             }
 
-            sb.Append(TkLoggerConstants.UNITY_LOG_MARKER);
-            
+            sb.Append(LoggerConstants.UNITY_LOG_MARKER);
+
             try {
                 var logType = LevelToType(message.Level);
                 Debug.LogFormat(logType, LogOption.NoStacktrace, context, sb.ToString());
             } catch (Exception ex) {
-                Debug.LogError("Exception while trying to log a message. Likely one of its params is not set. Message:\n\n" + sb);
+                Debug.LogError(
+                    "Exception while trying to log a message. Likely one of its params is not set. Message:\n\n" + sb);
                 Debug.LogException(ex);
             }
         }
@@ -68,7 +88,7 @@ namespace Tekly.Logging.LogDestinations
         public static LogType LevelToType(TkLogLevel level)
         {
             switch (level) {
-                case TkLogLevel.Trace:
+                case TkLogLevel.Debug:
                     return LogType.Log;
                 case TkLogLevel.Info:
                     return LogType.Log;

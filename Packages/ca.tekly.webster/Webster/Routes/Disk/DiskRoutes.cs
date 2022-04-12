@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using Tekly.Common.LocalFiles;
 using Tekly.Webster.Routing;
 using Tekly.Webster.Utility;
 
@@ -34,7 +35,7 @@ namespace Tekly.Webster.Routes.Disk
 		{
 			// Remove "/api/disk" to get the actual file path
 			var filePath = request.Url.LocalPath.Substring(10);
-			var path = Path.Combine(WebsterServer.PersistentDataPath, filePath).Replace('\\', '/');
+			var path = LocalFile.GetFullPath(filePath).Replace('\\', '/');
 
 			if (request.HttpMethod == "GET" || request.HttpMethod == "DELETE") {
 				if (!DiskEntryExists(path)) {
@@ -59,15 +60,17 @@ namespace Tekly.Webster.Routes.Disk
 			var attr = File.GetAttributes(path);
 			if ((attr & FileAttributes.Directory) == FileAttributes.Directory) {
 				var dr = new DirectoryResponse {
-					PersistentDataPath = WebsterServer.PersistentDataPath,
-					Directory = DirectorySummarizer.Summarize(path, WebsterServer.PersistentDataPath)
+					PersistentDataPath = Path.GetFullPath(LocalFile.Directory),
+					Directory = DirectorySummarizer.Summarize(path, Path.GetFullPath(LocalFile.Directory))
 				};
 
 				response.WriteJson(dr);
 			} else {
 				ResponseUtility.SetResponseContent(path, response);
-				var bytes = File.ReadAllBytes(path);
-				response.WriteContent(bytes);
+				
+				using (var fileStream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) {
+					response.WriteContent(fileStream);	
+				}
 			}
 		}
 

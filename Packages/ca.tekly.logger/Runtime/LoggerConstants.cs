@@ -1,9 +1,8 @@
 ﻿namespace Tekly.Logging
 {
-    public static class TkLoggerConstants
+    public static class LoggerConstants
     {
         public const string UNITY_LOG_NAME = "Unity";
-        public static bool UNITY_LOG_ENABLED_DEFAULT = true;
         public const string TIME_FORMAT_UTC = "yyyy-MM-ddTHH:mm:ssZ";
         public const string TIME_FORMAT_LOCAL = "yyyy-MM-ddTHH:mm:sszzzz";
         public const string EXCEPTION_MESSAGE_KEY = "ExMessage";

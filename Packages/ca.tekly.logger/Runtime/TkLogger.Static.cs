@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using Tekly.Common.LocalFiles;
@@ -15,21 +16,18 @@ namespace Tekly.Logging
     public partial class TkLogger
     {
         public static bool EnableStackTrace = true;
-        public static TkLogLevel GlobalMinLogLevel { get; private set; }
-
-        public static bool EnableUnityLogger = TkLoggerConstants.UNITY_LOG_ENABLED_DEFAULT;
-
-        public static readonly List<ITkLogDestination> Destinations = new List<ITkLogDestination>();
+        
+        public static readonly List<ILogDestination> Destinations = new List<ILogDestination>();
+        public static readonly List<LoggerGroup> Groups = new List<LoggerGroup>();
+        public static LoggerGroup DefaultGroup;
 
         public static readonly ConcurrentDictionary<string, string> CommonFields = new ConcurrentDictionary<string, string>();
-
-        private static UnityLogDestination s_unityLogDestination;
-
+        
         private static readonly ConcurrentDictionary<Type, TkLogger> s_loggers = new ConcurrentDictionary<Type, TkLogger>();
 
         private static readonly ThreadLocal<StringBuilder> s_stringBuilders = new ThreadLocal<StringBuilder>(() => new StringBuilder(512));
 
-        private static readonly TkLogLevelsTree s_levelsTree = new TkLogLevelsTree();
+        private static readonly LogSettingsTree s_settingsTree = new LogSettingsTree();
 
         private static int s_frame;
         private static float s_realtimeSinceStartup;
@@ -44,35 +42,50 @@ namespace Tekly.Logging
             return s_loggers.GetOrAdd(type, Create);
         }
         
-        private static TkLogger Create(Type type)
+        public static void Initialize(string profile = null)
         {
-            var level = s_levelsTree.GetLevel(type.FullName);
-            return new TkLogger(type, level);
+            LoadConfigFile(profile);
+            InitializeCommon();
+        }
+        
+        public static void Initialize(LoggerConfigData config, string profile)
+        {
+            ApplyConfig(config, profile);
+            InitializeCommon();
+        }
+        
+        public static void Initialize(LoggerProfileData profile)
+        {
+            ApplyProfile(profile);
+            InitializeCommon();
         }
 
-        public static void SetGlobalMinLogLevel(TkLogLevel level)
+        private static void InitializeCommon()
         {
-            GlobalMinLogLevel = level;
-            foreach (var logger in s_loggers.Values) {
-                var newLevel = s_levelsTree.GetLevel(logger.GetType().FullName);
-                logger.OverrideMinLogLevel(newLevel);
-            }
-        }
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
-        private static void Initialize()
-        {
-            GlobalMinLogLevel = TkLogLevel.Info;
-
-            LoadResourcesConfig();
-            LoadLocalFileConfig();
-
-            s_unityLogDestination = new UnityLogDestination();
             Application.logMessageReceivedThreaded += HandleUnityLog;
             LifeCycle.Instance.Update += Update;
 
             UpdateCommonProperties();
             UnityRuntimeEditorUtils.OnExitPlayMode(Reset);
+        }
+
+        private static void LoadConfigFile(string profile)
+        {
+            if (LocalFile.Exists("user/logger_config.xml")) {
+                var xml = LocalFile.ReadAllText("user/logger_config.xml");
+                var loggerConfig = LoggerConfigData.DeserializeXml(xml);
+                ApplyConfig(loggerConfig, profile);
+            } else {
+                var configAsset = Resources.Load<TextAsset>("logger_config");
+
+                if (configAsset != null) {
+                    var loggerConfig = LoggerConfigData.DeserializeXml(configAsset.text);
+                    ApplyConfig(loggerConfig, profile);
+                } else {
+                    UnityEngine.Debug.LogError("Failed to find a 'logger_config.xml' in Resources directory. Please create one");
+                    ApplyProfile(CreateDefaultProfile());
+                }
+            }
         }
 
         public static void Reset()
@@ -83,38 +96,83 @@ namespace Tekly.Logging
             
             Destinations.Clear();
             CommonFields.Clear();
-            
+            Groups.Clear();
+
             s_loggers.Clear();
-            s_levelsTree.Clear();
+            s_settingsTree.Clear();
             
             Application.logMessageReceivedThreaded -= HandleUnityLog;
             LifeCycle.Instance.Update -= Update;
         }
-
-        private static void LoadResourcesConfig()
+        
+        private static TkLogger Create(Type type)
         {
-            var configAsset = Resources.Load<TextAsset>("logger_config");
-
-            if (configAsset != null) {
-                var loggerConfig = LoggerConfig.DeserializeXml(configAsset.text);
-                ApplyConfig(loggerConfig);
-            } else {
-                Debug.LogError("Failed to find a 'logger_config.xml' in Resources directory. Please create one");
-            }
+            var settings = s_settingsTree.GetSettings(type.FullName);
+            return new TkLogger(type, settings);
         }
-
-        private static void LoadLocalFileConfig()
+        
+        private static void ApplyConfig(LoggerConfigData loggerConfigData, string profile)
         {
-            if (LocalFile.Exists("Settings/logger_config.xml")) {
-                var xml = LocalFile.ReadAllText("Settings/logger_config.xml");
-                var loggerConfig = LoggerConfig.DeserializeXml(xml);
-                ApplyConfig(loggerConfig);
+            var targetProfileData = loggerConfigData.Profiles.FirstOrDefault(x => x.Default);
+            
+            if (!string.IsNullOrEmpty(profile)) {
+
+                foreach (var profileData in loggerConfigData.Profiles) {
+                    if (profileData.Name == profile) {
+                        targetProfileData = profileData;
+                        break;
+                    }
+                }
+
+                if (targetProfileData == null) {
+                    UnityEngine.Debug.LogError($"Didn't find LoggerProfile [{profile}] and there is no default. Using built in default");
+                    
+                } else {
+                    UnityEngine.Debug.LogError($"Didn't find LoggerProfile [{profile}] using default");    
+                }
             }
-        }
 
-        public static void ApplyConfig(LoggerConfig loggerConfig)
+            if (targetProfileData == null) {
+                UnityEngine.Debug.LogError("Using built in default Logger Profile");
+                targetProfileData = CreateDefaultProfile();
+            }
+            
+            ApplyProfile(targetProfileData);
+        }
+        
+        private static void ApplyProfile(LoggerProfileData loggerProfileData)
         {
-            s_levelsTree.Initialize(loggerConfig.DefaultProfile.Levels);
+            foreach (var destination in Destinations) {
+                destination.Dispose();
+            }
+            
+            Destinations.Clear();
+            Groups.Clear();
+
+            foreach (var logDestinationConfig in loggerProfileData.Destinations) {
+                Destinations.Add(logDestinationConfig.CreateInstance());
+            }
+
+            foreach (var groupData in loggerProfileData.Groups) {
+                var group = new LoggerGroup();
+                group.Name = groupData.Name;
+                
+                foreach (var destination in groupData.Destinations) {
+                    group.Destinations.Add(GetDestination(destination));    
+                }
+
+                if (groupData.Default) {
+                    DefaultGroup = group;
+                }
+                
+                Groups.Add(group);
+            }
+            
+            s_settingsTree.Initialize(loggerProfileData.Loggers);
+
+            foreach (var logger in s_loggers) {
+                logger.Value.LoggerSettings = s_settingsTree.GetSettings(logger.Key.FullName);
+            }
         }
 
         public static void UpdateCommonProperties()
@@ -122,13 +180,31 @@ namespace Tekly.Logging
             SetCommonField("_frame", s_frame);
             SetCommonField("_realTime", s_realtimeSinceStartup);
         }
+        
+        public static LoggerGroup GetGroup(string name)
+        {
+            foreach (var group in Groups) {
+                if (group.Name == name) {
+                    return group;
+                }
+            }
+
+            throw new Exception($"Failed to find LoggerGroup: [{name}]");
+        }
+
+        private static ILogDestination GetDestination(string name)
+        {
+            foreach (var destination in Destinations) {
+                if (destination.Name == name) {
+                    return destination;
+                }
+            }
+
+            throw new Exception($"Failed to find LogDestination: [{name}]");
+        }
 
         private static void Update()
         {
-            if (EnableUnityLogger) {
-                s_unityLogDestination.Update();
-            }
-
             s_frame = Time.frameCount;
             s_realtimeSinceStartup = Time.realtimeSinceStartup;
 
@@ -139,14 +215,15 @@ namespace Tekly.Logging
 
         private static void HandleUnityLog(string message, string stacktrace, LogType type)
         {
-            if (message[message.Length - 1] == TkLoggerConstants.UNITY_LOG_MARKER) {
+            if (message[message.Length - 1] == LoggerConstants.UNITY_LOG_MARKER) {
                 return;
             }
 
             var level = UnityLogDestination.TypeToLevel(type);
-            var loggerName = TkLoggerConstants.UNITY_LOG_NAME;
+            var loggerName = LoggerConstants.UNITY_LOG_NAME;
             stacktrace = stacktrace.Replace("\\", "/");
-            LogToDestinations(new TkLogMessage(level, loggerName, loggerName, message, stacktrace), false);
+            
+            LogToDestinations(DefaultGroup, new TkLogMessage(level, loggerName, loggerName, message, stacktrace), LogSource.Unity);
         }
 
         public static void SetCommonField(string id, object value)
@@ -175,26 +252,43 @@ namespace Tekly.Logging
             return sb.ToString();
         }
 
-        private static void LogToDestinations(TkLogMessage message, bool logToUnity = true)
+        private static void LogToDestinations(LoggerGroup loggerGroup, TkLogMessage message, LogSource logSource = LogSource.TkLogger)
         {
-            if (EnableUnityLogger && logToUnity) {
-                s_unityLogDestination.LogMessage(message);
-            }
-
-            foreach (var destination in Destinations) {
-                destination.LogMessage(message);
+            foreach (var destination in loggerGroup.Destinations) {
+                destination.LogMessage(message, logSource);
             }
         }
 
-        private static void LogToDestinations(TkLogMessage message, Object context, bool logToUnity = true)
+        private static void LogToDestinations(LoggerGroup loggerGroup, TkLogMessage message, Object context, LogSource logSource = LogSource.TkLogger)
         {
-            if (EnableUnityLogger && logToUnity) {
-                s_unityLogDestination.LogMessage(message, context);
+            foreach (var destination in loggerGroup.Destinations) {
+                destination.LogMessage(message, context, logSource);
             }
+        }
 
-            foreach (var destination in Destinations) {
-                destination.LogMessage(message, context);
-            }
+        private static LoggerProfileData CreateDefaultProfile()
+        {
+            var profileData = new LoggerProfileData();
+            profileData.Destinations.Add(new UnityLogDestinationConfig {
+                Name = "unity"
+            });
+            
+            profileData.Groups.Add(new LoggerGroupData {
+                Name = "default",
+                Default = true,
+                Destinations = new List<string> {
+                    "unity"
+                }
+            });
+
+            profileData.Loggers = new LoggersData {
+                Default = new LoggerSettingsData {
+                    Level = TkLogLevel.Info,
+                    Group = "default"
+                }
+            };
+
+            return profileData;
         }
     }
 }

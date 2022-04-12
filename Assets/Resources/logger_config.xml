@@ -1,6 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LoggerConfig>
-    <DefaultProfile Name="Default">
-        <Levels Logger="*" Level="Info" />
-    </DefaultProfile>
+    <Profile Name="default" Default="true">
+        <Destinations>
+            <FlatFile Name="main" Prefix="main"/>
+            <FlatFile Name="net" Prefix="net"/>
+            <Unity Name="unity" />
+        </Destinations>
+
+        <Groups>
+            <Group Name="default" Default="true">
+                <Destinations>
+                    <string>main</string>
+                    <string>unity</string>
+                </Destinations>
+            </Group>
+
+            <Group Name="network">
+                <Destinations>
+                    <string>net</string>
+                    <string>unity</string>
+                </Destinations>
+            </Group>
+        </Groups>
+
+        <Loggers>
+            <Default Level="Info" Group="default" />
+            <Logger Logger="Net" Group="network" />
+        </Loggers>
+    </Profile>
 </LoggerConfig>

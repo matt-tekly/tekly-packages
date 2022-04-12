@@ -13,7 +13,7 @@ namespace Tekly.Webster
 {
 	public static class Frameline
 	{
-		public static IFramelineInstance Instance = CreateInstance();
+		public static IFramelineInstance Instance { get; private set; }
 
 		public static string Json => Instance.Json;
 
@@ -72,6 +72,7 @@ namespace Tekly.Webster
 #endif
 		internal static void Initialize()
 		{
+			Instance = CreateInstance();
 			Instance.Initialize();
 		}
 

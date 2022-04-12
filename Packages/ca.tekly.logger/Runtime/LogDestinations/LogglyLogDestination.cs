@@ -9,12 +9,14 @@ namespace Tekly.Logging.LogDestinations
     /// Sends logs to Loggly.
     /// This destination has its own minimum LogLevel that defaults to Error.
     /// </summary>
-    public class LogglyLogDestination : ITkLogDestination
+    public class LogglyLogDestination : ILogDestination
     {
         public const string TEMPLATE_URL = "https://logs-01.loggly.com/bulk/{0}/tag/{1}/";
         public readonly string Token;
         public readonly string Url;
 
+        public string Name { get; }
+        
         public TkLogLevel MinLevel;
         
         private UnityWebRequestAsyncOperation m_operation;
@@ -33,8 +35,8 @@ namespace Tekly.Logging.LogDestinations
         }
         
         public void Dispose() { }
-
-        public void LogMessage(TkLogMessage message)
+        
+        public void LogMessage(TkLogMessage message, LogSource logSource)
         {
             if (message.Level >= MinLevel) {
                 m_timer = m_timeToLog;
@@ -42,9 +44,9 @@ namespace Tekly.Logging.LogDestinations
             }
         }
 
-        public void LogMessage(TkLogMessage message, Object context)
+        public void LogMessage(TkLogMessage message, Object context, LogSource logSource)
         {
-            LogMessage(message);
+            LogMessage(message, logSource);
         }
         
         public void Update()

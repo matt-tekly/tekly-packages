@@ -25,7 +25,7 @@ namespace Tekly.Logging
             Message = message;
             Params = null;
             DateTime = DateTime.UtcNow;
-            Timestamp = DateTime.ToString(TkLoggerConstants.TIME_FORMAT_UTC);
+            Timestamp = DateTime.ToString(LoggerConstants.TIME_FORMAT_UTC);
             StackTrace = stackTrace;
             
             if (TkLogger.CommonFields.Count > 0) {
@@ -42,7 +42,7 @@ namespace Tekly.Logging
             Message = message;
             Params = new TkLogParam[logParams.Count + TkLogger.CommonFields.Count];
             DateTime = DateTime.UtcNow;
-            Timestamp = DateTime.ToString(TkLoggerConstants.TIME_FORMAT_UTC);
+            Timestamp = DateTime.ToString(LoggerConstants.TIME_FORMAT_UTC);
             StackTrace = stackTrace;
 
             for (var index = 0; index < logParams.Count; index++) {
@@ -60,7 +60,7 @@ namespace Tekly.Logging
             Message = message;
             Params = new TkLogParam[logParams.Length + TkLogger.CommonFields.Count];
             DateTime = DateTime.UtcNow;
-            Timestamp = DateTime.ToString(TkLoggerConstants.TIME_FORMAT_UTC);
+            Timestamp = DateTime.ToString(LoggerConstants.TIME_FORMAT_UTC);
             StackTrace = stackTrace;
 
             for (var index = 0; index < logParams.Length; index++) {
@@ -78,7 +78,7 @@ namespace Tekly.Logging
             Message = message;
             Params = TkLogParam.CreateReserve(TkLogger.CommonFields.Count, logParams);
             DateTime = DateTime.UtcNow;
-            Timestamp = DateTime.ToString(TkLoggerConstants.TIME_FORMAT_UTC);
+            Timestamp = DateTime.ToString(LoggerConstants.TIME_FORMAT_UTC);
             StackTrace = stackTrace;
             
             CopyCommonFields(logParams.Length / 2);
@@ -92,7 +92,7 @@ namespace Tekly.Logging
             Message = message;
             Params = TkLogParam.CreateReserve(TkLogger.CommonFields.Count, logParams);
             DateTime = DateTime.UtcNow;
-            Timestamp = DateTime.ToString(TkLoggerConstants.TIME_FORMAT_UTC);
+            Timestamp = DateTime.ToString(LoggerConstants.TIME_FORMAT_UTC);
             StackTrace = stackTrace;
             
             CopyCommonFields(logParams.Length);

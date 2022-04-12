@@ -83,25 +83,29 @@ namespace Tekly.Webster.Utility
 				throw new ArgumentNullException(nameof(content));
 			}
 
-			long length = content.Length;
+			var length = content.Length;
 
 			if (length > 0L) {
 				response.ContentLength64 = length;
 				var outputStream = response.OutputStream;
-				if (length <= int.MaxValue) {
-					outputStream.Write(content, 0, (int) length);
-				} else {
-					outputStream.WriteBytes(content, 1024);
-				}
+				outputStream.Write(content, 0, length);
 
 				outputStream.Close();
 			}
 		}
-
-		private static void WriteBytes(this Stream stream, byte[] bytes, int bufferLength)
+		
+		public static void WriteContent(this HttpListenerResponse response, Stream stream)
 		{
-			using (var source = new MemoryStream(bytes))
-				source.CopyTo(stream, bufferLength);
+			if (response == null) {
+				throw new ArgumentNullException(nameof(response));
+			}
+			
+			if (stream == null) {
+				throw new ArgumentNullException(nameof(stream));
+			}
+
+			stream.CopyTo(response.OutputStream);
+			response.OutputStream.Close();
 		}
 	}
 }

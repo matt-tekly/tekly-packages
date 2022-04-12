@@ -30,7 +30,7 @@ namespace Tekly.Balance
 
         public async Task LoadAsync()
         {
-            m_logger.Trace("Loading balance started: [{balance}]", ("balance", m_balanceLabel));
+            m_logger.Debug("Loading balance started: [{balance}]", ("balance", m_balanceLabel));
             m_handle = m_contentProvider.LoadAssetsAsync<BalanceObject>(m_balanceLabel);
             var result = await m_handle;
 
@@ -44,7 +44,7 @@ namespace Tekly.Balance
                 return;
             }
 
-            m_logger.Trace("Loading balance finished: [{balance}]", ("balance", m_balanceLabel));
+            m_logger.Debug("Loading balance finished: [{balance}]", ("balance", m_balanceLabel));
             
             Objects = result;
             HasLoaded = true;
