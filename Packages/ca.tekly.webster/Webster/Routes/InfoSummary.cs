@@ -126,5 +126,13 @@ namespace Tekly.Webster.Routes
             summary.Add("Time", "Time Scale", Time.timeScale);
             summary.Add("Time", "Maximum Delta Time", Time.maximumDeltaTime);
         }
+        
+#if UNITY_EDITOR
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void Initialize()
+        {
+            ApplicationInfoRequested = null;
+        }
+#endif
     }
 }

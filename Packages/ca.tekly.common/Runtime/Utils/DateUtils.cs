@@ -9,5 +9,10 @@ namespace Tekly.Common.Utils
             var year = date.Year - 2000;
             return $"{year}_{date.Month:00}_{date.Day:00}";
         }
+
+        public static string UtcNowForFileName()
+        {
+            return DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
+        }
     }
 }

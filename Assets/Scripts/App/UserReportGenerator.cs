@@ -2,27 +2,27 @@ using System;
 using System.IO;
 using System.Linq;
 using Tekly.Common.LocalFiles;
-using Tekly.Common.Terminal.Commands;
 using Tekly.Logging;
 using Tekly.Logging.LogDestinations;
+using Tekly.Webster.Routes;
 using Tekly.ZipFile;
 using UnityEngine;
 
 namespace TeklySample.App
 {
-    public class GameCommands : ICommandSource
+    [Serializable]
+    public class UserReport
     {
-        [Command("game.userreport.zip")]
-        [Help("Create a user report zip")]
-        public string UserReportZip(string localFile)
+        public string Message;
+        public string Version;
+    }
+    
+    public static class UserReportGenerator
+    {
+        public static void Generate(Stream outputStream)
         {
-            if (!localFile.EndsWith(".zip")) {
-                localFile += ".zip";
-            }
-            
-            using var fileStream = LocalFile.WriteStream(localFile);
-            using var zipFile = new ZipFile(fileStream);
-            
+            using var zipFile = new ZipFile(outputStream);
+
             var fileLogDestinations = TkLogger.Destinations.OfType<FileLogDestination>();
 
             foreach (var fileLogDestination in fileLogDestinations) {
@@ -36,33 +36,17 @@ namespace TeklySample.App
                     zipFile.AddFile(LocalFile.GetPath(fileLogDestination.PrevFilePath), fileName);    
                 }
             }
+
             
             var report = new UserReport {
                 Message = "Here is some useful information in the report",
                 Version = Application.version
             };
             
-            zipFile.AddEntry(JsonUtility.ToJson(report, true), "report.json");
+            zipFile.AddAsJson(report, "report.json");
+            zipFile.AddAsJson(InfoSummary.Get(), "info_summary.json");
 
-            return $"Created report at {LocalFile.GetFullPath(localFile)}";
+            zipFile.Finish();
         }
-
-        [Command("game.logs.reset")]
-        [Help("Resets FileLogDestinations")]
-        public string ResetLogs()
-        {
-            foreach (var destination in TkLogger.Destinations.OfType<FileLogDestination>()) {
-                destination.QueueReset();
-            }
-            
-            return "Reset successful.";
-        }
-    }
-
-    [Serializable]
-    public class UserReport
-    {
-        public string Message;
-        public string Version;
     }
 }

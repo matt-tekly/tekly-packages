@@ -9,6 +9,7 @@ namespace Tekly.Webster.Servers
 	public interface IWebsterServerInstance
 	{
 		void AddRouteHandler(IRouteHandler routeHandler);
+		void AddRouteHandler<T>() where T : class, new();
 		void MainThreadUpdate();
 
 		/// <summary>

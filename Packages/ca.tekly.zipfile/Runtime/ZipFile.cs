@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
+using UnityEngine;
 
 namespace Tekly.ZipFile
 {
@@ -35,6 +36,11 @@ namespace Tekly.ZipFile
                 m_zipOutputStream.Close();
                 m_zipOutputStream?.Dispose();
             }
+        }
+
+        public void AddAsJson(object obj, string entryName)
+        {
+            AddEntry(JsonUtility.ToJson(obj, true), entryName);
         }
 
         public void AddEntry(string data, string entryName)

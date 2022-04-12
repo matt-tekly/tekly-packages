@@ -93,9 +93,10 @@ namespace Tekly.Webster.Routes.AssetInfos
 				}
 				case Sprite sprite: {
 					InAtlas = sprite.packed;
+					var textureRect = sprite.textureRect;
 					
-					Width = (int) sprite.rect.width;
-					Height = (int) sprite.rect.height;
+					Width = Mathf.RoundToInt(textureRect.width);
+					Height = Mathf.RoundToInt(textureRect.height);
 
 					TextureInstanceId = sprite.texture.GetInstanceID();
 					

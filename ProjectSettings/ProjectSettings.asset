@@ -753,7 +753,13 @@ PlayerSettings:
   webGLLinkerTarget: 1
   webGLThreadsSupport: 0
   webGLDecompressionFallback: 0
-  scriptingDefineSymbols: {}
+  scriptingDefineSymbols:
+    1: WEBSTER_ENABLE
+    4: WEBSTER_ENABLE
+    7: WEBSTER_ENABLE
+    19: WEBSTER_ENABLE
+    21: WEBSTER_ENABLE
+    27: WEBSTER_ENABLE
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}

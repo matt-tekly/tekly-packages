@@ -33,7 +33,6 @@ namespace Tekly.Webster
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 		private static void Initialize()
 		{
-			Instance = CreateInstance();
 			Start(true);
 		}
 #endif
@@ -46,6 +45,7 @@ namespace Tekly.Webster
 #endif
 		public static void Start(bool startFrameline)
 		{
+			Instance = CreateInstance();
 			Instance.Start(startFrameline);
 		}
 

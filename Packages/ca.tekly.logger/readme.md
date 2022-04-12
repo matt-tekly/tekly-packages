@@ -63,7 +63,7 @@ Loggers send logs to `LoggerDestinations`. Destinations are used to actually out
 This is the configuration for `TkLogger`.
 
 ## Common Fields
-`TkLogger` supports common fields that are set globally and are available to every log. This is useful if you need commond data to be associated with every log event.
+`TkLogger` supports common fields that are set globally and are available to every log. This is useful if you need common data to be associated with every log event.
 
 Some common use cases:
 

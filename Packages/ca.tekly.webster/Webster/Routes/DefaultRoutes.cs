@@ -4,7 +4,6 @@
 
 #if (WEBSTER_ENABLE || UNITY_EDITOR && WEBSTER_ENABLE_EDITOR)
 
-using System.Net;
 using Tekly.Webster.Routes.AssetInfos;
 using Tekly.Webster.Routes.GameObjects;
 using Tekly.Webster.Routing;
@@ -20,7 +19,7 @@ namespace Tekly.Webster.Routes
 		[Get("/routes")]
 		[Description("Get all the routes")]
 		[RequestMainThread(false)]
-		public RoutesInfo GetRoutes(HttpListenerResponse response)
+		public RoutesInfo GetRoutes()
 		{
 			return WebsterServer.Instance.GetRoutes();
 		}
