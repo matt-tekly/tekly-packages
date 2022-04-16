@@ -4,7 +4,7 @@ namespace Tekly.Webster.Utility
 {
 	public class DisposableUnit : IDisposable
 	{
-		public static DisposableUnit Instance = new DisposableUnit();
+		public static readonly DisposableUnit Instance = new DisposableUnit();
 		public void Dispose() { }
 	}
 }

@@ -48,7 +48,8 @@ namespace TeklySample.App
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void InitializeDebug()
         {
-            WebsterServer.Instance.AddRouteHandler<SampleWebsterHandler>();
+            WebsterServer.Start(true);
+            WebsterServer.AddRouteHandler<SampleWebsterHandler>();
         }
     }
 }

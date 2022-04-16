@@ -1,7 +1,9 @@
 using System.Text;
+using UnityEngine.Scripting;
 
 namespace Tekly.Logging.LogDestinations
 {
+    [Preserve]
     public class StructuredFileLogConfig : FileLogConfig
     {
         public override ILogDestination CreateInstance()

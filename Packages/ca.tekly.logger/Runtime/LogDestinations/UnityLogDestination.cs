@@ -2,10 +2,12 @@
 using System.Text;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.Scripting;
 using Object = UnityEngine.Object;
 
 namespace Tekly.Logging.LogDestinations
 {
+    [Preserve]
     public class UnityLogDestinationConfig : LogDestinationConfig
     {
         public override ILogDestination CreateInstance()

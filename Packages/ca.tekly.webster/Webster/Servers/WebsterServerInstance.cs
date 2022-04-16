@@ -58,11 +58,10 @@ namespace Tekly.Webster.Servers
 
 			Debug.Log("Webster starting");
 
+			Application.runInBackground = true;
+			
 			m_assetLoader = new AssetLoader();
 			AssetsEmbedded.Initialize(m_assetLoader);
-
-			Application.runInBackground = true;
-			WebsterBehaviour.CreateInstance();
 			
 			AddDefaultRoutes();
 

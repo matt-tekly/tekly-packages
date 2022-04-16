@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Text;
 using System.Threading;
+using Tekly.Common.LifeCycles;
 using Tekly.Webster.Routing;
 using Tekly.Webster.Utility;
 using UnityEngine;
@@ -25,7 +26,7 @@ namespace Tekly.Webster.Routes
 			byte[] bytes = null;
 			
 			WebsterServer.Dispatch(() => {
-				WebsterBehaviour.Instance.StartCoroutine(ScreenShot(pngBytes => bytes = pngBytes));
+				LifeCycle.Instance.StartCoroutine(ScreenShot(pngBytes => bytes = pngBytes));
 			});
 
 			var stopWatch = new Stopwatch();

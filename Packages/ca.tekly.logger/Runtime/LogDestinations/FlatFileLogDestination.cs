@@ -2,9 +2,11 @@ using System;
 using System.IO;
 using System.Text;
 using System.Xml.Serialization;
+using UnityEngine.Scripting;
 
 namespace Tekly.Logging.LogDestinations
 {
+    [Preserve]
     public class FlatFileLogConfig : FileLogConfig
     {
         public override ILogDestination CreateInstance()

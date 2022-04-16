@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using UnityEngine.Scripting;
 
 namespace Tekly.Logging
 {
     [XmlRoot("LoggerConfig")]
+    [Preserve]
     public class LoggerConfigData
     {
         [XmlElement("Profile")]
@@ -19,6 +21,7 @@ namespace Tekly.Logging
     }
 
     [Serializable]
+    [Preserve]
     public class LoggerProfileData
     {
         [XmlAttribute] public string Name;
@@ -32,6 +35,7 @@ namespace Tekly.Logging
     }
     
     [Serializable]
+    [Preserve]
     public class LoggerGroupData
     {
         [XmlAttribute] public string Name;
@@ -40,6 +44,7 @@ namespace Tekly.Logging
     }
     
     [Serializable]
+    [Preserve]
     public class LoggersData
     {
         [XmlElement] public LoggerSettingsData Default = new LoggerSettingsData();
@@ -47,6 +52,7 @@ namespace Tekly.Logging
     }
 
     [Serializable]
+    [Preserve]
     public class LoggerSettingsData
     {
         [XmlAttribute] public string Logger;

@@ -7,9 +7,9 @@
 #endif
 
 using System;
+using Tekly.Common.LifeCycles;
 using Tekly.Webster.Routing;
 using Tekly.Webster.Servers;
-using UnityEngine;
 using UnityEngine.Scripting;
 
 #if UNITY_2018_3_OR_NEWER
@@ -26,17 +26,8 @@ namespace Tekly.Webster
 
 		public static int HttpPort = 4649;
 
-		public static IWebsterServerInstance Instance { get; private set; }
-
-#if !WEBSTER_DISABLE_AUTO_START && WEBSTER_ENABLE
-		[Preserve]
-		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-		private static void Initialize()
-		{
-			Start(true);
-		}
-#endif
-
+		internal static IWebsterServerInstance Instance { get; private set; }
+		
 		/// <summary>
 		/// This must be called from the Main Thread
 		/// </summary>
@@ -45,6 +36,9 @@ namespace Tekly.Webster
 #endif
 		public static void Start(bool startFrameline)
 		{
+			LifeCycle.Instance.Update += MainThreadUpdate;
+			LifeCycle.Instance.Quit += Stop;
+			
 			Instance = CreateInstance();
 			Instance.Start(startFrameline);
 		}
@@ -54,6 +48,9 @@ namespace Tekly.Webster
 #endif
 		public static void Stop()
 		{
+			LifeCycle.Instance.Update -= MainThreadUpdate;
+			LifeCycle.Instance.Quit -= Stop;
+			
 			Instance?.Stop();
 			Instance = null;
 		}

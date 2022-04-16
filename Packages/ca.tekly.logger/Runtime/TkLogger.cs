@@ -216,7 +216,7 @@ namespace Tekly.Logging
             LogMessage(TkLogLevel.Exception, message, context, logParams);
         }
 
-        private void LogMessage(TkLogLevel level, string message)
+        public void LogMessage(TkLogLevel level, string message)
         {
             if (level < MinLogLevel) {
                 return;
@@ -224,8 +224,17 @@ namespace Tekly.Logging
             
             LogToDestinations(LoggerSettings.Group, new TkLogMessage(level, Name, FullName, message, GetStackTrace()));
         }
+        
+        public void LogMessageStackTrace(TkLogLevel level, string message, string stackTrace)
+        {
+            if (level < MinLogLevel) {
+                return;
+            }
+            
+            LogToDestinations(LoggerSettings.Group, new TkLogMessage(level, Name, FullName, message, stackTrace));
+        }
 
-        private void LogMessage(TkLogLevel level, string message, params (string, object)[] logParams)
+        public void LogMessage(TkLogLevel level, string message, params (string, object)[] logParams)
         {
             if (level < MinLogLevel) {
                 return;
@@ -233,8 +242,17 @@ namespace Tekly.Logging
 
             LogToDestinations(LoggerSettings.Group, new TkLogMessage(level, Name, FullName, message, GetStackTrace(), logParams));
         }
+        
+        public void LogMessageStackTrace(TkLogLevel level, string message, string stacktrace, params (string, object)[] logParams)
+        {
+            if (level < MinLogLevel) {
+                return;
+            }
 
-        private void LogMessage(TkLogLevel level, string message, Object context)
+            LogToDestinations(LoggerSettings.Group, new TkLogMessage(level, Name, FullName, message, stacktrace, logParams));
+        }
+
+        public void LogMessage(TkLogLevel level, string message, Object context)
         {
             if (level < MinLogLevel) {
                 return;
@@ -243,13 +261,18 @@ namespace Tekly.Logging
             LogToDestinations(LoggerSettings.Group, new TkLogMessage(level, Name, FullName, message, GetStackTrace()), context);
         }
 
-        private void LogMessage(TkLogLevel level, string message, Object context, params (string, object)[] logParams)
+        public void LogMessage(TkLogLevel level, string message, Object context, params (string, object)[] logParams)
         {
             if (level < MinLogLevel) {
                 return;
             }
 
             LogToDestinations(LoggerSettings.Group, new TkLogMessage(level, Name, FullName, message, GetStackTrace(), logParams), context);
+        }
+
+        public bool IsLevelEnabled(TkLogLevel level)
+        {
+            return level >= MinLogLevel;
         }
     }
 }

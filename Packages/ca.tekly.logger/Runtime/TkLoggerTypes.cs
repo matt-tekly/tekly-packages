@@ -9,6 +9,7 @@ namespace Tekly.Logging
         Warning,
         Error,
         Exception,
+        None
     }
     
     public enum LogSource

@@ -11,9 +11,9 @@ using Tekly.Webster.FramelineCore;
 
 namespace Tekly.Webster
 {
-	public static class Frameline
+	internal static class Frameline
 	{
-		public static IFramelineInstance Instance { get; private set; }
+		internal static IFramelineInstance Instance { get; private set; }
 
 		public static string Json => Instance.Json;
 
@@ -35,12 +35,20 @@ namespace Tekly.Webster
 
 		public static int BeginEventGetId(string id, string type)
 		{
+#if FRAMELINE_ENABLE
 			return Instance.BeginEventGetId(id, type);
+#else
+            return -1;
+#endif
 		}
 
 		public static IDisposable BeginEventDisposable(string id, string type)
 		{
+#if FRAMELINE_ENABLE
 			return Instance.BeginEventDisposable(id, type);
+#else
+            return using Tekly.Webster.Utility.DisposableUnit.Instance;
+#endif
 		}
 
 #if !FRAMELINE_ENABLE
