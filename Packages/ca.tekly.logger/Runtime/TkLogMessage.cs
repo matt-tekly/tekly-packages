@@ -147,7 +147,10 @@ namespace Tekly.Logging
                 int stackSection = 0;
                 bool foundOne = false;
                 for (i = 0; i < stackLength; i++) {
-                    if (stack[i] != '\n') continue;
+                    if (stack[i] != '\n') {
+                        continue;
+                    }
+
                     if (i >= stackSection + 1) {
                         sb.Append("\"").Append(stack.Substring(stackSection, i - stackSection)).Append("\",");
                         foundOne = true;
