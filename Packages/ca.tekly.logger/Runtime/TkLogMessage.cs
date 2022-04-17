@@ -27,13 +27,13 @@ namespace Tekly.Logging
             DateTime = DateTime.UtcNow;
             Timestamp = DateTime.ToString(LoggerConstants.TIME_FORMAT_UTC);
             StackTrace = stackTrace;
-            
+
             if (TkLogger.CommonFields.Count > 0) {
                 Params = new TkLogParam[TkLogger.CommonFields.Count];
                 CopyCommonFields(0);
             }
         }
-        
+
         public TkLogMessage(TkLogLevel level, string loggerName, string loggerFullName, string message, string stackTrace, List<TkLogParam> logParams)
         {
             Level = level;
@@ -51,7 +51,7 @@ namespace Tekly.Logging
 
             CopyCommonFields(logParams.Count);
         }
-        
+
         public TkLogMessage(TkLogLevel level, string loggerName, string loggerFullName, string message, string stackTrace, TkLogParam[] logParams)
         {
             Level = level;
@@ -69,7 +69,7 @@ namespace Tekly.Logging
 
             CopyCommonFields(logParams.Length);
         }
-        
+
         public TkLogMessage(TkLogLevel level, string loggerName, string loggerFullName, string message, string stackTrace, params object[] logParams)
         {
             Level = level;
@@ -80,10 +80,10 @@ namespace Tekly.Logging
             DateTime = DateTime.UtcNow;
             Timestamp = DateTime.ToString(LoggerConstants.TIME_FORMAT_UTC);
             StackTrace = stackTrace;
-            
+
             CopyCommonFields(logParams.Length / 2);
         }
-        
+
         public TkLogMessage(TkLogLevel level, string loggerName, string loggerFullName, string message, string stackTrace, params (string, object)[] logParams)
         {
             Level = level;
@@ -94,18 +94,18 @@ namespace Tekly.Logging
             DateTime = DateTime.UtcNow;
             Timestamp = DateTime.ToString(LoggerConstants.TIME_FORMAT_UTC);
             StackTrace = stackTrace;
-            
+
             CopyCommonFields(logParams.Length);
         }
 
         public void Print(StringBuilder sb)
         {
             sb.Append(Message);
-            
+
             if (Params == null || !Message.Contains("{")) {
                 return;
             }
-            
+
             foreach (var param in Params) {
                 sb.Replace($"{{{param.Id}}}", param.Value);
             }
@@ -133,44 +133,54 @@ namespace Tekly.Logging
         public void ToJson(StringBuilder sb)
         {
             sb.Append("{");
-            sb.Append($"\"Level\":\"{Level}\"");
-            sb.Append($",\"Logger\":\"{LoggerFullName}\"");
-            sb.Append($",\"Message\":\"{Message}\"");
-            sb.Append($",\"Timestamp\":\"{Timestamp}\"");
-            
-            if (!string.IsNullOrEmpty(StackTrace)) {
-                var split = StackTrace.Split('\n');
-                sb.Append(",\"StackTrace\": [");
-                
-                for (var index = 0; index < split.Length; index++) {
-                    var line = split[index];
+            sb.Append("\"Level\":\"").Append(Level).Append("\"");
+            sb.Append(",\"Logger\":\"").Append(LoggerFullName).Append("\"");
+            sb.Append(",\"Message\":\"").Append(Message).Append("\"");
+            sb.Append(",\"Timestamp\":\"").Append(Timestamp).Append("\"");
 
-                    if (string.IsNullOrEmpty(line)) {
+            if (!string.IsNullOrEmpty(StackTrace)) {
+                sb.Append(",\"StackTrace\": [");
+
+                var stack = StackTrace;
+                int stackLength = stack.Length;
+                int i;
+                int stackSection = 0;
+                bool foundOne = false;
+                for (i = 0; i < stackLength; i++) {
+                    if (stack[i] != '\n') {
                         continue;
                     }
-                    
-                    if (index > 0) {
-                        sb.Append(",");
+
+                    if (i >= stackSection + 1) {
+                        sb.Append("\"").Append(stack.Substring(stackSection, i - stackSection)).Append("\",");
+                        foundOne = true;
                     }
-                    
-                    sb.Append("\"");
-                    sb.Append(line);
-                    sb.Append("\"");
+
+                    stackSection = i + 1;
+                }
+
+                if (i >= stackSection + 1) {
+                    sb.Append("\"").Append(stack.Substring(stackSection, i - stackSection)).Append("\",");
+                    foundOne = true;
+                }
+
+                if (foundOne) {
+                    sb.Remove(sb.Length - 1, 1);
                 }
 
                 sb.Append("]");
             }
-            
+
             if (Params != null) {
                 foreach (var tkLogParam in Params) {
-                    sb.Append($",\"{tkLogParam.Id}\":\"{tkLogParam.Value}\"");
+                    sb.Append(",\"").Append(tkLogParam.Id).Append("\":\"").Append(tkLogParam.Value).Append("\"");
                 }
             }
-            
+
             sb.Append("}");
         }
     }
-    
+
     [Serializable]
     public struct TkLogParam
     {
@@ -182,18 +192,18 @@ namespace Tekly.Logging
             Id = id;
             Value = value;
         }
-        
+
         public static TkLogParam[] Create(params (string, object)[] logParams)
         {
             return CreateReserve(0, logParams);
         }
-        
+
         public static TkLogParam[] CreateReserve(int reserve, object[] logParams)
         {
             Assert.IsTrue((logParams.Length % 2) == 0);
-            
+
             var tkLogParams = new TkLogParam[reserve + (logParams.Length / 2)];
-            
+
             for (var index = 0; index < logParams.Length; index += 2) {
                 tkLogParams[index / 2] = new TkLogParam(logParams[index].ToString(), logParams[index + 1].ToString());
             }
@@ -204,7 +214,7 @@ namespace Tekly.Logging
         public static TkLogParam[] CreateReserve(int reserve, (string, object)[] logParams)
         {
             var tkLogParams = new TkLogParam[reserve + logParams.Length];
-            
+
             for (var index = 0; index < logParams.Length; index++) {
                 tkLogParams[index] = new TkLogParam(logParams[index].Item1, logParams[index].Item2.ToString());
             }
