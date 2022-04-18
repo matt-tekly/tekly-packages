@@ -21,7 +21,7 @@ namespace Tekly.Logging
     public class LoggerGroup
     {
         public string Name;
-        public List<ILogDestination> Destinations = new List<ILogDestination>();
+        public readonly List<ILogDestination> Destinations = new List<ILogDestination>();
     }
     
     public class LoggerSettings
