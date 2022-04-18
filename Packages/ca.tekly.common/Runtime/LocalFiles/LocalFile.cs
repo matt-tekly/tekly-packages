@@ -18,6 +18,8 @@ namespace Tekly.Common.LocalFiles
             if (Application.isEditor) {
                 Directory = LocalFileDir;
                 System.IO.Directory.CreateDirectory(Directory);
+            } else if (Application.platform == RuntimePlatform.tvOS) {
+                Directory = Application.temporaryCachePath;
             } else {
                 Directory = Application.persistentDataPath;
             }
