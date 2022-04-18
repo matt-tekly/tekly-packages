@@ -113,6 +113,15 @@ namespace Tekly.Common.LocalFiles
             return new FileStream(filePath, fileMode, fileAccess, fileShare);
         }
 
+        public static StreamWriter GetStreamWriter(string relativeFile, FileMode fileMode, FileAccess fileAccess, FileShare fileShare)
+        {
+            var filePath = GetPath(relativeFile);
+            EnsureDirectoryExistsForFile(filePath);
+
+            var fs = new FileStream(filePath, fileMode, fileAccess, fileShare);
+            return new StreamWriter(fs);
+        }
+
         public static void Rename(string sourceName, string destinationName)
         {
             var sourceFilePath = GetPath(sourceName);

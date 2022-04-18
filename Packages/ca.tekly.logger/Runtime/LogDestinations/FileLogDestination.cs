@@ -23,15 +23,17 @@ namespace Tekly.Logging.LogDestinations
         public string PrevFilePath { get; }
         
         private readonly TkLogLevel m_minimumLevel;
-        private Stream m_fileStream;
+        private StreamWriter m_streamWriter;
         private AutoResetEvent m_newLogEvent = new AutoResetEvent(false);
         private volatile bool m_resetQueued;
-        
+
         private readonly ConcurrentQueue<TkLogMessage> m_messages = new ConcurrentQueue<TkLogMessage>();
         private readonly StringBuilder m_stringBuilder = new StringBuilder(512);
         private readonly ExpandingBuffer<char> m_expandingBuffer = new ExpandingBuffer<char>(1024);
         private readonly Thread m_thread;
         private bool m_disposing;
+
+
         protected FileLogDestination(FileLogConfig config)
         {
             Name = config.Name;
@@ -42,8 +44,9 @@ namespace Tekly.Logging.LogDestinations
             if (LocalFile.Exists(CurrentFilePath)) {
                 LocalFile.Rename(CurrentFilePath, PrevFilePath);
             }
-            
-            m_fileStream = LocalFile.GetStream(CurrentFilePath, FileMode.Append, FileAccess.Write, FileShare.Read);
+
+            m_streamWriter = LocalFile.GetStreamWriter(CurrentFilePath, FileMode.Append, FileAccess.Write, FileShare.Read);
+            m_streamWriter.AutoFlush = true;
             m_minimumLevel = config.MinimumLevel;
 
             m_thread = StartLongLivingThread(WriteMessageLoop);
@@ -77,7 +80,7 @@ namespace Tekly.Logging.LogDestinations
         private void WriteMessageLoop()
         {
             do {
-                m_newLogEvent?.WaitOne();
+                m_newLogEvent.WaitOne();
 
                 if (m_resetQueued) {
                     m_resetQueued = false;
@@ -92,16 +95,20 @@ namespace Tekly.Logging.LogDestinations
 
         private void Reset()
         {
-            m_fileStream?.Dispose();
+            if (m_disposing) {
+                return;
+            }
 
+            m_streamWriter.Dispose();
             LocalFile.Delete(CurrentFilePath);
             
-            m_fileStream = LocalFile.GetStream(CurrentFilePath, FileMode.Append, FileAccess.Write, FileShare.Read);
+            m_streamWriter = m_streamWriter = LocalFile.GetStreamWriter(CurrentFilePath, FileMode.Append, FileAccess.Write, FileShare.Read);
+            m_streamWriter.AutoFlush = true;
         }
 
         private void Write(TkLogMessage logMessage)
         {
-            if (m_fileStream == null) {
+            if (m_disposing) {
                 return;
             }
 
@@ -109,15 +116,10 @@ namespace Tekly.Logging.LogDestinations
             
             ConvertLogMessage(logMessage, m_stringBuilder);
             
-            var logString = m_stringBuilder.ToString();
-
-            var count = Encoding.UTF8.GetByteCount(logString);
-            m_expandingBuffer.EnsureSize(count);
-
-            Encoding.UTF8.GetBytes(logString, 0, logString.Length, m_expandingBuffer.Buffer, 0);
-            m_fileStream.Write(m_expandingBuffer.Buffer, 0, count);
-
-            m_fileStream.Flush();
+            var len = m_stringBuilder.Length;
+            m_expandingBuffer.EnsureSize(len);
+            m_stringBuilder.CopyTo(0, m_expandingBuffer.Buffer, 0, len);
+            m_streamWriter.Write(m_expandingBuffer.Buffer, 0, len);
         }
         
         private Thread StartLongLivingThread(Action action)
@@ -133,15 +135,19 @@ namespace Tekly.Logging.LogDestinations
 
         public void Dispose()
         {
+            if (m_disposing) {
+                return;
+            }
+
             m_disposing = true;
             
             m_newLogEvent.Set();
             m_thread.Join();
 
-            m_fileStream?.Dispose();
-            m_newLogEvent?.Close();
+            m_streamWriter.Dispose();
+            m_streamWriter = null;
 
-            m_fileStream = null;
+            m_newLogEvent.Close();
             m_newLogEvent = null;
         }
     }

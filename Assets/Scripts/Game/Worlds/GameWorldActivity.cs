@@ -39,6 +39,7 @@ namespace TeklySample.Game.Worlds
 
         protected override void UnloadingStarted()
         {
+            m_logger.Info("Unloading");
             m_balanceManager.RemoveContainer(m_balanceContainer);
             m_balanceContainer.Dispose();
 
@@ -47,7 +48,10 @@ namespace TeklySample.Game.Worlds
 
         private void OnApplicationQuit()
         {
-            Save();
+            if (m_gameWorld != null) {
+                m_logger.Info("Quitting");
+                Save();
+            }
         }
 
         private void Save()

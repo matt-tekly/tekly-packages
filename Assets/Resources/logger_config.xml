@@ -4,6 +4,7 @@
         <Destinations>
             <FlatFile Name="main" Prefix="main"/>
             <FlatFile Name="net" Prefix="net"/>
+            <StructuredFile Name="structured" Prefix="structured"/>
             <Unity Name="unity" />
         </Destinations>
 
@@ -12,6 +13,7 @@
                 <Destinations>
                     <string>main</string>
                     <string>unity</string>
+                    <string>structured</string>
                 </Destinations>
             </Group>
 

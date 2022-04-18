@@ -1,7 +1,5 @@
 using System;
-using System.IO;
 using System.Text;
-using System.Xml.Serialization;
 using UnityEngine.Scripting;
 
 namespace Tekly.Logging.LogDestinations
@@ -14,7 +12,7 @@ namespace Tekly.Logging.LogDestinations
             return new FlatFileLogDestination(this);
         }
     }
-    
+
     public class FlatFileLogDestination : FileLogDestination
     {
         public FlatFileLogDestination(FlatFileLogConfig config) : base(config) { }
@@ -44,7 +42,7 @@ namespace Tekly.Logging.LogDestinations
             }
 
             if (!foundException) {
-                sb.AppendLine(message.StackTrace);
+                sb.Append(message.StackTrace).Append('\n');
             }
         }
 
