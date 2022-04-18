@@ -30,6 +30,8 @@ namespace Tekly.Logging.LogDestinations
         private readonly ConcurrentQueue<TkLogMessage> m_messages = new ConcurrentQueue<TkLogMessage>();
         private readonly StringBuilder m_stringBuilder = new StringBuilder(512);
         private readonly ExpandingBuffer m_expandingBuffer = new ExpandingBuffer(1024);
+        private readonly Thread m_thread;
+        private bool m_disposing;
         
         protected FileLogDestination(FileLogConfig config)
         {
@@ -45,7 +47,7 @@ namespace Tekly.Logging.LogDestinations
             m_fileStream = LocalFile.GetStream(CurrentFilePath, FileMode.Append, FileAccess.Write, FileShare.Read);
             m_minimumLevel = config.MinimumLevel;
 
-            StartLongLivingThread(WriteMessageLoop);
+            m_thread = StartLongLivingThread(WriteMessageLoop);
         }
 
         public void LogMessage(TkLogMessage message, LogSource logSource)
@@ -86,7 +88,7 @@ namespace Tekly.Logging.LogDestinations
                 while (m_messages.TryDequeue(out var logMessage)) {
                     Write(logMessage);
                 }
-            } while (true);
+            } while (!m_disposing);
         }
 
         private void Reset()
@@ -119,16 +121,26 @@ namespace Tekly.Logging.LogDestinations
             m_fileStream.Flush();
         }
         
-        private static void StartLongLivingThread(Action action)
+        private Thread StartLongLivingThread(Action action)
         {
-            var thread = new Thread(param => action());
+            var thread = new Thread(param => action()) {
+                Name = Name
+            };
+            
             thread.Start();
+
+            return thread;
         }
 
         public void Dispose()
         {
+            m_disposing = true;
+            
+            m_newLogEvent.Set();
+            m_thread.Join();
+
             m_fileStream?.Dispose();
-            m_newLogEvent?.Dispose();
+            m_newLogEvent?.Close();
 
             m_fileStream = null;
             m_newLogEvent = null;
