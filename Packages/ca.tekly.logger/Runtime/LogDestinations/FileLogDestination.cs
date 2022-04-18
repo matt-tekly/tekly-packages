@@ -29,10 +29,9 @@ namespace Tekly.Logging.LogDestinations
         
         private readonly ConcurrentQueue<TkLogMessage> m_messages = new ConcurrentQueue<TkLogMessage>();
         private readonly StringBuilder m_stringBuilder = new StringBuilder(512);
-        private readonly ExpandingBuffer m_expandingBuffer = new ExpandingBuffer(1024);
+        private readonly ExpandingBuffer<char> m_expandingBuffer = new ExpandingBuffer<char>(1024);
         private readonly Thread m_thread;
         private bool m_disposing;
-        
         protected FileLogDestination(FileLogConfig config)
         {
             Name = config.Name;
