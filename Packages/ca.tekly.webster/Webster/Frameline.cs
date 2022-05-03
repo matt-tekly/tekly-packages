@@ -47,7 +47,7 @@ namespace Tekly.Webster
 #if FRAMELINE_ENABLE
 			return Instance.BeginEventDisposable(id, type);
 #else
-            return using Tekly.Webster.Utility.DisposableUnit.Instance;
+            return Utility.DisposableUnit.Instance;
 #endif
 		}
 
