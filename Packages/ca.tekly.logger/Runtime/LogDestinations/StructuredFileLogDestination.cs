@@ -26,7 +26,7 @@ namespace Tekly.Logging.LogDestinations
             
             sb.Replace("\\", "/");
             sb.Replace("\n", "\\n");
-            sb.AppendLine();
+            sb.Append('\n');
         }
     }
 }
