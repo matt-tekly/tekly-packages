@@ -3,6 +3,7 @@
 // ============================================================================
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using Tekly.Common.Observables;
 
@@ -14,6 +15,7 @@ namespace Tekly.DataModels.Models
         Shared
     }
     
+    [DebuggerDisplay("Key=[{Key}] ReferenceType=[{ReferenceType}]")]
     public struct ModelReference
     {
         public readonly IModel Model;

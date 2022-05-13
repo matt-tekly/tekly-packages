@@ -4,9 +4,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Tekly.DataModels.Models
 {
+    [DebuggerDisplay("Keys=[{DebuggerDisplayKeys}] IsRelative=[{IsRelative}]")]
     public class ModelKey
     {
         public readonly string[] Keys;
@@ -17,13 +19,13 @@ namespace Tekly.DataModels.Models
             Keys = keys;
             IsRelative = isRelative;
         }
-        
+
         public static ModelKey Parse(string key)
         {
             if (string.IsNullOrEmpty(key)) {
                 return null;
             }
-            
+
             if (s_cache.TryGetValue(key, out var modelKey)) {
                 return modelKey;
             }
@@ -42,7 +44,7 @@ namespace Tekly.DataModels.Models
             if (isRelative) {
                 var oldKeys = keys;
                 keys = new string[keys.Length - 1];
-                
+
                 Array.Copy(oldKeys, 1, keys, 0, keys.Length);
             }
 
@@ -58,6 +60,7 @@ namespace Tekly.DataModels.Models
             return key.Substring(2);
         }
 
+        private string DebuggerDisplayKeys => string.Join(".", Keys);
         private static readonly Dictionary<string, ModelKey> s_cache = new Dictionary<string, ModelKey>();
     }
 }
