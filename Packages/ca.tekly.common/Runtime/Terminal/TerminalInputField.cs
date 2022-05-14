@@ -18,8 +18,9 @@ namespace Tekly.Common.Terminal
 
         public override void OnUpdateSelected(BaseEventData eventData)
         {
-            if (!isFocused)
+            if (!isFocused) {
                 return;
+            }
 
             var consumedEvent = false;
             while (Event.PopEvent(m_processingEvent)) {
@@ -37,8 +38,9 @@ namespace Tekly.Common.Terminal
 
                     var shouldContinue = KeyPressed(m_processingEvent);
                     if (shouldContinue == EditState.Finish) {
-                        if (!wasCanceled)
+                        if (!wasCanceled) {
                             SendOnSubmit();
+                        }
 
                         DeactivateInputField();
                         break;
@@ -59,8 +61,9 @@ namespace Tekly.Common.Terminal
                 }
             }
 
-            if (consumedEvent)
+            if (consumedEvent) {
                 UpdateLabel();
+            }
 
             eventData.Use();
         }
@@ -102,8 +105,10 @@ namespace Tekly.Common.Terminal
                 
                 if (index != -1) {
                     var endIndex = input.Substring(index, input.Length - index).IndexOf('>');
-                    if (endIndex > 0)
+                    if (endIndex > 0) {
                         input = input.Remove(index, endIndex + 1);
+                    }
+
                     continue;
                 }
 

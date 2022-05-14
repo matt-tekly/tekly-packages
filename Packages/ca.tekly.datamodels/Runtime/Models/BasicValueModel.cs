@@ -38,7 +38,15 @@ namespace Tekly.DataModels.Models
 
         public override string ToDisplayString()
         {
-            return Value == 0 ? "0" : Value.ToString("##,#.##");
+            if (Value == 0) {
+                return "0";
+            }
+
+            if (Value < 1_000_000_000) {
+                return Value.ToString("##,#.##");
+            }
+
+            return Value.ToString("e2");
         }
     }
 

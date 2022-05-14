@@ -90,12 +90,14 @@ namespace Tekly.Logging
                 StackFrame frame = stackTrace.GetFrame(iIndex);
 
                 MethodBase mb = frame.GetMethod();
-                if (mb == null)
+                if (mb == null) {
                     continue;
+                }
 
                 Type classType = mb.DeclaringType;
-                if (classType == null)
+                if (classType == null) {
                     continue;
+                }
 
                 var classTypeName = classType.Name;
                 var classTypeNamespace = classType.Namespace;
