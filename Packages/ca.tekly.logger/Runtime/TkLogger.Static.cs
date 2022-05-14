@@ -221,7 +221,6 @@ namespace Tekly.Logging
 
             var level = UnityLogDestination.TypeToLevel(type);
             var loggerName = LoggerConstants.UNITY_LOG_NAME;
-            stacktrace = stacktrace.Replace("\\", "/");
             
             LogToDestinations(DefaultGroup, new TkLogMessage(level, loggerName, loggerName, message, stacktrace), LogSource.Unity);
         }
@@ -246,8 +245,6 @@ namespace Tekly.Logging
             sb.Clear();
 
             StackTraceUtilities.ExtractStackTrace(sb, 4);
-
-            sb.Replace("\\", "/");
 
             return sb.ToString();
         }
