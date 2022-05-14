@@ -27,6 +27,10 @@ namespace Tekly.Logging.LogDestinations
 
         private readonly ThreadLocal<StringBuilder> m_stringBuilders = new ThreadLocal<StringBuilder>(() => new StringBuilder(512));
 
+#if UNITY_EDITOR
+        private Regex linkRegex = new Regex("(.* \\(at )(([^\\/].*):([0-9]+))", RegexOptions.RightToLeft);
+#endif
+
         public UnityLogDestination(LogDestinationConfig config)
         {
             Name = config.Name;
@@ -100,7 +104,7 @@ namespace Tekly.Logging.LogDestinations
             var rows = stackTrace.Split('\n');
 
             foreach (var row in rows) {
-                var match = Regex.Match(row, "(.* \\(at )(([^\\/].*):([0-9]+))", RegexOptions.RightToLeft);
+                var match = linkRegex.Match(row);
 
                 if (!match.Success) {
                     sb.Append(row).Append("\n");
