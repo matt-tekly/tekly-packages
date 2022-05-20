@@ -70,13 +70,11 @@ namespace Tekly.Logging
             }
 
             sb.Append(traceString + "\n");
-            sb.Replace("\\", "/");
+            sb.Replace('\\', '/');
             sb.Replace(s_projectFolder, "");
 
             StackTrace trace = new StackTrace(2, true);
             ExtractFormattedStackTrace(trace, sb);
-
-            sb.Replace("\\", "/");
             stackTrace = sb.ToString();
         }
 
@@ -157,7 +155,7 @@ namespace Tekly.Logging
                 sb.Append("\n");
             }
 
-            sb.Replace("\\", "/");
+            sb.Replace('\\', '/');
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
