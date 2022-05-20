@@ -125,10 +125,7 @@ namespace Tekly.Logging
                 }
 
                 if (targetProfileData == null) {
-                    UnityEngine.Debug.LogError($"Didn't find LoggerProfile [{profile}] and there is no default. Using built in default");
-                    
-                } else {
-                    UnityEngine.Debug.LogError($"Didn't find LoggerProfile [{profile}] using default");    
+                    UnityEngine.Debug.LogError($"Didn't find LoggerProfile [{profile}] and there is no default.");
                 }
             }
 
@@ -215,7 +212,7 @@ namespace Tekly.Logging
 
         private static void HandleUnityLog(string message, string stacktrace, LogType type)
         {
-            if (message[message.Length - 1] == LoggerConstants.UNITY_LOG_MARKER) {
+            if (!string.IsNullOrEmpty(message) && message[message.Length - 1] == LoggerConstants.UNITY_LOG_MARKER) {
                 return;
             }
 

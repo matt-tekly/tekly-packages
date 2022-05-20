@@ -16,6 +16,11 @@ namespace Tekly.Common.Terminal
 
         private readonly Event m_processingEvent = new Event();
 
+        protected override void Awake()
+        {
+            base.Awake();
+        }
+        
         public override void OnUpdateSelected(BaseEventData eventData)
         {
             if (!isFocused) {

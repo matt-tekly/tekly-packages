@@ -1,4 +1,5 @@
 using Tekly.Balance;
+using Tekly.Common.Utils;
 using Tekly.Content;
 using Tekly.DataModels.Models;
 using Tekly.Glass;
@@ -27,6 +28,8 @@ namespace TeklySample.App
             container.Register(Glass);
             
             RootModel.Instance.Add("app", new AppModel(balanceManager));
+
+            Debug.Log("Crash Detected: " + CrashCanary.Instance.CrashDetected);
         }
 
         public void Update()

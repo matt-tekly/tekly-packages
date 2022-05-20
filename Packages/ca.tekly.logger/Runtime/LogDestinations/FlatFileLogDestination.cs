@@ -41,7 +41,7 @@ namespace Tekly.Logging.LogDestinations
                 }
             }
 
-            if (!foundException) {
+            if (!foundException && !string.IsNullOrEmpty(message.StackTrace)) {
                 sb.Append(message.StackTrace).Append('\n');
             }
         }
