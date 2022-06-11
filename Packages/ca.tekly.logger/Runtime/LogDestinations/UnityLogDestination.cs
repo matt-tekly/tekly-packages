@@ -85,11 +85,19 @@ namespace Tekly.Logging.LogDestinations
 
             try {
                 var logType = LevelToType(message.Level);
+#if UNITY_EDITOR
+                if (context == null) {
+                    UnityLogDestinationEditorBridge.Log(logType, sb.ToString());
+                } else {
+                    Debug.LogFormat(logType, LogOption.NoStacktrace, context, sb.ToString());
+                }
+#else
                 Debug.LogFormat(logType, LogOption.NoStacktrace, context, sb.ToString());
+#endif
+                    
             } catch (Exception ex) {
-                Debug.LogError(
-                    "Exception while trying to log a message. Likely one of its params is not set. Message:\n\n" + sb);
-                Debug.LogException(ex);
+                Debug.LogError("Exception while trying to log a message. Likely one of its params is not set. Message:\n\n" + sb, context);
+                Debug.LogException(ex, context);
             }
         }
 
