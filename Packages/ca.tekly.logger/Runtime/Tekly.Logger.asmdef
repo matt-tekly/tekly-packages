@@ -2,7 +2,8 @@
     "name": "Tekly.Logger",
     "rootNamespace": "Tekly.Logging",
     "references": [
-        "GUID:b9160372c6c55a741932d482673e3abb"
+        "GUID:b9160372c6c55a741932d482673e3abb",
+        "GUID:94e3b15ed3beceb40ae95b6b783e0cf3"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
