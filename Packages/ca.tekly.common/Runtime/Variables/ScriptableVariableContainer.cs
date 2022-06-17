@@ -14,6 +14,17 @@ namespace Tekly.Common.Variables
                 variable.Initialize(this, prefsContainer);
             }
         }
+        
+        public T Get<T>(string variableName) where T : ScriptableVariable
+        {
+            foreach (var variable in Variables) {
+                if (variable.name == variableName) {
+                    return variable as T;
+                }
+            }
+
+            return null;
+        }
 
         public void VariableChanged(ScriptableVariable scriptableVariable)
         {

@@ -1,5 +1,4 @@
-﻿using System;
-using Tekly.Balance;
+﻿using Tekly.Balance;
 using Tekly.Injectors;
 using Tekly.Logging;
 using Tekly.TreeState.StandardActivities;
@@ -26,12 +25,13 @@ namespace TeklySample.Frontend.Activities
         private async void LoadAsync()
         {
             m_loading = true;
-            
-            try {
-                await m_balanceManager.InitializeAsync();
+
+            var result = await m_balanceManager.InitializeAsync();
+
+            if (result.Success) {
                 m_loading = false;
-            } catch (Exception exception) {
-                m_logger.Exception(exception, "Failed to initialize BalanceManager");
+            } else {
+                m_logger.Error(result.Error);
                 HandleError();
             }
         }

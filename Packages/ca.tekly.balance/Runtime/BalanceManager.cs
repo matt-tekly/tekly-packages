@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Tekly.Common.Utils;
 using Tekly.Content;
 using Tekly.Logging;
 
@@ -26,23 +27,30 @@ namespace Tekly.Balance
             m_contentProvider = contentProvider;
         }
 
-        public async Task InitializeAsync()
+        public async Task<Result> InitializeAsync()
         {
-            if (m_balanceManifestHandle != null) {
-                m_logger.Error("Initializing BalanceManager more than once");
-                return;
-            }
+            try {
+                if (m_balanceManifestHandle != null) {
+                    m_logger.Error("Initializing BalanceManager more than once");
+                    return Result.Okay();
+                }
             
-            m_balanceManifestHandle = m_contentProvider.LoadAssetAsync<BalanceManifest>(MANIFEST_ADDRESS);
-            m_balanceManifest = await m_balanceManifestHandle;
+                m_balanceManifestHandle = m_contentProvider.LoadAssetAsync<BalanceManifest>(MANIFEST_ADDRESS);
+                m_balanceManifest = await m_balanceManifestHandle;
 
-            if (m_balanceManifest != null) {
+                if (m_balanceManifest == null) {
+                    m_logger.Error("Failed to find BalanceManifest [{name}]", ("name", MANIFEST_ADDRESS));
+                    return Result.Fail("Failed to find BalanceManifest");
+                } 
+            
                 IsInitialized = true;
                 Version = m_balanceManifest.Version;
                 TkLogger.SetCommonField("balanceVersion", m_balanceManifest.Version);
+            
                 m_logger.Info("BalanceManager initialized with version [{balanceVersion}]");
-            } else {
-                m_logger.Error("Failed to find BalanceManifest [{name}]", ("name", MANIFEST_ADDRESS));
+                return Result.Okay();
+            } catch (Exception ex) {
+                return Result.Fail(ex.Message);
             }
         }
         
