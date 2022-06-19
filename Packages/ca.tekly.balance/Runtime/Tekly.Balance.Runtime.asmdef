@@ -3,7 +3,8 @@
     "rootNamespace": "Tekly.Balance",
     "references": [
         "GUID:fae7801953e84647a0df9a215213ddbf",
-        "GUID:4bdc187487ea5db4e983b03012d17dcd"
+        "GUID:4bdc187487ea5db4e983b03012d17dcd",
+        "GUID:b9160372c6c55a741932d482673e3abb"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

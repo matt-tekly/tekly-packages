@@ -1,17 +1,42 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Tekly.Common.Utils;
-using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.AddressableAssets.ResourceLocators;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using Object = UnityEngine.Object;
 
 namespace Tekly.Content
 {
     public class ContentProvider : Singleton<ContentProvider, IContentProvider>, IContentProvider
     {
-        public AsyncOperationHandle<IResourceLocator> InitializeAsync()
+        public async Task<Result> InitializeAsync()
         {
-            return Addressables.InitializeAsync();
+            var operation = Addressables.InitializeAsync();
+            
+            try {
+                await operation.Task;
+                return Result.Okay();
+            } catch (Exception exception) {
+                return Result.Fail(exception.Message);
+            }
+        }
+
+        public async Task<Result> UpdateRemoteCatalogAsync()
+        {
+            AsyncOperationHandle<List<IResourceLocator>> updateHandle = default;
+            
+            try {
+                updateHandle = Addressables.UpdateCatalogs();
+                await updateHandle.Task;
+                
+                return Result.Okay();
+            } catch (Exception exception) {
+                Addressables.Release(updateHandle);
+                
+                return Result.Fail("Failed to update remote catalog: " + exception.Message);
+            }
         }
 
         public IContentOperation<TObject> LoadAssetAsync<TObject>(string key) where TObject : Object
