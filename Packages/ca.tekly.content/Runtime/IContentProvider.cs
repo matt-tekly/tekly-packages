@@ -10,6 +10,7 @@ namespace Tekly.Content
     public interface IContentProvider
     {
         Task<Result> InitializeAsync();
+        Task<Result> UpdateRemoteCatalogAsync();
         
         IContentOperation<TObject> LoadAssetAsync<TObject>(string key) where TObject : Object;
         IContentOperation<TObject> LoadAssetAsync<TObject>(string key, string label) where TObject : Object;

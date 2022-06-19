@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Tekly.Common.Utils;
 using UnityEngine.AddressableAssets;
+using UnityEngine.AddressableAssets.ResourceLocators;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using Object = UnityEngine.Object;
 
@@ -19,6 +20,22 @@ namespace Tekly.Content
                 return Result.Okay();
             } catch (Exception exception) {
                 return Result.Fail(exception.Message);
+            }
+        }
+
+        public async Task<Result> UpdateRemoteCatalogAsync()
+        {
+            AsyncOperationHandle<List<IResourceLocator>> updateHandle = default;
+            
+            try {
+                updateHandle = Addressables.UpdateCatalogs();
+                await updateHandle.Task;
+                
+                return Result.Okay();
+            } catch (Exception exception) {
+                Addressables.Release(updateHandle);
+                
+                return Result.Fail("Failed to update remote catalog: " + exception.Message);
             }
         }
 

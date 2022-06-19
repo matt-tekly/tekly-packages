@@ -50,7 +50,7 @@ namespace Tekly.Balance
                 m_logger.Info("BalanceManager initialized with version [{balanceVersion}]");
                 return Result.Okay();
             } catch (Exception ex) {
-                return Result.Fail(ex.Message);
+                return Result.Fail("Exception initializing BalanceManager: " + ex.Message);
             }
         }
         
