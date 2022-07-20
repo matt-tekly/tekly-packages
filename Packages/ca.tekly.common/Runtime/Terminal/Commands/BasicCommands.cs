@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using UnityEngine;
 using UnityEngine.Diagnostics;
 
@@ -70,7 +71,7 @@ namespace Tekly.Common.Terminal.Commands
 
             return displayList.ToString();
         }
-        
+
         [Command("app.info")]
         [Help("Get application info")]
         public string ApplicationInfo()
@@ -98,7 +99,7 @@ namespace Tekly.Common.Terminal.Commands
         }
         
         [Command("app.screen.fullscreen")]
-        [Help("Get or full screen")]
+        [Help("Get or full set screen")]
         public string FullScreen(bool? fullScreen)
         {
             if (fullScreen.HasValue) {

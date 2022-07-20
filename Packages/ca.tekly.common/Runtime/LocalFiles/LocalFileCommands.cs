@@ -36,7 +36,7 @@ namespace Tekly.Common.LocalFiles
         }
         
         [Command("app.localfile.search")]
-        [Help("Serach the local files")]
+        [Help("Search the local files")]
         public string Search(string search)
         {
             return string.Join("\n", LocalFile.GetFiles("", search, SearchOption.AllDirectories));

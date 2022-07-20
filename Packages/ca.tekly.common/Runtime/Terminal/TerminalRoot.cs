@@ -14,7 +14,7 @@ namespace Tekly.Common.Terminal
     // TODO: Additional Terminal Tasks
     // - Mobile
     // - Async commands
-    // - make cli apps that can read their own input?srminal messages
+    // - make cli interactive apps that can read their own input?
     // - Add category attribute so we can display a list of categories with descriptions when you type help
     [Serializable]
     public class TerminalPrefs
@@ -34,6 +34,7 @@ namespace Tekly.Common.Terminal
 
 #if TERMINAL_ENABLED
         public TerminalView DesktopTerminal;
+        public TerminalView MobileTerminal;
 #endif
         private CommandStore m_commandStore;
         private TerminalView m_terminalView;
@@ -107,12 +108,12 @@ namespace Tekly.Common.Terminal
 #endif
             
             m_commandStore = CommandStore.Instance;
-            
+
             if (Application.isMobilePlatform) {
-                throw new Exception("Mobile don't work");
+                m_terminalView = Instantiate(MobileTerminal, transform); 
             } else {
-                m_terminalView = Instantiate(DesktopTerminal, transform);
-            }
+                m_terminalView = Instantiate(DesktopTerminal, transform);    
+            } 
             
             SetActive(false);
 
@@ -156,6 +157,20 @@ namespace Tekly.Common.Terminal
             
             PlayerPrefs.SetString(PLAYER_PREFS_KEY, JsonUtility.ToJson(prefs));
         }
+
+        private void Update()
+        {
+            if (HasTapped()) {
+                SetActive(!m_active);
+            }
+            
+            // Checking if the it was active prevents opening the console again when it was closed by pressing backquote
+            if (!m_wasActive && IsBackTickPressed()) {
+                SetActive(true);
+            }
+            
+            m_wasActive = m_active;
+        }
         
         private bool HasTapped()
         {
@@ -173,20 +188,6 @@ namespace Tekly.Common.Terminal
             return false;
         }
 
-        private void Update()
-        {
-            if (HasTapped()) {
-                SetActive(!m_active);
-            }
-            
-            // Checking if the it was active prevents opening the console again when it was closed by pressing backquote
-            if (!m_wasActive && IsBackTickPressed()) {
-                SetActive(true);
-            }
-            
-            m_wasActive = m_active;
-        }
-
         private bool IsBackTickPressed()
         {
 #if ENABLE_INPUT_SYSTEM
@@ -195,6 +196,7 @@ namespace Tekly.Common.Terminal
             return Input.GetKeyDown(KeyCode.BackQuote);
 #endif
         }
+        
         private int GetTouchCount()
         {
 #if ENABLE_INPUT_SYSTEM

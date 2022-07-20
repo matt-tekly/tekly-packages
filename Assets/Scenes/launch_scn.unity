@@ -2073,42 +2073,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 6779485847663997445, guid: fe50b7b41cdcbcb4aabf6284c3f45eab, type: 3}
-      propertyPath: m_Text
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 6779485847663997503, guid: fe50b7b41cdcbcb4aabf6284c3f45eab, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6779485847663997503, guid: fe50b7b41cdcbcb4aabf6284c3f45eab, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6779485847663997503, guid: fe50b7b41cdcbcb4aabf6284c3f45eab, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6779485847663997503, guid: fe50b7b41cdcbcb4aabf6284c3f45eab, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6779485847663997503, guid: fe50b7b41cdcbcb4aabf6284c3f45eab, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6779485847663997503, guid: fe50b7b41cdcbcb4aabf6284c3f45eab, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6779485848065848928, guid: fe50b7b41cdcbcb4aabf6284c3f45eab, type: 3}
-      propertyPath: DefaultViewSize
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6779485848065848928, guid: fe50b7b41cdcbcb4aabf6284c3f45eab, type: 3}
-      propertyPath: DefaultViewScale
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6779485848065848929, guid: fe50b7b41cdcbcb4aabf6284c3f45eab, type: 3}
       propertyPath: m_RootOrder
       value: 4
@@ -2156,14 +2120,6 @@ PrefabInstance:
     - target: {fileID: 6779485848065848935, guid: fe50b7b41cdcbcb4aabf6284c3f45eab, type: 3}
       propertyPath: m_Name
       value: TerminalRoot
-      objectReference: {fileID: 0}
-    - target: {fileID: 6779485849123922846, guid: fe50b7b41cdcbcb4aabf6284c3f45eab, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6779485849123922846, guid: fe50b7b41cdcbcb4aabf6284c3f45eab, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fe50b7b41cdcbcb4aabf6284c3f45eab, type: 3}

@@ -15,8 +15,7 @@ namespace Tekly.Common.Terminal.Commands
             m_commandStore = commandStore;
             m_terminalRoot = terminalRoot;
         }
-
-
+        
         [Command("terminal.clear")]
         [Help("Clears the terminal")]
         public void ClearMessages()
