@@ -54,6 +54,16 @@ namespace Tekly.Common
         {
             return new GuiLayoutTracker(false, GUI.backgroundColor, EditorGuiStyles.Instance.SmallContainer);
         }
+        
+        public static bool PositiveButton(string text, params GUILayoutOption[] options)
+        {
+            return ColorButton(text, Color.green, options);
+        }
+        
+        public static bool NegativeButton(string text, params GUILayoutOption[] options)
+        {
+            return ColorButton(text, Color.red, options);
+        }
 
         public static bool ColorButton(string text, Color color, params GUILayoutOption[] options)
         {
