@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Tekly.Common
+namespace Tekly.Common.Gui
 {
     public readonly struct GuiEnabledTracker : IDisposable
     {

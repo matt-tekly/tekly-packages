@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Tekly.Common
+namespace Tekly.Common.Gui
 {
     public readonly struct GuiLayoutTracker : IDisposable
     {
