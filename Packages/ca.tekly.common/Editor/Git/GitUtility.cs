@@ -1,8 +1,10 @@
+using System;
 using System.IO;
 using UnityEngine.Assertions;
 
 namespace Tekly.Common.Git
 {
+    [Serializable]
     public class GitBranchInfo
     {
         public string Branch;
