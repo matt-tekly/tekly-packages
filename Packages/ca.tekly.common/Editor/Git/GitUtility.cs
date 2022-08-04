@@ -57,15 +57,15 @@ namespace Tekly.Common.Git
             }
 
             var headPath = Path.Combine(gitDir, "HEAD");
-            var headText = File.ReadAllText(headPath);
+            var headText = File.ReadAllText(headPath).TrimEnd();
 
             if (headText.StartsWith("ref:")) {
-                var refPath = headText.Substring("ref: ".Length).TrimEnd(); 
+                var refPath = headText.Substring("ref: ".Length); 
                 
-                var branchName = refPath.Substring("refs/heads/".Length).TrimEnd();
+                var branchName = refPath.Substring("refs/heads/".Length);
                 var commitHash = File.ReadAllText(Path.Combine(gitDir, refPath)).TrimEnd();
 
-                branchInfo = new GitBranchInfo() {
+                branchInfo = new GitBranchInfo {
                     Branch = branchName,
                     CommitHash = commitHash
                 };
@@ -73,7 +73,7 @@ namespace Tekly.Common.Git
                 return true;
             }
 
-            branchInfo = new GitBranchInfo() {
+            branchInfo = new GitBranchInfo {
                 Branch = "DETACHED",
                 CommitHash = headText
             };
