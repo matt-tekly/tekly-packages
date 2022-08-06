@@ -13,10 +13,10 @@ namespace Tekly.Common.Sequences
             m_sequences.Add(sequence);
         }
 
-        public void Tick()
+        public void Tick(float deltaTime)
         {
             foreach (var sequence in m_sequences) {
-                sequence.Update();
+                sequence.Update(deltaTime);
             }
             
             m_sequences.RemoveAll(x => x.Completed);

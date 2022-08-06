@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using UnityEngine;
 
 namespace Tekly.Common.Sequences
 {
@@ -8,16 +6,16 @@ namespace Tekly.Common.Sequences
     {
         public bool Completed { get; private set; }
 
-        public void Update()
+        public void Update(float deltaTime)
         {
             if (Completed) {
                 return;
             }
 
-            Completed = Animate();
+            Completed = Animate(deltaTime);
         }
 
-        protected virtual bool Animate()
+        protected virtual bool Animate(float deltaTime)
         {
             return true;
         }
@@ -32,13 +30,19 @@ namespace Tekly.Common.Sequences
             m_sequences = sequence;
         }
         
-        protected override bool Animate()
+        protected override bool Animate(float deltaTime)
         {
             foreach (var sequence in m_sequences) {
-                sequence.Update();
+                sequence.Update(deltaTime);
             }
 
-            return m_sequences.All(x => x.Completed);
+            foreach (var x in m_sequences) {
+                if (!x.Completed) {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
     
@@ -52,9 +56,9 @@ namespace Tekly.Common.Sequences
             m_sequences = sequence;
         }
         
-        protected override bool Animate()
+        protected override bool Animate(float deltaTime)
         {
-            m_sequences[m_index].Update();
+            m_sequences[m_index].Update(deltaTime);
             
             if (m_sequences[m_index].Completed) {
                 m_index++;
@@ -73,7 +77,7 @@ namespace Tekly.Common.Sequences
             m_action = action;
         }
 
-        protected override bool Animate()
+        protected override bool Animate(float deltaTime)
         {
             m_action();
             return true;
@@ -89,9 +93,9 @@ namespace Tekly.Common.Sequences
             m_timer = delay;
         }
 
-        protected override bool Animate()
+        protected override bool Animate(float deltaTime)
         {
-            m_timer -= Time.deltaTime;
+            m_timer -= deltaTime;
             return m_timer <= 0;
         }
     }
@@ -107,9 +111,9 @@ namespace Tekly.Common.Sequences
             m_action = action;
         }
 
-        protected override bool Animate()
+        protected override bool Animate(float deltaTime)
         {
-            m_timer -= Time.deltaTime;
+            m_timer -= deltaTime;
 
             if (m_timer <= 0) {
                 m_action();
