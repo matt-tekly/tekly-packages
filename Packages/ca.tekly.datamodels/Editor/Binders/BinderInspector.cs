@@ -22,7 +22,7 @@ namespace Tekly.DataModels.Binders
             
             var container = binder.GetComponentInParent<BinderContainer>();
 
-            using (EditorGuiExt.GuiEnabledBlock(false)) {
+            using (EditorGuiExt.EnabledBlock(false)) {
                 using (EditorGuiExt.Horizontal()) {
                     EditorGUILayout.ObjectField("Container", container, typeof(BinderContainer), true);
             

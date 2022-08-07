@@ -36,7 +36,7 @@ namespace Tekly.TreeState
 			if (Application.isPlaying) {
 				var color = activity.Mode == ActivityMode.Inactive ? s_inactiveColor : GUI.color;
 				
-				using (EditorGuiExt.GuiColorBlock(color)) {
+				using (EditorGuiExt.ColorBlock(color)) {
 					var content = EditorGUIUtility.ObjectContent(activity, typeof(TreeActivity));
 
 					var imageRect = selectionRect;

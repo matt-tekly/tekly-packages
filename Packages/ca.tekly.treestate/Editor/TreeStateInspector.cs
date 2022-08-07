@@ -85,7 +85,7 @@ namespace Tekly.TreeState
 		private void DrawActiveState()
 		{
 			if (EditorApplication.isPlaying) {
-				using (EditorGuiExt.GuiEnabledBlock(false)) {
+				using (EditorGuiExt.EnabledBlock(false)) {
 					EditorGUILayout.ObjectField("Active State", m_state.Manager.Active, typeof(TreeState), true);
 				}
 			}
@@ -93,7 +93,7 @@ namespace Tekly.TreeState
 
 		private void DrawTransitions()
 		{
-			using (EditorGuiExt.GuiEnabledBlock(!EditorApplication.isPlaying)) {
+			using (EditorGuiExt.EnabledBlock(!EditorApplication.isPlaying)) {
 				m_transitionList.DoLayoutList();	
 			}
 		}
@@ -104,7 +104,7 @@ namespace Tekly.TreeState
 				return;
 			}
 
-			using (EditorGuiExt.GuiColorBlock(Color.green)) {
+			using (EditorGuiExt.ColorBlock(Color.green)) {
 				EditorGUILayout.BeginVertical(EditorStyles.helpBox);	
 			}
 
@@ -112,7 +112,7 @@ namespace Tekly.TreeState
 
 			DrawActiveState();
 			
-			using (EditorGuiExt.GuiEnabledBlock(false)) {
+			using (EditorGuiExt.EnabledBlock(false)) {
 				EditorGUILayout.EnumPopup("Mode", m_state.Mode);	
 			}
 			

@@ -5,14 +5,19 @@ namespace Tekly.Common.Gui
 {
     public static class EditorGuiExt 
     {
-        public static IDisposable GuiEnabledBlock(bool enabled)
+        public static IDisposable EnabledBlock(bool enabled)
         {
             return new GuiEnabledTracker(enabled);
         }
         
-        public static IDisposable GuiColorBlock(Color color)
+        public static IDisposable ColorBlock(Color color)
         {
             return new GuiColorTracker(color);
+        }
+        
+        public static IDisposable ContentColorBlock(Color color)
+        {
+            return new GuiContentColorTracker(color);
         }
         
         public static IDisposable Horizontal(GUIStyle style = null)
