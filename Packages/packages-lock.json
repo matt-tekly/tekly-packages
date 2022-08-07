@@ -91,6 +91,12 @@
         "ca.tekly.common": "0.0.1"
       }
     },
+    "ca.tekly.vibration": {
+      "version": "file:ca.tekly.vibration",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "ca.tekly.webster": {
       "version": "file:ca.tekly.webster",
       "depth": 0,

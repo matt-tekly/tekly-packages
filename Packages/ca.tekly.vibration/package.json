@@ -1,0 +1,13 @@
+{
+  "name": "ca.tekly.vibration",
+  "version": "0.0.1",
+  "displayName": "Tekly Vibration",
+  "description": "Used to make mobile devices vibrate",
+  "author": {
+    "name": "Matt King",
+    "email": "matt@tekly.ca"
+  },
+  "hideInEditor": false,
+  "type": "library",
+  "dependencies": {}
+}
