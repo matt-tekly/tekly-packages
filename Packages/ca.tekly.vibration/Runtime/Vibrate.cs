@@ -64,7 +64,9 @@ namespace Tekly.Vibration
 		[Preserve]
 		private static void VibrateHack()
 		{
+#if UNITY_IOS || UNITY_ANDROID
 			Handheld.Vibrate();
+#endif
 		}
 	}
 }

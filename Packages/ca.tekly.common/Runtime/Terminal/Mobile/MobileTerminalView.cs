@@ -133,7 +133,7 @@ namespace Tekly.Common.Terminal.Mobile
 
         private static int GetKeyboardHeight(bool includeInput)
         {
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE
             return 0;
 #elif UNITY_ANDROID
         using (AndroidJavaClass unityClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
