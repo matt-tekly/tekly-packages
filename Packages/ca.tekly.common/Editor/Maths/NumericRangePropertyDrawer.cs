@@ -24,9 +24,7 @@ namespace Tekly.Common.Maths
  
             var min = property.FindPropertyRelative("Min");
             var max = property.FindPropertyRelative("Max");
-            
-            EditorGUI.PrefixLabel(position, label);
-            
+
             EditorGUI.PropertyField(minRect, min, GUIContent.none);
             EditorGUI.PropertyField(maxRect, max, GUIContent.none);
 
