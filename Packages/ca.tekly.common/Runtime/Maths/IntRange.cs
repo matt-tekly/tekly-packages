@@ -3,6 +3,7 @@
 // ============================================================================
 
 using System;
+using Tekly.Common.Utils;
 using Random = UnityEngine.Random;
 
 namespace Tekly.Common.Maths
@@ -16,6 +17,11 @@ namespace Tekly.Common.Maths
         public int Get()
         {
             return Random.Range(Min, Max);
+        }
+        
+        public int Get(NumberGenerator generator)
+        {
+            return generator.Range(Min, Max);
         }
     }
 }
