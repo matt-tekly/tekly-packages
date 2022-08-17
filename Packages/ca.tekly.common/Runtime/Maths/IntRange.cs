@@ -21,6 +21,10 @@ namespace Tekly.Common.Maths
         
         public int Get(NumberGenerator generator)
         {
+            if (Max <= Min) {
+                return Min;
+            }
+            
             return generator.Range(Min, Max);
         }
     }

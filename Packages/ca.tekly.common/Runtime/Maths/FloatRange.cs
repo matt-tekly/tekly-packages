@@ -33,6 +33,10 @@ namespace Tekly.Common.Maths
         
         public float Get(NumberGenerator generator)
         {
+            if (Max <= Min) {
+                return Min;
+            }
+            
             return generator.Range(Min, Max);
         }
     }
