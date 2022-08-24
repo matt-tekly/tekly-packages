@@ -4,13 +4,13 @@ using System.Collections.Generic;
 namespace Tekly.Common.LocalPrefs
 {
     [Serializable]
-    public class StringContainer : ValueContainer<NamedString, string> { };
+    public class StringContainer : ValueContainer<NamedString, string> { }
     
     [Serializable]
-    public class FloatContainer : ValueContainer<NamedFloat, float> { };
+    public class FloatContainer : ValueContainer<NamedFloat, float> { }
     
     [Serializable]
-    public class BoolContainer : ValueContainer<NamedBool, bool> { };
+    public class BoolContainer : ValueContainer<NamedBool, bool> { }
     
     [Serializable]
     public class ValueContainer<TNamedValue, TV> where TV : IEquatable<TV> where TNamedValue : NamedValue<TV>, new()

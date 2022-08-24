@@ -18,7 +18,7 @@ namespace Tekly.DataModels.Binders
 
         private void Awake()
         {
-            m_template = PrefabProtector.Protect(Template, false);
+            m_template = PrefabProtector.Protect(Template);
         }
 
         public override void Bind()

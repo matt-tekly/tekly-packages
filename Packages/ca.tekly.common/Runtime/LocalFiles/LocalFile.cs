@@ -1,8 +1,4 @@
-﻿// ============================================================================
-// Copyright 2021 Matt King
-// ============================================================================
-
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -90,6 +86,15 @@ namespace Tekly.Common.LocalFiles
             if (Exists(relativeFile)) {
                 var filePath = GetPath(relativeFile);
                 File.Delete(filePath);    
+            }
+        }
+        
+        public static void DeleteDirectory(string relativeFile)
+        {
+            var dir = new DirectoryInfo(GetPath(relativeFile));
+
+            if (dir.Exists) {
+                dir.Delete(true);
             }
         }
 
