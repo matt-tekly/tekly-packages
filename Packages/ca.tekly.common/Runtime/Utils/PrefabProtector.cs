@@ -36,6 +36,7 @@ namespace Tekly.Common.Utils
 
             return instance;
 #else
+            component.gameObject.SetActive(false);
             return component;
 #endif
         }
@@ -48,13 +49,16 @@ namespace Tekly.Common.Utils
                 return gameObject;
             }
             
+            var wasActive = gameObject.activeSelf;
+            
             gameObject.SetActive(false);
             var instance = Object.Instantiate(gameObject, GetContainer());
             instance.gameObject.name = gameObject.name;
-            gameObject.SetActive(true);
+            gameObject.SetActive(wasActive);
 
             return instance;
 #else
+            gameObject.SetActive(false);
             return gameObject;
 #endif
         }
