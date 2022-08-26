@@ -1,14 +1,18 @@
+﻿// ============================================================================
+// Copyright 2021 Matt King
+// ============================================================================
+
 using System;
-using Tekly.Common.Ui;
 using Tekly.DataModels.Models;
 using Tekly.Logging;
+using UnityEngine.UI;
 
 namespace Tekly.DataModels.Binders
 {
-    public class ButtonBinder : Binder
+    public class UnityButtonBinder : Binder
     {
         public ModelRef Key;
-        public ButtonBase Button;
+        public Button Button;
         public ButtonAction Action;
         
         private IDisposable m_disposable;
@@ -17,9 +21,9 @@ namespace Tekly.DataModels.Binders
         private void Awake()
         {
             if (ReferenceEquals(Button, null) == false) {
-                Button.OnClick.AddListener(OnButtonClicked);    
+                Button.onClick.AddListener(OnButtonClicked);    
             } else {
-                TkLogger.Get<UnityButtonBinder>().ErrorContext("ButtonBinder has a null button", this);
+                TkLogger.Get<UnityButtonBinder>().ErrorContext("UnityButtonBinder has a null button", this);
             }
         }
 
@@ -42,7 +46,7 @@ namespace Tekly.DataModels.Binders
             m_buttonModel = null;
         }
 
-        private void OnButtonClicked(ButtonBase _)
+        private void OnButtonClicked()
         {
             m_buttonModel.Activate();
             
