@@ -57,10 +57,6 @@ namespace Tekly.DataModels.Binders
         {
             m_hasBound = true;
 
-            if (string.IsNullOrEmpty(GetKey())) {
-                return;
-            }
-            
             foreach (var binder in Binders) {
                 if (binder == null) {
                     m_logger.ErrorContext("BinderContainer has null binder", this);

@@ -1,5 +1,8 @@
 namespace Tekly.Common.Utils
 {
+    /// <summary>
+    /// Random number generator
+    /// </summary>
     public class NumberGenerator
     {
         private uint m_seed;

@@ -43,7 +43,7 @@ namespace TeklySample.Game.Generators
         private readonly StringValueModel m_itemId = new StringValueModel("");
         private readonly ItemCountModel m_generation;
 
-        private readonly DisposableList m_disposableList = new DisposableList();
+        private readonly Disposables m_disposables = new Disposables();
         
         public GeneratorModel(Generator generator, GeneratorManager generatorManager, BuyMultiplier buyMultiplier)
         {
@@ -68,13 +68,13 @@ namespace TeklySample.Game.Generators
             m_itemId.Value = m_generator.InventoryItem.ItemId;
             m_iconModel.Value = m_generator.Balance.Item.Icon;
 
-            m_runButton.Activated.Subscribe(RunButtonOnActivation).AddTo(m_disposableList);
-            m_buyButton.Activated.Subscribe(BuyButtonOnActivation).AddTo(m_disposableList);
+            m_runButton.Activated.Subscribe(RunButtonOnActivation).AddTo(m_disposables);
+            m_buyButton.Activated.Subscribe(BuyButtonOnActivation).AddTo(m_disposables);
         }
 
         protected override void OnDispose()
         {
-            m_disposableList.Dispose();
+            m_disposables.Dispose();
         }
         
         protected override void OnTick()

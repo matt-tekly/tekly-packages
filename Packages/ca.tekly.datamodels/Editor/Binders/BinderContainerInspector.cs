@@ -14,7 +14,6 @@ namespace Tekly.DataModels.Binders
             base.OnInspectorGUI();
 
             if (GUILayout.Button("Find Children")) {
-                Debug.Log("Finding Children");
                 FindChildBinders(target as BinderContainer);
             }
 

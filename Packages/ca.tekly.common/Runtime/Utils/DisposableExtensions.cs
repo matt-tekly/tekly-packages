@@ -7,11 +7,11 @@ using System.Collections.Generic;
 
 namespace Tekly.Common.Utils
 {
-    public static class Disposables
+    public static class DisposableExtensions
     {
         public static readonly IDisposable Empty = new EmptyDisposable();
         
-        public static IDisposable AddTo(this IDisposable disposable, DisposableList disposables)
+        public static IDisposable AddTo(this IDisposable disposable, Disposables disposables)
         {
             disposables.Add(disposable);
             return disposable;
@@ -23,7 +23,7 @@ namespace Tekly.Common.Utils
         public void Dispose() { }
     }
 
-    public class DisposableList : IDisposable
+    public class Disposables : IDisposable
     {
         private readonly List<IDisposable> m_disposables = new List<IDisposable>();
 
