@@ -31,7 +31,7 @@ namespace Tekly.Common.Ui
         public ClickEvent OnClick => m_onClick;
         public ClickEvent OnClickDisabled => m_onClickDisabled;
 
-        [SerializeField] private bool m_interactable;
+        [SerializeField] private bool m_interactable = true;
         [SerializeField] private ClickEvent m_onClick;
         [SerializeField] private ClickEvent m_onClickDisabled;
 
