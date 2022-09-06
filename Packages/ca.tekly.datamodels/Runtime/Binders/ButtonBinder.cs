@@ -33,7 +33,7 @@ namespace Tekly.DataModels.Binders
 
         private void BindBool(bool value)
         {
-            Button.interactable = value;
+            Button.Interactable = value;
         }
 
         private void OnDestroy()

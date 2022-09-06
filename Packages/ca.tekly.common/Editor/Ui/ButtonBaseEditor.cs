@@ -15,30 +15,18 @@ namespace Tekly.Common.Ui
         
         protected void OnEnable()
         {
-            m_interactable = serializedObject.FindProperty("m_Interactable");
-            m_onClick = serializedObject.FindProperty("OnClick");
-            m_onClickDisabled = serializedObject.FindProperty("OnClickDisabled");
+            m_interactable = serializedObject.FindProperty("m_interactable");
+            m_onClick = serializedObject.FindProperty("m_onClick");
+            m_onClickDisabled = serializedObject.FindProperty("m_onClickDisabled");
 
             var script = serializedObject.FindProperty("m_Script");
-            var navigation = serializedObject.FindProperty("m_Navigation");
-            var targetGraphicProperty = serializedObject.FindProperty("m_TargetGraphic");
-            var transitionProperty = serializedObject.FindProperty("m_Transition");
-            var colorBlockProperty = serializedObject.FindProperty("m_Colors");
-            var spriteStateProperty = serializedObject.FindProperty("m_SpriteState");
-            var animTriggerProperty = serializedObject.FindProperty("m_AnimationTriggers");
 
             m_propertyPathToExcludeForChildClasses = new[]
             {
                 script.propertyPath,
                 m_interactable.propertyPath,
-                navigation.propertyPath,
                 m_onClick.propertyPath,
                 m_onClickDisabled.propertyPath,
-                transitionProperty.propertyPath,
-                colorBlockProperty.propertyPath,
-                spriteStateProperty.propertyPath,
-                animTriggerProperty.propertyPath,
-                targetGraphicProperty.propertyPath,
             };
         }
 

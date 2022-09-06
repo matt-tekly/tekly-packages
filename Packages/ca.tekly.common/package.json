@@ -9,5 +9,8 @@
   },
   "hideInEditor": false,
   "type": "library",
-  "description": "Common utilities"
+  "description": "Common utilities",
+  "dependencies": {
+    "com.unity.mathematics": "1.1.0"
+  }
 }

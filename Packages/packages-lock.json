@@ -20,7 +20,9 @@
       "version": "file:ca.tekly.common",
       "depth": 0,
       "source": "embedded",
-      "dependencies": {}
+      "dependencies": {
+        "com.unity.mathematics": "1.1.0"
+      }
     },
     "ca.tekly.content": {
       "version": "file:ca.tekly.content",
@@ -151,6 +153,13 @@
       "dependencies": {
         "com.unity.ext.nunit": "1.0.6"
       },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.mathematics": {
+      "version": "1.1.0",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
       "url": "https://packages.unity.com"
     },
     "com.unity.mobile.android-logcat": {
