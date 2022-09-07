@@ -23,9 +23,16 @@ namespace Tekly.Common.Ui
         [Serializable]
         public class ClickEvent : UnityEvent<ButtonBase> { }
 
-        public bool Interactable {
+         public bool Interactable {
             get => m_interactable;
-            set => m_interactable = value;
+            set {
+                if (m_interactable != value) {
+                    m_interactable = value;
+                    
+                    m_state = DetermineState();
+                    DoStateTransition(m_state, false);
+                }
+            }
         }
 
         public ClickEvent OnClick => m_onClick;
