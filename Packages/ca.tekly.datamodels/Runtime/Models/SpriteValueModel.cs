@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using UnityEngine;
 
 namespace Tekly.DataModels.Models
@@ -13,6 +14,11 @@ namespace Tekly.DataModels.Models
         public override string ToDisplayString()
         {
             return Value != null ? Value.name : "[null]";
+        }
+
+        public override int CompareTo(IValueModel valueModel)
+        {
+            throw new Exception($"Trying to compare [{GetType().Name}] to [{valueModel.GetType().Name}]");
         }
     }
 }

@@ -2,6 +2,11 @@
 
 namespace Tekly.Common.Observables
 {
+    public struct Unit
+    {
+        public static Unit Default;
+    }
+
     public interface ITriggerable<out T>
     {
         IDisposable Subscribe(IValueObserver<T> observer);

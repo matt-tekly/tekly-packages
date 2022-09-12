@@ -13,7 +13,7 @@ namespace Tekly.DataModels.Models
     {
         public readonly string[] Keys;
         public readonly bool IsRelative;
-
+        
         private ModelKey(string[] keys, bool isRelative)
         {
             Keys = keys;
@@ -36,11 +36,17 @@ namespace Tekly.DataModels.Models
             return modelKey;
         }
 
+        public static ModelKey Relative(string key)
+        {
+            var keys = new[] {key};
+            return new ModelKey(keys, true);
+        }
+
         public static ModelKey ParseUncached(string key)
         {
-            string[] keys = key.Split('.');
+            var keys = key.Split('.');
 
-            bool isRelative = key[0] == '*';
+            var isRelative = key[0] == '*';
             if (isRelative) {
                 var oldKeys = keys;
                 keys = new string[keys.Length - 1];
@@ -58,6 +64,11 @@ namespace Tekly.DataModels.Models
             }
 
             return key.Substring(2);
+        }
+
+        public override string ToString()
+        {
+            return DebuggerDisplayKeys;
         }
 
         private string DebuggerDisplayKeys => string.Join(".", Keys);

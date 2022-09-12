@@ -3,6 +3,9 @@ using Tekly.DataModels.Models;
 
 namespace Tekly.DataModels.Binders
 {
+    /// <summary>
+    /// Takes in a Key and transforms that into another key which overrides the target BinderContainer's key
+    /// </summary>
     public class BinderKeyProxy : Binder
     {
         public ModelRef Key;

@@ -1,8 +1,4 @@
-﻿// ============================================================================
-// Copyright 2021 Matt King
-// ============================================================================
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using Tekly.Common.Observables;
@@ -31,8 +27,6 @@ namespace Tekly.DataModels.Models
             Hash = hash;
         }
     }
-    
-    // TODO: Make ObjectModel sortable
     
     public class ObjectModel : ModelBase
     {
@@ -86,7 +80,7 @@ namespace Tekly.DataModels.Models
             return false;
         }
 
-        protected virtual bool TryGetModel(string modelKey, out IModel model)
+        public virtual bool TryGetModel(string modelKey, out IModel model)
         {
             for (var index = 0; index < m_models.Count; index++) {
                 var modelReference = m_models[index];

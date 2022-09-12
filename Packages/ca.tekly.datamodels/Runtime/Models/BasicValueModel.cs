@@ -7,9 +7,18 @@ using System.Text;
 
 namespace Tekly.DataModels.Models
 {
-    public abstract class BasicValueModel<T> : ValueModel<T> where T : IEquatable<T>
+    public abstract class BasicValueModel<T> : ValueModel<T> where T : IEquatable<T>, IComparable<T>
     {
         public BasicValueModel(T value) : base(value) { }
+        
+        public override int CompareTo(IValueModel valueModel)
+        {
+            if (valueModel is ValueModel<T> model) {
+                return m_value.CompareTo(model.Value);
+            }
+
+            throw new Exception($"Trying to compare [{GetType().Name}] to [{valueModel?.GetType().Name}]");
+        }
     }
     
     public class StringValueModel : BasicValueModel<string>
@@ -24,6 +33,15 @@ namespace Tekly.DataModels.Models
         public override string ToDisplayString()
         {
             return Value;
+        }
+        
+        public override int CompareTo(IValueModel valueModel)
+        {
+            if (valueModel is StringValueModel model) {
+                return string.Compare(m_value, model.Value, StringComparison.CurrentCulture);
+            }
+
+            throw new Exception($"Trying to compare [{GetType().Name}] to [{valueModel?.GetType().Name}]");
         }
     }
     

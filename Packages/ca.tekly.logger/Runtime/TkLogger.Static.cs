@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -225,6 +226,26 @@ namespace Tekly.Logging
         public static void SetCommonField(string id, object value)
         {
             CommonFields[id] = value.ToString();
+        }
+        
+        public static void SetCommonField(string id, int value)
+        {
+            CommonFields[id] = value.ToString();
+        }
+        
+        public static void SetCommonField(string id, float value)
+        {
+            CommonFields[id] = value.ToString(CultureInfo.InvariantCulture);
+        }
+        
+        public static void SetCommonField(string id, double value)
+        {
+            CommonFields[id] = value.ToString(CultureInfo.InvariantCulture);
+        }
+        
+        public static void SetCommonField(string id, bool value)
+        {
+            CommonFields[id] = value ? "true" : "false";
         }
 
         public static void ClearCommonField(string id)

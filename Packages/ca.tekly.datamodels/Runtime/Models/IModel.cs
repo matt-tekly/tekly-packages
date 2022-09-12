@@ -1,9 +1,6 @@
-﻿// ============================================================================
-// Copyright 2021 Matt King
-// ============================================================================
-
-using System;
+﻿using System;
 using System.Text;
+using Tekly.Common.Observables;
 
 namespace Tekly.DataModels.Models
 {
@@ -18,8 +15,9 @@ namespace Tekly.DataModels.Models
         void Tick();
     }
     
-    public interface IValueModel : IModel
+    public interface IValueModel : IModel, IComparable<IValueModel>
     {
         string ToDisplayString();
+        ITriggerable<Unit> Modified { get; }
     }
 }

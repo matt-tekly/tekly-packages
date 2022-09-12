@@ -1,10 +1,11 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using Tekly.Common.Observables;
 using Tekly.Logging;
 
 namespace Tekly.DataModels.Models
 {
-    public abstract class ValueModel<T> : ObservableValue<T>, IValueModel
+    public abstract class ValueModel<T> : ObservableValue<T>, IValueModel, IComparable<ValueModel<T>>
     {
         private bool m_isDisposed;
         
@@ -47,6 +48,26 @@ namespace Tekly.DataModels.Models
         public virtual string ToDisplayString()
         {
             return "[UNIMPLEMENTED]";
+        }
+
+        public int Compare(IValueModel valueModel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public abstract int CompareTo(IValueModel valueModel);
+
+        public int CompareTo(ValueModel<T> other)
+        {
+            if (ReferenceEquals(this, other)) {
+                return 0;
+            }
+
+            if (ReferenceEquals(null, other)) {
+                return 1;
+            }
+
+            return m_isDisposed.CompareTo(other.m_isDisposed);
         }
     }
 }

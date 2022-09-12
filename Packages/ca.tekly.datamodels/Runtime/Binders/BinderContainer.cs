@@ -1,8 +1,4 @@
-﻿// ============================================================================
-// Copyright 2021 Matt King
-// ============================================================================
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Tekly.Common.Utils;
 using Tekly.DataModels.Models;
@@ -14,21 +10,23 @@ namespace Tekly.DataModels.Binders
 {
     public class BinderContainer : Binder
     {
-        public ModelRef Key;
-        
-        public bool BindOnEnable;
+        [FormerlySerializedAs("Key")][SerializeField] protected ModelRef m_key;
+        [FormerlySerializedAs("BindOnEnable")][SerializeField] protected bool m_bindOnEnable;
+        [FormerlySerializedAs("Binders")][SerializeField] protected List<Binder> m_binders;
 
-        public List<Binder> Binders;
+        [NonSerialized] protected BinderContainer m_parent;
+        [NonSerialized] protected string m_keyOverride;
+        [NonSerialized] protected bool m_hasBound;
 
-        protected BinderContainer m_container;
         protected TkLogger m_logger => TkLogger.Get<BinderContainer>();
         
-        [NonSerialized] protected string m_keyOverride = null;
-        [NonSerialized] protected bool m_hasBound;
+        public bool BindOnEnable => m_bindOnEnable;
+        public List<Binder> Binders => m_binders;
+        
         
         public void OnEnable()
         {
-            if (BindOnEnable) {
+            if (m_bindOnEnable) {
                 Bind();
             }
         }
@@ -42,22 +40,22 @@ namespace Tekly.DataModels.Binders
             }
         }
 
-        public override void Bind(BinderContainer container)
+        public override void Bind(BinderContainer parent)
         {
-            m_container = container;
+            m_parent = parent;
             Bind();
         }
 
         private string GetKey()
         {
-            return m_keyOverride ?? Key.Path;
+            return m_keyOverride ?? m_key.Path;
         }
 
         public virtual void Bind()
         {
             m_hasBound = true;
 
-            foreach (var binder in Binders) {
+            foreach (var binder in m_binders) {
                 if (binder == null) {
                     m_logger.ErrorContext("BinderContainer has null binder", this);
                     continue;
@@ -69,7 +67,13 @@ namespace Tekly.DataModels.Binders
         
         public bool TryGet<T>(string key, out T model) where T : class, IModel
         {
-            var foundModel = TryGet(key, out var genericModel);
+            var modelKey = ModelKey.Parse(key);
+            return TryGet(modelKey, out model);
+        }
+        
+        public bool TryGet<T>(ModelKey modelKey, out T model) where T : class, IModel
+        {
+            var foundModel = TryGet(modelKey, out var genericModel);
 
             if (foundModel) {
                 if (genericModel is T specificModel) {
@@ -77,6 +81,7 @@ namespace Tekly.DataModels.Binders
                 } else {
                     model = null;
                     foundModel = false;
+                    var key = modelKey.ToString();
                     var fullPath = ResolveFullKey(key);
                     
                     m_logger.ErrorContext(
@@ -88,6 +93,7 @@ namespace Tekly.DataModels.Binders
                         ("actual", genericModel.GetType()));
                 }
             } else {
+                var key = modelKey.ToString();
                 var fullPath = ResolveFullKey(key);
                 m_logger.ErrorContext("Failed to find model [{key} {fullPath}]", this, ("key", key), ("fullPath", fullPath));
                 model = null;
@@ -113,8 +119,8 @@ namespace Tekly.DataModels.Binders
             var selfKey = ModelKey.Parse(GetKey());
 
             if (selfKey.IsRelative) {
-                if (m_container != null) {
-                    m_container.TryGet(selfKey, out var targetRootModel);
+                if (m_parent != null) {
+                    m_parent.TryGet(selfKey, out var targetRootModel);
                     rootModel = targetRootModel as ObjectModel;
                 } else {
                     m_logger.ErrorContext("BinderContainer [{name}] has relative key but no container", this, ("name", gameObject.name));
@@ -147,7 +153,7 @@ namespace Tekly.DataModels.Binders
             var container = this.GetComponentInAncestor<BinderContainer>();
             
             if (selfKey.IsRelative && container == null) {
-                Debug.LogError("Relative Key for BinderContainer with no parent", this);
+                m_logger.ErrorContext("Relative Key for BinderContainer with no parent", this);
                 return GetKey();
             }
             

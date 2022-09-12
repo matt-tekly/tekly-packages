@@ -22,12 +22,9 @@ namespace Tekly.DataModels.Binders
 
         public static void FindChildBinders(BinderContainer container)
         {
-            var binders = new List<Binder>();
-            
-            GetChildrenBinders(container.gameObject, binders, new List<Binder>());
-
             Undo.RecordObject(container, "Find Children");
-            container.Binders = binders;
+            container.Binders.Clear();
+            GetChildrenBinders(container.gameObject, container.Binders, new List<Binder>());
         }
 
         private static void GetChildrenBinders(GameObject gameObject, List<Binder> binders, List<Binder> scratch)

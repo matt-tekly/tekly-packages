@@ -27,6 +27,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6090141287712852837}
   m_Father: {fileID: 4608312501460875600}
@@ -49,10 +50,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a2b69f62b4648aaa74977b139fdbc17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Key:
+  m_key:
     Path: gameworld.buymultiplier
-  BindOnEnable: 1
-  Binders:
+  m_bindOnEnable: 1
+  m_binders:
   - {fileID: 8242936754527499518}
   - {fileID: 6054687395830650006}
 --- !u!1 &636164819385908084
@@ -84,6 +85,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3105475107476584193}
   m_Father: {fileID: 4575450868073389602}
@@ -173,6 +175,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1837409719509040143}
   m_RootOrder: 0
@@ -247,6 +250,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 574969900235104401}
   - {fileID: 1837409719509040143}
@@ -330,6 +334,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6090141287712852837}
   m_RootOrder: 0
@@ -480,6 +485,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4608312501359845891}
   m_RootOrder: 1
@@ -569,6 +575,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4608312501857324239}
   - {fileID: 4608312501359845891}
@@ -628,6 +635,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4608312501456056060}
   - {fileID: 4608312501654873310}
@@ -652,10 +660,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a2b69f62b4648aaa74977b139fdbc17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Key:
+  m_key:
     Path: gameworld.inventory.egg_item
-  BindOnEnable: 1
-  Binders:
+  m_bindOnEnable: 1
+  m_binders:
   - {fileID: 4608312501654873281}
   - {fileID: 4608312501298969556}
 --- !u!1 &4608312500458955778
@@ -687,6 +695,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4608312501359845891}
   m_RootOrder: 2
@@ -751,12 +760,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 44
+  m_fontSize: 36.9
   m_fontSizeBase: 44
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 44
   m_fontStyle: 0
   m_HorizontalAlignment: 4
   m_VerticalAlignment: 512
@@ -839,6 +848,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4608312501318872192}
   m_RootOrder: 0
@@ -912,12 +922,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f897e4b97ce4dff819509789ec54393, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Key:
+  m_key:
     Path: gameworld.generators.visible
-  BindOnEnable: 1
-  Binders: []
-  Template: {fileID: 154337208719987385, guid: 6264441469e0be74fa61ecc4dfc98092, type: 3}
-  Container: {fileID: 4608312500607176576}
+  m_bindOnEnable: 1
+  m_binders: []
+  m_template: {fileID: 154337208719987385, guid: 6264441469e0be74fa61ecc4dfc98092, type: 3}
+  m_container: {fileID: 4608312500607176576}
 --- !u!1 &4608312501298969554
 GameObject:
   m_ObjectHideFlags: 0
@@ -947,6 +957,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4608312500385798579}
   m_RootOrder: 2
@@ -1011,12 +1022,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 44
+  m_fontSize: 36.9
   m_fontSizeBase: 44
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 44
   m_fontStyle: 0
   m_HorizontalAlignment: 4
   m_VerticalAlignment: 512
@@ -1098,6 +1109,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4608312500607176576}
   m_Father: {fileID: 4608312501460875600}
@@ -1186,6 +1198,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4575450868073389602}
   - {fileID: 4608312499971750605}
@@ -1210,10 +1223,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a2b69f62b4648aaa74977b139fdbc17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Key:
+  m_key:
     Path: gameworld.inventory.credits_item
-  BindOnEnable: 1
-  Binders:
+  m_bindOnEnable: 1
+  m_binders:
   - {fileID: 7922093121559393150}
   - {fileID: 4608312499971750604}
   - {fileID: 4608312500458955780}
@@ -1245,6 +1258,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4608312500385798579}
   m_RootOrder: 0
@@ -1322,6 +1336,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4608312501318872192}
   - {fileID: 536768361032736159}
@@ -1450,6 +1465,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4608312500385798579}
   m_RootOrder: 1
@@ -1540,6 +1556,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4608312500102463363}
   - {fileID: 4608312501460875600}
@@ -1619,6 +1636,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4608312500102463363}
   m_RootOrder: 0
@@ -1694,6 +1712,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4575450868073389602}
   m_RootOrder: 0
@@ -1771,6 +1790,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2216520907312413164}
   m_Father: {fileID: 536768361032736159}
@@ -1907,6 +1927,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4575450868073389602}
   m_RootOrder: 2
