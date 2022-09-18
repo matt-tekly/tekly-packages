@@ -1,5 +1,7 @@
 ﻿using System;
 using Tekly.DataModels.Models;
+using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Tekly.DataModels.Binders
 {
@@ -8,15 +10,15 @@ namespace Tekly.DataModels.Binders
     /// </summary>
     public class BinderKeyProxy : Binder
     {
-        public ModelRef Key;
-        public BinderContainer Target;
-        public string KeyFormat;
+        [FormerlySerializedAs("Key")] [SerializeField] private ModelRef m_key;
+        [FormerlySerializedAs("Target")] [SerializeField] private BinderContainer m_target;
+        [FormerlySerializedAs("KeyFormat")] [SerializeField] private string m_keyFormat;
         
         private IDisposable m_disposable;
         
         public override void Bind(BinderContainer container)
         {
-            if (container.TryGet(Key.Path, out StringValueModel stringModel)) {
+            if (container.TryGet(m_key.Path, out StringValueModel stringModel)) {
                 m_disposable?.Dispose();
                 m_disposable = stringModel.Subscribe(BindKey);
             }
@@ -24,10 +26,10 @@ namespace Tekly.DataModels.Binders
 
         private void BindKey(string value)
         {
-            if (string.IsNullOrEmpty(KeyFormat)) {
-                Target.OverrideKey(value);    
+            if (string.IsNullOrEmpty(m_keyFormat)) {
+                m_target.OverrideKey(value);    
             } else {
-                Target.OverrideKey(string.Format(KeyFormat, value));
+                m_target.OverrideKey(string.Format(m_keyFormat, value));
             }
         }
         

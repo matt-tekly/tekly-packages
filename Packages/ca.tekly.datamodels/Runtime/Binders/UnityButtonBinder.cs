@@ -1,27 +1,25 @@
-﻿// ============================================================================
-// Copyright 2021 Matt King
-// ============================================================================
-
-using System;
+﻿using System;
 using Tekly.DataModels.Models;
 using Tekly.Logging;
+using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Tekly.DataModels.Binders
 {
     public class UnityButtonBinder : Binder
     {
-        public ModelRef Key;
-        public Button Button;
-        public ButtonAction Action;
+        [FormerlySerializedAs("Key")] [SerializeField] private ModelRef m_key;
+        [FormerlySerializedAs("Button")] [SerializeField] private Button m_button;
+        [FormerlySerializedAs("Action")] [SerializeField] private ButtonAction m_action;
         
         private IDisposable m_disposable;
         private ButtonModel m_buttonModel;
 
         private void Awake()
         {
-            if (ReferenceEquals(Button, null) == false) {
-                Button.onClick.AddListener(OnButtonClicked);    
+            if (ReferenceEquals(m_button, null) == false) {
+                m_button.onClick.AddListener(OnButtonClicked);    
             } else {
                 TkLogger.Get<UnityButtonBinder>().ErrorContext("UnityButtonBinder has a null button", this);
             }
@@ -29,7 +27,7 @@ namespace Tekly.DataModels.Binders
 
         public override void Bind(BinderContainer container)
         {
-            if (container.TryGet(Key.Path, out m_buttonModel)) {
+            if (container.TryGet(m_key.Path, out m_buttonModel)) {
                 m_disposable?.Dispose();
                 m_disposable = m_buttonModel.Interactable.Subscribe(BindBool);
             }
@@ -37,7 +35,7 @@ namespace Tekly.DataModels.Binders
 
         private void BindBool(bool value)
         {
-            Button.interactable = value;
+            m_button.interactable = value;
         }
 
         private void OnDestroy()
@@ -50,8 +48,8 @@ namespace Tekly.DataModels.Binders
         {
             m_buttonModel.Activate();
             
-            if (ReferenceEquals(Action, null) == false) {
-                Action.Activate();
+            if (ReferenceEquals(m_action, null) == false) {
+                m_action.Activate();
             }
         }
     }

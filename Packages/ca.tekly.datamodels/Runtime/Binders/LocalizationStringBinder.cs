@@ -4,15 +4,17 @@ using Tekly.DataModels.Models;
 using Tekly.Localizations;
 using Tekly.Logging;
 using TMPro;
+using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Tekly.DataModels.Binders
 {
-    public class LocalizationStringBinder: Binder
+    public class LocalizationStringBinder : Binder
     {
-        public string LocalizationId;
-        public FormatAndDataKey[] Keys;
+        [FormerlySerializedAs("LocalizationId")] [SerializeField] private string m_localizationId;
+        [FormerlySerializedAs("Keys")] [SerializeField] private FormatAndDataKey[] m_keys;
 
-        public TMP_Text Text;
+        [FormerlySerializedAs("Text")] [SerializeField] private TMP_Text m_text;
 
         private (string, object)[] m_values;
         private IDisposable[] m_listeners;
@@ -24,17 +26,17 @@ namespace Tekly.DataModels.Binders
         {
             Clear();
 
-            Array.Resize(ref m_values, Keys.Length);
-            Array.Resize(ref m_listeners, Keys.Length);
+            Array.Resize(ref m_values, m_keys.Length);
+            Array.Resize(ref m_listeners, m_keys.Length);
             
-            for (var index = 0; index < Keys.Length; index++) {
-                m_values[index].Item1 = Keys[index].FormatKey;
+            for (var index = 0; index < m_keys.Length; index++) {
+                m_values[index].Item1 = m_keys[index].FormatKey;
             }
             
             m_canFormat = false;
             
-            for (var index = 0; index < Keys.Length; index++) {
-                var key = Keys[index];
+            for (var index = 0; index < m_keys.Length; index++) {
+                var key = m_keys[index];
 
                 if (!container.TryGet(key.ModelKey.Path, out IValueModel model)) {
                     m_logger.ErrorContext("Failed to find Model: [{key}]", this, ("key", key.ModelKey));
@@ -66,7 +68,7 @@ namespace Tekly.DataModels.Binders
                 return;
             }
 
-            Text.text = Localizer.Instance.Localize(LocalizationId, m_values);
+            m_text.text = Localizer.Instance.Localize(m_localizationId, m_values);
         }
         
         private void OnDestroy()
@@ -91,6 +93,8 @@ namespace Tekly.DataModels.Binders
             foreach (var disposable in m_listeners) {
                 disposable.Dispose();
             }
+
+            m_listeners = null;
         }
 
         [Serializable]

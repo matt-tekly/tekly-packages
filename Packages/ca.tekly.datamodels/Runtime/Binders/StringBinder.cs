@@ -1,23 +1,21 @@
-﻿// ============================================================================
-// Copyright 2021 Matt King
-// ============================================================================
-
-using System;
+﻿using System;
 using Tekly.DataModels.Models;
 using TMPro;
+using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Tekly.DataModels.Binders
 {
     public class StringBinder : Binder
     {
-        public ModelRef Key;
-        public TMP_Text Text;
+        [FormerlySerializedAs("Key")] [SerializeField] private ModelRef m_key;
+        [FormerlySerializedAs("Text")] [SerializeField] private TMP_Text m_text;
 
         private IDisposable m_disposable;
         
         public override void Bind(BinderContainer container)
         {
-            if (container.TryGet(Key.Path, out StringValueModel stringModel)) {
+            if (container.TryGet(m_key.Path, out StringValueModel stringModel)) {
                 m_disposable?.Dispose();
                 m_disposable = stringModel.Subscribe(BindString);
             }
@@ -25,7 +23,7 @@ namespace Tekly.DataModels.Binders
 
         private void BindString(string value)
         {
-            Text.text = value;
+            m_text.text = value;
         }
         
         private void OnDestroy()

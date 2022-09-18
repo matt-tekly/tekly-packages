@@ -148,15 +148,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91f88245b7f642d3afb91a963ff5d570, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LocalizationId: $generator.buy
-  Keys:
+  m_localizationId: $generator.buy
+  m_keys:
   - FormatKey: count
     ModelKey:
       Path: '*.affordable'
   - FormatKey: name
     ModelKey:
       Path: '*.name'
-  Text: {fileID: 154337208102233934}
+  m_text: {fileID: 154337208102233934}
 --- !u!1 &154337208270093915
 GameObject:
   m_ObjectHideFlags: 0
@@ -325,10 +325,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2217c7b0cbd40d2967c7c20518d3f30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Key:
+  m_key:
     Path: '*.itemid'
-  Target: {fileID: 154337209003561454}
-  KeyFormat: gameworld.inventory.{0}
+  m_target: {fileID: 154337209003561454}
+  m_keyFormat: gameworld.inventory.{0}
 --- !u!1 &154337208602961165
 GameObject:
   m_ObjectHideFlags: 0
@@ -541,9 +541,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4acfa85e6c2d4353881cebc936f11501, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Key:
+  m_image: {fileID: 154337208628800655}
+  m_key:
     Path: '*.icon'
-  Image: {fileID: 154337208628800655}
 --- !u!114 &154337208628800642
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1108,13 +1108,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c411423794ff4fa1ac40e54729930b72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Key:
+  m_key:
     Path: '*.progress'
-  Rect: {fileID: 154337208270093912}
-  AnimationTime: 0
-  StartValue: 0
-  EndValue: 1
-  Animation:
+  m_rect: {fileID: 154337208270093912}
+  m_animationTime: 0
+  m_startValue: 0
+  m_endValue: 1
+  m_animation:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -1273,10 +1273,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76274d96329e4c108f2e6a56d7fcf4ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Key:
+  m_key:
     Path: '*.buy'
-  Button: {fileID: 154337209352836378}
-  Action: {fileID: 0}
+  m_button: {fileID: 154337209352836378}
+  m_action: {fileID: 0}
 --- !u!1 &154337209797921102
 GameObject:
   m_ObjectHideFlags: 0
@@ -1411,10 +1411,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76274d96329e4c108f2e6a56d7fcf4ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Key:
+  m_key:
     Path: '*.run'
-  Button: {fileID: 154337209797921101}
-  Action: {fileID: 0}
+  m_button: {fileID: 154337209797921101}
+  m_action: {fileID: 0}
 --- !u!1 &154337209946430450
 GameObject:
   m_ObjectHideFlags: 0
@@ -1563,10 +1563,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cce83774eba3425bb0ec02f379233de3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Keys:
+  m_keys:
   - Path: '*.generation.count'
-  Format: '{0}'
-  Text: {fileID: 154337209946430448}
+  m_format: '{0}'
+  m_text: {fileID: 154337209946430448}
 --- !u!1 &154337210090441716
 GameObject:
   m_ObjectHideFlags: 0
@@ -1795,10 +1795,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cce83774eba3425bb0ec02f379233de3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Keys:
+  m_keys:
   - Path: '*.timeremaining'
-  Format: '{0:N}s'
-  Text: {fileID: 154337210105065506}
+  m_format: '{0:N}s'
+  m_text: {fileID: 154337210105065506}
 --- !u!1 &154337210146752418
 GameObject:
   m_ObjectHideFlags: 0
@@ -1947,10 +1947,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cce83774eba3425bb0ec02f379233de3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Keys:
+  m_keys:
   - Path: '*.count'
-  Format: '{0}'
-  Text: {fileID: 154337210146752416}
+  m_format: '{0}'
+  m_text: {fileID: 154337210146752416}
 --- !u!1 &154337210165914393
 GameObject:
   m_ObjectHideFlags: 0

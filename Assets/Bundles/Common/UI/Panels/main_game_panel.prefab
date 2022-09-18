@@ -275,13 +275,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c411423794ff4fa1ac40e54729930b72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Key:
+  m_key:
     Path: gameworld.generators.all.credits_gen.progress
-  Rect: {fileID: 3105475107476584193}
-  AnimationTime: 0
-  StartValue: 0
-  EndValue: 1
-  Animation:
+  m_rect: {fileID: 3105475107476584193}
+  m_animationTime: 0
+  m_startValue: 0
+  m_endValue: 1
+  m_animation:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -453,9 +453,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb0e0d4e5e5e4c568889ba56b2e8f9e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Key:
+  m_key:
     Path: '*.shorttext'
-  Text: {fileID: 7686373982787691145}
+  m_text: {fileID: 7686373982787691145}
 --- !u!1 &4608312499971750602
 GameObject:
   m_ObjectHideFlags: 0
@@ -545,9 +545,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4acfa85e6c2d4353881cebc936f11501, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Key:
+  m_image: {fileID: 4608312499971750607}
+  m_key:
     Path: '*.icon'
-  Image: {fileID: 4608312499971750607}
 --- !u!1 &4608312500102463360
 GameObject:
   m_ObjectHideFlags: 0
@@ -814,10 +814,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cce83774eba3425bb0ec02f379233de3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Keys:
+  m_keys:
   - Path: '*.count'
-  Format: '{0}'
-  Text: {fileID: 4608312500458955783}
+  m_format: '{0}'
+  m_text: {fileID: 4608312500458955783}
 --- !u!1 &4608312500607176577
 GameObject:
   m_ObjectHideFlags: 0
@@ -1076,10 +1076,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cce83774eba3425bb0ec02f379233de3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Keys:
+  m_keys:
   - Path: '*.count'
-  Format: '{0}'
-  Text: {fileID: 4608312501298969559}
+  m_format: '{0}'
+  m_text: {fileID: 4608312501298969559}
 --- !u!1 &4608312501318872193
 GameObject:
   m_ObjectHideFlags: 0
@@ -1525,9 +1525,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4acfa85e6c2d4353881cebc936f11501, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Key:
+  m_image: {fileID: 4608312501654873280}
+  m_key:
     Path: '*.icon'
-  Image: {fileID: 4608312501654873280}
 --- !u!1 &4608312501679655878
 GameObject:
   m_ObjectHideFlags: 0
@@ -1895,10 +1895,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76274d96329e4c108f2e6a56d7fcf4ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Key:
+  m_key:
     Path: '*.button'
-  Button: {fileID: 4093535094553130093}
-  Action: {fileID: 0}
+  m_button: {fileID: 4093535094553130093}
+  m_action: {fileID: 0}
 --- !u!1 &8380334301193392412
 GameObject:
   m_ObjectHideFlags: 0

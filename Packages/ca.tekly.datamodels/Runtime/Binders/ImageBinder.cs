@@ -1,20 +1,21 @@
 ﻿using System;
 using Tekly.DataModels.Models;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Tekly.DataModels.Binders
 {
     public class ImageBinder : Binder
     {
-        public ModelRef Key;
-        public Image Image;
+        [FormerlySerializedAs("Image")][SerializeField] private Image m_image;
+        [FormerlySerializedAs("Key")][SerializeField] private ModelRef m_key;
 
         private IDisposable m_disposable;
         
         public override void Bind(BinderContainer container)
         {
-            if (container.TryGet(Key.Path, out SpriteValueModel spriteModel)) {
+            if (container.TryGet(m_key.Path, out SpriteValueModel spriteModel)) {
                 m_disposable?.Dispose();
                 m_disposable = spriteModel.Subscribe(BindSprite);
             }
@@ -22,7 +23,7 @@ namespace Tekly.DataModels.Binders
 
         private void BindSprite(Sprite sprite)
         {
-            Image.sprite = sprite;
+            m_image.sprite = sprite;
         }
         
         private void OnDestroy()

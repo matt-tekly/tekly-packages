@@ -1,22 +1,23 @@
 ﻿using System;
 using Tekly.DataModels.Models;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Tekly.DataModels.Binders
 {
     public class VisibilityBinder : Binder
     {
-        public ModelRef Key;
+        [FormerlySerializedAs("Key")] [SerializeField] private ModelRef m_key;
         
-        public bool Invert;
+        [FormerlySerializedAs("Invert")] [SerializeField] private bool m_invert;
         
-        public GameObject[] Targets;
+        [FormerlySerializedAs("Targets")] [SerializeField] private GameObject[] m_targets;
 
         private IDisposable m_disposable;
         
         public override void Bind(BinderContainer container)
         {
-            if (container.TryGet(Key.Path, out BoolValueModel stringModel)) {
+            if (container.TryGet(m_key.Path, out BoolValueModel stringModel)) {
                 m_disposable?.Dispose();
                 m_disposable = stringModel.Subscribe(BindBool);
             }
@@ -24,9 +25,9 @@ namespace Tekly.DataModels.Binders
 
         private void BindBool(bool value)
         {
-            var active = value != Invert;
+            var active = value != m_invert;
             
-            foreach (var target in Targets) {
+            foreach (var target in m_targets) {
                 target.SetActive(active);
             }
         }

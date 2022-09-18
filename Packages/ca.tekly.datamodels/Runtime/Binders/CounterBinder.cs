@@ -1,8 +1,4 @@
-﻿// ============================================================================
-// Copyright 2021 Matt King
-// ============================================================================
-
-using System;
+﻿using System;
 using Tekly.Common.Maths;
 using Tekly.DataModels.Models;
 using TMPro;

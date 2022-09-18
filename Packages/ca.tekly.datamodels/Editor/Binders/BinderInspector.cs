@@ -1,5 +1,4 @@
-﻿using Tekly.Common;
-using Tekly.Common.Gui;
+﻿using Tekly.Common.Gui;
 using UnityEditor;
 using UnityEngine;
 
@@ -17,7 +16,12 @@ namespace Tekly.DataModels.Binders
             if (EditorApplication.isPlaying) {
                 return;
             }
-            
+
+            DrawBinderContainer();
+        }
+
+        protected void DrawBinderContainer()
+        {
             var binder = target as Binder;
             
             var container = binder.GetComponentInParent<BinderContainer>();
@@ -35,8 +39,6 @@ namespace Tekly.DataModels.Binders
                     }
                 }
             }
-            
-            serializedObject.ApplyModifiedProperties();
         }
     }
 }

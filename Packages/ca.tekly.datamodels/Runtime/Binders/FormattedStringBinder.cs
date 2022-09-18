@@ -8,16 +8,17 @@ using Tekly.DataModels.Models;
 using Tekly.Logging;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Tekly.DataModels.Binders
 {
     public class FormattedStringBinder : Binder
     {
-        public ModelRef[] Keys;
+        [FormerlySerializedAs("Keys")] [SerializeField] private ModelRef[] m_keys;
 
-        [TextArea] public string Format;
+        [FormerlySerializedAs("Format")] [SerializeField] [TextArea] private string m_format;
 
-        public TMP_Text Text;
+        [FormerlySerializedAs("Text")] [SerializeField] private TMP_Text m_text;
 
         private object[] m_values;
         private IDisposable[] m_listeners;
@@ -29,13 +30,13 @@ namespace Tekly.DataModels.Binders
         {
             Clear();
 
-            Array.Resize(ref m_values, Keys.Length);
-            Array.Resize(ref m_listeners, Keys.Length);
+            Array.Resize(ref m_values, m_keys.Length);
+            Array.Resize(ref m_listeners, m_keys.Length);
             
             m_canFormat = false;
 
-            for (var index = 0; index < Keys.Length; index++) {
-                var key = Keys[index].Path;
+            for (var index = 0; index < m_keys.Length; index++) {
+                var key = m_keys[index].Path;
 
                 if (!container.TryGet(key, out IValueModel model)) {
                     m_logger.ErrorContext("Failed to find Model: [{key}]", this, ("key", key));
@@ -67,7 +68,7 @@ namespace Tekly.DataModels.Binders
                 return;
             }
 
-            Text.text = string.Format(Format, m_values);
+            m_text.text = string.Format(m_format, m_values);
         }
 
         private void OnDestroy()

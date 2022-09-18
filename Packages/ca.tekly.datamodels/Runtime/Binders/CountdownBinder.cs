@@ -1,21 +1,23 @@
 ﻿using System;
 using Tekly.DataModels.Models;
 using TMPro;
+using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Tekly.DataModels.Binders
 {
     public class CountdownBinder : Binder
     {
-        public ModelRef Key;
-        public TMP_Text Text;
-        public string Format = "c";
+        [FormerlySerializedAs("Key")] [SerializeField] private ModelRef m_key;
+        [FormerlySerializedAs("Text")] [SerializeField] private TMP_Text m_text;
+        [FormerlySerializedAs("Format")] [SerializeField] private string m_format = "c";
         
         private IDisposable m_disposable;
         private DateTime m_endTime;
         
         public override void Bind(BinderContainer container)
         {
-            if (container.TryGet(Key.Path, out NumberValueModel numberValue)) {
+            if (container.TryGet(m_key.Path, out NumberValueModel numberValue)) {
                 m_disposable?.Dispose();
                 m_disposable = numberValue.Subscribe(BindValue);
             }
@@ -26,7 +28,7 @@ namespace Tekly.DataModels.Binders
             var now = DateTime.UtcNow;
             var span = m_endTime - now;
             
-            Text.text = span.ToString(Format);
+            m_text.text = span.ToString(m_format);
         }
 
         private void BindValue(double value)

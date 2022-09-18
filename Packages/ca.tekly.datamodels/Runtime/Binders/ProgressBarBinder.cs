@@ -1,26 +1,27 @@
 ﻿using System;
 using Tekly.DataModels.Models;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Tekly.DataModels.Binders
 {
     public class ProgressBarBinder : Binder
     {
-        public ModelRef Key;
-        public RectTransform Rect;
+        [FormerlySerializedAs("Key")] [SerializeField] private ModelRef m_key;
+        [FormerlySerializedAs("Rect")] [SerializeField] private RectTransform m_rect;
 
-        public float AnimationTime = 0.2f;
+        [FormerlySerializedAs("AnimationTime")] [SerializeField] private float m_animationTime = 0.2f;
 
-        public float StartValue;
-        public float EndValue = 1;
+        [FormerlySerializedAs("StartValue")] [SerializeField] private float m_startValue;
+        [FormerlySerializedAs("EndValue")] [SerializeField] private float m_endValue = 1;
 
-        public AnimationCurve Animation;
+        [FormerlySerializedAs("Animation")] [SerializeField] private AnimationCurve m_animation;
 
         private IDisposable m_disposable;
 
         private float m_startTime;
 
-        private float m_startValue;
+        private float m_animStartValue;
         private float m_currentValue;
         private float m_destinationValue;
 
@@ -29,7 +30,7 @@ namespace Tekly.DataModels.Binders
 
         public override void Bind(BinderContainer container)
         {
-            if (container.TryGet(Key.Path, out NumberValueModel numberValue)) {
+            if (container.TryGet(m_key.Path, out NumberValueModel numberValue)) {
                 m_disposable?.Dispose();
                 m_disposable = numberValue.Subscribe(BindValue);
             }
@@ -41,20 +42,20 @@ namespace Tekly.DataModels.Binders
                 return;
             }
 
-            var ratio = Mathf.InverseLerp(m_startTime, m_startTime + AnimationTime, Time.time);
-            var animatedRatio = Animation.Evaluate(ratio);
+            var ratio = Mathf.InverseLerp(m_startTime, m_startTime + m_animationTime, Time.time);
+            var animatedRatio = m_animation.Evaluate(ratio);
 
-            m_currentValue = Mathf.Lerp(m_startValue, m_destinationValue, animatedRatio);
+            m_currentValue = Mathf.Lerp(m_animStartValue, m_destinationValue, animatedRatio);
             Set(m_currentValue);
 
-            if (Time.time > m_startTime + AnimationTime) {
+            if (Time.time > m_startTime + m_animationTime) {
                 m_animating = false;
             }
         }
 
         private void BindValue(double value)
         {
-            if (AnimationTime <= 0) {
+            if (m_animationTime <= 0) {
                 Set((float) value);
                 return;
             }
@@ -62,11 +63,11 @@ namespace Tekly.DataModels.Binders
             m_startTime = Time.time;
 
             if (m_hasReceivedValue) {
-                m_startValue = m_currentValue;
+                m_animStartValue = m_currentValue;
                 m_destinationValue = (float) value;
             } else {
                 m_currentValue = (float) value;
-                m_startValue = m_currentValue;
+                m_animStartValue = m_currentValue;
                 m_destinationValue = m_currentValue;
                 m_hasReceivedValue = true;
             }
@@ -78,7 +79,7 @@ namespace Tekly.DataModels.Binders
 
         private void Set(float value)
         {
-            Rect.anchorMax = new Vector2(Mathf.Lerp(StartValue, EndValue, value), 1);
+            m_rect.anchorMax = new Vector2(Mathf.Lerp(m_startValue, m_endValue, value), 1);
         }
 
         private void OnDestroy()
@@ -88,7 +89,7 @@ namespace Tekly.DataModels.Binders
 
         private void Reset()
         {
-            Animation = AnimationCurve.Linear(0, 0, 0.25f, 1);
+            m_animation = AnimationCurve.Linear(0, 0, 0.25f, 1);
         }
     }
 }
