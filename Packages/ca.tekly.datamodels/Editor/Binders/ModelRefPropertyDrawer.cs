@@ -10,7 +10,6 @@ namespace Tekly.DataModels.Binders
         {
             EditorGUI.BeginProperty(position, label, property);
 
-            
             var pathProperty = property.FindPropertyRelative("Path");
             position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), GetFullKey(pathProperty, label));
             
