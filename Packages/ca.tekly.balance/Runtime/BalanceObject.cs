@@ -1,9 +1,9 @@
 using System;
-using UnityEngine;
+using Tekly.Common.Utils;
 
 namespace Tekly.Balance
 {
-    public class BalanceObject : ScriptableObject
+    public class BalanceObject : OverridableData
     {
         [NonSerialized] private string m_id;
         public string Id => m_id ??= name;

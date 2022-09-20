@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Tekly.Common.LocalFiles;
 using Tekly.Common.Terminal.Commands;
+using Tekly.Common.Utils;
 using UnityEngine;
 
 namespace Tekly.Common.Terminal
@@ -121,6 +122,7 @@ namespace Tekly.Common.Terminal
                 m_commandStore.AddCommandSource(new BasicCommands());
                 m_commandStore.AddCommandSource(new PlayerPrefsCommands());
                 m_commandStore.AddCommandSource(new LocalFileCommands());
+                m_commandStore.AddCommandSource(new OverridableDataCommands());
             }
             
             m_commandStore.AddCommandSource(new TerminalCommands(m_commandStore, this));
