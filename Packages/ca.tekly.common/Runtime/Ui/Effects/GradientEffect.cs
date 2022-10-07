@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Tekly.Common.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -221,19 +220,17 @@ namespace Tekly.Common.Ui.Effects
 			
 			m_gradient = new Gradient();
 
-			var colorKey = new GradientColorKey[2];
-			colorKey[0].color = Color.white;
-			colorKey[0].time = 0f;
-			colorKey[1].color = Color.gray;
-			colorKey[1].time = 1f;
-
-			var alphaKey = new GradientAlphaKey[2];
-			alphaKey[0].alpha = 1f;
-			alphaKey[0].time = 0f;
-			alphaKey[1].alpha = 1f;
-			alphaKey[1].time = 1f;
-
-			m_gradient.SetKeys(colorKey, alphaKey);
+			var colorKeys = new[] {
+				new GradientColorKey(Color.white, 0),
+				new GradientColorKey(Color.gray, 1),
+			};
+			
+			var alphaKeys = new[] {
+				new GradientAlphaKey(1, 0),
+				new GradientAlphaKey(1, 1),
+			};
+			
+			m_gradient.SetKeys(colorKeys, alphaKeys);
 
 			m_angle = 0;
 			m_intensity = 1;

@@ -1,8 +1,4 @@
-﻿// ============================================================================
-// Copyright 2021 Matt King
-// ============================================================================
-
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace Tekly.Common.Maths
@@ -21,7 +17,7 @@ namespace Tekly.Common.Maths
             return a + (b - a) * Mathf.Clamp01(t);
         }
 
-        public static Vector3 Vector3(float value)
+        public static Vector3 Vector3(this float value)
         {
             return new Vector3(value, value, value);
         }

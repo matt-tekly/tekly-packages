@@ -36,6 +36,8 @@ namespace Tekly.Common.Utils.Tweening
         InBounce,
         OutBounce,
         InOutBounce,
+        ShakeSmall,
+        ShakeLarge
     }
 
     public static class Easing
@@ -74,6 +76,8 @@ namespace Tekly.Common.Utils.Tweening
                 Ease.InBounce => InBounce(t),
                 Ease.OutBounce => OutBounce(t),
                 Ease.InOutBounce => InOutBounce(t),
+                Ease.ShakeSmall => ShakeSmall(t),
+                Ease.ShakeLarge => ShakeLarge(t),
                 _ => throw new ArgumentOutOfRangeException(nameof(ease), ease, null)
             };
         }
@@ -222,6 +226,21 @@ namespace Tekly.Common.Utils.Tweening
             }
 
             return 1 - InBounce((1 - t) * 2) / 2;
+        }
+        
+        public static float ShakeSmall(float t)
+        {
+            return DampedSineWave(t, 5, 2.65f, 1.96f);
+        }
+        
+        public static float ShakeLarge(float t)
+        {
+            return DampedSineWave(t, 3, 1.41f, 4);
+        }
+
+        private static float DampedSineWave(float t, float decay, float amplitude, float angularFrequency)
+        {
+            return amplitude * math.pow(math.E, -decay * t) * math.sin(angularFrequency * math.PI * t);
         }
     }
 }

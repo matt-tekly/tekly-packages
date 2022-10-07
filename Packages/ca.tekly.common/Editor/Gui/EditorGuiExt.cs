@@ -1,61 +1,60 @@
-using System;
 using UnityEngine;
 
 namespace Tekly.Common.Gui
 {
     public static class EditorGuiExt 
     {
-        public static IDisposable EnabledBlock(bool enabled)
+        public static GuiEnabledTracker EnabledBlock(bool enabled)
         {
             return new GuiEnabledTracker(enabled);
         }
         
-        public static IDisposable ColorBlock(Color color)
+        public static GuiColorTracker ColorBlock(Color color)
         {
             return new GuiColorTracker(color);
         }
         
-        public static IDisposable ContentColorBlock(Color color)
+        public static GuiContentColorTracker ContentColorBlock(Color color)
         {
             return new GuiContentColorTracker(color);
         }
         
-        public static IDisposable Horizontal(GUIStyle style = null)
+        public static GuiLayoutTracker Horizontal(GUIStyle style = null)
         {
             return new GuiLayoutTracker(true, style ?? GUIStyle.none);
         }
         
-        public static IDisposable Horizontal(Color color, GUIStyle style = null)
+        public static GuiLayoutTracker Horizontal(Color color, GUIStyle style = null)
         {
             return new GuiLayoutTracker(true, color, style ?? GUIStyle.none);
         }
         
-        public static IDisposable Vertical(GUIStyle style = null)
+        public static GuiLayoutTracker Vertical(GUIStyle style = null)
         {
             return new GuiLayoutTracker(false, style ?? GUIStyle.none);
         }
         
-        public static IDisposable Vertical(Color color, GUIStyle style = null)
+        public static GuiLayoutTracker Vertical(Color color, GUIStyle style = null)
         {
             return new GuiLayoutTracker(false, color, style ?? GUIStyle.none);
         }
         
-        public static IDisposable LargeContainer(Color color)
+        public static GuiLayoutTracker LargeContainer(Color color)
         {
             return new GuiLayoutTracker(false, color, EditorGuiStyles.Instance.LargeContainer);
         }
         
-        public static IDisposable LargeContainer()
+        public static GuiLayoutTracker LargeContainer()
         {
             return new GuiLayoutTracker(false, GUI.backgroundColor, EditorGuiStyles.Instance.LargeContainer);
         }
         
-        public static IDisposable SmallContainer(Color color)
+        public static GuiLayoutTracker SmallContainer(Color color)
         {
             return new GuiLayoutTracker(false, color, EditorGuiStyles.Instance.SmallContainer);
         }
         
-        public static IDisposable SmallContainer()
+        public static GuiLayoutTracker SmallContainer()
         {
             return new GuiLayoutTracker(false, GUI.backgroundColor, EditorGuiStyles.Instance.SmallContainer);
         }

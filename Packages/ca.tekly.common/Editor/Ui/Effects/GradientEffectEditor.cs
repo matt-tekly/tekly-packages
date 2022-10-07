@@ -1,4 +1,5 @@
 ﻿using System;
+using Tekly.Common.Gui;
 using UnityEditor;
 using UnityEngine;
 
@@ -67,32 +68,27 @@ namespace Tekly.Common.Ui.Effects
 
 	    private void TwoColorGui()
 	    {
-		    EditorGUILayout.BeginHorizontal();
-		    {
+		    using (EditorGuiExt.Horizontal()) {
 			    m_colorUpperLeft.colorValue = EditorGUILayout.ColorField(m_colorUpperLeft.colorValue);
 			    m_colorUpperRight.colorValue = m_colorUpperLeft.colorValue;
 			    m_colorLowerLeft.colorValue = EditorGUILayout.ColorField(m_colorLowerLeft.colorValue);
 			    m_colorLowerRight.colorValue = m_colorLowerLeft.colorValue;
 		    }
-		    
-		    EditorGUILayout.EndHorizontal();
 	    }
 
 	    private void CornerColorGui()
 	    {
-		    EditorGUILayout.BeginHorizontal();
-		    
-		    m_colorUpperLeft.colorValue = EditorGUILayout.ColorField(m_colorUpperLeft.colorValue);
-		    m_colorUpperRight.colorValue = EditorGUILayout.ColorField(m_colorUpperRight.colorValue);
-		    
-		    EditorGUILayout.EndHorizontal();
+		    using (EditorGuiExt.Horizontal()) {
+			    m_colorUpperLeft.colorValue = EditorGUILayout.ColorField(m_colorUpperLeft.colorValue);
+			    m_colorUpperRight.colorValue = EditorGUILayout.ColorField(m_colorUpperRight.colorValue);
+		    }
+
 		    EditorGUILayout.Space();
-		    EditorGUILayout.BeginHorizontal();
 		    
-		    m_colorLowerLeft.colorValue = EditorGUILayout.ColorField(m_colorLowerLeft.colorValue);
-		    m_colorLowerRight.colorValue = EditorGUILayout.ColorField(m_colorLowerRight.colorValue);
-		    
-		    EditorGUILayout.EndHorizontal();
+		    using (EditorGuiExt.Horizontal()) {
+			    m_colorLowerLeft.colorValue = EditorGUILayout.ColorField(m_colorLowerLeft.colorValue);
+			    m_colorLowerRight.colorValue = EditorGUILayout.ColorField(m_colorLowerRight.colorValue);
+		    }
 	    }
     }
 }
