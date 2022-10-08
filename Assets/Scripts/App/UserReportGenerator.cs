@@ -37,7 +37,6 @@ namespace TeklySample.App
                 }
             }
 
-            
             var report = new UserReport {
                 Message = "Here is some useful information in the report",
                 Version = Application.version
