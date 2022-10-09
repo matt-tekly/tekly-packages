@@ -57,6 +57,8 @@ namespace Tekly.Webster.FramelineCore
 
 			m_stopwatch.Start();
 			Debug.Log("Frameline initialized");
+
+			m_previousFrameEvent = InstantEventInternal("__LongFrame", "__LongFrame");
 		}
 
 		public void InstantEvent(string id, string type)
@@ -92,59 +94,58 @@ namespace Tekly.Webster.FramelineCore
 			return frameEvent.FrameEventId;
 		}
 
-		public IDisposable BeginEventDisposable(string id, string type)
+		public FramelineEventDisposable BeginEventDisposable(string id, string type)
 		{
 			return FramelineEventDisposable.BeginEvent(id, type);
 		}
 
 		public void EndEvent(int frameEventId)
 		{
-			FrameEvent startEvent = null;
 			lock (m_pendingEventsLock) {
 				for (var index = 0; index < m_pendingEvents.Count; index++) {
 					var target = m_pendingEvents[index];
-					if (target.FrameEventId == frameEventId) {
-						startEvent = target;
-						m_pendingEvents.RemoveAt(index);
+					
+					if (target.FrameEventId != frameEventId) {
+						continue;
 					}
+
+					m_pendingEvents.RemoveAt(index);
+						
+					target.EndFrame = m_frame;
+					target.EndTime = m_stopwatch.Elapsed.TotalMilliseconds;
+
+					lock (m_eventsLock) {
+						m_events.Add(target);
+					}
+
+					return;
 				}
 			}
 
-			if (startEvent != null) {
-				startEvent.EndFrame = m_frame;
-				startEvent.EndTime = m_stopwatch.Elapsed.TotalMilliseconds;
-
-				lock (m_eventsLock) {
-					m_events.Add(startEvent);
-				}
-			} else {
-				Debug.LogError("Frameline - EndEvent called with invalid FrameEventId");
-			}
+			Debug.LogError("Frameline - EndEvent called with invalid FrameEventId");
 		}
 
 		public void EndEvent(string id, string type)
 		{
-			FrameEvent startEvent = null;
 			lock (m_pendingEventsLock) {
 				for (var index = 0; index < m_pendingEvents.Count; index++) {
 					var target = m_pendingEvents[index];
 					if (target.EventType == type && target.Id == id) {
-						startEvent = target;
 						m_pendingEvents.RemoveAt(index);
+						
+						target.EndFrame = m_frame;
+						target.EndTime = m_stopwatch.Elapsed.TotalMilliseconds;
+
+						lock (m_eventsLock) {
+							m_events.Add(target);
+						}
+
+						return;
 					}
 				}
 			}
-
-			if (startEvent != null) {
-				startEvent.EndFrame = m_frame;
-				startEvent.EndTime = m_stopwatch.Elapsed.TotalMilliseconds;
-
-				lock (m_eventsLock) {
-					m_events.Add(startEvent);
-				}
-			} else {
-				Debug.LogErrorFormat("Frameline - EndEvent with no BeginEvent ID: {0} - Type: {1}", id, type);
-			}
+			
+			Debug.LogErrorFormat("Frameline - EndEvent with no BeginEvent ID: {0} - Type: {1}", id, type);
 		}
 
 		public void Clear()
@@ -172,17 +173,16 @@ namespace Tekly.Webster.FramelineCore
 		{
 			m_frame = Time.frameCount;
 			var frameEvent = InstantEventInternal("__LongFrame", "__LongFrame");
-			if (m_previousFrameEvent != null) {
-				m_previousFrameEvent.EndTime = frameEvent.StartTime;
+			
+			m_previousFrameEvent.EndTime = frameEvent.StartTime;
 
-				var frameLength = m_previousFrameEvent.EndTime - m_previousFrameEvent.StartTime;
-				if (frameLength > m_config.LongFrameTimeMs) {
-					lock (m_eventsLock) {
-						m_events.Add(m_previousFrameEvent);
-					}
+			var frameLength = m_previousFrameEvent.EndTime - m_previousFrameEvent.StartTime;
+			if (frameLength > m_config.LongFrameTimeMs) {
+				lock (m_eventsLock) {
+					m_events.Add(m_previousFrameEvent);
 				}
 			}
-
+			
 			m_previousFrameEvent = frameEvent;
 		}
 

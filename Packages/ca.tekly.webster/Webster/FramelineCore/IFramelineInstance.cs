@@ -9,7 +9,7 @@ namespace Tekly.Webster.FramelineCore
 		void InstantEvent(string id, string type);
 		void BeginEvent(string id, string type);
 		int BeginEventGetId(string id, string type);
-		IDisposable BeginEventDisposable(string id, string type);
+		FramelineEventDisposable BeginEventDisposable(string id, string type);
 		void EndEvent(int frameEventId);
 		void EndEvent(string id, string type);
 		void Clear();

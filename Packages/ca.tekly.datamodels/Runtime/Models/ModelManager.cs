@@ -6,15 +6,15 @@ namespace Tekly.DataModels.Models
 {
     public class ModelManager : Singleton<ModelManager>
     {
-        private readonly List<IModel> m_models = new List<IModel>(2056);
-        private readonly SafeList<ITickable> m_tickList = new SafeList<ITickable>(2056);
+        private readonly List<IModel> m_models = new List<IModel>(2048);
+        private readonly LinkedList<ITickable> m_tickList = new LinkedList<ITickable>();
         
         public void AddModel(IModel model)
         {
             m_models.Add(model);
             
             if (model is ITickable tickable) {
-                m_tickList.Add(tickable);
+                m_tickList.AddLast(tickable);
             }
         }
 
@@ -29,8 +29,8 @@ namespace Tekly.DataModels.Models
         
         public void Tick()
         {
-            foreach (var model in m_tickList) {
-                model.Tick();
+            for (var node = m_tickList.First; node != null; node = node.Next) {
+                node.Value.Tick();
             }
         }
     }

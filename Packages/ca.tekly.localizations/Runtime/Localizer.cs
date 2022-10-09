@@ -7,12 +7,12 @@ namespace Tekly.Localizations
 {
     public class Localizer : Singleton<Localizer, ILocalizer>, ILocalizer
     {
-        private LocalizationData m_localizationData;
         private readonly Dictionary<string, LocalizationString> m_strings = new Dictionary<string, LocalizationString>();
 
         private readonly TkLogger m_logger = TkLogger.Get<Localizer>();
         
         private readonly (string, object)[] m_emptyData = Array.Empty<(string, object)>();
+        private readonly ArraysPool<object> m_objectArrayPool = new ArraysPool<object>();
         
         public void Clear()
         {
@@ -31,8 +31,7 @@ namespace Tekly.Localizations
         {
             if (m_strings.TryGetValue(id, out var locString)) {
                 if (locString.Keys != null && locString.Keys.Length > 0) {
-                    var formatData = ToFormattedArray(m_emptyData, locString.Keys);
-                    return string.Format(locString.Format, formatData);
+                    return Localize(locString, m_emptyData);
                 }
                 return locString.Format;
             }
@@ -45,24 +44,29 @@ namespace Tekly.Localizations
         public string Localize(string id, (string, object)[] data)
         {
             if (m_strings.TryGetValue(id, out var locString)) {
-                var formatData = ToFormattedArray(data, locString.Keys);
-                return string.Format(locString.Format, formatData);
+                return Localize(locString, data);
             }
             
-            m_logger.Error("Failed to find LocalizationString: [{id}]", ("id", id));
+            m_logger.Error("Failed to find localization ID: [{id}]", ("id", id));
             return $"[{id}]";
         }
 
-        private object[] ToFormattedArray((string, object)[] data, string[] keys)
+        public string Localize(LocalizationString locString, (string, object)[] data)
         {
-            var objects = new object[keys.Length];
+            var formattingData = m_objectArrayPool.Get(locString.Keys.Length);
+            ToFormattedArray(formattingData, data, locString.Keys);
+            var text = string.Format(locString.Format, formattingData);
+                
+            m_objectArrayPool.Return(formattingData);
 
+            return text;
+        }
+
+        private void ToFormattedArray(object[] outObjects, (string, object)[] data, string[] keys)
+        {
             for (var index = 0; index < keys.Length; index++) {
-                var key = keys[index];
-                objects[index] = GetData(key, data);
+                outObjects[index] = GetData(keys[index], data);
             }
-
-            return objects;
         }
 
         private object GetData(string key, (string, object)[] data)
@@ -77,7 +81,7 @@ namespace Tekly.Localizations
                 }
             }
             
-            m_logger.Error("Failed to find key: [{key}]", ("key", key));
+            m_logger.Error("Failed to find data with key: [{key}]", ("key", key));
 
             return $"[{key}]";
         }

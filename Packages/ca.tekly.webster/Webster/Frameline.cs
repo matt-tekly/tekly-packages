@@ -11,7 +11,7 @@ using Tekly.Webster.FramelineCore;
 
 namespace Tekly.Webster
 {
-	internal static class Frameline
+	public static class Frameline
 	{
 		internal static IFramelineInstance Instance { get; private set; }
 
@@ -42,7 +42,7 @@ namespace Tekly.Webster
 #endif
 		}
 
-		public static IDisposable BeginEventDisposable(string id, string type)
+		public static FramelineEventDisposable BeginEventDisposable(string id, string type)
 		{
 #if FRAMELINE_ENABLE
 			return Instance.BeginEventDisposable(id, type);

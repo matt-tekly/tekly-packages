@@ -26,9 +26,9 @@ namespace Tekly.Webster.FramelineCore
 			return -1;
 		}
 
-		public IDisposable BeginEventDisposable(string id, string type)
+		public FramelineEventDisposable BeginEventDisposable(string id, string type)
 		{
-			return DisposableUnit.Instance;
+			return FramelineEventDisposable.Unit;
 		}
 
 		public void EndEvent(int frameEventId)

@@ -3,6 +3,8 @@ using Tekly.Injectors;
 using Tekly.Localizations;
 using Tekly.Logging;
 using Tekly.TreeState.StandardActivities;
+using Tekly.Webster;
+using Tekly.Webster.FramelineCore;
 
 namespace TeklySample.Frontend.Activities
 {
@@ -21,6 +23,7 @@ namespace TeklySample.Frontend.Activities
         
         protected override void LoadingStarted()
         {
+            Frameline.BeginEvent("Load Localization", "Loading");
             m_handle = m_contentProvider.LoadAssetAsync<LocalizationData>("en_US_loc");
         }
 
@@ -39,6 +42,8 @@ namespace TeklySample.Frontend.Activities
             m_handle.Release();
 
             m_doneLoading = true;
+            
+            Frameline.EndEvent("Load Localization", "Loading");
         }
     }
 }

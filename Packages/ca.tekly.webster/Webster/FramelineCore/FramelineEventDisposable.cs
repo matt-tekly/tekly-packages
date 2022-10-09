@@ -4,6 +4,8 @@ namespace Tekly.Webster.FramelineCore
 {
 	public readonly struct FramelineEventDisposable : IDisposable
 	{
+		public static FramelineEventDisposable Unit = new FramelineEventDisposable(-1);
+		
 		public static FramelineEventDisposable BeginEvent(string id, string type)
 		{
 			var eventId = Frameline.BeginEventGetId(id, type);

@@ -8,7 +8,7 @@ using System.Threading;
 namespace Tekly.Webster.FramelineCore
 {
 	[Serializable]
-	public class FrameEvent : IComparable<FrameEvent>, IComparable
+	public struct FrameEvent : IComparable<FrameEvent>, IComparable
 	{
 		public string Id;
 
@@ -30,23 +30,17 @@ namespace Tekly.Webster.FramelineCore
 		
 		private static int s_frameEventId;
 
-		public FrameEvent()
+		public static FrameEvent Create()
 		{
-			FrameEventId = Interlocked.Increment(ref s_frameEventId);
-			ThreadName = Thread.CurrentThread.Name;
-			ThreadId = Thread.CurrentThread.ManagedThreadId;
+			return new FrameEvent {
+				FrameEventId = Interlocked.Increment(ref s_frameEventId),
+				ThreadName = Thread.CurrentThread.Name,
+				ThreadId = Thread.CurrentThread.ManagedThreadId
+			};
 		}
-
+		
 		public int CompareTo(FrameEvent other)
 		{
-			if (ReferenceEquals(this, other)) {
-				return 0;
-			}
-
-			if (ReferenceEquals(null, other)) {
-				return 1;
-			}
-
 			return StartTime.CompareTo(other.StartTime);
 		}
 
