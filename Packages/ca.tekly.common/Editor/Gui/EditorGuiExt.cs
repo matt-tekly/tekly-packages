@@ -14,6 +14,11 @@ namespace Tekly.Common.Gui
             return new GuiColorTracker(color);
         }
         
+        public static GuiBackgroundColorTracker BackgroundColorBlock(Color color)
+        {
+            return new GuiBackgroundColorTracker(color);
+        }
+        
         public static GuiContentColorTracker ContentColorBlock(Color color)
         {
             return new GuiContentColorTracker(color);
@@ -39,24 +44,24 @@ namespace Tekly.Common.Gui
             return new GuiLayoutTracker(false, color, style ?? GUIStyle.none);
         }
         
-        public static GuiLayoutTracker LargeContainer(Color color)
+        public static GuiLayoutTracker LargeContainer(Color color, bool horizontal = false)
         {
-            return new GuiLayoutTracker(false, color, EditorGuiStyles.Instance.LargeContainer);
+            return new GuiLayoutTracker(horizontal, color, EditorGuiStyles.Instance.LargeContainer);
         }
         
-        public static GuiLayoutTracker LargeContainer()
+        public static GuiLayoutTracker LargeContainer(bool horizontal = false)
         {
-            return new GuiLayoutTracker(false, GUI.backgroundColor, EditorGuiStyles.Instance.LargeContainer);
+            return new GuiLayoutTracker(horizontal, GUI.backgroundColor, EditorGuiStyles.Instance.LargeContainer);
         }
         
-        public static GuiLayoutTracker SmallContainer(Color color)
+        public static GuiLayoutTracker SmallContainer(Color color, bool horizontal = false)
         {
-            return new GuiLayoutTracker(false, color, EditorGuiStyles.Instance.SmallContainer);
+            return new GuiLayoutTracker(horizontal, color, EditorGuiStyles.Instance.SmallContainer);
         }
         
-        public static GuiLayoutTracker SmallContainer()
+        public static GuiLayoutTracker SmallContainer(bool horizontal = false)
         {
-            return new GuiLayoutTracker(false, GUI.backgroundColor, EditorGuiStyles.Instance.SmallContainer);
+            return new GuiLayoutTracker(horizontal, GUI.backgroundColor, EditorGuiStyles.Instance.SmallContainer);
         }
         
         public static bool PositiveButton(string text, params GUILayoutOption[] options)

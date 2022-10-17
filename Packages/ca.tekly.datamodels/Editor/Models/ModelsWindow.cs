@@ -203,16 +203,14 @@ namespace Tekly.DataModels.Models
                 var fullPath = CombineKeys(parentKey, modelReference.Key);
 
                 var entry = new ObjectEntry {
-                    Id = new GUIContent(modelReference.Key, childModel.GetType().ToString()),
+                    Id = new GUIContent(modelReference.Key, childModel.GetType().Name),
                     FullPath = fullPath,
                     Depth = depth,
                     IsObject = childModel is ObjectModel
                 };
-
-                if (string.IsNullOrEmpty(m_search) || fullPath.Contains(m_search)) {
-                    entries.Add(entry);
-                }
-
+                
+                entries.Add(entry);
+                
                 switch (childModel) {
                     case IValueModel childValueModel:
                         entry.Value = new GUIContent(childValueModel.ToDisplayString());

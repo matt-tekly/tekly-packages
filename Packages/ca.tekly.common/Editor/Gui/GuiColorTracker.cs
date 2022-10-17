@@ -18,6 +18,22 @@ namespace Tekly.Common.Gui
             GUI.color = m_color;
         }
     }
+    
+    public readonly struct GuiBackgroundColorTracker : IDisposable
+    {
+        private readonly Color m_color;
+
+        public GuiBackgroundColorTracker(Color color)
+        {
+            m_color = GUI.color;
+            GUI.backgroundColor = color;
+        }
+
+        public void Dispose()
+        {
+            GUI.backgroundColor = m_color;
+        }
+    }
 
     public readonly struct GuiContentColorTracker : IDisposable
     {

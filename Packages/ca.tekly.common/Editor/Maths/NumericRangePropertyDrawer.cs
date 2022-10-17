@@ -10,14 +10,8 @@ namespace Tekly.Common.Maths
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             EditorGUI.BeginProperty(position, label, property);
-            var indent = EditorGUI.indentLevel;
-            EditorGUI.indentLevel = 0;
-
-            var width = Mathf.Max(EditorGUIUtility.labelWidth, GUI.skin.label.CalcSize(label).x);
-            EditorGUI.LabelField(position, label);
-
-            position.x += width + 1;
-            position.width -= width + 1;
+            
+            position = EditorGUI.PrefixLabel(position, label);
             
             var minRect = new Rect(position.x, position.y, position.width * 0.5f - 2.5f, EditorGUIUtility.singleLineHeight);
             var maxRect = new Rect(minRect.xMax + 5, position.y, position.width * 0.5f - 2.5f, EditorGUIUtility.singleLineHeight);
@@ -25,11 +19,12 @@ namespace Tekly.Common.Maths
             var min = property.FindPropertyRelative("Min");
             var max = property.FindPropertyRelative("Max");
 
+            var indent = EditorGUI.indentLevel;
+            EditorGUI.indentLevel = 0;
             EditorGUI.PropertyField(minRect, min, GUIContent.none);
             EditorGUI.PropertyField(maxRect, max, GUIContent.none);
-
             EditorGUI.indentLevel = indent;
- 
+            
             EditorGUI.EndProperty();
         }
         
