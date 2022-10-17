@@ -12,7 +12,7 @@ namespace Tekly.Common.Tweenimation.Tweens
 
         public override void Evaluate(float time)
         {
-            if (!m_enabled && !m_activated && time > m_delay) {
+            if (m_enabled && !m_activated && time > m_delay) {
                 m_activated = true;
                 m_action.Invoke();
             }
