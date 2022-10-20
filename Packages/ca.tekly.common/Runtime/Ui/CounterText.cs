@@ -13,6 +13,13 @@ namespace Tekly.Common.Ui
 
         [SerializeField] private float m_animationTime = .5f;
         [SerializeField] private EaseData m_ease;
+
+        public float AnimationTime {
+            get => m_animationTime;
+            set => m_animationTime = value;
+        }
+
+        public bool IsAnimating => m_animating;
         
         private IDisposable m_disposable;
 
@@ -38,6 +45,17 @@ namespace Tekly.Common.Ui
             m_text.text = m_currentValue.ToString(m_format);
 
             m_animating = true;
+        }
+        
+        public void SetValueInstantly(double value)
+        {
+            m_startValue = value;
+            m_destinationValue = value;
+            m_currentValue = value;
+            
+            m_text.text = m_currentValue.ToString(m_format);
+
+            m_animating = false;
         }
 
         private void Update()
