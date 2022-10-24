@@ -20,25 +20,13 @@ namespace Tekly.Common.LocalPrefs
         public bool Set(string name, TV value)
         {
             var namedValue = Get(name);
-            var isChanged = namedValue.Value.Equals(value) == false;
+
+            var isChanged = !EqualityComparer<TV>.Default.Equals(namedValue.Value, value);
             namedValue.Value = value;
 
             return isChanged;
         }
 
-        public TNamedValue Get(string name)
-        {
-            if (TryGet(name, out var outValue)) {
-                return outValue;
-            }
-
-            outValue = new TNamedValue();
-            outValue.Name = name;
-            Values.Add(outValue);
-
-            return outValue;
-        }
-        
         public bool TryGet(string name, out TNamedValue outValue)
         {
             foreach (var value in Values) {
@@ -61,6 +49,19 @@ namespace Tekly.Common.LocalPrefs
                     return;
                 }
             }
+        }
+        
+        private TNamedValue Get(string name)
+        {
+            if (TryGet(name, out var outValue)) {
+                return outValue;
+            }
+
+            outValue = new TNamedValue();
+            outValue.Name = name;
+            Values.Add(outValue);
+
+            return outValue;
         }
     }
 }

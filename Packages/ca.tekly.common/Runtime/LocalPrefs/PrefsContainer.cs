@@ -61,6 +61,21 @@ namespace Tekly.Common.LocalPrefs
         {
             return m_store.GetString(name, value);
         }
+        
+        public bool TryGetFloat(string name, out float value)
+        {
+            return m_store.TryGetFloat(name, out value);
+        }
+        
+        public bool TryGetBool(string name, out bool value)
+        {
+            return m_store.TryGetBool(name, out value);
+        }
+        
+        public bool TryGetString(string name, out string value)
+        {
+            return m_store.TryGetString(name, out value);
+        }
 
         public void Update()
         {

@@ -51,5 +51,38 @@ namespace Tekly.Common.LocalPrefs
 
             return value;
         }
+        
+        public bool TryGetFloat(string name, out float value)
+        {
+            if (m_floats.TryGet(name, out var namedValue)) {
+                value = namedValue.Value;
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
+        
+        public bool TryGetBool(string name, out bool value)
+        {
+            if (m_bools.TryGet(name, out var namedValue)) {
+                value = namedValue.Value;
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
+        
+        public bool TryGetString(string name, out string value)
+        {
+            if (m_strings.TryGet(name, out var namedValue)) {
+                value = namedValue.Value;
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
     }
 }
