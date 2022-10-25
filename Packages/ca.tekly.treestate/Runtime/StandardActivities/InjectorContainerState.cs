@@ -29,7 +29,11 @@ namespace Tekly.TreeState.StandardActivities
         protected override void Awake()
         {
             base.Awake();
-            
+            m_providers = GetComponents<IInjectionProvider>();
+        }
+        
+        protected override void PreLoad()
+        {
             if (!string.IsNullOrEmpty(ParentRegistryId)) {
                 if (!InjectorContainerRegistry.Instance.TryGet(ParentRegistryId, out m_parentContainer)) {
                     m_logger.ErrorContext("Failed to find InjectorContainer [{id}] in Registry", this, ("id", ParentRegistryId));
@@ -41,11 +45,6 @@ namespace Tekly.TreeState.StandardActivities
                 }
             }
             
-            m_providers = GetComponents<IInjectionProvider>();
-        }
-        
-        protected override void PreLoad()
-        {
             if (ScriptableBindings != null && ScriptableBindings.Length > 0 && m_instances == null) {
                 Array.Resize(ref m_instances, ScriptableBindings.Length);
                 for (var index = 0; index < ScriptableBindings.Length; index++) {
