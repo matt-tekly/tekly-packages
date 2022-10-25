@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using Tekly.Common.Tweenimation.Tweens;
@@ -9,8 +8,11 @@ namespace Tekly.Common.Tweenimation
 {
     public class Tweenimator : MonoBehaviour
     {
+        [SerializeField] private bool m_playOnEnable = true;
+        
         [SerializeField] private float m_delay;
-        [SerializeField] private bool m_playOnEnable;
+        [SerializeField] private bool m_siblingIndexDelay;
+        
         [SerializeReference] private List<BaseTween> m_tweens = new List<BaseTween>();
         [SerializeField] private UnityEvent m_completed = new UnityEvent();
 
@@ -51,7 +53,11 @@ namespace Tekly.Common.Tweenimation
 
         public void Play(bool reinitialize = false)
         {
-            Play(m_delay, reinitialize);
+            if (m_siblingIndexDelay) {
+                Play(m_delay * transform.GetSiblingIndex(), reinitialize);
+            } else {
+                Play(m_delay, reinitialize);    
+            }
         }
         
         public void Play(float delay, bool reinitialize = false)

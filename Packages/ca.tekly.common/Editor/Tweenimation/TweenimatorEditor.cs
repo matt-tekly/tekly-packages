@@ -15,6 +15,7 @@ namespace Tekly.Common.Tweenimation
     {
         private SerializedProperty m_tweens;
         private SerializedProperty m_delay;
+        private SerializedProperty m_siblingIndexDelay;
         private SerializedProperty m_playOnEnable;
         private SerializedProperty m_completedEvent;
 
@@ -33,6 +34,7 @@ namespace Tekly.Common.Tweenimation
         {
             m_tweens = serializedObject.FindProperty("m_tweens");
             m_delay = serializedObject.FindProperty("m_delay");
+            m_siblingIndexDelay = serializedObject.FindProperty("m_siblingIndexDelay");
             m_playOnEnable = serializedObject.FindProperty("m_playOnEnable");
             m_completedEvent = serializedObject.FindProperty("m_completed");
 
@@ -55,6 +57,7 @@ namespace Tekly.Common.Tweenimation
             serializedObject.Update();
             
             EditorGUILayout.PropertyField(m_playOnEnable);
+            EditorGUILayout.PropertyField(m_siblingIndexDelay);
 
             m_reorderableList.DoLayoutList();
 
