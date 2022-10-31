@@ -1,0 +1,15 @@
+.tekly-status-bar {
+    display: flex;
+    flex-direction: row;
+    height: 20px;
+    flex-grow: 1;
+    justify-content: center;
+    margin-right: 200px;
+    align-items: center;
+}
+
+.tekly-status-bar Label {
+    width: auto;
+    align-self: center;
+    font-size: 16px;
+}

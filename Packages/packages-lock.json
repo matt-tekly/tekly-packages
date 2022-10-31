@@ -41,6 +41,12 @@
         "ca.tekly.localizations": "0.0.1"
       }
     },
+    "ca.tekly.favorites": {
+      "version": "file:ca.tekly.favorites",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "ca.tekly.glass": {
       "version": "file:ca.tekly.glass",
       "depth": 0,
@@ -80,6 +86,12 @@
     },
     "ca.tekly.nsubstitute": {
       "version": "file:ca.tekly.nsubstitute",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "ca.tekly.statusbar": {
+      "version": "file:ca.tekly.statusbar",
       "depth": 0,
       "source": "embedded",
       "dependencies": {}

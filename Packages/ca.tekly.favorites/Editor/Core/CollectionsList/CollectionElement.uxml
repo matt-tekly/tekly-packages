@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement class="tekly-favorite-element">
+        <Style src="CollectionElement.uss" />
+        <ui:VisualElement class="tekly-favorite-element-content">
+            <ui:Label name="favorite-index" text="0" class="tekly-favorite-element-index" />
+            <ui:Image name="asset-icon" class="tekly-favorite-element-icon" />
+            <ui:Label name="asset-name" text="DEFAULT" class="tekly-favorite-element-name" />
+        </ui:VisualElement>
+        <ui:VisualElement class="tekly-favorite-element-hover-container">
+            <ui:Button name="delete" text="-" class="tekly-favorite-element-delete-button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

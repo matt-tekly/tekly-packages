@@ -62,7 +62,8 @@ namespace Tekly.Common.Ui
             m_isPointerDown = false;
             m_enableCalled = true;
 
-            EvaluateAndTransitionToSelectionState();
+            m_state = DetermineState();
+            DoStateTransition(m_state, true);
         }
 
         protected override void OnDisable()
@@ -97,7 +98,7 @@ namespace Tekly.Common.Ui
                 return;
             }
 
-            if (IsInteractable() && EventSystem.current != null) {
+            if (EventSystem.current != null) {
                 EventSystem.current.SetSelectedGameObject(gameObject, eventData);
             }
 

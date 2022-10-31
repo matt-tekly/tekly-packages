@@ -1,0 +1,12 @@
+{
+  "name": "ca.tekly.statusbar",
+  "version": "0.0.1",
+  "displayName": "Tekly Status Bar",
+  "description": "Adds custom UI to the editor's status bar",
+  "author": {
+    "name": "Matt King",
+    "email": "matt@tekly.ca"
+  },
+  "hideInEditor": false,
+  "type": "library"
+}

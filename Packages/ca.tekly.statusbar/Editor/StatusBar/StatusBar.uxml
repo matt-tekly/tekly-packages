@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement class="tekly-status-bar" name="rootVisualContainer7">
+        <Style src="StatusBar.uss" />
+        <ui:Label text="Hats" />
+    </ui:VisualElement>
+    
+</ui:UXML>

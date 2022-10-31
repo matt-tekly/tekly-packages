@@ -1,0 +1,12 @@
+{
+  "name": "ca.tekly.favorites",
+  "version": "0.0.1",
+  "displayName": "Tekly Favorites",
+  "description": "Favorites Manager",
+  "author": {
+    "name": "Matt King",
+    "email": "matt@tekly.ca"
+  },
+  "hideInEditor": false,
+  "type": "library"
+}
