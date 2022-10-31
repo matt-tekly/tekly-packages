@@ -55,15 +55,12 @@ namespace Tekly.Favorites
             
             m_favorite = favoriteAsset;
 
+            m_icon.image = m_favorite.Icon;
+            m_label.text = m_favorite.DisplayName;
+            
             if (m_favorite.Asset == null) {
-                m_icon.image = null;
-                m_label.text = "Asset not found";
                 m_label.tooltip = "The asset this Favorite was for can't be found. Maybe it was deleted";
             } else {
-                var path = AssetDatabase.GetAssetPath(m_favorite.Asset);
-                m_icon.image = AssetDatabase.GetCachedIcon(path);
-                
-                m_label.text = m_favorite.Asset.name;
                 m_label.tooltip = AssetDatabase.GetAssetPath(m_favorite.Asset);
             }
         }
@@ -125,7 +122,8 @@ namespace Tekly.Favorites
                 DragAndDrop.AcceptDrag();
                 e.StopPropagation();
                 DragAndDrop.SetGenericData(DragDataType, null);
-            } else if (DragAndDrop.objectReferences.All(AssetDatabase.Contains)) {
+                //} else if (DragAndDrop.objectReferences.All(AssetDatabase.Contains)) {
+            } else {
                 FavoritesData.Instance.AddFavorites(DragAndDrop.objectReferences, m_index);
                 DragAndDrop.AcceptDrag();
                 e.StopPropagation();

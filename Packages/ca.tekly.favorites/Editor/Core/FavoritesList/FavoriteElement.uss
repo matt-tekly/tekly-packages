@@ -3,7 +3,6 @@
     height: 18px;
     flex-direction: row;
     justify-content: space-between;
-    padding: 2px;
 }
 
 .dragging .tekly-favorite-element:hover { 
@@ -14,6 +13,7 @@
 .tekly-favorite-element-content {
     flex-direction: row;
     align-items: center;
+    flex-grow: 1;
 }
 
 .tekly-favorite-element-icon {
@@ -31,6 +31,15 @@
 .tekly-favorite-element-name {
     -unity-text-align: middle-center;
     height: 18px;
+}
+
+.tekly-favorite-element-background {
+    position: absolute;
+    left:14px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    /*background-color: #0a6640;*/
 }
 
 .tekly-favorite-element-hover-container {

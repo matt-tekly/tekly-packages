@@ -1,6 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
     <ui:VisualElement class="tekly-favorite-element">
         <Style src="FavoriteElement.uss" />
+        <ui:VisualElement name="favorite-background" class="tekly-favorite-element-background"/>
         <ui:VisualElement class="tekly-favorite-element-content">
             <ui:Label name="favorite-index" text="0" class="tekly-favorite-element-index" />
             <ui:Image name="asset-icon" class="tekly-favorite-element-icon" />

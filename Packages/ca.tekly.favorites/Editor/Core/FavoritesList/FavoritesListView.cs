@@ -173,8 +173,7 @@ namespace Tekly.Favorites
 
         private bool IsValidDropTarget()
         {
-            bool isSceneAsset = DragAndDrop.objectReferences.Any(obj => !AssetDatabase.Contains(obj));
-            return !isSceneAsset;
+            return true;
         }
 
         private void SetupToolbar()

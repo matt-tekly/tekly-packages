@@ -22,6 +22,11 @@
     -unity-text-align: middle-center;
 }
 
+.tk-favorites-editable-category {
+    flex-grow: 1;   
+    margin-right: 2px;
+}
+
 .unity-list-view__empty-label {
     display: none;
 }

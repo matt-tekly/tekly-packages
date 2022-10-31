@@ -4,7 +4,7 @@
         <uie:ToolbarMenu text="ToolbarMenu" />
         <uie:ToolbarButton text="+" name="add" class="tk-text-middle-center"/>
         <uie:ToolbarButton text="-" name="delete" class="tk-text-middle-center"/>
-        <tk:EditableLabel style="flex-grow: 1"/>
+        <tk:EditableLabel style="flex-grow: 1" class="tk-favorites-editable-category"/>
     </uie:Toolbar>
     <ui:VisualElement class="tk-favorites-window">
         <Style src="../FavoritesWindow.uss" />
