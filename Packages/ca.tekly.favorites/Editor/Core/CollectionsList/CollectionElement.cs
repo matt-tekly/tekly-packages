@@ -3,7 +3,7 @@ using Tekly.Favorites.Common;
 using UnityEditor;
 using UnityEngine.UIElements;
 
-namespace Tekly.Favorites.Editor.Core.CollectionsList
+namespace Tekly.Favorites
 {
     public class CollectionElement : VisualElement
     {
@@ -13,7 +13,7 @@ namespace Tekly.Favorites.Editor.Core.CollectionsList
 
         private string id = Guid.NewGuid().ToString();
 
-        private Label m_label;
+        private EditableLabel m_label;
         private Label m_indexLabel;
         private Image m_icon;
 
@@ -26,16 +26,23 @@ namespace Tekly.Favorites.Editor.Core.CollectionsList
             tree.CloneTree(this);
 
             m_icon = this.Q<Image>("asset-icon");
-            m_label = this.Q<Label>("asset-name");
-            m_label.text = id;
+            m_label = this.Q<EditableLabel>("asset-name");
+            m_label.Text = id;
 
             m_indexLabel = this.Q<Label>("favorite-index");
+            m_label.TextChanged += OnCollectionRenamed;
 
             this.Q<Button>().clicked += OnDeleteClicked;
             RegisterCallback<MouseDownEvent>(OnPointerDownEvent);
             RegisterCallback<MouseMoveEvent>(OnPointerMoveEvent);
             RegisterCallback<MouseUpEvent>(OnPointerUpEvent);
             RegisterCallback<DragPerformEvent>(OnDragPerformEvent);
+        }
+
+        private void OnCollectionRenamed(string text)
+        {
+            FavoritesData.Instance.RenameCollection(text, m_collection);
+            m_label.Text = text;
         }
 
         public void WireData(FavoriteCollection collection, int index)
@@ -49,7 +56,7 @@ namespace Tekly.Favorites.Editor.Core.CollectionsList
             }
             
             m_collection = collection;
-            m_label.text = m_collection.Name;
+            m_label.Text = m_collection.Name;
         }
 
         private void OnDeleteClicked()

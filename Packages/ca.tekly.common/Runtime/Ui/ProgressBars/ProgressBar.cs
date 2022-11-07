@@ -2,7 +2,7 @@ using System;
 using Tekly.Common.Utils.Tweening;
 using UnityEngine;
 
-namespace Tekly.Common.Ui
+namespace Tekly.Common.Ui.ProgressBars
 {
     public class ProgressBar : MonoBehaviour
     {

@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Tekly.Favorites.Common;
 using UnityEditor;
 using UnityEngine;
@@ -15,11 +14,13 @@ namespace Tekly.Favorites
 
         private bool m_gotMouseDown;
 
-        private string id = Guid.NewGuid().ToString();
+        private string m_id = Guid.NewGuid().ToString();
 
         private Label m_label;
         private Label m_indexLabel;
         private Image m_icon;
+        
+        private VisualElement m_warning;
 
         private FavoriteAsset m_favorite;
         private int m_index;
@@ -31,9 +32,10 @@ namespace Tekly.Favorites
 
             m_icon = this.Q<Image>("asset-icon");
             m_label = this.Q<Label>("asset-name");
-            m_label.text = id;
+            m_label.text = m_id;
 
             m_indexLabel = this.Q<Label>("favorite-index");
+            m_warning = this.Q<VisualElement>("warning-container");
 
             // this.Q<Button>("delete").clicked += OnDeleteClicked;
             
@@ -59,10 +61,12 @@ namespace Tekly.Favorites
             m_label.text = m_favorite.DisplayName;
             
             if (m_favorite.Asset == null) {
-                m_label.tooltip = "The asset this Favorite was for can't be found. Maybe it was deleted";
+                tooltip = "Favorite target could not be found. It may have been deleted or is part of an unloaded scene.";
             } else {
-                m_label.tooltip = AssetDatabase.GetAssetPath(m_favorite.Asset);
+                tooltip = AssetDatabase.GetAssetPath(m_favorite.Asset);
             }
+
+            m_warning.visible = m_favorite.Asset == null;
         }
 
         private void OnDeleteClicked()
@@ -73,7 +77,12 @@ namespace Tekly.Favorites
         private void OnPointerDownEvent(MouseDownEvent e)
         {
             if (e.clickCount == 2) {
-                AssetDatabase.OpenAsset(m_favorite.Asset);
+                if (m_favorite.Asset is FavoriteActionAsset fa) {
+                    fa.Activate();
+                } else {
+                    AssetDatabase.OpenAsset(m_favorite.Asset);    
+                }
+                
                 FavoritesPopup.Hide();
                 e.StopPropagation();
             } else {

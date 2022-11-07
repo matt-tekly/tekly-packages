@@ -9,8 +9,8 @@ namespace Tekly.Favorites
 {
     public class FavoritesData : ScriptableObject
     {
-        [SerializeField] private int m_activeCollectionIndex = 0;
-        [SerializeField] private int m_favoriteIndex = 0;
+        [SerializeField] private int m_activeCollectionIndex;
+        [SerializeField] private int m_favoriteIndex;
 
         public List<FavoriteCollection> Collections = new List<FavoriteCollection>();
         public FavoriteCollection ActiveCollection => Collections[ActiveCollectionIndex];
@@ -50,7 +50,7 @@ namespace Tekly.Favorites
                         s_instance = tmp[0];
                     } else {
                         s_instance = CreateInstance<FavoritesData>();
-                        var json = EditorPrefs.GetString(FavoritesSettings.Instance.FavoritesPrefsKey);
+                        var json = EditorPrefs.GetString(FavoritesSettings.FavoritesPrefsKey);
                         EditorJsonUtility.FromJsonOverwrite(json, s_instance);
                     }
 
@@ -90,6 +90,15 @@ namespace Tekly.Favorites
         {
             Undo.RecordObject(this, "Modify favorites");
             ActiveCollection.Name = newName;
+            Save();
+
+            FavoritesChanged?.Invoke();
+        }
+        
+        public void RenameCollection(string newName, FavoriteCollection collection)
+        {
+            Undo.RecordObject(this, "Modify favorites");
+            collection.Name = newName;
             Save();
 
             FavoritesChanged?.Invoke();
@@ -158,6 +167,16 @@ namespace Tekly.Favorites
                 if (index < Instance.ActiveCollection.Favorites.Count) {
                     FavoriteAsset favoriteAsset = Instance.ActiveCollection.Favorites[index];
 
+                    if (favoriteAsset.Asset == null) {
+                        EditorApplication.Beep();
+                        return false;
+                    }
+
+                    if (favoriteAsset.Asset is FavoriteActionAsset fa) {
+                        fa.Activate();
+                        return true;
+                    }
+                    
                     if (Selection.Contains(favoriteAsset.Asset.GetInstanceID())) {
                         AssetDatabase.OpenAsset(favoriteAsset.Asset);
                         
@@ -167,7 +186,6 @@ namespace Tekly.Favorites
 
                     Selection.objects = new[] { favoriteAsset.Asset };
                     SetFavoriteIndex(index);
-                    
                 }
             }
 
@@ -192,7 +210,7 @@ namespace Tekly.Favorites
         public void Save()
         {
             var json = EditorJsonUtility.ToJson(this);
-            EditorPrefs.SetString(FavoritesSettings.Instance.FavoritesPrefsKey, json);
+            EditorPrefs.SetString(FavoritesSettings.FavoritesPrefsKey, json);
         }
 
         public void RemoveFavorite(FavoriteAsset favorite)
@@ -218,7 +236,7 @@ namespace Tekly.Favorites
         public void AddFavorites(UnityEngine.Object[] assets)
         {
             Undo.RecordObject(this, "Modify favorites");
-            var objects = DragAndDrop.objectReferences.Select(x => new FavoriteAsset { Asset = x });
+            var objects = assets.Select(x => new FavoriteAsset { Asset = x });
             ActiveCollection.Favorites.AddRange(objects);
             m_favoriteIndex = ActiveCollection.Favorites.Count - 1;
             Save();

@@ -1,29 +1,33 @@
-﻿using System;
-using Tekly.Common.Ui.ProgressBars;
+using System;
 using Tekly.DataModels.Models;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Tekly.DataModels.Binders
 {
-    public class ProgressBarBinder : Binder
+    /// <summary>
+    /// Generically bind a number model to a UnityEvent
+    /// </summary>
+    public class NumberEventBinder: Binder
     {
-        [SerializeReference] private Filled m_filled;
-
         [SerializeField] private ModelRef m_key;
-
+        [SerializeField] private UnityEvent<float> m_event;
+        
         private IDisposable m_disposable;
 
         public override void Bind(BinderContainer container)
         {
-            if (container.TryGet(m_key.Path, out NumberValueModel numberValue)) {
+            if (container.TryGet(m_key.Path, out NumberValueModel model)) {
                 m_disposable?.Dispose();
-                m_disposable = numberValue.Subscribe(BindValue);
+                m_disposable = model.Subscribe(BindValue);
             }
         }
 
         private void BindValue(double value)
         {
-            m_filled.Fill = (float) value;
+            if (m_event != null) {
+                m_event.Invoke((float)value);
+            }
         }
 
         private void OnDestroy()

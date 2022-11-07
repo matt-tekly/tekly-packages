@@ -4,7 +4,7 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Tekly.Favorites.Editor.Core.CollectionsList
+namespace Tekly.Favorites
 {
     public class CollectionsListView : VisualElement
     {
@@ -111,6 +111,7 @@ namespace Tekly.Favorites.Editor.Core.CollectionsList
 
             if (evt.keyCode == KeyCode.Delete && m_listView.selectedIndex > -1) {
                 FavoritesData.Instance.RemoveCollection(m_listView.selectedIndex);
+                evt.StopPropagation();
             }
         }
 

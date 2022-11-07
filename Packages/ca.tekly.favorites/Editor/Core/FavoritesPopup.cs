@@ -45,14 +45,7 @@ namespace Tekly.Favorites
             xmlAsset.CloneTree(rootVisualElement);
             rootVisualElement.viewDataKey = "tekly/favoriteswindow";
 
-            rootVisualElement.RegisterCallback<KeyDownEvent>(evt => {
-                if (evt.keyCode >= KeyCode.Alpha0 && evt.keyCode <= KeyCode.Alpha9) {
-                    evt.StopPropagation();
-                    if (FavoritesData.Instance.HandleShortcut(evt.keyCode, evt.shiftKey)) {
-                        Close();
-                    }
-                }
-            });
+            rootVisualElement.RegisterCallback<KeyDownEvent>(OnKeyDown);
             
             Focus();
 
@@ -88,6 +81,21 @@ namespace Tekly.Favorites
         {
             if (s_instance == this) {
                 s_instance = null;
+            }
+        }
+
+        private void OnKeyDown(KeyDownEvent evt)
+        {
+            if (evt.keyCode is >= KeyCode.Alpha0 and <= KeyCode.Alpha9) {
+                evt.StopPropagation();
+                if (FavoritesData.Instance.HandleShortcut(evt.keyCode, evt.shiftKey)) {
+                    Close();
+                }
+            }
+
+            if (evt.keyCode == KeyCode.Escape) {
+                evt.StopPropagation();
+                Close();
             }
         }
     }

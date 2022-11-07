@@ -301,6 +301,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a706c099a875488b8e1eeadc29f87ade, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ParentRegistryId: 
+  SelfRegistryId: 
   ScriptableBindings: []
 --- !u!1 &283820475
 GameObject:
@@ -1020,6 +1022,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a706c099a875488b8e1eeadc29f87ade, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ParentRegistryId: 
+  SelfRegistryId: 
   ScriptableBindings: []
 --- !u!1 &1272212554
 GameObject:
@@ -1406,6 +1410,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a706c099a875488b8e1eeadc29f87ade, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ParentRegistryId: 
+  SelfRegistryId: 
   ScriptableBindings: []
 --- !u!114 &1606198012
 MonoBehaviour:

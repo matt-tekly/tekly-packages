@@ -58,3 +58,8 @@
     align-self: center;
     background-color: brown;
 }
+
+.tekly-favorite-element-warning-container {
+    background-image: resource("Warning");
+    width: 18px;
+}

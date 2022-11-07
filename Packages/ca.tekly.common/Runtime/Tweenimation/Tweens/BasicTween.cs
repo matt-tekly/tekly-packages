@@ -1,4 +1,5 @@
 using System;
+using Tekly.Common.Utils.Tweening;
 using UnityEngine;
 
 namespace Tekly.Common.Tweenimation.Tweens

@@ -4,7 +4,7 @@ namespace Tekly.Favorites
 {
     public static class FavoritesShortcuts
     {
-        [MenuItem("Tools/Tekly/Favorites &F")]
+        [MenuItem("Tools/Favorites %G")]
         private static void ShowWindow()
         {
            FavoritesPopup.Present();

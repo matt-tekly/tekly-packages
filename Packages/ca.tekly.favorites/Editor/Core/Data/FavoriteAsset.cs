@@ -1,7 +1,10 @@
 using System;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEditor.Search;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using Object = UnityEngine.Object;
 
 namespace Tekly.Favorites
 {
@@ -12,15 +15,16 @@ namespace Tekly.Favorites
 
         [SerializeField] private string m_id;
         [SerializeField] private string m_lastName;
-        [SerializeField] private string m_lastScene;
         [SerializeField] private Texture m_icon;
+        [SerializeField] private string m_path;
+        [SerializeField] private bool m_isInPrefabStage;
 
-        private UnityEngine.Object m_asset;
+        private Object m_asset;
 
         private const int NULL_ID = 0;
         private const int SCENE_ID = 2;
 
-        public UnityEngine.Object Asset {
+        public Object Asset {
             get {
                 if (m_asset == null) {
                     if (Id.Equals(default)) {
@@ -28,38 +32,55 @@ namespace Tekly.Favorites
                     }
 
                     m_asset = GlobalObjectId.GlobalObjectIdentifierToObjectSlow(Id);
+
+                    if (m_asset == null && m_isInPrefabStage) {
+                        var stage = PrefabStageUtility.GetCurrentPrefabStage();
+                        if (stage != null) {
+                            var foundTransform = stage.prefabContentsRoot.transform.Find(m_path);
+                            if (foundTransform != null) {
+                                m_asset = foundTransform.gameObject;    
+                            }
+                        }
+                    }
                 }
 
                 return m_asset;
             }
             set {
                 m_asset = value;
-                OnBeforeSerialize();
+                SaveData();
             }
         }
 
-        public string DisplayName {
-            get {
-                return m_lastName;
-            }
-        }
+        public string DisplayName => m_lastName;
 
         public Texture Icon => m_icon;
 
-        public void OnBeforeSerialize()
+        public void SaveData()
         {
             if (Asset != null) {
                 Id = GlobalObjectId.GetGlobalObjectIdSlow(Asset);
+                
                 m_id = Id.ToString();
 
                 if (Id.identifierType == SCENE_ID) {
-                    m_lastScene = Asset switch {
-                        GameObject go => go.scene.name,
-                        Component co => co.gameObject.scene.name,
-                        _ => m_lastScene
+                    
+                    var targetGo = Asset switch {
+                        GameObject go => go.gameObject,
+                        Component co => co.gameObject,
+                        _ => null
                     };
-
+                    
+                    if (targetGo != null) {
+                        var stage = PrefabStageUtility.GetCurrentPrefabStage();
+                        if (stage != null) {
+                            m_isInPrefabStage = true;
+                            m_path = AnimationUtility.CalculateTransformPath(targetGo.transform, stage.prefabContentsRoot.transform);
+                        }
+                    }
+                    
                     m_icon = EditorGUIUtility.ObjectContent(m_asset, m_asset.GetType()).image;
+                    
                     if (m_icon == null) {
                         m_icon = EditorGUIUtility.GetIconForObject(m_asset);    
                     }
@@ -75,11 +96,24 @@ namespace Tekly.Favorites
             }
         }
 
+        public void OnBeforeSerialize() { }
+
         public void OnAfterDeserialize()
         {
             if (!string.IsNullOrEmpty(m_id)) {
                 GlobalObjectId.TryParse(m_id, out Id);
             }
+        }
+        
+        public static string GetGameObjectPath(Object obj)
+        {
+            var go = obj switch {
+                GameObject target => target,
+                Component target => target.gameObject,
+                _ => null
+            };
+
+            return go.name;
         }
     }
 }
