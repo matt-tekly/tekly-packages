@@ -25,7 +25,7 @@ namespace Tekly.DataModels.Binders
 
         private void BindBool(bool value)
         {
-            var active = value != m_invert;
+            var active = value ^ m_invert;
             
             foreach (var target in m_targets) {
                 target.SetActive(active);

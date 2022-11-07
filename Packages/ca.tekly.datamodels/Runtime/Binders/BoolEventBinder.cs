@@ -11,6 +11,7 @@ namespace Tekly.DataModels.Binders
     public class BoolEventBinder: Binder
     {
         [SerializeField] private ModelRef m_key;
+        [SerializeField] private bool m_invert;
         [SerializeField] private UnityEvent<bool> m_event;
         
         private IDisposable m_disposable;
@@ -26,7 +27,7 @@ namespace Tekly.DataModels.Binders
         private void BindValue(bool value)
         {
             if (m_event != null) {
-                m_event.Invoke(value);
+                m_event.Invoke(value ^ m_invert);
             }
         }
 
