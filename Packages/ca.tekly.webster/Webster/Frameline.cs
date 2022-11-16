@@ -44,11 +44,7 @@ namespace Tekly.Webster
 
 		public static FramelineEventDisposable BeginEventDisposable(string id, string type)
 		{
-#if FRAMELINE_ENABLE
 			return Instance.BeginEventDisposable(id, type);
-#else
-            return Utility.DisposableUnit.Instance;
-#endif
 		}
 
 #if !FRAMELINE_ENABLE
