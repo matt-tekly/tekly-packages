@@ -70,6 +70,11 @@ namespace Tekly.Common.Tweenimation
 
             m_coroutine = StartCoroutine(Animate(delay));
         }
+
+        public void Stop()
+        {
+            Kill();
+        }
         
         public void Evaluate(float time)
         {

@@ -48,14 +48,14 @@ namespace Tekly.Common.Tweenimation
             m_reorderableList.elementHeightCallback = ElementHeight;
             m_reorderableList.drawHeaderCallback = DrawHeader;
             m_reorderableList.drawFooterCallback = DrawFooter;
-            
+
             m_reorderableList.footerHeight = EditorGUIUtility.singleLineHeight + 2;
         }
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-            
+
             EditorGUILayout.PropertyField(m_playOnEnable);
             EditorGUILayout.PropertyField(m_siblingIndexDelay);
 
@@ -73,12 +73,13 @@ namespace Tekly.Common.Tweenimation
             }
 
             m_eventsExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(m_eventsExpanded, "Events");
-            
+
             if (m_eventsExpanded) {
-                EditorGUILayout.PropertyField(m_completedEvent);    
+                EditorGUILayout.PropertyField(m_completedEvent);
             }
+
             EditorGUILayout.EndFoldoutHeaderGroup();
-            
+
             serializedObject.ApplyModifiedProperties();
         }
 
@@ -87,7 +88,7 @@ namespace Tekly.Common.Tweenimation
             if (index >= m_tweens.arraySize) {
                 return;
             }
-            
+
             var element = m_tweens.GetArrayElementAtIndex(index);
             var enabled = element.FindPropertyRelative("m_enabled");
 
@@ -100,20 +101,20 @@ namespace Tekly.Common.Tweenimation
             var dropdownRect = rect;
             dropdownRect.xMin = rect.xMax - 20;
             dropdownRect.height = EditorGUIUtility.singleLineHeight;
-            if (EditorGUI.DropdownButton(dropdownRect, GUIContent.none, FocusType.Passive))
-            {
+            
+            if (EditorGUI.DropdownButton(dropdownRect, GUIContent.none, FocusType.Passive)) {
                 void HandleItemClicked(object parameter)
                 {
                     m_tweens.DeleteArrayElementAtIndex((int) parameter);
                     serializedObject.ApplyModifiedProperties();
                     Repaint();
                 }
-                
+
                 GenericMenu menu = new GenericMenu();
                 menu.AddItem(new GUIContent("Remove"), false, HandleItemClicked, index);
                 menu.DropDown(dropdownRect);
             }
-            
+
             var elementType = new GUIContent(element.managedReferenceValue.GetType().Name);
             rect.xMin += 8;
             EditorGUI.PropertyField(rect, element, elementType, true);
@@ -136,10 +137,10 @@ namespace Tekly.Common.Tweenimation
             var delayRect = rect;
             delayRect.xMin = rect.xMax - 88;
             EditorGUI.LabelField(delayRect, "Delay");
-            
+
             rect.xMin = rect.xMax - 50;
             rect = rect.Shrink(1);
-            
+
             EditorGUI.BeginProperty(rect, GUIContent.none, m_delay);
             m_delay.floatValue = EditorGUI.FloatField(rect, m_delay.floatValue, EditorStyles.toolbarTextField);
             EditorGUI.EndProperty();
