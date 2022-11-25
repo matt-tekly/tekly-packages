@@ -1,0 +1,16 @@
+{
+  "name": "ca.tekly.extensions",
+  "version": "1.0.0",
+  "displayName": "Tekly Extensions",
+  "description": "Extensions for multiple packages",
+  "author": {
+    "name": "Matt King",
+    "email": "matt@tekly.ca"
+  },
+  "hideInEditor": false,
+  "type": "library",
+  "dependencies": {
+    "ca.tekly.logger": "0.0.7",
+    "ca.tekly.common": "0.0.7"
+  }
+}

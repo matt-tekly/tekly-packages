@@ -1,0 +1,20 @@
+{
+    "name": "Tekly.Extensions.Editor",
+    "rootNamespace": "Tekly.Extensions",
+    "references": [
+        "GUID:8a41180c7eb096440ae08c39f6cc447b",
+        "GUID:fe9b5439833ca478b84049c8be0d788b",
+        "GUID:31f6ca066cb1421498e9be3571072338"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -22,12 +22,21 @@ namespace Tekly.PanelViews
 
         public void Show()
         {
+            if (m_state == PanelState.Shown || m_state == PanelState.Showing) {
+                return;
+            }
+            
             m_state = PanelState.Showing;
+            gameObject.SetActive(true);
             OnShow();
         }
 
         public void Hide()
         {
+            if (m_state == PanelState.Hidden || m_state == PanelState.Hiding) {
+                return;
+            }
+            
             m_state = PanelState.Hiding;
             OnHide();
         }
