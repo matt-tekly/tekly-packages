@@ -1,7 +1,10 @@
 {
     "name": "Tekly.StatusBar",
     "rootNamespace": "Tekly.StatusBar",
-    "references": [],
+    "references": [
+        "GUID:b9160372c6c55a741932d482673e3abb",
+        "GUID:31f6ca066cb1421498e9be3571072338"
+    ],
     "includePlatforms": [
         "Editor"
     ],

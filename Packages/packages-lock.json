@@ -41,6 +41,15 @@
         "ca.tekly.localizations": "0.0.1"
       }
     },
+    "ca.tekly.extensions": {
+      "version": "file:ca.tekly.extensions",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "ca.tekly.logger": "0.0.7",
+        "ca.tekly.common": "0.0.7"
+      }
+    },
     "ca.tekly.favorites": {
       "version": "file:ca.tekly.favorites",
       "depth": 0,
