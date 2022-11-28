@@ -14,7 +14,7 @@ namespace Tekly.PanelViews
     {
         [SerializeField] private string m_id;
         
-        protected PanelState m_state;
+        private PanelState m_state;
 
         public string Id => m_id;
         public PanelState State => m_state;
@@ -43,12 +43,23 @@ namespace Tekly.PanelViews
 
         protected virtual void OnShow()
         {
-            
+            CompleteShow();
         }
 
         protected virtual void OnHide()
         {
-            
+            CompleteHide();
+        }
+
+        protected void CompleteShow()
+        {
+            m_state = PanelState.Shown;
+        }
+
+        protected void CompleteHide()
+        {
+            m_state = PanelState.Hidden;
+            gameObject.SetActive(false);
         }
     }
 }
