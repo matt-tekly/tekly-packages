@@ -70,5 +70,16 @@ namespace Tekly.Common.Collections
         {
             return collection[collection.Length - 1];
         }
+
+        public static bool TryGet<TK, TV, T>(this Dictionary<TK, TV> dict, TK key, out T target) where TV : class where T : class, TV
+        {
+            if (dict.TryGetValue(key, out var temp)) {
+                target = temp as T;
+                return target != null;
+            }
+
+            target = default;
+            return false;
+        }
     }
 }
