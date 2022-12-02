@@ -11,7 +11,13 @@ namespace Tekly.Common.Utils.PropertyBags
         [SerializeField] private string m_id;
         
         public string Id => m_id;
-        public PropertyBag Bag { get; set; }
+
+        public PropertyBag Bag {
+            get => m_propertyBag;
+            set => m_propertyBag = value;
+        }
+        
+        [NonSerialized] private PropertyBag m_propertyBag;
 
         protected Property(string id, PropertyBag bag)
         {
