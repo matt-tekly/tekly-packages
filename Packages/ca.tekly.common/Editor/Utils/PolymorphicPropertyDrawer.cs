@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
+using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
 namespace Tekly.Common.Utils
@@ -32,19 +33,55 @@ namespace Tekly.Common.Utils
             position.yMin += 1;
             position.xMin += EditorGUIUtility.labelWidth - EditorGUI.indentLevel * 15f;
             
-            PolymorphicPopup.Get(fieldInfo).Draw(position, property);
+            PolymorphicDropdown.Get(fieldInfo).Draw(position, property, (attribute as PolymorphicAttribute).Title);
         }
     }
     
-    public class PolymorphicPopup
+    public class PolymorphicTypeDropdown : AdvancedDropdown
+    {
+        private readonly string m_title;
+        private readonly PolymorphicDropdown m_dropdown;
+        private readonly SerializedProperty m_serializedProperty;
+
+        public PolymorphicTypeDropdown(string title, PolymorphicDropdown dropdown, SerializedProperty serializedProperty) 
+            : base(new AdvancedDropdownState())
+        {
+            m_title = title;
+            m_dropdown = dropdown;
+            m_serializedProperty = serializedProperty;
+
+            minimumSize = new Vector2(minimumSize.x, 45 + Mathf.Clamp(dropdown.TypeNames.Length, 4, 10) * 18f);
+        }
+        
+        protected override AdvancedDropdownItem BuildRoot()
+        {
+            var root = new AdvancedDropdownItem(m_title);
+
+            for (var index = 0; index < m_dropdown.TypeNames.Length; index++) {
+                var typeName = m_dropdown.TypeNames[index];
+                root.AddChild(new AdvancedDropdownItem(typeName.text) {id = index});
+            }
+
+            return root;
+        }
+
+        protected override void ItemSelected(AdvancedDropdownItem item)
+        {
+            m_serializedProperty.serializedObject.UpdateIfRequiredOrScript();
+            m_dropdown.Apply(item.id, m_serializedProperty);
+            m_serializedProperty.serializedObject.ApplyModifiedProperties();
+        }
+    }
+    
+    public class PolymorphicDropdown
     {
         public readonly GUIContent[] TypeNames;
         public readonly Type[] Types;
         
         [NonSerialized]
-        private static Dictionary<Type, PolymorphicPopup> s_data = new Dictionary<Type, PolymorphicPopup>();
+        private static Dictionary<Type, PolymorphicDropdown> s_data = new Dictionary<Type, PolymorphicDropdown>();
         
-        private PolymorphicPopup(Type type)
+        private PolymorphicDropdown(Type type)
         {
             var types = new List<Type> {type};
             types.AddRange(TypeCache.GetTypesDerivedFrom(type));
@@ -56,14 +93,16 @@ namespace Tekly.Common.Utils
             TypeNames = contents.ToArray();
         }
         
-        public void Draw(Rect position, SerializedProperty property)
+        public void Draw(Rect position, SerializedProperty property, string title = "Types")
         {
-            var currentTypeIndex = GetNameIndex(property.managedReferenceValue);
-            currentTypeIndex = EditorGUI.Popup(position, currentTypeIndex, TypeNames);
-            Apply(currentTypeIndex, property);
+            position = EditorGUI.IndentedRect(position);
+            if (EditorGUI.DropdownButton(position, GetNameContent(property.managedReferenceValue), FocusType.Keyboard)) {
+                var dropDown = new PolymorphicTypeDropdown(title, this, property);
+                dropDown.Show(position);
+            }
         }
 
-        private void Apply(int index, SerializedProperty property)
+        public void Apply(int index, SerializedProperty property)
         {
             if (index == 0) {
                 if (property.managedReferenceValue != null) {
@@ -83,12 +122,22 @@ namespace Tekly.Common.Utils
             }
         }
         
-        private int GetNameIndex(object obj)
+        private GUIContent GetNameContent(object obj)
         {
-            return obj == null ? 0 : Array.IndexOf(Types, obj.GetType()) + 1;
+            if (obj == null) {
+                return TypeNames[0];
+            }
+
+            var nameIndex = Array.IndexOf(Types, obj.GetType());
+            
+            if (nameIndex < 0) {
+                return new GUIContent("Unknown Type: " + obj.GetType().Name);
+            }
+
+            return TypeNames[nameIndex + 1];
         }
 
-        public static PolymorphicPopup Get(FieldInfo fieldInfo)
+        public static PolymorphicDropdown Get(FieldInfo fieldInfo)
         {
             var fieldType = fieldInfo.FieldType;
             
@@ -96,16 +145,20 @@ namespace Tekly.Common.Utils
                 fieldType = fieldType.GetGenericArguments()[0];
             }
 
+            if (fieldType.IsArray) {
+                fieldType = fieldType.GetElementType();
+            }
+
             return Get(fieldType);
         }
 
-        public static PolymorphicPopup Get(Type type)
+        public static PolymorphicDropdown Get(Type type)
         {
             if (s_data.TryGetValue(type, out var target)) {
                 return target;
             }
 
-            var data = new PolymorphicPopup(type);
+            var data = new PolymorphicDropdown(type);
             s_data[type] = data;
             return data;
         }

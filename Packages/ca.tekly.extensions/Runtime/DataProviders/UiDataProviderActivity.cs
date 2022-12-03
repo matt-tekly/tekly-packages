@@ -1,15 +1,15 @@
 using System;
+using Tekly.Common.Utils;
 using Tekly.Injectors;
 using Tekly.TreeState.StandardActivities;
 using UnityEngine;
 
 namespace Tekly.Extensions.DataProviders
 {
-    [Serializable]
-    public abstract class UiDataProvider
+    public interface IUiDataProvider
     {
-        public abstract void Bind();
-        public abstract void Unbind();
+        void Bind();
+        void Unbind();
     }
 
     /// <summary>
@@ -18,7 +18,7 @@ namespace Tekly.Extensions.DataProviders
     /// </summary>
     public class UiDataProviderActivity : InjectableActivity
     {
-        [SerializeReference] private UiDataProvider[] m_providers;
+        [SerializeReference, Polymorphic("Data Providers")] private IUiDataProvider[] m_providers;
         [Inject] private InjectorContainer m_container;
         
         protected override void LoadingStarted()

@@ -8,7 +8,7 @@ using UnityEngine;
 namespace TeklySample.Game.UiDataProviders
 {
     [Serializable]
-    public class GameWorldDataProvider : UiDataProvider
+    public class GameWorldDataProvider : IUiDataProvider
     {
         [SerializeField] private string m_key = "gameworld";
         
@@ -17,13 +17,13 @@ namespace TeklySample.Game.UiDataProviders
 
         private GameWorldModel m_gameWorldModel;
         
-        public override void Bind()
+        public void Bind()
         {
             m_gameWorldModel = new GameWorldModel(m_gameWorld);
             m_rootModel.Add(m_key, m_gameWorldModel);
         }
 
-        public override void Unbind()
+        public void Unbind()
         {
             m_rootModel.RemoveModel(m_key);
             m_gameWorldModel.Dispose();
