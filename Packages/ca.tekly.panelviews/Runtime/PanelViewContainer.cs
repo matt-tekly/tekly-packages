@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Tekly.PanelViews
 {
-    public class PanelViewContainer : InjectableBehaviour
+    public class PanelViewContainer : MonoBehaviour
     {
         [SerializeField] private PanelView[] m_panels = Array.Empty<PanelView>();
         [Inject] private InjectorContainer m_container;

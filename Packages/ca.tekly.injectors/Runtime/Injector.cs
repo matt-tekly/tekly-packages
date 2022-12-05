@@ -1,10 +1,7 @@
-﻿// ============================================================================
-// Copyright 2021 Matt King
-// ============================================================================
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Tekly.Injectors.Utils;
 
 namespace Tekly.Injectors
 {
@@ -13,21 +10,40 @@ namespace Tekly.Injectors
     /// </summary>
     public class Injector
     {
-        public readonly Type Type;
-        
+        private readonly Type m_type;
         private readonly List<InjectableField> m_fields = new List<InjectableField>();
+        private readonly InjectableConstructor m_constructor;
+
+        private bool m_isInstantiating;
         
         public Injector(Type type)
         {
-            Type = type;
+            m_type = type;
             
-            foreach (var fieldInfo in Type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)) {
+            foreach (var fieldInfo in GetFields(type)) {
                 var attribute = fieldInfo.GetCustomAttribute<InjectAttribute>();
 
                 if (attribute != null) {
                     m_fields.Add(new InjectableField(attribute, fieldInfo));
                 }
             }
+
+            m_constructor = new InjectableConstructor(type.Constructor());
+        }
+
+        public object Instantiate(InjectorContainer container)
+        {
+            // We need to detect cycles in instantiating objects. In the editor a stack overflow will just crash.
+            if (m_isInstantiating) {
+                throw new DependencyCycleException(m_type);
+            }
+
+            m_isInstantiating = true;
+            var instance = m_constructor.Instantiate(container);
+            Inject(instance, container);
+            m_isInstantiating = false;
+            
+            return instance;
         }
 
         public void Inject(object instance, InjectorContainer container)
@@ -43,10 +59,46 @@ namespace Tekly.Injectors
                 injectableField.Clear(instance);
             }
         }
+        
+        public static FieldInfo[] GetFields(Type type)
+        {
+            return type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        }
+    }
+
+    public class InjectableConstructor
+    {
+        private readonly object[] m_parameterValues;
+        private readonly ParameterInfo[] m_parameterInfos;
+        private readonly Type m_type;
+        
+        public InjectableConstructor(ConstructorInfo constructorInfo)
+        {
+            m_type = constructorInfo.DeclaringType;
+            
+            m_parameterInfos = constructorInfo.GetParameters();
+            if (m_parameterInfos.Length == 0) {
+                m_parameterValues = Array.Empty<object>();
+            } else {
+                m_parameterValues = new object[m_parameterInfos.Length];
+            }
+        }
+
+        public object Instantiate(InjectorContainer container)
+        {
+            for (var index = 0; index < m_parameterInfos.Length; index++) {
+                var parameterInfo = m_parameterInfos[index];
+                m_parameterValues[index] = container.Get(parameterInfo.ParameterType);
+            }
+
+            return Activator.CreateInstance(m_type, m_parameterValues);
+        }
     }
 
     public class InjectableField
     {
+        public Type FieldType => m_fieldType;
+        
         private readonly FieldInfo m_fieldInfo;
         private readonly Type m_fieldType;
         private readonly InjectAttribute m_injectAttribute;

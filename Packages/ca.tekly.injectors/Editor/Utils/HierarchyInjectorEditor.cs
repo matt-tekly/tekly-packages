@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -20,30 +19,10 @@ namespace Tekly.Injectors.Utils
 			serializedObject.ApplyModifiedProperties();
 		}
 
-		public static void FindChildren(HierarchyInjector container)
+		private static void FindChildren(HierarchyInjector container)
 		{
-			Undo.RecordObject(container, "Find Children");
-			container.Behaviours.Clear();
-			GetChildren(container.gameObject, container.Behaviours, new List<InjectableBehaviour>());
-		}
-
-		private static void GetChildren(GameObject gameObject, List<InjectableBehaviour> binders, List<InjectableBehaviour> scratch)
-		{
-			var transform = gameObject.transform;
-            
-			for (var index = 0; index < transform.childCount; ++index) {
-				var child = transform.GetChild(index);
-				var childContainer = child.GetComponent<HierarchyInjector>();
-                
-				if (childContainer != null) {
-					continue;
-				}
-                
-				child.GetComponents(scratch);
-				binders.AddRange(scratch);
-                
-				GetChildren(child.gameObject, binders, scratch);
-			}
+			Undo.RecordObject(container, "Find Injectable Children");
+			container.FindInjectables();
 		}
 	}
 }

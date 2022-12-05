@@ -2,6 +2,7 @@
 using Tekly.Common.Utils;
 using Tekly.Injectors;
 using Tekly.Logging;
+using UnityEngine;
 
 namespace Tekly.TreeState.StandardActivities
 {
@@ -12,19 +13,18 @@ namespace Tekly.TreeState.StandardActivities
     
     public class InjectorContainerState : TreeStateActivity
     {
-        public string ParentRegistryId;
-        public string SelfRegistryId;
+        [Tooltip("The container will use this ref as the parent otherwise it will search up the hierarchy for a parent")]
+        public InjectorContainerRef ParentContainer;
         
-        public InjectorContainer Container { get; private set; }
+        [Tooltip("The container will initialize the ref with itself")]
+        public InjectorContainerRef SelfContainer;
         public ScriptableBinding[] ScriptableBindings;
         
+        public InjectorContainer Container { get; private set; }
+        
         private InjectorContainer m_parentContainer;
-        
         private IInjectionProvider[] m_providers;
-
         private ScriptableBinding[] m_instances;
-        
-        private TkLogger m_logger = TkLogger.Get<InjectorContainerState>();
         
         protected override void Awake()
         {
@@ -34,10 +34,8 @@ namespace Tekly.TreeState.StandardActivities
         
         protected override void PreLoad()
         {
-            if (!string.IsNullOrEmpty(ParentRegistryId)) {
-                if (!InjectorContainerRegistry.Instance.TryGet(ParentRegistryId, out m_parentContainer)) {
-                    m_logger.ErrorContext("Failed to find InjectorContainer [{id}] in Registry", this, ("id", ParentRegistryId));
-                }
+            if (ParentContainer != null) {
+                m_parentContainer = ParentContainer.Container;
             } else {
                 var parent = transform.GetComponentInAncestor<InjectorContainerState>();
                 if (parent != null) {
@@ -66,8 +64,8 @@ namespace Tekly.TreeState.StandardActivities
                 provider.Provide(Container);
             }
 
-            if (!string.IsNullOrEmpty(SelfRegistryId)) {
-                InjectorContainerRegistry.Instance.Register(SelfRegistryId, Container);
+            if (SelfContainer != null) {
+                SelfContainer.Initialize(Container);
             }
         }
 
@@ -81,8 +79,8 @@ namespace Tekly.TreeState.StandardActivities
             
             Container = null;   
             
-            if (!string.IsNullOrEmpty(SelfRegistryId)) {
-                InjectorContainerRegistry.Instance.Remove(SelfRegistryId);
+            if (SelfContainer != null) {
+                SelfContainer.Clear();
             }
         }
     }

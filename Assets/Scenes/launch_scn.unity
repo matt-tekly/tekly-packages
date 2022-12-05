@@ -301,8 +301,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a706c099a875488b8e1eeadc29f87ade, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ParentRegistryId: 
-  SelfRegistryId: 
+  ParentContainer: {fileID: 11400000, guid: 770f7e6e7b8374f90b4317f4ec21f795, type: 2}
+  SelfContainer: {fileID: 11400000, guid: 3d25e8fba63f64ec3a292d30371f6752, type: 2}
   ScriptableBindings: []
 --- !u!1 &283820475
 GameObject:
@@ -1022,8 +1022,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a706c099a875488b8e1eeadc29f87ade, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ParentRegistryId: 
-  SelfRegistryId: 
+  ParentContainer: {fileID: 0}
+  SelfContainer: {fileID: 11400000, guid: 770f7e6e7b8374f90b4317f4ec21f795, type: 2}
   ScriptableBindings: []
 --- !u!1 &1272212554
 GameObject:
@@ -1410,8 +1410,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a706c099a875488b8e1eeadc29f87ade, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ParentRegistryId: 
-  SelfRegistryId: 
+  ParentContainer: {fileID: 0}
+  SelfContainer: {fileID: 0}
   ScriptableBindings: []
 --- !u!114 &1606198012
 MonoBehaviour:
@@ -1441,11 +1441,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_providers:
-  - rid: 4285949688908873730
+  - rid: 3463190136378359810
   references:
     version: 2
     RefIds:
-    - rid: 4285949688908873730
+    - rid: 3463190136378359810
       type: {class: GameWorldDataProvider, ns: TeklySample.Game.UiDataProviders, asm: Assembly-CSharp}
       data:
         m_key: gameworld

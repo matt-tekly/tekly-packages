@@ -1,8 +1,4 @@
-﻿// ============================================================================
-// Copyright 2021 Matt King
-// ============================================================================
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace Tekly.Injectors.Tests
@@ -21,6 +17,33 @@ namespace Tekly.Injectors.Tests
     
     public interface ITestInterface { }
     public class TestClass : ITestInterface { }
+    
+    public class SingletonClass { }
+        
+    public class SingletonConsumer
+    {
+        public readonly SingletonClass Singleton;
+
+        public SingletonConsumer(SingletonClass singleton)
+        {
+            Singleton = singleton;
+        }
+    }
+    
+    public class LoopClassA
+    {
+        [Inject] public LoopClassB Looper;
+    }
+        
+    public class LoopClassB
+    {
+        [Inject] public LoopClassA Looper;
+    }
+        
+    public class LoopClassC
+    {
+        [Inject] public LoopClassC Looper;
+    }
     
     public class InjectionContainerTests
     {
@@ -69,6 +92,40 @@ namespace Tekly.Injectors.Tests
             container.Register(string2);
             
             Assert.That(container.Get<string>(), Is.EqualTo(string2));
+        }
+
+        [Test]
+        public void SingletonConstructor()
+        {
+            var container = new InjectorContainer();
+            
+            container.Singleton<SingletonClass>();
+            container.Factory<SingletonConsumer>();
+
+            var singletonUser = container.Get<SingletonConsumer>();
+            var singleton = container.Get<SingletonClass>();
+            
+            Assert.That(singletonUser, Is.Not.Null);
+            Assert.That(singletonUser.Singleton, Is.EqualTo(singleton));
+        }
+
+        [Test]
+        public void LoopTester()
+        {
+            Assert.Throws<DependencyCycleException>(() => {
+                var container = new InjectorContainer();
+
+                container.Factory<LoopClassA>();
+                container.Factory<LoopClassB>();
+                container.Get<LoopClassA>();
+            });
+            
+            Assert.Throws<DependencyCycleException>(() => {
+                var container = new InjectorContainer();
+
+                container.Factory<LoopClassC>();
+                container.Get<LoopClassC>();
+            });
         }
     }
 }

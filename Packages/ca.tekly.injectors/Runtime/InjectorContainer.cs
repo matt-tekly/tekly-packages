@@ -1,11 +1,6 @@
-﻿// ============================================================================
-// Copyright 2021 Matt King
-// ============================================================================
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Tekly.Logging;
-using UnityEngine;
 
 namespace Tekly.Injectors
 {
@@ -13,17 +8,10 @@ namespace Tekly.Injectors
     {
         private readonly Dictionary<Type, IInstanceProvider> m_instances = new Dictionary<Type, IInstanceProvider>();
         private readonly Dictionary<InstanceId, IInstanceProvider> m_instanceIds = new Dictionary<InstanceId, IInstanceProvider>();
-        private static readonly Dictionary<Type, Injector> s_injectableTypes = new Dictionary<Type, Injector>();
 
         private readonly InjectorContainer m_parent;
         private readonly TkLogger m_logger = TkLogger.Get<InjectorContainer>();
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void Cleanup()
-        {
-            s_injectableTypes.Clear();
-        }
-
+        
         public InjectorContainer()
         {
             Register(this);
@@ -32,6 +20,16 @@ namespace Tekly.Injectors
         public InjectorContainer(InjectorContainer parent) : this()
         {
             m_parent = parent;
+        }
+        
+        public void Singleton<T>()
+        {
+            m_instances.Add(typeof(T), SingletonProvider.Create<T>(this));
+        }
+        
+        public void Factory<T>()
+        {
+            m_instances.Add(typeof(T), FactoryProvider.Create<T>(this));
         }
         
         public void Register<T>(T instance)
@@ -55,6 +53,16 @@ namespace Tekly.Injectors
             m_instances.Add(typeof(T2), InstanceProvider.Create(instance));
         }
         
+        public void Register(Type type, object instance)
+        {
+            if (instance == null) {
+                m_logger.Error("Trying to register instance of [{type}] but instance is null", ("type", type));
+                return;
+            }
+            
+            m_instances.Add(type, InstanceProvider.Create(type, instance));
+        }
+        
         public void Register<T>(T instance, string id)
         {
             if (instance == null) {
@@ -64,7 +72,7 @@ namespace Tekly.Injectors
             
             Register(typeof(T), instance, id);
         }
-        
+
         public void Register(Type type, object instance, string id)
         {
             if (instance == null) {
@@ -127,12 +135,7 @@ namespace Tekly.Injectors
 
         private static Injector GetInjectionTypeData(Type type)
         {
-            if (!s_injectableTypes.TryGetValue(type, out var injectionTypeData)) {
-                injectionTypeData = new Injector(type);
-                s_injectableTypes.Add(type, injectionTypeData);
-            }
-
-            return injectionTypeData;
+            return TypeDatabase.Instance.GetInjector(type);
         }
     }
 }
