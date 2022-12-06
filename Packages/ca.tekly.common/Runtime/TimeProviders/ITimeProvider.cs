@@ -1,10 +1,7 @@
-using System;
-
 namespace Tekly.Common.TimeProviders
 {
     public interface ITimeProvider
     {
-        DateTime UtcNow { get; }
-        DateTime Now { get; }
+        TkDateTime Now { get; }
     }
 }
