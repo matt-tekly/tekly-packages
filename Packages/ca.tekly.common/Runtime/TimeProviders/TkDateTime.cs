@@ -66,5 +66,6 @@ namespace Tekly.Common.TimeProviders
 
         public static TkDateTime operator +(TkDateTime left, TimeSpan right) => left.Time + right;
         public static TkDateTime operator -(TkDateTime left, TimeSpan right) => left.Time - right;
+        public static TimeSpan operator -(TkDateTime left, TkDateTime right) => left.Time - right.Time;
     }
 }
