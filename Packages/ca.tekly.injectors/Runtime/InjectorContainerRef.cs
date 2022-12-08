@@ -13,11 +13,16 @@ namespace Tekly.Injectors
         
         public InjectorContainer Container {
             get {
-                if (!m_initialized) {
+                if (m_container != null) {
+                    return m_container;
+                }
+
+                if (!InjectorContainerRegistry.Instance.TryGet(name, out m_container) && !m_initialized) {
                     m_logger.Error("Accessing InjectorContainerRef before it is initialized [{name}]", ("name", name));
                     return null;
                 }
 
+                m_initialized = true;
                 return m_container;
             }
         }
