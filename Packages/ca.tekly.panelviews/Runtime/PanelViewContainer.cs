@@ -27,11 +27,10 @@ namespace Tekly.PanelViews
                 PanelViewRegistry.Instance.Remove(panelView);    
             }
         }
-
-        [ContextMenu("Find Panels")]
-        private void FindPanels()
+        
+        public void FindPanels()
         {
-            m_panels = GetComponentsInChildren<PanelView>();
+            m_panels = GetComponentsInChildren<PanelView>(true);
         }
     }
 }
