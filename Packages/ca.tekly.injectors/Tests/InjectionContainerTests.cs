@@ -45,6 +45,17 @@ namespace Tekly.Injectors.Tests
         [Inject] public LoopClassC Looper;
     }
     
+    public class MethodClass
+    {
+        public int InjectPrivateValue;
+        
+        [Inject]
+        private void InjectPrivate(int value)
+        {
+            InjectPrivateValue = value;
+        }
+    }
+    
     public class InjectionContainerTests
     {
         [Test]
@@ -126,6 +137,18 @@ namespace Tekly.Injectors.Tests
                 container.Factory<LoopClassC>();
                 container.Get<LoopClassC>();
             });
+        }
+        
+        [Test]
+        public void MethodTester()
+        {
+            var container = new InjectorContainer();
+            var instance = new MethodClass();
+            
+            container.Register(3);
+            container.Inject(instance);
+            
+            Assert.That(instance.InjectPrivateValue, Is.EqualTo(3));
         }
     }
 }

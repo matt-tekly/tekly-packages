@@ -12,6 +12,7 @@ namespace Tekly.Injectors
     {
         private readonly Type m_type;
         private readonly List<InjectableField> m_fields = new List<InjectableField>();
+        private readonly List<InjectableMethod> m_methods = new List<InjectableMethod>();
         private readonly InjectableConstructor m_constructor;
 
         private bool m_isInstantiating;
@@ -25,6 +26,14 @@ namespace Tekly.Injectors
 
                 if (attribute != null) {
                     m_fields.Add(new InjectableField(attribute, fieldInfo));
+                }
+            }
+            
+            foreach (var methodInfo in GetMethods(type)) {
+                var attribute = methodInfo.GetCustomAttribute<InjectAttribute>();
+
+                if (attribute != null) {
+                    m_methods.Add(new InjectableMethod(methodInfo));
                 }
             }
 
@@ -51,6 +60,10 @@ namespace Tekly.Injectors
             foreach (var injectableField in m_fields) {
                 injectableField.Inject(instance, container);
             }
+            
+            foreach (var injectableMethod in m_methods) {
+                injectableMethod.Inject(instance, container);
+            }
         }
 
         public void Clear(object instance)
@@ -63,6 +76,11 @@ namespace Tekly.Injectors
         public static FieldInfo[] GetFields(Type type)
         {
             return type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        }
+        
+        public static MethodInfo[] GetMethods(Type type)
+        {
+            return type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         }
     }
 
@@ -92,6 +110,35 @@ namespace Tekly.Injectors
             }
 
             return Activator.CreateInstance(m_type, m_parameterValues);
+        }
+    }
+    
+    public class InjectableMethod
+    {
+        private readonly object[] m_parameterValues;
+        private readonly ParameterInfo[] m_parameterInfos;
+        private readonly MethodInfo m_methodInfo;
+        
+        public InjectableMethod(MethodInfo methodInfo)
+        {
+            m_methodInfo = methodInfo;
+
+            m_parameterInfos = methodInfo.GetParameters();
+            if (m_parameterInfos.Length == 0) {
+                m_parameterValues = Array.Empty<object>();
+            } else {
+                m_parameterValues = new object[m_parameterInfos.Length];
+            }
+        }
+
+        public void Inject(object instance, InjectorContainer container)
+        {
+            for (var index = 0; index < m_parameterInfos.Length; index++) {
+                var parameterInfo = m_parameterInfos[index];
+                m_parameterValues[index] = container.Get(parameterInfo.ParameterType);
+            }
+
+            m_methodInfo.Invoke(instance, m_parameterValues);
         }
     }
 
