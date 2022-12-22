@@ -9,7 +9,7 @@ namespace Tekly.PanelViews
         Shown,
         Hiding
     }
-    
+
     public class PanelView : MonoBehaviour
     {
         [SerializeField] private string m_id;
@@ -17,7 +17,16 @@ namespace Tekly.PanelViews
         private PanelState m_state;
 
         public string Id => m_id;
-        public PanelState State => m_state;
+        public PanelState State {
+            get => m_state;
+            set {
+                if (m_state != value) {
+                    m_state = value;
+                    PanelViewRegistry.Instance.OnPanelStateChanged(this);
+                }
+            }
+        }
+        
         public bool IsAnimating => m_state == PanelState.Showing || m_state == PanelState.Hiding;
 
         public void Show()
@@ -26,7 +35,7 @@ namespace Tekly.PanelViews
                 return;
             }
             
-            m_state = PanelState.Showing;
+            State = PanelState.Showing;
             gameObject.SetActive(true);
             OnShow();
         }
@@ -37,7 +46,7 @@ namespace Tekly.PanelViews
                 return;
             }
             
-            m_state = PanelState.Hiding;
+            State = PanelState.Hiding;
             OnHide();
         }
 
@@ -53,12 +62,12 @@ namespace Tekly.PanelViews
 
         protected void CompleteShow()
         {
-            m_state = PanelState.Shown;
+            State = PanelState.Shown;
         }
 
         protected void CompleteHide()
         {
-            m_state = PanelState.Hidden;
+            State = PanelState.Hidden;
             gameObject.SetActive(false);
         }
     }
