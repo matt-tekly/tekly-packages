@@ -13,7 +13,7 @@ namespace Tekly.PanelViews
         private void Awake()
         {
             foreach (var panelView in m_panels) {
-                PanelViewRegistry.Instance.Register(panelView);
+                PanelViewRegistry.Instance.Register(panelView.Id, panelView);
 
                 if (m_container != null) {
                     m_container.Inject(panelView);
@@ -24,7 +24,7 @@ namespace Tekly.PanelViews
         private void OnDestroy()
         {
             foreach (var panelView in m_panels) {
-                PanelViewRegistry.Instance.Remove(panelView);    
+                PanelViewRegistry.Instance.Remove(panelView.Id);    
             }
         }
         

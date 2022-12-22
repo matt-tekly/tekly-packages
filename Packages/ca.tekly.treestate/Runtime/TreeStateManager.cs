@@ -39,6 +39,7 @@ namespace Tekly.TreeState
 		private void Awake()
 		{
 			m_activities = GetComponentsInChildren<TreeActivity>();
+			TreeStateRegistry.Instance.Register(name, this);
 		}
 		
 		private void Start()
@@ -46,6 +47,11 @@ namespace Tekly.TreeState
 			if (AutoInitialize) {
 				Initialize();	
 			}
+		}
+
+		private void OnDestroy()
+		{
+			TreeStateRegistry.Instance.Remove(name);
 		}
 
 		public void Initialize()
