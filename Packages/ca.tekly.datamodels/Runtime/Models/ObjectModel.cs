@@ -94,6 +94,14 @@ namespace Tekly.DataModels.Models
             return false;
         }
 
+        public void Clear()
+        {
+            OnDispose();
+            m_models.Clear();
+            
+            m_modified.Emit(this);
+        }
+
         protected override void OnDispose()
         {
             for (var index = 0; index < m_models.Count; index++) {
