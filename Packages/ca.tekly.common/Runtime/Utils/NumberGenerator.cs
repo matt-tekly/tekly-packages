@@ -8,14 +8,27 @@ namespace Tekly.Common.Utils
         private uint m_seed;
         private uint m_sequence;
         
-        public NumberGenerator(uint seed)
+        public NumberGenerator()
+        {
+            m_seed = GenerateUnitySeed();
+            m_sequence = 0;
+        }
+        
+        public NumberGenerator(uint seed, uint sequence = default)
         {
             m_seed = seed;
+            m_sequence = sequence;
         }
 
-        public void Reset(uint seed)
+        public void ReSeed(uint seed, uint sequence = default)
         {
             m_seed = seed;
+            m_sequence = sequence;
+        }
+        
+        public void ReSeed()
+        {
+            m_seed = GenerateUnitySeed();
             m_sequence = 0;
         }
 
@@ -36,6 +49,16 @@ namespace Tekly.Common.Utils
         public bool Chance(float likelyHood)
         {
             return Range(0, 1) <= likelyHood;
+        }
+
+        public static uint GenerateUnitySeed()
+        {
+            return (uint) UnityEngine.Random.Range(0, int.MaxValue - 1);
+        }
+        
+        public static NumberGenerator FromUnity()
+        {
+            return new NumberGenerator(GenerateUnitySeed());
         }
     }
 }

@@ -51,6 +51,62 @@ namespace Tekly.Common.Collections
             return collection[collection.Count.FromRange(generator)];
         }
         
+        public static void Shuffle<T>(this T[] collection)
+        {
+            if (collection.Length == 1) {
+                return;
+            }
+            
+            var n = collection.Length;  
+            while (n > 1) {
+                n--;
+                var k = UnityEngine.Random.Range(0, n + 1);
+                (collection[k], collection[n]) = (collection[n], collection[k]);
+            }
+        }
+        
+        public static void Shuffle<T>(this T[] collection, NumberGenerator generator)
+        {
+            if (collection.Length == 1) {
+                return;
+            }
+            
+            var n = collection.Length;  
+            while (n > 1) {
+                n--;
+                var k = generator.Range(0, n + 1);
+                (collection[k], collection[n]) = (collection[n], collection[k]);
+            }
+        }
+        
+        public static void Shuffle<T>(this List<T> collection)
+        {
+            if (collection.Count == 1) {
+                return;
+            }
+            
+            var n = collection.Count;  
+            while (n > 1) {
+                n--;
+                var k = UnityEngine.Random.Range(0, n + 1);
+                (collection[k], collection[n]) = (collection[n], collection[k]);
+            }
+        }
+        
+        public static void Shuffle<T>(this List<T> collection, NumberGenerator generator)
+        {
+            if (collection.Count == 1) {
+                return;
+            }
+            
+            var n = collection.Count;  
+            while (n > 1) {
+                n--;
+                var k = generator.Range(0, n + 1);
+                (collection[k], collection[n]) = (collection[n], collection[k]);
+            }
+        }
+        
         public static int FromRange(this int number)
         {
             return UnityEngine.Random.Range(0, number);
