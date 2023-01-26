@@ -8,6 +8,7 @@ namespace Tekly.Common.Tweenimation
 {
     public class Tweenimator : MonoBehaviour
     {
+        [SerializeField] private string m_name;
         [SerializeField] private bool m_playOnEnable = true;
         
         [SerializeField] private float m_delay;
@@ -18,6 +19,7 @@ namespace Tekly.Common.Tweenimation
 
         public float TotalTime => m_delay + AnimationDuration;
         public bool IsPlaying => m_coroutine != null;
+        public string Name => m_name;
         
         public float AnimationDuration {
             get {

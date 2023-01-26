@@ -13,6 +13,7 @@ namespace Tekly.Common.Tweenimation
     [CustomEditor(typeof(Tweenimator))]
     public class TweenimatorEditor : Editor
     {
+        private SerializedProperty m_name;
         private SerializedProperty m_tweens;
         private SerializedProperty m_delay;
         private SerializedProperty m_siblingIndexDelay;
@@ -32,6 +33,7 @@ namespace Tekly.Common.Tweenimation
 
         private void OnEnable()
         {
+            m_name = serializedObject.FindProperty("m_name");
             m_tweens = serializedObject.FindProperty("m_tweens");
             m_delay = serializedObject.FindProperty("m_delay");
             m_siblingIndexDelay = serializedObject.FindProperty("m_siblingIndexDelay");
@@ -56,9 +58,13 @@ namespace Tekly.Common.Tweenimation
         {
             serializedObject.Update();
 
-            EditorGUILayout.PropertyField(m_playOnEnable);
-            EditorGUILayout.PropertyField(m_siblingIndexDelay);
-
+            EditorGUILayout.PropertyField(m_name);
+            
+            using (EditorGuiExt.Horizontal()) {
+                EditorGUILayout.PropertyField(m_playOnEnable);
+                EditorGUILayout.PropertyField(m_siblingIndexDelay);    
+            }
+            
             m_reorderableList.DoLayoutList();
 
             if (Application.isPlaying) {
