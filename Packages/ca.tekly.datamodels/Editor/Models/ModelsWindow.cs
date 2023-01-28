@@ -18,8 +18,8 @@ namespace Tekly.DataModels.Models
 
     public class ModelsWindow : EditorWindow
     {
-        private float INDENT = 18;
-        private float HEIGHT = EditorGUIUtility.singleLineHeight;
+        private static readonly float INDENT = 18;
+        private static readonly float HEIGHT = EditorGUIUtility.singleLineHeight;
 
         [SerializeField] private List<ObjectEntry> m_entries = new List<ObjectEntry>();
         [SerializeField] private List<ObjectEntry> m_visibleEntries = new List<ObjectEntry>();
@@ -28,22 +28,13 @@ namespace Tekly.DataModels.Models
         [SerializeField] private Vector2 m_scrollPos;
         [SerializeField] private string m_search;
 
+        private int m_visibleEntryCount;
         private SearchField m_searchField;
 
         [MenuItem("Tools/Tekly/DataModels", false, 1)]
         private static void OpenWindow()
         {
             GetWindow<ModelsWindow>("Models");
-        }
-
-        private void OnEnable()
-        {
-            Undo.undoRedoPerformed += Repaint;
-        }
-        
-        private void OnDisable()
-        {
-            Undo.undoRedoPerformed -= Repaint;
         }
 
         public void OnGUI()
@@ -73,7 +64,7 @@ namespace Tekly.DataModels.Models
             var width = position.width;
             var height = position.height;
 
-            var totalHeight = m_visibleEntries.Count * HEIGHT;
+            var totalHeight = m_visibleEntryCount * HEIGHT;
             var viewWidth = width;
 
             if (totalHeight > height) {
@@ -89,19 +80,21 @@ namespace Tekly.DataModels.Models
                     var objectEntry = m_visibleEntries[index];
                     DrawEntry(objectEntry, index, row, viewWidth);
                     row++;
-                    
+
                     if (objectEntry.IsObject && !IsExpanded(objectEntry)) {
-                        while (++index < m_visibleEntries.Count && m_visibleEntries[index].Depth > objectEntry.Depth) {
-                            
-                        }
+                        while (++index < m_visibleEntries.Count && m_visibleEntries[index].Depth > objectEntry.Depth) { }
 
                         index--;
                     }
                 }
+
+                m_visibleEntryCount = row;
             } else {
                 for (var index = 0; index < m_visibleEntries.Count; index++) {
                     DrawEntrySearch(index, viewWidth);
                 }
+
+                m_visibleEntryCount = m_visibleEntries.Count;
             }
 
 
@@ -111,11 +104,11 @@ namespace Tekly.DataModels.Models
         private bool MatchesSearch(string[] search, string fullPath)
         {
             if (search.Length == 1) {
-                return fullPath.Contains(search[0]);
+                return fullPath.Contains(search[0], StringComparison.OrdinalIgnoreCase);
             }
 
             foreach (var entry in search) {
-                if (!fullPath.Contains(entry)) {
+                if (!fullPath.Contains(entry, StringComparison.OrdinalIgnoreCase)) {
                     return false;
                 }
             }
@@ -127,13 +120,15 @@ namespace Tekly.DataModels.Models
         {
             return !m_collapsedEntries.Contains(entry.FullPath);
         }
-        
+
         private void SetExpanded(ObjectEntry entry, bool expanded)
         {
             if (expanded) {
                 m_collapsedEntries.Remove(entry.FullPath);
             } else {
-                m_collapsedEntries.Add(entry.FullPath);
+                if (!m_collapsedEntries.Contains(entry.FullPath)) {
+                    m_collapsedEntries.Add(entry.FullPath);
+                }
             }
         }
 
@@ -144,26 +139,27 @@ namespace Tekly.DataModels.Models
             EditorGUI.DrawRect(backgroundRect, new Color(0, 0, 0, .5f * ((1 + objectEntry.Depth) / 8f)));
 
             var indent = objectEntry.Depth * INDENT + 4;
-            
+
             var foldOutRect = new Rect(indent, row * HEIGHT, viewWidth - indent, HEIGHT);
 
             if (objectEntry.IsObject) {
-                Undo.RecordObject(this, "Expand/Collapse");
                 var isExpanded = IsExpanded(objectEntry);
                 bool expanded = EditorGUI.Foldout(foldOutRect, isExpanded, objectEntry.Id);
-            
+
                 if (expanded != isExpanded) {
                     SetExpanded(objectEntry, expanded);
-                    
-                    if (Event.current.alt) {
-                        SetExpanded(index, objectEntry.Depth, expanded);    
+
+                    if (Event.current.alt && Event.current.shift) {
+                        SetAllExpanded(expanded);
+                    } else if (Event.current.alt) {
+                        SetExpanded(index, objectEntry.Depth, expanded);
                     }
                 }
             } else {
                 foldOutRect.xMin += 14f;
                 EditorGUI.LabelField(foldOutRect, objectEntry.Id);
             }
-            
+
             if (objectEntry.Value != null) {
                 var valueWidth = GUI.skin.label.CalcSize(objectEntry.Value).x;
                 var valueRect = new Rect(foldOutRect.xMax - valueWidth, row * HEIGHT, valueWidth, HEIGHT);
@@ -185,13 +181,22 @@ namespace Tekly.DataModels.Models
                 EditorGUI.LabelField(valueRect, objectEntry.Value);
             }
         }
-        
+
         private void SetExpanded(int index, int startDepth, bool expanded)
         {
             while (++index < m_visibleEntries.Count && m_visibleEntries[index].Depth > startDepth) {
                 var entry = m_visibleEntries[index];
                 if (entry.IsObject) {
-                    SetExpanded(m_visibleEntries[index], expanded);    
+                    SetExpanded(entry, expanded);
+                }
+            }
+        }
+
+        private void SetAllExpanded(bool expanded)
+        {
+            foreach (var entry in m_visibleEntries) {
+                if (entry.IsObject) {
+                    SetExpanded(entry, expanded);
                 }
             }
         }
@@ -208,9 +213,9 @@ namespace Tekly.DataModels.Models
                     Depth = depth,
                     IsObject = childModel is ObjectModel
                 };
-                
+
                 entries.Add(entry);
-                
+
                 switch (childModel) {
                     case IValueModel childValueModel:
                         entry.Value = new GUIContent(childValueModel.ToDisplayString());
