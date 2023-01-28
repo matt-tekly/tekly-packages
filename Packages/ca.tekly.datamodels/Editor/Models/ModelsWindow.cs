@@ -104,11 +104,11 @@ namespace Tekly.DataModels.Models
         private bool MatchesSearch(string[] search, string fullPath)
         {
             if (search.Length == 1) {
-                return fullPath.Contains(search[0]);
+                return fullPath.Contains(search[0], StringComparison.OrdinalIgnoreCase);
             }
 
             foreach (var entry in search) {
-                if (!fullPath.Contains(entry)) {
+                if (!fullPath.Contains(entry, StringComparison.OrdinalIgnoreCase)) {
                     return false;
                 }
             }
