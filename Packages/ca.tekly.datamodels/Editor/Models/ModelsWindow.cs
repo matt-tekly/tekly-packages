@@ -18,8 +18,8 @@ namespace Tekly.DataModels.Models
 
     public class ModelsWindow : EditorWindow
     {
-        private float INDENT = 18;
-        private float HEIGHT = EditorGUIUtility.singleLineHeight;
+        private static readonly float INDENT = 18;
+        private static readonly float HEIGHT = EditorGUIUtility.singleLineHeight;
 
         [SerializeField] private List<ObjectEntry> m_entries = new List<ObjectEntry>();
         [SerializeField] private List<ObjectEntry> m_visibleEntries = new List<ObjectEntry>();
@@ -28,6 +28,7 @@ namespace Tekly.DataModels.Models
         [SerializeField] private Vector2 m_scrollPos;
         [SerializeField] private string m_search;
 
+        private int m_visibleEntryCount;
         private SearchField m_searchField;
 
         [MenuItem("Tools/Tekly/DataModels", false, 1)]
@@ -63,7 +64,7 @@ namespace Tekly.DataModels.Models
             var width = position.width;
             var height = position.height;
 
-            var totalHeight = m_visibleEntries.Count * HEIGHT;
+            var totalHeight = m_visibleEntryCount * HEIGHT;
             var viewWidth = width;
 
             if (totalHeight > height) {
@@ -86,10 +87,14 @@ namespace Tekly.DataModels.Models
                         index--;
                     }
                 }
+
+                m_visibleEntryCount = row;
             } else {
                 for (var index = 0; index < m_visibleEntries.Count; index++) {
                     DrawEntrySearch(index, viewWidth);
                 }
+
+                m_visibleEntryCount = m_visibleEntries.Count;
             }
 
 
