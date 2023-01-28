@@ -126,7 +126,9 @@ namespace Tekly.DataModels.Models
             if (expanded) {
                 m_collapsedEntries.Remove(entry.FullPath);
             } else {
-                m_collapsedEntries.Add(entry.FullPath);
+                if (!m_collapsedEntries.Contains(entry.FullPath)) {
+                    m_collapsedEntries.Add(entry.FullPath);
+                }
             }
         }
 
@@ -182,7 +184,7 @@ namespace Tekly.DataModels.Models
             while (++index < m_visibleEntries.Count && m_visibleEntries[index].Depth > startDepth) {
                 var entry = m_visibleEntries[index];
                 if (entry.IsObject) {
-                    SetExpanded(m_visibleEntries[index], expanded);    
+                    SetExpanded(entry, expanded);
                 }
             }
         }
