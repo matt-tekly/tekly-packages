@@ -36,16 +36,6 @@ namespace Tekly.DataModels.Models
             GetWindow<ModelsWindow>("Models");
         }
 
-        private void OnEnable()
-        {
-            Undo.undoRedoPerformed += Repaint;
-        }
-        
-        private void OnDisable()
-        {
-            Undo.undoRedoPerformed -= Repaint;
-        }
-
         public void OnGUI()
         {
             if (m_searchField == null) {
@@ -89,11 +79,9 @@ namespace Tekly.DataModels.Models
                     var objectEntry = m_visibleEntries[index];
                     DrawEntry(objectEntry, index, row, viewWidth);
                     row++;
-                    
+
                     if (objectEntry.IsObject && !IsExpanded(objectEntry)) {
-                        while (++index < m_visibleEntries.Count && m_visibleEntries[index].Depth > objectEntry.Depth) {
-                            
-                        }
+                        while (++index < m_visibleEntries.Count && m_visibleEntries[index].Depth > objectEntry.Depth) { }
 
                         index--;
                     }
@@ -127,7 +115,7 @@ namespace Tekly.DataModels.Models
         {
             return !m_collapsedEntries.Contains(entry.FullPath);
         }
-        
+
         private void SetExpanded(ObjectEntry entry, bool expanded)
         {
             if (expanded) {
@@ -144,17 +132,15 @@ namespace Tekly.DataModels.Models
             EditorGUI.DrawRect(backgroundRect, new Color(0, 0, 0, .5f * ((1 + objectEntry.Depth) / 8f)));
 
             var indent = objectEntry.Depth * INDENT + 4;
-            
+
             var foldOutRect = new Rect(indent, row * HEIGHT, viewWidth - indent, HEIGHT);
 
             if (objectEntry.IsObject) {
-                Undo.RecordObject(this, "Expand/Collapse");
                 var isExpanded = IsExpanded(objectEntry);
                 bool expanded = EditorGUI.Foldout(foldOutRect, isExpanded, objectEntry.Id);
-            
+
                 if (expanded != isExpanded) {
                     SetExpanded(objectEntry, expanded);
-                    
                     if (Event.current.alt) {
                         SetExpanded(index, objectEntry.Depth, expanded);    
                     }
@@ -163,7 +149,7 @@ namespace Tekly.DataModels.Models
                 foldOutRect.xMin += 14f;
                 EditorGUI.LabelField(foldOutRect, objectEntry.Id);
             }
-            
+
             if (objectEntry.Value != null) {
                 var valueWidth = GUI.skin.label.CalcSize(objectEntry.Value).x;
                 var valueRect = new Rect(foldOutRect.xMax - valueWidth, row * HEIGHT, valueWidth, HEIGHT);
@@ -185,7 +171,7 @@ namespace Tekly.DataModels.Models
                 EditorGUI.LabelField(valueRect, objectEntry.Value);
             }
         }
-        
+
         private void SetExpanded(int index, int startDepth, bool expanded)
         {
             while (++index < m_visibleEntries.Count && m_visibleEntries[index].Depth > startDepth) {
@@ -208,9 +194,9 @@ namespace Tekly.DataModels.Models
                     Depth = depth,
                     IsObject = childModel is ObjectModel
                 };
-                
+
                 entries.Add(entry);
-                
+
                 switch (childModel) {
                     case IValueModel childValueModel:
                         entry.Value = new GUIContent(childValueModel.ToDisplayString());
