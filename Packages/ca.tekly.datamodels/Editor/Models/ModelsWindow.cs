@@ -148,8 +148,11 @@ namespace Tekly.DataModels.Models
 
                 if (expanded != isExpanded) {
                     SetExpanded(objectEntry, expanded);
-                    if (Event.current.alt) {
-                        SetExpanded(index, objectEntry.Depth, expanded);    
+
+                    if (Event.current.alt && Event.current.shift) {
+                        SetAllExpanded(expanded);
+                    } else if (Event.current.alt) {
+                        SetExpanded(index, objectEntry.Depth, expanded);
                     }
                 }
             } else {
@@ -183,6 +186,15 @@ namespace Tekly.DataModels.Models
         {
             while (++index < m_visibleEntries.Count && m_visibleEntries[index].Depth > startDepth) {
                 var entry = m_visibleEntries[index];
+                if (entry.IsObject) {
+                    SetExpanded(entry, expanded);
+                }
+            }
+        }
+
+        private void SetAllExpanded(bool expanded)
+        {
+            foreach (var entry in m_visibleEntries) {
                 if (entry.IsObject) {
                     SetExpanded(entry, expanded);
                 }
