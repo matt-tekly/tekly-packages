@@ -36,12 +36,6 @@ namespace Tekly.DataModels.Models
             return modelKey;
         }
 
-        public static ModelKey Relative(string key)
-        {
-            var keys = new[] {key};
-            return new ModelKey(keys, true);
-        }
-
         public static ModelKey ParseUncached(string key)
         {
             var keys = key.Split('.');
@@ -72,6 +66,6 @@ namespace Tekly.DataModels.Models
         }
 
         private string DebuggerDisplayKeys => string.Join(".", Keys);
-        private static readonly Dictionary<string, ModelKey> s_cache = new Dictionary<string, ModelKey>();
+        private static readonly Dictionary<string, ModelKey> s_cache = new Dictionary<string, ModelKey>(2048);
     }
 }

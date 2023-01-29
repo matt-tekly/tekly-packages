@@ -1,9 +1,17 @@
+using UnityEditor;
 using UnityEngine;
 
 namespace Tekly.Common.Gui
 {
     public static class EditorGuiExt 
     {
+        public static Color BackgroundColor {
+            get {
+                var backgroundIntensity = EditorGUIUtility.isProSkin ? 0.22f : 0.76f;
+                return new Color(backgroundIntensity, backgroundIntensity, backgroundIntensity, 1f);
+            }
+        }
+        
         public static GuiEnabledTracker EnabledBlock(bool enabled)
         {
             return new GuiEnabledTracker(enabled);
