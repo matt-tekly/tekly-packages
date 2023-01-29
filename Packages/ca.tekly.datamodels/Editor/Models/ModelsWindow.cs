@@ -23,7 +23,7 @@ namespace Tekly.DataModels.Models
 
 		private HashSet<string> m_collapsedEntries = new HashSet<string>();
 		private List<ObjectEntry> m_visibleEntries = new List<ObjectEntry>();
-		
+
 		private SearchField m_searchField;
 		private bool m_updateVisibleEntries = true;
 
@@ -85,10 +85,10 @@ namespace Tekly.DataModels.Models
 
 			var scrollRect = new Rect(0, 22, width, height - 20);
 			m_scrollPos = GUI.BeginScrollView(scrollRect, m_scrollPos, new Rect(0, 0, viewWidth, totalHeight));
-			
+
 			var start = Mathf.FloorToInt(m_scrollPos.y / s_height);
 			var end = Mathf.Min(start + Mathf.CeilToInt(scrollRect.height / s_height), m_visibleEntries.Count);
-			
+
 			if (string.IsNullOrEmpty(m_search)) {
 				for (var row = start; row < end; row++) {
 					DrawEntry(m_visibleEntries[row], row, viewWidth);
@@ -228,11 +228,11 @@ namespace Tekly.DataModels.Models
 			m_entries.Clear();
 
 			CreateEntries(RootModel.Instance, m_entries, null);
-			
+
 			for (var index = 0; index < m_entries.Count; index++) {
 				m_entries[index].Index = index;
 			}
-			
+
 			m_updateVisibleEntries = true;
 		}
 
