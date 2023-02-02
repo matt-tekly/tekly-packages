@@ -1,237 +1,356 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Tekly.Common.Gui;
+using Tekly.Common.Utils;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
 namespace Tekly.DataModels.Models
 {
-    [Serializable]
-    public class ObjectEntry
-    {
-        public GUIContent Id;
-        public GUIContent Value;
-        public string FullPath;
-        public int Depth;
-        public bool IsObject;
-    }
+	public class ModelsWindow : EditorWindow, ISerializationCallbackReceiver
+	{
+		private const float INDENT = 18;
+		private const float SCROLLBAR_WIDTH = 15;
+		private static readonly float s_height = EditorGUIUtility.singleLineHeight;
 
-    public class ModelsWindow : EditorWindow
-    {
-        private float INDENT = 18;
-        private float HEIGHT = EditorGUIUtility.singleLineHeight;
+		[SerializeField] private List<ObjectEntry> m_entries = new List<ObjectEntry>();
+		[SerializeField] private List<string> m_collapsedEntriesList = new List<string>();
 
-        [SerializeField] private List<ObjectEntry> m_entries = new List<ObjectEntry>();
-        [SerializeField] private List<ObjectEntry> m_visibleEntries = new List<ObjectEntry>();
-        [SerializeField] private List<string> m_collapsedEntries = new List<string>();
+		[SerializeField] private Vector2 m_scrollPos;
+		[SerializeField] private string m_search;
 
-        [SerializeField] private Vector2 m_scrollPos;
-        [SerializeField] private string m_search;
+		private HashSet<string> m_collapsedEntries = new HashSet<string>();
+		private List<ObjectEntry> m_visibleEntries = new List<ObjectEntry>();
 
-        private SearchField m_searchField;
+		private SearchField m_searchField;
+		private bool m_updateVisibleEntries = true;
 
-        [MenuItem("Tools/Tekly/DataModels", false, 1)]
-        private static void OpenWindow()
-        {
-            GetWindow<ModelsWindow>("Models");
-        }
+		private Color[] m_backgroundColors = new Color[2];
+		private Color m_highlightColor;
 
-        private void OnEnable()
-        {
-            Undo.undoRedoPerformed += Repaint;
-        }
-        
-        private void OnDisable()
-        {
-            Undo.undoRedoPerformed -= Repaint;
-        }
+		[MenuItem("Tools/Tekly/DataModels", false, 1)]
+		private static void OpenWindow()
+		{
+			GetWindow<ModelsWindow>("Models");
+		}
 
-        public void OnGUI()
-        {
-            if (m_searchField == null) {
-                m_searchField = new SearchField();
-            }
+		private void OnEnable()
+		{
+			wantsMouseMove = true;
+			var backgroundColor = EditorGuiExt.BackgroundColor;
 
-            if (Application.isPlaying && !EditorApplication.isPaused) {
-                m_entries.Clear();
-                CreateEntries(RootModel.Instance, m_entries, null);
-            }
+			m_backgroundColors[0] = backgroundColor.RGBMultiplied(.75f);
+			m_backgroundColors[1] = backgroundColor.RGBMultiplied(.68f);
+			m_highlightColor = backgroundColor * new Color(0, .5f, .7f, 1f);
 
-            m_visibleEntries.Clear();
+			m_updateVisibleEntries = true;
+		}
 
-            if (string.IsNullOrEmpty(m_search)) {
-                m_visibleEntries.AddRange(m_entries);
-            } else {
-                var search = m_search.Split(" ");
-                foreach (var entry in m_entries) {
-                    if (MatchesSearch(search, entry.FullPath)) {
-                        m_visibleEntries.Add(entry);
-                    }
-                }
-            }
+		public void OnGUI()
+		{
+			if (Event.current.type == EventType.MouseMove) {
+				Repaint();
+			}
 
-            var width = position.width;
-            var height = position.height;
+			if (m_searchField == null) {
+				m_searchField = new SearchField();
+			}
 
-            var totalHeight = m_visibleEntries.Count * HEIGHT;
-            var viewWidth = width;
+			// OnGUI is called multiple times per frame with different events but we only want to do this work once.
+			if (Event.current.type == EventType.Layout) {
+				if (Application.isPlaying && !EditorApplication.isPaused) {
+					UpdateEntries();
+				}
+			}
 
-            if (totalHeight > height) {
-                viewWidth -= 15;
-            }
+			if (m_updateVisibleEntries) {
+				UpdateVisibleEntries();
+			}
 
-            m_search = m_searchField.OnGUI(new Rect(2, 2, width - 5, 20), m_search);
-            m_scrollPos = GUI.BeginScrollView(new Rect(0, 22, width, height - 20), m_scrollPos, new Rect(0, 0, viewWidth, totalHeight));
+			var width = position.width;
+			var height = position.height;
 
-            if (string.IsNullOrEmpty(m_search)) {
-                var row = 0;
-                for (var index = 0; index < m_visibleEntries.Count; index++) {
-                    var objectEntry = m_visibleEntries[index];
-                    DrawEntry(objectEntry, index, row, viewWidth);
-                    row++;
-                    
-                    if (objectEntry.IsObject && !IsExpanded(objectEntry)) {
-                        while (++index < m_visibleEntries.Count && m_visibleEntries[index].Depth > objectEntry.Depth) {
-                            
-                        }
+			var totalHeight = m_visibleEntries.Count * s_height;
+			var viewWidth = width;
 
-                        index--;
-                    }
-                }
-            } else {
-                for (var index = 0; index < m_visibleEntries.Count; index++) {
-                    DrawEntrySearch(index, viewWidth);
-                }
-            }
+			if (totalHeight > height) {
+				viewWidth -= SCROLLBAR_WIDTH;
+			}
+
+			var oldSearch = m_search;
+			m_search = m_searchField.OnGUI(new Rect(2, 2, width - 5, 20), m_search);
+			m_updateVisibleEntries |= oldSearch != m_search;
+
+			var scrollRect = new Rect(0, 22, width, height - 20);
+			m_scrollPos = GUI.BeginScrollView(scrollRect, m_scrollPos, new Rect(0, 0, viewWidth, totalHeight));
+
+			var start = Mathf.FloorToInt(m_scrollPos.y / s_height);
+			var end = Mathf.Min(start + Mathf.CeilToInt(scrollRect.height / s_height), m_visibleEntries.Count);
+
+			if (string.IsNullOrEmpty(m_search)) {
+				for (var row = start; row < end; row++) {
+					DrawEntry(m_visibleEntries[row], row, viewWidth);
+				}
+			} else {
+				for (var row = start; row < end; row++) {
+					DrawEntrySearch(row, viewWidth);
+				}
+			}
+
+			GUI.EndScrollView();
+		}
+
+		private bool MatchesSearch(string[] search, string fullPath)
+		{
+			if (search.Length == 1) {
+				return fullPath.Contains(search[0], StringComparison.OrdinalIgnoreCase);
+			}
+
+			foreach (var entry in search) {
+				if (!fullPath.Contains(entry, StringComparison.OrdinalIgnoreCase)) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		private bool IsExpanded(ObjectEntry entry)
+		{
+			return !m_collapsedEntries.Contains(entry.FullPath);
+		}
+
+		private void SetExpanded(ObjectEntry entry, bool expanded)
+		{
+			if (expanded) {
+				m_collapsedEntries.Remove(entry.FullPath);
+			} else {
+				m_collapsedEntries.Add(entry.FullPath);
+			}
+
+			m_updateVisibleEntries = true;
+		}
+
+		private void DrawEntry(ObjectEntry objectEntry, int row, float viewWidth)
+		{
+			viewWidth -= 4;
+			var backgroundRect = new Rect(4, row * s_height, viewWidth, s_height);
+			var backgroundColor = m_backgroundColors[row % m_backgroundColors.Length];
+
+			if (backgroundRect.Contains(Event.current.mousePosition)) {
+				backgroundColor = m_highlightColor;
+			}
+
+			EditorGUI.DrawRect(backgroundRect, backgroundColor);
+
+			// Hierarchy lines
+			var color = EditorStyles.label.normal.textColor;
+			color.a = .3f;
+
+			for (var i = 0; i <= objectEntry.Depth; i++) {
+				var lineRect = backgroundRect;
+				lineRect.xMin = (i - 1) * INDENT + 10;
+				lineRect.width = 1;
+				EditorGUI.DrawRect(lineRect, color);
+			}
+
+			var indent = objectEntry.Depth * INDENT + 4;
+			var foldOutRect = new Rect(indent, row * s_height, viewWidth - indent, s_height);
+
+			if (objectEntry.IsObject) {
+				var isExpanded = IsExpanded(objectEntry);
+				var expanded = EditorGUI.Foldout(foldOutRect, isExpanded, objectEntry.Id, true);
+				EditorGUIUtility.AddCursorRect(foldOutRect, MouseCursor.Link);
+
+				if (expanded != isExpanded) {
+					SetExpanded(objectEntry, expanded);
+
+					if (Event.current.alt && Event.current.shift) {
+						SetAllExpanded(expanded);
+					} else if (Event.current.alt) {
+						SetExpanded(objectEntry.Index, objectEntry.Depth, expanded);
+					}
+				}
+			} else {
+				foldOutRect.xMin += 14f;
+				EditorGUI.LabelField(foldOutRect, objectEntry.Id);
+
+				var valueWidth = EditorStyles.label.CalcSize(objectEntry.Value).x;
+				var valueRect = new Rect(foldOutRect.xMax - valueWidth, row * s_height, valueWidth, s_height);
+				EditorGUI.LabelField(valueRect, objectEntry.Value);
+			}
+		}
+
+		private void DrawEntrySearch(int index, float viewWidth)
+		{
+			var objectEntry = m_visibleEntries[index];
+			var labelRect = new Rect(0, index * s_height, viewWidth, s_height);
+
+			EditorGUI.DrawRect(labelRect, new Color(0, 0, 0, .2f * ((1 + index % 2) / 2f)));
+			EditorGUI.LabelField(labelRect, objectEntry.FullPath);
+
+			if (objectEntry.Value != null) {
+				var valueWidth = GUI.skin.label.CalcSize(objectEntry.Value).x;
+				var valueRect = new Rect(labelRect.xMax - valueWidth, index * s_height, valueWidth, s_height);
+				EditorGUI.LabelField(valueRect, objectEntry.Value);
+			}
+		}
+
+		private void SetExpanded(int index, int startDepth, bool expanded)
+		{
+			while (++index < m_entries.Count && m_entries[index].Depth > startDepth) {
+				var entry = m_entries[index];
+				if (entry.IsObject) {
+					SetExpanded(entry, expanded);
+				}
+			}
+		}
+
+		private void SetAllExpanded(bool expanded)
+		{
+			for (var index = 0; index < m_entries.Count; index++) {
+				var entry = m_entries[index];
+				if (entry.IsObject) {
+					SetExpanded(entry, expanded);
+				}
+			}
+		}
+
+		private void UpdateEntries()
+		{
+			for (var index = 0; index < m_entries.Count; index++) {
+				var entry = m_entries[index];
+				ObjectEntryPool.Return(entry);
+			}
+
+			m_entries.Clear();
+
+			CreateEntries(RootModel.Instance, m_entries, null);
+
+			for (var index = 0; index < m_entries.Count; index++) {
+				m_entries[index].Index = index;
+			}
+
+			m_updateVisibleEntries = true;
+		}
+
+		private void CreateEntries(ObjectModel objectModel, List<ObjectEntry> entries, string parentKey, int depth = 0)
+		{
+			for (var index = 0; index < objectModel.Models.Count; index++) {
+				var modelReference = objectModel.Models[index];
+				var childModel = modelReference.Model;
+				var fullPath = CombineKeys(parentKey, modelReference.Key);
 
 
-            GUI.EndScrollView();
-        }
+				var entry = ObjectEntryPool.Get();
+				entry.Id.text = modelReference.Key;
+				entry.Id.tooltip = StringPool.GetName(childModel.GetType());
+				entry.FullPath = fullPath;
+				entry.Depth = depth;
+				entry.IsObject = childModel is ObjectModel;
 
-        private bool MatchesSearch(string[] search, string fullPath)
-        {
-            if (search.Length == 1) {
-                return fullPath.Contains(search[0]);
-            }
+				entries.Add(entry);
 
-            foreach (var entry in search) {
-                if (!fullPath.Contains(entry)) {
-                    return false;
-                }
-            }
+				switch (childModel) {
+					case IValueModel childValueModel:
+						entry.Value.text = childValueModel.ToDisplayString();
+						break;
+					case ObjectModel childObjectModel:
+						CreateEntries(childObjectModel, entries, fullPath, depth + 1);
+						break;
+					default:
+						entry.Value = new GUIContent("UNKNOWN TYPE");
+						break;
+				}
+			}
+		}
 
-            return true;
-        }
+		private void UpdateVisibleEntries()
+		{
+			m_visibleEntries.Clear();
 
-        private bool IsExpanded(ObjectEntry entry)
-        {
-            return !m_collapsedEntries.Contains(entry.FullPath);
-        }
-        
-        private void SetExpanded(ObjectEntry entry, bool expanded)
-        {
-            if (expanded) {
-                m_collapsedEntries.Remove(entry.FullPath);
-            } else {
-                m_collapsedEntries.Add(entry.FullPath);
-            }
-        }
+			if (string.IsNullOrEmpty(m_search)) {
+				for (var index = 0; index < m_entries.Count; index++) {
+					var objectEntry = m_entries[index];
+					m_visibleEntries.Add(objectEntry);
 
-        private void DrawEntry(ObjectEntry objectEntry, int index, int row, float viewWidth)
-        {
-            viewWidth -= 4;
-            var backgroundRect = new Rect(4, row * HEIGHT, viewWidth, HEIGHT);
-            EditorGUI.DrawRect(backgroundRect, new Color(0, 0, 0, .5f * ((1 + objectEntry.Depth) / 8f)));
+					if (objectEntry.IsObject && !IsExpanded(objectEntry)) {
+						while (++index < m_entries.Count && m_entries[index].Depth > objectEntry.Depth) { }
 
-            var indent = objectEntry.Depth * INDENT + 4;
-            
-            var foldOutRect = new Rect(indent, row * HEIGHT, viewWidth - indent, HEIGHT);
+						index--;
+					}
+				}
+			} else {
+				var search = m_search.Split(" ");
+				Parallel.For(0, m_entries.Count, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, (index) => {
+					var entry = m_entries[index];
+					entry.Visible = MatchesSearch(search, entry.FullPath);
+				});
 
-            if (objectEntry.IsObject) {
-                Undo.RecordObject(this, "Expand/Collapse");
-                var isExpanded = IsExpanded(objectEntry);
-                bool expanded = EditorGUI.Foldout(foldOutRect, isExpanded, objectEntry.Id);
-            
-                if (expanded != isExpanded) {
-                    SetExpanded(objectEntry, expanded);
-                    
-                    if (Event.current.alt) {
-                        SetExpanded(index, objectEntry.Depth, expanded);    
-                    }
-                }
-            } else {
-                foldOutRect.xMin += 14f;
-                EditorGUI.LabelField(foldOutRect, objectEntry.Id);
-            }
-            
-            if (objectEntry.Value != null) {
-                var valueWidth = GUI.skin.label.CalcSize(objectEntry.Value).x;
-                var valueRect = new Rect(foldOutRect.xMax - valueWidth, row * HEIGHT, valueWidth, HEIGHT);
-                EditorGUI.LabelField(valueRect, objectEntry.Value);
-            }
-        }
+				for (var index = 0; index < m_entries.Count; index++) {
+					var entry = m_entries[index];
+					if (entry.Visible) {
+						m_visibleEntries.Add(entry);
+					}
+				}
+			}
 
-        private void DrawEntrySearch(int index, float viewWidth)
-        {
-            var objectEntry = m_visibleEntries[index];
+			m_updateVisibleEntries = false;
+		}
 
-            var labelRect = new Rect(0, index * HEIGHT, viewWidth, HEIGHT);
-            EditorGUI.DrawRect(labelRect, new Color(0, 0, 0, .2f * ((1 + index % 2) / 2f)));
-            EditorGUI.LabelField(labelRect, objectEntry.FullPath);
+		private string CombineKeys(string parent, string child)
+		{
+			if (string.IsNullOrEmpty(parent)) {
+				return child;
+			}
 
-            if (objectEntry.Value != null) {
-                var valueWidth = GUI.skin.label.CalcSize(objectEntry.Value).x;
-                var valueRect = new Rect(labelRect.xMax - valueWidth, index * HEIGHT, valueWidth, HEIGHT);
-                EditorGUI.LabelField(valueRect, objectEntry.Value);
-            }
-        }
-        
-        private void SetExpanded(int index, int startDepth, bool expanded)
-        {
-            while (++index < m_visibleEntries.Count && m_visibleEntries[index].Depth > startDepth) {
-                var entry = m_visibleEntries[index];
-                if (entry.IsObject) {
-                    SetExpanded(m_visibleEntries[index], expanded);    
-                }
-            }
-        }
+			return StringPool.Get(parent, child);
+		}
 
-        private void CreateEntries(ObjectModel objectModel, List<ObjectEntry> entries, string parentKey, int depth = 0)
-        {
-            foreach (var modelReference in objectModel.Models) {
-                var childModel = modelReference.Model;
-                var fullPath = CombineKeys(parentKey, modelReference.Key);
+		public void OnBeforeSerialize()
+		{
+			m_collapsedEntriesList.Clear();
+			m_collapsedEntriesList.AddRange(m_collapsedEntries);
+		}
 
-                var entry = new ObjectEntry {
-                    Id = new GUIContent(modelReference.Key, childModel.GetType().Name),
-                    FullPath = fullPath,
-                    Depth = depth,
-                    IsObject = childModel is ObjectModel
-                };
-                
-                entries.Add(entry);
-                
-                switch (childModel) {
-                    case IValueModel childValueModel:
-                        entry.Value = new GUIContent(childValueModel.ToDisplayString());
-                        break;
-                    case ObjectModel childObjectModel:
-                        CreateEntries(childObjectModel, entries, fullPath, depth + 1);
-                        break;
-                    default:
-                        entry.Value = new GUIContent("UNKNOWN TYPE");
-                        break;
-                }
-            }
-        }
+		public void OnAfterDeserialize()
+		{
+			m_collapsedEntries.Clear();
+			foreach (var entry in m_collapsedEntriesList) {
+				m_collapsedEntries.Add(entry);
+			}
+		}
+	}
 
-        private string CombineKeys(string parent, string child)
-        {
-            if (string.IsNullOrEmpty(parent)) {
-                return child;
-            }
+	internal static class StringPool
+	{
+		private static readonly Dictionary<Hash128, string> s_strings = new Dictionary<Hash128, string>();
+		private static readonly Dictionary<Type, string> s_typeNames = new Dictionary<Type, string>();
 
-            return parent + "." + child;
-        }
-    }
+		public static string Get(string first, string second)
+		{
+			var hash = new Hash128();
+			hash.Append(first);
+			hash.Append(second);
+
+			if (!s_strings.TryGetValue(hash, out var val)) {
+				val = first + "." + second;
+				s_strings.Add(hash, val);
+			}
+
+			return val;
+		}
+
+		public static string GetName(Type type)
+		{
+			if (!s_typeNames.TryGetValue(type, out var val)) {
+				val = type.Name;
+				s_typeNames.Add(type, val);
+			}
+
+			return val;
+		}
+	}
 }

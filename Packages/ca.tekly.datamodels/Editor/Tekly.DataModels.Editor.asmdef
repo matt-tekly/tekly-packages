@@ -3,7 +3,8 @@
     "rootNamespace": "Tekly.DataModels",
     "references": [
         "GUID:1f5b8c5f6af6ca148a596861567504c4",
-        "GUID:31f6ca066cb1421498e9be3571072338"
+        "GUID:31f6ca066cb1421498e9be3571072338",
+        "GUID:b9160372c6c55a741932d482673e3abb"
     ],
     "includePlatforms": [
         "Editor"
