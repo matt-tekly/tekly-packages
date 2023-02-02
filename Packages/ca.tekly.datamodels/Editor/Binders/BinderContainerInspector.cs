@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -24,6 +25,10 @@ namespace Tekly.DataModels.Binders
         {
             Undo.RecordObject(container, "Find Children");
             container.Binders.Clear();
+
+            var binders = container.GetComponents<Binder>().Where(x =>x != container);
+            container.Binders.AddRange(binders);
+            
             GetChildrenBinders(container.gameObject, container.Binders, new List<Binder>());
         }
 
