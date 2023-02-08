@@ -38,7 +38,7 @@ namespace Tekly.DataModels.Binders
             m_button.interactable = value;
         }
 
-        private void OnDestroy()
+        public override void UnBind()
         {
             m_disposable?.Dispose();
             m_buttonModel = null;

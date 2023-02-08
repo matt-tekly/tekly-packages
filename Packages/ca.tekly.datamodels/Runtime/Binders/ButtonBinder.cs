@@ -32,16 +32,16 @@ namespace Tekly.DataModels.Binders
                 m_disposable = m_buttonModel.Interactable.Subscribe(BindBool);
             }
         }
+        
+        public override void UnBind()
+        {
+            m_disposable?.Dispose();
+            m_buttonModel = null;
+        }
 
         private void BindBool(bool value)
         {
             m_button.Interactable = value;
-        }
-
-        private void OnDestroy()
-        {
-            m_disposable?.Dispose();
-            m_buttonModel = null;
         }
 
         private void OnButtonClicked(ButtonBase _)

@@ -23,7 +23,6 @@ namespace Tekly.DataModels.Binders
         public bool BindOnEnable => m_bindOnEnable;
         public List<Binder> Binders => m_binders;
         
-        
         public void OnEnable()
         {
             if (m_bindOnEnable) {
@@ -44,6 +43,24 @@ namespace Tekly.DataModels.Binders
         {
             m_parent = parent;
             Bind();
+        }
+
+        public override void UnBind()
+        {
+            if (!m_hasBound) {
+                return;
+            }
+
+            m_hasBound = false;
+            
+            foreach (var binder in m_binders) {
+                if (binder == null) {
+                    m_logger.ErrorContext("BinderContainer has null binder", this);
+                    continue;
+                }
+                
+                binder.UnBind();
+            }
         }
 
         private string GetKey()
@@ -163,6 +180,11 @@ namespace Tekly.DataModels.Binders
             }
 
             return GetKey();
+        }
+
+        protected override void OnDestroy()
+        {
+            UnBind();
         }
     }
 }

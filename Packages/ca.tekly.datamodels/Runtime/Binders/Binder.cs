@@ -1,8 +1,4 @@
-﻿// ============================================================================
-// Copyright 2021 Matt King
-// ============================================================================
-
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Tekly.DataModels.Binders
 {
@@ -12,11 +8,21 @@ namespace Tekly.DataModels.Binders
         {
             
         }
+        
+        public virtual void UnBind()
+        {
+            
+        }
 
         public virtual string ResolveFullKey(string key)
         {
             var container = GetComponentInParent<BinderContainer>();
             return container == null ? key : container.ResolveFullKey(key);
+        }
+
+        protected virtual void OnDestroy()
+        {
+            UnBind();
         }
     }
 }
