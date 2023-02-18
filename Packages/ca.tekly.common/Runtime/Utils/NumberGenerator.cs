@@ -1,3 +1,5 @@
+using System;
+
 namespace Tekly.Common.Utils
 {
     /// <summary>
@@ -7,6 +9,9 @@ namespace Tekly.Common.Utils
     {
         private uint m_seed;
         private uint m_sequence;
+
+        public uint Seed => m_seed;
+        public uint Sequence => m_sequence;
         
         public NumberGenerator()
         {
@@ -19,19 +24,29 @@ namespace Tekly.Common.Utils
             m_seed = seed;
             m_sequence = sequence;
         }
+        
+        public NumberGenerator(NumberGeneratorState state)
+        {
+            m_seed = state.Seed;
+            m_sequence = state.Sequence;
+        }
 
+        public void ReSeed()
+        {
+            ReSeed(GenerateUnitySeed());
+        }
+        
         public void ReSeed(uint seed, uint sequence = default)
         {
             m_seed = seed;
             m_sequence = sequence;
         }
         
-        public void ReSeed()
+        public void ReSeed(NumberGeneratorState state)
         {
-            m_seed = GenerateUnitySeed();
-            m_sequence = 0;
+            ReSeed(state.Seed, state.Sequence);
         }
-
+        
         public int Range(int minInclusive, int maxExclusive)
         {
             return XXHash.Int(m_seed, m_sequence++, minInclusive, maxExclusive);
@@ -51,6 +66,14 @@ namespace Tekly.Common.Utils
             return Range(0, 1) <= likelyHood;
         }
 
+        public NumberGeneratorState ToState()
+        {
+            return new NumberGeneratorState {
+                Seed = m_seed,
+                Sequence = m_sequence
+            };
+        }
+
         public static uint GenerateUnitySeed()
         {
             return (uint) UnityEngine.Random.Range(0, int.MaxValue - 1);
@@ -60,5 +83,12 @@ namespace Tekly.Common.Utils
         {
             return new NumberGenerator(GenerateUnitySeed());
         }
+    }
+
+    [Serializable]
+    public struct NumberGeneratorState
+    {
+        public uint Seed;
+        public uint Sequence;
     }
 }
