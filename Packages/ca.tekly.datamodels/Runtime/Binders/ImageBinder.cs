@@ -26,8 +26,9 @@ namespace Tekly.DataModels.Binders
             m_image.sprite = sprite;
         }
         
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
             m_disposable?.Dispose();
         }
     }

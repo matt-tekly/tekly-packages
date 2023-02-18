@@ -32,9 +32,10 @@ namespace Tekly.DataModels.Binders
                 m_target.OverrideKey(string.Format(m_keyFormat, value));
             }
         }
-        
-        private void OnDestroy()
+
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
             m_disposable?.Dispose();
         }
     }

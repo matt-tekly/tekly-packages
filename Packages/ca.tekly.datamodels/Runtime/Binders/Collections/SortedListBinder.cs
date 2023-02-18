@@ -141,8 +141,9 @@ namespace Tekly.DataModels.Binders.Collections
             m_entries.Clear();
         }
 
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
             m_disposable?.Dispose();
 
             foreach (var entry in m_entries) {

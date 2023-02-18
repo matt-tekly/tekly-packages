@@ -181,10 +181,5 @@ namespace Tekly.DataModels.Binders
 
             return GetKey();
         }
-
-        protected override void OnDestroy()
-        {
-            UnBind();
-        }
     }
 }

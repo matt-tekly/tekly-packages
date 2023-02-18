@@ -71,8 +71,9 @@ namespace Tekly.DataModels.Binders
             m_text.text = string.Format(m_format, m_values);
         }
 
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
             Dispose();
         }
 

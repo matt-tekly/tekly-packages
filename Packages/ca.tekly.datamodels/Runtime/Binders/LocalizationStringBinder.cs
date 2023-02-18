@@ -71,8 +71,9 @@ namespace Tekly.DataModels.Binders
             m_text.text = Localizer.Instance.Localize(m_localizationId, m_values);
         }
         
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
             Dispose();
         }
 
