@@ -56,6 +56,14 @@ namespace Tekly.DataModels.Models
             m_modified.Emit(this);
         }
 
+        public bool TryGetModel<T>(ModelKey modelKey, int index, out T targetModel) where T : class, IModel
+        {
+            var found = TryGetModel(modelKey, index, out var model);
+            targetModel = model as T;
+
+            return found;
+        }
+
         public bool TryGetModel(ModelKey modelKey, int index, out IModel model)
         {
             if (modelKey.Keys.Length == 0) {
@@ -78,6 +86,14 @@ namespace Tekly.DataModels.Models
             }
                 
             return false;
+        }
+
+        public bool TryGetModel<T>(string modelKey, out T targetModel) where T : class, IModel
+        {
+            var found = TryGetModel(modelKey, out var model);
+            targetModel = model as T;
+
+            return found;
         }
 
         public virtual bool TryGetModel(string modelKey, out IModel model)

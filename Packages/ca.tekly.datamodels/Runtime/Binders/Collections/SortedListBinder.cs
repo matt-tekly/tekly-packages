@@ -48,12 +48,16 @@ namespace Tekly.DataModels.Binders.Collections
         private IDisposable m_disposable;
         private List<SortedListBinderEntry> m_entries = new List<SortedListBinderEntry>();
 
-        private BinderContainer m_templateProtected;
-
-        private void Awake()
-        {
-            m_templateProtected = PrefabProtector.Protect(m_template);
+        private BinderContainer ProtectedTemplate {
+            get {
+                if (m_protectedTemplate == null) {
+                    m_protectedTemplate = PrefabProtector.Protect(m_template);
+                }
+                return m_protectedTemplate;
+            }
         }
+
+        private BinderContainer m_protectedTemplate;
 
         public override void Bind()
         {
@@ -61,13 +65,35 @@ namespace Tekly.DataModels.Binders.Collections
                 m_logger.ErrorContext("SortedListBinder has empty SortKey", this);    
             }
             
-            if (TryGet(m_key.Path, out ObjectModel objectModel)) {
+            if (TryGet(out ObjectModel objectModel)) {
                 m_disposable?.Dispose();
                 m_disposable = objectModel.Modified.Subscribe(BindObjectModel);
                 BindObjectModel(objectModel);
             } else {
                 Clear();
             }
+        }
+        
+        private bool TryGet(out ObjectModel objectModel)
+        {
+            var modelKey = ModelKey.Parse(GetKey());
+            
+            ObjectModel rootModel = RootModel.Instance;
+
+            if (!modelKey.IsRelative) {
+                var found = rootModel.TryGetModel(modelKey, 0, out objectModel);
+                return found;
+            }
+            
+            if (m_parent != null) {
+                m_parent.TryGet(modelKey, out objectModel);
+                return true;
+            }
+            
+            m_logger.ErrorContext("SortedListBinder [{name}] has relative key but no container", this, ("name", gameObject.name));
+
+            objectModel = null;
+            return false;
         }
 
         [ContextMenu("Sort")]
@@ -127,7 +153,7 @@ namespace Tekly.DataModels.Binders.Collections
                 }
             }
 
-            var instance = Instantiate(m_templateProtected, m_container);
+            var instance = Instantiate(ProtectedTemplate, m_container);
             return new SortedListBinderEntry(this, instance);
         }
 

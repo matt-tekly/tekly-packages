@@ -15,16 +15,21 @@ namespace Tekly.DataModels.Binders.Collections
         private IDisposable m_disposable;
         private List<BinderContainer> m_instances = new List<BinderContainer>();
 
-        private BinderContainer m_protectedTemplate;
-
-        private void Awake()
-        {
-            m_protectedTemplate = PrefabProtector.Protect(m_template);
+        private BinderContainer ProtectedTemplate {
+            get {
+                if (m_protectedTemplate == null) {
+                    m_protectedTemplate = PrefabProtector.Protect(m_template);
+                }
+                return m_protectedTemplate;
+            }
         }
+
+        private BinderContainer m_protectedTemplate;
+        
 
         public override void Bind()
         {
-            if (TryGet(m_key.Path, out ObjectModel objectModel)) {
+            if (TryGet(out var objectModel)) {
                 m_disposable?.Dispose();
                 m_disposable = objectModel.Modified.Subscribe(BindObjectModel);
                 BindObjectModel(objectModel);
@@ -34,13 +39,37 @@ namespace Tekly.DataModels.Binders.Collections
 
             base.Bind();
         }
+        
+        private bool TryGet(out ObjectModel objectModel)
+        {
+            var modelKey = ModelKey.Parse(GetKey());
+            
+            ObjectModel rootModel = RootModel.Instance;
+
+            if (!modelKey.IsRelative) {
+                var found = rootModel.TryGetModel(modelKey, 0, out objectModel);
+                return found;
+            }
+            
+            if (m_parent != null) {
+                m_parent.TryGet(modelKey, out objectModel);
+                return true;
+            }
+            
+            m_logger.ErrorContext("ListBinder [{name}] has relative key but no container", this, ("name", gameObject.name));
+
+            objectModel = null;
+            return false;
+        }
 
         private void BindObjectModel(ObjectModel objectModel)
         {
             Clear();
 
+            var template = ProtectedTemplate;
+            
             foreach (var modelReference in objectModel.Models) {
-                var instance = Instantiate(m_protectedTemplate, m_container);
+                var instance = Instantiate(template, m_container);
                 instance.OverrideKey($"*.{modelReference.Key}");
                 instance.gameObject.SetActive(true);
 

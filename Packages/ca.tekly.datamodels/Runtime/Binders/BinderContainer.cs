@@ -63,7 +63,7 @@ namespace Tekly.DataModels.Binders
             }
         }
 
-        private string GetKey()
+        protected string GetKey()
         {
             return m_keyOverride ?? m_key.Path;
         }
