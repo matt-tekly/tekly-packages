@@ -8,7 +8,7 @@ namespace Tekly.PanelViews
         [SerializeField] private Tweenimator m_showTween;
         [SerializeField] private Tweenimator m_hideTween;
         
-        protected override void OnShow()
+        protected override void OnShow(PanelData panelData)
         {
             if (m_hideTween != null) {
                 m_hideTween.Stop();

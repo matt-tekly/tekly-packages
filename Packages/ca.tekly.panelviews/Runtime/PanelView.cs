@@ -1,7 +1,11 @@
+using System;
 using UnityEngine;
 
 namespace Tekly.PanelViews
 {
+    [Serializable]
+    public class PanelData { }
+    
     public enum PanelState
     {
         Hidden,
@@ -28,16 +32,18 @@ namespace Tekly.PanelViews
         }
         
         public bool IsAnimating => m_state == PanelState.Showing || m_state == PanelState.Hiding;
-
-        public void Show()
+        public string Context { get; private set; }
+        
+        public void Show(string context, PanelData data = null)
         {
             if (m_state == PanelState.Shown || m_state == PanelState.Showing) {
                 return;
             }
-            
+
+            Context = context;
             State = PanelState.Showing;
             gameObject.SetActive(true);
-            OnShow();
+            OnShow(data);
         }
 
         public void Hide()
@@ -50,7 +56,7 @@ namespace Tekly.PanelViews
             OnHide();
         }
 
-        protected virtual void OnShow()
+        protected virtual void OnShow(PanelData panelData)
         {
             CompleteShow();
         }

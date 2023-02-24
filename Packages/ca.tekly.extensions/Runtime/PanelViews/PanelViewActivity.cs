@@ -1,3 +1,4 @@
+using Tekly.Common.Utils;
 using Tekly.Logging;
 using Tekly.PanelViews;
 using Tekly.TreeState.StandardActivities;
@@ -8,6 +9,9 @@ namespace Tekly.Extensions.PanelViews
     public class PanelViewActivity : InjectableActivity
     {
         [SerializeField] private string m_panelId;
+        [SerializeField] private string m_context;
+        [Polymorphic] [SerializeField] private PanelData m_panelData;
+        
         [SerializeField] private bool m_showOnLoad;
         [SerializeField] private bool m_hideOnLeave;
 
@@ -18,7 +22,7 @@ namespace Tekly.Extensions.PanelViews
         {
             if (PanelViewRegistry.Instance.TryGet(m_panelId, out m_panelView)) {
                 if (m_showOnLoad) {
-                    m_panelView.Show();	
+                    m_panelView.Show(m_context, m_panelData);	
                 }
             } else {
                 m_logger.Error("Failed to find panel [{panel}]", ("panel", m_panelId));		
