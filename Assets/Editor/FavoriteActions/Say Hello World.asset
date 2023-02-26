@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 298433a539d94d5aa5b813a423011f1c, type: 3}
-  m_Name: Disable Raycast Targets
+  m_Name: Say Hello World
   m_EditorClassIdentifier: 
   m_referencedType:
-    rid: 1549894186725801986
+    rid: 1549894186725801988
   references:
     version: 2
     RefIds:
-    - rid: 1549894186725801986
-      type: {class: FavoriteActionDisableRaycastTarget, ns: Tekly.Favorites, asm: Tekly.Favorites.Editor}
+    - rid: 1549894186725801988
+      type: {class: SayHelloWorld, ns: Tekly.Favorites, asm: Tekly.Favorites.Editor}

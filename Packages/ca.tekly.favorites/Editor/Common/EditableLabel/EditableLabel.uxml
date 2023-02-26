@@ -1,7 +1,7 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
     <ui:VisualElement class="tk-editable-label">
-        <Style src="EditableLabel.uss" />
-        <ui:Label />
-        <ui:TextField class="tk-editable-label-text-field" />
+        <Style src="EditableLabel.uss"/>
+        <ui:Label/>
+        <ui:TextField class="tk-editable-label-text-field"/>
     </ui:VisualElement>
 </ui:UXML>
