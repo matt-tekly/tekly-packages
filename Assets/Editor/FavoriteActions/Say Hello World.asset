@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Say Hello World
   m_EditorClassIdentifier: 
   m_referencedType:
-    rid: 1549894186725801988
+    rid: 1549894207175917576
   references:
     version: 2
     RefIds:
-    - rid: 1549894186725801988
-      type: {class: SayHelloWorld, ns: Tekly.Favorites, asm: Tekly.Favorites.Editor}
+    - rid: 1549894207175917576
+      type: {class: SayHelloWorld, ns: Tekly.Favorites, asm: Assembly-CSharp-Editor}

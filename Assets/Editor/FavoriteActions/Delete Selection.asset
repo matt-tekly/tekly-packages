@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Delete Selection
   m_EditorClassIdentifier: 
   m_referencedType:
-    rid: 1549894186725801987
+    rid: 1549894207175917574
   references:
     version: 2
     RefIds:
-    - rid: 1549894186725801987
-      type: {class: FavoriteActionDelete, ns: Tekly.Favorites, asm: Tekly.Favorites.Editor}
+    - rid: 1549894207175917574
+      type: {class: FavoriteActionDelete, ns: Tekly.Favorites, asm: Assembly-CSharp-Editor}

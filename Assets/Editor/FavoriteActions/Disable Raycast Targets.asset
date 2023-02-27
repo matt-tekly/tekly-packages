@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Disable Raycast Targets
   m_EditorClassIdentifier: 
   m_referencedType:
-    rid: 1549894186725801986
+    rid: 1549894207175917575
   references:
     version: 2
     RefIds:
-    - rid: 1549894186725801986
-      type: {class: FavoriteActionDisableRaycastTarget, ns: Tekly.Favorites, asm: Tekly.Favorites.Editor}
+    - rid: 1549894207175917575
+      type: {class: FavoriteActionDisableRaycastTarget, ns: Tekly.Favorites, asm: Assembly-CSharp-Editor}
