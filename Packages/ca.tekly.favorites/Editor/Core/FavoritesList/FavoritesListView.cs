@@ -150,7 +150,7 @@ namespace Tekly.Favorites
 				return;
 			}
 
-			if (evt.keyCode == KeyCode.Delete && m_listView.selectedIndex > -1) {
+			if ((evt.keyCode == KeyCode.Delete || evt.keyCode == KeyCode.Backspace) && m_listView.selectedIndex > -1) {
 				evt.StopPropagation();
 				FavoritesData.Instance.RemoveFavorite(m_listView.selectedIndex);
 				m_listView.selectedIndex = FavoritesData.Instance.FavoriteIndex;
