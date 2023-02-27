@@ -10,7 +10,7 @@ namespace Tekly.Favorites
 		{
 			var currentEvent = Event.current;
 
-			var hotkeyUsed = currentEvent?.isKey == true && currentEvent.control && currentEvent.keyCode == KeyCode.G;
+			var hotkeyUsed = currentEvent?.isKey == true && (currentEvent.control || currentEvent.command) && currentEvent.keyCode == KeyCode.G;
 
 			if (hotkeyUsed) {
 				FavoritesWindow.Present();

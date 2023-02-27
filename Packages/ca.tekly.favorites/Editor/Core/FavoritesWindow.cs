@@ -36,6 +36,7 @@ namespace Tekly.Favorites
 			s_instance.m_isPopup = true;
 			s_instance.m_moveToMouse = true;
 			s_instance.ShowPopup();
+			s_instance.Focus();
 		}
 
 		public static void HideIfPopup()
@@ -82,7 +83,7 @@ namespace Tekly.Favorites
 		{
 			if (evt.keyCode is >= KeyCode.Alpha0 and <= KeyCode.Alpha9) {
 				evt.StopPropagation();
-				if (FavoritesData.Instance.HandleShortcut(evt.keyCode, evt.shiftKey || evt.ctrlKey) && m_isPopup) {
+				if (FavoritesData.Instance.HandleShortcut(evt.keyCode, evt.shiftKey || evt.ctrlKey || evt.commandKey) && m_isPopup) {
 					Close();
 				}
 			}
