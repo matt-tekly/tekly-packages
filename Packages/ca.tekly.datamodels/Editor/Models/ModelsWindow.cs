@@ -176,9 +176,9 @@ namespace Tekly.DataModels.Models
 			} else {
 				foldOutRect.xMin += 14f;
 				EditorGUI.LabelField(foldOutRect, objectEntry.Id);
-
+				var idWidth = EditorStyles.label.CalcSize(objectEntry.Id).x;
 				var valueWidth = EditorStyles.label.CalcSize(objectEntry.Value).x;
-				var valueRect = new Rect(foldOutRect.xMax - valueWidth, row * s_height, valueWidth, s_height);
+				var valueRect = new Rect(Mathf.Max(foldOutRect.xMax - valueWidth, foldOutRect.x + idWidth + 14), row * s_height, valueWidth, s_height);
 				EditorGUI.LabelField(valueRect, objectEntry.Value);
 			}
 		}
@@ -192,8 +192,9 @@ namespace Tekly.DataModels.Models
 			EditorGUI.LabelField(labelRect, objectEntry.FullPath);
 
 			if (objectEntry.Value != null) {
+				var idWidth = GUI.skin.label.CalcSize(objectEntry.FullPathGuid).x;
 				var valueWidth = GUI.skin.label.CalcSize(objectEntry.Value).x;
-				var valueRect = new Rect(labelRect.xMax - valueWidth, index * s_height, valueWidth, s_height);
+				var valueRect = new Rect(Mathf.Max(labelRect.xMax - valueWidth, labelRect.x + idWidth + 14), index * s_height, valueWidth, s_height);
 				EditorGUI.LabelField(valueRect, objectEntry.Value);
 			}
 		}
@@ -248,6 +249,7 @@ namespace Tekly.DataModels.Models
 				entry.Id.text = modelReference.Key;
 				entry.Id.tooltip = StringPool.GetName(childModel.GetType());
 				entry.FullPath = fullPath;
+				entry.FullPathGuid.text = fullPath;
 				entry.Depth = depth;
 				entry.IsObject = childModel is ObjectModel;
 
@@ -255,7 +257,7 @@ namespace Tekly.DataModels.Models
 
 				switch (childModel) {
 					case IValueModel childValueModel:
-						entry.Value.text = childValueModel.ToDisplayString();
+						entry.Value.text = childValueModel.ToDisplayString().Replace("\n", "\\n");
 						break;
 					case ObjectModel childObjectModel:
 						CreateEntries(childObjectModel, entries, fullPath, depth + 1);
