@@ -10,7 +10,7 @@ namespace Tekly.DataModels.Models
 		public GUIContent Id = new GUIContent() ;
 		public GUIContent Value = new GUIContent();
 		public string FullPath;
-		public GUIContent FullPathGuid = new GUIContent();
+		public GUIContent FullPathGui = new GUIContent();
 
 		public int Index;
 		public int Depth;
@@ -28,7 +28,7 @@ namespace Tekly.DataModels.Models
 			objectEntry.Id.text = string.Empty;
 			objectEntry.Id.tooltip = string.Empty;
 			objectEntry.Value.text = string.Empty;
-			objectEntry.FullPathGuid.text = string.Empty;
+			objectEntry.FullPathGui.text = string.Empty;
 			objectEntry.Visible = false;
 		}
 
