@@ -7,11 +7,11 @@ namespace Tekly.Favorites
 	[CreateAssetMenu(menuName = "Favorites/Menu Action")]
 	public class FavoriteActionMenu : FavoriteActionAsset
 	{
-		[SerializeField, FormerlySerializedAs("Menu")] private string m_Menu;
+		[SerializeField, FormerlySerializedAs("Menu"), FormerlySerializedAs("m_Menu")] private string m_menu;
 
 		public override void Activate()
 		{
-			EditorApplication.ExecuteMenuItem(m_Menu);
+			EditorApplication.ExecuteMenuItem(m_menu);
 		}
 	}
 }
