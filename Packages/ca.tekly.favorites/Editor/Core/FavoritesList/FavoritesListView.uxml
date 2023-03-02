@@ -1,13 +1,11 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns:tk="Tekly.Favorites">
-     <uie:Toolbar>
-        <Style src="../FavoritesWindow.uss" />
-        <uie:ToolbarMenu text="ToolbarMenu" />
-        <uie:ToolbarButton text="+" name="add" class="tk-text-middle-center"/>
-        <uie:ToolbarButton text="-" name="delete" class="tk-text-middle-center"/>
+    <uie:Toolbar>
+        <Style src="../FavoritesWindow.uss"/>
+        <uie:ToolbarMenu text="ToolbarMenu"/>
         <tk:EditableLabel style="flex-grow: 1" class="tk-favorites-editable-category"/>
     </uie:Toolbar>
     <ui:VisualElement class="tk-favorites-window">
-        <Style src="../FavoritesWindow.uss" />
+        <Style src="../FavoritesWindow.uss"/>
         <tk:DropTargetElement>
             <ui:ListView class="tk-favorites-window-items"/>
         </tk:DropTargetElement>

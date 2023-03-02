@@ -9,8 +9,8 @@
     height: 18px;
 }
 
-.tk-editable-label Label{
-    cursor: link ;
+.tk-editable-label Label {
+    cursor: link;
 }
 
 .tk-editable-label-text-field {

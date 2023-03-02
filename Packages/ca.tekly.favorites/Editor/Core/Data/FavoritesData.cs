@@ -1,287 +1,285 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Tekly.Favorites.Editor.Core.Settings;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Tekly.Favorites
 {
-    public class FavoritesData : ScriptableObject
-    {
-        [SerializeField] private int m_activeCollectionIndex;
-        [SerializeField] private int m_favoriteIndex;
+	public class FavoritesData : ScriptableObject
+	{
+		[SerializeField] private int m_activeCollectionIndex;
+		[SerializeField] private int m_favoriteIndex;
 
-        public List<FavoriteCollection> Collections = new List<FavoriteCollection>();
-        public FavoriteCollection ActiveCollection => Collections[ActiveCollectionIndex];
-        public FavoriteAsset ActiveFavorite => ActiveCollection.Favorites[FavoriteIndex];
-        
-        public event Action<FavoriteCollection> ActiveCollectionChanged;
-        public event Action<int> FavoriteIndexChanged;
-        public event Action FavoritesChanged;
-        public event Action AssetRenamed;
+		public List<FavoriteCollection> Collections = new List<FavoriteCollection>();
+		public FavoriteCollection ActiveCollection => Collections[ActiveCollectionIndex];
+		public FavoriteAsset ActiveFavorite => ActiveCollection.Favorites[FavoriteIndex];
 
-        public int FavoriteIndex {
-            get {
-                if (m_favoriteIndex >= ActiveCollection.Favorites.Count) {
-                    m_favoriteIndex = -1;
-                }
-                return m_favoriteIndex;
-            }
-        }
+		public event Action<FavoriteCollection> ActiveCollectionChanged;
+		public event Action<int> FavoriteIndexChanged;
+		public event Action FavoritesChanged;
+		public event Action AssetRenamed;
 
-        public int ActiveCollectionIndex {
-            get {
-                if (m_activeCollectionIndex >= Collections.Count || m_activeCollectionIndex < 0) {
-                    m_activeCollectionIndex = 0;
-                }
-                return m_activeCollectionIndex;
-            }
-        }
+		public int FavoriteIndex {
+			get {
+				if (m_favoriteIndex >= ActiveCollection.Favorites.Count) {
+					m_favoriteIndex = -1;
+				}
 
-        private static FavoritesData s_instance = null;
+				return m_favoriteIndex;
+			}
+		}
 
-        public static FavoritesData Instance {
-            get {
-                if (s_instance == null) {
-                    var tmp = Resources.FindObjectsOfTypeAll<FavoritesData>();
+		public int ActiveCollectionIndex {
+			get {
+				if (m_activeCollectionIndex >= Collections.Count || m_activeCollectionIndex < 0) {
+					m_activeCollectionIndex = 0;
+				}
 
-                    if (tmp.Length > 0) {
-                        s_instance = tmp[0];
-                    } else {
-                        s_instance = CreateInstance<FavoritesData>();
-                        var json = EditorPrefs.GetString(FavoritesSettings.FavoritesPrefsKey);
-                        EditorJsonUtility.FromJsonOverwrite(json, s_instance);
-                    }
+				return m_activeCollectionIndex;
+			}
+		}
 
-                    s_instance.hideFlags = HideFlags.DontSave;
-                }
+		private static FavoritesData s_instance = null;
 
-                if (s_instance.Collections.Count == 0) {
-                    s_instance.Collections.Add(new FavoriteCollection("General"));
-                    s_instance.Collections.Add(new FavoriteCollection("Prefabs"));
-                    s_instance.Collections.Add(new FavoriteCollection("Scenes"));
-                }
+		public static FavoritesData Instance {
+			get {
+				if (s_instance == null) {
+					var tmp = Resources.FindObjectsOfTypeAll<FavoritesData>();
 
-                return s_instance;
-            }
-        }
+					if (tmp.Length > 0) {
+						s_instance = tmp[0];
+					} else {
+						s_instance = CreateInstance<FavoritesData>();
+						if (File.Exists(FavoritesSettings.FAVORITES_SAVE_FILE)) {
+							EditorJsonUtility.FromJsonOverwrite(File.ReadAllText(FavoritesSettings.FAVORITES_SAVE_FILE), s_instance);
+						}
+					}
 
-        public void SetActiveCollection(int index)
-        {
-            if (m_activeCollectionIndex != index && index < Collections.Count) {
-                Undo.RecordObject(this, "Modify favorites");
-                m_activeCollectionIndex = index;
-                m_favoriteIndex = ActiveCollection.Favorites.Count > 0 ? 0 : -1;
-                Save();
+					s_instance.hideFlags = HideFlags.DontSave;
+				}
 
-                ActiveCollectionChanged?.Invoke(ActiveCollection);
-                FavoriteIndexChanged?.Invoke(m_favoriteIndex);
-            }
-        }
+				if (s_instance.Collections.Count == 0) {
+					s_instance.Collections.Add(new FavoriteCollection("General"));
+				}
 
-        public void SetActiveCollection(FavoriteCollection collection)
-        {
-            int index = Collections.IndexOf(collection);
-            SetActiveCollection(index);
-        }
+				return s_instance;
+			}
+		}
 
-        public void RenameActiveCollection(string newName)
-        {
-            Undo.RecordObject(this, "Modify favorites");
-            ActiveCollection.Name = newName;
-            Save();
+		public void SetActiveCollection(int index)
+		{
+			if (m_activeCollectionIndex != index && index < Collections.Count) {
+				Undo.RecordObject(this, "Modify favorites");
+				m_activeCollectionIndex = index;
+				m_favoriteIndex = ActiveCollection.Favorites.Count > 0 ? 0 : -1;
+				Save();
 
-            FavoritesChanged?.Invoke();
-        }
-        
-        public void RenameCollection(string newName, FavoriteCollection collection)
-        {
-            Undo.RecordObject(this, "Modify favorites");
-            collection.Name = newName;
-            Save();
+				ActiveCollectionChanged?.Invoke(ActiveCollection);
+				FavoriteIndexChanged?.Invoke(m_favoriteIndex);
+			}
+		}
 
-            FavoritesChanged?.Invoke();
-        }
+		public void SetActiveCollection(FavoriteCollection collection)
+		{
+			int index = Collections.IndexOf(collection);
+			SetActiveCollection(index);
+		}
 
-        public void AddNewCollection()
-        {
-            Undo.RecordObject(this, "Modify favorites");
-            FavoriteCollection collection = new FavoriteCollection();
-            collection.Name = "New Collection";
+		public void RenameActiveCollection(string newName)
+		{
+			Undo.RecordObject(this, "Rename favorites collection");
+			ActiveCollection.Name = newName;
+			Save();
 
-            Collections.Add(collection);
+			FavoritesChanged?.Invoke();
+		}
 
-            m_activeCollectionIndex = Collections.Count - 1;
-            Save();
+		public void RenameCollection(string newName, FavoriteCollection collection)
+		{
+			Undo.RecordObject(this, "Rename favorites collection");
+			collection.Name = newName;
+			Save();
 
-            FavoritesChanged?.Invoke();
-            ActiveCollectionChanged?.Invoke(ActiveCollection);
-        }
+			FavoritesChanged?.Invoke();
+		}
 
-        public void RemoveActiveCollection()
-        {
-            RemoveCollection(ActiveCollection);
-        }
+		public void AddNewCollection()
+		{
+			Undo.RecordObject(this, "Add new favorites collection");
+			FavoriteCollection collection = new FavoriteCollection();
+			collection.Name = "New Collection";
 
-        public void RemoveCollection(int index)
-        {
-            RemoveCollection(Collections[index]);
-        }
+			Collections.Add(collection);
 
-        public void RemoveCollection(FavoriteCollection collection)
-        {
-            if (Collections.Count == 1) {
-                return;
-            }
+			m_activeCollectionIndex = Collections.Count - 1;
+			Save();
 
-            Undo.RecordObject(this, "Modify favorites");
-            int index = Collections.IndexOf(collection);
-            
-            Collections.RemoveAt(index);
+			FavoritesChanged?.Invoke();
+			ActiveCollectionChanged?.Invoke(ActiveCollection);
+		}
 
-            m_activeCollectionIndex = index - 1;
-            Save();
+		public void RemoveActiveCollection()
+		{
+			RemoveCollection(ActiveCollection);
+		}
 
-            FavoritesChanged?.Invoke();
-            ActiveCollectionChanged?.Invoke(ActiveCollection);
-        }
+		public void RemoveCollection(int index)
+		{
+			RemoveCollection(Collections[index]);
+		}
 
-        public void SetActiveFavorite(FavoriteAsset favorite)
-        {
-            var index = ActiveCollection.Favorites.IndexOf(favorite);
-            SetFavoriteIndex(index);
-        }
+		public void RemoveCollection(FavoriteCollection collection)
+		{
+			if (Collections.Count == 1) {
+				return;
+			}
 
-        public bool HandleShortcut(KeyCode keyCode, bool isModified)
-        {
-            if (keyCode < KeyCode.Alpha1 || keyCode > KeyCode.Alpha9) {
-                return false;
-            }
+			Undo.RecordObject(this, "Remove favorites collection");
+			int index = Collections.IndexOf(collection);
 
-            int index = keyCode - KeyCode.Alpha1;
+			Collections.RemoveAt(index);
 
-            if (isModified) {
-                SetActiveCollection(index);
-            } else {
-                if (index < Instance.ActiveCollection.Favorites.Count) {
-                    FavoriteAsset favoriteAsset = Instance.ActiveCollection.Favorites[index];
+			m_activeCollectionIndex = index - 1;
+			Save();
 
-                    if (favoriteAsset.Asset == null) {
-                        EditorApplication.Beep();
-                        return false;
-                    }
+			FavoritesChanged?.Invoke();
+			ActiveCollectionChanged?.Invoke(ActiveCollection);
+		}
 
-                    if (favoriteAsset.Asset is FavoriteActionAsset fa) {
-                        fa.Activate();
-                        return true;
-                    }
-                    
-                    if (Selection.Contains(favoriteAsset.Asset.GetInstanceID())) {
-                        AssetDatabase.OpenAsset(favoriteAsset.Asset);
-                        
-                        SetFavoriteIndex(index);
-                        return true;
-                    }
+		public void SetActiveFavorite(FavoriteAsset favorite)
+		{
+			var index = ActiveCollection.Favorites.IndexOf(favorite);
+			SetFavoriteIndex(index);
+		}
 
-                    Selection.objects = new[] { favoriteAsset.Asset };
-                    SetFavoriteIndex(index);
-                }
-            }
+		public bool HandleShortcut(KeyCode keyCode, bool isModified)
+		{
+			if (keyCode < KeyCode.Alpha1 || keyCode > KeyCode.Alpha9) {
+				return false;
+			}
 
-            return false;
-        }
+			int index = keyCode - KeyCode.Alpha1;
 
-        private void SetFavoriteIndex(int index)
-        {
-            if (index == m_favoriteIndex) {
-                return;
-            }
+			if (isModified) {
+				SetActiveCollection(index);
+			} else {
+				if (index < Instance.ActiveCollection.Favorites.Count) {
+					FavoriteAsset favoriteAsset = Instance.ActiveCollection.Favorites[index];
 
-            Undo.RecordObject(this, "Modify favorites");
-            m_favoriteIndex = index;
-            Save();
+					if (favoriteAsset.Asset == null) {
+						EditorApplication.Beep();
+						return false;
+					}
 
-            Selection.objects = new[] { ActiveFavorite.Asset };
+					SetFavoriteIndex(index);
 
-            FavoriteIndexChanged?.Invoke(index);
-        }
+					if (favoriteAsset.Asset is FavoriteActionAsset fa) {
+						fa.Activate();
+					} else {
+						AssetDatabase.OpenAsset(favoriteAsset.Asset);
+					}
 
-        public void Save()
-        {
-            var json = EditorJsonUtility.ToJson(this);
-            EditorPrefs.SetString(FavoritesSettings.FavoritesPrefsKey, json);
-        }
+					return true;
+				}
+			}
 
-        public void RemoveFavorite(FavoriteAsset favorite)
-        {
-            Undo.RecordObject(this, "Modify favorites");
-            ActiveCollection.Favorites.Remove(favorite);
-            Save();
+			return false;
+		}
 
-            FavoritesChanged?.Invoke();
-        }
+		private void SetFavoriteIndex(int index)
+		{
+			if (index == m_favoriteIndex) {
+				return;
+			}
 
-        public void RemoveFavorite(int index)
-        {
-            Undo.RecordObject(this, "Modify favorites");
-            ActiveCollection.Favorites.RemoveAt(index);
-            m_favoriteIndex = Mathf.Clamp(index - 1, 0, ActiveCollection.Favorites.Count);
-            Save();
+			Undo.RecordObject(this, "Modify favorites");
+			m_favoriteIndex = index;
+			Save();
 
-            FavoriteIndexChanged?.Invoke(m_favoriteIndex);
-            FavoritesChanged?.Invoke();
-        }
+			Selection.objects = new[] { ActiveFavorite.Asset };
 
-        public void AddFavorites(UnityEngine.Object[] assets)
-        {
-            Undo.RecordObject(this, "Modify favorites");
-            var objects = assets.Select(x => new FavoriteAsset { Asset = x });
-            ActiveCollection.Favorites.AddRange(objects);
-            m_favoriteIndex = ActiveCollection.Favorites.Count - 1;
-            Save();
+			FavoriteIndexChanged?.Invoke(index);
+		}
 
-            FavoriteIndexChanged?.Invoke(m_favoriteIndex);
-            FavoritesChanged?.Invoke();
-        }
+		public void Save()
+		{
+			var json = EditorJsonUtility.ToJson(this);
+			File.WriteAllText(FavoritesSettings.FAVORITES_SAVE_FILE, json);
+		}
 
-        public void AddFavorites(UnityEngine.Object[] assets, int index)
-        {
-            Undo.RecordObject(this, "Modify favorites");
-            var objects = DragAndDrop.objectReferences.Select(x => new FavoriteAsset { Asset = x });
-            ActiveCollection.Favorites.InsertRange(index, objects);
+		public void RemoveFavorite(FavoriteAsset favorite)
+		{
+			Undo.RecordObject(this, "Modify favorites");
+			ActiveCollection.Favorites.Remove(favorite);
+			Save();
 
-            Save();
-            FavoritesChanged?.Invoke();
-        }
+			FavoritesChanged?.Invoke();
+		}
 
-        public void ReorderFavorite(FavoriteAsset fa, int index)
-        {
-            Undo.RecordObject(this, "Modify favorites");
-            int oldIndex = ActiveCollection.Favorites.IndexOf(fa);
-            ActiveCollection.Favorites.RemoveAt(oldIndex);
-            ActiveCollection.Favorites.Insert(index, fa);
-            m_favoriteIndex = index;
-            Save();
+		public void RemoveFavorite(int index)
+		{
+			Undo.RecordObject(this, "Modify favorites");
+			ActiveCollection.Favorites.RemoveAt(index);
+			m_favoriteIndex = Mathf.Clamp(index - 1, 0, ActiveCollection.Favorites.Count);
+			Save();
 
-            FavoriteIndexChanged?.Invoke(m_favoriteIndex);
-        }
+			FavoriteIndexChanged?.Invoke(m_favoriteIndex);
+			FavoritesChanged?.Invoke();
+		}
 
-        public void ReorderCollection(FavoriteCollection collection, int index)
-        {
-            Undo.RecordObject(this, "Modify favorites");
-            int oldIndex = Collections.IndexOf(collection);
-            Collections.RemoveAt(oldIndex);
-            Collections.Insert(index, collection);
-            m_activeCollectionIndex = index;
-            Save();
+		public void AddFavorites(Object[] assets)
+		{
+			Undo.RecordObject(this, "Modify favorites");
+			var objects = assets.Select(x => new FavoriteAsset { Asset = x });
+			ActiveCollection.Favorites.AddRange(objects);
+			m_favoriteIndex = ActiveCollection.Favorites.Count - 1;
+			Save();
 
-            ActiveCollectionChanged?.Invoke(ActiveCollection);
-        }
+			FavoriteIndexChanged?.Invoke(m_favoriteIndex);
+			FavoritesChanged?.Invoke();
+		}
 
-        public void OnAssetRenamed()
-        {
-            AssetRenamed?.Invoke();
-        }
-    }
+		public void AddFavorites(Object[] assets, int index)
+		{
+			Undo.RecordObject(this, "Modify favorites");
+			var objects = DragAndDrop.objectReferences.Select(x => new FavoriteAsset { Asset = x });
+			ActiveCollection.Favorites.InsertRange(index, objects);
+
+			Save();
+			FavoritesChanged?.Invoke();
+		}
+
+		public void ReorderFavorite(FavoriteAsset fa, int index)
+		{
+			Undo.RecordObject(this, "Modify favorites");
+			int oldIndex = ActiveCollection.Favorites.IndexOf(fa);
+			ActiveCollection.Favorites.RemoveAt(oldIndex);
+			ActiveCollection.Favorites.Insert(index, fa);
+			m_favoriteIndex = index;
+			Save();
+
+			FavoriteIndexChanged?.Invoke(m_favoriteIndex);
+		}
+
+		public void ReorderCollection(FavoriteCollection collection, int index)
+		{
+			Undo.RecordObject(this, "Modify favorites");
+			int oldIndex = Collections.IndexOf(collection);
+			Collections.RemoveAt(oldIndex);
+			Collections.Insert(index, collection);
+			m_activeCollectionIndex = index;
+			Save();
+
+			ActiveCollectionChanged?.Invoke(ActiveCollection);
+		}
+
+		public void OnAssetRenamed()
+		{
+			AssetRenamed?.Invoke();
+		}
+	}
 }

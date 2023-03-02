@@ -1,11 +1,11 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Packages/ca.tekly.favorites/Editor/Core/FavoritesList/FavoriteElement.uss?fileID=7433441132597879392&amp;guid=1bf4922d7bea8ce45b14b1209168a7a6&amp;type=3#FavoriteElement" />
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Packages/ca.tekly.favorites/Editor/Core/FavoritesList/FavoriteElement.uss?fileID=7433441132597879392&amp;guid=1bf4922d7bea8ce45b14b1209168a7a6&amp;type=3#FavoriteElement"/>
     <ui:VisualElement class="tekly-favorite-element">
-        <ui:VisualElement name="favorite-background" class="tekly-favorite-element-background" />
+        <ui:VisualElement name="favorite-background" class="tekly-favorite-element-background"/>
         <ui:VisualElement class="tekly-favorite-element-content">
-            <ui:Label name="favorite-index" text="0" class="tekly-favorite-element-index" />
-            <ui:Image name="asset-icon" class="tekly-favorite-element-icon" />
-            <ui:Label name="asset-name" text="DEFAULT" class="tekly-favorite-element-name" />
+            <ui:Label name="favorite-index" text="0" class="tekly-favorite-element-index"/>
+            <ui:Image name="asset-icon" class="tekly-favorite-element-icon"/>
+            <ui:Label name="asset-name" text="DEFAULT" class="tekly-favorite-element-name"/>
         </ui:VisualElement>
         <ui:VisualElement name="warning-container" class="tekly-favorite-element-warning-container">
         </ui:VisualElement>
