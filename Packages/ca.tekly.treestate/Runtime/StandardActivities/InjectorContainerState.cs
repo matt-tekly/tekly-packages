@@ -35,7 +35,7 @@ namespace Tekly.TreeState.StandardActivities
         protected override void PreLoad()
         {
             if (ParentContainer != null) {
-                m_parentContainer = ParentContainer.Container;
+                m_parentContainer = ParentContainer.Value;
             } else {
                 var parent = transform.GetComponentInAncestor<InjectorContainerState>();
                 if (parent != null) {

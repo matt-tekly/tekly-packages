@@ -1,4 +1,5 @@
 using Tekly.Balance;
+using Tekly.Common.TimeProviders;
 using Tekly.Common.Utils;
 using Tekly.Content;
 using Tekly.DataModels.Models;
@@ -13,10 +14,14 @@ namespace TeklySample.App
 {
     public class AppCore : MonoBehaviour, IInjectionProvider
     {
-        public Glass Glass;
+        [SerializeField] private Glass m_glass;
+        [SerializeField] private TimeProviderRef m_localTimeProviderRef;
 
         public void Provide(InjectorContainer container)
         {
+            ITimeProvider localTimeProvider = new LocalTimeProvider();
+            m_localTimeProviderRef.Initialize(localTimeProvider);
+            
             var balanceManager = new BalanceManager(ContentProvider.Instance);
 
             container.Register(this);
@@ -24,8 +29,9 @@ namespace TeklySample.App
             container.Register(ContentProvider.Instance);
             container.Register(balanceManager);
             container.Register(RootModel.Instance);
+            container.Register(localTimeProvider);
             
-            container.Register(Glass);
+            container.Register(m_glass);
             
             RootModel.Instance.Add("app", new AppModel(balanceManager));
 

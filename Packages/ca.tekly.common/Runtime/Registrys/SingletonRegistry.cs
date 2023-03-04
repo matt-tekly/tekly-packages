@@ -1,9 +1,18 @@
 using System.Collections.Generic;
+using Tekly.Common.Utils;
 using UnityEngine;
 
-namespace Tekly.Common.Utils
+namespace Tekly.Common.Registrys
 {
-    public class SingletonRegistry<T, TSingleton> : Singleton<TSingleton> where TSingleton : Singleton<TSingleton>, new()
+    public interface IRegistry<T>
+    {
+        void Register(string id, T obj);
+        void Remove(string name);
+        bool TryGet(string name, out T value);
+        bool TryGet<TV>(string name, out TV value) where TV : class, T;
+    }
+    
+    public class SingletonRegistry<T, TSingleton> : Singleton<TSingleton>, IRegistry<T> where TSingleton : Singleton<TSingleton>, new()
     {
         private readonly Dictionary<string, T> m_objects = new Dictionary<string, T>();
         

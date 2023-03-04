@@ -1009,7 +1009,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ea40a0cb448d4047ab0a3e04c0e2797, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Glass: {fileID: 1755965127}
+  m_glass: {fileID: 1755965127}
+  m_localTimeProviderRef: {fileID: 11400000, guid: d53aa1cacd3094305b5bda6cb951911a, type: 2}
 --- !u!114 &1215275696
 MonoBehaviour:
   m_ObjectHideFlags: 0
