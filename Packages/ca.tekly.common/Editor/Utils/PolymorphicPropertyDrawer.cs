@@ -15,35 +15,35 @@ namespace Tekly.Common.Utils
         {
             return property.isExpanded ? EditorGUI.GetPropertyHeight(property) : EditorGUIUtility.singleLineHeight;
         }
-        
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             EditorGUI.BeginProperty(position, label, property);
-            
+
             DrawDropdown(position, property);
-            
+
             EditorGUI.PropertyField(position, property, label, true);
-            
+
             EditorGUI.EndProperty();
         }
-        
+
         private void DrawDropdown(Rect position, SerializedProperty property)
         {
             position.height = EditorStyles.popup.fixedHeight;
             position.yMin += 1;
             position.xMin += EditorGUIUtility.labelWidth - EditorGUI.indentLevel * 15f;
-            
+
             PolymorphicDropdown.Get(fieldInfo).Draw(position, property, (attribute as PolymorphicAttribute).Title);
         }
     }
-    
+
     public class PolymorphicTypeDropdown : AdvancedDropdown
     {
         private readonly string m_title;
         private readonly PolymorphicDropdown m_dropdown;
         private readonly SerializedProperty m_serializedProperty;
 
-        public PolymorphicTypeDropdown(string title, PolymorphicDropdown dropdown, SerializedProperty serializedProperty) 
+        public PolymorphicTypeDropdown(string title, PolymorphicDropdown dropdown, SerializedProperty serializedProperty)
             : base(new AdvancedDropdownState())
         {
             m_title = title;
@@ -52,7 +52,7 @@ namespace Tekly.Common.Utils
 
             minimumSize = new Vector2(minimumSize.x, 45 + Mathf.Clamp(dropdown.TypeNames.Length, 4, 10) * 18f);
         }
-        
+
         protected override AdvancedDropdownItem BuildRoot()
         {
             var root = new AdvancedDropdownItem(m_title);
@@ -72,27 +72,27 @@ namespace Tekly.Common.Utils
             m_serializedProperty.serializedObject.ApplyModifiedProperties();
         }
     }
-    
+
     public class PolymorphicDropdown
     {
         public readonly GUIContent[] TypeNames;
         public readonly Type[] Types;
-        
+
         [NonSerialized]
         private static Dictionary<Type, PolymorphicDropdown> s_data = new Dictionary<Type, PolymorphicDropdown>();
-        
+
         private PolymorphicDropdown(Type type)
         {
             var types = new List<Type> {type};
             types.AddRange(TypeCache.GetTypesDerivedFrom(type));
             Types = types.Where(IsValidType).OrderBy(x => x.Name).ToArray();
-            
-            var contents = new List<GUIContent> {new GUIContent("null")};
+
+            var contents = new List<GUIContent>(types.Count + 1) {new GUIContent("[none]")};
             contents.AddRange(Types.Select(x => new GUIContent(x.Name)));
-            
+
             TypeNames = contents.ToArray();
         }
-        
+
         public void Draw(Rect position, SerializedProperty property, string title = "Types")
         {
             position = EditorGUI.IndentedRect(position);
@@ -110,7 +110,7 @@ namespace Tekly.Common.Utils
                 }
             } else {
                 var selectedType = Types[index - 1];
-                
+
                 if (property.managedReferenceValue == null) {
                     property.managedReferenceValue = Activator.CreateInstance(selectedType);
                 } else {
@@ -121,7 +121,7 @@ namespace Tekly.Common.Utils
                 }
             }
         }
-        
+
         private GUIContent GetNameContent(object obj)
         {
             if (obj == null) {
@@ -129,7 +129,7 @@ namespace Tekly.Common.Utils
             }
 
             var nameIndex = Array.IndexOf(Types, obj.GetType());
-            
+
             if (nameIndex < 0) {
                 return new GUIContent("Unknown Type: " + obj.GetType().Name);
             }
@@ -140,7 +140,7 @@ namespace Tekly.Common.Utils
         public static PolymorphicDropdown Get(FieldInfo fieldInfo)
         {
             var fieldType = fieldInfo.FieldType;
-            
+
             if (fieldType.IsGenericType) {
                 fieldType = fieldType.GetGenericArguments()[0];
             }
@@ -168,6 +168,4 @@ namespace Tekly.Common.Utils
             return !type.IsInterface && !type.IsAbstract;
         }
     }
-    
-    
 }

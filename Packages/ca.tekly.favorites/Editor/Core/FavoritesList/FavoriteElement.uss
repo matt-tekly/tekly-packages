@@ -5,7 +5,7 @@
     justify-content: space-between;
 }
 
-.dragging .tekly-favorite-element:hover { 
+.dragging .tekly-favorite-element:hover {
     border-top-width: 1px;
     border-top-color: black;
 }
@@ -35,7 +35,7 @@
 
 .tekly-favorite-element-background {
     position: absolute;
-    left:14px;
+    left: 14px;
     right: 0px;
     top: 0px;
     bottom: 0px;
