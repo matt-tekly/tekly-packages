@@ -59,8 +59,8 @@ namespace Tekly.Webster.Servers
 
 		public void Stop()
 		{
-			m_httpListener.Stop();
-			m_thread.Join(1000);
+			m_httpListener?.Stop();
+			m_thread?.Join(1000);
 		}
 	}
 }
