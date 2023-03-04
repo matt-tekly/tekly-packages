@@ -10,12 +10,6 @@
         "ca.tekly.logger": "0.0.7"
       }
     },
-    "ca.tekly.buildsequences": {
-      "version": "file:ca.tekly.buildsequences",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {}
-    },
     "ca.tekly.common": {
       "version": "file:ca.tekly.common",
       "depth": 0,
