@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -61,21 +62,33 @@ namespace Tekly.Common.LifeCycles
         public void OnApplicationQuit()
         {
             for (var node = m_quitDelegates.First; node != null; node = node.Next) {
-                node.Value.Invoke();
+                try {
+                    node.Value.Invoke();
+                } catch (Exception e) {
+                    Debug.LogException(e);
+                }
             }
         }
 
         public void OnApplicationPause(bool paused)
         {
             for (var node = m_pauseDelegates.First; node != null; node = node.Next) {
-                node.Value.Invoke(paused);
+                try {
+                    node.Value.Invoke(paused);
+                } catch (Exception e) {
+                    Debug.LogException(e);
+                }
             }
         }
 
         public void OnApplicationFocus(bool hasFocus)
         {
             for (var node = m_focusDelegates.First; node != null; node = node.Next) {
-                node.Value.Invoke(hasFocus);
+                try {
+                    node.Value.Invoke(hasFocus);
+                } catch (Exception e) {
+                    Debug.LogException(e);
+                }
             }
         }
 
