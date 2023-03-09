@@ -4,14 +4,20 @@ namespace Tekly.DataModels.Models
 {
     public class ButtonModel : ObjectModel
     {
-        public readonly BoolValueModel Interactable = new BoolValueModel(true);
+        public bool IsInteractable {
+            get => m_interactable.Value;
+            set => m_interactable.Value = value;
+        }
+        
         public ITriggerable<ButtonModel> Activated => m_activated;
+        public ITriggerable<bool> Interactable => m_interactable;
         
         private readonly Triggerable<ButtonModel> m_activated = new Triggerable<ButtonModel>();
+        private readonly BoolValueModel m_interactable = new BoolValueModel(true);
 
         public ButtonModel()
         {
-            Add("interactable", Interactable);
+            Add("interactable", m_interactable);
         }
 
         public void Activate()

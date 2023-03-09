@@ -80,7 +80,7 @@ namespace TeklySample.Game.Generators
         protected override void OnTick()
         {
             m_progress.Value = m_generator.RatioComplete;
-            m_runButton.Interactable.Value = m_generator.Count > 0 && m_generator.State == GeneratorState.Idle;
+            m_runButton.IsInteractable = m_generator.Count > 0 && m_generator.State == GeneratorState.Idle;
             m_timeRemaining.Value = m_generator.TimeRemaining;
             m_count.Value = m_generator.Count;
             m_generation.Count = m_generator.GenerationCount;
@@ -89,10 +89,10 @@ namespace TeklySample.Game.Generators
 
             if (affordable <= 0) {
                 m_affordableCount.Value = 1;
-                m_buyButton.Interactable.Value = false;
+                m_buyButton.IsInteractable = false;
             } else {
                 m_affordableCount.Value = affordable;
-                m_buyButton.Interactable.Value = true;
+                m_buyButton.IsInteractable = true;
             }
         }
         
