@@ -11,6 +11,9 @@ namespace TeklySample.Clipboard.Editor
 {
 	public static class TeklyClipboard
 	{
+		private const int GMEM_MOVEABLE = 0x0002;
+		private const int GMEM_SHARE = 0x2000;
+
 		public static void CopyToClipboard(Texture2D texture)
 		{
 			if (texture == null) {
@@ -59,15 +62,16 @@ namespace TeklySample.Clipboard.Editor
 			return destinationArray;
 		}
 
+
 		private static IntPtr CopyToMovableMemory(byte[] data)
 		{
-			var movableMemory = Win32GlobalAlloc(2 | 8192, data.Length);
+			var movableMemory = Win32GlobalAlloc(GMEM_MOVEABLE | GMEM_SHARE, data.Length);
 
 			if (movableMemory == IntPtr.Zero) {
 				throw new Win32Exception();
 			}
 
-			var destination = movableMemory != IntPtr.Zero ? Win32GlobalLock(movableMemory);
+			var destination = Win32GlobalLock(movableMemory);
 
 			if (destination == IntPtr.Zero) {
 				throw new Win32Exception();
