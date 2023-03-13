@@ -21,8 +21,8 @@ namespace Tekly.Common.TimeProviders
         public TkDateTime AddMilliseconds(double milliseconds) => Time.AddMilliseconds(milliseconds);
         public TkDateTime AddSeconds(double seconds) => Time.AddSeconds(seconds);
         public TkDateTime AddMinutes(double minutes) => Time.AddMinutes(minutes);
-        public TkDateTime AddHours(double hours) => Time.AddMinutes(hours);
-        public TkDateTime AddDays(double days) => Time.AddMinutes(days);
+        public TkDateTime AddHours(double hours) => Time.AddHours(hours);
+        public TkDateTime AddDays(double days) => Time.AddDays(days);
         public TkDateTime AddMonths(int months) => Time.AddMonths(months);
         public TkDateTime AddYears(int months) => Time.AddYears(months);
 
