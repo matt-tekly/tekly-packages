@@ -257,7 +257,12 @@ namespace Tekly.DataModels.Models
 
 				switch (childModel) {
 					case IValueModel childValueModel:
-						entry.Value.text = childValueModel.ToDisplayString().Replace("\n", "\\n");
+						var displayValue = childValueModel.ToDisplayString();
+						if (displayValue != null) {
+							displayValue = displayValue.Replace("\n", "\\n");
+						}
+
+						entry.Value.text = displayValue;
 						break;
 					case ObjectModel childObjectModel:
 						CreateEntries(childObjectModel, entries, fullPath, depth + 1);

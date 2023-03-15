@@ -7,6 +7,8 @@ namespace Tekly.Common.TimeProviders
     [Serializable]
     public struct TkDateTime : ISerializationCallbackReceiver, IComparable, IComparable<TkDateTime>, IEquatable<TkDateTime>
     {
+        public const string FORMAT = "yyyy'/'MM'/'dd'T'HH':'mm':'sszzz";
+        
         public DateTimeOffset Time { get; private set; }
         
         [SerializeField] private string m_time;
@@ -29,12 +31,16 @@ namespace Tekly.Common.TimeProviders
         public TkDateTime Add(TimeSpan timeSpan) => Time.Add(timeSpan);
         public TkDateTime Subtract(TimeSpan timeSpan) => Time.Subtract(timeSpan);
 
-        public override string ToString() => Time.ToString(CultureInfo.InvariantCulture);
+        public override string ToString() => Time.ToString(FORMAT, CultureInfo.InvariantCulture);
 
-        public void OnBeforeSerialize() => m_time = Time.ToString(CultureInfo.InvariantCulture);
+        public void OnBeforeSerialize() => m_time = Time.ToString(FORMAT, CultureInfo.InvariantCulture);
         public void OnAfterDeserialize()
         {
-            if (!string.IsNullOrEmpty(m_time) && DateTimeOffset.TryParse(m_time, out var time)) {
+            if (string.IsNullOrEmpty(m_time)) {
+                return;
+            }
+            
+            if (DateTimeOffset.TryParseExact(m_time, FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out var time)) {
                 Time = time;
             }
         }
