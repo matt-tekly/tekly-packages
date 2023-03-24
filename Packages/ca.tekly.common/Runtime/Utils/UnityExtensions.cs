@@ -1,8 +1,4 @@
-﻿// ============================================================================
-// Copyright 2021 Matt King
-// ============================================================================
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Tekly.Common.Utils
@@ -41,5 +37,33 @@ namespace Tekly.Common.Utils
                 component.transform.GetChild(index).GetComponentsInChildren(items);
             }
         }
+        
+        public static T[] GetInScene<T>() where T : Component
+        {
+#if UNITY_EDITOR
+            var sceneObjects = new List<T>();
+            var allObjects = Object.FindObjectsOfType<T>(true);
+
+            for (var index = 0; index < allObjects.Length; index++) {
+                var obj = allObjects[index];
+                var go = obj.gameObject;
+
+                if (go.hideFlags == HideFlags.NotEditable || go.hideFlags == HideFlags.HideAndDontSave) {
+                    continue;
+                }
+                
+                if (UnityEditor.EditorUtility.IsPersistent(go.transform.root.gameObject)) {
+                    continue;
+                }
+
+                sceneObjects.Add(obj);
+            }
+
+            return sceneObjects.ToArray();
+#else
+			return Object.FindObjectsOfType<T>(true);
+#endif
+        }
+        
     }
 }

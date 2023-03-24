@@ -7,7 +7,7 @@ namespace Tekly.Common.TimeProviders
     [Serializable]
     public struct TkDateTime : ISerializationCallbackReceiver, IComparable, IComparable<TkDateTime>, IEquatable<TkDateTime>
     {
-        public const string FORMAT = "yyyy'/'MM'/'dd'T'HH':'mm':'sszzz";
+        public const string FORMAT = "yyyy'-'MM'-'dd'T'HH':'mm':'sszzz";
         
         public DateTimeOffset Time { get; private set; }
         
