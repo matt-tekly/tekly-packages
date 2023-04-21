@@ -1,11 +1,10 @@
 ﻿using NUnit.Framework.Interfaces;
 using Tekly.Common.Utils;
-using Tests.Utils;
 using UnityEngine.TestRunner;
 
 [assembly: TestRunCallback(typeof(UnityRuntimeEditorUtilsTests))]
 
-namespace Tests.Utils
+namespace Tekly.Common.Utils
 {
     public class UnityRuntimeEditorUtilsTests : ITestRunCallback
     {

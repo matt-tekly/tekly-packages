@@ -1,8 +1,7 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
-using Tekly.Common.Observables;
 
-namespace Tests.Observables
+namespace Tekly.Common.Observables
 {
     public class ObservableValueTests
     {

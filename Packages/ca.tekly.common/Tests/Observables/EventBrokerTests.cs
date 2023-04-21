@@ -6,7 +6,7 @@ using System;
 using NSubstitute;
 using NUnit.Framework;
 
-namespace Tekly.Common.Observables.Tests
+namespace Tekly.Common.Observables
 {
     public class EventBrokerTests
     {
