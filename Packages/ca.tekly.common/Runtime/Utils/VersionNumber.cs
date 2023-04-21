@@ -6,7 +6,7 @@ namespace Tekly.Common.Utils
 	/// Represents a SemVer version number
 	/// </summary>
 	[Serializable]
-	public class VersionNumber : IComparable<VersionNumber>
+	public class VersionNumber : IComparable<VersionNumber>, IEquatable<VersionNumber>
 	{
 		public int Major;
 		public int Minor;
@@ -64,6 +64,67 @@ namespace Tekly.Common.Utils
 			}
 
 			return true;
+		}
+		
+		public bool Equals(VersionNumber other)
+		{
+			if (ReferenceEquals(null, other)) {
+				return false;
+			}
+
+			if (ReferenceEquals(this, other)) {
+				return true;
+			}
+
+			return Major == other.Major && Minor == other.Minor && Patch == other.Patch;
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj)) {
+				return false;
+			}
+
+			if (ReferenceEquals(this, obj)) {
+				return true;
+			}
+
+			return obj.GetType() == GetType() && Equals((VersionNumber) obj);
+		}
+
+		public override int GetHashCode()
+		{
+			return HashCode.Combine(Major, Minor, Patch);
+		}
+
+		public static bool operator ==(VersionNumber left, VersionNumber right)
+		{
+			return Equals(left, right);
+		}
+
+		public static bool operator !=(VersionNumber left, VersionNumber right)
+		{
+			return !Equals(left, right);
+		}
+		
+		public static bool operator <(VersionNumber left, VersionNumber right)
+		{
+			return left.CompareTo(right) < 0;
+		}
+
+		public static bool operator >(VersionNumber left, VersionNumber right)
+		{
+			return left.CompareTo(right) > 0;
+		}
+
+		public static bool operator <=(VersionNumber left, VersionNumber right)
+		{
+			return left.CompareTo(right) <= 0;
+		}
+
+		public static bool operator >=(VersionNumber left, VersionNumber right)
+		{
+			return left.CompareTo(right) >= 0;
 		}
 	}
 }
