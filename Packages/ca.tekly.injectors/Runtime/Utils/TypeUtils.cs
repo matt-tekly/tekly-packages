@@ -33,17 +33,7 @@ namespace Tekly.Injectors.Utils
         
         public static bool IsInjectable(Type type)
         {
-            return Injector.GetFields(type).Any(IsInjectable) || Injector.GetMethods(type).Any(IsInjectable);
-        }
-
-        public static bool IsInjectable(FieldInfo fieldInfo)
-        {
-            return fieldInfo.GetCustomAttribute<InjectAttribute>() != null;
-        }
-        
-        public static bool IsInjectable(MethodInfo fieldInfo)
-        {
-            return fieldInfo.GetCustomAttribute<InjectAttribute>() != null;
+            return Injector.GetInjectableFields(type).Count > 0 || Injector.GetInjectableMethods(type).Count > 0;
         }
     }
 }

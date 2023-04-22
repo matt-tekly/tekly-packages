@@ -44,6 +44,17 @@ namespace Tekly.Injectors.Tests
     {
         [Inject] public LoopClassC Looper;
     }
+
+    public class BaseClass
+    {
+        [Inject] private string m_baseValue;
+        public string BaseValue => m_baseValue;
+    }
+    
+    public class SubClass : BaseClass
+    {
+
+    }
     
     public class MethodClass
     {
@@ -149,6 +160,18 @@ namespace Tekly.Injectors.Tests
             container.Inject(instance);
             
             Assert.That(instance.InjectPrivateValue, Is.EqualTo(3));
+        }
+        
+        [Test]
+        public void InheritanceTest()
+        {
+            var container = new InjectorContainer();
+            var instance = new SubClass();
+            
+            container.Register("test");
+            container.Inject(instance);
+            
+            Assert.That(instance.BaseValue, Is.EqualTo("test"));
         }
     }
 }

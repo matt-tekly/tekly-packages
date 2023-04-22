@@ -11,31 +11,21 @@ namespace Tekly.Injectors
     public class Injector
     {
         private readonly Type m_type;
-        private readonly List<InjectableField> m_fields = new List<InjectableField>();
-        private readonly List<InjectableMethod> m_methods = new List<InjectableMethod>();
+        private readonly List<InjectableField> m_fields;
+        private readonly List<InjectableMethod> m_methods;
         private readonly InjectableConstructor m_constructor;
 
         private bool m_isInstantiating;
+
+        private const BindingFlags FIELD_BINDING_FLAGS = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+        private const BindingFlags METHOD_BINDING_FLAGS = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
         
         public Injector(Type type)
         {
             m_type = type;
-            
-            foreach (var fieldInfo in GetFields(type)) {
-                var attribute = fieldInfo.GetCustomAttribute<InjectAttribute>();
 
-                if (attribute != null) {
-                    m_fields.Add(new InjectableField(attribute, fieldInfo));
-                }
-            }
-            
-            foreach (var methodInfo in GetMethods(type)) {
-                var attribute = methodInfo.GetCustomAttribute<InjectAttribute>();
-
-                if (attribute != null) {
-                    m_methods.Add(new InjectableMethod(methodInfo));
-                }
-            }
+            m_fields = GetInjectableFields(type);
+            m_methods = GetInjectableMethods(type);
 
             m_constructor = new InjectableConstructor(type.Constructor());
         }
@@ -73,14 +63,50 @@ namespace Tekly.Injectors
             }
         }
         
-        public static FieldInfo[] GetFields(Type type)
+        public static List<InjectableField> GetInjectableFields(Type type)
         {
-            return type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var injectableFields = new List<InjectableField>();
+            
+            do {
+                var fields = type.GetFields(FIELD_BINDING_FLAGS);
+                var length = fields.Length;
+                
+                for (var index = 0; index < length; index++) {
+                    var fieldInfo = fields[index];
+                    
+                    var injectAttribute = fieldInfo.GetCustomAttribute<InjectAttribute>();
+                    if (injectAttribute != null) {
+                        injectableFields.Add(new InjectableField(injectAttribute, fieldInfo));
+                    }
+                }
+
+                type = type.BaseType;
+            } while (type != null);
+            
+            return injectableFields;
         }
         
-        public static MethodInfo[] GetMethods(Type type)
+        public static List<InjectableMethod> GetInjectableMethods(Type type)
         {
-            return type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var injectableMethods = new List<InjectableMethod>();
+            
+            do {
+                var methods = type.GetMethods(METHOD_BINDING_FLAGS);
+                var length = methods.Length;
+                
+                for (var index = 0; index < length; index++) {
+                    var method = methods[index];
+
+                    var injectAttribute = method.GetCustomAttribute<InjectAttribute>();
+                    if (injectAttribute != null) {
+                        injectableMethods.Add(new InjectableMethod(method));
+                    }
+                }
+                
+                type = type.BaseType;
+            } while (type != null);
+            
+            return injectableMethods;
         }
     }
 
