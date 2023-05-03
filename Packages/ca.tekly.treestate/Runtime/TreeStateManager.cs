@@ -94,7 +94,16 @@ namespace Tekly.TreeState
 			if (LogActivityChanges) {
 				m_logger.Info($"[{treeActivity.Name}] -> [{treeActivity.Mode}]");	
 			}
+
+			var evt = new TreeActivityModeChangedEvt {
+				State = treeActivity.Name,
+				ActivityType = treeActivity.TypeName,
+				Mode = treeActivity.Mode,
+				IsState = treeActivity is TreeState
+			};
 			
+			TreeStateRegistry.Instance.ActivityModeChanged.Emit(evt);
+
 #if UNITY_EDITOR
 			UnityEditor.EditorApplication.RepaintHierarchyWindow();
 #endif

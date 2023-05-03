@@ -1,12 +1,15 @@
 // ============================================================================
 // Copyright 2021 Matt King
 // ============================================================================
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Tekly.Common;
 using Tekly.Common.Gui;
 using Tekly.TreeState.Utils;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEditorInternal;
 using UnityEngine;
 
@@ -50,14 +53,14 @@ namespace Tekly.TreeState
 			rect.yMin += Padding;
 			rect.height = RectHeight;
 
-			SerializedProperty transition = m_transitions.GetArrayElementAtIndex(index);
-			SerializedProperty transitionName = transition.FindPropertyRelative("TransitionName");
-			SerializedProperty transitionTarget = transition.FindPropertyRelative("Target");
+			var transition = m_transitions.GetArrayElementAtIndex(index);
+			var transitionName = transition.FindPropertyRelative("TransitionName");
+			var transitionTarget = transition.FindPropertyRelative("Target");
 
-			Rect transitionNameRect = rect;
+			var transitionNameRect = rect;
 			transitionNameRect.width = rect.width * 0.45f - 2f;
 
-			Rect targetRect = rect;
+			var targetRect = rect;
 			targetRect.xMin += rect.width * 0.45f + 2f;
 
 			EditorGUI.PropertyField(transitionNameRect, transitionName, GUIContent.none, false);
@@ -81,16 +84,7 @@ namespace Tekly.TreeState
 		{
 			EditorGUILayout.PropertyField(LoadType);
 		}
-
-		private void DrawActiveState()
-		{
-			if (EditorApplication.isPlaying) {
-				using (EditorGuiExt.EnabledBlock(false)) {
-					EditorGUILayout.ObjectField("Active State", m_state.Manager.Active, typeof(TreeState), true);
-				}
-			}
-		}
-
+		
 		private void DrawTransitions()
 		{
 			using (EditorGuiExt.EnabledBlock(!EditorApplication.isPlaying)) {
@@ -103,16 +97,19 @@ namespace Tekly.TreeState
 			if (!EditorApplication.isPlaying) {
 				return;
 			}
+			
+			if (EditorSceneManager.IsPreviewSceneObject(target) || PrefabUtility.IsPartOfAnyPrefab(target)) {
+				return;
+			}
 
 			using (EditorGuiExt.ColorBlock(Color.green)) {
 				EditorGUILayout.BeginVertical(EditorStyles.helpBox);	
 			}
 
 			GUILayout.Label("Debug", EditorStyles.boldLabel);
-
-			DrawActiveState();
 			
 			using (EditorGuiExt.EnabledBlock(false)) {
+				EditorGUILayout.ObjectField("Active State", m_state.Manager.Active, typeof(TreeState), true);
 				EditorGUILayout.EnumPopup("Mode", m_state.Mode);	
 			}
 			
@@ -123,8 +120,7 @@ namespace Tekly.TreeState
 				EditorGUILayout.BeginHorizontal();
 				
 				var content = m_validTransitions.Select(x => new GUIContent(x)).ToArray();
-				int index = m_validTransitions.IndexOf(m_transition);
-				index = index < 0 ? 0 : index;
+				var index = Math.Clamp(m_validTransitions.IndexOf(m_transition), 0, m_validTransitions.Count-1);
 				index = EditorGUILayout.Popup(new GUIContent("Transition"), index, content);
 				
 				m_transition = m_validTransitions[index];
