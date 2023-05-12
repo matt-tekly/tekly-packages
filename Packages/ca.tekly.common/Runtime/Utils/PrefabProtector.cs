@@ -8,7 +8,7 @@ namespace Tekly.Common.Utils
 
         private static Transform GetContainer()
         {
-            if (ReferenceEquals(s_container, null)) {
+            if (s_container == null) {
                 var go = new GameObject("[PrefabProtector]");
                 Object.DontDestroyOnLoad(go);
                 s_container = go.transform;
