@@ -9,7 +9,7 @@ namespace Tekly.Extensions.Addressables
 {
 	public static class AddressablesExtensions
 	{
-		private static async Task<GameObject> InstantiateInjectAsync(this AssetReferenceGameObject assetReference, InjectorContainer container)
+		public static async Task<GameObject> InstantiateInjectAsync(this AssetReferenceGameObject assetReference, InjectorContainer container)
 		{
 			var go = await assetReference.LoadAssetAsync().Task;
 			

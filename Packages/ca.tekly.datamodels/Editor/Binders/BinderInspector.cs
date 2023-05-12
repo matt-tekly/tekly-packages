@@ -1,5 +1,6 @@
 ﻿using Tekly.Common.Gui;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace Tekly.DataModels.Binders
@@ -14,7 +15,9 @@ namespace Tekly.DataModels.Binders
             base.OnInspectorGUI();
 
             if (EditorApplication.isPlaying) {
-                return;
+                if (!EditorSceneManager.IsPreviewSceneObject(target) && !PrefabUtility.IsPartOfAnyPrefab(target)) {
+                    return;
+                }
             }
 
             DrawBinderContainer();
@@ -22,12 +25,11 @@ namespace Tekly.DataModels.Binders
 
         protected void DrawBinderContainer()
         {
-            var binder = target as Binder;
-            
-            var container = binder.GetComponentInParent<BinderContainer>();
-
             using (EditorGuiExt.EnabledBlock(false)) {
                 using (EditorGuiExt.Horizontal()) {
+                    var binder = target as Binder;
+                    var container = binder.GetComponentInParent<BinderContainer>();
+                    
                     EditorGUILayout.ObjectField("Container", container, typeof(BinderContainer), true);
             
                     GUI.enabled = container != null;
