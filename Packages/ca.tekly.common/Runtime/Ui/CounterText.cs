@@ -80,5 +80,14 @@ namespace Tekly.Common.Ui
         {
             m_disposable?.Dispose();
         }
+        
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (m_text == null) {
+                m_text = GetComponent<TMP_Text>();
+            }
+        }
+#endif
     }
 }

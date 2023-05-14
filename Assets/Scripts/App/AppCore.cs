@@ -38,6 +38,29 @@ namespace TeklySample.App
             RootModel.Instance.Add("app", new AppModel(balanceManager));
 
             Debug.Log("Crash Detected: " + CrashCanary.Instance.CrashDetected);
+        }
+
+        public void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Escape)) {
+                Application.Quit();
+                return;
+            }
+
+            ModelManager.Instance.Tick();
+        }
+        
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void Initialize()
+        {
+            TkLogger.Initialize();
+        }
+        
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void InitializeDebug()
+        {
+            WebsterServer.Start(true);
+            WebsterServer.AddRouteHandler<SampleWebsterHandler>();
             
             TreeStateRegistry.Instance.ActivityModeChanged.Subscribe(evt => {
                 var type = evt.IsState ? "Tree State" : "Tree Activity";
@@ -62,29 +85,6 @@ namespace TeklySample.App
                         throw new ArgumentOutOfRangeException();
                 }
             });
-        }
-
-        public void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.Escape)) {
-                Application.Quit();
-                return;
-            }
-
-            ModelManager.Instance.Tick();
-        }
-        
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void Initialize()
-        {
-            TkLogger.Initialize();
-        }
-        
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void InitializeDebug()
-        {
-            WebsterServer.Start(true);
-            WebsterServer.AddRouteHandler<SampleWebsterHandler>();
         }
     }
 }

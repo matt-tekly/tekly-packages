@@ -1,41 +1,29 @@
-﻿using Tekly.Content;
+﻿using System.Threading.Tasks;
+using Tekly.Content;
 using Tekly.Injectors;
 using Tekly.Logging;
 using Tekly.TreeState.StandardActivities;
 
 namespace TeklySample.Frontend.Activities
 {
-    public class ContentProviderActivity : InjectableActivity
+    public class ContentProviderActivity : AsyncInjectableActivity
     {
         [Inject] private IContentProvider m_contentProvider;
-
-        private bool m_loading;
-        private readonly TkLogger m_logger = TkLogger.Get<BalanceManagerActivity>();
         
-        protected override bool IsDoneLoading()
-        {
-            return !m_loading;
-        }
+        private TkLogger m_logger = TkLogger.Get<ContentProviderActivity>();
         
-        protected override void LoadingStarted()
+        protected override async Task LoadAsync()
         {
-            LoadAsync();
-        }
-
-        private async void LoadAsync()
-        {
-            m_loading = true;
             m_logger.Info("Initializing ContentProvider: Start");
             
             var result = await m_contentProvider.InitializeAsync();
 
             if (result.Failure) {
-                m_logger.Error("Failed to initialize ContentProvider: [{error}]", ("error", "Failed to initialize ContentProvider"));
+                m_logger.Error("Failed to initialize ContentProvider: [{error}]", ("error", result.Error));
                 HandleError();
                 return;
             }
 
-            m_loading = false;
             m_logger.Info("Initializing ContentProvider: Complete");
         }
 

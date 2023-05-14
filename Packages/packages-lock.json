@@ -41,7 +41,8 @@
       "source": "embedded",
       "dependencies": {
         "ca.tekly.logger": "0.0.7",
-        "ca.tekly.common": "0.0.7"
+        "ca.tekly.common": "0.0.7",
+        "com.unity.addressables": "1.19.18"
       }
     },
     "ca.tekly.favorites": {

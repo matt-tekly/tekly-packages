@@ -1,4 +1,5 @@
-﻿using Tekly.Balance;
+﻿using System.Threading.Tasks;
+using Tekly.Balance;
 using Tekly.Common.LocalFiles;
 using Tekly.Content;
 using Tekly.Injectors;
@@ -9,7 +10,7 @@ using UnityEngine;
 
 namespace TeklySample.Game.Worlds
 {
-    public class GameWorldActivity : InjectableActivity
+    public class GameWorldActivity : AsyncInjectableActivity
     {
         [Inject] private AppData m_appData;
         [Inject] private BalanceManager m_balanceManager;
@@ -18,34 +19,11 @@ namespace TeklySample.Game.Worlds
 
         private readonly TkLogger m_logger = TkLogger.Get<GameWorldActivity>();
         
-        private bool m_isLoading;
-        
         private GameWorld m_gameWorld;
         private GameWorldModel m_gameWorldModel;
         
         private BalanceContainer m_balanceContainer;
         
-        protected override bool IsDoneLoading()
-        {
-            return !m_isLoading;
-        }
-
-        protected override void LoadingStarted()
-        {
-            m_logger.Info("GameWorld Loading Started: " + m_appData.ActiveWorld);
-            m_balanceContainer = new BalanceContainer($"balance.{m_appData.ActiveWorld}", m_contentProvider);
-            LoadAsync();
-        }
-
-        protected override void UnloadingStarted()
-        {
-            m_logger.Info("Unloading");
-            m_balanceManager.RemoveContainer(m_balanceContainer);
-            m_balanceContainer.Dispose();
-
-            Save();
-        }
-
         private void OnApplicationQuit()
         {
             if (m_gameWorld != null) {
@@ -62,17 +40,28 @@ namespace TeklySample.Game.Worlds
             LocalFile.WriteAllText($"saves/{m_appData.ActiveWorld}.json", saveJson);
         }
 
-        private async void LoadAsync()
+        protected override async Task LoadAsync()
         {
-            m_isLoading = true;
+            m_logger.Info("GameWorld Loading Started: " + m_appData.ActiveWorld);
+            m_balanceContainer = new BalanceContainer($"balance.{m_appData.ActiveWorld}", m_contentProvider);
             
             await m_balanceContainer.LoadAsync();
             m_balanceManager.AddContainer(m_balanceContainer);
             
             CreateGameWorld();
             
-            m_isLoading = false;
             m_logger.Info("GameWorld Loading Finished: " + m_appData.ActiveWorld);
+        }
+        
+        protected override Task UnloadAsync()
+        {
+            m_logger.Info("Unloading");
+            m_balanceManager.RemoveContainer(m_balanceContainer);
+            m_balanceContainer.Dispose();
+
+            Save();
+            
+            return Task.CompletedTask;
         }
 
         private void CreateGameWorld()

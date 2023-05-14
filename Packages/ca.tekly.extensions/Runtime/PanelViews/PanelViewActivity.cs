@@ -10,7 +10,7 @@ namespace Tekly.Extensions.PanelViews
     {
         [SerializeField] private string m_panelId;
         [SerializeField] private string m_context;
-        [Polymorphic] [SerializeField] private PanelData m_panelData;
+        [Polymorphic, SerializeReference] private PanelData m_panelData;
         
         [SerializeField] private bool m_showOnLoad;
         [SerializeField] private bool m_hideOnLeave;
