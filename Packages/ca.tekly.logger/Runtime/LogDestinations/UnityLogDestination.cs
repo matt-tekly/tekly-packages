@@ -136,6 +136,10 @@ namespace Tekly.Logging.LogDestinations
         public void Update()
         {
             m_currentFrame = Time.frameCount;
+
+#if UNITY_EDITOR
+            UnityLogDestinationEditorBridge.Update();
+#endif
         }
 
         public static LogType LevelToType(TkLogLevel level)

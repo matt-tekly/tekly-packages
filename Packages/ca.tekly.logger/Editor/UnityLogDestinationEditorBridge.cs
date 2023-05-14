@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
+using System.Threading;
 using UnityEditor;
 using UnityEngine;
 
@@ -7,10 +9,44 @@ namespace Tekly.Logging.LogDestinations
 {
     public static class UnityLogDestinationEditorBridge
     {
+        private struct LogMessage
+        {
+            public LogEntry Entry;
+            public LogType LogType;
+        }
+
+        private static ConcurrentQueue<LogMessage> s_queuedMessages = new ConcurrentQueue<LogMessage>();
+        private static Thread s_mainThread;
+        
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void Initialize()
+        {
+            s_mainThread = Thread.CurrentThread;
+        }
+        
         public static void Log(LogType logType, string message)
         {
             var logEntry = ParseMessage(message);
+            
+            if (Thread.CurrentThread == s_mainThread) {
+                Log(logType, logEntry);    
+            } else {
+                s_queuedMessages.Enqueue(new LogMessage {
+                    Entry = logEntry,
+                    LogType =  logType
+                });
+            }
+        }
 
+        public static void Update()
+        {
+            while (s_queuedMessages.TryDequeue(out var queuedMessage)) {
+                Log(queuedMessage.LogType, queuedMessage.Entry);
+            }
+        }
+
+        private static void Log(LogType logType, LogEntry logEntry)
+        {
             switch (logType) {
                 case LogType.Log:
                     LogInfo(logEntry);
