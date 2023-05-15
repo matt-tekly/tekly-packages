@@ -3,7 +3,8 @@
     "rootNamespace": "Tekly.PanelViews",
     "references": [
         "GUID:cdf1d8a98239046339f3209a07808ea0",
-        "GUID:31f6ca066cb1421498e9be3571072338"
+        "GUID:31f6ca066cb1421498e9be3571072338",
+        "GUID:b9160372c6c55a741932d482673e3abb"
     ],
     "includePlatforms": [
         "Editor"

@@ -1,3 +1,4 @@
+using Tekly.Common.Presentables;
 using Tekly.Common.Utils;
 using Tekly.Logging;
 using Tekly.PanelViews;
@@ -31,7 +32,7 @@ namespace Tekly.Extensions.PanelViews
 		
         protected override bool IsDoneLoading()
         {
-            return !m_showOnLoad || m_panelView.State == PanelState.Shown;
+            return !m_showOnLoad || m_panelView.State == PresentableState.Shown;
         }
 		
         protected override void UnloadingStarted()
@@ -43,7 +44,7 @@ namespace Tekly.Extensions.PanelViews
 		
         protected override bool IsDoneUnloading()
         {
-            return !m_hideOnLeave || m_panelView.State == PanelState.Hidden;
+            return !m_hideOnLeave || m_panelView.State == PresentableState.Hidden;
         }
     }
 }

@@ -1,4 +1,5 @@
 using Tekly.Common.Observables;
+using Tekly.Common.Presentables;
 using Tekly.Common.Registrys;
 using Tekly.Common.Utils;
 
@@ -7,9 +8,9 @@ namespace Tekly.PanelViews
     public struct PanelStateChangedEvt
     {
         public readonly string Id;
-        public readonly PanelState State;
+        public readonly PresentableState State;
 
-        public PanelStateChangedEvt(string id, PanelState state)
+        public PanelStateChangedEvt(string id, PresentableState state)
         {
             Id = id;
             State = state;
