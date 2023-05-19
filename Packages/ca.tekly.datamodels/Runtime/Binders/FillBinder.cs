@@ -5,11 +5,10 @@ using UnityEngine;
 
 namespace Tekly.DataModels.Binders
 {
-    public class ProgressBarBinder : Binder
+    public class FillBinder : Binder
     {
-        [SerializeReference] private Filled m_filled;
-
         [SerializeField] private ModelRef m_key;
+        [SerializeField] private Filled m_filled;
 
         private IDisposable m_disposable;
 
@@ -26,9 +25,8 @@ namespace Tekly.DataModels.Binders
             m_filled.Fill = (float) value;
         }
 
-        protected override void OnDestroy()
+        public override void UnBind()
         {
-            base.OnDestroy();
             m_disposable?.Dispose();
         }
     }

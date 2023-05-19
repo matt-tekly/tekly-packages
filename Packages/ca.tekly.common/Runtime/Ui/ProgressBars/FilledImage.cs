@@ -1,14 +1,9 @@
-using System;
-using UnityEngine;
 using UnityEngine.UI;
 
 namespace Tekly.Common.Ui.ProgressBars
 {
-    
     public class FilledImage : Filled
     {
-        [Range(0, 1)] [SerializeField] private float m_fill;
-        
         private Image m_image;
 
         private Image Image {
@@ -20,22 +15,18 @@ namespace Tekly.Common.Ui.ProgressBars
                 return m_image;
             }
         }
-        
-        public override float Fill {
-            get => m_fill;
-            set {
-                if (Mathf.Approximately(m_fill, value)) {
-                    return;
-                }
 
-                m_fill = value;
-                Image.fillAmount = Fill;
-            }
-        }
-
-        private void OnValidate()
+        protected override void SetFill(float fill)
         {
-            Image.fillAmount = Fill;
+            Image.fillAmount = fill;
         }
+
+#if UNITY_EDITOR
+        protected override void OnValidate()
+        {
+            base.OnValidate();
+            Image.fillAmount = FillAdjusted;
+        }
+#endif
     }
 }

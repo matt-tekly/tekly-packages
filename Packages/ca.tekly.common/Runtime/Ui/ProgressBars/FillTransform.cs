@@ -10,18 +10,15 @@ namespace Tekly.Common.Ui.ProgressBars
     [ExecuteAlways]
     public class FillTransform : Filled, ILayoutSelfController
     {
-        [Range(0f, 1f)]
-        [SerializeField] private float m_fill;
         [SerializeField] private FillDirection m_direction;
 
         private DrivenRectTransformTracker m_tracker;
         private RectTransform m_rectTransform;
         private RectTransform m_parent;
 
-        private const DrivenTransformProperties DRIVEN_PROPERTIES = DrivenTransformProperties.AnchoredPosition 
+        private const DrivenTransformProperties DRIVEN_PROPERTIES = DrivenTransformProperties.AnchoredPosition
                                                                     | DrivenTransformProperties.Anchors
                                                                     | DrivenTransformProperties.SizeDelta;
-		
         private RectTransform RectTransform {
             get {
                 if (m_rectTransform == null) {
@@ -42,24 +39,12 @@ namespace Tekly.Common.Ui.ProgressBars
             }
         }
 
-        public override float Fill {
-            get => m_fill;
-            set {
-                if (Mathf.Approximately(value, m_fill)) {
-                    return;
-                }
-				
-                m_fill = value;
-                DoLayout();
-            }
-        }
-		
         protected void OnEnable()
         {
             m_tracker.Clear();
             m_tracker.Add(this, RectTransform, DRIVEN_PROPERTIES);
 
-            DoLayout();
+            SetFill(FillAdjusted);
 
             LayoutRebuilder.MarkLayoutForRebuild(RectTransform);
         }
@@ -71,15 +56,20 @@ namespace Tekly.Common.Ui.ProgressBars
         
         public void SetLayoutHorizontal()
         {
-            DoLayout();
+            UpdateTransform(FillAdjusted);
         }
 
         public void SetLayoutVertical()
         {
-            DoLayout();
+            UpdateTransform(FillAdjusted);
         }
-		
-        private void DoLayout()
+        
+        protected override void SetFill(float fill)
+        {
+            LayoutRebuilder.MarkLayoutForRebuild(RectTransform);
+        }
+
+        private void UpdateTransform(float fill)
         {
             RectTransform.anchorMin = Vector2.zero;
             RectTransform.anchorMax = Vector2.one;
@@ -88,29 +78,29 @@ namespace Tekly.Common.Ui.ProgressBars
                 case FillDirection.LeftToRight: {
                     var width = ParentTransform.rect.width;
                     var rt = RectTransform;
-                    rt.offsetMin = new Vector2(-width * (1f - m_fill), 0);
-                    rt.offsetMax = new Vector2(-width * (1f - m_fill), 0);
+                    rt.offsetMin = new Vector2(-width * (1f - fill), 0);
+                    rt.offsetMax = new Vector2(-width * (1f - fill), 0);
                     break;
                 }
                 case FillDirection.RightToLeft: {
                     var width = ParentTransform.rect.width;
                     var rt = RectTransform;
-                    rt.offsetMin = new Vector2(width * (1f - m_fill), 0);
-                    rt.offsetMax = new Vector2(width * (1f - m_fill), 0);
+                    rt.offsetMin = new Vector2(width * (1f - fill), 0);
+                    rt.offsetMax = new Vector2(width * (1f - fill), 0);
                     break;
                 }
                 case FillDirection.TopToBottom: {
                     var height = ParentTransform.rect.height;
                     var rt = RectTransform;
-                    rt.offsetMin = new Vector2(0, height * (1f - m_fill));
-                    rt.offsetMax = new Vector2(0, height * (1f - m_fill));
+                    rt.offsetMin = new Vector2(0, height * (1f - fill));
+                    rt.offsetMax = new Vector2(0, height * (1f - fill));
                     break;
                 }
                 case FillDirection.BottomToTop: {
                     var height = ParentTransform.rect.height;
                     var rt = RectTransform;
-                    rt.offsetMin = new Vector2(0, -height * (1f - m_fill));
-                    rt.offsetMax = new Vector2(0, -height * (1f - m_fill));
+                    rt.offsetMin = new Vector2(0, -height * (1f - fill));
+                    rt.offsetMax = new Vector2(0, -height * (1f - fill));
                     break;
                 }
                 default:
@@ -119,8 +109,9 @@ namespace Tekly.Common.Ui.ProgressBars
         }
 		
 #if UNITY_EDITOR
-        private void OnValidate()
+        protected override void OnValidate()
         {
+            base.OnValidate();
             LayoutRebuilder.MarkLayoutForRebuild(RectTransform);
         }
 #endif

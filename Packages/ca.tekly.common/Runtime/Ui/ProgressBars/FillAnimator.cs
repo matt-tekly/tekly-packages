@@ -8,9 +8,10 @@ namespace Tekly.Common.Ui.ProgressBars
         [SerializeReference] private Filled m_filled;
         [SerializeField] private float m_animationTime = 0.2f;
         
-        [Range(0, 1)] [SerializeField] private float m_fill;
         [SerializeField] private EaseData m_ease;
 
+        private float m_fill;
+        
         private float m_startTime;
         private float m_animStartValue;
         private float m_destinationValue;
@@ -18,30 +19,28 @@ namespace Tekly.Common.Ui.ProgressBars
         private bool m_animating;
         private bool m_hasReceivedValue;
 
-        public override float Fill {
-            get => m_fill;
-            set {
-                if (m_animationTime <= 0) {
-                    Set(value);
-                    return;
-                }
-
-                m_startTime = Time.time;
-
-                if (m_hasReceivedValue) {
-                    m_animStartValue = m_fill;
-                    m_destinationValue = value;
-                } else {
-                    m_fill = value;
-                    m_animStartValue = m_fill;
-                    m_destinationValue = m_fill;
-                    m_hasReceivedValue = true;
-                }
-
-                Set(m_fill);
-
-                m_animating = true;
+        protected override void SetFill(float fill)
+        {
+            if (m_animationTime <= 0) {
+                Set(fill);
+                return;
             }
+
+            m_startTime = Time.time;
+
+            if (m_hasReceivedValue) {
+                m_animStartValue = m_fill;
+                m_destinationValue = fill;
+            } else {
+                m_fill = fill;
+                m_animStartValue = m_fill;
+                m_destinationValue = m_fill;
+                m_hasReceivedValue = true;
+            }
+
+            Set(m_fill);
+
+            m_animating = true;
         }
 
         public void SetWithoutAnimating(float value)
@@ -74,12 +73,5 @@ namespace Tekly.Common.Ui.ProgressBars
                 m_filled.Fill = value;    
             }
         }
-        
-#if UNITY_EDITOR
-        private void OnValidate()
-        {
-            Set(m_fill);
-        }
-#endif
     }
 }
