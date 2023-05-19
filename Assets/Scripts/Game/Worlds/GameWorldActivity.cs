@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Tekly.Balance;
 using Tekly.Common.LocalFiles;
+using Tekly.Common.Utils;
 using Tekly.Content;
 using Tekly.Injectors;
 using Tekly.Logging;
@@ -23,15 +25,8 @@ namespace TeklySample.Game.Worlds
         private GameWorldModel m_gameWorldModel;
         
         private BalanceContainer m_balanceContainer;
+        private IDisposable m_disposable;
         
-        private void OnApplicationQuit()
-        {
-            if (m_gameWorld != null) {
-                m_logger.Info("Quitting");
-                Save();
-            }
-        }
-
         private void Save()
         {
             var saveData = m_gameWorld.ToSave();
@@ -43,6 +38,9 @@ namespace TeklySample.Game.Worlds
         protected override async Task LoadAsync()
         {
             m_logger.Info("GameWorld Loading Started: " + m_appData.ActiveWorld);
+
+            m_disposable = ApplicationFocusListener.Instance.Suspended.Subscribe(_ => Save());
+            
             m_balanceContainer = new BalanceContainer($"balance.{m_appData.ActiveWorld}", m_contentProvider);
             
             await m_balanceContainer.LoadAsync();
@@ -56,6 +54,8 @@ namespace TeklySample.Game.Worlds
         protected override Task UnloadAsync()
         {
             m_logger.Info("Unloading");
+            m_disposable.Dispose();
+            
             m_balanceManager.RemoveContainer(m_balanceContainer);
             m_balanceContainer.Dispose();
 
