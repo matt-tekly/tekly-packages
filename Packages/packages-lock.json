@@ -88,6 +88,16 @@
       "source": "embedded",
       "dependencies": {}
     },
+    "ca.tekly.notifications": {
+      "version": "file:ca.tekly.notifications",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "ca.tekly.logger": "0.0.7",
+        "ca.tekly.common": "0.0.1",
+        "com.unity.mobile.notifications": "0.0.1"
+      }
+    },
     "ca.tekly.nsubstitute": {
       "version": "file:ca.tekly.nsubstitute",
       "depth": 0,
@@ -193,6 +203,15 @@
       "depth": 0,
       "source": "registry",
       "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.mobile.notifications": {
+      "version": "2.1.1",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.androidjni": "1.0.0"
+      },
       "url": "https://packages.unity.com"
     },
     "com.unity.scriptablebuildpipeline": {
