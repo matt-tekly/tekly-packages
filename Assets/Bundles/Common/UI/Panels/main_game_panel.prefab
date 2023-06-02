@@ -323,6 +323,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_fill: 1
+  m_fillRange:
+    Min: 0
+    Max: 1
   m_direction: 0
 --- !u!1 &2682684837485274862
 GameObject:
@@ -376,9 +379,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c411423794ff4fa1ac40e54729930b72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_filled: {fileID: 3475697222244590054}
   m_key:
     Path: gameworld.generators.all.credits_gen.progress
+  m_filled: {fileID: 3475697222244590054}
 --- !u!1 &2836220361753744742
 GameObject:
   m_ObjectHideFlags: 0

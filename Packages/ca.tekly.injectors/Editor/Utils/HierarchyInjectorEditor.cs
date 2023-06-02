@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Tekly.Injectors.Utils
 {
-	[CustomEditor(typeof(HierarchyInjector), false)]
+	[CustomEditor(typeof(HierarchyInjector), true)]
 	public class HierarchyInjectorInspector : Editor
 	{
 		public override void OnInspectorGUI()

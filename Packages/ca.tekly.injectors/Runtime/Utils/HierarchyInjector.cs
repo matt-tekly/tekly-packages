@@ -14,12 +14,12 @@ namespace Tekly.Injectors.Utils
 	
 	public class HierarchyInjector : MonoBehaviour
 	{
-		[SerializeField] private bool m_injectOnAwake;
+		[SerializeField] protected bool m_injectOnAwake;
 		
-		[SerializeField] private List<MonoBehaviour> m_behaviours = new List<MonoBehaviour>();
-		[SerializeField] private List<HierarchyInjector> m_childInjectors = new List<HierarchyInjector>();
+		[SerializeField] protected List<MonoBehaviour> m_behaviours = new List<MonoBehaviour>();
+		[SerializeField] protected List<HierarchyInjector> m_childInjectors = new List<HierarchyInjector>();
 
-		[SerializeField] private List<RegisteredComponent> m_componentsToRegister = new List<RegisteredComponent>();
+		[SerializeField] protected List<RegisteredComponent> m_componentsToRegister = new List<RegisteredComponent>();
 		
 		private void Awake()
 		{
@@ -42,6 +42,12 @@ namespace Tekly.Injectors.Utils
 				}
 			}
 			
+			var providers = GetComponents<IInjectionProvider>();
+			
+			foreach (var provider in providers) {
+				provider.Provide(container);
+			}
+			
 			foreach (var behaviour in m_behaviours) {
 				container.Inject(behaviour);
 			}
@@ -52,12 +58,12 @@ namespace Tekly.Injectors.Utils
 		}
 
 #if UNITY_EDITOR
-		public void OnValidate()
+		public virtual void OnValidate()
 		{
 			FindInjectables();
 		}
 		
-		public void FindInjectables()
+		public virtual void FindInjectables()
 		{
 			m_behaviours.Clear();
 			m_childInjectors.Clear();
@@ -68,7 +74,7 @@ namespace Tekly.Injectors.Utils
 			GetChildren(gameObject, m_behaviours, m_childInjectors, scratch);
 		}
 
-		private static void GetChildren(GameObject gameObject, List<MonoBehaviour> behaviours, List<HierarchyInjector> injectors, List<MonoBehaviour> scratch)
+		protected static void GetChildren(GameObject gameObject, List<MonoBehaviour> behaviours, List<HierarchyInjector> injectors, List<MonoBehaviour> scratch)
 		{
 			var transform = gameObject.transform;
             
@@ -87,7 +93,7 @@ namespace Tekly.Injectors.Utils
 			}
 		}
 
-		private static void GetInjectables(List<MonoBehaviour> behaviours, List<MonoBehaviour> scratch, Component child)
+		protected static void GetInjectables(List<MonoBehaviour> behaviours, List<MonoBehaviour> scratch, Component child)
 		{
 			child.GetComponents(scratch);
 

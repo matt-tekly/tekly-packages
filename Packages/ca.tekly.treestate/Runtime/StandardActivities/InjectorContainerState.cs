@@ -6,10 +6,7 @@ using UnityEngine;
 
 namespace Tekly.TreeState.StandardActivities
 {
-    public interface IInjectionProvider
-    {
-        void Provide(InjectorContainer container);
-    }
+   
     
     public class InjectorContainerState : TreeStateActivity
     {
