@@ -1,0 +1,17 @@
+{
+  "name": "ca.tekly.basicbuilder",
+  "version": "0.0.1",
+  "displayName": "Tekly Basic Builder",
+  "description": "Basic client builder",
+  "author": {
+    "name": "Matt King",
+    "email": "matt@tekly.ca"
+  },
+  "hideInEditor": false,
+  "type": "library",
+  "dependencies": {
+    "com.unity.addressables": "1.19.18",
+    "ca.tekly.common": "0.0.1",
+    "ca.tekly.zipfile": ""
+  }
+}

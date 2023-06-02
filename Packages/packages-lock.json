@@ -10,6 +10,16 @@
         "ca.tekly.logger": "0.0.7"
       }
     },
+    "ca.tekly.basicbuilder": {
+      "version": "file:ca.tekly.basicbuilder",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.addressables": "1.19.18",
+        "ca.tekly.common": "0.0.1",
+        "ca.tekly.zipfile": ""
+      }
+    },
     "ca.tekly.common": {
       "version": "file:ca.tekly.common",
       "depth": 0,
