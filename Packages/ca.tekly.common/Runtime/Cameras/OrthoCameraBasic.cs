@@ -3,23 +3,27 @@ using UnityEngine.EventSystems;
 
 namespace Tekly.Common.Cameras
 {
-	public class Basic2dCamera : MonoBehaviour
+	public class OrthoCameraBasic : MonoBehaviour
 	{
-		public Bounds Bounds { get; set; }
+		public Bounds? BoundsOverride { get; set; }
+		public Bounds ActiveBounds => BoundsOverride ?? m_defaultBounds;
+		public Vector3 MouseWorldPosition => m_camera.ScreenToWorldPoint(Input.mousePosition);
 
+		[Header("Camera")]
 		[SerializeField] private Camera m_camera;
 		[SerializeField] private Transform m_cameraTransform;
 
-		[Header("Zoom")]
+		[Header("Zoom")] 
 		[SerializeField] private float m_minZoom = 2;
-		[SerializeField] private float m_maxZoom = 5;
-		[SerializeField] private float m_zoomSpeed = 1;
-		[SerializeField] private float m_zoomTime = 0.1f;
-		
-		[Header("Input")]
-		[SerializeField] private int m_mouseButton;
+		[SerializeField] private float m_maxZoom = 10;
+		[SerializeField] private float m_zoomSpeed = .1f;
+		[SerializeField] private float m_zoomTime = 100f;
+		[SerializeField] private AnimationCurve m_zoomCurve;
 
-		[Header("Bounds")]
+		[Header("Input")] 
+		[SerializeField] private int m_mouseButton = 2;
+
+		[Header("Bounds")] 
 		[SerializeField] private Bounds m_defaultBounds;
 		[SerializeField] private bool m_useBounds = true;
 
@@ -31,7 +35,6 @@ namespace Tekly.Common.Cameras
 
 		private void Awake()
 		{
-			Bounds = m_defaultBounds;
 			AdjustToCameraProperties();
 		}
 
@@ -51,21 +54,21 @@ namespace Tekly.Common.Cameras
 			UpdateDrag();
 			UpdateZoom();
 		}
-		
+
 		private void UpdateDrag()
 		{
 			if (!IsPointerOverUi() && Input.GetMouseButtonDown(m_mouseButton)) {
 				m_dragging = true;
-				m_dragStart = m_camera.ScreenToWorldPoint(Input.mousePosition);
+				m_dragStart = MouseWorldPosition;
 			}
 
 			if (m_dragging && Input.GetMouseButton(m_mouseButton)) {
-				var difference = m_dragStart - m_camera.ScreenToWorldPoint(Input.mousePosition);
+				var difference = m_dragStart - MouseWorldPosition;
 				var position = m_cameraTransform.position;
 				position += difference;
 
 				if (m_useBounds) {
-					m_cameraTransform.position = CameraUtils.ClampToBounds(m_camera, position, Bounds);
+					m_cameraTransform.position = CameraUtils.ClampToBounds(m_camera, position, ActiveBounds);
 				} else {
 					m_cameraTransform.position = position;
 				}
@@ -78,18 +81,26 @@ namespace Tekly.Common.Cameras
 
 		private void UpdateZoom()
 		{
-			var delta = m_zoomSpeed * -Input.mouseScrollDelta.y;
-			m_destinationZoom = Mathf.Clamp01(m_destinationZoom + delta);
-
-			m_currentZoom = Mathf.SmoothStep(m_currentZoom, m_destinationZoom, Time.deltaTime * m_zoomTime);
-				
-			m_camera.orthographicSize = Mathf.Lerp(m_minZoom, m_maxZoom, m_currentZoom);
+			var oldMousePos = MouseWorldPosition;
 			
+			var delta = m_zoomSpeed * m_zoomCurve.Evaluate(m_currentZoom) * -Input.mouseScrollDelta.y;
+			
+			m_destinationZoom = Mathf.Clamp01(m_destinationZoom + delta);
+			m_currentZoom = Mathf.SmoothStep(m_currentZoom, m_destinationZoom, Time.deltaTime * m_zoomTime);
+			m_camera.orthographicSize = Mathf.Lerp(m_minZoom, m_maxZoom, m_currentZoom);
+
+			var posDiff = oldMousePos - MouseWorldPosition;
+			
+			var camPos = m_cameraTransform.position;
+			var targetPos = new Vector3(camPos.x + posDiff.x, camPos.y + posDiff.y, camPos.z);
+			
+			m_cameraTransform.position = targetPos;
+
 			if (m_useBounds) {
-				m_cameraTransform.position = CameraUtils.ClampToBounds(m_camera, m_cameraTransform.position, Bounds);
+				m_cameraTransform.position = CameraUtils.ClampToBounds(m_camera, m_cameraTransform.position, ActiveBounds);
 			}
 		}
-		
+
 		private static bool IsPointerOverUi()
 		{
 			var current = EventSystem.current;
@@ -97,6 +108,12 @@ namespace Tekly.Common.Cameras
 		}
 
 #if UNITY_EDITOR
+		private void Reset()
+		{
+			m_defaultBounds = new Bounds(Vector3.zero, new Vector3(5, 10, 0));
+			m_zoomCurve = AnimationCurve.Constant(0, 1f, 1f);
+		}
+
 		private void OnValidate()
 		{
 			if (m_camera == null) {
@@ -110,7 +127,7 @@ namespace Tekly.Common.Cameras
 
 		private void OnDrawGizmos()
 		{
-			var bounds = Application.isPlaying ? Bounds : m_defaultBounds;
+			var bounds = ActiveBounds;
 
 			var min = bounds.min;
 			var max = bounds.max;
