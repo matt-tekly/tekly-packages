@@ -40,7 +40,7 @@ namespace Tekly.TreeState.StandardActivities
                 }
             }
             
-            if (ScriptableBindings != null && ScriptableBindings.Length > 0 && m_instances == null) {
+            if (ScriptableBindings != null && ScriptableBindings.Length > 0 && (m_instances == null || m_instances.Length == 0)) {
                 Array.Resize(ref m_instances, ScriptableBindings.Length);
                 for (var index = 0; index < ScriptableBindings.Length; index++) {
                     var scriptableInjector = ScriptableBindings[index];
