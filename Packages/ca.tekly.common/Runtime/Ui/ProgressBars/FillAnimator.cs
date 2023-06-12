@@ -10,7 +10,7 @@ namespace Tekly.Common.Ui.ProgressBars
         
         [SerializeField] private EaseData m_ease;
 
-        private float m_fill;
+        private float m_currentFill;
         
         private float m_startTime;
         private float m_animStartValue;
@@ -29,16 +29,16 @@ namespace Tekly.Common.Ui.ProgressBars
             m_startTime = Time.time;
 
             if (m_hasReceivedValue) {
-                m_animStartValue = m_fill;
+                m_animStartValue = m_currentFill;
                 m_destinationValue = fill;
             } else {
-                m_fill = fill;
-                m_animStartValue = m_fill;
-                m_destinationValue = m_fill;
+                m_currentFill = fill;
+                m_animStartValue = m_currentFill;
+                m_destinationValue = m_currentFill;
                 m_hasReceivedValue = true;
             }
 
-            Set(m_fill);
+            Set(m_currentFill);
 
             m_animating = true;
         }
@@ -46,8 +46,8 @@ namespace Tekly.Common.Ui.ProgressBars
         public void SetWithoutAnimating(float value)
         {
             m_animating = false;
-            m_fill = value;
-            Set(m_fill);
+            m_currentFill = value;
+            Set(m_currentFill);
         }
         
         private void Update()
@@ -59,8 +59,8 @@ namespace Tekly.Common.Ui.ProgressBars
             var ratio = Mathf.InverseLerp(m_startTime, m_startTime + m_animationTime, Time.time);
             var animatedRatio = m_ease.Evaluate(ratio);
 
-            m_fill = Mathf.Lerp(m_animStartValue, m_destinationValue, animatedRatio);
-            Set(m_fill);
+            m_currentFill = Mathf.Lerp(m_animStartValue, m_destinationValue, animatedRatio);
+            Set(m_currentFill);
 
             if (Time.time > m_startTime + m_animationTime) {
                 m_animating = false;

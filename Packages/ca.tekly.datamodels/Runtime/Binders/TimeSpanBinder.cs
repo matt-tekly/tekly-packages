@@ -14,7 +14,7 @@ namespace Tekly.DataModels.Binders
 		private IDisposable m_disposable;
 		private DateTime m_endTime;
 
-		private int m_lastSeconds = int.MaxValue;
+		private double m_lastSeconds = double.MaxValue;
 		
 		public override void Bind(BinderContainer container)
 		{
@@ -26,8 +26,8 @@ namespace Tekly.DataModels.Binders
 
 		private void BindValue(TimeSpan value)
 		{
-			if (value.Seconds != m_lastSeconds) {
-				m_lastSeconds = value.Seconds;
+			if (Math.Abs(value.TotalSeconds - m_lastSeconds) > 0.01d) {
+				m_lastSeconds = value.TotalSeconds;
 				m_text.text = value.ToString(m_format);	
 			}
 		}
@@ -37,5 +37,14 @@ namespace Tekly.DataModels.Binders
 			base.UnBind();
 			m_disposable?.Dispose();
 		}
+		
+#if UNITY_EDITOR
+		private void OnValidate()
+		{
+			if (m_text == null) {
+				m_text = GetComponent<TMP_Text>();
+			}
+		}
+#endif
 	}
 }

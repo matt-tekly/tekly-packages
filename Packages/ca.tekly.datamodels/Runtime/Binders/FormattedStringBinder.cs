@@ -95,6 +95,15 @@ namespace Tekly.DataModels.Binders
                 disposable.Dispose();
             }
         }
+        
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (m_text == null) {
+                m_text = GetComponent<TMP_Text>();
+            }
+        }
+#endif
 
         private class Listener<T> : IValueObserver<T>, IDisposable
         {

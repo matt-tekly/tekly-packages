@@ -52,5 +52,14 @@ namespace Tekly.DataModels.Binders
                 m_action.Activate();
             }
         }
+        
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (m_button == null) {
+                m_button = GetComponent<ButtonBase>();
+            }
+        }
+#endif
     }
 }

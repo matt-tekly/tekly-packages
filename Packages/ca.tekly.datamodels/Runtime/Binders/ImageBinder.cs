@@ -31,5 +31,14 @@ namespace Tekly.DataModels.Binders
             base.OnDestroy();
             m_disposable?.Dispose();
         }
+        
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (m_image == null) {
+                m_image = GetComponent<Image>();
+            }
+        }
+#endif
     }
 }

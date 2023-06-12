@@ -97,6 +97,15 @@ namespace Tekly.DataModels.Binders
 
             m_listeners = null;
         }
+        
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (m_text == null) {
+                m_text = GetComponent<TMP_Text>();
+            }
+        }
+#endif
 
         [Serializable]
         public class FormatAndDataKey
