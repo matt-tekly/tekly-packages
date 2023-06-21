@@ -305,5 +305,13 @@ namespace Tekly.Logging
 
             return profileData;
         }
+        
+#if UNITY_EDITOR
+        [UnityEditor.InitializeOnLoadMethod]
+        private static void EditorInitialize()
+        {
+            LoadConfigFile(null);
+        }
+#endif
     }
 }

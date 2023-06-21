@@ -8,7 +8,7 @@ namespace Tekly.BasicBuilder
 {
     public class BasicBuildWindow : EditorWindow
     {
-        [MenuItem("Tekly/Basic Builder", false, 1)]
+        [MenuItem("Tools/Tekly/Basic Builder", false, 1)]
         private static void OpenWindow()
         {
             GetWindow<BasicBuildWindow>("Builder");

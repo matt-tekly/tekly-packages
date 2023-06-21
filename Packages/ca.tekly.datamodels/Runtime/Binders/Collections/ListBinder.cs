@@ -36,8 +36,6 @@ namespace Tekly.DataModels.Binders.Collections
             } else {
                 Clear();
             }
-
-            base.Bind();
         }
         
         private bool TryGet(out ObjectModel objectModel)
@@ -76,6 +74,8 @@ namespace Tekly.DataModels.Binders.Collections
                 m_instances.Add(instance);
                 m_binders.Add(instance);
             }
+            
+            base.Bind();
         }
 
         private void Clear()

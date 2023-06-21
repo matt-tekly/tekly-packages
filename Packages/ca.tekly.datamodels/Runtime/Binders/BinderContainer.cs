@@ -170,7 +170,9 @@ namespace Tekly.DataModels.Binders
             var container = this.GetComponentInAncestor<BinderContainer>();
             
             if (selfKey.IsRelative && container == null) {
-                m_logger.ErrorContext("Relative Key for BinderContainer with no parent", this);
+                if (BindOnEnable) {
+                    m_logger.ErrorContext("BinderContainer [{name}] has relative key with BindOnEnable and no parent container", this, ("name", gameObject.name));
+                }
                 return GetKey();
             }
             
