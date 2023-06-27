@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Tekly.TreeState.StandardActivities
 {
@@ -13,6 +14,10 @@ namespace Tekly.TreeState.StandardActivities
 				return false;
 			}
 
+			if (m_loadTask.IsFaulted) {
+				Debug.LogException(m_loadTask.Exception);
+			}
+
 			return m_loadTask.IsCompleted;
 		}
 		
@@ -20,6 +25,10 @@ namespace Tekly.TreeState.StandardActivities
 		{
 			if (m_unloadTask == null) {
 				return false;
+			}
+			
+			if (m_unloadTask.IsFaulted) {
+				Debug.LogException(m_unloadTask.Exception);
 			}
 
 			return m_unloadTask.IsCompleted;

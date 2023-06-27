@@ -24,6 +24,7 @@ namespace Tekly.DataModels.Binders
         private void BindSprite(Sprite sprite)
         {
             m_image.sprite = sprite;
+            m_image.enabled = sprite != null;
         }
         
         protected override void OnDestroy()
