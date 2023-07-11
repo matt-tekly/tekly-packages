@@ -139,6 +139,16 @@
         "ca.tekly.common": "0.0.1"
       }
     },
+    "ca.tekly.twod": {
+      "version": "file:ca.tekly.twod",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "ca.tekly.content": "0.0.1",
+        "ca.tekly.common": "0.0.1",
+        "ca.tekly.logger": "0.0.7"
+      }
+    },
     "ca.tekly.vibration": {
       "version": "file:ca.tekly.vibration",
       "depth": 0,

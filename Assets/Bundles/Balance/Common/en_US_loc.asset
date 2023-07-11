@@ -28,4 +28,4 @@ MonoBehaviour:
   - Id: $dinosaur
     Format: Dinosaur
   - Id: $generator.buy
-    Format: Buy {count} {name}
+    Format: Buy <color=#fdcbb0>{count}</color> {name}

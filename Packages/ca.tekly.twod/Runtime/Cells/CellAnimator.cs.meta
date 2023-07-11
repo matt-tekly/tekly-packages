@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 331caa4b9d9441078b89b8d05c80f5e0
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - m_sprite: {instanceID: 0}
+  - m_timer: {fileID: 11400000, guid: 5143f6302231148948142fc1e1d5f004, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

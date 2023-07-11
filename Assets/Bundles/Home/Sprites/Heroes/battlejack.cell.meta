@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: df246137fd67e4c8bb9f17eb2e734ef0
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: c3149708708f44f29bec47d662574c2a, type: 3}
+  settings:
+    TextureFormat: 4
+    TextureCompressionQuality: 100
+    FilterMode: 0
+    PixelsPerUnit: 100
+    Pivot: {x: 0.5, y: 0}

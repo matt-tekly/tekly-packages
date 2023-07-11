@@ -1,0 +1,17 @@
+{
+  "name": "ca.tekly.twod",
+  "version": "0.0.1",
+  "displayName": "Tekly Two D",
+  "description": "2D stuff",
+  "author": {
+    "name": "Matt King",
+    "email": "matt@tekly.ca"
+  },
+  "hideInEditor": false,
+  "type": "library",
+  "dependencies": {
+    "ca.tekly.content": "0.0.1",
+    "ca.tekly.common": "0.0.1",
+    "ca.tekly.logger": "0.0.7"
+  }
+}

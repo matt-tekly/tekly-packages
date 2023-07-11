@@ -1,0 +1,19 @@
+{
+    "name": "Tekly.TwoD.Editor",
+    "rootNamespace": "Tekly.TwoD",
+    "references": [
+        "GUID:d5d51c019af32400aa4f50ff7f0baefa",
+        "GUID:b9160372c6c55a741932d482673e3abb"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
