@@ -9,8 +9,8 @@ ScriptedImporter:
   assetBundleVariant: 
   script: {fileID: 11500000, guid: c3149708708f44f29bec47d662574c2a, type: 3}
   settings:
-    TextureFormat: 4
-    TextureCompressionQuality: 100
-    FilterMode: 1
-    PixelsPerUnit: 33
-    Pivot: {x: 0.5, y: 0}
+    textureFormat: 4
+    textureCompressionQuality: 100
+    filterMode: 0
+    pixelsPerUnit: 30
+    pivot: {x: 0.5, y: 0}

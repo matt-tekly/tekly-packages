@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Tekly.TwoD.Extensions;
+using Tekly.TwoD.Common;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 
@@ -10,7 +10,7 @@ namespace Tekly.TwoD.Cells
 {
 	public static class CellAnimationImporter
 	{
-		public static void Import(Sprite[] sprites, AseSpriteData data, AssetImportContext ctx)
+		public static void Import(Sprite[] sprites, AsepriteData data, AssetImportContext ctx)
 		{
 			var spriteMap = sprites.ToDictionary(x => x.name);
 			
@@ -62,7 +62,8 @@ namespace Tekly.TwoD.Cells
 				cellSprite.PixelData = new SpritePixelData(texture);
 				ctx.AddObjectToAsset("main", cellSprite, texture);
 			} else {
-				ctx.AddObjectToAsset("main", cellSprite);
+				var texture = TextureExtensions.GetSpriteTexture(sprites[0]);
+				ctx.AddObjectToAsset("main", cellSprite, texture);
 			}
 
 			ctx.SetMainObject(cellSprite);
@@ -94,7 +95,7 @@ namespace Tekly.TwoD.Cells
 			return frames;
 		}
 
-		private static Dictionary<int, string> GatherEvents(AseSpriteData data)
+		private static Dictionary<int, string> GatherEvents(AsepriteData data)
 		{
 			try {
 				return data.meta.layers

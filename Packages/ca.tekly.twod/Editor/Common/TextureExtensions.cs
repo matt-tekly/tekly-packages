@@ -2,7 +2,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace Tekly.TwoD.Extensions
+namespace Tekly.TwoD.Common
 {
 	public static class TextureExtensions
 	{

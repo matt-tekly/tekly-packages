@@ -1,7 +1,10 @@
 using System;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using UnityEngine;
 
-namespace Tekly.TwoD.Cells
+namespace Tekly.TwoD.Common
 {
 	[Serializable]
 	public class AseRect
@@ -15,6 +18,11 @@ namespace Tekly.TwoD.Cells
 		{
 			return new Rect(x, y, w, h);
 		}
+
+		public bool IsValid()
+		{
+			return w != 0 && h != 0;
+		}
 	}
 
 	[Serializable]
@@ -26,7 +34,7 @@ namespace Tekly.TwoD.Cells
 	}
 	
 	[Serializable]
-	public class AseSpriteData
+	public class AsepriteData
 	{
 		public AseFrame[] frames;
 		public AseMetaData meta;
@@ -77,9 +85,16 @@ namespace Tekly.TwoD.Cells
 		public int frame;
 		public AseRect bounds;
 		public AseRect center;
+		
+		// This can support having a pivot defined
+		// At the moment Aseprite just doesn't include it in the JSON
+		// Using the Unity JSON Serializer it is impossible to determine if it wasn't set or if it was set to (0,0)
 
 		public Vector4 CreateBorder()
 		{
+			if (!bounds.IsValid()) {
+				return Vector4.zero;
+			}
 			var border = new Vector4();
 			border.x = center.x; // Left
 			border.y = bounds.h - (center.y + center.h); // Bottom
