@@ -1,3 +1,4 @@
+using Tekly.Common.Maths;
 using UnityEditor;
 using UnityEngine;
 
@@ -91,6 +92,19 @@ namespace Tekly.Common.Gui
             GUI.backgroundColor = currentColor;
             
             return result;
+        }
+        
+        public static void DrawSprite(Rect containerRect, Sprite sprite)
+        {
+            var uv = sprite.rect;
+            uv.x /= sprite.texture.width;
+            uv.width /= sprite.texture.width;
+			
+            uv.y /= sprite.texture.height;
+            uv.height /= sprite.texture.height;
+			
+            var rect = RectExtensions.FitTargetIntoContainer(sprite.textureRect, containerRect);
+            GUI.DrawTextureWithTexCoords(rect, sprite.texture, uv, true);
         }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Tekly.Common.Gui;
 using Tekly.Common.Timers;
 using UnityEditor;
 using UnityEngine;
@@ -31,7 +32,7 @@ namespace Tekly.TwoD.Cells
 			m_randomizeTime = serializedObject.FindProperty("m_randomizeTime");
 			m_timer = serializedObject.FindProperty("m_timer");
 
-			GrabAnims();
+			GetAnimNames();
 		}
 
 		public override void OnInspectorGUI()
@@ -43,13 +44,9 @@ namespace Tekly.TwoD.Cells
 
 				if (check.changed) {
 					var cellSprite = m_sprite.objectReferenceValue as CellSprite;
-					if (cellSprite != null) {
-						m_cellAnimator.SetSprite(cellSprite.Icon);
-					} else {
-						m_cellAnimator.SetSprite(null);
-					}
-					
-					GrabAnims();
+					m_cellAnimator.SetSprite(cellSprite != null ? cellSprite.Icon : null);
+
+					GetAnimNames();
 				}
 			}
 
@@ -80,8 +77,8 @@ namespace Tekly.TwoD.Cells
 
 			var oldIndex = Array.IndexOf(m_anims, m_animName.stringValue);
 			if (oldIndex == -1) {
-				EditorGUILayout.LabelField($"Anim [{m_animName.stringValue}] wasn't found.");
-				return;
+				m_animName.stringValue = m_anims[0];
+				oldIndex = 0;
 			}
 			
 			var index = EditorGUILayout.Popup("Animation", oldIndex, m_anims);
@@ -91,12 +88,13 @@ namespace Tekly.TwoD.Cells
 			}
 		}
 
-		private void GrabAnims()
+		private void GetAnimNames()
 		{
-			if (m_sprite.objectReferenceValue == null) {
+			var cellSprite = m_sprite.objectReferenceValue as CellSprite;
+			
+			if (cellSprite == null) {
 				m_anims = Array.Empty<string>();
 			} else {
-				var cellSprite = m_sprite.objectReferenceValue as CellSprite;
 				m_anims = cellSprite.Animations.Select(x => x.name).ToArray();
 			}
 		}
@@ -120,27 +118,7 @@ namespace Tekly.TwoD.Cells
 			}
 
 			var cellSprite = m_sprite.objectReferenceValue as CellSprite;
-			DrawSprite(r, cellSprite.Icon);
-		}
-
-		private void DrawSprite(Rect r, Sprite sprite)
-		{
-			var uv = sprite.rect;
-			uv.x /= sprite.texture.width;
-			uv.width /= sprite.texture.width;
-			
-			uv.y /= sprite.texture.height;
-			uv.height /= sprite.texture.height;
-
-			var aspect = sprite.textureRect.width / sprite.textureRect.height;
-
-			if (r.width < r.height) {
-				r.height = r.width / aspect; 
-			} else {
-				r.width = r.height * aspect;
-			}
-
-			GUI.DrawTextureWithTexCoords(r, sprite.texture, uv, true);
+			EditorGuiExt.DrawSprite(r, cellSprite.Icon);
 		}
 	}
 }

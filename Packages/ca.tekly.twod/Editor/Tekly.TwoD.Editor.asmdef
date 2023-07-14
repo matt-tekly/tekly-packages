@@ -3,7 +3,8 @@
     "rootNamespace": "Tekly.TwoD",
     "references": [
         "GUID:d5d51c019af32400aa4f50ff7f0baefa",
-        "GUID:b9160372c6c55a741932d482673e3abb"
+        "GUID:b9160372c6c55a741932d482673e3abb",
+        "GUID:31f6ca066cb1421498e9be3571072338"
     ],
     "includePlatforms": [
         "Editor"

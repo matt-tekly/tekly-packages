@@ -64,6 +64,7 @@ namespace Tekly.TwoD.Cells
 			} else {
 				var texture = TextureExtensions.GetSpriteTexture(sprites[0]);
 				ctx.AddObjectToAsset("main", cellSprite, texture);
+				cellSprite.Icon = sprites[0];
 			}
 
 			ctx.SetMainObject(cellSprite);
