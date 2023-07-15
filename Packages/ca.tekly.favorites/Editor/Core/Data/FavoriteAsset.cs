@@ -19,7 +19,6 @@ namespace Tekly.Favorites
 
 		private Object m_asset;
 
-		private const int NULL_ID = 0;
 		private const int SCENE_ID = 2;
 
 		public Object Asset {
@@ -50,7 +49,7 @@ namespace Tekly.Favorites
 			}
 		}
 
-		public string DisplayName => m_lastName;
+		public string DisplayName => Asset != null ? Asset.name : m_lastName;
 
 		public Texture Icon => m_icon;
 
@@ -92,6 +91,25 @@ namespace Tekly.Favorites
 			}
 		}
 
+		public void TryToUpdateIcon()
+		{
+			if (m_asset == null) {
+				return;
+			}
+			
+			if (Id.identifierType == SCENE_ID) {
+				
+				m_icon = EditorGUIUtility.ObjectContent(m_asset, m_asset.GetType()).image;
+
+				if (m_icon == null) {
+					m_icon = EditorGUIUtility.GetIconForObject(m_asset);
+				}
+			} else {
+				var path = AssetDatabase.GetAssetPath(Asset);
+				m_icon = AssetDatabase.GetCachedIcon(path);
+			}
+		}
+
 		public void OnBeforeSerialize() { }
 
 		public void OnAfterDeserialize()
@@ -99,17 +117,6 @@ namespace Tekly.Favorites
 			if (!string.IsNullOrEmpty(m_id)) {
 				GlobalObjectId.TryParse(m_id, out Id);
 			}
-		}
-
-		public static string GetGameObjectPath(Object obj)
-		{
-			var go = obj switch {
-				GameObject target => target,
-				Component target => target.gameObject,
-				_ => null
-			};
-
-			return go.name;
 		}
 	}
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Tekly.Favorites
 {
 	[CustomEditor(typeof(FavoriteActionScriptAsset))]
-	public class FavoriteActionScriptEditor : UnityEditor.Editor
+	public class FavoriteActionScriptEditor : Editor
 	{
 		public override void OnInspectorGUI()
 		{

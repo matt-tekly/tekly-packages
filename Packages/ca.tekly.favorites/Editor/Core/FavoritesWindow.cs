@@ -1,20 +1,22 @@
-using Tekly.Favorites.Common;
+using Tekly.Favorites.Gui;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Tekly.Favorites
 {
 	public class FavoritesWindow : EditorWindow
 	{
-		private const int WIDTH = 250;
-		private const int HEIGHT = 190;
+		[SerializeField] private FavoritesWindowSettings m_settings;
 
 		private static FavoritesWindow s_instance;
 
 		private bool m_isPopup;
 		private bool m_moveToMouse;
 
+		private FavoritesWindowGui m_favoritesWindowGui;
+
+		public bool IsPopup => m_isPopup;
+		
 		public static void Present()
 		{
 			if (s_instance != null) {
@@ -29,17 +31,17 @@ namespace Tekly.Favorites
 
 			s_instance = CreateInstance<FavoritesWindow>();
 
-			int x = (Screen.currentResolution.width - WIDTH) / 2;
-			int y = (Screen.currentResolution.height - HEIGHT) / 2;
+			var x = (Screen.currentResolution.width - s_instance.m_settings.Width) / 2;
+			var y = (Screen.currentResolution.height - s_instance.m_settings.Height) / 2;
 
-			s_instance.position = new Rect(x, y, WIDTH, HEIGHT);
+			s_instance.position = new Rect(x, y, s_instance.m_settings.Width, s_instance.m_settings.Height);
 			s_instance.m_isPopup = true;
 			s_instance.m_moveToMouse = true;
 			s_instance.ShowPopup();
 			s_instance.Focus();
 		}
 
-		public static void HideIfPopup()
+		public void HideIfPopup()
 		{
 			if (s_instance != null && s_instance.m_isPopup) {
 				s_instance.Close();
@@ -48,49 +50,38 @@ namespace Tekly.Favorites
 
 		private void OnEnable()
 		{
+			wantsMouseMove = true;
 			s_instance = this;
-			var texture = CommonUtils.Texture("Editor/Core/Assets/heart.png");
-			titleContent = new GUIContent("Favorites", texture);
+			titleContent = m_settings.WindowTitleContent;
 
-			var xmlAsset = CommonUtils.Uxml("Editor/Core/FavoritesWindow.uxml");
-			xmlAsset.CloneTree(rootVisualElement);
-			rootVisualElement.viewDataKey = "tekly/favoriteswindow";
-			rootVisualElement.focusable = true;
-			rootVisualElement.RegisterCallback<KeyDownEvent>(OnKeyDown);
+			FavoritesData.Instance.TryToUpdateIcons();
 		}
 
 		private void OnGUI()
 		{
+			if (m_favoritesWindowGui == null) {
+				m_favoritesWindowGui = new FavoritesWindowGui(FavoritesData.Instance, m_settings, this);
+			}
+
+			m_favoritesWindowGui.OnGUI(new Rect(0, 0, position.width, position.height), focusedWindow == this);
+
 			if (m_moveToMouse && Event.current != null) {
 				var mousePos = GUIUtility.GUIToScreenPoint(Event.current.mousePosition);
 				var x = mousePos.x;
 				var y = mousePos.y;
 
-				position = new Rect(x, y, WIDTH, HEIGHT);
+				position = new Rect(x, y, s_instance.m_settings.Width, s_instance.m_settings.Height);
 
 				m_moveToMouse = false;
 			}
+
+			Repaint();
 		}
 
 		private void OnDestroy()
 		{
 			if (s_instance == this) {
 				s_instance = null;
-			}
-		}
-
-		private void OnKeyDown(KeyDownEvent evt)
-		{
-			if (evt.keyCode is >= KeyCode.Alpha0 and <= KeyCode.Alpha9) {
-				evt.StopPropagation();
-				if (FavoritesData.Instance.HandleShortcut(evt.keyCode, evt.shiftKey || evt.ctrlKey || evt.commandKey) && m_isPopup) {
-					Close();
-				}
-			}
-
-			if (evt.keyCode == KeyCode.Escape && m_isPopup) {
-				evt.StopPropagation();
-				Close();
 			}
 		}
 	}

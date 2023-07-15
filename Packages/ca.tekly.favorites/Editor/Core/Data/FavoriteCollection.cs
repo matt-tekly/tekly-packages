@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Tekly.Favorites
 {
@@ -7,7 +8,7 @@ namespace Tekly.Favorites
 	public class FavoriteCollection
 	{
 		public string Name = "Collection";
-		public List<FavoriteAsset> Favorites = new List<FavoriteAsset>();
+		[HideInInspector] public List<FavoriteAsset> Favorites = new List<FavoriteAsset>();
 
 		public FavoriteCollection() { }
 

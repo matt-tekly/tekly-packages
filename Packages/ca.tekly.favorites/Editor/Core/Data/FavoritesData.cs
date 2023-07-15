@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Tekly.Favorites.Editor.Core.Settings;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -11,18 +9,13 @@ namespace Tekly.Favorites
 {
 	public class FavoritesData : ScriptableObject
 	{
-		[SerializeField] private int m_activeCollectionIndex;
-		[SerializeField] private int m_favoriteIndex;
+		[HideInInspector] [SerializeField] private int m_activeCollectionIndex;
+		[HideInInspector] [SerializeField] private int m_favoriteIndex;
 
 		public List<FavoriteCollection> Collections = new List<FavoriteCollection>();
 		public FavoriteCollection ActiveCollection => Collections[ActiveCollectionIndex];
 		public FavoriteAsset ActiveFavorite => ActiveCollection.Favorites[FavoriteIndex];
-
-		public event Action<FavoriteCollection> ActiveCollectionChanged;
-		public event Action<int> FavoriteIndexChanged;
-		public event Action FavoritesChanged;
-		public event Action AssetRenamed;
-
+		
 		public int FavoriteIndex {
 			get {
 				if (m_favoriteIndex >= ActiveCollection.Favorites.Count) {
@@ -43,7 +36,8 @@ namespace Tekly.Favorites
 			}
 		}
 
-		private static FavoritesData s_instance = null;
+		private static FavoritesData s_instance ;
+		public const string FAVORITES_SAVE_FILE = "UserSettings/TeklyFavorites.asset";
 
 		public static FavoritesData Instance {
 			get {
@@ -54,8 +48,8 @@ namespace Tekly.Favorites
 						s_instance = tmp[0];
 					} else {
 						s_instance = CreateInstance<FavoritesData>();
-						if (File.Exists(FavoritesSettings.FAVORITES_SAVE_FILE)) {
-							EditorJsonUtility.FromJsonOverwrite(File.ReadAllText(FavoritesSettings.FAVORITES_SAVE_FILE), s_instance);
+						if (File.Exists(FAVORITES_SAVE_FILE)) {
+							EditorJsonUtility.FromJsonOverwrite(File.ReadAllText(FAVORITES_SAVE_FILE), s_instance);
 						}
 					}
 
@@ -77,9 +71,6 @@ namespace Tekly.Favorites
 				m_activeCollectionIndex = index;
 				m_favoriteIndex = ActiveCollection.Favorites.Count > 0 ? 0 : -1;
 				Save();
-
-				ActiveCollectionChanged?.Invoke(ActiveCollection);
-				FavoriteIndexChanged?.Invoke(m_favoriteIndex);
 			}
 		}
 
@@ -91,20 +82,18 @@ namespace Tekly.Favorites
 
 		public void RenameActiveCollection(string newName)
 		{
-			Undo.RecordObject(this, "Rename favorites collection");
-			ActiveCollection.Name = newName;
-			Save();
-
-			FavoritesChanged?.Invoke();
+			RenameCollection(newName, ActiveCollection);
 		}
 
 		public void RenameCollection(string newName, FavoriteCollection collection)
 		{
+			if (newName == collection.Name) {
+				return;
+			}
+			
 			Undo.RecordObject(this, "Rename favorites collection");
 			collection.Name = newName;
 			Save();
-
-			FavoritesChanged?.Invoke();
 		}
 
 		public void AddNewCollection()
@@ -117,21 +106,8 @@ namespace Tekly.Favorites
 
 			m_activeCollectionIndex = Collections.Count - 1;
 			Save();
-
-			FavoritesChanged?.Invoke();
-			ActiveCollectionChanged?.Invoke(ActiveCollection);
 		}
-
-		public void RemoveActiveCollection()
-		{
-			RemoveCollection(ActiveCollection);
-		}
-
-		public void RemoveCollection(int index)
-		{
-			RemoveCollection(Collections[index]);
-		}
-
+		
 		public void RemoveCollection(FavoriteCollection collection)
 		{
 			if (Collections.Count == 1) {
@@ -145,9 +121,6 @@ namespace Tekly.Favorites
 
 			m_activeCollectionIndex = index - 1;
 			Save();
-
-			FavoritesChanged?.Invoke();
-			ActiveCollectionChanged?.Invoke(ActiveCollection);
 		}
 
 		public void SetActiveFavorite(FavoriteAsset favorite)
@@ -156,41 +129,47 @@ namespace Tekly.Favorites
 			SetFavoriteIndex(index);
 		}
 
-		public bool HandleShortcut(KeyCode keyCode, bool isModified)
+		public bool HandleShortcut(KeyCode keyCode, bool isModified, Event evt)
 		{
 			if (keyCode < KeyCode.Alpha1 || keyCode > KeyCode.Alpha9) {
 				return false;
 			}
-
-			int index = keyCode - KeyCode.Alpha1;
+			
+			var index = keyCode - KeyCode.Alpha1;
 
 			if (isModified) {
 				SetActiveCollection(index);
+				evt.Use();
 			} else {
-				if (index < Instance.ActiveCollection.Favorites.Count) {
-					FavoriteAsset favoriteAsset = Instance.ActiveCollection.Favorites[index];
+				if (index >= Instance.ActiveCollection.Favorites.Count) {
+					return false;
+				}
 
-					if (favoriteAsset.Asset == null) {
-						EditorApplication.Beep();
-						return false;
-					}
+				var favoriteAsset = Instance.ActiveCollection.Favorites[index];
 
-					SetFavoriteIndex(index);
+				if (favoriteAsset.Asset == null) {
+					EditorApplication.Beep();
+					return false;
+				}
 
-					if (favoriteAsset.Asset is FavoriteActionAsset fa) {
-						fa.Activate();
-					} else {
-						AssetDatabase.OpenAsset(favoriteAsset.Asset);
-					}
-
+				if (favoriteAsset.Asset is FavoriteActionAsset fa) {
+					fa.Activate();
 					return true;
 				}
+
+				if (m_favoriteIndex == index) {
+					AssetDatabase.OpenAsset(favoriteAsset.Asset);
+					return true;
+				}
+
+				SetFavoriteIndex(index);
+				return false;
 			}
 
 			return false;
 		}
 
-		private void SetFavoriteIndex(int index)
+		public void SetFavoriteIndex(int index)
 		{
 			if (index == m_favoriteIndex) {
 				return;
@@ -198,17 +177,16 @@ namespace Tekly.Favorites
 
 			Undo.RecordObject(this, "Modify favorites");
 			m_favoriteIndex = index;
+			ActiveFavorite.TryToUpdateIcon();
 			Save();
 
 			Selection.objects = new[] { ActiveFavorite.Asset };
-
-			FavoriteIndexChanged?.Invoke(index);
 		}
 
 		public void Save()
 		{
 			var json = EditorJsonUtility.ToJson(this);
-			File.WriteAllText(FavoritesSettings.FAVORITES_SAVE_FILE, json);
+			File.WriteAllText(FAVORITES_SAVE_FILE, json);
 		}
 
 		public void RemoveFavorite(FavoriteAsset favorite)
@@ -216,43 +194,36 @@ namespace Tekly.Favorites
 			Undo.RecordObject(this, "Modify favorites");
 			ActiveCollection.Favorites.Remove(favorite);
 			Save();
-
-			FavoritesChanged?.Invoke();
 		}
-
-		public void RemoveFavorite(int index)
-		{
-			Undo.RecordObject(this, "Modify favorites");
-			ActiveCollection.Favorites.RemoveAt(index);
-			m_favoriteIndex = Mathf.Clamp(index - 1, 0, ActiveCollection.Favorites.Count);
-			Save();
-
-			FavoriteIndexChanged?.Invoke(m_favoriteIndex);
-			FavoritesChanged?.Invoke();
-		}
-
-		public void AddFavorites(Object[] assets)
+		
+		public void AddFavoritesToEnd(Object[] assets)
 		{
 			Undo.RecordObject(this, "Modify favorites");
 			var objects = assets.Select(x => new FavoriteAsset { Asset = x });
 			ActiveCollection.Favorites.AddRange(objects);
 			m_favoriteIndex = ActiveCollection.Favorites.Count - 1;
+			
 			Save();
-
-			FavoriteIndexChanged?.Invoke(m_favoriteIndex);
-			FavoritesChanged?.Invoke();
 		}
-
+		
 		public void AddFavorites(Object[] assets, int index)
 		{
 			Undo.RecordObject(this, "Modify favorites");
-			var objects = DragAndDrop.objectReferences.Select(x => new FavoriteAsset { Asset = x });
+			var objects = assets.Select(x => new FavoriteAsset { Asset = x });
 			ActiveCollection.Favorites.InsertRange(index, objects);
 
 			Save();
-			FavoritesChanged?.Invoke();
 		}
 
+		public void OrderFavoriteToEnd(FavoriteAsset fa)
+		{
+			Undo.RecordObject(this, "Modify favorites");
+			ActiveCollection.Favorites.Remove(fa);
+			ActiveCollection.Favorites.Add(fa);
+			m_favoriteIndex = ActiveCollection.Favorites.Count - 1;
+			Save();
+		}
+		
 		public void ReorderFavorite(FavoriteAsset fa, int index)
 		{
 			Undo.RecordObject(this, "Modify favorites");
@@ -261,8 +232,6 @@ namespace Tekly.Favorites
 			ActiveCollection.Favorites.Insert(index, fa);
 			m_favoriteIndex = index;
 			Save();
-
-			FavoriteIndexChanged?.Invoke(m_favoriteIndex);
 		}
 
 		public void ReorderCollection(FavoriteCollection collection, int index)
@@ -273,13 +242,22 @@ namespace Tekly.Favorites
 			Collections.Insert(index, collection);
 			m_activeCollectionIndex = index;
 			Save();
-
-			ActiveCollectionChanged?.Invoke(ActiveCollection);
+		}
+		
+		public void OrderCollectionToEnd(FavoriteCollection collection)
+		{
+			Undo.RecordObject(this, "Modify favorites");
+			Collections.Remove(collection);
+			Collections.Add(collection);
+			m_activeCollectionIndex = Collections.Count - 1;
+			Save();
 		}
 
-		public void OnAssetRenamed()
+		public void TryToUpdateIcons()
 		{
-			AssetRenamed?.Invoke();
+			foreach (var favorite in ActiveCollection.Favorites) {
+				favorite.TryToUpdateIcon();
+			}
 		}
 	}
 }

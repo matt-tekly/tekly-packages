@@ -1,7 +1,0 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:tk="Tekly.Favorites">
-    <ui:VisualElement class="tk-favorites-window">
-        <Style src="FavoritesWindow.uss"/>
-        <tk:FavoritesListView class="tk-favorites-window-items"/>
-        <!--         <tk:CollectionsListView class="tk-favorites-window-items"/> -->
-    </ui:VisualElement>
-</ui:UXML>
