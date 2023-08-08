@@ -23,7 +23,24 @@ namespace Tekly.DataModels.Models
     
     public class StringValueModel : BasicValueModel<string>
     {
-        public StringValueModel(string value) : base(value) { }
+        public bool NeedsLocalization {
+            get => m_needsLocalization;
+            set {
+                if (m_needsLocalization == value) {
+                    return;
+                }
+                
+                m_needsLocalization = value;
+                Emit(Value);
+            }
+        }
+
+        private bool m_needsLocalization;
+        
+        public StringValueModel(string value, bool needsLocalization = false) : base(value)
+        {
+            m_needsLocalization = needsLocalization;
+        }
         
         public override void ToJson(StringBuilder sb)
         {

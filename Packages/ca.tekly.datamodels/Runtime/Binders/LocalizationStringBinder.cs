@@ -121,6 +121,7 @@ namespace Tekly.DataModels.Binders
         
             private readonly int m_index;
             private readonly (string, object)[] m_values;
+            private readonly ITriggerable<T> m_triggerable;
             
             public Listener(LocalizationStringBinder owner, int index, ITriggerable<T> triggerable, (string, object)[] values)
             {
@@ -129,6 +130,7 @@ namespace Tekly.DataModels.Binders
                 m_values = values;
                 
                 if (triggerable != null) {
+                    m_triggerable = triggerable;
                     m_disposable = triggerable.Subscribe(this);
                 } else {
                     m_values[index].Item2 = "[NF]";
@@ -137,7 +139,16 @@ namespace Tekly.DataModels.Binders
             
             void IValueObserver<T>.Changed(T value)
             {
-                m_values[m_index].Item2 = value;
+                if (m_triggerable is StringValueModel stringValueModel) {
+                    if (stringValueModel.NeedsLocalization) {
+                        m_values[m_index].Item2= Localizer.Instance.Localize(stringValueModel.Value);
+                    } else {
+                        m_values[m_index].Item2 = value;   
+                    }
+                } else {
+                    m_values[m_index].Item2 = value;  
+                }
+                
                 m_owner.FormatString();
             }
 

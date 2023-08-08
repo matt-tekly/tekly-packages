@@ -48,7 +48,7 @@ namespace Tekly.Common.Observables
             return Subscribe(new ActionObserver<T>(observer));
         }
 
-        private void Emit(T value)
+        protected void Emit(T value)
         {
             m_observers?.Emit(value);
             m_modified?.Emit(Unit.Default);

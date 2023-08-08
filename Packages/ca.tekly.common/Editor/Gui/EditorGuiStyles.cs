@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Tekly.Common.Gui
 {
-    [CreateAssetMenu]
     public class EditorGuiStyles : ScriptableObject
     {
         public GUIStyle LargeContainer;

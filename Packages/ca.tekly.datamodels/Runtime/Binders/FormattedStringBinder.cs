@@ -5,6 +5,7 @@
 using System;
 using Tekly.Common.Observables;
 using Tekly.DataModels.Models;
+using Tekly.Localizations;
 using Tekly.Logging;
 using TMPro;
 using UnityEngine;
@@ -112,6 +113,7 @@ namespace Tekly.DataModels.Binders
 
             private readonly int m_index;
             private readonly object[] m_values;
+            private readonly ITriggerable<T> m_triggerable;
 
             public Listener(FormattedStringBinder owner, int index, ITriggerable<T> triggerable, object[] values)
             {
@@ -120,6 +122,7 @@ namespace Tekly.DataModels.Binders
                 m_values = values;
 
                 if (triggerable != null) {
+                    m_triggerable = triggerable;
                     m_disposable = triggerable.Subscribe(this);
                 } else {
                     m_values[index] = "[NM]";
@@ -128,7 +131,16 @@ namespace Tekly.DataModels.Binders
 
             void IValueObserver<T>.Changed(T value)
             {
-                m_values[m_index] = value;
+                if (m_triggerable is StringValueModel stringValueModel) {
+                    if (stringValueModel.NeedsLocalization) {
+                        m_values[m_index] = Localizer.Instance.Localize(stringValueModel.Value);
+                    } else {
+                        m_values[m_index] = value;    
+                    }
+                } else {
+                    m_values[m_index] = value;    
+                }
+                
                 m_owner.FormatString();
             }
 

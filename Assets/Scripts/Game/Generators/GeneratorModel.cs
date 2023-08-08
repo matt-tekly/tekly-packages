@@ -30,7 +30,7 @@ namespace TeklySample.Game.Generators
         private readonly GeneratorManager m_generatorManager;
         private readonly BuyMultiplier m_buyMultiplier;
 
-        private readonly StringValueModel m_name = new StringValueModel("");
+        private readonly StringValueModel m_name = new StringValueModel("", true);
         private readonly NumberValueModel m_progress = new NumberValueModel(0);
         private readonly NumberValueModel m_timeRemaining = new NumberValueModel(0);
         private readonly NumberValueModel m_count = new NumberValueModel(0);
@@ -64,7 +64,7 @@ namespace TeklySample.Game.Generators
             Add("affordable", m_affordableCount);
             Add("generation", m_generation);
 
-            m_name.Value = Localizer.Instance.Localize(generator.Balance.Item.NameId);
+            m_name.Value = generator.Balance.Item.NameId;
             m_itemId.Value = m_generator.InventoryItem.ItemId;
             m_iconModel.Value = m_generator.Balance.Item.Icon;
 
