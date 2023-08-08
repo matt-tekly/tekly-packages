@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -26,6 +27,26 @@ namespace Tekly.Common.Utils
 			var directories = searchInObjectDirs.Select(AssetDatabase.GetAssetPath).ToArray();
 
 			return FindAndLoad<T>(search, directories);
+		}
+		
+		public static T FindAndLoadFirst<T>(string name) where T : Object
+		{
+			return FindAndLoad<T>(name).FirstOrDefault();
+		}
+		
+		public static T LoadOrCreate<T>(string path) where T : ScriptableObject
+		{
+			var result = AssetDatabase.LoadAssetAtPath<T>(path);
+			
+			if (result == null) {
+				var directory = Path.GetDirectoryName(path);
+				Directory.CreateDirectory(directory);
+				
+				result = ScriptableObject.CreateInstance<T>();
+				AssetDatabase.CreateAsset(result, path);
+			}
+
+			return result;
 		}
 	}
 }
