@@ -7,14 +7,16 @@ using UnityEngine.Scripting;
 
 namespace Tekly.Injectors
 {
-    [MeansImplicitUse(ImplicitUseKindFlags.Assign)]
-    public class InjectAttribute : PreserveAttribute
-    {
-        public readonly string Id;
+	[MeansImplicitUse(ImplicitUseKindFlags.Assign)]
+	public class InjectAttribute : PreserveAttribute
+	{
+		public readonly string Id;
 
-        public InjectAttribute(string id = null)
-        {
-            Id = id;
-        }
-    }
+		public InjectAttribute() { }
+		
+		public InjectAttribute(string id = null)
+		{
+			Id = id;
+		}
+	}
 }

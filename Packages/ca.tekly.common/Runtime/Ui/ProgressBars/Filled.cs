@@ -31,10 +31,6 @@ namespace Tekly.Common.Ui.ProgressBars
                 m_fillRange.Min = 0;
                 m_fillRange.Max = 1f;
             }
-
-            if (m_fillRange.Max < m_fillRange.Min) {
-                m_fillRange.Max = m_fillRange.Min;
-            }
             
             SetFill(FillAdjusted);
         }

@@ -4,6 +4,7 @@
 
 using System;
 using System.Text;
+using Tekly.Localizations;
 
 namespace Tekly.DataModels.Models
 {
@@ -55,7 +56,10 @@ namespace Tekly.DataModels.Models
         public override int CompareTo(IValueModel valueModel)
         {
             if (valueModel is StringValueModel model) {
-                return string.Compare(m_value, model.Value, StringComparison.CurrentCulture);
+                var myValue = m_needsLocalization ? Localizer.Instance.Localize(m_value) : m_value;
+                var otherValue = model.NeedsLocalization ? Localizer.Instance.Localize(model.m_value) : model.m_value;
+                
+                return string.Compare(myValue, otherValue, StringComparison.CurrentCulture);
             }
 
             throw new Exception($"Trying to compare [{GetType().Name}] to [{valueModel?.GetType().Name}]");

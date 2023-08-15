@@ -6,6 +6,9 @@ namespace Tekly.DataModels.Models
 {
     public class SpriteValueModel : ValueModel<Sprite>
     {
+        public SpriteValueModel(Sprite sprite) : base(sprite) { }
+        public SpriteValueModel() { }
+            
         public override void ToJson(StringBuilder sb)
         {
             sb.Append(Value != null ? Value.name : "[null]");
