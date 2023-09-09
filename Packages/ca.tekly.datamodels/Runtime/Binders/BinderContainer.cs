@@ -140,11 +140,20 @@ namespace Tekly.DataModels.Binders
                     m_parent.TryGet(selfKey, out var targetRootModel);
                     rootModel = targetRootModel as ObjectModel;
                 } else {
-                    m_logger.ErrorContext("BinderContainer [{name}] has relative key but no container", this, ("name", gameObject.name));
+                    m_logger.ErrorContext("[{name}] has relative key but no container", this, ("name", gameObject.name));
                 }
             } else {
                 rootModel.TryGetModel(selfKey, 0, out var targetRootModel);
                 rootModel = targetRootModel as ObjectModel;
+            }
+
+            if (rootModel == null) {
+                m_logger.ErrorContext("[{{name}}] failed to find ModelKey [{key}]", this, 
+                    ("name", gameObject.name),
+                    ("key", modelKey));
+
+                model = null;
+                return false;
             }
             
             return rootModel.TryGetModel(modelKey, 0, out model);
@@ -182,6 +191,15 @@ namespace Tekly.DataModels.Binders
             }
 
             return GetKey();
+        }
+
+        public void ClearBinders()
+        {
+            if (m_binders == null) {
+                m_binders = new List<Binder>();
+            } else {
+                m_binders.Clear();
+            }
         }
     }
 }

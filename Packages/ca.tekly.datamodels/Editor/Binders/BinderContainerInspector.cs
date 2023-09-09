@@ -24,7 +24,7 @@ namespace Tekly.DataModels.Binders
         public static void FindChildBinders(BinderContainer container)
         {
             Undo.RecordObject(container, "Find Children");
-            container.Binders.Clear();
+            container.ClearBinders();
 
             var binders = container.GetComponents<Binder>().Where(x =>x != container);
             container.Binders.AddRange(binders);

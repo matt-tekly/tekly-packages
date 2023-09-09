@@ -20,7 +20,7 @@ namespace Tekly.DataModels.Models
             Add("interactable", m_interactable);
         }
 
-        public void Activate()
+        public virtual void Activate()
         {
             m_activated.Emit(this);
         }
