@@ -89,7 +89,7 @@ namespace Tekly.Common.Tweenimation
         private IEnumerator Animate(float delay)
         {
             while (delay > 0) {
-                delay -= m_useUnscaledTime ? Time.unscaledTime : Time.deltaTime;
+                delay -= m_useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
                 yield return null;
             }
 
@@ -97,7 +97,7 @@ namespace Tekly.Common.Tweenimation
             var timer = 0f;
 
             while (timer <= totalDuration) {
-                timer += m_useUnscaledTime ? Time.unscaledTime : Time.deltaTime;
+                timer += m_useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
 
                 Evaluate(timer);
 
