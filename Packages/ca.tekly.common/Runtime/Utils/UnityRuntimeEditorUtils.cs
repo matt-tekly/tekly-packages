@@ -55,11 +55,9 @@ namespace Tekly.Common.Utils
                 s_currentlyRunning = true;
                 RunActions(s_onEnterActions);
             } else if (change == PlayModeStateChange.EnteredEditMode) {
-                EditorApplication.delayCall += () => {
-                    s_currentlyRunning = false;
-                    EditorApplication.playModeStateChanged -= PlayModeStateChanged;
-                    RunActions(s_onExitActions);
-                };
+                s_currentlyRunning = false;
+                EditorApplication.playModeStateChanged -= PlayModeStateChanged;
+                RunActions(s_onExitActions);
             }
         }
 
