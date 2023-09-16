@@ -148,7 +148,7 @@ namespace Tekly.DataModels.Binders
             }
 
             if (rootModel == null) {
-                m_logger.ErrorContext("[{{name}}] failed to find ModelKey [{key}]", this, 
+                m_logger.ErrorContext("[{name}] failed to find ModelKey [{key}]", this, 
                     ("name", gameObject.name),
                     ("key", modelKey));
 

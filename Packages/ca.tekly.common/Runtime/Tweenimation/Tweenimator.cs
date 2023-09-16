@@ -13,6 +13,7 @@ namespace Tekly.Common.Tweenimation
         
         [SerializeField] private float m_delay;
         [SerializeField] private bool m_siblingIndexDelay;
+        [SerializeField] private bool m_useUnscaledTime;
         
         [SerializeReference] private List<BaseTween> m_tweens = new List<BaseTween>();
         [SerializeField] private UnityEvent m_completed = new UnityEvent();
@@ -87,15 +88,16 @@ namespace Tekly.Common.Tweenimation
 
         private IEnumerator Animate(float delay)
         {
-            if (delay > 0) {
-                yield return new WaitForSeconds(delay);
+            while (delay > 0) {
+                delay -= m_useUnscaledTime ? Time.unscaledTime : Time.deltaTime;
+                yield return null;
             }
 
             var totalDuration = AnimationDuration;
             var timer = 0f;
 
             while (timer <= totalDuration) {
-                timer += Time.deltaTime;
+                timer += m_useUnscaledTime ? Time.unscaledTime : Time.deltaTime;
 
                 Evaluate(timer);
 
