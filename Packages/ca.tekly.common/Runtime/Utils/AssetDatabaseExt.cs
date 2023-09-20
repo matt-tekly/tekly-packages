@@ -1,8 +1,10 @@
 #if UNITY_EDITOR
+using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Tekly.Common.Utils
 {
@@ -21,6 +23,15 @@ namespace Tekly.Common.Utils
 				.Where(x => x != null)
 				.ToArray();
 		}
+		
+		public static Object[] FindAndLoad(Type type, string search, string[] searchInFolders = null)
+		{
+			return AssetDatabase.FindAssets(search, searchInFolders)
+				.Select(AssetDatabase.GUIDToAssetPath)
+				.Select(x => AssetDatabase.LoadAssetAtPath(x, type))
+				.Where(x => x != null)
+				.ToArray();
+		}
 
 		public static T[] FindAndLoad<T>(string search, params Object[] searchInObjectDirs) where T : Object
 		{
@@ -32,6 +43,11 @@ namespace Tekly.Common.Utils
 		public static T FindAndLoadFirst<T>(string name) where T : Object
 		{
 			return FindAndLoad<T>(name).FirstOrDefault();
+		}
+		
+		public static Object FindAndLoadFirst(string name, Type type)
+		{
+			return FindAndLoad(type, name).FirstOrDefault();
 		}
 		
 		public static T LoadOrCreate<T>(string path) where T : ScriptableObject
