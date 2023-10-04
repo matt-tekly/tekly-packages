@@ -50,6 +50,7 @@ namespace Tekly.TwoD.Cells
 				return;
 			}
 			
+			m_animName = animName;
 			m_animation = m_sprite.Get(animName);
 			m_time = 0;
 			m_frame = -1;
@@ -67,10 +68,8 @@ namespace Tekly.TwoD.Cells
 		
 		private void OnEnable()
 		{
-			if (m_animation == null) {
-				SetAnimation(m_animName);	
-			}
-
+			SetAnimation(m_animName);	
+			
 			if (m_playOnEnable) {
 				m_time = 0;
 				m_frame = 0;

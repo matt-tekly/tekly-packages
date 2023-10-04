@@ -3,30 +3,18 @@ using System.Collections.Generic;
 using Tekly.Common.Utils;
 using Tekly.DataModels.Models;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Tekly.DataModels.Binders.Collections
 {
     public class ListBinder : BinderContainer
     {
-        [FormerlySerializedAs("Template")][SerializeField] private BinderContainer m_template;
-        [FormerlySerializedAs("Container")][SerializeField] private RectTransform m_container;
+        [SerializeField] private BinderContainer m_template;
+        [SerializeField] private ItemTemplateProvider m_templateProvider;
+        [SerializeField] private RectTransform m_container;
 
         private IDisposable m_disposable;
         private List<BinderContainer> m_instances = new List<BinderContainer>();
-
-        private BinderContainer ProtectedTemplate {
-            get {
-                if (m_protectedTemplate == null) {
-                    m_protectedTemplate = PrefabProtector.Protect(m_template);
-                }
-                return m_protectedTemplate;
-            }
-        }
-
-        private BinderContainer m_protectedTemplate;
         
-
         public override void Bind()
         {
             if (TryGet(out var objectModel)) {
@@ -64,18 +52,31 @@ namespace Tekly.DataModels.Binders.Collections
         {
             Clear();
 
-            var template = ProtectedTemplate;
+            if (m_templateProvider == null) {
+                var template = PrefabProtector.Protect(m_template);
             
-            foreach (var modelReference in objectModel.Models) {
-                var instance = Instantiate(template, m_container);
-                instance.OverrideKey($"*.{modelReference.Key}");
-                instance.gameObject.SetActive(true);
-
-                m_instances.Add(instance);
-                m_binders.Add(instance);
+                foreach (var reference in objectModel.Models) {
+                    CreateEntry(reference, template);
+                }
+            } else {
+                foreach (var reference in objectModel.Models) {
+                    var entryModel = reference.Model as ObjectModel;
+                    var template = m_templateProvider.Get(entryModel);
+                    CreateEntry(reference, template);
+                }
             }
             
             base.Bind();
+        }
+
+        private void CreateEntry(ModelReference reference, BinderContainer template)
+        {
+            var instance = Instantiate(template, m_container);
+            instance.OverrideKey($"*.{reference.Key}");
+            instance.gameObject.SetActive(true);
+
+            m_instances.Add(instance);
+            m_binders.Add(instance);
         }
 
         private void Clear()
