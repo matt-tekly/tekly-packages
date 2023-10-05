@@ -52,6 +52,51 @@ namespace Tekly.DataModels.Models
 			m_models.Add(new ModelReference(model, referenceType, name, name.GetHashCode()));
 			EmitModified();
 		}
+		
+		public StringValueModel Add(string name, string value)
+		{
+			var model = new StringValueModel(value);
+			Add(name, model);
+
+			return model;
+		}
+		
+		public BoolValueModel Add(string name, bool value)
+		{
+			var model = new BoolValueModel(value);
+			Add(name, model);
+
+			return model;	
+		}
+		
+		public NumberValueModel Add(string name, double value)
+		{
+			var model = new NumberValueModel(value);
+			Add(name, model);
+
+			return model;		
+		}
+		
+		public NumberValueModel Add(string name, float value)
+		{
+			var model = new NumberValueModel(value);
+			Add(name, model);
+
+			return model;		
+		}
+		
+		public NumberValueModel Add(string name, int value)
+		{
+			var model = new NumberValueModel(value);
+			Add(name, model);
+
+			return model;		
+		}
+
+		public void Add(int name, IModel model)
+		{
+			Add(name.ToString(), model);
+		}
 
 		public void RemoveModel(string name)
 		{

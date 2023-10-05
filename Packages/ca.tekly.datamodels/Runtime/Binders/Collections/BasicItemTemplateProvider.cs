@@ -1,4 +1,5 @@
 using System;
+using Tekly.Common.Utils;
 using Tekly.DataModels.Models;
 using Tekly.Logging;
 using UnityEngine;
@@ -16,7 +17,14 @@ namespace Tekly.DataModels.Binders.Collections
 	{
 		[SerializeField] private ModelRef m_templateKey;
 		[SerializeField] private NamedTemplate[] m_templates;
-		
+
+		private void Awake()
+		{
+			foreach (var template in m_templates) {
+				PrefabProtector.Protect(template.Value);
+			}
+		}
+
 		public override BinderContainer Get(ObjectModel model)
 		{
 			if (model.TryGetModel(m_templateKey.Path, out StringValueModel templateId)) {
