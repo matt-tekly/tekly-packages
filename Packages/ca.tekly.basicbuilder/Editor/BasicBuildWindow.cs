@@ -27,6 +27,8 @@ namespace Tekly.BasicBuilder
         private void OnFocus()
         {
             m_settingsContent = EditorGUIUtility.IconContent("Settings");
+            m_settingsContent.tooltip = "Open Project Settings";
+            
             GitUtility.TryFindBranchInfo(out m_gitBranchInfo);
             m_settings = BuildWindowSettings.GetSettings();
 
@@ -87,11 +89,13 @@ namespace Tekly.BasicBuilder
                     }
                 }
             }
-
+            
             EditorGUILayout.Space(2);
             using (EditorGuiExt.Horizontal()) {
-                GUILayout.Label($"Branch: {m_gitBranchInfo.Branch}");
-                
+                if (m_gitBranchInfo != null) {
+                    GUILayout.Label($"Branch: {m_gitBranchInfo.Branch}");
+                }
+
                 EditorGUILayout.Space(10, true);
                 if (GUILayout.Button(m_settingsContent, EditorStyles.iconButton, GUILayout.Width(22))) {
                     SettingsService.OpenProjectSettings("Project/Player");

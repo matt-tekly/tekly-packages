@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Tekly.Common.Utils;
 using UnityEditor;
 using UnityEngine;
@@ -27,6 +28,7 @@ namespace Tekly.BasicBuilder
 			}
 
 			var settings = Instantiate(buildWindowSettings[0]);
+			Directory.CreateDirectory(GAME_SETTINGS_DIR);
 			AssetDatabase.CreateAsset(settings, GAME_SETTINGS_FILE);
 
 			return settings;
@@ -36,9 +38,9 @@ namespace Tekly.BasicBuilder
 	[Serializable]
 	public class BuildPlatformSettings
 	{
-		public GUIContent Content;
 		public BuildTarget BuildTarget;
 		public BuildTargetGroup BuildTargetGroup;
+		public GUIContent Content;
 	}
 	
 	[Serializable]
