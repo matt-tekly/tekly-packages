@@ -118,7 +118,7 @@ namespace Tekly.Sheets.Processing
 
 		private async void StartDownload()
 		{
-			ClearConsole.Go();
+			EditorConsole.Clear();
 
 			Debug.Log("Downloading All Data");
 			m_activeTask = Download();

@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 641d98c3e5784b39be14ac763d218c4d, type: 3}
   m_Name: idle_balance_sheet
   m_EditorClassIdentifier: 
-  SheetId: 1cvxp2UXHzyaqAC6iWjS1gp2jIbQtIscv8rMkzjOfBiw
+  SheetId: 15yeM4l2SNquxrFlujtlX40YKsb2cl14h0aMl7sdWTkw
   Processor: {fileID: 11400000, guid: db0745833e5114e98aff6bce4f324f30, type: 2}
   Credentials: {fileID: 4900000, guid: 7c78b322665b24baabcbfadb2f5ae235, type: 3}

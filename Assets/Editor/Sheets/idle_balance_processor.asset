@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a758ed2847554bc5a36a183d71c9d05a, type: 3}
   m_Name: idle_balance_processor
   m_EditorClassIdentifier: 
-  m_directory: {fileID: 102900000, guid: 860b1ad41554146f6a28188e00e991db, type: 3}
+  m_directory: {fileID: 102900000, guid: ea70c2f1c77abd0439838ea155c50cc2, type: 3}
   m_assetIdKey: Id
