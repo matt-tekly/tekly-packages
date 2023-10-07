@@ -1,0 +1,29 @@
+{
+    "name": "Tekly.Sheets.Editor",
+    "rootNamespace": "Tekly.Sheets",
+    "references": [
+        "GUID:b9160372c6c55a741932d482673e3abb",
+        "GUID:31f6ca066cb1421498e9be3571072338"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Google.Apis.Auth.dll",
+        "Google.Apis.Core.dll",
+        "Google.Apis.Drive.v3.dll",
+        "Google.Apis.Auth.PlatformServices.dll",
+        "Google.Apis.dll",
+        "Google.Apis.PlatformServices.dll",
+        "Google.Apis.Sheets.v4.dll",
+        "Newtonsoft.Json.dll",
+        ""
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

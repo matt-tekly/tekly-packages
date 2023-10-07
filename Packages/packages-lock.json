@@ -124,6 +124,16 @@
         "ca.tekly.common": "0.0.7"
       }
     },
+    "ca.tekly.sheets": {
+      "version": "file:ca.tekly.sheets",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "ca.tekly.common": "0.0.7",
+        "ca.tekly.logger": "0.0.7",
+        "com.unity.nuget.newtonsoft-json": "3.2.1"
+      }
+    },
     "ca.tekly.statusbar": {
       "version": "file:ca.tekly.statusbar",
       "depth": 0,
@@ -233,6 +243,13 @@
       "dependencies": {
         "com.unity.modules.androidjni": "1.0.0"
       },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.nuget.newtonsoft-json": {
+      "version": "3.2.1",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
       "url": "https://packages.unity.com"
     },
     "com.unity.scriptablebuildpipeline": {

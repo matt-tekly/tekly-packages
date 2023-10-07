@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "tekly-packages",
+  "private_key_id": "3b8fdf41c81af2a790a980527e37d4eae4988eae",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCb5KqtrqjEkJOH\nC4NvQvY8wbStwGArlKBRqiUBSRV/6YT/6i8DBDf09N3RMw/MJqZgQP7XOTZtaKE0\n++Ck8KVpSCXqVzFwl9xGo6+ra48+fCZ9Ce3WF5u97Gs95lcFf2vrMZf3vk6IA5Ho\n1LLqsO7B1tdEiX02vTD9hLsWlUKbkIlFobC8nzy29HW39WTRgJhlVUIDhtctterr\nkNylMQi1uOiizVIMsrM/Qi1UEmYGQjGcKjKcJdroShuT0c0+TjsPh28giGZNlc2/\nxmWlfGSsW8ZbHTW7zQtpPyr3QYQebc4kAE9mq5MuNlmKaVldOkX2UByiKiK2D1Z3\nsLX3/AanAgMBAAECggEAP45/o2XE+ray3ujrwg271FNo9TmsO7hRkFnc0mRYdpjf\nF3MDjahHo/+8+5BkzWeohy+Ydmil7v8sUiyqjrRpy72Vb6/ywSO4s7gCY9HrSZ9W\nFb5Zj+J6JXlg05C4Q86KUg4bFe8plzxVXWZyN0rBXJfZleC0AwApHALkP7XEvSUS\nCtp/wmeHoYF+rXWGOs2Lcpz63O1l3kziX+72TssX8QVXSkoPKV8iDntG29eCXMNK\n+mabBItjVRqnAhPVZPATq5ae1FwGMz/vJ2s2kn1nKblhthN3v34DqV0i1wBv8yvB\n33eaFsi7xeegQwQe9nBPwUEvEcbsy/Jz0ThibJiLsQKBgQDUvml49JLFR2X9Aigj\nFot7mZB6E1oUctyA8Y6ZYZQh7VmBYNzIxoHbaa2BCPjAiWoZvAX2jt2Q4/hw740a\nFuCIMK7VqTyaV298YCCT+RcAWzuG7RFSWg2JqS0/puvOidYQRm5dWQZk/ZPCo9W7\nOVxC39/ytVmjjK3oKVKwiv4jfwKBgQC7lxwP/d0O9kk+4OVlEAf0z+dV+IILe5i5\nj0zBFjQpkndVjhjg2g35GCXQuE2acpEZXRMjQRpqYJ/ZGn4FBJiqIEX2/3JAEsvR\n0NYjGOdCPEC+NqVwKxbxgHF2ABR9lQRh5yzs9kTRJoN314VZ/kcO9oEtR2KzRmZP\nWjefh6gQ2QKBgCOtt2SYp9C8E6el5/NSgZv9+hPvEOljBgX9/OtOSRiThLJE+2IU\noIyaoYWFaqpnoUqllN5vwUreYLkYA7L/aTKN75RXqJk91q2mNXB7ktb1dfs/4OrN\nvX17yOHm7Z8a0LK0DShMmNzxBgnbjimzCf0RLK64qUrbegL4gyymcs6jAoGAPqGY\nG/q9aLZwBA9gZ5qvnVwgt8Jt4NmWRzYCAWGhbtPZBfaYddI34hfe4E34kv13VomN\nzzJ4WFYEaJ8Avjonon19/paRFbVw2Y+pPzScWa/2ScvC9q1cTqt8tlIWhUtQmENv\n63nZxh7evA94FXDhVqyUuoJgAM0bcZkEgz3urhkCgYEAxgUwKzstxZR5UrfXYJrg\nXsAhizQnE5zqEmd/1sDomtxVnAgLMZwPeUrZ/+CGp8CzKWQt3a5yvMjMSTFDeKhz\nh6M7q/w9vVJB1ArEb8EjIND9a+EM2FtcsE9USa1eArgrx3JS2OsvBkqNXBauMn48\nLHjzcvYfqrEDjO7UxF3yuVM=\n-----END PRIVATE KEY-----\n",
+  "client_email": "google-sheets-readonly@tekly-packages.iam.gserviceaccount.com",
+  "client_id": "113424104403937847161",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/google-sheets-readonly%40tekly-packages.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
