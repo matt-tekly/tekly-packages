@@ -8,6 +8,8 @@ namespace Tekly.Common.Cameras
 		public Bounds? BoundsOverride { get; set; }
 		public Bounds ActiveBounds => BoundsOverride ?? m_defaultBounds;
 		public Vector3 MouseWorldPosition => m_camera.ScreenToWorldPoint(Input.mousePosition);
+		public float Zoom => m_currentZoom;
+		public Camera Camera => m_camera;
 
 		[Header("Camera")]
 		[SerializeField] private Camera m_camera;
