@@ -1,7 +1,7 @@
 # Basic Builder
 A simple window for making a player build
 
-This presents with several simple options
+This presents several basic options
 
 - Swapping between platforms
 - Configuring Development or Release builds
