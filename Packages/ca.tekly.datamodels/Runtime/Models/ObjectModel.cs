@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Text;
 using Tekly.Common.Observables;
+using UnityEngine;
 
 namespace Tekly.DataModels.Models
 {
@@ -53,9 +54,9 @@ namespace Tekly.DataModels.Models
 			EmitModified();
 		}
 		
-		public StringValueModel Add(string name, string value)
+		public StringValueModel Add(string name, string value, bool needsLocalization = false)
 		{
-			var model = new StringValueModel(value);
+			var model = new StringValueModel(value, needsLocalization);
 			Add(name, model);
 
 			return model;
@@ -91,6 +92,22 @@ namespace Tekly.DataModels.Models
 			Add(name, model);
 
 			return model;		
+		}
+
+		public SpriteValueModel Add(string name, Sprite value)
+		{
+			var model = new SpriteValueModel(value);
+			Add(name, model);
+
+			return model;		
+		}
+
+		public ObjectModel CreateObject(string name)
+		{
+			var objectModel = new ObjectModel();
+			Add(name, objectModel);
+
+			return objectModel;
 		}
 
 		public void Add(int name, IModel model)
