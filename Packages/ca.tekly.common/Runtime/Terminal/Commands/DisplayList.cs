@@ -60,11 +60,17 @@ namespace Tekly.Common.Terminal.Commands
             m_items.Add(new DisplayItem(name, value));
         }
 
-        public string ToString(bool aligned = true)
+        public string ToString(bool aligned = true, bool padRight = false)
         {
             if (aligned) {
-                var longestName = m_items.Max(x => x.Name.Length);
-                return string.Join("\n", m_items.Select(x => $"{x.Name.PadRight(longestName)} {x.Value.Gray()}"));
+                if (padRight) {
+                    var longestName = m_items.Max(x => x.Name.Length);
+                    var longestValue = m_items.Max(x => x.Value.Length);
+                    return string.Join("\n", m_items.Select(x => $"{x.Name.PadRight(longestName)} {x.Value.PadLeft(longestValue).Gray()}"));
+                } else {
+                    var longestName = m_items.Max(x => x.Name.Length);
+                    return string.Join("\n", m_items.Select(x => $"{x.Name.PadRight(longestName)} {x.Value.Gray()}"));    
+                }
             } 
             
             return string.Join("\n", m_items.Select(x => $"{x.Name} {x.Value.Gray()}"));
