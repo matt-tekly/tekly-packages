@@ -17,6 +17,8 @@ The sample game is a simple idle game
 - Must support offline time generation
 - Buy multiplier
 
+# TODO
+
 ## Managers
 - Gacha mechanic to collect managers
 - Managers can buff things
@@ -26,9 +28,6 @@ The sample game is a simple idle game
     - You need to collect a certain amount of cards to upgrade them
     - Also costs premium currency
 - Manager gallery
-
-
-# TODO
 
 ## Missions
 - Manually defined
@@ -58,9 +57,3 @@ The sample game is a simple idle game
 ## Localization
 - Barely implemented
 - Need to handle pluralizing words
-
-## Client Builder
-- Need a build window
-
-## Addressables
-- Sort out content build process
