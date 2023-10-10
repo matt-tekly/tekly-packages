@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Text;
 using Tekly.Common.Observables;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Tekly.DataModels.Models
 {
@@ -103,12 +104,20 @@ namespace Tekly.DataModels.Models
 			return model;		
 		}
 
-		public ObjectModel CreateObject(string name)
+		public ButtonModel AddButton(string name)
 		{
-			var objectModel = new ObjectModel();
-			Add(name, objectModel);
+			var model = new ButtonModel();
+			Add(name, model);
 
-			return objectModel;
+			return model;
+		}
+
+		public ObjectModel AddObject(string name)
+		{
+			var model = new ObjectModel();
+			Add(name, model);
+
+			return model;
 		}
 
 		public void Add(int name, IModel model)
