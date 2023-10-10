@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using Tekly.Common.Observables;
@@ -113,6 +114,14 @@ namespace Tekly.DataModels.Models
 		public void Add(int name, IModel model)
 		{
 			Add(name.ToString(), model);
+		}
+
+		public void BulkModify(Action action)
+		{
+			DisableModifiedTrigger = true;
+			action();
+			DisableModifiedTrigger = false;
+			EmitModified();
 		}
 
 		public void RemoveModel(string name)
