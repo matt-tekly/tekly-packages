@@ -8,6 +8,7 @@ namespace Tekly.DataModels.Models
 		
 		protected override void OnDispose()
 		{
+			base.OnDispose();
 			m_disposables.Dispose();
 		}
 	}

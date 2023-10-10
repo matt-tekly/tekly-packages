@@ -26,6 +26,7 @@ namespace TeklySample.Game.Worlds.BuyMultipliers
 
         protected override void OnDispose()
         {
+            base.OnDispose();
             m_buttonDisposable.Dispose();
         }
 

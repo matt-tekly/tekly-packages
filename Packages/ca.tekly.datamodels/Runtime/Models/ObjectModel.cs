@@ -166,20 +166,21 @@ namespace Tekly.DataModels.Models
 
 		public void Clear()
 		{
-			OnDispose();
-			m_models.Clear();
-
-			EmitModified();
-		}
-
-		protected override void OnDispose()
-		{
 			for (var index = 0; index < m_models.Count; index++) {
 				var modelReference = m_models[index];
 				if (modelReference.ReferenceType == ReferenceType.Owner) {
 					modelReference.Model.Dispose();
 				}
 			}
+			
+			m_models.Clear();
+			EmitModified();
+		}
+		
+		protected override void OnDispose()
+		{
+			base.OnDispose();
+			Clear();
 		}
 
 		public override void ToJson(StringBuilder stringBuilder)

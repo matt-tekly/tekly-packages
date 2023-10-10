@@ -24,7 +24,7 @@ namespace TeklySample.Game.Generators
         }
     }
     
-    public class GeneratorModel : ObjectModel, ITickable
+    public class GeneratorModel : DisposableObjectModel, ITickable
     {
         private readonly Generator m_generator;
         private readonly GeneratorManager m_generatorManager;
@@ -42,8 +42,6 @@ namespace TeklySample.Game.Generators
         
         private readonly StringValueModel m_itemId = new StringValueModel("");
         private readonly ItemCountModel m_generation;
-
-        private readonly Disposables m_disposables = new Disposables();
         
         public GeneratorModel(Generator generator, GeneratorManager generatorManager, BuyMultiplier buyMultiplier)
         {
@@ -70,11 +68,6 @@ namespace TeklySample.Game.Generators
 
             m_runButton.Activated.Subscribe(RunButtonOnActivation).AddTo(m_disposables);
             m_buyButton.Activated.Subscribe(BuyButtonOnActivation).AddTo(m_disposables);
-        }
-
-        protected override void OnDispose()
-        {
-            m_disposables.Dispose();
         }
         
         protected override void OnTick()
