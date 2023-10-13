@@ -53,7 +53,7 @@ namespace Tekly.Sheets.Processing
 			var outDir = AssetDatabase.GetAssetPath(m_directory);
 			
 			foreach (var s in sheets) {
-				var dataObject = SheetParser.ParseSheet(s);
+				var dataObject = SheetParser.ParseRows(s.Values, s.Name);
 				var container = new DataObject(DataObjectType.Object);
 				container.Set(m_rootArrayKey, dataObject);
 
@@ -72,9 +72,9 @@ namespace Tekly.Sheets.Processing
 				var sheetDir = Path.Combine(outDir, sheet.Name);
 				Directory.CreateDirectory(sheetDir);
 				
-				var dataObject = SheetParser.ParseSheet(sheet);
+				var dataObject = SheetParser.ParseRows(sheet.Values, sheet.Name);
 
-				foreach (var (key, value) in dataObject.Object) {
+				foreach (var value in dataObject.Object.Values) {
 					var objectValue = (DataObject) value;
 					var id = objectValue.Object.Values.First().ToString();
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Tekly.Sheets.Data;
@@ -7,9 +8,8 @@ namespace Tekly.Sheets.Core
 {
     public static class SheetParser
     {
-        public static DataObject ParseSheet(Sheet sheet)
+        public static DataObject ParseRows(IList<IList<object>> values, string sheetName)
         {
-            var values = sheet.Values;
             try {
                 if ((string)values[0][0] == "// Single Row") {
                     if ((string)values[0][1] == "#Key" && (string)values[0][2] == "Value#") {
@@ -21,7 +21,7 @@ namespace Tekly.Sheets.Core
 
                 return ParseObjectSheet(values);
             } catch {
-                Debug.LogError($"Failed to parse sheet: [{sheet.Name}]");
+                Debug.LogError($"Failed to parse sheet: [{sheetName}]");
                 throw;
             }
         }
@@ -124,7 +124,7 @@ namespace Tekly.Sheets.Core
 
         private static bool IsBlank(object val)
         {
-            if (val == null) {
+            if (val == null || val is DBNull) {
                 return true;
             }
 

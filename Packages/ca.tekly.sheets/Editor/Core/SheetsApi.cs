@@ -90,7 +90,7 @@ namespace Tekly.Sheets.Core
 						continue;
 					}
 
-					var dataObject = SheetParser.ParseSheet(s);
+					var dataObject = SheetParser.ParseRows(s.Values, s.Name);
 					var container = new DataObject(DataObjectType.Object);
 					container.Set("Data", dataObject);
 

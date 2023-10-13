@@ -1,16 +1,15 @@
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using System.Linq;
 using ExcelDataReader;
+using Tekly.Sheets.Core;
 using Tekly.Sheets.Data;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 
 namespace Tekly.Sheets.Excel
 {
-	[ScriptedImporter(9, "xlsx")]
+	[ScriptedImporter(10, "xlsx")]
 	public class ExcelSheetImporter : ScriptedImporter
 	{
 		[SerializeField] private ExcelSheetProcessor m_processor;
@@ -21,117 +20,42 @@ namespace Tekly.Sheets.Excel
 				return;
 			}
 
-			using var jsonStream = File.OpenRead(ctx.assetPath);
-			using var reader = ExcelReaderFactory.CreateReader(jsonStream);
+			using var fileStream = File.OpenRead(ctx.assetPath);
+			using var reader = ExcelReaderFactory.CreateReader(fileStream);
 
-			var dataset = reader.AsDataSet();
-
-			var sheets = new Dictionary<string, DataObject>();
-
-			for (var i = 0; i < dataset.Tables.Count; ++i) {
-				var table = dataset.Tables[i];
-				sheets[table.TableName] = ParseTable(table);
-			}
+			var dataSet = reader.AsDataSet();
+			var sheets = ConvertToDataObjects(dataSet);
 			
 			m_processor.Process(ctx, sheets);
 		}
 
-		private static DataObject ParseTable(DataTable table)
+		private Dictionary<string, DataObject> ConvertToDataObjects(DataSet dataSet)
 		{
-			var paths = ParseHeaderPaths(table.Rows[0]);
+			var sheets = new Dictionary<string, DataObject>();
 
-			var objects = new List<DataObject>();
-			var currentObject = new DataObject(DataObjectType.Object);
-
-			var index = 1;
-
-			var rows = table.Rows;
-
-			for (var i = 1; i < rows.Count; i++) {
-				var row = rows[i].ItemArray;
-
-				if (row.Length == 0 || IsComment(row[0])) {
+			for (var i = 0; i < dataSet.Tables.Count; ++i) {
+				var table = dataSet.Tables[i];
+				
+				if (table.TableName.StartsWith("//") || table.TableName.StartsWith("__")) {
 					continue;
 				}
-
-				if (!IsBlank(row[0])) {
-					if (currentObject.Object.Count > 0) {
-						objects.Add(currentObject);
-					}
-
-					currentObject = new DataObject(DataObjectType.Object);
-					index = i;
-				}
-
-				ParseRow(paths, row, currentObject, i - index);
+				
+				var rows = ConvertToObjectRows(table);
+				sheets[table.TableName] = SheetParser.ParseRows(rows, table.TableName);
 			}
 
-			if (objects.Count == 0 || objects[objects.Count - 1] != currentObject && currentObject.Object.Count > 0) {
-				objects.Add(currentObject);
-			}
-
-			var dataObject = new DataObject(DataObjectType.Array);
-			for (var i = 0; i < objects.Count; i++) {
-				dataObject.Set(i, objects[i]);
-			}
-
-			return dataObject;
+			return sheets;
 		}
 
-		private static void ParseRow(List<PropertyPath> paths, IList<object> row, DataObject obj, int index)
+		private IList<IList<object>> ConvertToObjectRows(DataTable table)
 		{
-			foreach (var path in paths) {
-				var currPath = path.Key.Select(v => v.IsNumber ? new PathKey(index) : v).ToArray();
-				if (path.Index > row.Count - 1) {
-					continue;
-				}
-
-				var value = row[path.Index];
-				if (!IsBlank(value)) {
-					obj.Set(currPath, value);
-				}
-			}
-		}
-
-		private static List<PropertyPath> ParseHeaderPaths(DataRow headers)
-		{
-			var paths = new List<PropertyPath>();
-			for (var index = 0; index < headers.ItemArray.Length; index++) {
-				var item = headers.ItemArray[index];
-				var header = item as string;
-
-				if (!string.IsNullOrWhiteSpace(header) && !header.Contains("//")) {
-					paths.Add(new PropertyPath(header, index));
-				}
+			var rows = new List<IList<object>>(table.Rows.Count);
+			
+			foreach (DataRow tableRow in table.Rows) {
+				rows.Add(tableRow.ItemArray);
 			}
 
-			return paths;
-		}
-
-		private static bool IsComment(object val)
-		{
-			if (val is string str) {
-				return str.StartsWith("//");
-			}
-
-			return false;
-		}
-
-		private static bool IsBlank(object val)
-		{
-			if (val == null || val is DBNull) {
-				return true;
-			}
-
-			if (val is bool || val is double) {
-				return false;
-			}
-
-			if (val is string str) {
-				return string.IsNullOrWhiteSpace(str);
-			}
-
-			return false;
+			return rows;
 		}
 	}
 }

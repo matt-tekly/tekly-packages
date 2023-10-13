@@ -19,7 +19,7 @@ namespace Tekly.Sheets.Processing
 		
 		public override void Process(GoogleSheetObject googleSheetObject, IList<Sheet> sheets)
 		{
-			var sheetMap = sheets.ToDictionary(x => x.Name, SheetParser.ParseSheet);
+			var sheetMap = sheets.ToDictionary(x => x.Name, x => SheetParser.ParseRows(x.Values, x.Name));
 			Process(sheetMap);
 		}
 
