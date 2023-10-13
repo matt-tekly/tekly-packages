@@ -110,6 +110,11 @@ namespace Tekly.Common.Terminal.Commands
             m_commands.Sort((a, b) => string.Compare(a.Id, b.Id, StringComparison.Ordinal));
         }
 
+        public void RemoveCommandSource(ICommandSource commandSource)
+        {
+            m_commands.RemoveAll(x => x.Source == commandSource);
+        }
+
         public void Execute(string input)
         {
             m_commandHistory.Add(input);

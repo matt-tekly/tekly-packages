@@ -20,8 +20,8 @@ namespace TeklySample.Editor
 			var outDir = AssetDatabase.GetAssetPath(m_directory);
 			var idKey = new PathKey(m_assetIdKey);
 			
-			ProcessSheet<GeneratorBalance>("Generators", sheetMap["Generators"], idKey, outDir);
 			ProcessSheet<ItemBalance>("Items", sheetMap["Items"], idKey, outDir);
+			ProcessSheet<GeneratorBalance>("Generators", sheetMap["Generators"], idKey, outDir);
 			ProcessSheet<WorldBalance>("Worlds", sheetMap["Worlds"], idKey, outDir);
 		}
 	}

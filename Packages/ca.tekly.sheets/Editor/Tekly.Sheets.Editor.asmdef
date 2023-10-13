@@ -20,7 +20,8 @@
         "Google.Apis.PlatformServices.dll",
         "Google.Apis.Sheets.v4.dll",
         "Newtonsoft.Json.dll",
-        ""
+        "ExcelDataReader.DataSet.dll",
+        "ExcelDataReader.dll"
     ],
     "autoReferenced": true,
     "defineConstraints": [],
