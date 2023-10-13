@@ -9,7 +9,7 @@
 - The headings are used to generate the names of the fields
 - Having a value in the first column indicates when a new object starts
 - `.` or `:` indicate a sub property
-- `|` indicators an array
+- `|` indicates an array
 - Arrays in nested objects are not supported
     - You can have an array of objects but those objects cannot contain arrays
 - Sheet names that start with `//` are ignored
