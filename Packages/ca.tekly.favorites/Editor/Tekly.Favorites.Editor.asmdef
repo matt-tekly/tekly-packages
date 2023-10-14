@@ -12,5 +12,8 @@
   "autoReferenced": true,
   "defineConstraints": [],
   "versionDefines": [],
-  "noEngineReferences": false
+  "noEngineReferences": false,
+  "dependencies": {
+    "ca.tekly.common": "0.0.7"
+  }
 }

@@ -8,5 +8,9 @@
     "name": "Matt King",
     "email": "matt@tekly.ca"
   },
-  "hideInEditor": false
+  "hideInEditor": false,
+  "dependencies": {
+    "ca.tekly.nsubstitute": "0.0.1",
+    "ca.tekly.common": "0.0.7"
+  }
 }

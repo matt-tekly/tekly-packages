@@ -10,7 +10,8 @@
   "hideInEditor": false,
   "type": "library",
   "dependencies": {
+    "ca.tekly.common": "0.0.7",
     "ca.tekly.logger": "0.0.7",
-    "ca.tekly.common": "0.0.7"
+    "ca.tekly.nsubstitute": "0.0.1"
   }
 }

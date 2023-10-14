@@ -17,7 +17,7 @@
       "dependencies": {
         "com.unity.addressables": "1.19.18",
         "ca.tekly.common": "0.0.1",
-        "ca.tekly.zipfile": ""
+        "ca.tekly.zipfile": "0.0.1"
       }
     },
     "ca.tekly.common": {
@@ -25,6 +25,7 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
+        "ca.tekly.nsubstitute": "0.0.1",
         "com.unity.mathematics": "1.1.0"
       }
     },
@@ -42,7 +43,8 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "ca.tekly.localizations": "0.0.1"
+        "ca.tekly.localizations": "0.0.1",
+        "ca.tekly.nsubstitute": "0.0.1"
       }
     },
     "ca.tekly.extensions": {
@@ -83,8 +85,9 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
+        "ca.tekly.common": "0.0.7",
         "ca.tekly.logger": "0.0.7",
-        "ca.tekly.common": "0.0.7"
+        "ca.tekly.nsubstitute": "0.0.1"
       }
     },
     "ca.tekly.localizations": {
@@ -97,7 +100,10 @@
       "version": "file:ca.tekly.logger",
       "depth": 0,
       "source": "embedded",
-      "dependencies": {}
+      "dependencies": {
+        "ca.tekly.nsubstitute": "0.0.1",
+        "ca.tekly.common": "0.0.7"
+      }
     },
     "ca.tekly.notifications": {
       "version": "file:ca.tekly.notifications",
@@ -130,7 +136,6 @@
       "source": "embedded",
       "dependencies": {
         "ca.tekly.common": "0.0.7",
-        "ca.tekly.logger": "0.0.7",
         "com.unity.nuget.newtonsoft-json": "3.2.1"
       }
     },
