@@ -5,7 +5,8 @@ PluginImporter:
   serializedVersion: 2
   iconMap: {}
   executionOrder: {}
-  defineConstraints: []
+  defineConstraints:
+  - '!SHEETS_DISABLE_GOOGLE_API_DLL'
   isPreloaded: 0
   isOverridable: 0
   isExplicitlyReferenced: 0
