@@ -20,7 +20,7 @@ namespace Tekly.Sheets.Excel
 				return;
 			}
 
-			using var fileStream = File.OpenRead(ctx.assetPath);
+			using var fileStream = new FileStream(ctx.assetPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 			using var reader = ExcelReaderFactory.CreateReader(fileStream);
 
 			var dataSet = reader.AsDataSet();
