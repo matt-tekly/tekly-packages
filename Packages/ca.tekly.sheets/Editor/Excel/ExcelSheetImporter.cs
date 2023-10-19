@@ -36,7 +36,7 @@ namespace Tekly.Sheets.Excel
 			for (var i = 0; i < dataSet.Tables.Count; ++i) {
 				var table = dataSet.Tables[i];
 				
-				if (table.TableName.StartsWith("//") || table.TableName.StartsWith("__")) {
+				if (SheetParser.IsComment(table.TableName)) {
 					continue;
 				}
 				

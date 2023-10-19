@@ -17,6 +17,7 @@ namespace Tekly.Sheets.Processing
 
 		static JsonExt()
 		{
+			s_settings.ObjectCreationHandling = ObjectCreationHandling.Replace;
 			s_settings.Converters.Add(new UnityObjectTypeConverter());
 		}
 

@@ -107,10 +107,10 @@ namespace Tekly.Sheets.Core
 			var request = m_sheetsService.Spreadsheets.Get(spreadSheetId);
 			var result = await request.ExecuteAsync();
 
-			SheetMetaData sheetMetaData = new SheetMetaData();
+			var sheetMetaData = new SheetMetaData();
 			sheetMetaData.SheetName = result.Properties.Title;
 			sheetMetaData.Sheets = result.Sheets
-				.Where(s => !s.Properties.Title.Contains("//"))
+				.Where(s => !SheetParser.IsComment(s.Properties.Title))
 				.Select(s => s.Properties.Title)
 				.ToList();
 

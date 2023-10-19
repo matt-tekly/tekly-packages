@@ -113,10 +113,10 @@ namespace Tekly.Sheets.Core
             return val;
         }
 
-        private static bool IsComment(object val)
+        public static bool IsComment(object val)
         {
             if (val is string str) {
-                return str.StartsWith("//");
+                return str.StartsWith("//") || str.StartsWith("__") || str.StartsWith("$");
             }
 
             return false;
