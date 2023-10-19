@@ -17,6 +17,7 @@ namespace Tekly.Logging.LogDestinations
 
         private static ConcurrentQueue<LogMessage> s_queuedMessages = new ConcurrentQueue<LogMessage>();
         private static Thread s_mainThread;
+        private static bool s_isUpdateQueued;
         
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Initialize()
@@ -31,6 +32,11 @@ namespace Tekly.Logging.LogDestinations
             if (Thread.CurrentThread == s_mainThread) {
                 Log(logType, logEntry);    
             } else {
+                if (!s_isUpdateQueued) {
+                    EditorApplication.delayCall += Update;
+                    s_isUpdateQueued = true;
+                }
+                
                 s_queuedMessages.Enqueue(new LogMessage {
                     Entry = logEntry,
                     LogType =  logType
@@ -40,6 +46,8 @@ namespace Tekly.Logging.LogDestinations
 
         public static void Update()
         {
+            s_isUpdateQueued = false;
+            
             while (s_queuedMessages.TryDequeue(out var queuedMessage)) {
                 Log(queuedMessage.LogType, queuedMessage.Entry);
             }

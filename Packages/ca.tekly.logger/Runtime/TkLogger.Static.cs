@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -67,7 +68,7 @@ namespace Tekly.Logging
             LifeCycle.Instance.Update += Update;
 
             UpdateCommonProperties();
-            UnityRuntimeEditorUtils.OnExitPlayMode(Reset);
+            UnityRuntimeEditorUtils.OnExitPlayMode(OnEditorStopPlaying);
         }
 
         private static void LoadConfigFile(string profile)
@@ -104,6 +105,7 @@ namespace Tekly.Logging
             
             Application.logMessageReceivedThreaded -= HandleUnityLog;
             LifeCycle.Instance.Update -= Update;
+            
         }
         
         private static TkLogger Create(Type type)
@@ -306,11 +308,21 @@ namespace Tekly.Logging
             return profileData;
         }
         
+        private static void OnEditorStopPlaying()
+        {
+            Reset();
+            ApplyProfile(CreateDefaultProfile());
+        }
+        
 #if UNITY_EDITOR
         [UnityEditor.InitializeOnLoadMethod]
         private static void EditorInitialize()
         {
-            LoadConfigFile(null);
+            if (UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode) {
+                return;
+            }
+            
+            ApplyProfile(CreateDefaultProfile());
         }
 #endif
     }

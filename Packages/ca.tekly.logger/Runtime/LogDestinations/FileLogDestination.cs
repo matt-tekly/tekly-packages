@@ -31,8 +31,9 @@ namespace Tekly.Logging.LogDestinations
         private readonly StringBuilder m_stringBuilder = new StringBuilder(512);
         private readonly ExpandingBuffer<char> m_expandingBuffer = new ExpandingBuffer<char>(1024);
         private readonly Thread m_thread;
+        
         private bool m_disposing;
-
+        private bool m_disposed;
 
         protected FileLogDestination(FileLogConfig config)
         {
@@ -50,6 +51,15 @@ namespace Tekly.Logging.LogDestinations
             m_minimumLevel = config.MinimumLevel;
 
             m_thread = StartLongLivingThread(WriteMessageLoop);
+        }
+
+        ~FileLogDestination()
+        {
+            if (m_disposing || m_disposed) {
+                return;
+            }
+            
+            Dispose();
         }
 
         public void LogMessage(TkLogMessage message, LogSource logSource)
@@ -149,6 +159,8 @@ namespace Tekly.Logging.LogDestinations
 
             m_newLogEvent.Close();
             m_newLogEvent = null;
+
+            m_disposed = true;
         }
     }
 }
