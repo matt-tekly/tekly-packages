@@ -76,7 +76,7 @@ namespace TeklySample.Game.Worlds
                 var saveJson = LocalFile.ReadAllText(saveFile);
                 save = JsonUtility.FromJson<GameWorldSave>(saveJson);
             }
-
+            
             m_gameWorld = new GameWorld(m_balanceManager, worldBalance, save);
 
             m_injectorContainer.Register(m_gameWorld);

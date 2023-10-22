@@ -44,17 +44,23 @@ namespace Tekly.Common.Utils
 
             public TValue[] Get()
             {
-                return m_stack.Count == 0 ? new TValue[m_size] : m_stack.Pop();
+                if (m_stack.Count == 0) {
+                    return new TValue[m_size];
+                }
+                
+                return m_stack.Pop();
             }
 
-            public void Return(TValue[] value)
+            public void Return(TValue[] value, bool clear = true)
             {
                 Assert.IsFalse(m_stack.Contains(value), "Attempted to return value twice!");
                 m_stack.Push(value);
 
-                var length = value.Length;
-                for (var i = 0; i < length; i++) {
-                    value[i] = default;
+                if (clear) {
+                    var length = value.Length;
+                    for (var i = 0; i < length; i++) {
+                        value[i] = default;
+                    }  
                 }
             }
         }

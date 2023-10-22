@@ -1,0 +1,16 @@
+{
+  "name": "ca.tekly.superserial",
+  "displayName": "Tekly Super Serial",
+  "version": "0.0.1",
+  "unity": "2019.4",
+  "author": {
+    "name": "Matt King",
+    "email": "matt@tekly.ca"
+  },
+  "hideInEditor": false,
+  "type": "library",
+  "dependencies": {
+    "ca.tekly.nsubstitute": "0.0.1",
+    "com.unity.mathematics": "1.1.0"
+  }
+}

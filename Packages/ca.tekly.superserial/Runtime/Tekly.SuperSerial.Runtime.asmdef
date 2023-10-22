@@ -1,0 +1,14 @@
+{
+    "name": "Tekly.SuperSerial.Runtime",
+    "rootNamespace": "Tekly.SuperSerial",
+    "references": ["Tekly.Common.Runtime"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

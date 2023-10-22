@@ -112,7 +112,7 @@ namespace Tekly.Logging.LogDestinations
             m_streamWriter.Dispose();
             LocalFile.Delete(CurrentFilePath);
             
-            m_streamWriter = m_streamWriter = LocalFile.GetStreamWriter(CurrentFilePath, FileMode.Append, FileAccess.Write, FileShare.Read);
+            m_streamWriter = LocalFile.GetStreamWriter(CurrentFilePath, FileMode.Append, FileAccess.Write, FileShare.Read);
             m_streamWriter.AutoFlush = true;
         }
 
