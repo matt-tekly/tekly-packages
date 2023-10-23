@@ -5,42 +5,54 @@ namespace Tekly.Common.Utils
 {
     public static class PrefabProtector
     {
-        private static Transform s_container;
-
-        private static Dictionary<GameObject, GameObject> s_prefabs = new Dictionary<GameObject, GameObject>();
-
-        private static Transform GetContainer()
+        public static T Protect<T>(T component) where T : Component
         {
-            if (s_container == null) {
+            return PrefabProtectorImpl.Instance.Protect(component);
+        }
+
+        public static GameObject Protect(GameObject gameObject)
+        {
+            return PrefabProtectorImpl.Instance.Protect(gameObject);
+        }
+    }
+
+    internal class PrefabProtectorImpl : Singleton<PrefabProtectorImpl>
+    {
+        private Transform m_container;
+        private readonly Dictionary<GameObject, GameObject> m_prefabs = new Dictionary<GameObject, GameObject>();
+
+        private Transform GetContainer()
+        {
+            if (m_container == null) {
                 var go = new GameObject("[PrefabProtector]");
                 Object.DontDestroyOnLoad(go);
-                s_container = go.transform;
+                m_container = go.transform;
             }
 
-            return s_container;
+            return m_container;
         }
-        
-        public static T Protect<T>(T component) where T : Component
+
+        public T Protect<T>(T component) where T : Component
         {
 #if UNITY_EDITOR
             var gameObject = component.gameObject;
-            
+
             if (!UnityEditor.PrefabUtility.IsPartOfAnyPrefab(gameObject)) {
                 gameObject.SetActive(false);
                 return component;
             }
 
-            if (s_prefabs.TryGetValue(gameObject, out var existingGameObject)) {
+            if (m_prefabs.TryGetValue(gameObject, out var existingGameObject)) {
                 return existingGameObject.GetComponent<T>();
             }
-            
+
             var wasActive = gameObject.activeSelf;
-            
+
             gameObject.SetActive(false);
             var instance = Object.Instantiate(component, GetContainer());
 
-            s_prefabs[gameObject] = instance.gameObject;
-            
+            m_prefabs[gameObject] = instance.gameObject;
+
             instance.gameObject.name = gameObject.name;
             gameObject.SetActive(wasActive);
 
@@ -51,7 +63,7 @@ namespace Tekly.Common.Utils
 #endif
         }
 
-        public static GameObject Protect(GameObject gameObject)
+        public GameObject Protect(GameObject gameObject)
         {
 #if UNITY_EDITOR
             if (!UnityEditor.PrefabUtility.IsPartOfAnyPrefab(gameObject)) {
@@ -59,16 +71,16 @@ namespace Tekly.Common.Utils
                 return gameObject;
             }
 
-            if (s_prefabs.TryGetValue(gameObject, out var existingGameObject)) {
+            if (m_prefabs.TryGetValue(gameObject, out var existingGameObject)) {
                 return existingGameObject;
             }
-            
+
             var wasActive = gameObject.activeSelf;
-            
+
             gameObject.SetActive(false);
             var instance = Object.Instantiate(gameObject, GetContainer());
-            s_prefabs[gameObject] = instance;
-            
+            m_prefabs[gameObject] = instance;
+
             instance.gameObject.name = gameObject.name;
             gameObject.SetActive(wasActive);
 
