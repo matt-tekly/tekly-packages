@@ -2,8 +2,9 @@
 using System.Threading.Tasks;
 using Tekly.Common.Utils;
 using UnityEngine;
-using UnityEngine.AddressableAssets.ResourceLocators;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceProviders;
+using UnityEngine.SceneManagement;
 
 namespace Tekly.Content
 {
@@ -15,5 +16,8 @@ namespace Tekly.Content
         IContentOperation<TObject> LoadAssetAsync<TObject>(string key) where TObject : Object;
         IContentOperation<TObject> LoadAssetAsync<TObject>(string key, string label) where TObject : Object;
         IContentOperation<IList<TObject>> LoadAssetsAsync<TObject>(string key) where TObject : Object;
+
+        public AsyncOperationHandle<SceneInstance> LoadSceneAsync(string scene, LoadSceneMode mode, bool activateOnLoad = true);
+        public AsyncOperationHandle<SceneInstance> UnloadSceneAsync(AsyncOperationHandle<SceneInstance> handle);
     }
 }

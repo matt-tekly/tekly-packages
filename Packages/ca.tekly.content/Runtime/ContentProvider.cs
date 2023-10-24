@@ -5,6 +5,8 @@ using Tekly.Common.Utils;
 using UnityEngine.AddressableAssets;
 using UnityEngine.AddressableAssets.ResourceLocators;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceProviders;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace Tekly.Content
@@ -62,6 +64,16 @@ namespace Tekly.Content
         private AsyncOperationHandle<IList<TObject>> LoadAssetsAsync<TObject>(IEnumerable<string> keys)
         {
             return Addressables.LoadAssetsAsync<TObject>(keys, null, Addressables.MergeMode.Union);
+        }
+
+        public AsyncOperationHandle<SceneInstance> LoadSceneAsync(string scene, LoadSceneMode mode, bool activateOnLoad = true)
+        {
+            return Addressables.LoadSceneAsync(scene, mode, activateOnLoad);
+        }
+        
+        public AsyncOperationHandle<SceneInstance> UnloadSceneAsync(AsyncOperationHandle<SceneInstance> handle)
+        {
+            return Addressables.UnloadSceneAsync(handle);
         }
     }
 }
