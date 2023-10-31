@@ -24,7 +24,7 @@ namespace Tekly.Common.Utils
 				.Where(x => x != null)
 				.ToArray();
 		}
-		
+
 		public static Object[] FindAndLoad(Type type, string search, string[] searchInFolders = null)
 		{
 			return AssetDatabase.FindAssets(search, searchInFolders)
@@ -40,27 +40,31 @@ namespace Tekly.Common.Utils
 
 			return FindAndLoad<T>(search, directories);
 		}
-		
+
 		public static T FindAndLoadFirst<T>(string name) where T : Object
 		{
-			return FindAndLoad<T>(name).FirstOrDefault();
+			return FindAndLoad<T>(name)
+				.Where(x => x != null)
+				.FirstOrDefault(x => x.name == name);
 		}
-		
+
 		public static Object FindAndLoadFirst(string name, Type type)
 		{
-			return FindAndLoad(type, name).FirstOrDefault();
+			return FindAndLoad(type, name)
+				.Where(x => x != null)
+				.FirstOrDefault(x => x.name == name);
 		}
-		
+
 		public static T LoadOrCreate<T>(string path) where T : ScriptableObject
 		{
 			return LoadOrCreate(path, typeof(T)) as T;
 		}
-		
+
 		public static ScriptableObject LoadOrCreate(string path, Type type)
 		{
 			Assert.IsTrue(typeof(ScriptableObject).IsAssignableFrom(type));
 			var result = AssetDatabase.LoadAssetAtPath(path, type) as ScriptableObject;
-			
+
 			if (result == null) {
 				var directory = Path.GetDirectoryName(path);
 				Directory.CreateDirectory(directory);
