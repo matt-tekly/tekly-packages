@@ -27,7 +27,7 @@ namespace Tekly.Webster
         public static int HttpPort = 4649;
 
         internal static IWebsterServerInstance Instance { get; private set; }
-
+        
         /// <summary>
         /// This must be called from the Main Thread
         /// </summary>
@@ -39,8 +39,7 @@ namespace Tekly.Webster
             LifeCycle.Instance.Update += MainThreadUpdate;
             LifeCycle.Instance.Quit += Stop;
 
-            Instance = CreateInstance();
-            Instance.Start(startFrameline);
+           CreateServer(startFrameline);
         }
 
         public static void Stop()
@@ -49,11 +48,30 @@ namespace Tekly.Webster
             LifeCycle.Instance.Update -= MainThreadUpdate;
             LifeCycle.Instance.Quit -= Stop;
 
-            Instance?.Stop();
-            Instance = null;
+            KillServer();
 #endif
         }
 
+#if !WEBSTER_ENABLE
+		[System.Diagnostics.Conditional("__UNDEFINED__")]
+#endif
+	    public static void CreateServer(bool startFrameline)
+	    {
+		    KillServer();
+		    
+		    Instance = CreateInstance();
+		    Instance.Start(startFrameline);
+	    }
+	    
+#if !WEBSTER_ENABLE
+		[System.Diagnostics.Conditional("__UNDEFINED__")]
+#endif
+	    public static void KillServer()
+	    {
+		    Instance?.Stop();
+		    Instance = null;
+	    }
+	    
 #if !WEBSTER_ENABLE
 		[System.Diagnostics.Conditional("__UNDEFINED__")]
 #endif

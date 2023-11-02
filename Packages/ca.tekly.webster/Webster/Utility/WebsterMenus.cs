@@ -22,6 +22,7 @@ namespace Tekly.Webster.Utility
 
 		private const string WEBSTER_ENABLE = "WEBSTER_ENABLE";
 		private const string WEBSTER_ENABLE_EDITOR = "WEBSTER_ENABLE_EDITOR";
+		private const string WEBSTER_ENABLE_EDIT_MODE = "WEBSTER_ENABLE_EDIT_MODE";
 
 		[MenuItem("Tools/Tekly/Webster/Open Local", priority = 0)]
 		public static void OpenLocal()
@@ -58,6 +59,22 @@ namespace Tekly.Webster.Utility
 		public static void DisableWebsterEditor()
 		{
 			DisableDefine(WEBSTER_ENABLE_EDITOR);
+		}
+#endif
+		
+#if !WEBSTER_ENABLE_EDIT_MODE
+		[MenuItem("Tools/Tekly/Webster/Enable Webster Edit Mode", priority = 101)]
+		public static void EnableWebsterEditMode()
+		{
+			EnableDefine(WEBSTER_ENABLE_EDIT_MODE);
+		}
+#endif
+
+#if WEBSTER_ENABLE_EDIT_MODE
+		[MenuItem("Tools/Tekly/Webster/Disable Webster Edit Mode", priority = 101)]
+		public static void DisableWebsterEditor()
+		{
+			DisableDefine(WEBSTER_ENABLE_EDIT_MODE);
 		}
 #endif
 
