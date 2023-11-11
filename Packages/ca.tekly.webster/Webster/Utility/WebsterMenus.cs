@@ -1,4 +1,4 @@
-//=============================================================================	
+//=============================================================================
 // Copyright Matthew King. All rights reserved.
 //=============================================================================
 
@@ -61,7 +61,7 @@ namespace Tekly.Webster.Utility
 			DisableDefine(WEBSTER_ENABLE_EDITOR);
 		}
 #endif
-		
+
 #if !WEBSTER_ENABLE_EDIT_MODE
 		[MenuItem("Tools/Tekly/Webster/Enable Webster Edit Mode", priority = 101)]
 		public static void EnableWebsterEditMode()
@@ -72,7 +72,7 @@ namespace Tekly.Webster.Utility
 
 #if WEBSTER_ENABLE_EDIT_MODE
 		[MenuItem("Tools/Tekly/Webster/Disable Webster Edit Mode", priority = 101)]
-		public static void DisableWebsterEditor()
+		public static void DisableWebsterEditMode()
 		{
 			DisableDefine(WEBSTER_ENABLE_EDIT_MODE);
 		}

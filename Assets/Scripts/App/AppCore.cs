@@ -8,7 +8,6 @@ using Tekly.Glass;
 using Tekly.Injectors;
 using Tekly.Logging;
 using Tekly.TreeState;
-using Tekly.TreeState.StandardActivities;
 using Tekly.Webster;
 using UnityEngine;
 
@@ -23,7 +22,7 @@ namespace TeklySample.App
         {
             ITimeProvider localTimeProvider = new LocalTimeProvider();
             m_localTimeProviderRef.Initialize(localTimeProvider);
-            
+
             var balanceManager = new BalanceManager(ContentProvider.Instance);
 
             container.Register(this);
@@ -32,9 +31,9 @@ namespace TeklySample.App
             container.Register(balanceManager);
             container.Register(RootModel.Instance);
             container.Register(localTimeProvider);
-            
+
             container.Register(m_glass);
-            
+
             RootModel.Instance.Add("app", new AppModel(balanceManager));
 
             Debug.Log("Crash Detected: " + CrashCanary.Instance.CrashDetected);
@@ -49,19 +48,19 @@ namespace TeklySample.App
 
             ModelManager.Instance.Tick();
         }
-        
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Initialize()
         {
             TkLogger.Initialize();
         }
-        
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void InitializeDebug()
         {
             WebsterServer.Start(true);
             WebsterServer.AddRouteHandler<SampleWebsterHandler>();
-            
+
             TreeStateRegistry.Instance.ActivityModeChanged.Subscribe(evt => {
                 var type = evt.IsState ? "Tree State" : "Tree Activity";
                 switch (evt.Mode) {

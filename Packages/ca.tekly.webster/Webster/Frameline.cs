@@ -1,4 +1,4 @@
-﻿//=============================================================================	
+﻿//=============================================================================
 // Copyright Matthew King. All rights reserved.
 //=============================================================================
 
@@ -6,7 +6,6 @@
 #define FRAMELINE_ENABLE
 #endif
 
-using System;
 using Tekly.Webster.FramelineCore;
 
 namespace Tekly.Webster
@@ -22,7 +21,7 @@ namespace Tekly.Webster
 #endif
 		public static void InstantEvent(string id, string type)
 		{
-			Instance.InstantEvent(id, type);
+			Instance?.InstantEvent(id, type);
 		}
 
 #if !FRAMELINE_ENABLE
@@ -30,13 +29,13 @@ namespace Tekly.Webster
 #endif
 		public static void BeginEvent(string id, string type)
 		{
-			Instance.BeginEventGetId(id, type);
+			Instance?.BeginEventGetId(id, type);
 		}
 
 		public static int BeginEventGetId(string id, string type)
 		{
 #if FRAMELINE_ENABLE
-			return Instance.BeginEventGetId(id, type);
+			return Instance?.BeginEventGetId(id, type) ?? -1;
 #else
             return -1;
 #endif
@@ -44,7 +43,7 @@ namespace Tekly.Webster
 
 		public static FramelineEventDisposable BeginEventDisposable(string id, string type)
 		{
-			return Instance.BeginEventDisposable(id, type);
+			return Instance?.BeginEventDisposable(id, type) ?? FramelineEventDisposable.Unit;
 		}
 
 #if !FRAMELINE_ENABLE
@@ -52,7 +51,7 @@ namespace Tekly.Webster
 #endif
 		public static void EndEvent(int frameEventId)
 		{
-			Instance.EndEvent(frameEventId);
+			Instance?.EndEvent(frameEventId);
 		}
 
 #if !FRAMELINE_ENABLE
@@ -60,7 +59,7 @@ namespace Tekly.Webster
 #endif
 		public static void EndEvent(string id, string type)
 		{
-			Instance.EndEvent(id, type);
+			Instance?.EndEvent(id, type);
 		}
 
 #if !FRAMELINE_ENABLE
@@ -68,7 +67,7 @@ namespace Tekly.Webster
 #endif
 		public static void Clear()
 		{
-			Instance.Clear();
+			Instance?.Clear();
 		}
 
 #if !FRAMELINE_ENABLE
@@ -102,7 +101,7 @@ namespace Tekly.Webster
 #endif
 		public static void ClearAfter(double time)
 		{
-			Instance.ClearAfter(time);
+			Instance?.ClearAfter(time);
 		}
 
 		public static void Stop()
