@@ -82,7 +82,7 @@ namespace Tekly.Sheets.Core
         private static void ParseRow(List<PropertyPath> paths, IList<object> row, DataObject obj, int index)
         {
             foreach (var path in paths) {
-                var currPath = path.Key.Select(v => v.IsNumber ? new PathKey(index) : v).ToArray();
+                var currPath = path.Key.Select(v => v.IsArray && !v.IsFixedIndex ? new PathKey(index) : v).ToArray();
                 if (path.Index > row.Count - 1) {
                     continue;
                 }

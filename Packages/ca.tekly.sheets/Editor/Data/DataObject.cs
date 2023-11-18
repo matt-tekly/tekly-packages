@@ -52,7 +52,7 @@ namespace Tekly.Sheets.Data
 
                 if (!currentObject.Object.TryGetValue(current, out var dataObj)) {
                     var nextKey = path[i + 1];
-                    var newObj = new DataObject(nextKey.IsNumber ? DataObjectType.Array : DataObjectType.Object);
+                    var newObj = new DataObject(nextKey.IsArray ? DataObjectType.Array : DataObjectType.Object);
                     currentObject.Object.Add(current, newObj);
                     currentObject = newObj;
                 } else {
