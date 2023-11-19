@@ -41,6 +41,8 @@ namespace Tekly.Sheets.Processing
 				
 				EditorUtility.SetDirty(asset);
 			}
+			
+			AssetDatabase.SaveAssets();
 		}
 	}
 }

@@ -7,22 +7,24 @@
 ## Setting up your sheet
 - The tool uses the headings of each column to determine the layout of your JSON. You can sort of think of it as paths.
 - The headings are used to generate the names of the fields
-- Having a value in the first column indicates when a new object starts
 - `.` or `:` indicate a sub property
 - `|` indicates an array
+- A header ending in `[]` indicates it is a comma separated list of values and will be turned into an array
 - Arrays in nested objects are not supported
     - You can have an array of objects but those objects cannot contain arrays
+    - You can have `[]` properties inside nested arrays of objects
 - Sheet names that start with `//` are ignored
 - Column names that start with `//` are ignored
+- Having a value in the first column indicates when a new object starts
 - See the table and JSON below for an example
 
 ### Example
-| Id    | User.Name | User.Email      | Permissions\|Resource | Permissions\|Role | Permissions\|Metadata.DateGiven | Permissions\|Metadata.Author |
-|-------|-----------|-----------------|-----------------------|-------------------|---------------------------------|------------------------------|
-| jeff  | JeffB     | jeffb@email.com | Databases             | Admin             | 10/01/2023                      | SYSTEM ADMIN                 |
-|       |           |                 | AppManagement         | Viewer            | 10/10/2023                      | SYSTEM ADMIN                 |
-| mark  | MarkG     | mark@email.com  | AppManagement         | Admin             | 6/27/2023                       | SYSTEM ADMIN                 |
-| laura | LauraS    | laura@email.com | Databases             | Admin             | 10/23/2022                      | SYSTEM ADMIN                 |                   |
+| Id    | User.Name | User.Email      | Permissions\|Resource | Permissions\|Roles[] | Permissions\|Metadata.DateGiven | Permissions\|Metadata.Author |
+|-------|-----------|-----------------|-----------------------|----------------------|---------------------------------|------------------------------|
+| jeff  | JeffB     | jeffb@email.com | Databases             | Admin                | 10/01/2023                      | SYSTEM ADMIN                 |
+|       |           |                 | AppManagement         | Commenter,Viewer     | 10/10/2023                      | SYSTEM ADMIN                 |
+| mark  | MarkG     | mark@email.com  | AppManagement         | Admin                | 6/27/2023                       | SYSTEM ADMIN                 |
+| laura | LauraS    | laura@email.com | Databases             | Admin                | 10/23/2022                      | SYSTEM ADMIN                 |                   |
 
 
 ```json
@@ -36,7 +38,7 @@
 		"Permissions": [
 			{
 				"Resource": "Databases",
-				"Role": "Admin",
+				"Roles": ["Admin"],
 				"Metadata": {
 					"DateGiven": "10/01/2023",
 					"Author": "SYSTEM ADMIN"
@@ -44,7 +46,7 @@
 			},
 			{
 				"Resource": "AppManagement",
-				"Role": "Viewer",
+				"Roles": ["Commenter", "Viewer"],
 				"Metadata": {
 					"DateGiven": "10/10/2023",
 					"Author": "SYSTEM ADMIN"
@@ -61,7 +63,7 @@
 		"Permissions": [
 			{
 				"Resource": "AppManagement",
-				"Role": "Admin",
+				"Roles": ["Admin"],
 				"Metadata": {
 					"DateGiven": "6/27/2023",
 					"Author": "SYSTEM ADMIN"
@@ -78,7 +80,7 @@
 		"Permissions": [
 			{
 				"Resource": "Databases",
-				"Role": "Admin",
+				"Role": ["Admin"],
 				"Metadata": {
 					"DateGiven": "10/23/2022",
 					"Author": "SYSTEM ADMIN"

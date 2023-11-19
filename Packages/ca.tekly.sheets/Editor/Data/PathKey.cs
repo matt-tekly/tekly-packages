@@ -8,13 +8,19 @@ namespace Tekly.Sheets.Data
 		public readonly int Index;
 		public readonly bool IsFixedIndex;
 		public readonly string Key;
-
+		public readonly bool IsInlinedArray;
+		
 		public readonly bool IsArray;
 
 		private readonly int m_hashCode;
 
 		public PathKey(string key)
 		{
+			IsInlinedArray = key.EndsWith("[]");
+			if (IsInlinedArray) {
+				key = key.Substring(0, key.Length - 2);	
+			}
+			
 			if (key == "#") {
 				IsArray = true;
 				m_hashCode = key.GetHashCode();
@@ -45,12 +51,8 @@ namespace Tekly.Sheets.Data
 			// '|' indicates an array
 			// We replace '|' with '.#.' to make it easy to update the PathKey with proper indices later
 			// in the SheetParser
-			header = header.Replace("|", ".#.");
-
-			if (header.EndsWith(".")) {
-				header = header.Substring(0, header.Length - 1);
-			}
-
+			header = header.Replace("|", ".#.").TrimEnd('.');
+			
 			// At this point we've ensured all separators are '.'
 			return header.Split('.').Select(x => new PathKey(x)).ToArray();
 		}

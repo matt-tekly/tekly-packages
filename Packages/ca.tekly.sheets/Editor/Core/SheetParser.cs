@@ -89,7 +89,11 @@ namespace Tekly.Sheets.Core
 
                 var value = row[path.Index];
                 if (!IsBlank(value)) {
-                    obj.Set(currPath, GetValue(value));
+                    if (path.Key[^1].IsInlinedArray) {
+                        obj.Set(currPath, ParseCsv(value));
+                    } else {
+                        obj.Set(currPath, GetValue(value));    
+                    }
                 }
             }
         }
@@ -108,9 +112,9 @@ namespace Tekly.Sheets.Core
             return obj;
         }
 
-        private static object GetValue(object val)
+        private static object GetValue(object value)
         {
-            return val;
+            return value;
         }
 
         public static bool IsComment(object val)
@@ -120,6 +124,31 @@ namespace Tekly.Sheets.Core
             }
 
             return false;
+        }
+
+        private static DataObject ParseCsv(object value)
+        {
+            var dataObject = new DataObject(DataObjectType.Array);
+
+            if (value is string str) {
+                var values = str.Split(',');
+            
+                if (double.TryParse(values[0], out var val)) {
+                    var numbers = values.Select(double.Parse).ToArray();
+
+                    for (var index = 0; index < numbers.Length; index++) {
+                        dataObject.Set(index, numbers[index]);
+                    }
+                } else {
+                    for (var index = 0; index < values.Length; index++) {
+                        dataObject.Set(index, values[index]);
+                    }    
+                }
+            } else {
+                dataObject.Set(0, value);
+            }
+           
+            return dataObject;
         }
 
         private static bool IsBlank(object val)
