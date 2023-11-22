@@ -44,7 +44,7 @@ You can add them to your `Packages/manifest.json` file:
   "dependencies": {
     ....
     "ca.tekly.common": "https://github.com/matt-tekly/tekly-packages.git?path=/Packages/ca.tekly.common",
-    "ca.tekly.datamodels": "https://github.com/matt-tekly/tekly-packages.git?path=/Packages/ca.tekly.datamodels,
+    "ca.tekly.datamodels": "https://github.com/matt-tekly/tekly-packages.git?path=/Packages/ca.tekly.datamodels",
     "ca.tekly.injectors": "https://github.com/matt-tekly/tekly-packages.git?path=/Packages/ca.tekly.injectors",
     "ca.tekly.logger": "https://github.com/matt-tekly/tekly-packages.git?path=/Packages/ca.tekly.logger",
     "ca.tekly.nsubstitute": "https://github.com/matt-tekly/tekly-packages.git?path=/Packages/ca.tekly.nsubstitute",

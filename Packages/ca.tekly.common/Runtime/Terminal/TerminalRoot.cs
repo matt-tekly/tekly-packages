@@ -104,7 +104,7 @@ namespace Tekly.Common.Terminal
             Debug.Log("Terminal Enabled");
             DontDestroyOnLoad(gameObject);
             
-#if ENABLE_INPUT_SYSTEM
+#if COMMON_INPUT_SYSTEM
             UnityEngine.InputSystem.EnhancedTouch.EnhancedTouchSupport.Enable();
 #endif
             
@@ -192,7 +192,7 @@ namespace Tekly.Common.Terminal
 
         private bool IsBackTickPressed()
         {
-#if ENABLE_INPUT_SYSTEM
+#if COMMON_INPUT_SYSTEM
             return UnityEngine.InputSystem.Keyboard.current.backquoteKey.wasReleasedThisFrame;
 #elif ENABLE_LEGACY_INPUT_MANAGER
             return Input.GetKeyDown(KeyCode.BackQuote);
@@ -201,7 +201,7 @@ namespace Tekly.Common.Terminal
         
         private int GetTouchCount()
         {
-#if ENABLE_INPUT_SYSTEM
+#if COMMON_INPUT_SYSTEM
             return UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches.Count;
 #elif ENABLE_LEGACY_INPUT_MANAGER
             return Input.touchCount;
