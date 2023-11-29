@@ -20,8 +20,9 @@ namespace Tekly.DataModels.Binders.Collections
 
 		private void Awake()
 		{
-			foreach (var template in m_templates) {
-				PrefabProtector.Protect(template.Value);
+			for (var index = 0; index < m_templates.Length; index++) {
+				ref var template = ref m_templates[index];
+				template.Value = PrefabProtector.Protect(template.Value);
 			}
 		}
 
