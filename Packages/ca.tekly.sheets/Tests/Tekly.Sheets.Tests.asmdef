@@ -1,0 +1,18 @@
+{
+    "name": "Tekly.Sheets.Tests",
+    "rootNamespace": "Tekly.Sheets",
+    "references": [
+        "GUID:074574a90151243758314952b2c97cd7"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

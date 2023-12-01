@@ -77,7 +77,6 @@ namespace Tekly.Common.Utils.PropertyBags
 			bag.SetValue("a", now);
 
 			var json = JsonUtility.ToJson(bag);
-			Debug.Log(json);
 
 			var newBag = JsonUtility.FromJson<PropertyBag>(json);
 
