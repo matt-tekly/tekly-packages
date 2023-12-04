@@ -3,7 +3,7 @@ using System.Data;
 using System.IO;
 using ExcelDataReader;
 using Tekly.Sheets.Core;
-using Tekly.Sheets.Data;
+using Tekly.Sheets.Dynamics;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 
@@ -29,9 +29,9 @@ namespace Tekly.Sheets.Excel
 			m_processor.Process(ctx, sheets);
 		}
 
-		private Dictionary<string, DataObject> ConvertToDataObjects(DataSet dataSet)
+		private Dictionary<string, SheetResult> ConvertToDataObjects(DataSet dataSet)
 		{
-			var sheets = new Dictionary<string, DataObject>();
+			var sheets = new Dictionary<string, SheetResult>();
 
 			for (var i = 0; i < dataSet.Tables.Count; ++i) {
 				var table = dataSet.Tables[i];

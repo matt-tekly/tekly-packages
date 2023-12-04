@@ -1,50 +1,56 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Tekly.Sheets.Data;
+using Tekly.Sheets.Dynamics;
 using UnityEngine;
 
 namespace Tekly.Sheets.Core
 {
     public static class SheetParser
     {
-        public static DataObject ParseRows(IList<IList<object>> values, string sheetName)
+        public static SheetResult ParseRows(IList<IList<object>> rows, string sheetName)
         {
             try {
-                if ((string)values[0][0] == "// Single Row") {
-                    if ((string)values[0][1] == "#Key" && (string)values[0][2] == "Value#") {
-                        return ParseKvp(values);
+                if ((string)rows[0][0] == "// Single Row") {
+                    if ((string)rows[0][1] == "#Key" && (string)rows[0][2] == "Value#") {
+                        return ParseKvp(rows, sheetName);
                     }
 
-                    return ParseObjectSheet(values);
+                    return ParseObjectSheet(rows, sheetName);
                 }
 
-                return ParseObjectSheet(values);
+                return ParseObjectSheet(rows, sheetName);
             } catch {
                 Debug.LogError($"Failed to parse sheet: [{sheetName}]");
                 throw;
             }
         }
 
-        private static List<PropertyPath> ParseHeaderPaths(IList<object> headers)
+        private static List<HeaderPath> ParseHeaderPaths(IList<object> headers)
         {
-            var paths = new List<PropertyPath>();
+            var paths = new List<HeaderPath>();
             for (var index = 0; index < headers.Count; index++) {
                 var header = headers[index] as string;
                 if (!string.IsNullOrWhiteSpace(header) && !header.Contains("//")) {
-                    paths.Add(new PropertyPath(header, index));
+                    paths.Add(new HeaderPath(header, index));
                 }
             }
 
             return paths;
         }
 
-        private static DataObject ParseObjectSheet(IList<IList<object>> sheet)
+        private static SheetResult ParseObjectSheet(IList<IList<object>> sheet, string sheetName)
         {
             var paths = ParseHeaderPaths(sheet[0]);
+            
+            var result = new SheetResult {
+                Type = SheetType.Objects,
+                Key = paths[0].Path[0].Key,
+                Name = sheetName
+            };
 
-            var objects = new List<DataObject>();
-            var currentObject = new DataObject(DataObjectType.Object);
+            var objects = new List<Dynamic>();
+            var current = new Dynamic(DynamicType.Object);
 
             var index = 1;
 
@@ -56,60 +62,65 @@ namespace Tekly.Sheets.Core
                 }
 
                 if (!IsBlank(row[0])) {
-                    if (currentObject.Object.Count > 0) {
-                        objects.Add(currentObject);
+                    if (current.Count > 0) {
+                        objects.Add(current);
                     }
 
-                    currentObject = new DataObject(DataObjectType.Object);
+                    current = new Dynamic(DynamicType.Object);
                     index = i;
                 }
 
-                ParseRow(paths, row, currentObject, i - index);
+                ParseRow(paths, row, current, i - index);
             }
 
-            if (objects.Count == 0 || objects[objects.Count - 1] != currentObject && currentObject.Object.Count > 0) {
-                objects.Add(currentObject);
+            if (objects.Count == 0 || objects[objects.Count - 1] != current && current.Count > 0) {
+                objects.Add(current);
             }
 
-            var dataObject = new DataObject(DataObjectType.Array);
+            result.Dynamic = new Dynamic(DynamicType.Array);
+            
             for (var i = 0; i < objects.Count; i++) {
-                dataObject.Set(i, objects[i]);
+                result.Dynamic[i] = objects[i];
             }
-
-            return dataObject;
+            
+            return result;
         }
 
-        private static void ParseRow(List<PropertyPath> paths, IList<object> row, DataObject obj, int index)
+        private static void ParseRow(List<HeaderPath> paths, IList<object> row, Dynamic dyn, int index)
         {
             foreach (var path in paths) {
-                var currPath = path.Key.Select(v => v.IsArray && !v.IsFixedIndex ? new PathKey(index) : v).ToArray();
-                if (path.Index > row.Count - 1) {
+                if (path.Column > row.Count - 1) {
                     continue;
                 }
 
-                var value = row[path.Index];
-                if (!IsBlank(value)) {
-                    if (path.Key[^1].IsInlinedArray) {
-                        obj.Set(currPath, ParseCsv(value));
-                    } else {
-                        obj.Set(currPath, GetValue(value));    
-                    }
+                var value = row[path.Column];
+                
+                if (IsBlank(value)) {
+                    continue;
                 }
+
+                var currPath = path.ToDynamicPath(index);
+                dyn.Set(currPath, path.IsInlinedArray ? ParseCsv(value) : GetValue(value));
             }
         }
 
-        private static DataObject ParseKvp(IList<IList<object>> sheet)
+        private static SheetResult ParseKvp(IList<IList<object>> sheet, string sheetName)
         {
-            var obj = new DataObject(DataObjectType.Object);
+            var result = new SheetResult {
+                Type = SheetType.KeyValues,
+                Name = sheetName
+            };
+
+            var dynamic = new Dynamic(DynamicType.Object);
 
             for (var i = 1; i < sheet.Count; i++) {
                 var row = sheet[i];
-                var value = row[2];
-
-                obj.Set(row[1] as string, value);
+                dynamic[row[1]] = row[2];
             }
 
-            return obj;
+            result.Dynamic = dynamic;
+
+            return result;
         }
 
         private static object GetValue(object value)
@@ -126,9 +137,9 @@ namespace Tekly.Sheets.Core
             return false;
         }
 
-        private static DataObject ParseCsv(object value)
+        private static Dynamic ParseCsv(object value)
         {
-            var dataObject = new DataObject(DataObjectType.Array);
+            var dynamic = new Dynamic(DynamicType.Array);
 
             if (value is string str) {
                 var values = str.Split(',');
@@ -137,18 +148,18 @@ namespace Tekly.Sheets.Core
                     var numbers = values.Select(double.Parse).ToArray();
 
                     for (var index = 0; index < numbers.Length; index++) {
-                        dataObject.Set(index, numbers[index]);
+                        dynamic[index] = numbers[index];
                     }
                 } else {
                     for (var index = 0; index < values.Length; index++) {
-                        dataObject.Set(index, values[index]);
+                        dynamic[index] = values[index];
                     }    
                 }
             } else {
-                dataObject.Set(0, value);
+                dynamic[0] = value;
             }
            
-            return dataObject;
+            return dynamic;
         }
 
         private static bool IsBlank(object val)

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Tekly.Sheets.Core;
-using Tekly.Sheets.Data;
+using Tekly.Sheets.Dynamics;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -53,9 +53,9 @@ namespace Tekly.Sheets.Processing
 			var outDir = AssetDatabase.GetAssetPath(m_directory);
 			
 			foreach (var s in sheets) {
-				var dataObject = SheetParser.ParseRows(s.Values, s.Name);
-				var container = new DataObject(DataObjectType.Object);
-				container.Set(m_rootArrayKey, dataObject);
+				var sheetResult = SheetParser.ParseRows(s.Values, s.Name);
+				var container = new Dynamic(DynamicType.Object);
+				container[m_rootArrayKey] = sheetResult.Dynamic;
 
 				var json = container.ToJson();
 
@@ -72,11 +72,16 @@ namespace Tekly.Sheets.Processing
 				var sheetDir = Path.Combine(outDir, sheet.Name);
 				Directory.CreateDirectory(sheetDir);
 				
-				var dataObject = SheetParser.ParseRows(sheet.Values, sheet.Name);
+				var result = SheetParser.ParseRows(sheet.Values, sheet.Name);
 
-				foreach (var value in dataObject.Object.Values) {
-					var objectValue = (DataObject) value;
-					var id = objectValue.Object.Values.First().ToString();
+				if (result.Type != SheetType.Objects) {
+					Debug.LogWarning($"Trying to Process Sheet [{sheet.Name}] as Objects but is [{result.Type}]");
+					continue;
+				}
+				
+				foreach (var kvp in result.Dynamic) {
+					var objectValue = (Dynamic) kvp.Value;
+					var id = objectValue[result.Key];
 
 					var json = objectValue.ToJson();
 					var fileName = $"{id}.json";

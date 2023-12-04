@@ -4,22 +4,18 @@ namespace Tekly.Sheets.Dynamics
 {
 	public class DynamicConverterArray : DynamicConverter
 	{
-		private readonly Type m_arrayType;
 		private readonly Type m_valueType;
 		private readonly TypeCode m_valueTypeCode;
 
 		public DynamicConverterArray(Type type)
 		{
-			m_arrayType = type;
 			m_valueType = type.GetElementType();
 			m_valueTypeCode = Type.GetTypeCode(m_valueType);
 		}
 
-		public override object Convert(DynamicSerializer serializer, object dyn, object existing)
+		public override object Convert(DynamicSerializer serializer, Type type, object dyn, object existing)
 		{
-			existing ??= serializer.Create(m_arrayType);
 			var array = (Array) existing;
-
 			var dynamic = dyn as Dynamic;
 			
 			array = ResizeList(array, dynamic.Count);
@@ -40,10 +36,13 @@ namespace Tekly.Sheets.Dynamics
 			if (size == 0) {
 				return Array.CreateInstance(m_valueType, 0);
 			}
-
+			
 			var newArray = Array.CreateInstance(m_valueType, size);
 
-			Array.Copy(array, newArray, Math.Min(array.Length, size));
+			if (array != null) {
+				Array.Copy(array, newArray, Math.Min(array.Length, size));	
+			}
+			
 			return newArray;
 		}
 	}

@@ -1,10 +1,14 @@
-## About
-- This tool will download a Google Spreadsheet and turn it into JSON or other data formats
-- The downloading and processing happens inside of your Unity project
-- You need to give the tool readonly access to your spreadsheets
-- You must set up your sheet in a certain way for it to be interpreted into JSON
+# About
 
-## Setting up your sheet
+This tool will turn a spreadsheet into JSON or ScriptableObjects.
+
+The source of your spreadsheet can either be Google Sheets or Excel.
+
+Setup steps for both sources are in their own sections below.
+
+You must set up your sheet in a certain way for it to be interpreted into JSON
+
+# Setting up your sheet
 - The tool uses the headings of each column to determine the layout of your JSON. You can sort of think of it as paths.
 - The headings are used to generate the names of the fields
 - `.` or `:` indicate a sub property
@@ -13,12 +17,47 @@
 - Arrays in nested objects are not supported
     - You can have an array of objects but those objects cannot contain arrays
     - You can have `[]` properties inside nested arrays of objects
-- Sheet names that start with `//` are ignored
-- Column names that start with `//` are ignored
-- Having a value in the first column indicates when a new object starts
-- See the table and JSON below for an example
+- You can use fixed indices as part of paths
+    - `Building.Costs.0.Item` `Building.Costs.0.Amount` `Building.Costs.1.Item` `Building.Costs.1.Amount`
+    - This would make `Costs` an array where you're optionally setting the first two entries
+    - Empty cells will not add an empty entry in the array
+- Sheet names that start with `//` or `__` or `$`are ignored
+- Column names that start with `//` or `__` or `$`are ignored
+- Rows that start with `//` or `__` or `$` are ignored
+- Having a value in the first column of a row indicates that a new object starts
 
-### Example
+See the class, table, and JSON below for an example
+
+## Example
+
+```csharp
+public class UserPermissions
+{
+    public string Id;
+    public UserDetails User;
+    public Permission[] Permissions;
+}
+
+public class UserDetails
+{
+    public string Name;
+    public string Email;
+}
+
+public class Permission
+{
+    public string Resource;
+    public string[] Roles;
+    public PermissionMetaData MetaData;
+}
+
+public class PermissionMetaData
+{
+    public string DateGiven;
+    public string Author;
+}
+```
+
 | Id    | User.Name | User.Email      | Permissions\|Resource | Permissions\|Roles[] | Permissions\|Metadata.DateGiven | Permissions\|Metadata.Author |
 |-------|-----------|-----------------|-----------------------|----------------------|---------------------------------|------------------------------|
 | jeff  | JeffB     | jeffb@email.com | Databases             | Admin                | 10/01/2023                      | SYSTEM ADMIN                 |
@@ -90,9 +129,18 @@
 	}
 ]
 ```
+# Excel
+- Place your spreadsheet in the Assets directory some where
+- Create a `Json Processor Excel` asset from the Create menu in the project
+- Click on your spreadsheet and assign the processor you just created to it
+- The content of the spreadsheet will be imported into your project as text assets represent JSON
+- You can create your own processor by deriving from `ExcelSheetProcessor`
+- Check out `IdleSheetProcessor` in the Tekly Unity project for an example on how to turn your spreadsheet into ScriptableObjects
+
+# Google Sheets
 
 ## How to point the tool to your sheets
-- Create a `GoogleSheetObject` in your Assets directory. Right click on a folder `Tekly/Sheets/Google Sheet`
+- Create a `GoogleSheetObject` in your Assets directory: Right click on a folder in your project `Tekly/Sheets/Google Sheet`
 - Enter in the ID of your sheet
   - You can get it from the URL of the sheet. The part between `/d/` and `/edit`
   - https://docs.google.com/spreadsheets/d/15yeM4l2SNquxrFlujtlX40YKsb2cl14h0aMl7sdWTkw/edit#gid=0

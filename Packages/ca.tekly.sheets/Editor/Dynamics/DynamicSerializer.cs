@@ -8,39 +8,39 @@ namespace Tekly.Sheets.Dynamics
 		
 		public object Deserialize(Type type, Dynamic dynamic, object existing)
 		{
-			existing ??= Create(type);
 			var converter = Converters.Get(type);
-
-			return converter.Convert(this, dynamic, existing);
+			return converter.Convert(this, type, dynamic, existing);
 		}
 		
 		public T Deserialize<T>(Dynamic dynamic, object existing)
 		{
 			var type = typeof(T);
-			existing ??= Create(type);
 			var converter = Converters.Get(type);
 
-			return (T) converter.Convert(this, dynamic, existing);
+			return (T) converter.Convert(this, type, dynamic, existing);
 		}
 		
 		public object Deserialize(Type type, object dynamic, object existing)
 		{
-			existing ??= Create(type);
 			var converter = Converters.Get(type);
-
-			return converter.Convert(this, dynamic, existing);
+			return converter.Convert(this, type, dynamic, existing);
 		}
 		
 		public object Deserialize(Type type, TypeCode typeCode, object dynamic, object existing)
 		{
 			if (typeCode == TypeCode.Object) {
-				existing ??= Create(type);
 				var converter = Converters.Get(type);
-
-				return converter.Convert(this, dynamic, existing);	
+				return converter.Convert(this, type, dynamic, existing);	
 			}
 
 			return Convert(type, typeCode, dynamic);
+		}
+		
+		public void Populate(Dynamic dynamic, object target)
+		{
+			var type = target.GetType();
+			var converter = Converters.GetGenericConverter(type);
+			converter.Convert(this, type, dynamic, target);
 		}
 		
 		public object Create(Type type)

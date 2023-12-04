@@ -11,7 +11,7 @@ namespace TeklySample.Game.Items
         public string NameId;
         public Sprite Icon;
     }
-    
+
     [Serializable]
     public struct ItemCount : IQuantity<ItemBalance>
     {

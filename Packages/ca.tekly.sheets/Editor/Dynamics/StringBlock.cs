@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Tekly.Sheets.Data
+namespace Tekly.Sheets.Dynamics
 {
     public enum PrintMode
     {
@@ -8,9 +8,7 @@ namespace Tekly.Sheets.Data
         Condensed
     }
 
-    /// <summary>
-    ///     Provides an easy to use API for generating complicated strings like JSON.
-    /// </summary>
+    /// Provides an easy to use API for generating complicated strings like JSON.
     public class StringBlock
     {
         private enum Mode

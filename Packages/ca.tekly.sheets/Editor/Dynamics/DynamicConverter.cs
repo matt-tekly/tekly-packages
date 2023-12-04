@@ -6,9 +6,9 @@ namespace Tekly.Sheets.Dynamics
 {
 	public abstract class DynamicConverter
 	{
-		public abstract object Convert(DynamicSerializer serializer, object dyn, object existing);
+		public abstract object Convert(DynamicSerializer serializer, Type type, object dyn, object existing);
 		
-		public bool CanConvert(Type type)
+		public virtual bool CanConvert(Type type)
 		{
 			return false;
 		}
@@ -18,10 +18,14 @@ namespace Tekly.Sheets.Dynamics
 	{
 		private readonly Dictionary<Type, DynamicConverter> m_converters = new Dictionary<Type, DynamicConverter>();
 		private readonly List<DynamicConverter> m_generalConverters = new List<DynamicConverter>();
+		
+		private readonly Dictionary<Type, DynamicConverter> m_genericConverters = new Dictionary<Type, DynamicConverter>();
 
 		public DynamicConverterDatabase()
 		{
-			Register(typeof(Vector3), new Vector3DynamicConverter());
+			Register(typeof(Vector2), new DynamicConverterVector2());
+			Register(typeof(Vector3), new DynamicConverterVector3());
+			Register(typeof(Quaternion), new DynamicConverterQuaternion());
 		}
 		
 		public DynamicConverter Get(Type type)
@@ -44,23 +48,34 @@ namespace Tekly.Sheets.Dynamics
 			m_generalConverters.Add(converter);
 		}
 
+		public DynamicConverter GetGenericConverter(Type type)
+		{
+			if (!m_genericConverters.TryGetValue(type, out var converter)) {
+				converter = new DynamicConverterGeneric(type);
+				m_genericConverters.Add(type, converter);
+			}
+
+			return converter;
+		}
+
 		private DynamicConverter GetGeneralConverter(Type type)
 		{
-			foreach (var generalConverter in m_generalConverters) {
+			for (var index = m_generalConverters.Count - 1; index >= 0; index--) {
+				var generalConverter = m_generalConverters[index];
 				if (generalConverter.CanConvert(type)) {
 					return generalConverter;
 				}
-			}
-			
-			if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>)) {
-				return new DynamicConverterList(type);
 			}
 
 			if (type.IsArray) {
 				return new DynamicConverterArray(type);
 			}
-
-			return new GenericDynamicConverter(type);
+			
+			if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>)) {
+				return new DynamicConverterList(type);
+			}
+			
+			return new DynamicConverterGeneric(type);
 		}
 	}
 }

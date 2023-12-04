@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Tekly.Sheets.Data;
+using Tekly.Sheets.Core;
 using Tekly.Sheets.Processing;
 using TeklySample.Game.Generators;
 using TeklySample.Game.Items;
@@ -13,16 +13,14 @@ namespace TeklySample.Editor
 	public class IdleSheetProcessor : AssetSheetProcessor
 	{
 		[SerializeField] private Object m_directory;
-		[SerializeField] private string m_assetIdKey = "Id";
 		
-		protected override void Process(Dictionary<string, DataObject> sheetMap)
+		protected override void Process(Dictionary<string, SheetResult> sheetMap)
 		{
 			var outDir = AssetDatabase.GetAssetPath(m_directory);
-			var idKey = new PathKey(m_assetIdKey);
 			
-			ProcessSheet<ItemBalance>("Items", sheetMap["Items"], idKey, outDir);
-			ProcessSheet<GeneratorBalance>("Generators", sheetMap["Generators"], idKey, outDir);
-			ProcessSheet<WorldBalance>("Worlds", sheetMap["Worlds"], idKey, outDir);
+			ProcessSheet<ItemBalance>(sheetMap["Items"], outDir);
+			ProcessSheet<GeneratorBalance>(sheetMap["Generators"], outDir);
+			ProcessSheet<WorldBalance>(sheetMap["Worlds"], outDir);
 		}
 	}
 }

@@ -16,7 +16,7 @@ namespace Tekly.Sheets.Dynamics
 			m_valueTypeCode = Type.GetTypeCode(m_valueType);
 		}
 
-		public override object Convert(DynamicSerializer serializer, object dyn, object existing)
+		public override object Convert(DynamicSerializer serializer, Type type, object dyn, object existing)
 		{
 			existing ??= serializer.Create(m_listType);
 			var list = (IList) existing;

@@ -1,6 +1,5 @@
 using System.Globalization;
 using Newtonsoft.Json;
-using Tekly.Sheets.Data;
 
 namespace Tekly.Sheets.Dynamics
 {
@@ -33,7 +32,7 @@ namespace Tekly.Sheets.Dynamics
 	            sb.OutBracket();
             } else {
 	            
-	            sb.InBracket();
+	            sb.InBrace();
 	            var end = dyn.Count;
 	            var index = 0;
 	            
@@ -46,14 +45,14 @@ namespace Tekly.Sheets.Dynamics
 
 		            index++;
 	            }
-	            sb.OutBracket();
+	            sb.OutBrace();
             }
         }
 
         public static void ToJson(this object obj, StringBlock sb)
         {
-            if (obj is DataObject dataObject) {
-                dataObject.ToJson(sb);
+            if (obj is Dynamic dynamic) {
+                dynamic.ToJson(sb);
             } else if (obj is double doubleValue) {
                 sb.Append(doubleValue.ToString(CultureInfo.InvariantCulture));
             } else if (obj is float floatValue) {

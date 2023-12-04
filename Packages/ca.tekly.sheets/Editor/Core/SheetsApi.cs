@@ -8,7 +8,7 @@ using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Google.Apis.Util;
-using Tekly.Sheets.Data;
+using Tekly.Sheets.Dynamics;
 using UnityEngine;
 
 namespace Tekly.Sheets.Core
@@ -90,9 +90,9 @@ namespace Tekly.Sheets.Core
 						continue;
 					}
 
-					var dataObject = SheetParser.ParseRows(s.Values, s.Name);
-					var container = new DataObject(DataObjectType.Object);
-					container.Set("Data", dataObject);
+					var sheetResult = SheetParser.ParseRows(s.Values, s.Name);
+					var container = new Dynamic(DynamicType.Object);
+					container["Data"] = sheetResult.Dynamic;
 
 					var str = container.ToJson();
 

@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using Tekly.Common.Utils;
 using Tekly.Sheets.Core;
-using Tekly.Sheets.Data;
+using Tekly.Sheets.Dynamics;
 using UnityEditor;
 using UnityEngine;
 
@@ -15,29 +15,36 @@ namespace Tekly.Sheets.Processing
 	/// </summary>
 	public abstract class AssetSheetProcessor : GoogleSheetProcessor
 	{
-		protected delegate void ProcessAssetDelegate<in T>(T asset, DataObject dataObject);
+		protected delegate void ProcessAssetDelegate<in T>(T asset, Dynamic dynamic);
 		
 		public override void Process(GoogleSheetObject googleSheetObject, IList<Sheet> sheets)
 		{
-			var sheetMap = sheets.ToDictionary(x => x.Name, x => SheetParser.ParseRows(x.Values, x.Name));
+			var sheetMap = sheets.ToDictionary(s => s.Name, s => SheetParser.ParseRows(s.Values, s.Name));
 			Process(sheetMap);
 		}
 
-		protected abstract void Process(Dictionary<string, DataObject> sheetMap);
+		protected abstract void Process(Dictionary<string, SheetResult> sheetMap);
 		
-		protected void ProcessSheet<T>(string sheetName, DataObject sheetData, PathKey idKey, string outputDir, ProcessAssetDelegate<T> processor = null)
+		protected void ProcessSheet<T>(SheetResult sheetResult, string outputDir, ProcessAssetDelegate<T> processor = null)
 			where T : ScriptableObject
 		{
-			var assetDir = Path.Combine(outputDir, sheetName);
+			if (sheetResult.Type != SheetType.Objects) {
+				Debug.LogWarning($"Trying to Process Sheet [{sheetResult.Name}] as Objects but is [{sheetResult.Type}]");
+				return;
+			}
+			
+			var assetDir = Path.Combine(outputDir, sheetResult.Name);
 			Directory.CreateDirectory(assetDir);
 			
-			foreach (var data in sheetData.Object.Values.Cast<DataObject>()) {
-				var objectId = data.Object[idKey].ToString();
+			foreach (var kvp in sheetResult.Dynamic) {
+				var dyn = kvp.Value as Dynamic;
+
+				var objectId = dyn[sheetResult.Key].ToString();
 				var objectPath = Path.Combine(assetDir, objectId + ".asset");
 
 				var asset = AssetDatabaseExt.LoadOrCreate<T>(objectPath);
-				JsonExt.PopulateObject(data.ToJson(), asset);
-				processor?.Invoke(asset, data);
+				DynamicExt.PopulateObject(dyn, asset);
+				processor?.Invoke(asset, dyn);
 				
 				EditorUtility.SetDirty(asset);
 			}

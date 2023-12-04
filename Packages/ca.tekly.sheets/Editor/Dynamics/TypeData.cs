@@ -9,6 +9,7 @@ namespace Tekly.Sheets.Dynamics
 		private readonly List<IMemberData> m_members = new List<IMemberData>();
 
 		private const BindingFlags FIELD_BINDING_FLAGS = BindingFlags.Instance | BindingFlags.Public;
+		private const BindingFlags PROPERTY_BINDING_FLAGS = BindingFlags.Instance | BindingFlags.Public;
 
 		public TypeData(Type type)
 		{
@@ -17,9 +18,11 @@ namespace Tekly.Sheets.Dynamics
 				m_members.Add(new FieldData(field));
 			}
 
-			var properties = type.GetProperties(FIELD_BINDING_FLAGS);
+			var properties = type.GetProperties(PROPERTY_BINDING_FLAGS);
 			foreach (var field in properties) {
-				m_members.Add(new PropertyData(field));
+				if (field.CanWrite) {
+					m_members.Add(new PropertyData(field));	
+				}
 			}
 		}
 
@@ -39,8 +42,8 @@ namespace Tekly.Sheets.Dynamics
 				}
 			}
 
-			// TODO: Should unknown fields just be ignored?
-			throw new Exception("Unknown field: " + name);
+			memberData = null;
+			return false;
 		}
 	}
 
@@ -70,6 +73,11 @@ namespace Tekly.Sheets.Dynamics
 
 		public void Set(DynamicSerializer serializer, object obj, object value)
 		{
+			if (m_targetType.IsEnum) {
+				m_fieldInfo.SetValue(obj, Enum.Parse(m_targetType, value.ToString()));
+				return;
+			}
+			
 			switch (m_typeCode) {
 				case TypeCode.Boolean:
 					m_fieldInfo.SetValue(obj, (bool) value);
@@ -132,6 +140,11 @@ namespace Tekly.Sheets.Dynamics
 
 		public void Set(DynamicSerializer serializer, object obj, object value)
 		{
+			if (m_targetType.IsEnum) {
+				m_propertyInfo.SetValue(obj, Enum.Parse(m_targetType, value.ToString()));
+				return;
+			}
+			
 			switch (m_typeCode) {
 				case TypeCode.Boolean:
 					m_propertyInfo.SetValue(obj, (bool) value);
