@@ -5,6 +5,7 @@ using Tekly.Common.LocalFiles;
 using Tekly.Common.Utils;
 using Tekly.Content;
 using Tekly.Injectors;
+using Tekly.Lofi.Core;
 using Tekly.Logging;
 using Tekly.TreeState.StandardActivities;
 using TeklySample.App;
@@ -37,6 +38,8 @@ namespace TeklySample.Game.Worlds
 
         protected override async Task LoadAsync()
         {
+            Lofi.Instance.LoadBank($"{m_appData.ActiveWorld}.clips");
+            
             m_logger.Info("GameWorld Loading Started: " + m_appData.ActiveWorld);
 
             m_disposable = ApplicationFocusListener.Instance.Suspended.Subscribe(_ => Save());
@@ -45,6 +48,10 @@ namespace TeklySample.Game.Worlds
             
             await m_balanceContainer.LoadAsync();
             m_balanceManager.AddContainer(m_balanceContainer);
+
+            while (Lofi.Instance.IsLoading) {
+                await Task.Yield();
+            }
             
             CreateGameWorld();
             
@@ -54,6 +61,7 @@ namespace TeklySample.Game.Worlds
         protected override Task UnloadAsync()
         {
             m_logger.Info("Unloading");
+            Lofi.Instance.UnloadBank($"{m_appData.ActiveWorld}.clips");
             m_disposable.Dispose();
             
             m_balanceManager.RemoveContainer(m_balanceContainer);

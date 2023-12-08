@@ -1276,7 +1276,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_sprite: {fileID: -6750239444755058063, guid: e3c638356ed694875a63c14be4ceac5a, type: 3}
-  m_animName: icon
+  m_animName: up
   m_loop: 1
   m_playOnEnable: 1
   m_speed: 1
@@ -2112,6 +2112,7 @@ GameObject:
   - component: {fileID: 8980971880803416604}
   - component: {fileID: 1697140563684251740}
   - component: {fileID: 1600782930807293722}
+  - component: {fileID: 4725919889521918164}
   m_Layer: 5
   m_Name: RunButton
   m_TagString: Untagged
@@ -2193,7 +2194,7 @@ MonoBehaviour:
   m_key:
     Path: '*.run'
   m_button: {fileID: 8980971880803416604}
-  m_action: {fileID: 0}
+  m_action: {fileID: 4725919889521918164}
 --- !u!114 &1600782930807293722
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2210,6 +2211,19 @@ MonoBehaviour:
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &4725919889521918164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4548744293296930603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 201fa9c514cf44a886d1131624b186ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_clipId: button_sfx
 --- !u!1 &6343768529774376270
 GameObject:
   m_ObjectHideFlags: 0

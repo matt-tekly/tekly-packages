@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b6353d40de9475a9a00fa19599f8f00, type: 3}
+  m_Name: button_sfx
+  m_EditorClassIdentifier: 
+  Clips:
+  - Clip: {fileID: 8300000, guid: 53197f53939b84f39813a7fc709a4633, type: 3}
+  Volume:
+    Min: 1
+    Max: 1.5
+  Pitch:
+    Min: 0.8
+    Max: 1.2
+  MixerGroup: {fileID: 11400000, guid: 9765d01232afd437fbd164658a835066, type: 2}
+  MinTimeBetweenPlays: 0
+  Loop: 0

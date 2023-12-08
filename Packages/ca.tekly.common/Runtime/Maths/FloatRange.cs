@@ -21,6 +21,10 @@ namespace Tekly.Common.Maths
 
         public float Get()
         {
+            if (Max <= Min) {
+                return Min;
+            }
+            
             return Random.Range(Min, Max);
         }
 

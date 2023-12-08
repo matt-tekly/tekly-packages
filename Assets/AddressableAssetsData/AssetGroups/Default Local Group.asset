@@ -47,6 +47,20 @@ MonoBehaviour:
     m_Address: main_game_panel
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: 15835948e4de141ab8a7f55aeceee623
+    m_Address: Assets/Bundles/Home/Audio/Clips
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - home.clips
+  - m_GUID: f72456fb4a24b42ab8bb0b92a5c4be8e
+    m_Address: lofi_core
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: ea8599481855649349d0f979475adc21
+    m_Address: Assets/Bundles/Common/Audio/Clips
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - common.clips
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 67828c4cfc518be4baa8093e1a839969, type: 2}
   m_SchemaSet:

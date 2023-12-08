@@ -96,6 +96,16 @@
       "source": "embedded",
       "dependencies": {}
     },
+    "ca.tekly.lofi": {
+      "version": "file:ca.tekly.lofi",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "ca.tekly.logger": "0.0.7",
+        "ca.tekly.common": "0.0.1",
+        "ca.tekly.content": "0.0.1"
+      }
+    },
     "ca.tekly.logger": {
       "version": "file:ca.tekly.logger",
       "depth": 0,
@@ -117,6 +127,12 @@
     },
     "ca.tekly.nsubstitute": {
       "version": "file:ca.tekly.nsubstitute",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "ca.tekly.packageutils": {
+      "version": "file:ca.tekly.packageutils",
       "depth": 0,
       "source": "embedded",
       "dependencies": {}
@@ -228,7 +244,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.rider": {
-      "version": "3.0.25",
+      "version": "3.0.27",
       "depth": 0,
       "source": "registry",
       "dependencies": {

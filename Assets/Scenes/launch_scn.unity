@@ -477,6 +477,8 @@ GameObject:
   m_Component:
   - component: {fileID: 547833668}
   - component: {fileID: 547833667}
+  - component: {fileID: 547833670}
+  - component: {fileID: 547833669}
   m_Layer: 0
   m_Name: Boot
   m_TagString: Untagged
@@ -515,6 +517,34 @@ Transform:
   m_Father: {fileID: 1215275694}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &547833669
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 547833666}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33e0517661c74dd384b00d45ce4d2738, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_musicClip: good_morning_music
+  m_track: music
+  m_fadeDuration: 0
+  m_stopOnLeave: 0
+--- !u!114 &547833670
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 547833666}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58f500e83d9749659ec4e50015d994b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &646097107
 GameObject:
   m_ObjectHideFlags: 0
@@ -1364,6 +1394,7 @@ GameObject:
   - component: {fileID: 1606198011}
   - component: {fileID: 1606198010}
   - component: {fileID: 1606198013}
+  - component: {fileID: 1606198014}
   m_Layer: 0
   m_Name: HomeWorld
   m_TagString: Untagged
@@ -1450,6 +1481,22 @@ MonoBehaviour:
       type: {class: GameWorldDataProvider, ns: TeklySample.Game.UiDataProviders, asm: Assembly-CSharp}
       data:
         m_key: gameworld
+--- !u!114 &1606198014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1606198007}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33e0517661c74dd384b00d45ce4d2738, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_musicClip: cheerful_day_music
+  m_track: music
+  m_fadeDuration: 5
+  m_stopOnLeave: 0
 --- !u!1 &1617903189
 GameObject:
   m_ObjectHideFlags: 0
