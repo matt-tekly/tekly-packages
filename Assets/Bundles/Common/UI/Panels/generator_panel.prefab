@@ -603,7 +603,6 @@ GameObject:
   - component: {fileID: 154337208719987384}
   - component: {fileID: 154337208719987385}
   - component: {fileID: 154337208719987390}
-  - component: {fileID: 154337208719987391}
   - component: {fileID: 8787564104684444594}
   - component: {fileID: 4602380113955688168}
   m_Layer: 5
@@ -647,7 +646,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_key:
-    Path: gameworld.generators.salt_gen
+    Path: 
   m_bindOnEnable: 0
   m_binders:
   - {fileID: 2990379292871009763}
@@ -679,19 +678,6 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
---- !u!114 &154337208719987391
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 154337208719987387}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b94feaddc7124a28b70e70776441a459, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Attachments: []
 --- !u!223 &8787564104684444594
 Canvas:
   m_ObjectHideFlags: 0

@@ -4,7 +4,6 @@ using Tekly.Common.TimeProviders;
 using Tekly.Common.Utils;
 using Tekly.Content;
 using Tekly.DataModels.Models;
-using Tekly.Glass;
 using Tekly.Injectors;
 using Tekly.Logging;
 using Tekly.TreeState;
@@ -15,7 +14,6 @@ namespace TeklySample.App
 {
     public class AppCore : MonoBehaviour, IInjectionProvider
     {
-        [SerializeField] private Glass m_glass;
         [SerializeField] private TimeProviderRef m_localTimeProviderRef;
 
         public void Provide(InjectorContainer container)
@@ -31,9 +29,7 @@ namespace TeklySample.App
             container.Register(balanceManager);
             container.Register(RootModel.Instance);
             container.Register(localTimeProvider);
-
-            container.Register(m_glass);
-
+            
             RootModel.Instance.Add("app", new AppModel(balanceManager));
 
             Debug.Log("Crash Detected: " + CrashCanary.Instance.CrashDetected);

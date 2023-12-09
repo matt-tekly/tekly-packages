@@ -64,16 +64,6 @@
       "source": "embedded",
       "dependencies": {}
     },
-    "ca.tekly.glass": {
-      "version": "file:ca.tekly.glass",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {
-        "ca.tekly.logger": "0.0.7",
-        "ca.tekly.common": "0.0.1",
-        "ca.tekly.content": "0.0.1"
-      }
-    },
     "ca.tekly.imageutils": {
       "version": "file:ca.tekly.imageutils",
       "depth": 0,
