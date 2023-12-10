@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Tekly.Common.Utils;
 using Tekly.DataModels.Models;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace Tekly.DataModels.Binders.Collections
 {
@@ -110,25 +111,25 @@ namespace Tekly.DataModels.Binders.Collections
         {
             Clear();
 
-            var existingEntries = ListPool<SortedListBinderEntry>.Instance.Spawn();
-            existingEntries.AddRange(m_entries);
+            using (ListPool<SortedListBinderEntry>.Get(out var existingEntries))
+            {
+                existingEntries.AddRange(m_entries);
             
-            m_entries.Clear();
+                m_entries.Clear();
             
-            foreach (var modelReference in objectModel.Models) {
-                var entry = Get(modelReference.Key, existingEntries);
-                entry.SetKey($"*.{modelReference.Key}", m_sortKey.Path);
+                foreach (var modelReference in objectModel.Models) {
+                    var entry = Get(modelReference.Key, existingEntries);
+                    entry.SetKey($"*.{modelReference.Key}", m_sortKey.Path);
 
-                m_entries.Add(entry);
-                m_binders.Add(entry.Instance);
+                    m_entries.Add(entry);
+                    m_binders.Add(entry.Instance);
+                }
+
+                foreach (var entry in existingEntries) {
+                    entry.Dispose();
+                }
             }
-
-            foreach (var entry in existingEntries) {
-                entry.Dispose();
-            }
-            
-            ListPool<SortedListBinderEntry>.Instance.Recycle(existingEntries);
-
+     
             m_entries.Sort(SortedListBinderEntryComparer.GetComparer(Order));
 
             for (var index = 0; index < m_entries.Count; index++) {

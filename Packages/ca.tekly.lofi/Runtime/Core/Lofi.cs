@@ -41,8 +41,6 @@ namespace Tekly.Lofi.Core
 		{
 			if (!operation.HasError) {
 				m_coreAssets = operation.Result;
-				var groups = m_coreAssets.Mixer.FindMatchingGroups("");
-				Debug.Log(groups.Length);
 			} else {
 				m_logger.Exception(operation.Exception, "Failed to load Lofi Core Assets");
 			}
