@@ -25,7 +25,6 @@ namespace TeklySample.Game.Worlds
         private GameWorld m_gameWorld;
         private GameWorldModel m_gameWorldModel;
         
-        private BalanceContainer m_balanceContainer;
         private IDisposable m_disposable;
         
         private void Save()
@@ -44,12 +43,9 @@ namespace TeklySample.Game.Worlds
 
             m_disposable = ApplicationFocusListener.Instance.Suspended.Subscribe(_ => Save());
             
-            m_balanceContainer = new BalanceContainer($"balance.{m_appData.ActiveWorld}", m_contentProvider);
-            
-            await m_balanceContainer.LoadAsync();
-            m_balanceManager.AddContainer(m_balanceContainer);
+            m_balanceManager.LoadBank($"balance.{m_appData.ActiveWorld}");
 
-            while (Lofi.Instance.IsLoading) {
+            while (Lofi.Instance.IsLoading || m_balanceManager.IsLoading) {
                 await Task.Yield();
             }
             
@@ -64,8 +60,7 @@ namespace TeklySample.Game.Worlds
             Lofi.Instance.UnloadBank($"{m_appData.ActiveWorld}.clips");
             m_disposable.Dispose();
             
-            m_balanceManager.RemoveContainer(m_balanceContainer);
-            m_balanceContainer.Dispose();
+            m_balanceManager.UnloadBank($"balance.{m_appData.ActiveWorld}");
 
             Save();
             

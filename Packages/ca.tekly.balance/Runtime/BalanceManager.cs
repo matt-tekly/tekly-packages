@@ -14,10 +14,12 @@ namespace Tekly.Balance
         
         public bool IsInitialized { get; private set; }
         public string Version { get; set; }
+        public bool IsLoading => !IsInitialized || m_banks.Values.Any(x => x.IsLoading);
 
         private readonly IContentProvider m_contentProvider;
         private readonly Dictionary<string, BalanceObject> m_balanceObjects = new Dictionary<string, BalanceObject>();
         private readonly TkLogger m_logger = TkLogger.Get<BalanceManager>();
+        private readonly Dictionary<string, BalanceBank> m_banks = new Dictionary<string, BalanceBank>();
         
         private IContentOperation<BalanceManifest> m_balanceManifestHandle;
         private BalanceManifest m_balanceManifest;
@@ -79,24 +81,40 @@ namespace Tekly.Balance
         {
             return m_balanceObjects.Values.OfType<T>().ToList();
         }
+
+        public void LoadBank(string bankId)
+        {
+            if (m_banks.TryGetValue(bankId, out var bank)) {
+                bank.AddRef();
+            } else {
+                bank = new BalanceBank(bankId, m_balanceObjects, ContentProvider.Instance);
+                m_banks.Add(bankId, bank);
+            } 
+        }
+
+        public void UnloadBank(string bankId)
+        {
+            if (!m_banks.TryGetValue(bankId, out var bank)) {
+                return;
+            }
+
+            bank.RemoveRef();
+            
+            if (bank.References <= 0) {
+                bank.Dispose();
+                m_banks.Remove(bankId);
+            }
+        }
         
-        public void AddContainer(BalanceContainer balanceContainer)
-        {
-            foreach (var balanceObject in balanceContainer.Objects) {
-                m_balanceObjects[balanceObject.name] = balanceObject;
-            }
-        }
-
-        public void RemoveContainer(BalanceContainer balanceContainer)
-        {
-            foreach (var balanceObject in balanceContainer.Objects) {
-                m_balanceObjects.Remove(balanceObject.name);
-            }
-        }
-
         public void Dispose()
         {
             m_balanceManifestHandle.Release();
+
+            foreach (var bank in m_banks.Values) {
+                bank.Dispose();
+            }
+            
+            m_banks.Clear();
         }
     }
 }
