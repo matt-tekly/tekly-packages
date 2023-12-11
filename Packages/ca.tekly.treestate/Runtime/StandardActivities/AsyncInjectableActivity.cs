@@ -8,7 +8,7 @@ namespace Tekly.TreeState.StandardActivities
 		private Task m_loadTask;
 		private Task m_unloadTask;
         
-		protected override bool IsDoneLoading()
+		protected sealed override bool IsDoneLoading()
 		{
 			if (m_loadTask == null) {
 				return false;
@@ -21,7 +21,7 @@ namespace Tekly.TreeState.StandardActivities
 			return m_loadTask.IsCompleted;
 		}
 		
-		protected override bool IsDoneUnloading()
+		protected sealed override bool IsDoneUnloading()
 		{
 			if (m_unloadTask == null) {
 				return false;
