@@ -24,6 +24,7 @@ namespace Tekly.Lofi.Core
 		FadeOut
 	}
 	
+	// A running instance of a LofiClip
 	public class LofiClipRunner
 	{
 		public readonly int Id;
@@ -68,6 +69,10 @@ namespace Tekly.Lofi.Core
 		
 		public void Dispose()
 		{
+			if (m_isDisposed) {
+				return;
+			}
+			
 			m_emitter.FreeAudioSource(m_audioSource);
 			m_clip.RunnerCompleted(this);
 			m_isDisposed = true;

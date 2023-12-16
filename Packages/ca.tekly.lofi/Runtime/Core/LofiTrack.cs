@@ -2,6 +2,7 @@ using Tekly.Lofi.Emitters;
 
 namespace Tekly.Lofi.Core
 {
+	/// Music is played on a track. A track can cross fade between music. 
 	public class LofiTrack
 	{
 		private readonly LofiEmitter m_emitter;

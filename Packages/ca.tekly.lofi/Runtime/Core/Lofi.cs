@@ -108,11 +108,9 @@ namespace Tekly.Lofi.Core
 		public void PlayOneShot(string id)
 		{
 			if (m_oneShot == null) {
-				var go = new GameObject("[Lofi] One Shot");
-				Object.DontDestroyOnLoad(go);
-				m_oneShot = go.AddComponent<LofiEmitter>();
+				m_oneShot = CreateEmitter("[Lofi] One Shot");
 			}
-
+			
 			if (TryGetClip(id, out var clip)) {
 				m_oneShot.Play(clip);
 			} else {
@@ -123,10 +121,7 @@ namespace Tekly.Lofi.Core
 		private LofiTrack GetTrack(string trackId)
 		{
 			if (m_trackEmitter == null) {
-				var trackEmitter = new GameObject("[Lofi] Track Emitter");
-
-				Object.DontDestroyOnLoad(trackEmitter);
-				m_trackEmitter = trackEmitter.AddComponent<LofiEmitter>();
+				m_trackEmitter = CreateEmitter("[Lofi] Track Emitter");
 			}
 
 			if (!m_tracks.TryGetValue(trackId, out var track)) {
@@ -135,6 +130,14 @@ namespace Tekly.Lofi.Core
 			}
 
 			return track;
+		}
+
+		private LofiEmitter CreateEmitter(string name)
+		{
+			var emitter = new GameObject(name);
+			Object.DontDestroyOnLoad(emitter);
+			
+			return emitter.AddComponent<LofiEmitter>();
 		}
 	}
 }

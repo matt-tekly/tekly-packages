@@ -81,7 +81,6 @@ namespace Tekly.Common.Utils.PropertyBags
         public BoolProperty(string id, PropertyBag bag) : base(id, bag) { }
     }
     
-    
     [Serializable]
     public class DateProperty : Property, ISerializationCallbackReceiver
     {
