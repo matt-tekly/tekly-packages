@@ -128,6 +128,50 @@ namespace Tekly.Common.Utils.PropertyBags
             m_dates.Add(property);
         }
         
+        public void GetOrAdd(string id, double defaultValue, out NumberProperty property)
+        {
+            if (TryGet(id, out property)) {
+                return;
+            }
+
+            property = new NumberProperty(id, this);
+            property.Value = defaultValue;
+            m_numbers.Add(property);
+        }
+        
+        public void GetOrAdd(string id, string defaultValue, out StringProperty property)
+        {
+            if (TryGet(id, out property)) {
+                return;
+            }
+
+            property = new StringProperty(id, this);
+            property.Value = defaultValue;
+            m_strings.Add(property);
+        }
+
+        public void GetOrAdd(string id, bool defaultValue, out BoolProperty property)
+        {
+            if (TryGet(id, out property)) {
+                return;
+            }
+
+            property = new BoolProperty(id, this);
+            property.Value = defaultValue;
+            m_bools.Add(property);
+        }
+        
+        public void GetOrAdd(string id, DateTime defaultValue, out DateProperty property)
+        {
+            if (TryGet(id, out property)) {
+                return;
+            }
+
+            property = new DateProperty(id, this);
+            property.Value = defaultValue;
+            m_dates.Add(property);
+        }
+        
         public bool TryGet(string id, out NumberProperty property)
         {
             return m_numbers.TryGet(id, out property);

@@ -121,5 +121,4 @@ namespace Tekly.Common.Utils.PropertyBags
             DateTime.TryParse(m_v, out m_dateTime);
         }
     }
-    
 }

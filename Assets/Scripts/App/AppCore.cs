@@ -2,9 +2,11 @@ using System;
 using Tekly.Balance;
 using Tekly.Common.TimeProviders;
 using Tekly.Common.Utils;
+using Tekly.Common.Utils.PropertyBags;
 using Tekly.Content;
 using Tekly.DataModels.Models;
 using Tekly.Injectors;
+using Tekly.Lofi.Core;
 using Tekly.Logging;
 using Tekly.TreeState;
 using Tekly.Webster;
@@ -15,7 +17,7 @@ namespace TeklySample.App
     public class AppCore : MonoBehaviour, IInjectionProvider
     {
         [SerializeField] private TimeProviderRef m_localTimeProviderRef;
-
+        
         public void Provide(InjectorContainer container)
         {
             ITimeProvider localTimeProvider = new LocalTimeProvider();
@@ -31,6 +33,8 @@ namespace TeklySample.App
             container.Register(localTimeProvider);
             
             RootModel.Instance.Add("app", new AppModel(balanceManager));
+            
+            Lofi.Instance.SetPropertyBag(AppProperties.Instance);
 
             Debug.Log("Crash Detected: " + CrashCanary.Instance.CrashDetected);
         }
@@ -56,6 +60,7 @@ namespace TeklySample.App
         {
             WebsterServer.Start(true);
             WebsterServer.AddRouteHandler<SampleWebsterHandler>();
+            WebsterServer.AddRouteHandler<AppPropertiesRoute>();
 
             TreeStateRegistry.Instance.ActivityModeChanged.Subscribe(evt => {
                 var type = evt.IsState ? "Tree State" : "Tree Activity";

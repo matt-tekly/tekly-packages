@@ -1,10 +1,13 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Tekly.Common.Utils;
+using Tekly.Common.Utils.PropertyBags;
 using Tekly.Content;
 using Tekly.Lofi.Emitters;
 using Tekly.Logging;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Tekly.Lofi.Core
 {
@@ -17,23 +20,40 @@ namespace Tekly.Lofi.Core
 		private readonly Dictionary<string, LofiTrack> m_tracks = new Dictionary<string, LofiTrack>();
 
 		private LofiCoreAssets m_coreAssets;
-
+		
+		private LofiEmitter m_trackEmitter;
 		private LofiEmitter m_oneShot;
+		
 		private bool m_initialized;
-
 		private IContentOperation<LofiCoreAssets> m_coreAssetsHandle;
 
+		private PropertyBag m_propertyBag;
+		private IDisposable m_propertyListener;
+		
+		private readonly List<NumberProperty> m_volumeProperties = new List<NumberProperty>();
+		
 		private readonly TkLogger m_logger = TkLogger.Get<Lofi>();
-		private LofiEmitter m_trackEmitter;
+
+		private const string LOFI_CORE_KEY = "lofi_core";
 
 		public Lofi()
 		{
 			Initialize();
 		}
 
+		public void SetPropertyBag(PropertyBag propertyBag)
+		{
+			m_propertyListener?.Dispose();
+			m_propertyBag = propertyBag;
+			
+			if (m_coreAssets != null) {
+				ApplyProperties();
+			}
+		}
+
 		private void Initialize()
 		{
-			m_coreAssetsHandle = ContentProvider.Instance.LoadAssetAsync<LofiCoreAssets>("lofi_core");
+			m_coreAssetsHandle = ContentProvider.Instance.LoadAssetAsync<LofiCoreAssets>(LOFI_CORE_KEY);
 			m_coreAssetsHandle.Completed += CoreAssetsLoaded;
 		}
 
@@ -41,6 +61,7 @@ namespace Tekly.Lofi.Core
 		{
 			if (!operation.HasError) {
 				m_coreAssets = operation.Result;
+				ApplyProperties();
 			} else {
 				m_logger.Exception(operation.Exception, "Failed to load Lofi Core Assets");
 			}
@@ -138,6 +159,42 @@ namespace Tekly.Lofi.Core
 			Object.DontDestroyOnLoad(emitter);
 			
 			return emitter.AddComponent<LofiEmitter>();
+		}
+
+		private void SetVolume(string id, double linearValue)
+		{
+			m_coreAssets.Mixer.SetFloat(id, Constants.ToDecibel((float) linearValue));
+		}
+
+		private void ApplyProperties()
+		{
+			if (m_propertyBag == null) {
+				return;
+			}
+
+			var groups = m_coreAssets.Mixer.FindMatchingGroups("");
+			foreach (var group in groups) {
+				var volumeId = group.name + ".volume";
+				if (m_coreAssets.Mixer.GetFloat(volumeId, out var currentVolume)) {
+					currentVolume = Constants.ToLinear(currentVolume);
+					
+					m_propertyBag.GetOrAdd(volumeId, currentVolume, out var volumeProp);
+					SetVolume(volumeId, volumeProp.Value);
+				
+					m_volumeProperties.Add(volumeProp);	
+				}
+			}
+			
+			m_propertyListener = m_propertyBag.Modified.Subscribe(PropertyModified);
+		}
+
+		private void PropertyModified(Property property)
+		{
+			if (property is NumberProperty numberProperty) {
+				if (m_volumeProperties.Contains(property)) {
+					SetVolume(numberProperty.Id, numberProperty.Value);
+				}	
+			}
 		}
 	}
 }
