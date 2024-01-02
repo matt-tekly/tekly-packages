@@ -1024,7 +1024,6 @@ GameObject:
   - component: {fileID: 4608312500607176576}
   - component: {fileID: 4608312500607176579}
   - component: {fileID: 4608312500607176578}
-  - component: {fileID: 4608312500607176581}
   - component: {fileID: 8309659380886778486}
   m_Layer: 5
   m_Name: generators_att
@@ -1093,18 +1092,6 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
---- !u!114 &4608312500607176581
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4608312500607176577}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5055ac57e9b1457d9dfb5f42b481a512, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &8309659380886778486
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1769,7 +1756,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4608312501679655881}
-  - component: {fileID: 4608312501679655883}
   - component: {fileID: 9077448405986735053}
   m_Layer: 5
   m_Name: main_game_panel
@@ -1800,20 +1786,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &4608312501679655883
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4608312501679655878}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b94feaddc7124a28b70e70776441a459, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Attachments:
-  - {fileID: 4608312500607176581}
 --- !u!114 &9077448405986735053
 MonoBehaviour:
   m_ObjectHideFlags: 0

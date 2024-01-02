@@ -1,0 +1,16 @@
+{
+    "name": "Tekly.Simulant.Runtime",
+    "rootNamespace": "Tekly.Simulant",
+    "references": [
+        "GUID:452c2a261009f40438cbb7f9b2b58864"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

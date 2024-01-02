@@ -48,6 +48,12 @@ namespace Tekly.SuperSerial.Streams
 			m_pool.Return(m_buffer);
 		}
 
+		public short ReadShort()
+		{
+			m_input.Read(m_buffer, 0, sizeof(short));
+			return SuperBitConverter.ReadShort(m_buffer, 0);
+		}
+		
 		public int ReadInt()
 		{
 			m_input.Read(m_buffer, 0, sizeof(int));

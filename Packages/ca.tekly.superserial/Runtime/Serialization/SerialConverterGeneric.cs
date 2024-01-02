@@ -41,8 +41,8 @@ namespace Tekly.SuperSerial.Serialization
 
 		public override void Write(SuperSerializer serializer, TokenOutputStream stream, object obj)
 		{
-			for (var index = 0; index < m_fields.Length; index++) {
-				var field = m_fields[index];
+			for (var index = 0; index < m_fieldsLength; index++) {
+				ref var field = ref m_fields[index];
 				field.Write(serializer, stream, obj);
 			}
 
@@ -74,7 +74,8 @@ namespace Tekly.SuperSerial.Serialization
 
 		private bool TryGetField(uint hash, out FieldData fieldData)
 		{
-			foreach (var field in m_fields) {
+			for (var index = 0; index < m_fieldsLength; index++) {
+				ref var field = ref m_fields[index];
 				if (field.Hash == hash) {
 					fieldData = field;
 					return true;
@@ -93,7 +94,7 @@ namespace Tekly.SuperSerial.Serialization
 			var failure = false;
 			
 			for (var index = 0; index < m_fieldsLength; index++) {
-				var field = m_fields[index];
+				ref var field = ref m_fields[index];
 				if (!hashSet.Add(field.Hash)) {
 					failure = true;
 				}

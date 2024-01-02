@@ -315,6 +315,14 @@
         "com.unity.modules.imgui": "1.0.0"
       }
     },
+    "tekly.simulant": {
+      "version": "file:ca.tekly.simulant",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "ca.tekly.superserial": "0.0.1"
+      }
+    },
     "com.unity.modules.ai": {
       "version": "1.0.0",
       "depth": 0,

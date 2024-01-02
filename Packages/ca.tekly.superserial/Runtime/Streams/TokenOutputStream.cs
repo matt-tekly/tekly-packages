@@ -44,6 +44,12 @@ namespace Tekly.SuperSerial.Streams
 			SuperBitConverter.Write(m_babyBuffer, 0, value);
 			WriteRawBytes(m_babyBuffer, 0, sizeof(int));
 		}
+		
+		public void Write(short value)
+		{
+			SuperBitConverter.Write(m_babyBuffer, 0, value);
+			WriteRawBytes(m_babyBuffer, 0, sizeof(short));
+		}
 
 		public void Write(int value)
 		{

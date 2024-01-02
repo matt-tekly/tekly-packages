@@ -1,0 +1,19 @@
+{
+    "name": "Tekly.Simulant.Tests",
+    "rootNamespace": "Tekly.Simulant",
+    "references": [
+        "GUID:b0ade363cc4df454f9a62efd3d973956",
+        "GUID:452c2a261009f40438cbb7f9b2b58864"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
