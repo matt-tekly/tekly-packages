@@ -73,21 +73,21 @@ public class App : MonoBehaviour
 {
 	[SerializeField] private Camera m_camera;
 	[SerializeField] private EnemyPawn m_enemyPawnTemplate;
-
+	
 	private EnemyPawn m_enemyPawnA;
-	private EnemyPawn m_enemyPawnB;
+    	private EnemyPawn m_enemyPawnB;
 
-    public void Awake()
-    {
-        var container = new InjectorContainer();
-        
-        // Registers GameService as the subgke implementation for IGameService. 
-        // It will be constructed on demand.
-        container.Singleton<GameService, IGameService>(); 
-        
-        // Registers Enemy to the container. 
-        // A new Enemy will be created whenever an Enemy needs to be injected into something.
-        container.Factory<Enemy>(); 
+	public void Awake()
+	{
+	        var container = new InjectorContainer();
+	        
+	        // Registers GameService as the subgke implementation for IGameService. 
+	        // It will be constructed on demand.
+	        container.Singleton<GameService, IGameService>(); 
+	        
+	        // Registers Enemy to the container. 
+	        // A new Enemy will be created whenever an Enemy needs to be injected into something.
+	        container.Factory<Enemy>(); 
 
 		// Registers m_camera as the instance that will be injected when a Camera is needed
 		container.Register(m_camera);
@@ -99,6 +99,6 @@ public class App : MonoBehaviour
 		container.Inject(m_enemyPawnB);
 
 		// m_enemyPawnA and m_enemyPawnB will have different Enemy instances. But those Enemy instances will have the same IGameService
-    }    
+	}    
 }
 ```
