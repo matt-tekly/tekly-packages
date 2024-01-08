@@ -2,7 +2,8 @@
     "name": "Tekly.Simulant.Runtime",
     "rootNamespace": "Tekly.Simulant",
     "references": [
-        "GUID:452c2a261009f40438cbb7f9b2b58864"
+        "GUID:452c2a261009f40438cbb7f9b2b58864",
+        "GUID:b9160372c6c55a741932d482673e3abb"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -108,8 +108,9 @@ namespace Tekly.Simulant.Core
 
 			for (var i = 0; i < 1000; i++) {
 				var entity = worldA.Create();
-				worldA.Add<FlagData>(entity);
+				
 				worldA.Add(entity, new CountData {Count = i});
+				worldA.Add<FlagData>(entity);
 			}
 			
 			var entity1 = worldA.Create();
@@ -144,8 +145,6 @@ namespace Tekly.Simulant.Core
 
 			var entityC = worldB.Create();
 			worldB.Add<MetaData>(entityC);
-			
-			Debug.Log("Bytes: " + memoryStream.Position);
 		}
 	}
 }

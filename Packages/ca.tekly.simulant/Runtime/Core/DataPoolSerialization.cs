@@ -1,5 +1,6 @@
 using Tekly.SuperSerial.Serialization;
 using Tekly.SuperSerial.Streams;
+using Unity.Collections.LowLevel.Unsafe;
 
 namespace Tekly.Simulant.Core
 {
@@ -14,13 +15,15 @@ namespace Tekly.Simulant.Core
 				for (int i = 0, length = m_data.Count; i < length; i++) {
 					writer.Invoke(ref m_data.Data[i], output, superSerializer);
 				}
+			} else if (UnsafeUtility.IsBlittable<T>()) {
+				output.WriteBlittable(m_data.Data, m_data.Count);
 			} else {
 				var converter = superSerializer.GetConverter(DataType);
 				for (int i = 0, length = m_data.Count; i < length; i++) {
 					converter.Write(superSerializer, output, m_data.Data[i]);
 				}
 			}
-
+			
 			for (int i = 0, length = m_entityMap.Data.Length; i < length; i++) {
 				var dataIndex = m_entityMap.Data[i];
 				if (dataIndex != BAD_ID) {
@@ -39,10 +42,12 @@ namespace Tekly.Simulant.Core
 
 			if (typeof(ISuperSerialize).IsAssignableFrom(DataType)) {
 				var reader = SuperSerializeStructs<T>.Read;
-				for (int i = 0; i < entityCount; i++) {
+				for (var i = 0; i < entityCount; i++) {
 					ref var data = ref m_data.Data[i];
 					reader.Invoke(ref data, input, superSerializer);
 				}
+			} else if (UnsafeUtility.IsBlittable<T>()) {
+				input.ReadBlittable(m_data.Data, entityCount);
 			} else {
 				var converter = superSerializer.GetConverter(DataType);
 				for (var i = 0; i < entityCount; i++) {
@@ -52,7 +57,7 @@ namespace Tekly.Simulant.Core
 
 			m_entityMap.Count = entityCount;
 
-			for (int i = 0; i < entityCount; i++) {
+			for (var i = 0; i < entityCount; i++) {
 				var entityId = input.ReadInt();
 				var dataIndex = input.ReadInt();
 

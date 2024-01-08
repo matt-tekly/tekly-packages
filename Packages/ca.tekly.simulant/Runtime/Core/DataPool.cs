@@ -7,13 +7,32 @@ using System.Diagnostics;
 using Tekly.Simulant.Collections;
 using Tekly.SuperSerial.Serialization;
 using Tekly.SuperSerial.Streams;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine.Assertions;
 
 namespace Tekly.Simulant.Core
 {
+	public class TypeInfo
+	{
+		public string Assembly;
+		public string Name;
+		public Type Type;
+
+		public static TypeInfo Create<T>()
+		{
+			var typeInfo = new TypeInfo();
+			typeInfo.Type = typeof(T);
+			typeInfo.Assembly = typeInfo.Type.AssemblyQualifiedName;
+			typeInfo.Name = typeInfo.Type.Name;
+
+			return typeInfo;
+		}
+	}
+	
 	public interface IDataPool
 	{
 		Type DataType { get; }
+		TypeInfo TypeInfo { get; }
 		int Count { get; }
 		bool ShouldSerialize { get; }
 		void Resize(int capacity);
@@ -22,12 +41,16 @@ namespace Tekly.Simulant.Core
 		
 		void Write(TokenOutputStream output, SuperSerializer superSerializer);
 		void Read(TokenInputStream input, SuperSerializer superSerializer);
+
+		DataPoolSummary GetSummary();
 	}
 	
 	public partial class DataPool<T> : IDataPool where T : struct
 	{
 		public readonly int Id;
 		public Type DataType => typeof(T);
+
+		public TypeInfo TypeInfo => m_typeInfo ??= TypeInfo.Create<T>();
 		public int Count => m_data.Count;
 		public bool ShouldSerialize => m_data.Count > 0;
 		
@@ -37,6 +60,7 @@ namespace Tekly.Simulant.Core
 		private IndexArray<int> m_recycled;
 
 		private int BAD_ID = -1;
+		private TypeInfo m_typeInfo;
 
 		public DataPool(World world, int id, int entityCapacity, DataPoolConfig config)
 		{
@@ -117,7 +141,18 @@ namespace Tekly.Simulant.Core
 				m_world.Delete(entity);
 			}
 		}
-		
+
+		public DataPoolSummary GetSummary()
+		{
+			var summary = new DataPoolSummary();
+			summary.Type = typeof(T).Name;
+			summary.Blittable = UnsafeUtility.IsBlittable<T>();
+			summary.Size = UnsafeUtility.SizeOf<T>();
+			summary.Count = Count;
+			
+			return summary;
+		}
+
 		public ref T Get(int entity)
 		{
 			AssertAlive(entity);

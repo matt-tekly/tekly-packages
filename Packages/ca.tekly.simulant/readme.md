@@ -1,12 +1,108 @@
+## Implementation
+
+Main Concepts 
+
+### Types 
+- **World**: Manages Entities, DataPool, and Queries
+- **DataPool**: A pool of components attached to Entities
+  - Components must be structs and ideally blittable
+- **Query**: Given a list of components an entity includes/excludes this will keep track of all entities matching that pattern
+  - Identical includes/excludes result in the exact same Query object
+- Entity: Is just an int
+
+Querys, DataPools and World all work with tightly packed data arrays that have a corresponding sparse array that maps an entity to an index in the tightly packed array
+
+## Usage
+
+```csharp
+// Create a world
+var worldConfig = new WorldConfig {
+    EntityCapacity = 512,
+    DataPools = new DataPoolConfig {
+        Capacity = 512,
+        RecycleCapacity = 512
+    }
+};
+
+var world = new World(worldConfig);
+
+// Create an entity
+var entity = world.Create();
+
+// Add a component: Version 1
+world.Add(entity, new TransformData { Position = new Vector3(1, 2, 3) });
+
+// Add a component: Version 2
+ref var data = ref world.Add<TransformData>(entity);
+data.Position = new Vector3(1, 2, 3);
+
+// Add a component: Version 3 - the other versions are just slower version of this
+var transformPool = world.GetPool<TransformData>();
+ref var data = ref transformPool.Add(entity);
+data.Position = new Vector3(1, 2, 3);
+
+// Remove a component: Version 1
+world.Delete<TransformData>(entity);
+
+// Add a component: Version 2 - the other versions are just slower versions of this
+var transformPool = world.GetPool<TransformData>();
+transformPool.Delete(entity);
+```
+
+Queries
+
+```csharp
+var query = world.Query().Include<TransformData, VelocityData>().Build();
+
+foreach (var entity in query) {
+	ref var transformData = ref world.Get<TransformData>(entity);
+	ref var velocityData = ref world.Get<VelocityData>(entity);
+
+	transformData.Position += velocityData.Velocity * Time.deltaTime;
+}
+```
+
+## Serialization
+- The world can be serialized with Super Serial
+- It supports blittable and regular structs
+  - Regular structs are significantly slower and generate garbage unless you implement `ISuperSerialize`
+- Once a blittable type is serialized it only supports having fields added - not removed
+- If you find you have too many unused fields in your type you could create a new type with only the data you need and deprecate the old type.
+  - Post deserialization you would copy the data from one DataPool to the other and remove the old DataPool
+
+```csharp
+private void Write(World world, string file)
+{
+	using var fileStream = File.OpenWrite(file);
+	using var outputStream = new TokenOutputStream(fileStream);
+
+	var serializer = new SuperSerializer();
+	serializer.Write(outputStream, world);
+	outputStream.Flush();
+}
+
+public World Read(string file)
+{
+	var worldConfig = new WorldConfig {
+		EntityCapacity = 512,
+		DataPools = new DataPoolConfig {
+			Capacity = 512,
+			RecycleCapacity = 512
+		}
+	};
+
+	using var fs = File.OpenRead(file);
+	using var inputStream = new TokenInputStream(fs, true);
+	var world = new World(worldConfig);
+
+	m_serializer.Read(inputStream, world);
+
+	return world;
+}
+```
+
 ### Todo
 
-- Make a way to look up an entity by an external ID
-- Serialization
-  - Maybe this is some sort of copy to other world thing
-  - A pattern where graphics/prefabs components are removed but "GraphicsIsMissing" components are added
-  - Should see if there is a blittable version
-    - Some data could written to a blittable section and other could be Super Serial
-  - The world needs to be serialized too
 - Make a query object that can destructure into the components you want to modify
 - There are a bunch of constants for capacity that need to be configurable
 - Should queries be able to be disposed/disconnected?
@@ -14,13 +110,4 @@
   - A leaked entity is an entity that exists with no components
 - Destroying the entity when it has no more components can seem a little weird
   - Not sure this is the right approach
-- Data Model tests
-
-### Implementation
-- Querys, DataPools and World all work with tightly packed data arrays that have a corresponding sparse array that maps an entity to an index in the tightly packed array
-- Identical includes/excludes result in the exact same Query object
-
-
-### Serialization
-- World
-  - Entities, Recycled?
+- Test an integration with Data Models

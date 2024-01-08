@@ -10,18 +10,12 @@ namespace Tekly.Simulant.Core
 		{
 			// Write Entity meta data
 			output.Write(EntityCapacity);
-			output.Write(Entities.Count);
 			
-			for (int index = 0, length = Entities.Count; index < length; index++) {
-				var entity = Entities.Data[index];
-				output.Write(entity.ComponentsCount);
-				output.Write(entity.Generation);
-			}
+			output.Write(Entities.Count);
+			output.WriteBlittable(Entities.Data, Entities.Count);
 			
 			output.Write(m_recycledEntities.Count);
-			for (int index = 0, length = m_recycledEntities.Count; index < length; index++) {
-				output.Write(m_recycledEntities.Data[index]);
-			}
+			output.WriteBlittable(m_recycledEntities.Data, m_recycledEntities.Count);
 			
 			// Write Pools
 			var poolCount = 0;
@@ -36,7 +30,7 @@ namespace Tekly.Simulant.Core
 			for (int i = 0, length = m_pools.Count; i < length; i++) {
 				var pool = m_pools.Data[i];
 				if (pool.ShouldSerialize) {
-					output.Write(pool.DataType.AssemblyQualifiedName);
+					output.Write(pool.TypeInfo.Assembly);
 					pool.Write(output, superSerializer);	
 				}
 			}
@@ -49,18 +43,14 @@ namespace Tekly.Simulant.Core
 			Entities.Resize(entityCapacity);
 
 			Entities.Count = input.ReadInt();
+			input.ReadBlittable(Entities.Data, Entities.Count);
 			
-			for (int i = 0, length = Entities.Count; i < length; i++) {
-				ref var entityData = ref Entities.Data[i];
-				entityData.ComponentsCount = input.ReadShort();
-				entityData.Generation = input.ReadShort();
-			}
 			
 			var recycledEntities = input.ReadInt();
+			m_recycledEntities.Resize(recycledEntities);
+			m_recycledEntities.Count = recycledEntities;
 			
-			for (var i = 0; i < recycledEntities; i++) {
-				m_recycledEntities.Add(input.ReadInt());
-			}
+			input.ReadBlittable(m_recycledEntities.Data, m_recycledEntities.Count);
 
 			// Read Pools
 			var poolCount = input.ReadInt();

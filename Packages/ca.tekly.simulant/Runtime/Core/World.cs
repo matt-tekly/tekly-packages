@@ -246,6 +246,12 @@ namespace Tekly.Simulant.Core
 			var pool = GetPool<T>();
 			return ref pool.Get(entity);
 		}
+		
+		public void Delete<T>(int entity) where T : struct
+		{
+			var pool = GetPool<T>();
+			pool.Delete(entity);
+		}
 
 		public DataPool<T> GetPool<T>() where T : struct
 		{
