@@ -1,4 +1,4 @@
-#if DEBUG
+#if DEBUG && !SIMULANT_PERFORMANCE
 #define SIMULANT_ASSERTS
 #endif
 

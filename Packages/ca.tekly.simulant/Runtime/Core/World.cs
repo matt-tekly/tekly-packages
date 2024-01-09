@@ -1,4 +1,4 @@
-#if DEBUG
+#if DEBUG && !SIMULANT_PERFORMANCE
 #define SIMULANT_ASSERTS
 #endif
 
@@ -32,6 +32,8 @@ namespace Tekly.Simulant.Core
 		private readonly QueryBuilder m_queryBuilder;
 
 		private const int DATA_TYPE_CAPACITY = 512;
+
+		public World() : this(WorldConfig.Default) { }
 
 		public World(WorldConfig config)
 		{

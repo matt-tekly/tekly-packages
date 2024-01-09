@@ -64,13 +64,5 @@ namespace Tekly.Simulant.Collections
 			Array.Resize(ref Data, capacity);
 			Array.Fill(Data, m_defaultValue, startCount, capacity - startCount);
 		}
-
-		public T[] Compacted()
-		{
-			var items = new T[Count];
-			Array.Copy(Data, items, Count);
-
-			return items;
-		}
 	}
 }

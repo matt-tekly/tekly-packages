@@ -42,6 +42,14 @@ namespace Tekly.Simulant.Core
 			return this;
 		}
 		
+		public QueryBuilder Include<T, U, V>() where T : struct where U : struct where V : struct
+		{
+			Include<T>();
+			Include<U>();
+			Include<V>();
+			return this;
+		}
+		
 		public QueryBuilder Exclude<T>() where T : struct
 		{
 			var typeId = m_world.GetPool<T>().Id;

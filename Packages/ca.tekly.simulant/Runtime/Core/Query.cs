@@ -7,7 +7,8 @@ namespace Tekly.Simulant.Core
 	public class Query
 	{
 		public int Count => m_entities.Count;
-
+		public int Generation => m_generation;
+		
 		public readonly int[] Includes;
 		public readonly int[] Excludes;
 
@@ -17,6 +18,7 @@ namespace Tekly.Simulant.Core
 		private readonly GrowingArray<DelayedOp> m_delayedOps;
 
 		private int m_lockCount;
+		private int m_generation;
 
 		private const int BAD_ID = -1;
 
@@ -92,6 +94,8 @@ namespace Tekly.Simulant.Core
 		public void Add(int entity)
 		{
 			// TODO: Validate it wasn't already added
+			m_generation++;
+			
 			if (ShouldDelay(Modification.Add, entity)) {
 				return;
 			}
@@ -103,6 +107,8 @@ namespace Tekly.Simulant.Core
 		public void Remove(int entity)
 		{
 			// TODO: Validate it wasn't already removed
+			m_generation++;
+			
 			if (ShouldDelay(Modification.Remove, entity)) {
 				return;
 			}
