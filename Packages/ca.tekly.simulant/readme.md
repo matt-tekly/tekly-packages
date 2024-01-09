@@ -1,6 +1,22 @@
+# About
+Simulant is a relatively simple ECS.
+
+**Goals:**
+- A data oriented approach to simulating a game
+- Simple implementation and simple to use
+- Fast and simple serialization
+- Still able to use GameObjects
+- Can integrate Jobs where necessary
+- Easy extensibility to core concepts
+
+**Non Goals:**
+- This is not a replacement for Unity's ECS. It will never compete with Unity on a performance level
+  - A nice way to develop games is more important than performance
+- This is primarily procedural based games and will not convert scenes to Entities
+
 ## Implementation
 
-Main Concepts 
+Main Concepts
 
 ### Types 
 - **World**: Manages Entities, DataPool, and Queries
@@ -8,26 +24,21 @@ Main Concepts
   - Components must be structs and ideally blittable
 - **Query**: Given a list of components an entity includes/excludes this will keep track of all entities matching that pattern
   - Identical includes/excludes result in the exact same Query object
-- Entity: Is just an int
+- **Entity**: Is just an integer ID
 
 Querys, DataPools and World all work with tightly packed data arrays that have a corresponding sparse array that maps an entity to an index in the tightly packed array
 
 ## Usage
 
 ```csharp
-// Create a world
-var worldConfig = new WorldConfig {
-    EntityCapacity = 512,
-    DataPools = new DataPoolConfig {
-        Capacity = 512,
-        RecycleCapacity = 512
-    }
-};
-
-var world = new World(worldConfig);
+// Create a world. You can create your own WorldConfig to customize initial entity and component capacity
+var world = new World(WorldConfig.Default);
 
 // Create an entity
 var entity = world.Create();
+
+// Delete an Entity
+world.Delete(entity);
 
 // Add a component: Version 1
 world.Add(entity, new TransformData { Position = new Vector3(1, 2, 3) });
@@ -44,7 +55,7 @@ data.Position = new Vector3(1, 2, 3);
 // Remove a component: Version 1
 world.Delete<TransformData>(entity);
 
-// Add a component: Version 2 - the other versions are just slower versions of this
+// Remove a component: Version 2 - the other versions are just slower versions of this
 var transformPool = world.GetPool<TransformData>();
 transformPool.Delete(entity);
 ```
@@ -52,6 +63,7 @@ transformPool.Delete(entity);
 Queries
 
 ```csharp
+// Simple "system" that moves an entity based on its velocity
 var query = world.Query().Include<TransformData, VelocityData>().Build();
 
 foreach (var entity in query) {
@@ -83,17 +95,9 @@ private void Write(World world, string file)
 
 public World Read(string file)
 {
-	var worldConfig = new WorldConfig {
-		EntityCapacity = 512,
-		DataPools = new DataPoolConfig {
-			Capacity = 512,
-			RecycleCapacity = 512
-		}
-	};
-
 	using var fs = File.OpenRead(file);
 	using var inputStream = new TokenInputStream(fs, true);
-	var world = new World(worldConfig);
+	var world = new World(WorldConfig.Default);
 
 	m_serializer.Read(inputStream, world);
 
@@ -103,6 +107,9 @@ public World Read(string file)
 
 ### Todo
 
+- Systems
+  - There is no systems structure. Should Simulant provide this or leave it up to the user?
+- Serialization should support ignoring certain components
 - Make a query object that can destructure into the components you want to modify
 - There are a bunch of constants for capacity that need to be configurable
 - Should queries be able to be disposed/disconnected?
