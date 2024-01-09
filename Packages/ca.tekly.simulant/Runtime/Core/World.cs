@@ -167,8 +167,7 @@ namespace Tekly.Simulant.Core
 				return;
 			}
 
-			entityData.Generation =
-				(short)(entityData.Generation == short.MaxValue ? -1 : -(entityData.Generation + 1));
+			entityData.Generation = (short)(entityData.Generation == short.MaxValue ? -1 : -(entityData.Generation + 1));
 			m_recycledEntities.Add(entity);
 		}
 

@@ -33,4 +33,6 @@ namespace Tekly.Simulant.Core
 		Add,
 		Remove
 	}
+	
+	public interface ITransient { }
 }

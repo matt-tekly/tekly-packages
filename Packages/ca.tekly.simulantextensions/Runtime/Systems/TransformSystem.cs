@@ -15,10 +15,10 @@ namespace Tekly.Simulant.Extensions.Systems
 
 	public struct GameObjectInstance
 	{
+		public GameObject GameObject;
 		public Transform Transform;
 	}
 	
-	// TODO: Make a TransformSystem for static transforms that only update once in a while
 	public class TransformSystem : IDisposable
 	{
 		[BurstCompile(CompileSynchronously = true)]

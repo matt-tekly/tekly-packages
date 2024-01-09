@@ -140,5 +140,10 @@ namespace Tekly.Common.Utils
 		{
 			return (T) Attribute.GetCustomAttribute(element, typeof(T));
 		}
+
+		public static bool Implements<T>(this Type type)
+		{
+			return typeof(T).IsAssignableFrom(type);
+		}
 	}
 }

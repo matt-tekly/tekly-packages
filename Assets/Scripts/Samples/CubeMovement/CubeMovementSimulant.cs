@@ -1,9 +1,6 @@
 using System.Collections.Generic;
 using Tekly.Simulant.Core;
 using Tekly.Simulant.Extensions.Systems;
-using Unity.Collections;
-using Unity.Jobs;
-using Unity.Mathematics;
 using UnityEngine;
 
 namespace TeklySample.Samples.CubeMovement
@@ -128,6 +125,7 @@ namespace TeklySample.Samples.CubeMovement
 			transformData.Position = position;
 
 			ref var gameObjectData = ref m_world.Add<GameObjectInstance>(entity);
+			gameObjectData.GameObject = instance;
 			gameObjectData.Transform = instance.transform;
 			
 			ref var cubeData = ref m_world.Add<CubeData>(entity);

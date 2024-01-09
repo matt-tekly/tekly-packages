@@ -4,6 +4,7 @@
 
 using System;
 using System.Diagnostics;
+using Tekly.Common.Utils;
 using Tekly.Simulant.Collections;
 using Tekly.SuperSerial.Serialization;
 using Tekly.SuperSerial.Streams;
@@ -14,21 +15,22 @@ namespace Tekly.Simulant.Core
 {
 	public class TypeInfo
 	{
-		public string Assembly;
-		public string Name;
-		public Type Type;
+		public readonly string Assembly;
+		public readonly string Name;
+		public readonly Type Type;
+		public readonly bool Transient;
 
-		public static TypeInfo Create<T>()
+		public TypeInfo(Type type)
 		{
-			var typeInfo = new TypeInfo();
-			typeInfo.Type = typeof(T);
-			typeInfo.Assembly = typeInfo.Type.AssemblyQualifiedName;
-			typeInfo.Name = typeInfo.Type.Name;
-
-			return typeInfo;
+			Type = type;
+			Assembly = type.AssemblyQualifiedName;
+			Name = type.Name;
+			Transient = type.Implements<ITransient>();
 		}
+
+		public static TypeInfo Create<T>() => new TypeInfo(typeof(T));
 	}
-	
+
 	public interface IDataPool
 	{
 		Type DataType { get; }
@@ -38,13 +40,13 @@ namespace Tekly.Simulant.Core
 		void Resize(int capacity);
 		bool Has(int entity);
 		void Delete(int entity);
-		
+
 		void Write(TokenOutputStream output, SuperSerializer superSerializer);
 		void Read(TokenInputStream input, SuperSerializer superSerializer);
 
 		DataPoolSummary GetSummary();
 	}
-	
+
 	public partial class DataPool<T> : IDataPool where T : struct
 	{
 		public readonly int Id;
@@ -52,14 +54,15 @@ namespace Tekly.Simulant.Core
 
 		public TypeInfo TypeInfo => m_typeInfo ??= TypeInfo.Create<T>();
 		public int Count => m_data.Count;
-		public bool ShouldSerialize => m_data.Count > 0;
-		
-		private protected World m_world;
-		private GrowingArray<T> m_data;
-		private IndexArray<int> m_entityMap;
-		private IndexArray<int> m_recycled;
 
-		private int BAD_ID = -1;
+		public bool ShouldSerialize => m_data.Count > 0 && !TypeInfo.Transient;
+
+		private readonly World m_world;
+		private readonly GrowingArray<T> m_data;
+		private readonly IndexArray<int> m_entityMap;
+		private readonly IndexArray<int> m_recycled;
+
+		private const int BAD_ID = -1;
 		private TypeInfo m_typeInfo;
 
 		public DataPool(World world, int id, int entityCapacity, DataPoolConfig config)
@@ -71,7 +74,7 @@ namespace Tekly.Simulant.Core
 			m_entityMap = new IndexArray<int>(entityCapacity, BAD_ID);
 			m_recycled = new IndexArray<int>(config.RecycleCapacity, BAD_ID);
 		}
-		
+
 		public void Resize(int capacity)
 		{
 			m_entityMap.Resize(capacity);
@@ -85,7 +88,7 @@ namespace Tekly.Simulant.Core
 			var idx = m_data.Get();
 
 			m_entityMap.Data[entity] = idx;
-			
+
 			m_world.OnEntityChangeInternal(entity, Id, Modification.Add);
 			m_world.Entities.Data[entity].ComponentsCount++;
 
@@ -149,7 +152,7 @@ namespace Tekly.Simulant.Core
 			summary.Blittable = UnsafeUtility.IsBlittable<T>();
 			summary.Size = UnsafeUtility.SizeOf<T>();
 			summary.Count = Count;
-			
+
 			return summary;
 		}
 
