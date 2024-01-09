@@ -27,7 +27,7 @@ namespace Tekly.PackageUtils
 
 		private static string KEY = "Tekly.NewPackageWizard";
 		
-		[MenuItem("Tekly/New Package")]
+		[MenuItem("Tools/Tekly/New Package")]
 		private static void CreateWizard()
 		{
 			var wizard = DisplayWizard<NewPackageWizard>("Create Package", "Create");

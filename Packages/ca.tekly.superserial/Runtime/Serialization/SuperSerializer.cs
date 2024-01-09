@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Runtime.Serialization;
 using Tekly.SuperSerial.Streams;
 
 namespace Tekly.SuperSerial.Serialization
@@ -19,9 +18,14 @@ namespace Tekly.SuperSerial.Serialization
 			if (obj is ISuperSerialize superSerialize) {
 				superSerialize.Write(output, this);
 			} else {
-				var converter = m_settings.Converters.Get(obj.GetType());
+				var converter = GetConverter(obj.GetType());
 				converter.Write(this, output, obj);	
 			}
+		}
+
+		public SerialConverter GetConverter(Type type)
+		{
+			return m_settings.Converters.Get(type);
 		}
 		
 		public void Write(string filePath, object obj)

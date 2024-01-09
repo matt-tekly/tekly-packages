@@ -1,5 +1,11 @@
 {
   "dependencies": {
+    "ca.simulantextensions": {
+      "version": "file:ca.simulantextensions",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "ca.tekly.balance": {
       "version": "file:ca.tekly.balance",
       "depth": 0,
@@ -226,6 +232,15 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unity.burst": {
+      "version": "1.6.6",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.mathematics": "1.2.1"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.ext.nunit": {
       "version": "1.0.6",
       "depth": 1,
@@ -313,6 +328,14 @@
       "dependencies": {
         "com.unity.modules.ui": "1.0.0",
         "com.unity.modules.imgui": "1.0.0"
+      }
+    },
+    "tekly.simulant": {
+      "version": "file:ca.tekly.simulant",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "ca.tekly.superserial": "0.0.1"
       }
     },
     "com.unity.modules.ai": {

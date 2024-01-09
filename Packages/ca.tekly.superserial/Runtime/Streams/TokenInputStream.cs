@@ -1,6 +1,8 @@
 using System;
 using System.Buffers;
 using System.IO;
+using System.Runtime.InteropServices;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -48,12 +50,18 @@ namespace Tekly.SuperSerial.Streams
 			m_pool.Return(m_buffer);
 		}
 
+		public short ReadShort()
+		{
+			m_input.Read(m_buffer, 0, sizeof(short));
+			return SuperBitConverter.ReadShort(m_buffer, 0);
+		}
+
 		public int ReadInt()
 		{
 			m_input.Read(m_buffer, 0, sizeof(int));
 			return SuperBitConverter.ReadInt(m_buffer, 0);
 		}
-		
+
 		public uint ReadUInt()
 		{
 			m_input.Read(m_buffer, 0, sizeof(uint));
@@ -65,7 +73,7 @@ namespace Tekly.SuperSerial.Streams
 			m_input.Read(m_buffer, 0, sizeof(long));
 			return SuperBitConverter.ReadLong(m_buffer, 0);
 		}
-		
+
 		public DateTime ReadDate()
 		{
 			return DateTime.FromBinary(ReadLong());
@@ -95,7 +103,7 @@ namespace Tekly.SuperSerial.Streams
 				z = SuperBitConverter.ReadFloat(m_buffer, sizeof(float) * 2),
 			};
 		}
-		
+
 		public void Read(ref Vector3 v)
 		{
 			m_input.Read(m_buffer, 0, sizeof(float) * 3);
@@ -103,7 +111,7 @@ namespace Tekly.SuperSerial.Streams
 			v.y = SuperBitConverter.ReadFloat(m_buffer, sizeof(float) * 1);
 			v.z = SuperBitConverter.ReadFloat(m_buffer, sizeof(float) * 2);
 		}
-		
+
 		public Quaternion ReadQuaternion()
 		{
 			m_input.Read(m_buffer, 0, sizeof(float) * 4);
@@ -141,6 +149,48 @@ namespace Tekly.SuperSerial.Streams
 			m_pool.Return(stringBuffer);
 
 			return result;
+		}
+
+		public unsafe void ReadBlittable<T>(T[] destination, int count) where T : struct
+		{
+			Assert.IsTrue(UnsafeUtility.IsBlittable<T>());
+
+			var stride = ReadInt();
+			var destStride = UnsafeUtility.SizeOf<T>();
+			
+			Assert.IsTrue(destStride >= stride);
+			
+			if (destStride == stride) {
+				var dataSpan = new Span<T>(destination, 0, count);
+				var bytes = MemoryMarshal.AsBytes(dataSpan);
+
+				m_input.Read(bytes);
+			} else {
+				
+				var sourceBytes = ArrayPool<byte>.Shared.Rent(stride * count);
+				
+				try {
+					m_input.Read(sourceBytes, 0, stride * count);
+				
+					var sourceSpan = new Span<byte>(sourceBytes);
+					var destSpan = MemoryMarshal.AsBytes(new Span<T>(destination, 0, count));
+					
+					for (var i = 0; i < count; i++) {
+						var destSlice = destSpan.Slice(i * destStride, destStride);
+						var sourceSlice = sourceSpan.Slice(i * stride, stride);
+						
+						sourceSlice.CopyTo(destSlice);
+					}
+
+					fixed (void* destPtr = destSpan) {
+						fixed (void* sourcePtr = sourceBytes) {
+							UnsafeUtility.MemCpyStride(destPtr, destStride, sourcePtr, stride, destStride, count);
+						}
+					}
+				} finally {
+					ArrayPool<byte>.Shared.Return(sourceBytes);
+				}
+			}
 		}
 	}
 }

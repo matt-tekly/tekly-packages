@@ -11,6 +11,12 @@ namespace Tekly.SuperSerial.Streams
 		// See here for an implementation to optimize: https://referencesource.microsoft.com/#mscorlib/system/bitconverter.cs
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static short ReadShort(byte[] bytes, int position)
+		{
+			return BitConverter.ToInt16(bytes, position);
+		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int ReadInt(byte[] bytes, int position)
 		{
 			return BitConverter.ToInt32(bytes, position);
@@ -56,6 +62,14 @@ namespace Tekly.SuperSerial.Streams
 		public static int Write(byte[] bytes, int position, string value)
 		{
 			return Encoding.UTF8.GetBytes(value, 0, value.Length, bytes, position);
+		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static unsafe void Write(byte[] bytes, int position, short value)
+		{
+			fixed (byte* b = bytes) {
+				*(short*) (b + position) = value;
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

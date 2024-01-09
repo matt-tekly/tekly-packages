@@ -1,0 +1,200 @@
+#if DEBUG && !SIMULANT_PERFORMANCE
+#define SIMULANT_ASSERTS
+#endif
+
+using System;
+using System.Diagnostics;
+using Tekly.Simulant.Collections;
+using Tekly.SuperSerial.Serialization;
+using Tekly.SuperSerial.Streams;
+using Unity.Collections.LowLevel.Unsafe;
+using UnityEngine.Assertions;
+
+namespace Tekly.Simulant.Core
+{
+	public class TypeInfo
+	{
+		public string Assembly;
+		public string Name;
+		public Type Type;
+
+		public static TypeInfo Create<T>()
+		{
+			var typeInfo = new TypeInfo();
+			typeInfo.Type = typeof(T);
+			typeInfo.Assembly = typeInfo.Type.AssemblyQualifiedName;
+			typeInfo.Name = typeInfo.Type.Name;
+
+			return typeInfo;
+		}
+	}
+	
+	public interface IDataPool
+	{
+		Type DataType { get; }
+		TypeInfo TypeInfo { get; }
+		int Count { get; }
+		bool ShouldSerialize { get; }
+		void Resize(int capacity);
+		bool Has(int entity);
+		void Delete(int entity);
+		
+		void Write(TokenOutputStream output, SuperSerializer superSerializer);
+		void Read(TokenInputStream input, SuperSerializer superSerializer);
+
+		DataPoolSummary GetSummary();
+	}
+	
+	public partial class DataPool<T> : IDataPool where T : struct
+	{
+		public readonly int Id;
+		public Type DataType => typeof(T);
+
+		public TypeInfo TypeInfo => m_typeInfo ??= TypeInfo.Create<T>();
+		public int Count => m_data.Count;
+		public bool ShouldSerialize => m_data.Count > 0;
+		
+		private protected World m_world;
+		private GrowingArray<T> m_data;
+		private IndexArray<int> m_entityMap;
+		private IndexArray<int> m_recycled;
+
+		private int BAD_ID = -1;
+		private TypeInfo m_typeInfo;
+
+		public DataPool(World world, int id, int entityCapacity, DataPoolConfig config)
+		{
+			m_world = world;
+			Id = id;
+
+			m_data = new GrowingArray<T>(entityCapacity);
+			m_entityMap = new IndexArray<int>(entityCapacity, BAD_ID);
+			m_recycled = new IndexArray<int>(config.RecycleCapacity, BAD_ID);
+		}
+		
+		public void Resize(int capacity)
+		{
+			m_entityMap.Resize(capacity);
+		}
+
+		public void Add(ref T data, int entity)
+		{
+			AssertAlive(entity);
+			AssertNotExists(entity);
+
+			var idx = m_data.Get();
+
+			m_entityMap.Data[entity] = idx;
+			
+			m_world.OnEntityChangeInternal(entity, Id, Modification.Add);
+			m_world.Entities.Data[entity].ComponentsCount++;
+
+			m_world.EntityDataChanged(entity, Id);
+
+			m_data.Data[idx] = data;
+		}
+
+		public ref T Add(int entity)
+		{
+			AssertAlive(entity);
+			AssertNotExists(entity);
+
+			int idx;
+			if (m_recycled.Count > 0) {
+				idx = m_recycled.Pop();
+			} else {
+				idx = m_data.Get();
+				AutoReset(ref m_data.Data[idx]);
+			}
+
+			m_entityMap.Data[entity] = idx;
+			m_world.OnEntityChangeInternal(entity, Id, Modification.Add);
+			m_world.Entities.Data[entity].ComponentsCount++;
+
+			m_world.EntityDataChanged(entity, Id);
+
+			return ref m_data.Data[idx];
+		}
+
+		public void Delete(int entity)
+		{
+			AssertAlive(entity);
+
+			ref var dataIndex = ref m_entityMap.Data[entity];
+			if (dataIndex == BAD_ID) {
+				return;
+			}
+
+			m_world.OnEntityChangeInternal(entity, Id, Modification.Remove);
+
+			m_recycled.Add(dataIndex);
+			AutoReset(ref m_data.Data[dataIndex]);
+
+			dataIndex = BAD_ID;
+
+			ref var entityData = ref m_world.Entities.Data[entity];
+			entityData.ComponentsCount--;
+
+			m_world.EntityDataChanged(entity, Id);
+
+			if (entityData.ComponentsCount == 0) {
+				m_world.Delete(entity);
+			}
+		}
+
+		public DataPoolSummary GetSummary()
+		{
+			var summary = new DataPoolSummary();
+			summary.Type = typeof(T).Name;
+			summary.Blittable = UnsafeUtility.IsBlittable<T>();
+			summary.Size = UnsafeUtility.SizeOf<T>();
+			summary.Count = Count;
+			
+			return summary;
+		}
+
+		public ref T Get(int entity)
+		{
+			AssertAlive(entity);
+			AssertExists(entity);
+
+			return ref m_data.Data[m_entityMap.Data[entity]];
+		}
+
+		public bool Has(int entity)
+		{
+			AssertAlive(entity);
+			return m_entityMap.Data[entity] != BAD_ID;
+		}
+
+		private void AutoReset(ref T data)
+		{
+			if (true) {
+				// TODO: implement auto reset
+				data = default;
+			}
+		}
+
+		[Conditional("SIMULANT_ASSERTS")]
+		private void AssertAlive(int entity)
+		{
+			Assert.IsTrue(m_world.IsAlive(entity), "Touching destroyed Entity");
+		}
+
+		[Conditional("SIMULANT_ASSERTS")]
+		private void AssertNotExists(int entity)
+		{
+			if (m_entityMap.Data[entity] != BAD_ID) {
+				throw new Exception($"Component [{GetType().Name}] already exists on Entity");
+			}
+		}
+
+		[Conditional("SIMULANT_ASSERTS")]
+		private void AssertExists(int entity)
+		{
+			if (m_entityMap.Data[entity] == BAD_ID) {
+				throw new Exception($"Component [{GetType().Name}] does not exist on Entity");
+			}
+		}
+	}
+}

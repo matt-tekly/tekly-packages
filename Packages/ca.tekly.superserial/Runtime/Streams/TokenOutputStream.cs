@@ -1,8 +1,11 @@
 using System;
 using System.Buffers;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Tekly.SuperSerial.Streams
 {
@@ -19,7 +22,7 @@ namespace Tekly.SuperSerial.Streams
 		private readonly int m_bufferLimit;
 
 		// This is just a lazy 'hack' to safely write small value types.
-		// Roughly the fix is to copy the code from WriteRawBytes into every write function
+		// Roughly, a better solution is to copy the code from WriteRawBytes into every write function
 		private readonly byte[] m_babyBuffer;
 		
 		// Data is written to this buffer and then flushed to the output stream
@@ -43,6 +46,12 @@ namespace Tekly.SuperSerial.Streams
 		{
 			SuperBitConverter.Write(m_babyBuffer, 0, value);
 			WriteRawBytes(m_babyBuffer, 0, sizeof(int));
+		}
+		
+		public void Write(short value)
+		{
+			SuperBitConverter.Write(m_babyBuffer, 0, value);
+			WriteRawBytes(m_babyBuffer, 0, sizeof(short));
 		}
 
 		public void Write(int value)
@@ -233,6 +242,23 @@ namespace Tekly.SuperSerial.Streams
 			
 			ArrayPool<byte>.Shared.Return(m_buffer);
 			ArrayPool<byte>.Shared.Return(m_babyBuffer);
+		}
+		
+		public void WriteBlittable<T>(T[] data, int count) where T : struct
+		{
+			Assert.IsTrue(UnsafeUtility.IsBlittable<T>());
+			Write(UnsafeUtility.SizeOf<T>());
+			Flush();
+			
+			var dataSpan = new Span<T>(data, 0, count);
+			var bytes = MemoryMarshal.AsBytes(dataSpan);
+			m_output.Write(bytes);
+		}
+		
+		public void WriteBytes(byte[] bytes)
+		{
+			Flush();
+			m_output.Write(bytes);
 		}
 
 		private void WriteRawBytes(byte[] value)

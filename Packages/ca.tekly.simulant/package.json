@@ -1,0 +1,8 @@
+{
+  "name": "tekly.simulant",
+  "version": "0.0.1",
+  "displayName": "Tekly Simulant",
+  "dependencies": {
+    "ca.tekly.superserial": "0.0.1"
+  }
+}
