@@ -12,7 +12,7 @@ Simulant is a relatively simple ECS.
 **Non Goals:**
 - This is not a replacement for Unity's ECS. It will never compete with Unity on a performance level
   - A nice way to develop games is more important than performance
-- This is primarily procedural based games and will not convert scenes to Entities
+- This is primarily for procedural based games and will not convert scenes to Entities
 
 ## Implementation
 
