@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "ca.simulantextensions": {
-      "version": "file:ca.simulantextensions",
+      "version": "file:ca.tekly.simulantextensions",
       "depth": 0,
       "source": "embedded",
       "dependencies": {}
