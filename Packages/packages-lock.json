@@ -151,6 +151,14 @@
         "com.unity.nuget.newtonsoft-json": "3.2.1"
       }
     },
+    "ca.tekly.simulant": {
+      "version": "file:ca.tekly.simulant",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "ca.tekly.superserial": "0.0.1"
+      }
+    },
     "ca.tekly.statusbar": {
       "version": "file:ca.tekly.statusbar",
       "depth": 0,
@@ -328,14 +336,6 @@
       "dependencies": {
         "com.unity.modules.ui": "1.0.0",
         "com.unity.modules.imgui": "1.0.0"
-      }
-    },
-    "tekly.simulant": {
-      "version": "file:ca.tekly.simulant",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {
-        "ca.tekly.superserial": "0.0.1"
       }
     },
     "com.unity.modules.ai": {
