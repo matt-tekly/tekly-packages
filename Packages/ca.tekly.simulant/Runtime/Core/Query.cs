@@ -1,10 +1,17 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Tekly.Simulant.Collections;
 
 namespace Tekly.Simulant.Core
 {
-	public class Query
+	public interface IQueryListener
+	{
+		void EntityAdded(int entity, Query query);
+		void EntityRemoved(int entity, Query query);
+	}
+	
+	public partial class Query
 	{
 		public int Count => m_entities.Count;
 		public int Generation => m_generation;
@@ -16,6 +23,8 @@ namespace Tekly.Simulant.Core
 		private readonly IndexArray<int> m_entityMap;
 
 		private readonly GrowingArray<DelayedOp> m_delayedOps;
+
+		private readonly List<IQueryListener> m_listeners = new List<IQueryListener>();
 
 		private int m_lockCount;
 		private int m_generation;
@@ -31,6 +40,16 @@ namespace Tekly.Simulant.Core
 			m_entityMap = new IndexArray<int>(mapCapacity, BAD_ID);
 
 			m_delayedOps = new GrowingArray<DelayedOp>(512);
+		}
+
+		public void AddListener(IQueryListener queryListener)
+		{
+			m_listeners.Add(queryListener);
+		}
+		
+		public void RemoveListener(IQueryListener queryListener)
+		{
+			m_listeners.Remove(queryListener);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -101,6 +120,8 @@ namespace Tekly.Simulant.Core
 			}
 
 			m_entityMap.Data[entity] = m_entities.Add(entity);
+			
+			ProcessModificationEvents(entity, Modification.Add);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -122,6 +143,23 @@ namespace Tekly.Simulant.Core
 			if (entityIndex < m_entities.Count) {
 				m_entities.Data[entityIndex] = lastEntity;
 				m_entityMap.Data[lastEntity] = entityIndex;
+			}
+
+			ProcessModificationEvents(entity, Modification.Remove);
+		}
+
+		private void ProcessModificationEvents(int entity, Modification modification)
+		{
+			if (modification == Modification.Add) {
+				for (var index = m_listeners.Count - 1; index >= 0; index--) {
+					var listener = m_listeners[index];
+					listener.EntityAdded(entity, this);
+				}
+			} else {
+				for (var index = m_listeners.Count - 1; index >= 0; index--) {
+					var listener = m_listeners[index];
+					listener.EntityRemoved(entity, this);
+				}
 			}
 		}
 

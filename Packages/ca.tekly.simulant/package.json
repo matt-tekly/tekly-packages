@@ -4,5 +4,11 @@
   "displayName": "Tekly Simulant",
   "dependencies": {
     "ca.tekly.superserial": "0.0.1"
-  }
+  },
+  "author": {
+    "name": "Matt King",
+    "email": "matt@tekly.ca"
+  },
+  "type": "library",
+  "description": "Entity Component System library"
 }
