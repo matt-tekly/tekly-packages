@@ -88,13 +88,12 @@ namespace Tekly.Simulant.Core
 			var idx = m_data.Get();
 
 			m_entityMap.Data[entity] = idx;
-
+			m_data.Data[idx] = data;
+			
 			m_world.OnEntityChangeInternal(entity, Id, Modification.Add);
 			m_world.Entities.Data[entity].ComponentsCount++;
 
 			m_world.EntityDataChanged(entity, Id);
-
-			m_data.Data[idx] = data;
 		}
 
 		public ref T Add(int entity)

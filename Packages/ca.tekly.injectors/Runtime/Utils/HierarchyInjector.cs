@@ -31,7 +31,7 @@ namespace Tekly.Injectors.Utils
 		public void Inject(InjectorContainer container)
 		{
 			if (m_componentsToRegister.Count > 0 || container == null) {
-				container = new InjectorContainer(container);
+				container = new InjectorContainer(container, name);
 				
 				foreach (var behaviour in m_componentsToRegister) {
 					if (behaviour.UseId) {

@@ -48,7 +48,7 @@ namespace Tekly.TreeState.StandardActivities
                 }
             }
             
-            Container = new InjectorContainer(m_parentContainer);
+            Container = new InjectorContainer(m_parentContainer, name);
             
             if (m_instances != null) {
                 foreach (var scriptableInjector in m_instances) {

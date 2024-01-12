@@ -11,13 +11,16 @@ namespace Tekly.Injectors
 
         private readonly InjectorContainer m_parent;
         private readonly TkLogger m_logger = TkLogger.Get<InjectorContainer>();
+
+        public readonly string Name;
         
-        public InjectorContainer()
+        public InjectorContainer(string name = null)
         {
+            Name = name;
             Register(this);
         }
         
-        public InjectorContainer(InjectorContainer parent) : this()
+        public InjectorContainer(InjectorContainer parent, string name = null) : this(name)
         {
             m_parent = parent;
         }

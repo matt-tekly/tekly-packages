@@ -40,14 +40,13 @@ namespace Tekly.Simulant.Core
 		{
 			// Read Entity meta data
 			var entityCapacity = input.ReadInt();
-			Entities.Resize(entityCapacity);
+			Entities.Resize(Math.Max(entityCapacity, m_config.EntityCapacity));
 
 			Entities.Count = input.ReadInt();
 			input.ReadBlittable(Entities.Data, Entities.Count);
 			
-			
 			var recycledEntities = input.ReadInt();
-			m_recycledEntities.Resize(recycledEntities);
+			m_recycledEntities.Resize(Math.Max(recycledEntities, m_config.EntityCapacity));
 			m_recycledEntities.Count = recycledEntities;
 			
 			input.ReadBlittable(m_recycledEntities.Data, m_recycledEntities.Count);
@@ -55,7 +54,7 @@ namespace Tekly.Simulant.Core
 			// Read Pools
 			var poolCount = input.ReadInt();
 			m_pools.Count = poolCount;
-			m_pools.Resize(poolCount);
+			m_pools.Resize(Math.Max(poolCount, DATA_TYPE_CAPACITY));
 			
 			var poolParams = new object[4];
 			poolParams[0] = this;
