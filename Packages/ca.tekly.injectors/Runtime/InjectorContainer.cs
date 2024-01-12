@@ -98,30 +98,52 @@ namespace Tekly.Injectors
 
         public object Get(Type type)
         {
+            if (TryGet(type, out var result)) {
+                return result;
+            }
+            
+            throw new Exception($"[{Name}] Failed to get instance for type [{type.FullName}]");
+        }
+
+        public bool TryGet(Type type, out object result)
+        {
             if (m_instances.TryGetValue(type, out var provider)) {
-                return provider.Instance;
+                result = provider.Instance;
+                return true;
             }
 
-            if (m_parent != null) {
-                return m_parent.Get(type);
+            if (m_parent != null && m_parent.TryGet(type, out result)) {
+                return true;
             }
 
-            throw new Exception($"Failed to get instance for type [{type.FullName}]");
+            result = default;
+            return false;
         }
         
         public object Get(Type type, string id)
         {
             var instanceId = new InstanceId(type, id);
             
+            if (TryGet(instanceId, out var result)) {
+                return result;
+            }
+            
+            throw new Exception($"[{Name}] Failed to get instance with id [{id}] for type [{type.FullName}]");
+        }
+        
+        public bool TryGet(InstanceId instanceId, out object result)
+        {
             if (m_instanceIds.TryGetValue(instanceId, out var provider)) {
-                return provider.Instance;
+                result = provider.Instance;
+                return true;
+            }
+            
+            if (m_parent != null && m_parent.TryGet(instanceId, out result)) {
+                return true;
             }
 
-            if (m_parent != null) {
-                return m_parent.Get(type, id);
-            }
-
-            throw new Exception($"Failed to get instance with id [{id}] for type [{type.FullName}]");
+            result = default;
+            return false;
         }
         
         public void Inject(object instance)
