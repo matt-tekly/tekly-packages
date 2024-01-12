@@ -1,5 +1,11 @@
 {
-  "name": "ca.simulantextensions",
+  "name": "ca.tekly.simulantextensions",
   "version": "0.0.1",
-  "displayName": "Tekly Simulant Extensions"
+  "displayName": "Tekly Simulant Extensions",
+  "author": {
+    "name": "Matt King",
+    "email": "matt@tekly.ca"
+  },
+  "type": "library",
+  "description": "Simulant Extensions"
 }
