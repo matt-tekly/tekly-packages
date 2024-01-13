@@ -13,7 +13,7 @@ namespace Tekly.Simulant.Extensions.Systems
 		public Quaternion Rotation;
 	}
 
-	public struct GameObjectInstance
+	public struct GameObjectData : ITransient
 	{
 		public GameObject GameObject;
 		public Transform Transform;
@@ -36,7 +36,7 @@ namespace Tekly.Simulant.Extensions.Systems
 		private readonly Query m_transformsQuery;
 
 		private readonly DataPool<TransformData> m_transformsData;
-		private readonly DataPool<GameObjectInstance> m_gameObjects;
+		private readonly DataPool<GameObjectData> m_gameObjects;
 
 		private int m_lastGeneration = -1;
 
@@ -50,10 +50,10 @@ namespace Tekly.Simulant.Extensions.Systems
 
 		public TransformSystem(World world)
 		{
-			m_transformsQuery = world.Query().Include<TransformData, GameObjectInstance>().Build();
+			m_transformsQuery = world.Query().Include<TransformData, GameObjectData>().Build();
 
 			m_transformsData = world.GetPool<TransformData>();
-			m_gameObjects = world.GetPool<GameObjectInstance>();
+			m_gameObjects = world.GetPool<GameObjectData>();
 		}
 
 		public void Tick()

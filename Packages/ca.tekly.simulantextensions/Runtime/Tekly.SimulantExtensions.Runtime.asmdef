@@ -3,7 +3,8 @@
     "rootNamespace": "Tekly.Simulant.Extensions",
     "references": [
         "Tekly.Simulant.Runtime",
-        "Unity.Burst"
+        "Unity.Burst",
+        "Tekly.Injectors.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

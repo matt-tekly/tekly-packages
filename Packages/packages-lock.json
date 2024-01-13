@@ -1,11 +1,5 @@
 {
   "dependencies": {
-    "ca.simulantextensions": {
-      "version": "file:ca.tekly.simulantextensions",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {}
-    },
     "ca.tekly.balance": {
       "version": "file:ca.tekly.balance",
       "depth": 0,
@@ -157,6 +151,15 @@
       "source": "embedded",
       "dependencies": {
         "ca.tekly.superserial": "0.0.1"
+      }
+    },
+    "ca.tekly.simulantextensions": {
+      "version": "file:ca.tekly.simulantextensions",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "ca.tekly.simulant": "0.0.1",
+        "ca.tekly.injectors": "0.0.1"
       }
     },
     "ca.tekly.statusbar": {

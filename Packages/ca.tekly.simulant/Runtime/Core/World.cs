@@ -265,6 +265,37 @@ namespace Tekly.Simulant.Core
 			var pool = new DataPool<T>(this, m_pools.Count, EntityCapacity, m_config.DataPools);
 			m_poolMap[poolType] = pool;
 
+			AddPool(pool, poolType);
+
+			return pool;
+		}
+
+		public IDataPool GetPool(Type dataType)
+		{
+			var rootPoolType = typeof(DataPool<>);
+			var typeParams = new[] { dataType };
+
+			var poolId = m_pools.Count;
+			
+			
+			var poolParams = new object[4];
+			poolParams[0] = this;
+			poolParams[1] = poolId;
+			poolParams[2] = EntityCapacity;
+			poolParams[3] = m_config.DataPools;
+			
+			var poolType = rootPoolType.MakeGenericType(typeParams);
+			var pool = (IDataPool) Activator.CreateInstance(poolType, poolParams);
+			
+			AddPool(pool, dataType);
+
+			return pool;
+		}
+
+		private void AddPool(IDataPool pool, Type poolType)
+		{
+			m_poolMap[poolType] = pool;
+
 			if (m_pools.Count == m_pools.Data.Length) {
 				var newSize = m_pools.Count << 1;
 				m_pools.Resize(newSize);
@@ -273,8 +304,6 @@ namespace Tekly.Simulant.Core
 			}
 
 			m_pools.Add(pool);
-
-			return pool;
 		}
 	}
 }
