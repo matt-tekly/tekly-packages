@@ -12,6 +12,8 @@ namespace Tekly.Injectors
         private readonly InjectorContainer m_parent;
         private readonly TkLogger m_logger = TkLogger.Get<InjectorContainer>();
 
+        private List<ITypeInstanceProvider> m_typeProviders;
+
         public readonly string Name;
         
         public InjectorContainer(string name = null)
@@ -86,6 +88,15 @@ namespace Tekly.Injectors
             m_instanceIds.Add(new InstanceId(type, id), InstanceProvider.Create(instance));
         }
 
+        public void RegisterTypeProvider(ITypeInstanceProvider instanceProvider)
+        {
+            if (m_typeProviders == null) {
+                m_typeProviders = new List<ITypeInstanceProvider>();
+            }
+            
+            m_typeProviders.Add(instanceProvider);
+        }
+
         public T Get<T>()
         {
             return (T)Get(typeof(T));
@@ -109,6 +120,10 @@ namespace Tekly.Injectors
         {
             if (m_instances.TryGetValue(type, out var provider)) {
                 result = provider.Instance;
+                return true;
+            }
+
+            if (TryGetFromTypeProviders(type, out result)) {
                 return true;
             }
 
@@ -161,6 +176,28 @@ namespace Tekly.Injectors
         private static Injector GetInjectionTypeData(Type type)
         {
             return TypeDatabase.Instance.GetInjector(type);
+        }
+
+        private bool TryGetFromTypeProviders(Type type, out object result)
+        {
+            if (m_typeProviders == null) {
+                result = default;
+                return false;
+            }
+
+            for (var index = 0; index < m_typeProviders.Count; index++) {
+                var typeProvider = m_typeProviders[index];
+                if (typeProvider.CanProvide(type)) {
+                    var provider = typeProvider.Provide(type);
+                    m_instances[type] = provider;
+
+                    result = provider.Instance;
+                    return true;
+                }
+            }
+
+            result = default;
+            return false;
         }
     }
 }
