@@ -37,6 +37,7 @@ namespace TeklySample.Samples.CubeMovement
 			// The SystemsContainer will use the InjectorContainer to get instances of the Systems you register
 			// They will Tick in the order they are added.
 			m_systemsContainer
+				.Add<PrefabSystem>()
 				.Add<CubeSystem>()
 				.Add<TransformSystem>()
 				.Init();
@@ -72,17 +73,15 @@ namespace TeklySample.Samples.CubeMovement
 
 		private void CreateEntity(Vector3 position, Vector3 ratios)
 		{
-			var instance = Instantiate(m_template, position, Quaternion.identity);
-			m_instances.Add(instance);
 			var entity = m_world.Create();
+			
+			m_world.Add(entity, new PrefabData {
+				Prefab = m_template 
+			});
 
 			ref var transformData = ref m_world.Add<TransformData>(entity);
 			transformData.Position = position;
-
-			ref var gameObjectData = ref m_world.Add<GameObjectData>(entity);
-			gameObjectData.GameObject = instance;
-			gameObjectData.Transform = instance.transform;
-
+			
 			ref var cubeData = ref m_world.Add<CubeData>(entity);
 			cubeData.Origin = position;
 			cubeData.Ratios = ratios;

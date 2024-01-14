@@ -37,6 +37,7 @@ namespace TeklySample.Samples.CubeMovement
 			container.Singleton<CubeSystem>();
 			container.Singleton<TransformSystem>();
 			container.Singleton<SystemsContainer>();
+			container.Singleton<PrefabSystem>();
 		}
 	}
 }

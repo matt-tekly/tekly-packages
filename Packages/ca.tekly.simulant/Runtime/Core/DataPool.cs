@@ -95,6 +95,22 @@ namespace Tekly.Simulant.Core
 
 			m_world.EntityDataChanged(entity, Id);
 		}
+		
+		public void Add(int entity, T data)
+		{
+			AssertAlive(entity);
+			AssertNotExists(entity);
+
+			var idx = m_data.Get();
+
+			m_entityMap.Data[entity] = idx;
+			m_data.Data[idx] = data;
+			
+			m_world.OnEntityChangeInternal(entity, Id, Modification.Add);
+			m_world.Entities.Data[entity].ComponentsCount++;
+
+			m_world.EntityDataChanged(entity, Id);
+		}
 
 		public ref T Add(int entity)
 		{
