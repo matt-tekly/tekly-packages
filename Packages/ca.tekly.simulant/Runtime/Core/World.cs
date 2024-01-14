@@ -49,6 +49,16 @@ namespace Tekly.Simulant.Core
 
 			m_queryBuilder = new QueryBuilder(this);
 		}
+		
+		public void Destroy() 
+		{
+			for (var i = Entities.Count - 1; i >= 0; i--) {
+				ref var entityData = ref Entities.Data[i];
+				if (entityData.ComponentsCount > 0) {
+					Delete(i);
+				}
+			}
+		}
 
 		public bool IsAlive(int entity)
 		{
@@ -263,7 +273,6 @@ namespace Tekly.Simulant.Core
 			}
 
 			var pool = new DataPool<T>(this, m_pools.Count, EntityCapacity, m_config.DataPools);
-			m_poolMap[poolType] = pool;
 
 			AddPool(pool, poolType);
 
@@ -274,9 +283,13 @@ namespace Tekly.Simulant.Core
 		{
 			var rootPoolType = typeof(DataPool<>);
 			var typeParams = new[] { dataType };
-
-			var poolId = m_pools.Count;
+			var poolType = rootPoolType.MakeGenericType(typeParams);
 			
+			if (m_poolMap.TryGetValue(dataType, out var rawPool)) {
+				return rawPool;
+			}
+			
+			var poolId = m_pools.Count;
 			
 			var poolParams = new object[4];
 			poolParams[0] = this;
@@ -284,14 +297,13 @@ namespace Tekly.Simulant.Core
 			poolParams[2] = EntityCapacity;
 			poolParams[3] = m_config.DataPools;
 			
-			var poolType = rootPoolType.MakeGenericType(typeParams);
 			var pool = (IDataPool) Activator.CreateInstance(poolType, poolParams);
 			
 			AddPool(pool, dataType);
 
 			return pool;
 		}
-
+		
 		private void AddPool(IDataPool pool, Type poolType)
 		{
 			m_poolMap[poolType] = pool;

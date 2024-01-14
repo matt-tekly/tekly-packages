@@ -19,7 +19,7 @@ namespace Tekly.Simulant.Extensions.Systems
 		public Transform Transform;
 	}
 	
-	public class TransformSystem : IDisposable
+	public class TransformSystem : ITickSystem, IDisposable
 	{
 		[BurstCompile(CompileSynchronously = true)]
 		private struct TransformSystemJob : IJobParallelForTransform
@@ -56,7 +56,7 @@ namespace Tekly.Simulant.Extensions.Systems
 			m_gameObjects = world.GetPool<GameObjectData>();
 		}
 
-		public void Tick()
+		public void Tick(float deltaTime)
 		{
 			if (m_transformsQuery.Generation != m_lastGeneration) {
 				m_lastGeneration = m_transformsQuery.Generation;

@@ -15,11 +15,15 @@ namespace Tekly.Injectors.Utils
 	public class HierarchyInjector : MonoBehaviour
 	{
 		[SerializeField] protected bool m_injectOnAwake;
+		[SerializeField] protected bool m_injectOnEnable;
 		
 		[SerializeField] protected List<MonoBehaviour> m_behaviours = new List<MonoBehaviour>();
 		[SerializeField] protected List<HierarchyInjector> m_childInjectors = new List<HierarchyInjector>();
 
 		[SerializeField] protected List<RegisteredComponent> m_componentsToRegister = new List<RegisteredComponent>();
+
+		private InjectorContainer m_container;
+		private bool m_hasBeenEnabled;
 		
 		private void Awake()
 		{
@@ -27,17 +31,30 @@ namespace Tekly.Injectors.Utils
 				Inject(null);
 			}	
 		}
-		
+
+		private void OnEnable()
+		{
+			if (!m_injectOnEnable) {
+				return;
+			}
+
+			if (m_hasBeenEnabled || !m_injectOnAwake) {
+				Inject(null);
+			}
+
+			m_hasBeenEnabled = true;
+		}
+
 		public void Inject(InjectorContainer container)
 		{
-			if (m_componentsToRegister.Count > 0 || container == null) {
-				container = new InjectorContainer(container, name);
-				
+			m_container = new InjectorContainer(container, name);
+			
+			if (m_componentsToRegister != null && m_componentsToRegister.Count > 0) {
 				foreach (var behaviour in m_componentsToRegister) {
 					if (behaviour.UseId) {
-						container.Register(behaviour.Component.GetType(), behaviour.Component, behaviour.Id);
+						m_container.Register(behaviour.Component.GetType(), behaviour.Component, behaviour.Id);
 					} else {
-						container.Register(behaviour.Component.GetType(), behaviour.Component);	
+						m_container.Register(behaviour.Component.GetType(), behaviour.Component);	
 					}
 				}
 			}
@@ -45,15 +62,15 @@ namespace Tekly.Injectors.Utils
 			var providers = GetComponents<IInjectionProvider>();
 			
 			foreach (var provider in providers) {
-				provider.Provide(container);
+				provider.Provide(m_container);
 			}
 			
 			foreach (var behaviour in m_behaviours) {
-				container.Inject(behaviour);
+				m_container.Inject(behaviour);
 			}
 			
 			foreach (var behaviour in m_childInjectors) {
-				behaviour.Inject(container);
+				behaviour.Inject(m_container);
 			}
 		}
 

@@ -18,6 +18,10 @@ namespace TeklySample.Samples.CubeMovement
 		public int TotalCubes => Rows * Columns * Planes;
 	}
 	
+	
+	/// <summary>
+	/// Registers all the dependencies for the Cube Movement 
+	/// </summary>
 	public class CubeMovementSetup : MonoBehaviour, IInjectionProvider
 	{
 		[SerializeField] private CubeMovementConfig m_config;
@@ -32,7 +36,7 @@ namespace TeklySample.Samples.CubeMovement
 			
 			container.Singleton<CubeSystem>();
 			container.Singleton<TransformSystem>();
-			container.Singleton<Systems>();
+			container.Singleton<SystemsContainer>();
 		}
 	}
 }

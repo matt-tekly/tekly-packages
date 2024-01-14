@@ -336,7 +336,6 @@ GameObject:
   - component: {fileID: 330950582}
   - component: {fileID: 330950581}
   - component: {fileID: 330950580}
-  - component: {fileID: 330950579}
   m_Layer: 0
   m_Name: Cube Movement
   m_TagString: Untagged
@@ -344,22 +343,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &330950579
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 330950578}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1c78c97c2a9b4f38bcd9ccd9df12c745, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Size: 5
-  Rows: 100
-  Columns: 100
-  Planes: 2
 --- !u!114 &330950580
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -372,7 +355,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4bb553b2731469a89d193467eccbcc1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_config: {fileID: 330950579}
+  m_config:
+    Size: 5
+    Rows: 100
+    Columns: 100
+    Planes: 2
 --- !u!114 &330950581
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -386,6 +373,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_injectOnAwake: 1
+  m_injectOnEnable: 1
   m_behaviours:
   - {fileID: 1847336156}
   m_childInjectors: []
@@ -802,7 +790,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_template: {fileID: 389006757}
-  m_config: {fileID: 0}
 --- !u!4 &1847336157
 Transform:
   m_ObjectHideFlags: 0
