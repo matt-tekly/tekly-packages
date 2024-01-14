@@ -1,0 +1,14 @@
+{
+    "name": "Tekly.SimulantTemplates.Runtime",
+    "rootNamespace": "Tekly.Simulant.Templates",
+    "references": ["Tekly.Simulant.Runtime","Tekly.Balance.Runtime","Tekly.Common.Runtime","Tekly.SuperSerial.Runtime"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

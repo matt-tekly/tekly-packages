@@ -162,6 +162,16 @@
         "ca.tekly.injectors": "0.0.1"
       }
     },
+    "ca.tekly.simulanttemplates": {
+      "version": "file:ca.tekly.simulanttemplates",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "ca.tekly.nsubstitute": "0.0.1",
+        "ca.tekly.simulant": "0.0.1",
+        "com.unity.mathematics": "1.1.0"
+      }
+    },
     "ca.tekly.statusbar": {
       "version": "file:ca.tekly.statusbar",
       "depth": 0,

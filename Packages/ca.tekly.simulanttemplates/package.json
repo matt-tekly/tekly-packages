@@ -1,0 +1,17 @@
+{
+  "name": "ca.tekly.simulanttemplates",
+  "displayName": "Tekly Simulant Templates",
+  "version": "0.0.1",
+  "unity": "2019.4",
+  "author": {
+    "name": "Matt King",
+    "email": "matt@tekly.ca"
+  },
+  "hideInEditor": false,
+  "type": "library",
+  "dependencies": {
+    "ca.tekly.nsubstitute": "0.0.1",
+    "ca.tekly.simulant": "0.0.1",
+    "com.unity.mathematics": "1.1.0"
+  }
+}
