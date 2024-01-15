@@ -359,7 +359,7 @@ MonoBehaviour:
     Size: 5
     Rows: 100
     Columns: 100
-    Planes: 2
+    Layers: 2
 --- !u!114 &330950581
 MonoBehaviour:
   m_ObjectHideFlags: 0

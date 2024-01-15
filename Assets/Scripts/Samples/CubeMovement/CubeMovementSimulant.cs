@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace TeklySample.Samples.CubeMovement
 {
+	/// <summary>
+	/// Creates all the Entities and sets up the Systems Container
+	/// </summary>
 	public class CubeMovementSimulant : MonoBehaviour
 	{
 		[SerializeField] private GameObject m_template;
@@ -25,9 +28,9 @@ namespace TeklySample.Samples.CubeMovement
 
 			m_instances.Clear();
 			m_instances.Capacity = m_config.TotalCubes;
-
+			
 			for (var x = 0; x < m_config.Rows; x++) {
-				for (var y = 0; y < m_config.Planes; y++) {
+				for (var y = 0; y < m_config.Layers; y++) {
 					for (var z = 0; z < m_config.Columns; z++) {
 						CreateEntity(x, y, z);
 					}
@@ -66,7 +69,7 @@ namespace TeklySample.Samples.CubeMovement
 		private void CreateEntity(int x, int y, int z)
 		{
 			var position = new Vector3(x, y * 5f, z) * m_config.Size;
-			var ratios = new Vector3(x / (float)m_config.Rows, y / (float)m_config.Planes, z / (float)m_config.Columns);
+			var ratios = new Vector3(x / (float)m_config.Rows, y / (float)m_config.Layers, z / (float)m_config.Columns);
 
 			CreateEntity(position, ratios);
 		}
@@ -74,14 +77,14 @@ namespace TeklySample.Samples.CubeMovement
 		private void CreateEntity(Vector3 position, Vector3 ratios)
 		{
 			var entity = m_world.Create();
-			
+
 			m_world.Add(entity, new PrefabData {
-				Prefab = m_template 
+				Prefab = m_template
 			});
 
 			ref var transformData = ref m_world.Add<TransformData>(entity);
 			transformData.Position = position;
-			
+
 			ref var cubeData = ref m_world.Add<CubeData>(entity);
 			cubeData.Origin = position;
 			cubeData.Ratios = ratios;

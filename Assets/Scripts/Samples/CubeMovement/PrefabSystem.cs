@@ -1,4 +1,5 @@
 using System;
+using Tekly.Common.Utils;
 using Tekly.Injectors;
 using Tekly.Simulant.Core;
 using Tekly.Simulant.Extensions.Systems;
@@ -12,7 +13,10 @@ namespace TeklySample.Samples.CubeMovement
 		public GameObject Prefab;
 	}
 	
-	public class PrefabSystem : ISystem, IDisposable, IQueryListener
+	/// <summary>
+	/// Creates GameObjects for an Entity from the attached PrefabData.
+	/// </summary>
+	public class PrefabSystem : ISystem, IDisposable
 	{
 		[Inject] private World m_world;
 		
@@ -22,14 +26,19 @@ namespace TeklySample.Samples.CubeMovement
 		private Query m_prefabs;
 		private Query m_gameObjects;
 
+		private Disposables m_disposables = new Disposables();
+
 		[Inject]
 		private void Initialize()
 		{
 			m_prefabs = m_world.Query().Include<PrefabData>().Build();
-			m_prefabs.AddListener(this);
+			m_prefabs.ListenAdd(Create).AddTo(m_disposables);
 			
 			m_gameObjects = m_world.Query().Include<GameObjectData>().Build();
-			m_gameObjects.AddListener(this);
+			m_gameObjects.ListenRemove(entity => {
+				ref var gameObjectData = ref m_gameObjectData.Get(entity);
+				Object.Destroy(gameObjectData.GameObject);
+			}).AddTo(m_disposables);
 
 			foreach (var entity in m_prefabs) {
 				Create(entity);
@@ -38,22 +47,7 @@ namespace TeklySample.Samples.CubeMovement
 		
 		public void Dispose()
 		{
-			m_prefabs.RemoveListener(this);
-		}
-
-		public void EntityAdded(int entity, Query query)
-		{
-			if (query == m_prefabs) {
-				Create(entity);	
-			}
-		}
-
-		public void EntityRemoved(int entity, Query query)
-		{
-			if (query == m_gameObjects) {
-				ref var gameObjectData = ref m_gameObjectData.Get(entity);
-				Object.Destroy(gameObjectData.GameObject);
-			} 
+			m_disposables.Dispose();
 		}
 		
 		private void Create(int entity)

@@ -62,7 +62,7 @@ namespace Tekly.Simulant.Core
 
 			int count = 0;
 			var query = new Query(Array.Empty<int>(), Array.Empty<int>(), 16, 16);
-			var disposable = query.Listen((_, _) => count++, (_, _) => count--);
+			var disposable = query.Listen(_ => count++, _ => count--);
 			
 			query.Add(ENTITY_A);
 			Assert.That(count, Is.EqualTo(1));

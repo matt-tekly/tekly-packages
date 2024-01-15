@@ -2,7 +2,7 @@ using System;
 
 namespace Tekly.Simulant.Core
 {
-	public delegate void EntityDelegate(int entity, Query query);
+	public delegate void EntityDelegate(int entity);
 	
 	internal class QueryDelegateListener : IQueryListener, IDisposable
 	{
@@ -21,12 +21,12 @@ namespace Tekly.Simulant.Core
 
 		public void EntityAdded(int entity, Query query)
 		{
-			m_add?.Invoke(entity, query);	
+			m_add?.Invoke(entity);	
 		}
 
 		public void EntityRemoved(int entity, Query query)
 		{
-			m_remove?.Invoke(entity, query);
+			m_remove?.Invoke(entity);
 		}
 	}
 
