@@ -36,6 +36,8 @@ inventory.Add("gold", new NumberValueModel(10));
 
 // Adds game to the RootModel. Now the game model can be accessed from any Binder
 RootModel.Instance.Add(game);
+
+// A binder can bind to the gold in the inventory using the path "game.inventory.gold"
 ```
 
 #### ValueModel
@@ -83,6 +85,8 @@ boolValueModel.Value = false;
 ### Binders
 Binders are MonoBehaviours that retrieve Models from the RootModel, subscribe to their values changing, and updating the UI
 
+Binders retrieve models from the RootModel using string paths set up in the inspector.
+
 There are two primary types of Binders
 
 - BinderContainers
@@ -95,7 +99,7 @@ There are two primary types of Binders
 - BinderContainers store a list of all their child Binders
 - When the BinderContainer is told to bound will tell all its children to bind as well
   - BinderContainers can be figured to bind on Enable or be manually told to bind
-  - BinderContainers can be children of other BinderContainers
+  - BinderContainers can be children of other BinderContainers, allowing for relative paths
 - BinderContainers can have their own path set such that its child Binders paths will be treated as being relative to that path
   - The child has to use a path like `*.name` to be considered relative
   - If the path doesn't start with a `*` it is assumed to be a path starting at the RootModel
