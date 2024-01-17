@@ -26,9 +26,7 @@ namespace TeklySample.Samples.Town
 		{
 			m_addPool = world.GetPool<AddToInventory>();
 
-			m_adds = world.Query()
-				.Include<AddToInventory>()
-				.Build();
+			m_adds = world.Query<AddToInventory>();
 		}
 		
 		public override void Tick(float deltaTime)

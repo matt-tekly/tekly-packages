@@ -42,7 +42,7 @@ namespace Tekly.Simulant.Core
 		public void QueryAddAndDeleteDataTest()
 		{
 			var world = new World();
-			var query = world.Query().Include<FlagData>().Build();
+			var query = world.Query<FlagData>();
 			var flags = world.GetPool<FlagData>();
 
 			var entity = world.Create();
@@ -67,8 +67,8 @@ namespace Tekly.Simulant.Core
 		public void QueriesAreReused()
 		{
 			var world = new World();
-			var queryA = world.Query().Include<FlagData>().Build();
-			var queryB = world.Query().Include<FlagData>().Build();
+			var queryA = world.Query<FlagData>();
+			var queryB = world.Query<FlagData>();
 
 			Assert.That(queryA, Is.EqualTo(queryB));
 		}

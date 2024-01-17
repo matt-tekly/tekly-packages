@@ -43,10 +43,7 @@ namespace TeklySample.Samples.Town
 			m_configs = world.GetPool<GeneratorConfig>();
 			m_datas = world.GetPool<GeneratorData>();
 
-			m_generators = world.Query()
-				.Include<GeneratorConfig>()
-				.Include<GeneratorData>()
-				.Build();
+			m_generators = world.Query<GeneratorConfig, GeneratorData>();
 		}
 		
 		public override void Tick(float deltaTime)

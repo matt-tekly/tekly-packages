@@ -51,7 +51,7 @@ namespace Tekly.Simulant.Extensions.Systems
 
 		public TransformSystem(World world)
 		{
-			m_transformsQuery = world.Query().Include<TransformData, GameObjectData>().Build();
+			m_transformsQuery = world.Query<TransformData, GameObjectData>();
 
 			m_transformsData = world.GetPool<TransformData>();
 			m_gameObjects = world.GetPool<GameObjectData>();

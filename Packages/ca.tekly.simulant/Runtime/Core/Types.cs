@@ -34,5 +34,8 @@ namespace Tekly.Simulant.Core
 		Remove
 	}
 	
+	/// <summary>
+	/// Data implementing ITransient will not be serialized when the World is serialized
+	/// </summary>
 	public interface ITransient { }
 }

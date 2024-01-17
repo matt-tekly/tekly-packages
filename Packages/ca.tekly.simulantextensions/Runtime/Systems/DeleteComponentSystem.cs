@@ -13,7 +13,7 @@ namespace Tekly.Simulant.Extensions.Systems
 		public DeleteComponentSystem(World world)
 		{
 			m_dataPool = world.GetPool<T>();
-			m_query = world.Query().Include<T>().Build();
+			m_query = world.Query<T>();
 		}
 		
 		public void Tick(float deltaTime)

@@ -17,7 +17,7 @@ namespace Tekly.Simulant.Templates
 		{
 			m_world = world;
 			m_balanceManager = balanceManager;
-			m_query = world.Query().Include<TemplateInstance>().Build();
+			m_query = world.Query<TemplateInstance>();
 			m_templates = world.GetPool<TemplateInstance>();
 
 			foreach (var entity in m_query) {

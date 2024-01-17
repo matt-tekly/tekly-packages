@@ -10,12 +10,12 @@ namespace Tekly.Simulant.Core
 		void EntityAdded(int entity, Query query);
 		void EntityRemoved(int entity, Query query);
 	}
-	
+
 	public partial class Query
 	{
 		public int Count => m_entities.Count;
 		public int Generation => m_generation;
-		
+
 		public readonly int[] Includes;
 		public readonly int[] Excludes;
 
@@ -46,7 +46,7 @@ namespace Tekly.Simulant.Core
 		{
 			m_listeners.Add(queryListener);
 		}
-		
+
 		public void RemoveListener(IQueryListener queryListener)
 		{
 			m_listeners.Remove(queryListener);
@@ -89,7 +89,7 @@ namespace Tekly.Simulant.Core
 
 			return true;
 		}
-		
+
 		public bool MatchesWithoutType(GrowingArray<IDataPool> pools, int entity, int removedType)
 		{
 			for (int i = 0, length = Includes.Length; i < length; i++) {
@@ -114,13 +114,13 @@ namespace Tekly.Simulant.Core
 		{
 			// TODO: Validate it wasn't already added
 			m_generation++;
-			
+
 			if (ShouldDelay(Modification.Add, entity)) {
 				return;
 			}
 
 			m_entityMap.Data[entity] = m_entities.Add(entity);
-			
+
 			ProcessModificationEvents(entity, Modification.Add);
 		}
 
@@ -129,7 +129,7 @@ namespace Tekly.Simulant.Core
 		{
 			// TODO: Validate it wasn't already removed
 			m_generation++;
-			
+
 			if (ShouldDelay(Modification.Remove, entity)) {
 				return;
 			}
@@ -146,6 +146,15 @@ namespace Tekly.Simulant.Core
 			}
 
 			ProcessModificationEvents(entity, Modification.Remove);
+		}
+
+		public void ForEach(Action<int> action)
+		{
+			m_lockCount++;
+			for (int i = 0, count = m_entities.Count; i < count; i++) {
+				action(m_entities.Data[i]);
+			}
+			Unlock();
 		}
 
 		private void ProcessModificationEvents(int entity, Modification modification)
@@ -181,7 +190,7 @@ namespace Tekly.Simulant.Core
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private void Unlock()
 		{
-#if DEBUG 
+#if DEBUG
 			if (m_lockCount <= 0) {
 				throw new Exception($"Invalid lock/unlock balance for [{GetType().Name}]");
 			}

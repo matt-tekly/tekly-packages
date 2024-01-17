@@ -82,18 +82,6 @@ namespace Tekly.Simulant.Core
 			return m_queryBuilder;
 		}
 
-		public Query Query<T>() where T : struct
-		{
-			m_queryBuilder.Include<T>();
-			return m_queryBuilder.Build();
-		}
-
-		public Query Query<T1, T2>() where T1 : struct where T2 : struct
-		{
-			m_queryBuilder.Include<T1, T2>();
-			return m_queryBuilder.Build();
-		}
-
 		internal Query FinalizeQuery(QueryBuilder queryBuilder)
 		{
 			var hash = queryBuilder.Hash;

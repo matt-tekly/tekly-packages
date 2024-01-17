@@ -26,7 +26,12 @@ namespace Tekly.Simulant.Core
 		public override string ToString()
 		{
 			var sb = new StringBuilder();
+			ToString(sb);
+			return sb.ToString();
+		}
 
+		public void ToString(StringBuilder sb)
+		{
 			sb.AppendLine("World");
 			sb.AppendLine("---------------------------");
 			sb.AppendLine($"Entities: [{EntityCount}]");
@@ -42,8 +47,6 @@ namespace Tekly.Simulant.Core
 			Tableify.WriteRows(new[] { "Type", "Blittable", "Size", "Count" }, rows, sb);
 
 			sb.AppendLine("---------------------------");
-
-			return sb.ToString();
 		}
 	}
 

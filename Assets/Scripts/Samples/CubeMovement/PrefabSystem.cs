@@ -32,10 +32,10 @@ namespace TeklySample.Samples.CubeMovement
 		[Inject]
 		private void Initialize()
 		{
-			m_prefabs = m_world.Query().Include<PrefabData>().Build();
+			m_prefabs = m_world.Query<PrefabData>();
 			m_prefabs.ListenAdd(Create).AddTo(m_disposables);
-			
-			m_gameObjects = m_world.Query().Include<GameObjectData>().Build();
+
+			m_gameObjects = m_world.Query<GameObjectData>();
 			m_gameObjects.ListenRemove(entity => {
 				ref var gameObjectData = ref m_gameObjectData.Get(entity);
 				Object.Destroy(gameObjectData.GameObject);
