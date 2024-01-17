@@ -176,7 +176,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: d0e3e32594f4f457cbe298b12dc52709, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -360,6 +360,7 @@ MonoBehaviour:
     Rows: 100
     Columns: 100
     Layers: 2
+  m_camera: {fileID: 1035973920}
 --- !u!114 &330950581
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -789,7 +790,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c3f5388cb2c449e913b6eac49835b00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_template: {fileID: 389006757}
+  m_useGameObjects: 0
+  m_prefabData:
+    Prefab: {fileID: 389006757}
+  m_meshDatas:
+  - Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+    Material: {fileID: 2100000, guid: d0e3e32594f4f457cbe298b12dc52709, type: 2}
+    Hash: 0
+  - Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+    Material: {fileID: 2100000, guid: d0e3e32594f4f457cbe298b12dc52709, type: 2}
+    Hash: 0
 --- !u!4 &1847336157
 Transform:
   m_ObjectHideFlags: 0

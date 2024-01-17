@@ -8,6 +8,7 @@ using Object = UnityEngine.Object;
 
 namespace TeklySample.Samples.CubeMovement
 {
+	[Serializable]
 	public struct PrefabData : ITransient
 	{
 		public GameObject Prefab;

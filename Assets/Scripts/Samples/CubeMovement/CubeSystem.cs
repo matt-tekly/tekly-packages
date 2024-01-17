@@ -1,7 +1,6 @@
 using Tekly.Injectors;
 using Tekly.Simulant.Core;
 using Tekly.Simulant.Extensions.Systems;
-using TMPro;
 using UnityEngine;
 
 namespace TeklySample.Samples.CubeMovement
@@ -35,7 +34,7 @@ namespace TeklySample.Samples.CubeMovement
 			var time = Time.time;
 
 			var position = Vector3.zero;
-			var up = Vector3.up;
+			var axis = new Vector3(0.25f, 0.25f, 0.25f);
 
 			foreach (var cube in m_cubes) {
 				ref var transformData = ref m_transforms.Get(cube);
@@ -43,7 +42,10 @@ namespace TeklySample.Samples.CubeMovement
 
 				GeneratePosition(in cubeData.Origin, in cubeData.Ratios, ref position, time);
 				transformData.Position = position;
-				transformData.Rotation = Quaternion.AngleAxis(Mathf.Sin(time + cubeData.Ratios.x) * 360, up);
+				transformData.Rotation = Quaternion.AngleAxis(Mathf.Sin(time + cubeData.Ratios.x) * 360, axis);
+
+				var scale = 1 + Mathf.PerlinNoise(cubeData.Ratios.x + time, cubeData.Ratios.y + time);
+				transformData.Scale = new Vector3(scale, scale, scale);
 			}
 		}
 

@@ -11,6 +11,7 @@ namespace Tekly.Simulant.Extensions.Systems
 	{
 		public Vector3 Position;
 		public Quaternion Rotation;
+		public Vector3 Scale;
 	}
 
 	public struct GameObjectData : ITransient

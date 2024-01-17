@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using Tekly.Common.Collections;
 using Tekly.Injectors;
 using Tekly.Simulant.Core;
 using Tekly.Simulant.Extensions.Systems;
@@ -11,7 +11,9 @@ namespace TeklySample.Samples.CubeMovement
 	/// </summary>
 	public class CubeMovementSimulant : MonoBehaviour
 	{
-		[SerializeField] private GameObject m_template;
+		[SerializeField] private bool m_useGameObjects;
+		[SerializeField] private PrefabData m_prefabData;
+		[SerializeField] private BasicRendererData[] m_meshDatas;
 
 		[Inject] private CubeMovementConfig m_config;
 		[Inject] private World m_world;
@@ -20,15 +22,10 @@ namespace TeklySample.Samples.CubeMovement
 
 		[Inject] private SystemsContainer m_systemsContainer;
 
-		private List<GameObject> m_instances = new List<GameObject>();
-
 		private void OnEnable()
 		{
 			gameObject.SetActive(true);
 
-			m_instances.Clear();
-			m_instances.Capacity = m_config.TotalCubes;
-			
 			for (var x = 0; x < m_config.Rows; x++) {
 				for (var y = 0; y < m_config.Layers; y++) {
 					for (var z = 0; z < m_config.Columns; z++) {
@@ -43,15 +40,12 @@ namespace TeklySample.Samples.CubeMovement
 				.Add<PrefabSystem>()
 				.Add<CubeSystem>()
 				.Add<TransformSystem>()
+				.Add<MeshSystem>()
 				.Init();
 		}
 
 		private void OnDisable()
 		{
-			foreach (var instance in m_instances) {
-				Destroy(instance);
-			}
-
 			m_world.Destroy();
 			m_systemsContainer.Dispose();
 		}
@@ -78,12 +72,15 @@ namespace TeklySample.Samples.CubeMovement
 		{
 			var entity = m_world.Create();
 
-			m_world.Add(entity, new PrefabData {
-				Prefab = m_template
-			});
+			if (m_useGameObjects) {
+				m_world.Add(entity, m_prefabData);
+			} else {
+				m_world.Add(entity, m_meshDatas.Random());
+			}
 
 			ref var transformData = ref m_world.Add<TransformData>(entity);
 			transformData.Position = position;
+			transformData.Scale = Vector3.one;
 
 			ref var cubeData = ref m_world.Add<CubeData>(entity);
 			cubeData.Origin = position;

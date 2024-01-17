@@ -10,6 +10,11 @@ using UnityEngine.Assertions;
 
 namespace Tekly.Simulant.Core
 {
+	public interface IWorldListener
+	{
+		void OnDestroyed(World world);
+	}
+
 	public partial class World : ISuperSerialize
 	{
 		public readonly GrowingArray<EntityData> Entities;
@@ -30,6 +35,7 @@ namespace Tekly.Simulant.Core
 		private readonly GrowingArray<List<Query>> m_queriesExcluding;
 
 		private readonly QueryBuilder m_queryBuilder;
+		private readonly List<IWorldListener> m_listeners = new List<IWorldListener>();
 
 		private const int DATA_TYPE_CAPACITY = 512;
 
@@ -49,14 +55,19 @@ namespace Tekly.Simulant.Core
 
 			m_queryBuilder = new QueryBuilder(this);
 		}
-		
-		public void Destroy() 
+
+		public void Destroy()
 		{
 			for (var i = Entities.Count - 1; i >= 0; i--) {
 				ref var entityData = ref Entities.Data[i];
 				if (entityData.ComponentsCount > 0) {
 					Delete(i);
 				}
+			}
+
+			for (var index = m_listeners.Count - 1; index >= 0; index--) {
+				var listener = m_listeners[index];
+				listener.OnDestroyed(this);
 			}
 		}
 
@@ -69,6 +80,18 @@ namespace Tekly.Simulant.Core
 		{
 			m_queryBuilder.Start();
 			return m_queryBuilder;
+		}
+
+		public Query Query<T>() where T : struct
+		{
+			m_queryBuilder.Include<T>();
+			return m_queryBuilder.Build();
+		}
+
+		public Query Query<T1, T2>() where T1 : struct where T2 : struct
+		{
+			m_queryBuilder.Include<T1, T2>();
+			return m_queryBuilder.Build();
 		}
 
 		internal Query FinalizeQuery(QueryBuilder queryBuilder)
@@ -177,7 +200,8 @@ namespace Tekly.Simulant.Core
 				return;
 			}
 
-			entityData.Generation = (short)(entityData.Generation == short.MaxValue ? -1 : -(entityData.Generation + 1));
+			entityData.Generation =
+				(short)(entityData.Generation == short.MaxValue ? -1 : -(entityData.Generation + 1));
 			m_recycledEntities.Add(entity);
 		}
 
@@ -257,7 +281,7 @@ namespace Tekly.Simulant.Core
 			var pool = GetPool<T>();
 			return ref pool.Get(entity);
 		}
-		
+
 		public void Delete<T>(int entity) where T : struct
 		{
 			var pool = GetPool<T>();
@@ -284,26 +308,36 @@ namespace Tekly.Simulant.Core
 			var rootPoolType = typeof(DataPool<>);
 			var typeParams = new[] { dataType };
 			var poolType = rootPoolType.MakeGenericType(typeParams);
-			
+
 			if (m_poolMap.TryGetValue(dataType, out var rawPool)) {
 				return rawPool;
 			}
-			
+
 			var poolId = m_pools.Count;
-			
+
 			var poolParams = new object[4];
 			poolParams[0] = this;
 			poolParams[1] = poolId;
 			poolParams[2] = EntityCapacity;
 			poolParams[3] = m_config.DataPools;
-			
-			var pool = (IDataPool) Activator.CreateInstance(poolType, poolParams);
-			
+
+			var pool = (IDataPool)Activator.CreateInstance(poolType, poolParams);
+
 			AddPool(pool, dataType);
 
 			return pool;
 		}
-		
+
+		public void AddListener(IWorldListener worldListener)
+		{
+			m_listeners.Add(worldListener);
+		}
+
+		public void RemoveListener(IWorldListener worldListener)
+		{
+			m_listeners.Remove(worldListener);
+		}
+
 		private void AddPool(IDataPool pool, Type poolType)
 		{
 			m_poolMap[poolType] = pool;
