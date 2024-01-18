@@ -2,11 +2,12 @@ using System;
 using JetBrains.Annotations;
 using Tekly.Balance;
 using Tekly.Simulant.Core;
+using Tekly.Simulant.Systems;
 
 namespace Tekly.Simulant.Templates
 {
 	[UsedImplicitly]
-	public class TemplateSystem : IQueryListener, IDisposable
+	public class TemplateSystem : ISystem, IQueryListener, IDisposable
 	{
 		private readonly World m_world;
 		private readonly BalanceManager m_balanceManager;

@@ -1,6 +1,7 @@
 using Tekly.Injectors;
 using Tekly.Simulant.Core;
 using Tekly.Simulant.Extensions.Systems;
+using Tekly.Simulant.Systems;
 using UnityEngine;
 
 namespace TeklySample.Samples.CubeMovement

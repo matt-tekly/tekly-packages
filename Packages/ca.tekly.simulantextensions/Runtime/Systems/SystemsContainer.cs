@@ -2,16 +2,10 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Tekly.Injectors;
+using Tekly.Simulant.Systems;
 
 namespace Tekly.Simulant.Extensions.Systems
 {
-	public interface ISystem { }
-
-	public interface ITickSystem : ISystem
-	{
-		void Tick(float deltaTime);
-	}
-
 	internal class RegisteredSystem
 	{
 		public Type Type;

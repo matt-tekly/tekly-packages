@@ -10,11 +10,13 @@ namespace Tekly.Common.Utils
 		public static void WriteRows(string[] header, List<string[]> data, StringBuilder sb)
 		{
 			var lengths = header.Select(x => x.Length).ToArray();
-			
-			for (var i = 0; i < lengths.Length; i++) {
-				lengths[i] = Math.Max(lengths[i], data.Select(x => x[i].Length).Max());
-			}
 
+			if (data.Count > 0) {
+				for (var i = 0; i < lengths.Length; i++) {
+					lengths[i] = Math.Max(lengths[i], data.Select(x => x[i].Length).Max());
+				}	
+			}
+			
 			WriteRow(header, lengths, sb);
 				
 			foreach (var row in data) {
