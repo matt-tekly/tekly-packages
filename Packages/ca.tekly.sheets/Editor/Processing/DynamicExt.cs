@@ -19,6 +19,11 @@ namespace Tekly.Sheets.Processing
 		{
 			s_serializer.Populate(dynamic, target);
 		}
+
+		public static void RegisterConverter(DynamicConverter converter)
+		{
+			s_serializer.Converters.Register(converter);
+		}
 	}
 	
 	public class DynamicConverterUnityAsset : DynamicConverter
