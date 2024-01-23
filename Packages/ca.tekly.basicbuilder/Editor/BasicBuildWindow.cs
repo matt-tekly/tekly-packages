@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Tekly.Common.Git;
 using Tekly.Common.Gui;
 using UnityEditor;
@@ -165,6 +166,10 @@ namespace Tekly.BasicBuilder
                 using (EditorGuiExt.Horizontal()) {
                     var buildDirectory = BasicBuilder.GetBuildDirectory(EditorUserBuildSettings.activeBuildTarget);
                     if (EditorGUILayout.LinkButton(buildDirectory)) {
+                        if (!Directory.Exists(buildDirectory)) {
+                            Directory.CreateDirectory(buildDirectory);
+                        }
+
                         EditorUtility.RevealInFinder(buildDirectory);
                     }
 
