@@ -7,6 +7,7 @@ namespace Tekly.Simulant.Core
 	{
 		public short Generation;
 		public short ComponentsCount;
+		public short TransientComponents;
 	}
 
 	[Serializable]

@@ -91,7 +91,8 @@ namespace Tekly.Simulant.Core
 			m_data.Data[idx] = data;
 			
 			m_world.OnEntityChangeInternal(entity, Id, Modification.Add);
-			m_world.Entities.Data[entity].ComponentsCount++;
+			
+			IncreaseComponentCount(ref m_world.Entities.Data[entity]);
 
 			m_world.EntityDataChanged(entity, Id);
 		}
@@ -107,7 +108,8 @@ namespace Tekly.Simulant.Core
 			m_data.Data[idx] = data;
 			
 			m_world.OnEntityChangeInternal(entity, Id, Modification.Add);
-			m_world.Entities.Data[entity].ComponentsCount++;
+			
+			IncreaseComponentCount(ref m_world.Entities.Data[entity]);
 
 			m_world.EntityDataChanged(entity, Id);
 		}
@@ -127,7 +129,8 @@ namespace Tekly.Simulant.Core
 
 			m_entityMap.Data[entity] = idx;
 			m_world.OnEntityChangeInternal(entity, Id, Modification.Add);
-			m_world.Entities.Data[entity].ComponentsCount++;
+			
+			IncreaseComponentCount(ref m_world.Entities.Data[entity]);
 
 			m_world.EntityDataChanged(entity, Id);
 
@@ -150,8 +153,9 @@ namespace Tekly.Simulant.Core
 
 			dataIndex = BAD_ID;
 
+			
 			ref var entityData = ref m_world.Entities.Data[entity];
-			entityData.ComponentsCount--;
+			DecreaseComponentCount(ref entityData);
 
 			m_world.EntityDataChanged(entity, Id);
 
@@ -190,6 +194,24 @@ namespace Tekly.Simulant.Core
 			if (true) {
 				// TODO: implement auto reset
 				data = default;
+			}
+		}
+
+		private void IncreaseComponentCount(ref EntityData entityData)
+		{
+			entityData.ComponentsCount++;
+			
+			if (!ShouldSerialize) {
+				entityData.TransientComponents++;
+			}
+		}
+		
+		private void DecreaseComponentCount(ref EntityData entityData)
+		{
+			entityData.ComponentsCount--;
+			
+			if (!ShouldSerialize) {
+				entityData.TransientComponents--;
 			}
 		}
 

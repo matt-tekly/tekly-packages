@@ -30,11 +30,22 @@ namespace Tekly.Simulant.Templates
         public int Construct(World world)
         {
             var entity = world.Create();
+            
+            OnConstruct(world, entity);
+            
             world.Add(entity, new TemplateInstance {
                 Template = name
             });
 			
             return entity;
+        }
+
+        /// <summary>
+        /// Called when the EntityTemplate is first constructed
+        /// </summary>
+        protected virtual void OnConstruct(World world, int entity)
+        {
+            
         }
 
         /// <summary>

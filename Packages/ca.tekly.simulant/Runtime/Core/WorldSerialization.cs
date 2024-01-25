@@ -44,6 +44,11 @@ namespace Tekly.Simulant.Core
 
 			Entities.Count = input.ReadInt();
 			input.ReadBlittable(Entities.Data, Entities.Count);
+
+			for (var i = Entities.Count - 1; i >= 0; i--) {
+				ref var entityData = ref Entities.Data[i];
+				entityData.ComponentsCount -= entityData.TransientComponents;
+			}
 			
 			var recycledEntities = input.ReadInt();
 			m_recycledEntities.Resize(Math.Max(recycledEntities, m_config.EntityCapacity));
@@ -68,7 +73,13 @@ namespace Tekly.Simulant.Core
 				poolParams[1] = i;
 				
 				var typeName = input.ReadString();
+				
+				// TODO: There will need to be type migration if the name of the class changed
 				typeParams[0] = Type.GetType(typeName);
+
+				if (typeParams[0] == null) {
+					throw new Exception("Failed to find type during deserialization: " + typeName);
+				}
 				
 				var poolType = rootPoolType.MakeGenericType(typeParams);
 				var pool = (IDataPool) Activator.CreateInstance(poolType, poolParams);

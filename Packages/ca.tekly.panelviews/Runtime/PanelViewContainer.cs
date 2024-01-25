@@ -17,6 +17,8 @@ namespace Tekly.PanelViews
                 if (m_container != null) {
                     m_container.Inject(panelView);
                 }
+                
+                panelView.gameObject.SetActive(false);
             }
         }
 
