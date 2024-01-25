@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Tekly.Simulant.Collections;
 using Tekly.SuperSerial.Serialization;
 using UnityEngine.Assertions;
@@ -246,30 +247,35 @@ namespace Tekly.Simulant.Core
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Add<T>(int entity, ref T data) where T : struct
 		{
 			var pool = GetPool<T>();
 			pool.Add(ref data, entity);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Add<T>(int entity, T data) where T : struct
 		{
 			var pool = GetPool<T>();
 			pool.Add(ref data, entity);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public ref T Add<T>(int entity) where T : struct
 		{
 			var pool = GetPool<T>();
 			return ref pool.Add(entity);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public ref T Get<T>(int entity) where T : struct
 		{
 			var pool = GetPool<T>();
 			return ref pool.Get(entity);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Delete<T>(int entity) where T : struct
 		{
 			var pool = GetPool<T>();

@@ -44,7 +44,7 @@ namespace Tekly.Simulant.Core
 			sb.AppendLine("---------------------------");
 
 			var rows = DataPools.Select(x => x.AsRow()).ToList();
-			Tableify.WriteRows(new[] { "Type", "Blittable", "Size", "Transient", "Count" }, rows, sb);
+			Tableify.WriteRows(new[] { "Type", "Blittable", "Size", "Transient", "Init", "Recycle", "Count" }, rows, sb);
 
 			sb.AppendLine("---------------------------");
 		}
@@ -56,15 +56,20 @@ namespace Tekly.Simulant.Core
 		public bool Blittable;
 		public int Size;
 		public bool Transient;
+		public bool Init;
+		public bool Recycle;
+		public bool AutoRecycle;
 		public int Count;
-
+		
 		public string[] AsRow()
 		{
 			return new[] {
 				Type,
 				Blittable ? "True" : "False",
-				Transient ? "Transient" : "Persist",
 				Size.ToString(),
+				Transient ? "Transient" : "Persist",
+				Init ? "Init" : "None",
+				Recycle ? "Recycle" : AutoRecycle ? "Auto" : "None",
 				Count.ToString()
 			};
 		}

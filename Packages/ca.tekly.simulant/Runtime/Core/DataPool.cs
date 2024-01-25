@@ -4,6 +4,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Tekly.Common.Utils;
 using Tekly.Simulant.Collections;
 using Tekly.SuperSerial.Serialization;
@@ -19,6 +20,9 @@ namespace Tekly.Simulant.Core
 		public readonly string Name;
 		public readonly Type Type;
 		public readonly bool Transient;
+		public readonly bool Init;
+		public readonly bool Recycle;
+		public readonly bool AutoRecycle;
 
 		public TypeInfo(Type type)
 		{
@@ -26,6 +30,9 @@ namespace Tekly.Simulant.Core
 			Assembly = type.AssemblyQualifiedName;
 			Name = type.Name;
 			Transient = type.Implements<ITransient>();
+			Init = type.Implements<IInit>();
+			Recycle = type.Implements<IRecycle>();
+			AutoRecycle = type.Implements<IAutoRecycle>();
 		}
 
 		public static TypeInfo Create<T>() => new TypeInfo(typeof(T));
@@ -64,6 +71,10 @@ namespace Tekly.Simulant.Core
 
 		private const int BAD_ID = -1;
 		private TypeInfo m_typeInfo;
+		
+		private readonly InitDelegate<T> m_initDelegate;
+		private readonly RecycleDelegate<T> m_recycleDelegate;
+		private readonly bool m_autoRecycle;
 
 		public DataPool(World world, int id, int entityCapacity, DataPoolConfig config)
 		{
@@ -73,6 +84,17 @@ namespace Tekly.Simulant.Core
 			m_data = new GrowingArray<T>(entityCapacity);
 			m_entityMap = new IndexArray<int>(entityCapacity, BAD_ID);
 			m_recycled = new IndexArray<int>(config.RecycleCapacity, BAD_ID);
+
+			if (typeof(T).Implements<IInit>()) {
+				m_initDelegate = DataInit<T>.Init;
+			}
+			
+			if (typeof(T).Implements<IRecycle>()) {
+				m_recycleDelegate = DataRecycle<T>.Recycle;
+			} else if(typeof(T).Implements<IAutoRecycle>()) {
+				m_autoRecycle = true;
+			}
+			
 		}
 
 		public void Resize(int capacity)
@@ -124,7 +146,7 @@ namespace Tekly.Simulant.Core
 				idx = m_recycled.Pop();
 			} else {
 				idx = m_data.Get();
-				AutoReset(ref m_data.Data[idx]);
+				InitData(ref m_data.Data[idx]);
 			}
 
 			m_entityMap.Data[entity] = idx;
@@ -149,10 +171,9 @@ namespace Tekly.Simulant.Core
 			m_world.OnEntityChangeInternal(entity, Id, Modification.Remove);
 
 			m_recycled.Add(dataIndex);
-			AutoReset(ref m_data.Data[dataIndex]);
+			RecycleData(ref m_data.Data[dataIndex]);
 
 			dataIndex = BAD_ID;
-
 			
 			ref var entityData = ref m_world.Entities.Data[entity];
 			DecreaseComponentCount(ref entityData);
@@ -171,11 +192,15 @@ namespace Tekly.Simulant.Core
 			summary.Blittable = UnsafeUtility.IsBlittable<T>();
 			summary.Size = UnsafeUtility.SizeOf<T>();
 			summary.Transient = TypeInfo.Transient;
+			summary.Init = m_initDelegate != null;
+			summary.Recycle = m_recycleDelegate != null;
+			summary.AutoRecycle = m_autoRecycle;
 			summary.Count = Count;
 
 			return summary;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public ref T Get(int entity)
 		{
 			AssertAlive(entity);
@@ -184,20 +209,32 @@ namespace Tekly.Simulant.Core
 			return ref m_data.Data[m_entityMap.Data[entity]];
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool Has(int entity)
 		{
 			AssertAlive(entity);
 			return m_entityMap.Data[entity] != BAD_ID;
 		}
 
-		private void AutoReset(ref T data)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void InitData(ref T data)
 		{
-			if (true) {
-				// TODO: implement auto reset
+			if (m_initDelegate != null) {
+				m_initDelegate.Invoke(ref data);
+			}
+		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void RecycleData(ref T data)
+		{
+			if (m_recycleDelegate != null) {
+				m_recycleDelegate.Invoke(ref data);
+			} else if (m_autoRecycle) {
 				data = default;
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private void IncreaseComponentCount(ref EntityData entityData)
 		{
 			entityData.ComponentsCount++;
@@ -207,6 +244,7 @@ namespace Tekly.Simulant.Core
 			}
 		}
 		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private void DecreaseComponentCount(ref EntityData entityData)
 		{
 			entityData.ComponentsCount--;

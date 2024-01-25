@@ -4,6 +4,10 @@ using Tekly.Simulant.Core;
 
 namespace Tekly.Simulant.Extensions.Injection
 {
+	/// <summary>
+	/// You can register this with an InjectorContainer to automatically resolve injected DataPool<>
+	/// Call injectorContainer.RegisterTypeProvider(new DataPoolProvider(world))
+	/// </summary>
 	public class DataPoolProvider : ITypeInstanceProvider
 	{
 		private readonly World m_world;
