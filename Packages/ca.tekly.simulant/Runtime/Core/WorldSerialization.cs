@@ -47,7 +47,7 @@ namespace Tekly.Simulant.Core
 
 			for (var i = Entities.Count - 1; i >= 0; i--) {
 				ref var entityData = ref Entities.Data[i];
-				entityData.ComponentsCount -= entityData.TransientComponents;
+				entityData.ComponentsCount = entityData.PersistentComponents;
 			}
 			
 			var recycledEntities = input.ReadInt();

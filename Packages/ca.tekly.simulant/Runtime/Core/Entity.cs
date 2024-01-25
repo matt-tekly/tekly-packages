@@ -7,7 +7,7 @@ namespace Tekly.Simulant.Core
 	{
 		public short Generation;
 		public short ComponentsCount;
-		public short TransientComponents;
+		public short PersistentComponents;
 	}
 
 	[Serializable]
@@ -31,7 +31,6 @@ namespace Tekly.Simulant.Core
 		{
 			return world.IsAlive(entityRef.Entity) && world.Entities.Data[entityRef.Entity].Generation == entityRef.Gen;
 		}
-
 		
 		public static bool TryGet(this World world, in EntityRef entityRef, out int entity)
 		{

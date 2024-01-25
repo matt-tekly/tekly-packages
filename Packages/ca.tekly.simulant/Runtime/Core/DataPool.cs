@@ -170,6 +170,7 @@ namespace Tekly.Simulant.Core
 			summary.Type = typeof(T).Name;
 			summary.Blittable = UnsafeUtility.IsBlittable<T>();
 			summary.Size = UnsafeUtility.SizeOf<T>();
+			summary.Transient = TypeInfo.Transient;
 			summary.Count = Count;
 
 			return summary;
@@ -201,8 +202,8 @@ namespace Tekly.Simulant.Core
 		{
 			entityData.ComponentsCount++;
 			
-			if (!ShouldSerialize) {
-				entityData.TransientComponents++;
+			if (!TypeInfo.Transient) {
+				entityData.PersistentComponents++;
 			}
 		}
 		
@@ -210,8 +211,8 @@ namespace Tekly.Simulant.Core
 		{
 			entityData.ComponentsCount--;
 			
-			if (!ShouldSerialize) {
-				entityData.TransientComponents--;
+			if (!TypeInfo.Transient) {
+				entityData.PersistentComponents--;
 			}
 		}
 

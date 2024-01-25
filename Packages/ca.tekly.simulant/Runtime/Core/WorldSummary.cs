@@ -44,7 +44,7 @@ namespace Tekly.Simulant.Core
 			sb.AppendLine("---------------------------");
 
 			var rows = DataPools.Select(x => x.AsRow()).ToList();
-			Tableify.WriteRows(new[] { "Type", "Blittable", "Size", "Count" }, rows, sb);
+			Tableify.WriteRows(new[] { "Type", "Blittable", "Size", "Transient", "Count" }, rows, sb);
 
 			sb.AppendLine("---------------------------");
 		}
@@ -55,6 +55,7 @@ namespace Tekly.Simulant.Core
 		public string Type;
 		public bool Blittable;
 		public int Size;
+		public bool Transient;
 		public int Count;
 
 		public string[] AsRow()
@@ -62,6 +63,7 @@ namespace Tekly.Simulant.Core
 			return new[] {
 				Type,
 				Blittable ? "True" : "False",
+				Transient ? "Transient" : "Persist",
 				Size.ToString(),
 				Count.ToString()
 			};
