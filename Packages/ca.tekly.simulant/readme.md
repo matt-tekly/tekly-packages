@@ -123,11 +123,11 @@ public struct RecycleToDefault : IAutoRecycle { }
 ```
 
 ## Serialization
-- The world can be serialized with Super Serial
+- World can be serialized with Super Serial
 - It supports blittable and regular structs
   - Regular structs are significantly slower and generate garbage unless you implement `ISuperSerialize`
 - Once a blittable type is serialized it only supports having fields added - not removed or reordered
-- If you find you have too many unused fields in your type you could create a new type with only the data you need and deprecate the old type.
+  - If you find you have too many unused fields in your type you could create a new type with only the data you need and deprecate the old type.
   - Post deserialization you would copy the data from one DataPool to the other and remove the old DataPool
 
 ```csharp
@@ -154,7 +154,6 @@ public World Read(string file)
 ```
 
 ### Todo
-
 - There are a bunch of constants for capacity that need to be configurable
 - Should queries be able to be disposed/disconnected?
 - Check for leaked Entities

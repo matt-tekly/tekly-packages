@@ -17,8 +17,6 @@ namespace TeklySample.Samples.CubeMovement
 
 		[Inject] private CubeMovementConfig m_config;
 		[Inject] private World m_world;
-		[Inject] private DataPool<TransformData> m_transforms;
-		[Inject] private DataPool<GameObjectData> m_gameObjects;
 
 		[Inject] private SystemsContainer m_systemsContainer;
 
@@ -42,6 +40,8 @@ namespace TeklySample.Samples.CubeMovement
 				.Add<TransformSystem>()
 				.Add<MeshSystem>()
 				.Init();
+			
+			Debug.Log(m_world.GetSummary());
 		}
 
 		private void OnDisable()

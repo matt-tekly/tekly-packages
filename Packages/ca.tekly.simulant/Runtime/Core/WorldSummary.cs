@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Tekly.Common.Utils;
@@ -11,7 +12,7 @@ namespace Tekly.Simulant.Core
 			return new WorldSummary {
 				EntityCount = Entities.Count,
 				EntityRecycled = m_recycledEntities.Count,
-				DataPools = m_poolMap.Values.Select(x => x.GetSummary()).ToArray()
+				DataPools = m_poolMap.Values.Select(x => x.GetSummary()).OrderBy(x => x.Type).ToArray()
 			};
 		}
 	}
@@ -32,21 +33,23 @@ namespace Tekly.Simulant.Core
 
 		public void ToString(StringBuilder sb)
 		{
-			sb.AppendLine("World");
-			sb.AppendLine("---------------------------");
-			sb.AppendLine($"Entities: [{EntityCount}]");
-			sb.AppendLine($"Recycled: [{EntityRecycled}]");
-			sb.AppendLine("---------------------------");
+			sb.AppendLine("World Summary");
+			sb.AppendLine("------------------------------------------------------------------------------------------");
+			var worldHeaders = new[] { "Entities", "Recycled" };
+			var worldRow = new List<string[]> { new[] { $"{EntityCount - EntityRecycled}", $"{EntityRecycled}" } };
+			Tableify.WriteRows(worldHeaders, worldRow, sb);
+			sb.AppendLine("------------------------------------------------------------------------------------------");
 
 			sb.AppendLine();
 
-			sb.AppendLine("Data");
-			sb.AppendLine("---------------------------");
+			sb.AppendLine("Data Pool Summary");
+			sb.AppendLine("------------------------------------------------------------------------------------------");
 
 			var rows = DataPools.Select(x => x.AsRow()).ToList();
-			Tableify.WriteRows(new[] { "Type", "Blittable", "Size", "Transient", "Init", "Recycle", "Count" }, rows, sb);
+			var poolHeaders = new[] { "Type", "Blittable", "Size", "Transient", "Init", "Recycle", "Count" };
+			Tableify.WriteRows(poolHeaders, rows, sb);
 
-			sb.AppendLine("---------------------------");
+			sb.AppendLine("------------------------------------------------------------------------------------------");
 		}
 	}
 
@@ -60,7 +63,7 @@ namespace Tekly.Simulant.Core
 		public bool Recycle;
 		public bool AutoRecycle;
 		public int Count;
-		
+
 		public string[] AsRow()
 		{
 			return new[] {

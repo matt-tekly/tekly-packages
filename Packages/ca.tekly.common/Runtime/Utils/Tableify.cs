@@ -18,7 +18,7 @@ namespace Tekly.Common.Utils
 			}
 			
 			WriteRow(header, lengths, sb);
-				
+
 			foreach (var row in data) {
 				WriteRow(row, lengths, sb);
 			}
@@ -31,7 +31,7 @@ namespace Tekly.Common.Utils
 				var length = lengths[index];
 
 				sb.Append(column.PadRight(length));
-				sb.Append(" ");
+				sb.Append("     ");
 			}
 			
 			sb.AppendLine();

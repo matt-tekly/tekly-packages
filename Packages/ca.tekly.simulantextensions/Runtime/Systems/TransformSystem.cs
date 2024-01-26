@@ -8,11 +8,17 @@ using UnityEngine.Jobs;
 
 namespace Tekly.Simulant.Extensions.Systems
 {
-	public struct TransformData
+	public struct TransformData : IInit
 	{
 		public Vector3 Position;
 		public Quaternion Rotation;
 		public Vector3 Scale;
+		
+		public void Init()
+		{
+			Rotation = Quaternion.identity;
+			Scale = Vector3.one;
+		}
 	}
 
 	public struct GameObjectData : ITransient
