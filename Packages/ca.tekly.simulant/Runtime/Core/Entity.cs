@@ -15,6 +15,8 @@ namespace Tekly.Simulant.Core
 	{
 		public int Entity;
 		public int Gen;
+
+		public static readonly EntityRef Invalid = new EntityRef { Entity = -1, Gen = -1 };
 	}
 
 	public static class EntityExtensions

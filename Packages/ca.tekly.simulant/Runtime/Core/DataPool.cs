@@ -94,7 +94,6 @@ namespace Tekly.Simulant.Core
 			} else if(typeof(T).Implements<IAutoRecycle>()) {
 				m_autoRecycle = true;
 			}
-			
 		}
 
 		public void Resize(int capacity)
@@ -264,7 +263,7 @@ namespace Tekly.Simulant.Core
 		private void AssertNotExists(int entity)
 		{
 			if (m_entityMap.Data[entity] != BAD_ID) {
-				throw new Exception($"Component [{GetType().Name}] already exists on Entity");
+				throw new Exception($"Component [{TypeInfo.Name}] already exists on Entity");
 			}
 		}
 
@@ -272,7 +271,7 @@ namespace Tekly.Simulant.Core
 		private void AssertExists(int entity)
 		{
 			if (m_entityMap.Data[entity] == BAD_ID) {
-				throw new Exception($"Component [{GetType().Name}] does not exist on Entity");
+				throw new Exception($"Component [{TypeInfo.Name}] does not exist on Entity");
 			}
 		}
 	}
