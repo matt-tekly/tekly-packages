@@ -1,10 +1,10 @@
-﻿using Tekly.Common.Collections;
+﻿using System.Collections.Generic;
 
 namespace Tekly.Common.Sequences
 {
     public class SequenceRunner
     {
-        private readonly SafeList<Sequence> m_sequences = new SafeList<Sequence>();
+        private readonly List<Sequence> m_sequences = new List<Sequence>();
 
         public bool AnyActive => m_sequences.Count > 0;
         
