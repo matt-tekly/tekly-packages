@@ -7,15 +7,20 @@ A dependency injection library. Provides very basic functionality.
 	- Contains the instances of objects that will be injected into other objects
 	- You can register instances or use factory functions
 	- InjectorContainers can be constructed with a parent InjectorContainer
-		- If an InjectorContainer doesn't contain a dependency it will then look in its parent
+		- If an InjectorContainer doesn't contain a dependency it will look in its parent
 - Injector
 	- Given an InjectorContainer and a target object this will inject the dependencies into the target
 	- Only fields marked with `[Inject]` and methods marked with `[Inject]` will be injected into
 - HierarchyInjector
 	- A MonoBehaviour that collects child MonoBehaviours that have `[Inject]` on any fields or methods
 	- This is only done in the editor at edit time. It will not find MonoBehaviours that are dynamically added
-	- I generally put a `HierarchyInjector` at the root of prefabs and use that to inject into the prefabs components when I instantiate it
-
+	- A common use case is to have a `HierarchyInjector` at the root of a prefab and is used to resolve all dependencies needed in that prefab
+- InjectorContainerRef
+  - A ScriptableObject that contains a InjectorContainerRef. 
+  - The InjectorContainer must be initialized by user code before something accesses it
+  - This allows you to access that InjectorContainer any where
+  - Commonly used to have a Prefab inject into itself using the InjectorContainerRef's container
+  - Commonly used to allow different TreeState machines to share InjectorContainers
 
 ## Example
 
@@ -75,19 +80,19 @@ public class App : MonoBehaviour
 	[SerializeField] private EnemyPawn m_enemyPawnTemplate;
 	
 	private EnemyPawn m_enemyPawnA;
-    	private EnemyPawn m_enemyPawnB;
+	private EnemyPawn m_enemyPawnB;
 
 	public void Awake()
 	{
-	        var container = new InjectorContainer();
-	        
-	        // Registers GameService as the subgke implementation for IGameService. 
-	        // It will be constructed on demand.
-	        container.Singleton<GameService, IGameService>(); 
-	        
-	        // Registers Enemy to the container. 
-	        // A new Enemy will be created whenever an Enemy needs to be injected into something.
-	        container.Factory<Enemy>(); 
+		var container = new InjectorContainer();
+		
+		// Registers GameService as the single implementation for IGameService. 
+		// A single instance of GameService will be created on demand.
+		container.Singleton<GameService, IGameService>(); 
+		
+		// Registers Enemy to the container. 
+		// A new Enemy will be created whenever an Enemy needs to be injected into something.
+		container.Factory<Enemy>(); 
 
 		// Registers m_camera as the instance that will be injected when a Camera is needed
 		container.Register(m_camera);
