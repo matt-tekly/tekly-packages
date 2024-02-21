@@ -18,12 +18,14 @@ namespace Tekly.TwoD.Tiles
 		public TextureCompressionQuality CompressionQuality => m_textureCompressionQuality;
 		public FilterMode FilterMode => m_filterMode;
 		public int PixelsPerUnit => m_pixelsPerUnit;
+		public bool GenerateTiles => m_generateTiles;
 		
 		[SerializeField] private TextureFormat m_textureFormat = TextureFormat.RGBA32;
 		[SerializeField] private TextureCompressionQuality m_textureCompressionQuality = TextureCompressionQuality.Best;
 		[SerializeField] private FilterMode m_filterMode = FilterMode.Point;
 		
 		[SerializeField] private int m_pixelsPerUnit = 100;
+		[SerializeField] private bool m_generateTiles = true;
 	}
 	
 	[ScriptedImporter(0, "tiles")]
@@ -50,15 +52,17 @@ namespace Tekly.TwoD.Tiles
 				ctx.AddObjectToAsset(sprite.name, sprite);
 			}
 
-			var tileCollection = GenerateTiles(asepriteData, sprites);
-			tileCollection.name = Path.GetFileNameWithoutExtension(ctx.assetPath);
+			if (m_settings.GenerateTiles) {
+				var tileCollection = GenerateTiles(asepriteData, sprites);
+				tileCollection.name = Path.GetFileNameWithoutExtension(ctx.assetPath);
 			
-			foreach (var tile in tileCollection.Tiles) {
-				ctx.AddObjectToAsset(tile.name, tile);
+				foreach (var tile in tileCollection.Tiles) {
+					ctx.AddObjectToAsset(tile.name, tile);
+				}
+			
+				ctx.AddObjectToAsset("main", tileCollection);
+				ctx.SetMainObject(tileCollection);
 			}
-			
-			ctx.AddObjectToAsset("main", tileCollection);
-			ctx.SetMainObject(tileCollection);
 		}
 
 		private static Sprite[] GenerateSprites(Texture2D texture, AsepriteData data, TilesImporterSettings settings)

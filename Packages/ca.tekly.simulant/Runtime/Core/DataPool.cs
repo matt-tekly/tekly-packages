@@ -171,7 +171,8 @@ namespace Tekly.Simulant.Core
 
 			m_recycled.Add(dataIndex);
 			RecycleData(ref m_data.Data[dataIndex]);
-
+			m_data.Count--;
+			
 			dataIndex = BAD_ID;
 			
 			ref var entityData = ref m_world.Entities.Data[entity];

@@ -56,6 +56,26 @@ namespace Tekly.Simulant.Core
 		}
 		
 		[Test]
+		public void AddAndDeleteEntity()
+		{
+			var world = new World();
+			var pool = world.GetPool<Identity>();
+
+			var entity = world.Create();
+			
+			ref var identity = ref pool.Add(entity);
+			identity.Id = "Test Id 0";
+			
+			var retrievedIdentity = pool.Get(entity);
+			
+			Assert.That(identity.Id, Is.EqualTo(retrievedIdentity.Id));
+			
+			world.Delete(entity);
+			
+			Assert.That(pool.Count, Is.EqualTo(0));
+		}
+		
+		[Test]
 		public void Init()
 		{
 			var world = new World();
