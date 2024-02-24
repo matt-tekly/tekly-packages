@@ -10,7 +10,7 @@ namespace Tekly.Simulant.Collections
 		{
 			const int DEFAULT = -1;
 			
-			var arr = new IndexArray<int>(2, DEFAULT);
+			var arr = new IndexArray(2, DEFAULT);
 			
 			Assert.That(arr.Data[0], Is.EqualTo(DEFAULT));
 			Assert.That(arr.Data[1], Is.EqualTo(DEFAULT));

@@ -3,18 +3,18 @@ using System.Runtime.CompilerServices;
 
 namespace Tekly.Simulant.Collections
 {
-	public class IndexArray<T>
+	public class IndexArray
 	{
-		public T[] Data;
+		public int[] Data;
 		public int Count;
 
 		public bool IsFull => Count == Data.Length;
 
-		private readonly T m_defaultValue;
+		private readonly int m_defaultValue;
 		
-		public IndexArray(int capacity, T defaultValue)
+		public IndexArray(int capacity, int defaultValue)
 		{
-			Data = new T[capacity];
+			Data = new int[capacity];
 			m_defaultValue = defaultValue;
 			Count = 0;
 			
@@ -22,11 +22,11 @@ namespace Tekly.Simulant.Collections
 		}
 		
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public int Add(T data)
+		public int Add(int data)
 		{
 			var index = Count;
 			if (Count == Data.Length) {
-				Array.Resize(ref Data, Count << 1);
+				Array.Resize(ref Data, Count * 2);
 			}
 
 			Data[index] = data;
@@ -36,7 +36,7 @@ namespace Tekly.Simulant.Collections
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public T Pop()
+		public int Pop()
 		{
 			var value = Data[--Count];
 			Data[Count] = m_defaultValue;
@@ -49,7 +49,7 @@ namespace Tekly.Simulant.Collections
 			var index = Count;
 		
 			if (Count == Data.Length) {
-				Array.Resize (ref Data, Count << 1);
+				Array.Resize (ref Data, Count * 2);
 			}
 		
 			Count++;
@@ -60,6 +60,10 @@ namespace Tekly.Simulant.Collections
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Resize(int capacity)
 		{
+			if (capacity <= Data.Length) {
+				return;
+			}
+			
 			var startCount = Data.Length; 
 			Array.Resize(ref Data, capacity);
 			Array.Fill(Data, m_defaultValue, startCount, capacity - startCount);

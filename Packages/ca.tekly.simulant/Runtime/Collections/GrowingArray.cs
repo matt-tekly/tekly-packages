@@ -19,7 +19,7 @@ namespace Tekly.Simulant.Collections
 		{
 			var index = Count;
 			if (Count == Data.Length) {
-				Array.Resize(ref Data, Count << 1);
+				Array.Resize(ref Data, Count * 2);
 			}
 
 			Data[index] = data;
@@ -28,17 +28,17 @@ namespace Tekly.Simulant.Collections
 			return index;
 		}
 
-		public T Pop()
+		public ref T Pop()
 		{
-			return Data[--Count];
+			return ref Data[--Count];
 		}
-
+		
 		public int Get()
 		{
 			var index = Count;
 			
 			if (Count == Data.Length) {
-				Array.Resize (ref Data, Count << 1);
+				Array.Resize (ref Data, Count * 2);
 			}
 			
 			Count++;
@@ -49,19 +49,6 @@ namespace Tekly.Simulant.Collections
 		public void Resize(int capacity)
 		{
 			Array.Resize(ref Data, capacity);
-		}
-
-		public T[] Compacted()
-		{
-			var items = new T[Count];
-			Array.Copy(Data, items, Count);
-
-			return items;
-		}
-
-		public bool Contains(T value)
-		{
-			return Array.IndexOf(Data, value, 0, Count) >= 0;
 		}
 	}
 }

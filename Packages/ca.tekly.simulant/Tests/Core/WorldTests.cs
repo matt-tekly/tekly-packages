@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using NUnit.Framework;
 using Tekly.SuperSerial.Serialization;
@@ -77,18 +78,14 @@ namespace Tekly.Simulant.Core
 		public void Serialize()
 		{
 			const string ID = "TEST_ID";
-
-			using var memoryStream = new MemoryStream();
-			using var outputStream = new TokenOutputStream(memoryStream);
-			var serializer = new SuperSerializer();
-
+			
 			var worldA = new World();
 
 			for (var i = 0; i < 1000; i++) {
 				var entity = worldA.Create();
-
+				
 				worldA.Add(entity, new CountData { Count = i });
-				worldA.Add<FlagData>(entity);
+				worldA.Add<FlagData>(entity);	
 			}
 
 			var entity1 = worldA.Create();
@@ -99,15 +96,8 @@ namespace Tekly.Simulant.Core
 			worldA.Add<FlagData>(entity2);
 
 			worldA.GetPool<NotUsedData>();
-
-			serializer.Write(outputStream, worldA);
-			outputStream.Flush();
-
-			memoryStream.Seek(0, SeekOrigin.Begin);
-
-			using var inputStream = new TokenInputStream(memoryStream, true);
-			var worldB = new World();
-			serializer.Read(inputStream, worldB);
+			
+			var worldB = SerializeDeserialize(worldA);
 
 			Assert.That(worldB.Entities.Count, Is.EqualTo(worldA.Entities.Count));
 
@@ -128,27 +118,56 @@ namespace Tekly.Simulant.Core
 		[Test]
 		public void TransientSerialize()
 		{
-			using var memoryStream = new MemoryStream();
-			using var outputStream = new TokenOutputStream(memoryStream);
-			var serializer = new SuperSerializer();
-
 			var worldA = new World();
 			
 			var entity = worldA.Create();
 			worldA.Add<Transient>(entity);
 			worldA.Add<FlagData>(entity);
+			
+			var worldB = SerializeDeserialize(worldA);
+			
+			Assert.That(worldB.GetPool<Transient>().Count, Is.EqualTo(0));
+			Assert.That(worldB.GetPool<FlagData>().Count, Is.EqualTo(1));
+		}
+		
+		[Test]
+		public void AddAndDeleteSerialize()
+		{
+			var worldA = new World();
 
-			serializer.Write(outputStream, worldA);
+			var entityA = worldA.Create();
+			var entityB = worldA.Create();
+			var entityC = worldA.Create();
+
+			worldA.Add<FlagData>(entityA);
+			worldA.Add<FlagData>(entityB);
+			worldA.Add<FlagData>(entityC);
+			
+			worldA.Delete(entityB);
+
+			var worldB = SerializeDeserialize(worldA);
+			Assert.That(worldB.GetPool<FlagData>().Count, Is.EqualTo(2));
+
+			worldB.Get<FlagData>(entityA);
+			worldB.Get<FlagData>(entityC);
+		}
+
+		private World SerializeDeserialize(World serializedWorld)
+		{
+			using var memoryStream = new MemoryStream();
+			using var outputStream = new TokenOutputStream(memoryStream);
+			var serializer = new SuperSerializer();
+			
+			serializer.Write(outputStream, serializedWorld);
 			outputStream.Flush();
 
 			memoryStream.Seek(0, SeekOrigin.Begin);
 
 			using var inputStream = new TokenInputStream(memoryStream, true);
-			var worldB = new World();
-			serializer.Read(inputStream, worldB);
-			
-			Assert.That(worldB.GetPool<Transient>().Count, Is.EqualTo(0));
-			Assert.That(worldB.GetPool<FlagData>().Count, Is.EqualTo(1));
+			var deserializedWorld = new World();
+			serializer.Read(inputStream, deserializedWorld);
+
+			return deserializedWorld;
 		}
 	}
 }

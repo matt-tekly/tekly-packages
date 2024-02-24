@@ -19,8 +19,8 @@ namespace Tekly.Simulant.Core
 		public readonly int[] Includes;
 		public readonly int[] Excludes;
 
-		private readonly IndexArray<int> m_entities;
-		private readonly IndexArray<int> m_entityMap;
+		private readonly IndexArray m_entities;
+		private readonly IndexArray m_entityMap;
 
 		private readonly GrowingArray<DelayedOp> m_delayedOps;
 
@@ -36,8 +36,8 @@ namespace Tekly.Simulant.Core
 			Includes = includes;
 			Excludes = excludes;
 
-			m_entities = new IndexArray<int>(entityCapacity, BAD_ID);
-			m_entityMap = new IndexArray<int>(mapCapacity, BAD_ID);
+			m_entities = new IndexArray(entityCapacity, BAD_ID);
+			m_entityMap = new IndexArray(mapCapacity, BAD_ID);
 
 			m_delayedOps = new GrowingArray<DelayedOp>(512);
 		}
@@ -53,7 +53,7 @@ namespace Tekly.Simulant.Core
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public IndexArray<int> GetRawEntities()
+		public IndexArray GetRawEntities()
 		{
 			return m_entities;
 		}

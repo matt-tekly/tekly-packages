@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Tekly.Simulant.Collections;
 using UnityEngine.Assertions;
 
@@ -8,13 +9,15 @@ namespace Tekly.Simulant.Core
 	{
 		public int Hash;
 		
-		private readonly GrowingArray<int> m_includes = new GrowingArray<int>(8);
-		private readonly GrowingArray<int> m_excludes = new GrowingArray<int>(8);
+		private readonly List<int> m_includes = new List<int>(8);
+		private readonly List<int> m_excludes = new List<int>(8);
 		
 		private readonly World m_world;
 
 		private bool m_isBuilding;
 		
+		private static readonly Comparison<int> s_compareInt = (a, b) => a - b;
+			
 		public QueryBuilder(World world)
 		{
 			m_world = world;
@@ -61,8 +64,8 @@ namespace Tekly.Simulant.Core
 
 		public Query Build()
 		{
-			Array.Sort(m_includes.Data, 0, m_includes.Count);
-			Array.Sort(m_excludes.Data, 0, m_excludes.Count);
+			m_includes.Sort(s_compareInt);
+			m_excludes.Sort(s_compareInt);
 
 			Hash = 17;
 			
@@ -70,10 +73,10 @@ namespace Tekly.Simulant.Core
 			Hash = Hash * 31 + m_excludes.Count;
 			
 			for (int i = 0, iMax = m_includes.Count; i < iMax; i++) {
-				Hash = Hash * 31 + m_includes.Data[i];
+				Hash = Hash * 31 + m_includes[i];
 			}
 			for (int i = 0, iMax = m_excludes.Count; i < iMax; i++) {
-				Hash = Hash * 31 - m_excludes.Data[i];
+				Hash = Hash * 31 - m_excludes[i];
 			}
 
 			return m_world.FinalizeQuery(this);
@@ -81,8 +84,8 @@ namespace Tekly.Simulant.Core
 
 		public (int[] includes, int[] excludes) Compact()
 		{
-			var includes = m_includes.Compacted();
-			var excludes = m_excludes.Compacted();
+			var includes = m_includes.ToArray();
+			var excludes = m_excludes.ToArray();
 			
 			Reset();
 			
@@ -94,8 +97,8 @@ namespace Tekly.Simulant.Core
 			Hash = 0;
 			m_isBuilding = false;
 			
-			m_includes.Count = 0;
-			m_excludes.Count = 0;
+			m_includes.Clear();
+			m_excludes.Clear();
 		}
 	}
 }

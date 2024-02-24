@@ -60,14 +60,14 @@ namespace Tekly.Simulant.Core
 		public Type DataType => typeof(T);
 
 		public TypeInfo TypeInfo => m_typeInfo ??= TypeInfo.Create<T>();
-		public int Count => m_data.Count;
+		public int Count => m_data.Count - m_recycled.Count;
 
 		public bool ShouldSerialize => m_data.Count > 0 && !TypeInfo.Transient;
 
 		private readonly World m_world;
 		private readonly GrowingArray<T> m_data;
-		private readonly IndexArray<int> m_entityMap;
-		private readonly IndexArray<int> m_recycled;
+		private readonly IndexArray m_entityMap;
+		private readonly IndexArray m_recycled;
 
 		private const int BAD_ID = -1;
 		private TypeInfo m_typeInfo;
@@ -82,8 +82,8 @@ namespace Tekly.Simulant.Core
 			Id = id;
 
 			m_data = new GrowingArray<T>(entityCapacity);
-			m_entityMap = new IndexArray<int>(entityCapacity, BAD_ID);
-			m_recycled = new IndexArray<int>(config.RecycleCapacity, BAD_ID);
+			m_entityMap = new IndexArray(entityCapacity, BAD_ID);
+			m_recycled = new IndexArray(config.RecycleCapacity, BAD_ID);
 
 			if (typeof(T).Implements<IInit>()) {
 				m_initDelegate = DataInit<T>.Init;
@@ -106,7 +106,7 @@ namespace Tekly.Simulant.Core
 			AssertAlive(entity);
 			AssertNotExists(entity);
 
-			var idx = m_data.Get();
+			var idx = m_recycled.Count > 0 ? m_recycled.Pop() : m_data.Get();
 
 			m_entityMap.Data[entity] = idx;
 			m_data.Data[idx] = data;
@@ -123,7 +123,7 @@ namespace Tekly.Simulant.Core
 			AssertAlive(entity);
 			AssertNotExists(entity);
 
-			var idx = m_data.Get();
+			var idx = m_recycled.Count > 0 ? m_recycled.Pop() : m_data.Get();
 
 			m_entityMap.Data[entity] = idx;
 			m_data.Data[idx] = data;
@@ -169,9 +169,13 @@ namespace Tekly.Simulant.Core
 
 			m_world.OnEntityChangeInternal(entity, Id, Modification.Remove);
 
-			m_recycled.Add(dataIndex);
 			RecycleData(ref m_data.Data[dataIndex]);
-			m_data.Count--;
+			
+			if (dataIndex == m_data.Count - 1) {
+				m_data.Count--;	
+			} else {
+				m_recycled.Add(dataIndex);
+			}
 			
 			dataIndex = BAD_ID;
 			
