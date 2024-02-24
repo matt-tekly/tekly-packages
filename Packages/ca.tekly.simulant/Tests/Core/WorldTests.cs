@@ -138,18 +138,21 @@ namespace Tekly.Simulant.Core
 			var entityA = worldA.Create();
 			var entityB = worldA.Create();
 			var entityC = worldA.Create();
+			var entityD = worldA.Create();
 
 			worldA.Add<FlagData>(entityA);
 			worldA.Add<FlagData>(entityB);
 			worldA.Add<FlagData>(entityC);
+			worldA.Add<FlagData>(entityD);
 			
 			worldA.Delete(entityB);
+			worldA.Delete(entityC);
 
 			var worldB = SerializeDeserialize(worldA);
 			Assert.That(worldB.GetPool<FlagData>().Count, Is.EqualTo(2));
 
 			worldB.Get<FlagData>(entityA);
-			worldB.Get<FlagData>(entityC);
+			worldB.Get<FlagData>(entityD);
 		}
 
 		private World SerializeDeserialize(World serializedWorld)

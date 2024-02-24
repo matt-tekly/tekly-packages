@@ -25,6 +25,12 @@ namespace Tekly.Simulant.Core
 				}
 			}
 			
+			output.Write(m_recycled.Count);
+			
+			if (m_recycled.Count > 0) {
+				output.WriteBlittable(m_recycled.Data, m_recycled.Count);	
+			}
+			
 			for (int i = 0, length = m_entityMap.Data.Length; i < length; i++) {
 				var dataIndex = m_entityMap.Data[i];
 				if (dataIndex != BAD_ID) {
@@ -32,9 +38,6 @@ namespace Tekly.Simulant.Core
 					output.Write(m_entityMap.Data[i]); // Data Index	
 				}
 			}
-			
-			output.Write(m_recycled.Count);
-			output.WriteBlittable(m_recycled.Data, m_recycled.Count);
 		}
 
 		public void Read(TokenInputStream input, SuperSerializer superSerializer)
@@ -59,19 +62,21 @@ namespace Tekly.Simulant.Core
 				}
 			}
 
-			m_entityMap.Count = entityCount;
+			var recycledCount = input.ReadInt();
+			if (recycledCount > 0) {
+				m_recycled.Resize(recycledCount);
+				m_recycled.Count = recycledCount;
+				input.ReadBlittable(m_recycled.Data, recycledCount);	
+			}
+			
+			m_entityMap.Count = entityCount - recycledCount;
 
-			for (var i = 0; i < entityCount; i++) {
+			for (var i = 0; i < m_entityMap.Count; i++) {
 				var entityId = input.ReadInt();
 				var dataIndex = input.ReadInt();
 
 				m_entityMap.Data[entityId] = dataIndex;
 			}
-
-			var recycledCount = input.ReadInt();
-			m_recycled.Resize(recycledCount);
-			m_recycled.Count = recycledCount;
-			input.ReadBlittable(m_recycled.Data, recycledCount);
 		}
 	}
 }
