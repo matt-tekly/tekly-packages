@@ -11,12 +11,17 @@ namespace Tekly.Simulant.Core
 	}
 
 	[Serializable]
-	public struct EntityRef
+	public struct EntityRef : IEquatable<EntityRef>
 	{
 		public int Entity;
 		public int Gen;
 
+		public bool IsValid => Entity != -1 && Gen != -1;
 		public static readonly EntityRef Invalid = new EntityRef { Entity = -1, Gen = -1 };
+
+		public bool Equals(EntityRef other) => Entity == other.Entity && Gen == other.Gen;
+		public override bool Equals(object obj) => obj is EntityRef other && Equals(other);
+		public override int GetHashCode() => HashCode.Combine(Entity, Gen);
 	}
 
 	public static class EntityExtensions
@@ -31,7 +36,9 @@ namespace Tekly.Simulant.Core
 
 		public static bool IsValidRef(in EntityRef entityRef, World world)
 		{
-			return world.IsAlive(entityRef.Entity) && world.Entities.Data[entityRef.Entity].Generation == entityRef.Gen;
+			return entityRef.IsValid 
+			       && world.IsAlive(entityRef.Entity) 
+			       && world.Entities.Data[entityRef.Entity].Generation == entityRef.Gen;
 		}
 		
 		public static bool TryGet(this World world, in EntityRef entityRef, out int entity)

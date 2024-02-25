@@ -2,7 +2,6 @@ using NUnit.Framework;
 
 namespace Tekly.Common.Utils
 {
-	
 	[TestFixture]
 	public class VersionNumberTests
 	{
@@ -11,12 +10,12 @@ namespace Tekly.Common.Utils
 		{
 			const string versionString = "1.2.3";
 			VersionNumber.TryParse(versionString, out var version);
-			
+
 			Assert.That(version.Major, Is.EqualTo(1));
 			Assert.That(version.Minor, Is.EqualTo(2));
 			Assert.That(version.Patch, Is.EqualTo(3));
 		}
-		
+
 		[TestCase("1.0.0", "2.0.0", -1)]
 		[TestCase("1.2.0", "2.0.0", -1)]
 		[TestCase("1.2.3", "2.0.0", -1)]
@@ -29,17 +28,15 @@ namespace Tekly.Common.Utils
 			VersionNumber.TryParse(stringVersionA, out var versionA);
 			VersionNumber.TryParse(stringVersionB, out var versionB);
 
-			bool result;
-			
-			if (comparison == -1) {
-				result = versionA < versionB;
-			} else if (comparison == 1) {
-				result = versionA > versionB;
-			} else {
-				result = versionA == versionB;
-			}
-				
-			Assert.That(result, Is.True );
+			Assert.That(versionA.CompareTo(versionB), Is.EqualTo(comparison));
+
+			var result = comparison switch {
+				-1 => versionA < versionB,
+				1 => versionA > versionB,
+				_ => versionA == versionB
+			};
+
+			Assert.That(result, Is.True);
 		}
 	}
 }
