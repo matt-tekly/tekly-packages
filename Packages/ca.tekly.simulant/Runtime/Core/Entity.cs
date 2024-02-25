@@ -22,6 +22,9 @@ namespace Tekly.Simulant.Core
 		public bool Equals(EntityRef other) => Entity == other.Entity && Gen == other.Gen;
 		public override bool Equals(object obj) => obj is EntityRef other && Equals(other);
 		public override int GetHashCode() => HashCode.Combine(Entity, Gen);
+		
+		public static bool operator ==(EntityRef left, EntityRef right) => left.Equals(right);
+		public static bool operator !=(EntityRef left, EntityRef right) => !left.Equals(right);
 	}
 
 	public static class EntityExtensions
