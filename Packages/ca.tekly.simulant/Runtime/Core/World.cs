@@ -274,6 +274,20 @@ namespace Tekly.Simulant.Core
 			var pool = GetPool<T>();
 			return ref pool.Get(entity);
 		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool TryGet<T>(int entity, out T value) where T : struct
+		{
+			var pool = GetPool<T>();
+			return pool.TryGet(entity, out value);
+		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool Has<T>(int entity) where T : struct
+		{
+			var pool = GetPool<T>();
+			return pool.Has(entity);
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Delete<T>(int entity) where T : struct
@@ -297,7 +311,7 @@ namespace Tekly.Simulant.Core
 			return pool;
 		}
 
-		public IDataPool GetPool(Type dataType)
+		public IDataPool GetPoolForDataType(Type dataType)
 		{
 			var rootPoolType = typeof(DataPool<>);
 			var typeParams = new[] { dataType };

@@ -26,7 +26,7 @@ namespace Tekly.Simulant.Extensions.Injection
 		public IInstanceProvider Provide(Type type)
 		{
 			var dataType = type.GetGenericArguments()[0];
-			return InstanceProvider.Create(type, m_world.GetPool(dataType));
+			return InstanceProvider.Create(type, m_world.GetPoolForDataType(dataType));
 		}
 	}
 }

@@ -212,6 +212,21 @@ namespace Tekly.Simulant.Core
 
 			return ref m_data.Data[m_entityMap.Data[entity]];
 		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool TryGet(int entity, out T value)
+		{
+			AssertAlive(entity);
+			AssertExists(entity);
+
+			if (m_entityMap.Data[entity] != BAD_ID) {
+				value = Get(entity);
+				return true;
+			}
+
+			value = default;
+			return false;
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool Has(int entity)
