@@ -22,6 +22,8 @@ namespace Tekly.Simulant.Extensions.Systems
 
 		private readonly List<ISystem> m_systems = new List<ISystem>();
 		private readonly List<ITickSystem> m_tickSystems = new List<ITickSystem>();
+		private readonly List<ITickLateSystem> m_tickLateSystems = new List<ITickLateSystem>();
+		private readonly List<ITickEndSystem> m_tickEndSystems = new List<ITickEndSystem>();
 		private readonly List<IDisposable> m_disposables = new List<IDisposable>();
 
 		public SystemsContainer(InjectorContainer container)
@@ -45,6 +47,8 @@ namespace Tekly.Simulant.Extensions.Systems
 			}
 
 			Filter(m_systems, m_tickSystems);
+			Filter(m_systems, m_tickLateSystems);
+			Filter(m_systems, m_tickEndSystems);
 			Filter(m_systems, m_disposables);
 		}
 
@@ -52,6 +56,14 @@ namespace Tekly.Simulant.Extensions.Systems
 		{
 			foreach (var tickSystem in m_tickSystems) {
 				tickSystem.Tick(deltaTime);
+			}
+			
+			foreach (var tickSystem in m_tickLateSystems) {
+				tickSystem.TickLate(deltaTime);
+			}
+			
+			foreach (var tickSystem in m_tickEndSystems) {
+				tickSystem.TickEnd(deltaTime);
 			}
 		}
 
@@ -68,7 +80,7 @@ namespace Tekly.Simulant.Extensions.Systems
 		public SystemsContainer Delete<T>() where T : struct
 		{
 			var pendingSystem = new RegisteredSystem {
-				Type = typeof(DeleteComponentSystem<T>)
+				Type = typeof(DeleteDataSystem<T>)
 			};
 			
 			m_registeredSystems.Add(pendingSystem);

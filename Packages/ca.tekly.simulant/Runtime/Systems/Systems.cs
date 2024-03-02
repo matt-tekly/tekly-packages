@@ -6,4 +6,14 @@ namespace Tekly.Simulant.Systems
 	{
 		void Tick(float deltaTime);
 	}
+	
+	public interface ITickLateSystem : ISystem
+	{
+		void TickLate(float deltaTime);
+	}
+	
+	public interface ITickEndSystem : ISystem
+	{
+		void TickEnd(float deltaTime);
+	}
 }
