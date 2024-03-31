@@ -10,8 +10,9 @@ namespace Tekly.Lofi.Emitters
 
 		private float m_volume = 1f;
 		private float m_pitch = 1f;
+		private bool m_playing;
 		
-		public bool IsPlaying => m_audioSource.isPlaying;
+		public bool IsPlaying => m_playing && m_audioSource.time <= Clip.length;
 		
 		public bool Loop {
 			get => m_audioSource.loop;
@@ -52,11 +53,13 @@ namespace Tekly.Lofi.Emitters
 
 		public void Play()
 		{
+			m_playing = true;
 			m_audioSource.Play();
 		}
 		
 		public void PlayDelayed(float delay)
 		{
+			m_playing = true;
 			m_audioSource.PlayDelayed(delay);
 		}
 		
@@ -70,11 +73,13 @@ namespace Tekly.Lofi.Emitters
 			
 			m_volume = 1;
 			m_pitch = 1;
+			m_playing = false;
 		}
 
 		public void Stop()
 		{
 			m_audioSource.Stop();
+			m_playing = false;
 		}
 	}
 }

@@ -14,6 +14,7 @@ namespace Tekly.Common.Tweenimation
         [SerializeField] private float m_delay;
         [SerializeField] private bool m_siblingIndexDelay;
         [SerializeField] private bool m_useUnscaledTime;
+        [SerializeField] private int m_loops;
         
         [SerializeReference] private List<BaseTween> m_tweens = new List<BaseTween>();
         [SerializeField] private UnityEvent m_completed = new UnityEvent();
@@ -34,6 +35,7 @@ namespace Tekly.Common.Tweenimation
         }
         
         private Coroutine m_coroutine;
+        private int m_loopCount;
 
         private void Awake()
         {
@@ -66,7 +68,13 @@ namespace Tekly.Common.Tweenimation
         public void Play(float delay, bool reinitialize = false)
         {
             Kill();
-            
+
+            m_loopCount = m_loops;
+            PlayInternal(delay, reinitialize);
+        }
+
+        private void PlayInternal(float delay, bool reinitialize = false)
+        {
             foreach (var basicTween in m_tweens) {
                 basicTween.Play(reinitialize);
             }
@@ -104,8 +112,18 @@ namespace Tekly.Common.Tweenimation
                 yield return null;
             }
 
-            m_completed?.Invoke();
-            m_coroutine = null;
+            m_loopCount--;
+            
+            if (m_loops == -1) {
+                PlayInternal(0);
+            } else {
+                if (m_loopCount < 0) {
+                    m_completed?.Invoke();
+                    m_coroutine = null;                    
+                } else {
+                    PlayInternal(0);
+                }
+            }
         }
 
         private void Kill()
