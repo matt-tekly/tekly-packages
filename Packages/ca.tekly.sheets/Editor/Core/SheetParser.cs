@@ -131,6 +131,15 @@ namespace Tekly.Sheets.Core
         public static bool IsComment(object val)
         {
             if (val is string str) {
+                return str.StartsWith("//");
+            }
+
+            return false;
+        }
+        
+        public static bool IsCommentName(object val)
+        {
+            if (val is string str) {
                 return str.StartsWith("//") || str.StartsWith("__") || str.StartsWith("$");
             }
 

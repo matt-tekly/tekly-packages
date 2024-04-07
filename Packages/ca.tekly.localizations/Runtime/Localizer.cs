@@ -1,18 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Tekly.Common.Utils;
 using Tekly.Logging;
+using UnityEngine;
 
 namespace Tekly.Localizations
 {
     public class Localizer : Singleton<Localizer, ILocalizer>, ILocalizer
     {
+        public bool IsLoading => m_banks.Any(x => x.IsLoading);
+        
+        public string LanguageLabel { get; set; }
+        
         private readonly Dictionary<string, LocalizationString> m_strings = new Dictionary<string, LocalizationString>();
 
         private readonly TkLogger m_logger = TkLogger.Get<Localizer>();
         
         private readonly (string, object)[] m_emptyData = Array.Empty<(string, object)>();
         private readonly ArraysPool<object> m_objectArrayPool = new ArraysPool<object>();
+        
+        private readonly List<LocalizationBank> m_banks = new List<LocalizationBank>();
+
+        public Localizer()
+        {
+            LanguageLabel = Application.systemLanguage.ToString().ToLowerInvariant();
+        }
         
         public void Clear()
         {
@@ -60,6 +73,32 @@ namespace Tekly.Localizations
             m_objectArrayPool.Return(formattingData);
 
             return text;
+        }
+        
+        public void LoadBank(string key)
+        {
+            var bank = m_banks.FirstOrDefault(x => x.Key == key);
+
+            if (bank != null) {
+                bank.AddRef();
+            } else {
+                bank = new LocalizationBank(key, this);
+                m_banks.Add(bank);
+            }
+        }
+        
+        public void UnloadBank(string key)
+        {
+            var bank = m_banks.FirstOrDefault(x => x.Key == key);
+
+            if (bank != null) {
+                bank.RemoveRef();
+
+                if (bank.References == 0) {
+                    bank.Dispose();
+                    m_banks.Remove(bank);
+                }
+            }
         }
 
         private void ToFormattedArray(object[] outObjects, (string, object)[] data, string[] keys)

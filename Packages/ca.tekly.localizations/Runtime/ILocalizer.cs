@@ -2,9 +2,15 @@
 {
     public interface ILocalizer
     {
+        bool IsLoading { get; }
+        string LanguageLabel { get; set; }
+        
         void Clear();
-        void AddData(LocalizationData localizationData);
+        
         string Localize(string id);
         string Localize(string id, (string, object)[] data);
+        
+        void LoadBank(string key);
+        void UnloadBank(string key);
     }
 }

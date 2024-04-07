@@ -110,7 +110,7 @@ namespace Tekly.Sheets.Core
 			var sheetMetaData = new SheetMetaData();
 			sheetMetaData.SheetName = result.Properties.Title;
 			sheetMetaData.Sheets = result.Sheets
-				.Where(s => !SheetParser.IsComment(s.Properties.Title))
+				.Where(s => !SheetParser.IsCommentName(s.Properties.Title))
 				.Select(s => s.Properties.Title)
 				.ToList();
 

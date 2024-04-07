@@ -89,6 +89,8 @@ MonoBehaviour:
     - home.clips
     - lofi.core
     - common.clips
+    - english
+    - label_b
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 94150eb5bfa99774295baf875a1be654, type: 2}

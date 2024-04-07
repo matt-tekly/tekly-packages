@@ -36,9 +36,10 @@ MonoBehaviour:
     m_SerializedLabels:
     - balance.home
   - m_GUID: bee4d82f563b00a439ed7eede9d0431e
-    m_Address: en_US_loc
+    m_Address: core_loc
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - english
   - m_GUID: 6264441469e0be74fa61ecc4dfc98092
     m_Address: generator_panel
     m_ReadOnly: 0
