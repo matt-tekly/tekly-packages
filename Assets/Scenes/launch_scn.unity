@@ -1723,7 +1723,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2dd2a8df459ba8b44b50837c83d13589, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DelayTime: 0
+  DelayTime: 1
   Transition: boot_finished
 --- !u!1 &1734252768
 GameObject:
@@ -2267,12 +2267,54 @@ MonoBehaviour:
   m_tweens:
   - rid: 7832460860249341952
   - rid: 7832460860249341953
+  - rid: 5278890747381940224
+  - rid: 5278890747381940225
   m_completed:
     m_PersistentCalls:
       m_Calls: []
   references:
     version: 2
     RefIds:
+    - rid: 5278890747381940224
+      type: {class: RotationTween, ns: Tekly.Common.Tweenimation.Tweens, asm: Tekly.Common.Runtime}
+      data:
+        m_name: RotationTween
+        m_enabled: 1
+        m_delay: 1.2
+        m_duration: 0.1
+        m_ease:
+          UseCurve: 0
+          Ease: 31
+          Curve:
+            serializedVersion: 2
+            m_Curve: []
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+        m_transform: {fileID: 2079160508}
+        m_originMode: 1
+        m_start: {x: 0, y: 0, z: 0}
+        m_end: {x: 0, y: 0, z: 20}
+    - rid: 5278890747381940225
+      type: {class: ScaleTween, ns: Tekly.Common.Tweenimation.Tweens, asm: Tekly.Common.Runtime}
+      data:
+        m_name: ScaleTween
+        m_enabled: 1
+        m_delay: 1.2
+        m_duration: 0.23
+        m_ease:
+          UseCurve: 0
+          Ease: 32
+          Curve:
+            serializedVersion: 2
+            m_Curve: []
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+        m_transform: {fileID: 2079160508}
+        m_originMode: 1
+        m_start: {x: 1, y: 1, z: 1}
+        m_end: {x: 1.5, y: 1, z: 1}
     - rid: 7832460860249341952
       type: {class: TranslationTween, ns: Tekly.Common.Tweenimation.Tweens, asm: Tekly.Common.Runtime}
       data:

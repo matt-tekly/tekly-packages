@@ -20,8 +20,13 @@ namespace Tekly.Localizations
 		{
 			Key = key;
 			m_localizer = localizer;
+
+			if (string.IsNullOrEmpty(m_localizer.LanguageLabel)) {
+				m_operation = ContentProvider.Instance.LoadAssetAsync<LocalizationData>(key);
+			} else {
+				m_operation = ContentProvider.Instance.LoadAssetAsync<LocalizationData>(key, localizer.LanguageLabel);	
+			}
 			
-			m_operation = ContentProvider.Instance.LoadAssetAsync<LocalizationData>(key, localizer.LanguageLabel);
 			m_operation.Completed += OperationCompleted;
 
 			References = 1;

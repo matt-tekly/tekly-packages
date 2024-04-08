@@ -21,11 +21,6 @@ namespace Tekly.Localizations
         private readonly ArraysPool<object> m_objectArrayPool = new ArraysPool<object>();
         
         private readonly List<LocalizationBank> m_banks = new List<LocalizationBank>();
-
-        public Localizer()
-        {
-            LanguageLabel = Application.systemLanguage.ToString().ToLowerInvariant();
-        }
         
         public void Clear()
         {
