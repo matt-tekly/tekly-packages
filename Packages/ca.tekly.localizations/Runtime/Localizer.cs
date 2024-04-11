@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Tekly.Common.Utils;
 using Tekly.Logging;
-using UnityEngine;
 
 namespace Tekly.Localizations
 {

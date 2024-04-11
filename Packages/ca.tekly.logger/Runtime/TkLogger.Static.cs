@@ -75,13 +75,13 @@ namespace Tekly.Logging
         {
             if (LocalFile.Exists("user/logger_config.xml")) {
                 var xml = LocalFile.ReadAllText("user/logger_config.xml");
-                var loggerConfig = LoggerConfigData.DeserializeXml(xml);
+                var loggerConfig = LoggerConfigDeserializer.Deserialize(xml);
                 ApplyConfig(loggerConfig, profile);
             } else {
                 var configAsset = Resources.Load<TextAsset>("logger_config");
 
                 if (configAsset != null) {
-                    var loggerConfig = LoggerConfigData.DeserializeXml(configAsset.text);
+                    var loggerConfig = LoggerConfigDeserializer.Deserialize(configAsset.text);
                     ApplyConfig(loggerConfig, profile);
                 } else {
                     UnityEngine.Debug.LogError("Failed to find a 'logger_config.xml' in Resources directory. Please create one");

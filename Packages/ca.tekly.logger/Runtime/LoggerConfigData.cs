@@ -11,13 +11,6 @@ namespace Tekly.Logging
     {
         [XmlElement("Profile")]
         public List<LoggerProfileData> Profiles = new List<LoggerProfileData>();
-        
-        public static LoggerConfigData DeserializeXml(string xml, XmlArrayItemAttribute[] additionalConfigs = null)
-        {
-            var deserializer = new LoggerConfigDeserializer();
-            var config = deserializer.Deserialize(xml);
-            return config;
-        }
     }
 
     [Serializable]

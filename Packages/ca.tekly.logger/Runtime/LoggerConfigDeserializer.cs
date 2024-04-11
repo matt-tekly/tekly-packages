@@ -8,12 +8,12 @@ namespace Tekly.Logging
     /// <summary>
     /// Responsible for deserializing the LoggerConfigData from XML.
     /// </summary>
-    public class LoggerConfigDeserializer
+    public static class LoggerConfigDeserializer
     {
-        private readonly List<XmlArrayItemAttribute> m_arrayAttributeOverrides = new List<XmlArrayItemAttribute>();
-        private XmlSerializer m_serializer;
+        private static readonly List<XmlArrayItemAttribute> s_arrayAttributeOverrides = new List<XmlArrayItemAttribute>();
+        private static XmlSerializer s_serializer;
 
-        public LoggerConfigDeserializer()
+        static LoggerConfigDeserializer()
         {
             AddDestinationConfigMapping<FlatFileLogConfig>("FlatFile");
             AddDestinationConfigMapping<StructuredFileLogConfig>("StructuredFile");
@@ -26,27 +26,27 @@ namespace Tekly.Logging
         /// </summary>
         /// <param name="elementName"></param>
         /// <typeparam name="T"></typeparam>
-        public void AddDestinationConfigMapping<T>(string elementName) where T : LogDestinationConfig
+        public static void AddDestinationConfigMapping<T>(string elementName) where T : LogDestinationConfig
         {
-            m_arrayAttributeOverrides.Add(new XmlArrayItemAttribute(elementName, typeof(T)));
+            s_arrayAttributeOverrides.Add(new XmlArrayItemAttribute(elementName, typeof(T)));
         }
         
-        public LoggerConfigData Deserialize(string xml)
+        public static LoggerConfigData Deserialize(string xml)
         {
             using var reader = new StringReader(xml);
             
             var attributes = new XmlAttributes();
             
-            foreach (var arrayAttributeOverride in m_arrayAttributeOverrides) {
+            foreach (var arrayAttributeOverride in s_arrayAttributeOverrides) {
                 attributes.XmlArrayItems.Add(arrayAttributeOverride);
             }
             
             var overrides = new XmlAttributeOverrides();
             overrides.Add(typeof(LoggerProfileData), "Destinations", attributes);
             
-            m_serializer = new XmlSerializer(typeof(LoggerConfigData), overrides);
+            s_serializer = new XmlSerializer(typeof(LoggerConfigData), overrides);
             
-            return (LoggerConfigData) m_serializer.Deserialize(reader);
+            return (LoggerConfigData) s_serializer.Deserialize(reader);
         }
     }
 }
