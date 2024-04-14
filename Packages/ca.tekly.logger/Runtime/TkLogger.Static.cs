@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -73,6 +72,8 @@ namespace Tekly.Logging
 
         private static void LoadConfigFile(string profile)
         {
+            LoggerConfigDeserializer.Initialize();
+            
             if (LocalFile.Exists("user/logger_config.xml")) {
                 var xml = LocalFile.ReadAllText("user/logger_config.xml");
                 var loggerConfig = LoggerConfigDeserializer.Deserialize(xml);
@@ -106,6 +107,7 @@ namespace Tekly.Logging
             Application.logMessageReceivedThreaded -= HandleUnityLog;
             LifeCycle.Instance.Update -= Update;
             
+            LoggerConfigDeserializer.Reset();
         }
         
         private static TkLogger Create(Type type)

@@ -11,14 +11,8 @@ namespace Tekly.Logging
     public static class LoggerConfigDeserializer
     {
         private static readonly List<XmlArrayItemAttribute> s_arrayAttributeOverrides = new List<XmlArrayItemAttribute>();
-        private static XmlSerializer s_serializer;
 
-        static LoggerConfigDeserializer()
-        {
-            AddDestinationConfigMapping<FlatFileLogConfig>("FlatFile");
-            AddDestinationConfigMapping<StructuredFileLogConfig>("StructuredFile");
-            AddDestinationConfigMapping<UnityLogDestinationConfig>("Unity");
-        }
+        private static bool s_initialized;
         
         /// <summary>
         /// Adds a mapping of an element name to a LogDestinationConfig derived type.
@@ -44,9 +38,28 @@ namespace Tekly.Logging
             var overrides = new XmlAttributeOverrides();
             overrides.Add(typeof(LoggerProfileData), "Destinations", attributes);
             
-            s_serializer = new XmlSerializer(typeof(LoggerConfigData), overrides);
+            var serializer = new XmlSerializer(typeof(LoggerConfigData), overrides);
             
-            return (LoggerConfigData) s_serializer.Deserialize(reader);
+            return (LoggerConfigData) serializer.Deserialize(reader);
+        }
+        
+        internal static void Initialize()
+        {
+            if (s_initialized) {
+                return;
+            }
+            
+            AddDestinationConfigMapping<FlatFileLogConfig>("FlatFile");
+            AddDestinationConfigMapping<StructuredFileLogConfig>("StructuredFile");
+            AddDestinationConfigMapping<UnityLogDestinationConfig>("Unity");
+
+            s_initialized = true;
+        }
+
+        internal static void Reset()
+        {
+            s_initialized = false;
+            s_arrayAttributeOverrides.Clear();
         }
     }
 }
