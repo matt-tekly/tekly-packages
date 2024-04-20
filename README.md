@@ -19,6 +19,7 @@ Browse the packages in the `Packages` directory.
 - `Tekly Localizations` WIP localization system. It is functional but will change with improvements over time
 - `Tekly Logger` A powerful logging solution to replace Debug.Log
 - `Tekly Sheets` Downloads Google Sheets and turns them into JSON or Scriptable Objects
+- `Tekly Simulant` An ECS that aims at ease of use with performance as a second consideration
 - `Tekly TreeState` A hierarchical state machine that is defined with GameObjects and custom behaviours
   - This is used to model the state of your game rather than the state of entity
   - Handles transitioning between states and coordinating loading and unloading
