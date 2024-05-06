@@ -1,13 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 namespace Tekly.Config
 {
     public interface IConfigReader
     {
-
-        bool Load();
+        bool Load(IDictionary<string, string> config);
         bool Get(string key, bool defaultValue);
         int Get(string key, int defaultValue);
         float Get(string key, float defaultValue);
@@ -18,34 +18,62 @@ namespace Tekly.Config
 
     public class ConfigReader : IConfigReader
     {
-        public bool Load()
+        private Dictionary<string, string> m_config;
+
+        public bool Load(IDictionary<string, string> config)
         {
-            return false;
+            if (config == null) {
+                return false;
+            }
+            
+            m_config = new Dictionary<string, string>(config);
+
+            return true;
         }
 
         public bool Get(string key, bool defaultValue)
         {
-            return false;
+            if (bool.TryParse(m_config.GetValueOrDefault(key), out bool boolValue)) {
+                return boolValue;
+            }
+
+            return defaultValue;
         }
 
         public int Get(string key, int defaultValue)
         {
-            return 0;
+            if (m_config.TryGetValue(key, out string value)) {
+                return int.Parse(value);
+            }
+
+            return defaultValue;
         }
 
         public float Get(string key, float defaultValue)
         {
-            return 0.0f;
+            if (m_config.TryGetValue(key, out string value)) {
+                return float.Parse(value);
+            }
+
+            return defaultValue;
         }
 
         public double Get(string key, double defaultValue)
         {
-            return 0.0;
+            if (m_config.TryGetValue(key, out string value)) {
+                return double.Parse(value);
+            }
+
+            return defaultValue;
         }
 
         public string Get(string key, string defaultValue)
         {
-            return "";
+            if (m_config.TryGetValue(key, out string value)) {
+                return value;
+            }
+
+            return defaultValue;
         }
     }
 }
