@@ -60,8 +60,8 @@ namespace Tekly.Config
 
         public double Get(string key, double defaultValue)
         {
-            if (m_config.TryGetValue(key, out string value)) {
-                return double.Parse(value);
+            if (double.TryParse(m_config.GetValueOrDefault(key), out double value)) {
+                return value;
             }
 
             return defaultValue;
