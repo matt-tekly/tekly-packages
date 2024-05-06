@@ -1,0 +1,20 @@
+{
+    "name": "Tekly.Config.Tests",
+    "rootNamespace": "",
+    "references": [
+        "GUID:0f1f9280aed244fd0adfb7e288e55bd5"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "NSubstitute.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

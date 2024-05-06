@@ -29,6 +29,12 @@
         "com.unity.mathematics": "1.1.0"
       }
     },
+    "ca.tekly.config": {
+      "version": "file:ca.tekly.config",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "ca.tekly.content": {
       "version": "file:ca.tekly.content",
       "depth": 0,
@@ -275,6 +281,15 @@
       "source": "registry",
       "dependencies": {
         "com.unity.ext.nunit": "1.0.6"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.ide.visualstudio": {
+      "version": "2.0.22",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.test-framework": "1.1.9"
       },
       "url": "https://packages.unity.com"
     },
