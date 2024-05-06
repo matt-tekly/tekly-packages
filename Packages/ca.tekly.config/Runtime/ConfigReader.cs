@@ -33,8 +33,8 @@ namespace Tekly.Config
 
         public bool Get(string key, bool defaultValue)
         {
-            if (bool.TryParse(m_config.GetValueOrDefault(key), out bool boolValue)) {
-                return boolValue;
+            if (bool.TryParse(m_config.GetValueOrDefault(key), out bool value)) {
+                return value;
             }
 
             return defaultValue;
@@ -42,8 +42,8 @@ namespace Tekly.Config
 
         public int Get(string key, int defaultValue)
         {
-            if (m_config.TryGetValue(key, out string value)) {
-                return int.Parse(value);
+            if (int.TryParse(m_config.GetValueOrDefault(key), out int value)) {
+                return value;
             }
 
             return defaultValue;

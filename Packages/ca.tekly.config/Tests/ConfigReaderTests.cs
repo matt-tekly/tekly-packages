@@ -125,4 +125,69 @@ namespace Tekly.Config
       Assert.IsTrue(config.Get("boolValueMissing", true));
     }
   }
+  
+  [TestFixture]
+  public class ConfigReaderGetIntTests
+  {
+    private IDictionary<string, string> m_defaultConfig = new Dictionary<string, string>
+    {
+      {"boolValue", "true"},
+      {"boolValueFalse", "false"},
+      {"intValue", "42"},
+      {"floatValue", "3.14"},
+      {"doubleValue", "3.14"},
+      {"stringValue", "Hello"}
+    };
+
+    [SetUp]
+    public void Setup()
+    {
+      // noop
+    }
+
+    [Test]
+    public void Get_IntWithValidValue_ReturnsValue()
+    {
+      var config = new Tekly.Config.ConfigReader();
+      config.Load(new Dictionary<string, string>
+      {
+        {"intValue", "42"},
+      });
+
+      Assert.AreEqual(42, config.Get("intValue", 0));
+    }
+
+    [Test]
+    public void Get_IntWithInvalidValue_ReturnsDefault()
+    {
+      var config = new Tekly.Config.ConfigReader();
+      config.Load(new Dictionary<string, string>
+      {
+        {"boolValue", "true"},
+        {"boolValueFalse", "false"},
+        {"floatValue", "3.14"},
+        {"doubleValue", "3.14"},
+        {"stringValue", "Hello"}
+      });
+
+      Assert.AreEqual(0, config.Get("boolValue", 0));
+      Assert.AreEqual(0, config.Get("boolValueFalse", 0));
+      Assert.AreEqual(0, config.Get("floatValue", 0));
+      Assert.AreEqual(0, config.Get("doubleValue", 0));
+      Assert.AreEqual(0, config.Get("stringValue", 0));
+    }
+
+    [Test]
+    public void Get_IntWithMissingKey_ReturnsDefault()
+    {
+      var config = new Tekly.Config.ConfigReader();
+      config.Load(new Dictionary<string, string>
+      {
+        {"intValue", "42"},
+      });
+
+      Assert.AreEqual(0, config.Get("intValueMissing", 0));
+    }
+  }
+
 }
