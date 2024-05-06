@@ -51,8 +51,8 @@ namespace Tekly.Config
 
         public float Get(string key, float defaultValue)
         {
-            if (m_config.TryGetValue(key, out string value)) {
-                return float.Parse(value);
+            if (float.TryParse(m_config.GetValueOrDefault(key), out float value)) {
+                return value;
             }
 
             return defaultValue;

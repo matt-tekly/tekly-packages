@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using NUnit.Framework;
 
 namespace Tekly.Config
@@ -190,4 +191,62 @@ namespace Tekly.Config
     }
   }
 
+  [TestFixture]
+  public class ConfigReaderGetFloatTests
+  {
+    private IDictionary<string, string> m_defaultConfig = new Dictionary<string, string>
+    {
+      {"boolValue", "true"},
+      {"boolValueFalse", "false"},
+      {"intValue", "42"},
+      {"floatValue", "3.14"},
+      {"doubleValue", "3.14"},
+      {"stringValue", "Hello"}
+    };
+
+    [Test]
+    public void Get_FloatWithValidValue_ReturnsValue()
+    {
+      var config = new Tekly.Config.ConfigReader();
+      config.Load(new Dictionary<string, string>
+      {
+        {"floatValue", "3.14"},
+        {"doubleValue", "3.14"},
+        {"intValue", "42"}
+      });
+
+      Assert.IsTrue(Math.Abs(3.14f - config.Get("floatValue", 0.0f)) < 1e-5);
+      Assert.IsTrue(Math.Abs(3.14f - config.Get("doubleValue", 0.0f)) < 1e-5);
+      Assert.IsTrue(Math.Abs(42f - config.Get("intValue", 0.0f)) < 1e-5);
+    }
+
+    [Test]
+    public void Get_FloatWithInvalidValue_ReturnsDefault()
+    {
+      var config = new Tekly.Config.ConfigReader();
+      config.Load(new Dictionary<string, string>
+      {
+        {"boolValue", "true"},
+        {"boolValueFalse", "false"},
+        {"stringValue", "Hello"}
+      });
+
+      Assert.AreEqual(0.0f, config.Get("boolValue", 0.0f));
+      Assert.AreEqual(0.0f, config.Get("boolValueFalse", 0.0f));
+
+      Assert.AreEqual(0.0f, config.Get("stringValue", 0.0f));
+    }
+
+    [Test]
+    public void Get_FloatWithMissingKey_ReturnsDefault()
+    {
+      var config = new Tekly.Config.ConfigReader();
+      config.Load(new Dictionary<string, string>
+      {
+        {"floatValue", "3.14"},
+      });
+
+      Assert.AreEqual(0.0f, config.Get("floatValueMissing", 0.0f));
+    }
+  }
 }
