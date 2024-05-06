@@ -18,12 +18,6 @@ namespace Tekly.Config
       {"stringValue", "Hello"}
     };
 
-    [SetUp]
-    public void Setup()
-    {
-      // noop
-    }
-
     [Test]
     public void TestLoadNoConfig()
     {
@@ -52,26 +46,6 @@ namespace Tekly.Config
   [TestFixture]
   public class ConfigReaderGetBoolTests
   {
-    private IDictionary<string, string> m_defaultConfig = new Dictionary<string, string>
-    {
-      {"boolValue", "true"},
-      {"boolValueFalse", "false"},
-      {"intBoolValue", "1"},
-      {"floatBoolValue", "1.0f"},
-      {"doubleBoolValue", "1.0"},
-      {"stringBoolValue", "True"},
-      {"intValue", "42"},
-      {"floatValue", "3.14"},
-      {"doubleValue", "3.14"},
-      {"stringValue", "Hello"}
-    };
-
-    [SetUp]
-    public void Setup()
-    {
-      // noop
-    }
-
     [Test]
     public void Get_BoolWithValidValue_ReturnsValue()
     {
@@ -130,22 +104,6 @@ namespace Tekly.Config
   [TestFixture]
   public class ConfigReaderGetIntTests
   {
-    private IDictionary<string, string> m_defaultConfig = new Dictionary<string, string>
-    {
-      {"boolValue", "true"},
-      {"boolValueFalse", "false"},
-      {"intValue", "42"},
-      {"floatValue", "3.14"},
-      {"doubleValue", "3.14"},
-      {"stringValue", "Hello"}
-    };
-
-    [SetUp]
-    public void Setup()
-    {
-      // noop
-    }
-
     [Test]
     public void Get_IntWithValidValue_ReturnsValue()
     {
@@ -194,16 +152,6 @@ namespace Tekly.Config
   [TestFixture]
   public class ConfigReaderGetFloatTests
   {
-    private IDictionary<string, string> m_defaultConfig = new Dictionary<string, string>
-    {
-      {"boolValue", "true"},
-      {"boolValueFalse", "false"},
-      {"intValue", "42"},
-      {"floatValue", "3.14"},
-      {"doubleValue", "3.14"},
-      {"stringValue", "Hello"}
-    };
-
     [Test]
     public void Get_FloatWithValidValue_ReturnsValue()
     {
