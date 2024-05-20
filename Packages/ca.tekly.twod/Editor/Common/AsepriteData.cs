@@ -82,11 +82,8 @@ namespace Tekly.TwoD.Common
 		public int frame;
 		public AseRect bounds;
 		public AseRect center;
+		public Vector2 pivot = new Vector2(-99999, -99999);
 		
-		// This can support having a pivot defined
-		// At the moment Aseprite just doesn't include it in the JSON
-		// Using the Unity JSON Serializer it is impossible to determine if it wasn't set or if it was set to (0,0)
-
 		public Vector4 CreateBorder()
 		{
 			if (!bounds.IsValid()) {
@@ -99,6 +96,11 @@ namespace Tekly.TwoD.Common
 			border.w = center.y; // Top
 			
 			return border;
+		}
+		
+		public bool IsPivotValid()
+		{
+			return pivot.x > -99999 && pivot.y > -99999;
 		}
 	}
 }
