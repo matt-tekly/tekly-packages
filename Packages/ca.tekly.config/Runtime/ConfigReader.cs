@@ -5,17 +5,6 @@ using UnityEngine;
 
 namespace Tekly.Config
 {
-    public interface IConfigReader
-    {
-        bool Load(IDictionary<string, string> config);
-        bool Get(string key, bool defaultValue);
-        int Get(string key, int defaultValue);
-        float Get(string key, float defaultValue);
-        double Get(string key, double defaultValue);
-        string Get(string key, string defaultValue);
-    }
-
-
     public class ConfigReader : IConfigReader
     {
         private Dictionary<string, string> m_config;
