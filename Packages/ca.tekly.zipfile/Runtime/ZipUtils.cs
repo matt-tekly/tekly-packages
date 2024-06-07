@@ -1,41 +1,45 @@
 using System.IO;
+#if UNITY_6000_0_OR_NEWER
+using Unity.SharpZipLib.Core;
+using Unity.SharpZipLib.Zip;
+#else
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
+#endif
 
 namespace Tekly.ZipFile
 {
     public static class ZipUtils
     {
+        private const int BUFFER_SIZE = 4096;
+        
         public static void CompressDirectory(string outputFileName, string directoryPath, int compressionLevel = 3)
         {
-            using (var outputStream = File.Create(outputFileName)) {
-                CompressDirectory(outputStream, directoryPath, compressionLevel);
-            }
+            using var outputStream = File.Create(outputFileName);
+            CompressDirectory(outputStream, directoryPath, compressionLevel);
         }
         
         public static void CompressDirectory(Stream outputStream, string directoryPath, int compressionLevel = 3)
         {
-            using (var zipStream = new ZipOutputStream(outputStream)) {
-                zipStream.SetLevel(compressionLevel);
-                CompressDirectoryToZip(directoryPath, zipStream);
-            }
+            using var zipStream = new ZipOutputStream(outputStream);
+            zipStream.SetLevel(compressionLevel);
+            CompressDirectoryToZip(directoryPath, zipStream);
         }
 
         public static void CompressDirectoryToZip(string directoryPath, ZipOutputStream zipStream)
         {
             directoryPath = directoryPath.Replace('\\', '/');
             var rootDirectoryOffset = directoryPath.Length + (directoryPath.EndsWith("/") ? 0 : 1);
-            CompressDirectoryToZip(directoryPath, zipStream, rootDirectoryOffset);
+            CompressDirectoryToZip(directoryPath, zipStream, rootDirectoryOffset, new byte[BUFFER_SIZE]);
         }
 
-        public static void CompressDirectoryToZip(string directoryPath, ZipOutputStream zipStream, int rootDirectoryOffset)
+        public static void CompressDirectoryToZip(string directoryPath, ZipOutputStream zipStream, int rootDirectoryOffset, byte[] buffer)
         {
             var files = Directory.GetFiles(directoryPath);
-
+            
             foreach (var filename in files) {
                 var fileInfo = new FileInfo(filename);
-
-                // Make the name in zip based on the folder
+                
                 var entryName = filename.Substring(rootDirectoryOffset);
 
                 // Remove drive from name and fix slash direction
@@ -55,10 +59,6 @@ namespace Tekly.ZipFile
                 zipEntry.Size = fileInfo.Length;
 
                 zipStream.PutNextEntry(zipEntry);
-
-                // Zip the file in buffered chunks
-                // the "using" will close the stream even if an exception occurs
-                var buffer = new byte[4096];
                 
                 using (var fsInput = File.OpenRead(filename)) {
                     StreamUtils.Copy(fsInput, zipStream, buffer);
@@ -66,11 +66,10 @@ namespace Tekly.ZipFile
 
                 zipStream.CloseEntry();
             }
-
-            // Recursively call CompressFolder on all folders in path
+            
             var directories = Directory.GetDirectories(directoryPath);
             foreach (var directory in directories) {
-                CompressDirectoryToZip(directory, zipStream, rootDirectoryOffset);
+                CompressDirectoryToZip(directory, zipStream, rootDirectoryOffset, buffer);
             }
         }
     }

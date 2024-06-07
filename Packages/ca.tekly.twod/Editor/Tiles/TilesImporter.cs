@@ -75,6 +75,12 @@ namespace Tekly.TwoD.Tiles
 				rect.y = data.meta.size.h - rect.y - rect.height;
 				
 				var pivot = slice.name.Contains("tile") ? new Vector2(0.5f, 0.5f) : new Vector2(0.5f, 0);
+				
+				if (key.IsPivotValid()) {
+					pivot.x = key.pivot.x / rect.width;
+					pivot.y = 1f - key.pivot.y / rect.height;
+				}
+				
 				var sprite = Sprite.Create(texture, rect, pivot, settings.PixelsPerUnit, 0, SpriteMeshType.FullRect, key.CreateBorder());
 				sprite.name = slice.name;
 				

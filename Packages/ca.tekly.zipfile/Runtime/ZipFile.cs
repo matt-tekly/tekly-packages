@@ -1,8 +1,14 @@
 using System;
 using System.IO;
 using System.Text;
+#if UNITY_6000_0_OR_NEWER
+using Unity.SharpZipLib.Core;
+using Unity.SharpZipLib.Zip;
+#else
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
+#endif
+
 using UnityEngine;
 
 namespace Tekly.ZipFile

@@ -87,6 +87,21 @@ namespace Tekly.Injectors
             
             m_instanceIds.Add(new InstanceId(type, id), InstanceProvider.Create(instance));
         }
+        
+        public void Override<T>(T instance)
+        {
+            Override(typeof(T), instance);   
+        }
+        
+        public void Override(Type type, object instance)
+        {
+            if (instance == null) {
+                m_logger.Error("Trying to register instance of [{type}] but instance is null", ("type", type));
+                return;
+            }
+            
+            m_instances[type] = InstanceProvider.Create(type, instance);
+        }
 
         public void RegisterTypeProvider(ITypeInstanceProvider instanceProvider)
         {
@@ -116,7 +131,18 @@ namespace Tekly.Injectors
             throw new Exception($"[{Name}] Failed to get instance for type [{type.FullName}]");
         }
 
-        public bool TryGet(Type type, out object result)
+        public virtual bool TryGet<T>(out T result)
+        {
+            if (TryGet(typeof(T), out var target)) {
+                result = (T) target;
+                return true;
+            }
+
+            result = default;
+            return false;
+        }
+        
+        public virtual bool TryGet(Type type, out object result)
         {
             if (m_instances.TryGetValue(type, out var provider)) {
                 result = provider.Instance;
