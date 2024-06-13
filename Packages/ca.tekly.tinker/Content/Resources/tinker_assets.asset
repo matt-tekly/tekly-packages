@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 290174ff8aaf4510886037c2717bf456, type: 3}
+  m_Name: tinker_assets
+  m_EditorClassIdentifier: 
+  m_directory: {fileID: 102900000, guid: ab46caec12b99496680f810b535ea24c, type: 3}
+  Assets:
+  - Asset: {fileID: 9027929339269108002, guid: aba0c464bdfc4592ad253a236f5fe903, type: 3}
+    Name: logs
+    Url: /Tinker/logs.liquid
+    IsTemplate: 1
+  - Asset: {fileID: 9027929339269108002, guid: fb4f4ea9a8b64da880a5494a0840b685, type: 3}
+    Name: tinker_head
+    Url: /Tinker/tinker_head.liquid
+    IsTemplate: 1
+  - Asset: {fileID: 9027929339269108002, guid: c516e0634d844cbc9780a0cea7d9561a, type: 3}
+    Name: tinker_home
+    Url: /Tinker/tinker_home.liquid
+    IsTemplate: 1
+  - Asset: {fileID: 9027929339269108002, guid: d85ff367b77d4be99797f1c980e2d709, type: 3}
+    Name: tinker_logs
+    Url: /Tinker/tinker_logs.liquid
+    IsTemplate: 1
+  - Asset: {fileID: 9027929339269108002, guid: 4009e4ba6f5342a685e8440f0cb3dc18, type: 3}
+    Name: tinker_routes
+    Url: /Tinker/tinker_routes.liquid
+    IsTemplate: 1
+  - Asset: {fileID: 9027929339269108002, guid: a03f9c9d230f4549b0e279b29227420e, type: 3}
+    Name: tinker_sidebar
+    Url: /Tinker/tinker_sidebar.liquid
+    IsTemplate: 1
+  - Asset: {fileID: 9027929339269108002, guid: 71b6ab80d3b24ff1945c7aefd84427f3, type: 3}
+    Name: tinker_styles
+    Url: /Tinker/tinker_styles.css
+    IsTemplate: 0

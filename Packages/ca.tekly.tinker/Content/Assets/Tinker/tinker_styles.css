@@ -1,0 +1,9 @@
+.page {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-left: 210px;
+}
+
+body {
+    background: #8d8c8c
+}

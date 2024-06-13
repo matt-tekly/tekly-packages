@@ -8,6 +8,8 @@ using Tekly.DataModels.Models;
 using Tekly.Injectors;
 using Tekly.Lofi.Core;
 using Tekly.Logging;
+using Tekly.Tinker;
+using Tekly.Tinker.Core;
 using Tekly.TreeState;
 using Tekly.Webster;
 using UnityEngine;
@@ -58,6 +60,9 @@ namespace TeklySample.App
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void InitializeDebug()
         {
+            TinkerServer.Instance.Initialize();
+            TinkerServer.Instance.AddHandler<LogRoutes>();
+            
             WebsterServer.Start(true);
             WebsterServer.AddRouteHandler<SampleWebsterHandler>();
             WebsterServer.AddRouteHandler<AppPropertiesRoute>();

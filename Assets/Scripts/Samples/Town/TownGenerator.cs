@@ -1,5 +1,6 @@
 using System;
 using Tekly.Simulant.Core;
+using Tekly.Simulant.Templates;
 
 namespace TeklySample.Samples.Town
 {
@@ -15,9 +16,8 @@ namespace TeklySample.Samples.Town
 		public int Count;
 		public float Duration;
 	}
-
-	[Serializable]
-	public class GeneratorDefinition : EntityDefinition
+	
+	public class GeneratorDefinition : EntityTemplate
 	{
 		public GeneratorConfig Config = new GeneratorConfig {
 			Resource = "lemon",
@@ -25,7 +25,7 @@ namespace TeklySample.Samples.Town
 			Duration = 1,
 		};
 		
-		protected override void Construct(World world, int entity)
+		protected override void OnPopulate(World world, int entity)
 		{
 			world.Add(entity, ref Config);
 			world.Add<GeneratorData>(entity);
