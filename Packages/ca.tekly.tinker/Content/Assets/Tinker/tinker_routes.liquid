@@ -9,7 +9,7 @@
 
 <div class="page">
     <div class="ui raised very padded text container segment">
-        {%- for route in routes -%}
+        {%- for route in tinker.routes -%}
             <div class="ui segment">
                 <div>{{route.display_name}}</div>
                 {%- for function in route.functions -%}

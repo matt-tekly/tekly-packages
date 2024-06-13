@@ -12,6 +12,7 @@ namespace Tekly.Tinker.Core
 	public class TestDrop : BaseDrop
 	{
 		public string Greeting => "Hey, how are ya?";
+		public string GreetingField = "Hey, how are ya?";
 	}
 	
 	[Route("/tinker")]

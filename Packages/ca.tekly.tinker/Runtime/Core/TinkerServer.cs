@@ -22,7 +22,7 @@ namespace Tekly.Tinker.Core
 		public List<ClassRoutes> Routes;
 		public Vector3 Position = new Vector3(1, 2, 3);
 		public Vector2 Position2 = new Vector3(1, 2, 3);
-		
+
 		public TinkerDrop(List<ITinkerRoutes> routes)
 		{
 			Routes = routes.OfType<ClassRoutes>()
@@ -30,14 +30,14 @@ namespace Tekly.Tinker.Core
 				.ToList();
 		}
 	}
-	
+
 	public class TinkerServer : Singleton<TinkerServer>
 	{
 		public readonly JsonSerializer Serializer = new JsonSerializer();
 		public readonly TinkerAssetRoutes AssetRoutes = new TinkerAssetRoutes();
 
 		public TinkerDrop Drop => new TinkerDrop(m_routes);
-		
+
 		private const int PORT = 3333;
 
 		private int m_port;
@@ -60,7 +60,7 @@ namespace Tekly.Tinker.Core
 				ListenAsync();
 
 				InitializeLiquid();
-					
+
 				AddHandler(AssetRoutes);
 				AddHandler(new TextureRoutes());
 				AddHandler<TinkerPages>();
@@ -94,19 +94,19 @@ namespace Tekly.Tinker.Core
 		public HtmlContent RenderTemplate(string templateName, object content, string contentKey = null)
 		{
 			var template = Template.Parse(AssetRoutes.ReadTemplateFile(templateName));
-			
+
 			var dict = new Dictionary<string, object>();
 			dict["tinker"] = Hash.FromAnonymousObject(Drop);
-			
+
 			if (content == null) {
-				return template.Render(Hash.FromDictionary(dict));	
+				return template.Render(Hash.FromDictionary(dict));
 			}
-			
+
 			if (contentKey != null) {
 				dict[contentKey] = content;
 				var localHash = Hash.FromDictionary(dict);
 				return template.Render(localHash);
-			} 
+			}
 
 			var hash = Hash.FromDictionary(dict);
 			hash.Merge(Hash.FromAnonymousObject(content));
@@ -117,8 +117,11 @@ namespace Tekly.Tinker.Core
 		public HtmlContent RenderTemplate(string templateName)
 		{
 			var template = Template.Parse(AssetRoutes.ReadTemplateFile(templateName));
-			var tinkerHash = Hash.FromAnonymousObject(Drop);
-			
+			var dict = new Dictionary<string, object>();
+			dict["tinker"] = Hash.FromAnonymousObject(Drop);
+
+			var tinkerHash = Hash.FromDictionary(dict);
+
 			return template.Render(tinkerHash);
 		}
 
@@ -183,10 +186,6 @@ namespace Tekly.Tinker.Core
 		{
 			Template.FileSystem = AssetRoutes;
 			Template.RegisterFilter(typeof(LiquidFilters));
-			
-			Template.RegisterSafeType(typeof(TestDrop), new [] { "*" });
-			Template.RegisterSafeType(typeof(Vector3), new [] { "*" });
-			Template.RegisterSafeType(typeof(Vector3), new [] { "*" });
 		}
 	}
 }

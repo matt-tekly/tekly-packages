@@ -709,6 +709,11 @@ namespace DotLiquid
                 return obj;
             }
 
+            if (Template.AutoRegisterUnknownTypes) {
+                Template.RegisterSafeType(obj.GetType(), new []{ "*" });
+                return Template.GetSafeTypeTransformer(obj.GetType())(obj);
+            }
+            
             throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
         }
 

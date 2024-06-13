@@ -29,15 +29,6 @@
         "com.unity.mathematics": "1.1.0"
       }
     },
-    "ca.tekly.configly": {
-      "version": "file:ca.tekly.configly",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {
-        "ca.tekly.common": "0.0.1",
-        "ca.tekly.logger": "0.0.7"
-      }
-    },
     "ca.tekly.content": {
       "version": "file:ca.tekly.content",
       "depth": 0,

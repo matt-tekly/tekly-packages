@@ -49,6 +49,8 @@ namespace DotLiquid
         /// </summary>
         public static bool DefaultIsThreadSafe { get; set; }
 
+        public static bool AutoRegisterUnknownTypes { get; set; } = true;
+
         private static Dictionary<string, Tuple<ITagFactory, Type>> Tags { get; set; }
 
         /// <summary>

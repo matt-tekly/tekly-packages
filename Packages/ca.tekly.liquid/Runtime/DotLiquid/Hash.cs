@@ -32,7 +32,7 @@ namespace DotLiquid
         /// </summary>
         /// <param name="anonymousObject">The anonymous object</param>
         /// <param name="includeProperties">If this is set to true, method will map properties too. </param>
-        public static Hash FromAnonymousObject(object anonymousObject, bool includeProperties = false)
+        public static Hash FromAnonymousObject(object anonymousObject, bool includeProperties = true)
         {
             Hash result = new Hash();
             if (anonymousObject != null)

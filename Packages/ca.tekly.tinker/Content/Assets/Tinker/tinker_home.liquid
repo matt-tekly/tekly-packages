@@ -10,8 +10,9 @@
         <div class="ui basic segment">
             <h3 class="ui header">Commands</h3>
             
-            {{ page.greeting_base | stringify}}
-            {{ tinker.position |  stringify }}
+            {{ page.greeting | stringify}}
+            {{ page.greeting_field | stringify}}
+            {{ tinker.position.normalized |  stringify }}
             <div class="ui raised padded text container segment">
                 {%- for route in tinker.routes -%}
                     {{ route | stringify}}

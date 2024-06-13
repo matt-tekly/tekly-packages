@@ -15,15 +15,15 @@ namespace DotLiquid
         public Dictionary<string, MethodInfo> CachedMethods { get; private set; }
 
         public Dictionary<string, PropertyInfo> CachedProperties { get; private set; }
+        public Dictionary<string, FieldInfo> CachedFields { get; private set; }
 
         public TypeResolution(Type type, Func<MemberInfo, bool> filterMemberCallback)
         {
             // Cache all methods and properties of this object, but don't include those
             // defined at or above the base Drop class.
-            CachedMethods = GetMemberDictionary(GetMethodsWithoutDuplicateNames(type, mi => mi.GetParameters().Length == 0),
-                                                mi => filterMemberCallback(mi));
-
+            CachedMethods = GetMemberDictionary(GetMethodsWithoutDuplicateNames(type, mi => mi.GetParameters().Length == 0), mi => filterMemberCallback(mi));
             CachedProperties = GetMemberDictionary(GetPropertiesWithoutDuplicateNames(type), mi => filterMemberCallback(mi));
+            CachedFields = GetMemberDictionary(GetFieldsWithoutDuplicateNames(type), mi => filterMemberCallback(mi));
         }
 
         private Dictionary<string, T> GetMemberDictionary<T>(IEnumerable<T> members, Func<T, bool> filterMemberCallback) where T : MemberInfo
@@ -55,6 +55,23 @@ namespace DotLiquid
 
             return GetMembersWithoutDuplicateNames(properties)
                 .Cast<PropertyInfo>();
+        }
+        
+        private static IEnumerable<FieldInfo> GetFieldsWithoutDuplicateNames(Type type, Func<FieldInfo, bool> predicate = null)
+        {
+            IList<MemberInfo> properties = predicate != null
+                ? type.GetRuntimeFields()
+                    .Where(f => f.IsPublic && !f.IsStatic)
+                    .Where(predicate)
+                    .Cast<MemberInfo>()
+                    .ToList()
+                : type.GetRuntimeFields()
+                    .Where(f => f.IsPublic && !f.IsStatic)
+                    .Cast<MemberInfo>()
+                    .ToList();
+
+            return GetMembersWithoutDuplicateNames(properties)
+                .Cast<FieldInfo>();
         }
 
         /// <summary>
@@ -204,7 +221,9 @@ namespace DotLiquid
             {
                 string rubyMethod = Template.NamingConvention.GetMemberName(method);
 
-                if (TypeResolution.CachedMethods.TryGetValue(rubyMethod, out MethodInfo mi) || TypeResolution.CachedProperties.TryGetValue(rubyMethod, out PropertyInfo pi))
+                if (TypeResolution.CachedMethods.TryGetValue(rubyMethod, out MethodInfo mi) 
+                    || TypeResolution.CachedProperties.TryGetValue(rubyMethod, out PropertyInfo pi)
+                    || TypeResolution.CachedFields.TryGetValue(rubyMethod, out FieldInfo fi))
                 {
                     return string.Format(Liquid.ResourceManager.GetString("DropWrongNamingConventionMessage"), rubyMethod);
                 }
@@ -224,6 +243,9 @@ namespace DotLiquid
                 return mi.Invoke(GetObject(), null);
             if (TypeResolution.CachedProperties.TryGetValue(method, out PropertyInfo pi))
                 return pi.GetValue(GetObject(), null);
+            if (TypeResolution.CachedFields.TryGetValue(method, out FieldInfo fi))
+                return fi.GetValue(GetObject());
+            
             return BeforeMethod(method);
         }
     }
