@@ -1,9 +1,148 @@
-.page {
-    flex: 1 1 auto;
-    min-width: 0;
-    margin-left: 210px;
+html {
+    height: 100% !important;
 }
 
 body {
-    background: #8d8c8c
+    background: linear-gradient(rgba(240, 240, 240, 240) 40%,  rgba(200, 200, 200, 255) 100%)
+}
+
+.page {
+    flex: 1 1 auto;
+    min-width: 1024px;
+    margin-left: 210px;
+    padding: 10px;
+}
+
+.json {
+    font-size: 12px;
+    background-color: #efefef;
+    padding: 10px;
+    border-radius: 8px;
+    margin: 0;
+}
+
+.function-name {
+    color: black;
+}
+
+.grid-stack-item-content {
+    overflow: hidden !important;
+}
+
+.grid-stack-placeholder .placeholder-content{
+    border-radius: 12px;
+}
+
+.data-card {
+    background-color: white;
+    border-radius: 12px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(0,0,0,0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow:  0 1px 1px hsl(0deg 0% 0% / 0.075),
+    0 2px 2px hsl(0deg 0% 0% / 0.075),
+    0 4px 4px hsl(0deg 0% 0% / 0.075),
+    0 8px 8px hsl(0deg 0% 0% / 0.075),
+    0 16px 16px hsl(0deg 0% 0% / 0.075)
+}
+
+.data-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 40px;
+    padding: 8px;
+    padding-left: 15px;
+}
+
+.data-card-header h4 {
+    margin: 0;
+}
+
+.data-card-header .icon {
+    color: rgba(0, 0, 0, 0.2);
+    transition: color 0.3s, transform 0.1s; 
+    cursor: pointer;
+}
+
+.data-card-header .icon:hover {
+    color: #007BFF;
+}
+
+.data-card-header .icon:active {
+    color: #0056b3;
+    transform: scale(0.9);
+}
+
+.data-card-body {
+    display: flex;
+    overflow: hidden;
+}
+
+.data-card-table {
+    flex-grow: 1;
+    border-spacing: 0;
+    padding-top: 2px;
+}
+
+.data-card-table tr:nth-child(odd) {
+    background-color: rgba(25, 25, 25, 0.025);
+}
+
+.data-card-table tr:nth-child(even) {
+    background-color: rgba(40, 38, 38, 0.08);
+}
+
+.data-card-table td:first-child {
+    padding-left: 8px;
+}
+
+.hide {
+    display: none
+}
+
+.edit .edit-inline {
+    display: inline;
+}
+
+.tinker-stats-container {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.tinker-stat {
+    display: inline-flex;
+    flex-direction: column;
+    max-width: none;
+    text-align: center;
+}
+
+.tinker-stat .value {
+    font-size: 1.5rem;
+}
+
+.tinker-stat .grey {
+    color: #767676;
+}
+
+.tinker-stat .yellow {
+    color: #fbbd08;
+}
+
+.tinker-stat .red {
+    color: #db2828
+}
+
+.tinker-stat .label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: rgba(0, 0, 0, .87);
+    text-transform: uppercase;
+    text-align: center;
 }

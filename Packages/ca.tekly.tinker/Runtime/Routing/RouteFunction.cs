@@ -19,6 +19,7 @@ namespace Tekly.Tinker.Routing
 		public bool Optional { get; }
 		public string DefaultValue { get; }
 		public string[] Values { get; }
+		public string EditType { get; }
 
 		public FunctionParameter(ParameterInfo param)
 		{
@@ -34,6 +35,18 @@ namespace Tekly.Tinker.Routing
 				if (string.IsNullOrEmpty(DefaultValue)) {
 					DefaultValue = Values[0];
 				}
+
+				EditType = "select";
+			} else if (TypeUtility.IsNumber(param.ParameterType)) {
+				EditType = "number";
+			} else if (param.ParameterType == typeof(string)) {
+				if (param.GetAttribute<LargeTextAttribute>() != null) {
+					EditType = "textarea";	
+				} else {
+					EditType = "text";
+				}
+			} else if (param.ParameterType == typeof(bool)) {
+				EditType = "checkbox";
 			}
 		}
 	}
@@ -46,6 +59,7 @@ namespace Tekly.Tinker.Routing
 		public FunctionParameter[] Parameters => m_parameters;
 		public string Path => m_path;
 		public string Verb => m_verb;
+		public string Id { get; }
 
 		private readonly TinkerServer m_tinkerServer;
 
@@ -56,7 +70,7 @@ namespace Tekly.Tinker.Routing
 		private readonly FunctionParameter[] m_parameters;
 		private readonly DescriptionAttribute m_descriptionAttribute;
 		private readonly PageAttribute m_pageAttribute;
-		
+
 		public RouteFunction(MethodInfo method, string root, TinkerServer tinkerServer)
 		{
 			m_method = method;
@@ -68,6 +82,8 @@ namespace Tekly.Tinker.Routing
 
 			m_path = root + route.Route;
 			m_verb = route.Verb;
+
+			Id = m_path.Replace("/", "_");
 
 			m_parameters = method.GetParameters()
 				.Select(x => new FunctionParameter(x))
@@ -82,7 +98,7 @@ namespace Tekly.Tinker.Routing
 			response.Headers.Add("Access-Control-Allow-Origin", "*");
 
 			if (m_pageAttribute != null) {
-				var content = TinkerServer.Instance.RenderTemplate(m_pageAttribute.TemplateName, result, m_pageAttribute.DataKey);
+				var content = m_tinkerServer.RenderPage(m_path, m_pageAttribute.TemplateName, m_pageAttribute.DataKey, result);
 				response.WriteHtml(content);
 			} else if (m_method.ReturnType == typeof(string)) {
 				response.WriteText(result.ToString());
@@ -93,7 +109,8 @@ namespace Tekly.Tinker.Routing
 			} else {
 				using var sw = new StreamWriter(response.OutputStream);
 				using var writer = new JsonTextWriter(sw);
-
+				writer.Formatting = Formatting.Indented;
+				
 				response.ContentEncoding = Encoding.UTF8;
 				response.ContentType = "application/json";
 				m_tinkerServer.Serializer.Serialize(writer, result);

@@ -1,39 +1,117 @@
-using DotLiquid;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Tekly.Tinker.Core
 {
-	
-	public class BaseDrop
-	{
-		public string GreetingBase => "BaseBall";
-	}
-	
-	public class TestDrop : BaseDrop
-	{
-		public string Greeting => "Hey, how are ya?";
-		public string GreetingField = "Hey, how are ya?";
-	}
-	
-	[Route("/tinker")]
+	[Route("")]
 	public class TinkerPages
 	{
-		[Page("/home", "tinker_home", "page")]
-		public TestDrop Home()
+		[Page("", "tinker_home", "page")]
+		public void Home() { }
+		[Page("/", "tinker_home", "page")]
+		public void Home2() { }
+
+		[Page("/tinker/routes", "tinker_routes")]
+		public void Routes() { }
+		
+		[Page("/tinker/terminal", "tinker_terminal")]
+		public void Terminal() { }
+
+		[Page("/tinker/info/app", "tinker_data_list", "Data")]
+		public DataList AppInfo()
 		{
-			return new TestDrop();
+			return new DataList("App Info")
+				.Add("Version", Application.version)
+				.Add("Identifier", Application.identifier)
+				.Add("Persistent Data Path", Application.persistentDataPath)
+				.Add("System Language", Application.systemLanguage.ToString())
+				.Add("Unity Version", Application.unityVersion);
 		}
 		
-		[Page("/routes", "tinker_routes")]
-		public TestDrop Routes()
+		[Page("/tinker/info/app", "tinker_data_list", "Data")]
+		public DataList UnityStuff()
 		{
-			return new TestDrop();
+			return new DataList("App Info")
+				.Add("Version", Application.version)
+				.Add("Company Name", Application.companyName)
+				.Add("Identifier", Application.identifier)
+				.Add("Platform", Application.platform.ToString())
+				.Add("Persistent Data Path", Application.persistentDataPath)
+				.Add("Product Name", Application.productName)
+				.Add("System Language", Application.systemLanguage.ToString())
+				.Add("Unity Version", Application.unityVersion)
+				.Add("Frame", Time.frameCount);
+		}
+	}
+
+	public class DataList
+	{
+		public string Name;
+		public List<DataItem> Items = new List<DataItem>();
+
+		public DataList(string name)
+		{
+			Name = name;
 		}
 		
-		[Page("/void", "tinker_home")]
-		public void Void()
+		public DataList Add(string name, string value, string color = "grey")
 		{
-			Debug.Log("Yes");
+			Items.Add(new DataItem(name, value, color));
+			return this;
+		}
+
+		public DataList Add(string name, float value, string color = "grey")
+		{
+			Items.Add(new DataItem(name, value, color));
+			return this;
+		}
+
+		public DataList Add(string name, int value, string color = "grey")
+		{
+			Items.Add(new DataItem(name, value, color));
+			return this;
+		}
+
+		public DataList Add(string name, bool value, string color = "grey")
+		{
+			Items.Add(new DataItem(name, value, color));
+			return this;
+		}
+		
+	}
+
+	public class DataItem
+	{
+		public string Name;
+		public string Value;
+		public string Color = "grey";
+
+		public DataItem(string name, string value, string color)
+		{
+			Name = name;
+			Value = value;
+			Color = color;
+		}
+
+		public DataItem(string name, float value, string color)
+		{
+			Name = name;
+			Value = value.ToString("0.00");
+			Color = color;
+		}
+
+		public DataItem(string name, int value, string color)
+		{
+			Name = name;
+			Value = value.ToString();
+			Color = color;
+		}
+
+		public DataItem(string name, bool value, string color)
+		{
+			Name = name;
+			Value = value.ToString();
+			Color = color;
 		}
 	}
 }

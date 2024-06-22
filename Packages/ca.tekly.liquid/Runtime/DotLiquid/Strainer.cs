@@ -25,8 +25,8 @@ namespace DotLiquid
     /// </summary>
     public class Strainer
     {
-        private static readonly Dictionary<string, Type> Filters = new Dictionary<string, Type>();
-        private static readonly Dictionary<string, Tuple<object, MethodInfo>> FilterFuncs = new Dictionary<string, Tuple<object, MethodInfo>>();
+        private static readonly Dictionary<string, Type> Filters = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+        private static readonly Dictionary<string, Tuple<object, MethodInfo>> FilterFuncs = new Dictionary<string, Tuple<object, MethodInfo>>(StringComparer.OrdinalIgnoreCase);
 
         public static void GlobalFilter(Type filter)
         {
@@ -54,7 +54,7 @@ namespace DotLiquid
         }
 
         private readonly Context _context;
-        private readonly Dictionary<string, IList<Tuple<object, MethodInfo>>> _methods = new Dictionary<string, IList<Tuple<object, MethodInfo>>>();
+        private readonly Dictionary<string, IList<Tuple<object, MethodInfo>>> _methods = new Dictionary<string, IList<Tuple<object, MethodInfo>>>(StringComparer.OrdinalIgnoreCase);
 
         public IEnumerable<MethodInfo> Methods
         {

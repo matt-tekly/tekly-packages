@@ -1,36 +1,47 @@
 <div class="ui visible inverted vertical sidebar menu">
-    <div class="item" href="/tinker/home">
-        <a class="header" href="/tinker/home">
-            Tinker
+    <div class="item">
+        <a class="header" href="{{ Tinker.Sidebar.Title.Url }}">
+            {{ Tinker.Sidebar.Title.Name }}
         </a>
     </div>
+
+    {%- for section in Tinker.Sidebar.Sections -%}
     <div class="item">
-        <div class="header">Products</div>
+        <div class="header">{{ section.Name }}</div>
         <div class="menu">
-            <a class="item" href="/tinker/home">Home</a>
-            <a class="item" href="/tinker/routes">Routes</a>
+            {%- for item in section.Items -%}
+                <a class="item" href="{{ item.Url }}">{{ item.Name }}</a>
+            {%- endfor -%}
         </div>
     </div>
+    {%- endfor -%}
     <div class="item">
-        <div class="header">CMS Solutions</div>
+        <div class="header">Commands</div>
         <div class="menu">
-            <a class="item">Rails</a>
-            <a class="item">Python</a>
-            <a class="item">PHP</a>
-        </div>
-    </div>
-    <div class="item">
-        <div class="header">Hosting</div>
-        <div class="menu">
-            <a class="item">Shared</a>
-            <a class="item">Dedicated</a>
-        </div>
-    </div>
-    <div class="item">
-        <div class="header">Support</div>
-        <div class="menu">
-            <a class="item">E-mail Support</a>
-            <a class="item">FAQs</a>
+            {% assign routes = Tinker.Routes | where: "Visible" %}
+            {%- for route in routes -%}
+                <a class="item" href="/tinker/routes#{{ route.Id }}">{{ route.DisplayName }}</a>
+            {%- endfor -%}
         </div>
     </div>
 </div>
+
+<script>
+    updateActive(location.href);
+    
+    window.addEventListener("hashchange", (event) => {
+        updateActive(event.newURL);
+    });
+    
+    function updateActive(currentPage) {
+        const allAs = document.querySelectorAll('a');
+        const allAsLength = allAs.length
+
+        for (let i = 0; i < allAsLength; i++) {
+            allAs[i].classList.remove("active");
+            if (allAs[i].href === currentPage ) {
+                allAs[i].classList.add("active");
+            }
+        }
+    }
+</script>

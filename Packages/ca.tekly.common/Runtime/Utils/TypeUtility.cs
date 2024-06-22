@@ -108,6 +108,11 @@ namespace Tekly.Common.Utils
 		{
 			return Nullable.GetUnderlyingType(type) != null;
 		}
+
+		public static bool IsNumber(Type type)
+		{
+			return IsInteger(type) || IsFloatingPoint(type);
+		}
 		
 		public static bool IsInteger(Type type)
 		{

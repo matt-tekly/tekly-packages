@@ -1,0 +1,17 @@
+{% assign card_name = Data.Name %}
+{% include tinker_card_header %}
+
+<div class="data-card-body">
+	<table class="data-card-table">
+		<tbody>
+		{%- for item in Data.Items -%}
+			<tr>
+				<td>{{ item.Name }}</td>
+				<td>{{ Item.Value }}</td>
+			</tr>
+		{%- endfor -%}
+		</tbody>
+	</table>
+</div>
+
+

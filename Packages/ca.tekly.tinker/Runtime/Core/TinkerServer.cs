@@ -8,26 +8,36 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using DotLiquid;
+using DotLiquid.NamingConventions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Tekly.Common.LifeCycles;
 using Tekly.Common.Utils;
 using Tekly.Tinker.Assets;
+using Tekly.Tinker.Routes;
 using Tekly.Tinker.Routing;
 using UnityEngine;
 
 namespace Tekly.Tinker.Core
 {
-	public class TinkerDrop
+	public class TinkerData
 	{
+		public string Url;
 		public List<ClassRoutes> Routes;
-		public Vector3 Position = new Vector3(1, 2, 3);
-		public Vector2 Position2 = new Vector3(1, 2, 3);
+		public Sidebar Sidebar;
+		public List<string> Css = new List<string>();
+		public TinkerHome Home;
 
-		public TinkerDrop(List<ITinkerRoutes> routes)
+		public TinkerData(string url, List<ITinkerRoutes> routes, Sidebar sidebar, TinkerAssetRoutes assetRoutes, TinkerHome home)
 		{
-			Routes = routes.OfType<ClassRoutes>()
-				.Where(x => x.Visible)
-				.ToList();
+			Home = home;
+			Url = url;
+			Routes = routes.OfType<ClassRoutes>().ToList();
+			Sidebar = sidebar;
+
+			var cssAssets = new List<TinkerAsset>();
+			assetRoutes.GetAssets("css", cssAssets);
+			Css.AddRange(cssAssets.Select(x => x.Url));
 		}
 	}
 
@@ -35,16 +45,27 @@ namespace Tekly.Tinker.Core
 	{
 		public readonly JsonSerializer Serializer = new JsonSerializer();
 		public readonly TinkerAssetRoutes AssetRoutes = new TinkerAssetRoutes();
-
-		public TinkerDrop Drop => new TinkerDrop(m_routes);
-
+		public readonly Sidebar Sidebar = new Sidebar();
+		public readonly TinkerHome Home = new TinkerHome();
+		
 		private const int PORT = 3333;
 
 		private int m_port;
 		private HttpListener m_listener;
 
 		private readonly List<ITinkerRoutes> m_routes = new List<ITinkerRoutes>();
+		private const string TINKER_KEY = "Tinker";
 
+		public TinkerData GetData(string url)
+		{
+			return new TinkerData(url, m_routes, Sidebar, AssetRoutes, Home);
+		}
+
+		public TinkerServer()
+		{
+			Serializer.Converters.Add(new StringEnumConverter());
+		}
+		
 		public void Initialize(int port = PORT)
 		{
 			Application.runInBackground = true;
@@ -60,10 +81,14 @@ namespace Tekly.Tinker.Core
 				ListenAsync();
 
 				InitializeLiquid();
+				InitializeSidebar();
 
 				AddHandler(AssetRoutes);
+				
 				AddHandler(new TextureRoutes());
 				AddHandler<TinkerPages>();
+				AddHandler<UnityRoutes>();
+				AddHandler<TinkerRpc>();
 
 				LifeCycle.Instance.Quit += OnApplicationQuit;
 			} catch (Exception e) {
@@ -72,6 +97,19 @@ namespace Tekly.Tinker.Core
 					m_listener.Stop();
 				}
 			}
+		}
+
+		private void InitializeSidebar()
+		{
+			Sidebar.Section("Main")
+				.Item("Home", "/");
+
+			Sidebar.Section("Utility")
+				.Item("Terminal", "/tinker/terminal");
+
+			Home.Add("appinfo", "/tinker/info/app", 6, 5)
+				.Add("logs", "/logs/stats", 4, 3)
+				.Add("assets", "/unity/assets/card", 4, 5);
 		}
 
 		public string GetLocalIP()
@@ -96,7 +134,7 @@ namespace Tekly.Tinker.Core
 			var template = Template.Parse(AssetRoutes.ReadTemplateFile(templateName));
 
 			var dict = new Dictionary<string, object>();
-			dict["tinker"] = Hash.FromAnonymousObject(Drop);
+			dict[TINKER_KEY] = Hash.FromAnonymousObject(GetData(""));
 
 			if (content == null) {
 				return template.Render(Hash.FromDictionary(dict));
@@ -113,12 +151,35 @@ namespace Tekly.Tinker.Core
 
 			return template.Render(hash);
 		}
-
-		public HtmlContent RenderTemplate(string templateName)
+		
+		public HtmlContent RenderPage(string url, string templateName, string dataKey, object content)
 		{
 			var template = Template.Parse(AssetRoutes.ReadTemplateFile(templateName));
+
 			var dict = new Dictionary<string, object>();
-			dict["tinker"] = Hash.FromAnonymousObject(Drop);
+			dict[TINKER_KEY] = Hash.FromAnonymousObject(GetData(url));
+
+			if (content == null) {
+				return template.Render(Hash.FromDictionary(dict));
+			}
+
+			if (dataKey != null) {
+				dict[dataKey] = content;
+				var localHash = Hash.FromDictionary(dict);
+				return template.Render(localHash);
+			}
+
+			var hash = Hash.FromDictionary(dict);
+			hash.Merge(Hash.FromAnonymousObject(content));
+
+			return template.Render(hash);
+		}
+
+		public HtmlContent RenderTemplate(PageAttribute page)
+		{
+			var template = Template.Parse(AssetRoutes.ReadTemplateFile(page.TemplateName));
+			var dict = new Dictionary<string, object>();
+			dict[TINKER_KEY] = Hash.FromAnonymousObject(GetData(page.Route));
 
 			var tinkerHash = Hash.FromDictionary(dict);
 
@@ -157,12 +218,7 @@ namespace Tekly.Tinker.Core
 		{
 			try {
 				var route = context.Request.Url.LocalPath;
-
-				if (route == "/tinker/routes") {
-					context.Response.WriteHtml(RenderTemplate("tinker_routes"));
-					return;
-				}
-
+				
 				foreach (var routeHandler in m_routes) {
 					if (routeHandler.TryHandle(route, context.Request, context.Response)) {
 						break;
@@ -185,6 +241,7 @@ namespace Tekly.Tinker.Core
 		private void InitializeLiquid()
 		{
 			Template.FileSystem = AssetRoutes;
+			Template.NamingConvention = new CSharpNamingConvention();
 			Template.RegisterFilter(typeof(LiquidFilters));
 		}
 	}

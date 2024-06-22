@@ -9,23 +9,22 @@ using UnityEngine.Assertions;
 
 namespace Tekly.Tinker.Routing
 {
-	public class ClassRoutes : Drop, ITinkerRoutes
+	public class ClassRoutes : ITinkerRoutes
 	{
 		public string DisplayName => m_descriptionAttribute?.Name;
 		public string Description => m_descriptionAttribute?.Description;
 		public bool Visible => m_descriptionAttribute != null;
+		public string Id => DisplayName.Replace(" ", "_");
 
 		public List<RouteFunction> Functions => m_routeFunctions;
 
 		private readonly object m_instance;
-		private readonly TinkerServer m_tinkerServer;
 		private readonly List<RouteFunction> m_routeFunctions = new List<RouteFunction>();
 		private readonly DescriptionAttribute m_descriptionAttribute;
 
 		public ClassRoutes(object instance, TinkerServer tinkerServer)
 		{
 			m_instance = instance;
-			m_tinkerServer = tinkerServer;
 
 			var methods = m_instance.GetType().GetMethods();
 			var topLevelRoute = m_instance.GetType().GetAttribute<RouteAttribute>();
@@ -44,7 +43,7 @@ namespace Tekly.Tinker.Routing
 				}
 
 				try {
-					var routeFunction = new RouteFunction(method, root, m_tinkerServer);
+					var routeFunction = new RouteFunction(method, root, tinkerServer);
 					m_routeFunctions.Add(routeFunction);
 				} catch (Exception exception) {
 					Debug.LogError($"Failed to create RouteFunction for method [{method.ReflectedType.Name}.{method.Name}]");

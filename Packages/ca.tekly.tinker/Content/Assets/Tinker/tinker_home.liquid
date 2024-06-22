@@ -5,29 +5,156 @@
 {% include tinker_head %}
 
 <body>
-    {%- include tinker_sidebar -%}
-    <div class="page ui basic">
-        <div class="ui basic segment">
-            <h3 class="ui header">Commands</h3>
-            
-            {{ page.greeting | stringify}}
-            {{ page.greeting_field | stringify}}
-            {{ tinker.position.normalized |  stringify }}
-            <div class="ui raised padded text container segment">
-                {%- for route in tinker.routes -%}
-                    {{ route | stringify}}
-                    <div class="ui segment">
-                        <div>{{route.display_name}}</div>
-                        {% assign functions = route.functions | where: "visible" %}
-                        {%- for function in functions -%}
-                            <div>{{function.path}}</div>
-                        {%- endfor -%}
-                    </div>
-                {%- endfor -%}
-            </div>
-        </div>
-        
-    </div>
+{%- include tinker_sidebar -%}
+<div class="page ui basic">
+	<div class="ui menu">
+		<div class="header item">
+			Home
+		</div>
+		<a class="item">
+			About Us
+		</a>
+		<a class="item">
+			Jobs
+		</a>
+		<div class="right menu">
+			<div class="item">
+				<button class="ui mini button" onclick="add()">add</button>
+				<button class="ui mini button" onclick="save()">save</button>
+				<button class="ui mini button" onclick="resetWidgets()">reset</button>
+				<div class="ui toggle checkbox">
+					<input type="checkbox" onclick="toggleGridEditing(this)">
+					<label>Edit</label>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="grid-stack">
+	</div>
+</div>
 </body>
-   
+
+<script>
+    const SETTINGS_KEY = "home.settings";
+
+    const widgets = {
+	{%- for card in Tinker.Home.Cards -%}
+	{{ card.name }}: {
+        name: "{{ card.Name }}",
+            url: "{{ card.Url }}",
+            width: {{ card.Width }},
+        height: {{ card.Height }},
+        isDefault: {{ card.Default }}
+    },
+	{%- endfor -%}
+    };
+
+    const grid = GridStack.init({
+        cellHeight: "{{ Tinker.Home.CellHeight }}px",
+    });
+
+    grid.disable();
+
+    function toggleGridEditing(checkbox) {
+        if (checkbox.checked) {
+            grid.enable();
+        } else {
+            grid.disable();
+        }
+
+        document.body.classList.toggle("edit");
+    }
+
+    function save() {
+        const widgets = grid.save(true,false);
+
+        for (let key in widgets) {
+            if (widgets.hasOwnProperty(key)) {
+                let widget = widgets[key];
+                delete widget.content;
+            }
+        }
+
+        const saveData = {
+            widgets: widgets
+        };
+
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(saveData));
+    }
+
+    function resetWidgets() {
+        grid.removeAll();
+        addDefaultWidgets();
+        save();
+    }
+
+    function add() {
+        addWidget(widgets["appinfo"]);
+	}
+    
+    function addWidget(widget) {
+        const element = grid.addWidget(createWidgetHtml(widget), {
+            w: widget.width,
+            h: widget.height,
+            name: widget.name,
+        });
+
+        htmx.process(element);
+    }
+
+    function createWidgetHtml(widget) {
+        return `<div class="grid-stack-item"><div class="grid-stack-item-content data-card" hx-trigger="revealed,reload" hx-get="${widget.url}"></div></div>`;
+    }
+
+    function triggerReload(element) {
+        let event = new Event("reload", {bubbles: true});
+        element.dispatchEvent(event);
+    }
+
+    function triggerRemove(element) {
+        let event = new Event("remove", {bubbles: true});
+        element.dispatchEvent(event);
+    }
+
+    function initialize() {
+        const settings = localStorage.getItem(SETTINGS_KEY);
+
+        if (settings) {
+            try {
+                const saveData = JSON.parse(settings);
+                for (const widget of saveData.widgets) {
+                    const widgetData = widgets[widget.name];
+
+                    let instance = grid.addWidget(createWidgetHtml(widgetData), {
+                        w: widget.w,
+                        h: widget.h,
+                        x: widget.x,
+                        y: widget.y,
+                        name: widget.name,
+                    });
+
+                    instance.addEventListener('remove', () => grid.removeWidget(instance));
+                }
+            } catch (error) {
+                console.error('Stored item is not valid JSON:', error);
+                addDefaultWidgets();
+            }
+        } else {
+            addDefaultWidgets();
+        }
+    }
+
+    function addDefaultWidgets() {
+        for (let key in widgets) {
+            if (widgets.hasOwnProperty(key)) {
+                let widget = widgets[key];
+                addWidget(widget)
+            }
+        }
+    }
+
+    initialize();
+</script>
+
 </html>

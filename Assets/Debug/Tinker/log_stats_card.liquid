@@ -1,0 +1,48 @@
+{% assign card_name = 'Logs' %}
+{% include tinker_card_header %}
+
+<div class="ui five statistics game-statistics">
+	<div class="ui grey mini statistic">
+		<div class="value">
+			{{ Debug }}
+		</div>
+		<div class="label">
+			Debug
+		</div>
+	</div>
+	<div class="ui grey mini statistic">
+		<div class="value">
+			{{ Info }}
+		</div>
+		<div class="label">
+			Info
+		</div>
+	</div>
+	<div class="ui yellow mini statistic">
+		<div class="value">
+			{{ Warning }}
+		</div>
+		<div class="label">
+			Warning
+		</div>
+	</div>
+	<div class="ui red mini statistic">
+		<div class="value">
+			{{ Error }}
+		</div>
+		<div class="label">
+			Error
+		</div>
+	</div>
+	<div class="ui red mini statistic">
+		<div class="value">
+			{{ Exception }}
+		</div>
+		<div class="label">
+			Exception
+		</div>
+	</div>
+</div>
+
+
+

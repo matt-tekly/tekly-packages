@@ -119,7 +119,7 @@ namespace Tekly.Tinker.Core
 
 			return collection;
 		}
-
+		
 		private static void ParseQueryString(string query, Encoding encoding, NameValueCollection result)
 		{
 			if (string.IsNullOrEmpty(query)) {

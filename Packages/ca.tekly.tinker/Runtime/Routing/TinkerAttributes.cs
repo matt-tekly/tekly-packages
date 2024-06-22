@@ -74,4 +74,9 @@ namespace Tekly.Tinker.Core
 			Description = description;
 		}
 	}
+	
+	[AttributeUsage(AttributeTargets.Parameter)]
+	public class LargeTextAttribute : Attribute
+	{
+	}
 }

@@ -36,10 +36,13 @@ namespace Tekly.Tinker.Assets
 #if UNITY_EDITOR
 			UnityEditor.AssetDatabase.Refresh();
 #endif
+			Initialize();
+			
 			if (m_constantTemplates.TryGetValue(templateName, out var content)) {
 				return content;
 			}
 
+#if TINKER_ENABLED
 			foreach (var tinkerAssets in m_tinkerAssets) {
 				foreach (var tinkerAsset in tinkerAssets.Assets) {
 					if (tinkerAsset.IsTemplate && tinkerAsset.Name == templateName) {
@@ -48,7 +51,7 @@ namespace Tekly.Tinker.Assets
 					}
 				}
 			}
-
+#endif
 			return $"[Template [{templateName}] - Not Found]";
 		}
 
@@ -69,6 +72,17 @@ namespace Tekly.Tinker.Assets
 			}
 
 			return false;
+		}
+
+		public void GetAssets(string extension, List<TinkerAsset> assets)
+		{
+			foreach (var tinkerAssets in m_tinkerAssets) {
+				foreach (var tinkerAsset in tinkerAssets.Assets) {
+					if (tinkerAsset.Url.EndsWith(extension)) {
+						assets.Add(tinkerAsset);
+					}
+				}
+			}
 		}
 
 		private static bool TryHandleAsset(HttpListenerResponse response, TinkerAsset tinkerAsset)
@@ -113,7 +127,8 @@ namespace Tekly.Tinker.Assets
 			foreach (var asset in assets) {
 				AddAssets(asset);	
 			}
-			
+
+			m_initialized = true;
 		}
 	}
 }
