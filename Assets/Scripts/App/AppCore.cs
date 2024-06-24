@@ -61,7 +61,9 @@ namespace TeklySample.App
         private static void InitializeDebug()
         {
             TinkerServer.Instance.Initialize();
-            TinkerServer.Instance.AddHandler<LogRoutes>();
+            TinkerServer.Instance.Home
+                .Add("inventory", "/game/inventory/card", 6, 5)
+                .Add("logs", "/game/logs/stats", 4, 3);
             
             WebsterServer.Start(true);
             WebsterServer.AddRouteHandler<SampleWebsterHandler>();

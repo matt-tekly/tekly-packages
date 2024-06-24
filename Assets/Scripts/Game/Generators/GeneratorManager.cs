@@ -67,6 +67,14 @@ namespace TeklySample.Game.Generators
             generator.InventoryItem.Count += count;
         }
 
+        public void Run(string generatorName)
+        {
+            var generator = Generators.FirstOrDefault(x => x.InventoryItem.ItemId == generatorName);
+            if (generator != null) {
+                generator.Run();
+            }
+        }
+
         public GeneratorsSave ToSave()
         {
             return new GeneratorsSave {

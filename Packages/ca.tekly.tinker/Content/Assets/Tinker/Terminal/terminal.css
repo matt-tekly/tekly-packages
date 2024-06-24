@@ -1,0 +1,74 @@
+.terminal-page {
+    min-width: 1024px;
+    margin-left: 210px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 100vh; /* Full viewport height */
+    
+    font-family: monospace;
+    background: rgb(50,50,50) !important;
+    color: #00bf00;
+}
+
+.terminal-container {
+    flex: 1; /* Take up remaining space */
+    overflow-y: auto; /* Enable vertical scrolling */
+    /*border: 1px solid #ccc;*/
+    padding: 10px;
+    display: flex; /* Use flexbox for aligning content */
+    
+    flex-direction: column; /* Stack items vertically, starting from the bottom */
+
+    scrollbar-width: thin; /* For Firefox */
+    scrollbar-color: #ccc #333; /* Thumb and track color */
+}
+
+.terminal-container > :first-child {
+    margin-top: auto !important;
+    /* use !important to prevent breakage from child margin settings */
+}
+
+/* WebKit (Chrome, Safari, Edge) */
+.scrollable-content::-webkit-scrollbar {
+    width: 10px; /* Width of the scrollbar */
+}
+
+.scrollable-content::-webkit-scrollbar-track {
+    background: #333; /* Track color */
+}
+
+.scrollable-content::-webkit-scrollbar-thumb {
+    background-color: #ccc; /* Thumb color */
+    border-radius: 5px; /* Rounded corners */
+}
+
+.terminal-input-container {
+    margin-top: 2px;
+    padding-left: 2px;
+    display: flex;
+    align-items: stretch;
+    flex-direction: row;
+}
+
+.terminal-input-container span {
+    margin-right: 8px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    flex: 0;
+}
+
+.terminal-input {
+    flex: 1;
+    font-family: monospace;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #00bf00;
+    padding: 8px;
+}
+
+.terminal-image {
+    max-width: 300px;
+    max-height: 500px;
+}

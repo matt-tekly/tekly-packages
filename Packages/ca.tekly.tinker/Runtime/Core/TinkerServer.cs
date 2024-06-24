@@ -3,10 +3,12 @@
 #endif
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using DotLiquid;
 using DotLiquid.NamingConventions;
 using Newtonsoft.Json;
@@ -20,6 +22,29 @@ using UnityEngine;
 
 namespace Tekly.Tinker.Core
 {
+	public class EndOfFrameAwaiter : INotifyCompletion
+	{
+		private Action _continuation;
+		
+		public bool IsCompleted => false;
+
+		public void OnCompleted(Action continuation)
+		{
+			_continuation = continuation;
+			LifeCycle.Instance.StartCoroutine(WaitForEndOfFrameCoroutine());
+		}
+
+		public void GetResult() { }
+
+		private IEnumerator WaitForEndOfFrameCoroutine()
+		{
+			yield return new WaitForEndOfFrame();
+			_continuation?.Invoke();
+		}
+
+		public EndOfFrameAwaiter GetAwaiter() => this;
+	}
+	
 	public class TinkerData
 	{
 		public string Url;
@@ -108,7 +133,6 @@ namespace Tekly.Tinker.Core
 				.Item("Terminal", "/tinker/terminal");
 
 			Home.Add("appinfo", "/tinker/info/app", 6, 5)
-				.Add("logs", "/logs/stats", 4, 3)
 				.Add("assets", "/unity/assets/card", 4, 5);
 		}
 
@@ -190,10 +214,21 @@ namespace Tekly.Tinker.Core
 		{
 			m_routes.Add(routes);
 		}
-
-		public void AddHandler<T>() where T : new()
+		
+		public ITinkerRoutes AddClassHandler(object handler)
 		{
-			m_routes.Add(new ClassRoutes(new T(), this));
+			var classRoutes = new ClassRoutes(handler, this);
+			m_routes.Add(classRoutes);
+
+			return classRoutes;
+		}
+
+		public ITinkerRoutes AddHandler<T>() where T : new()
+		{
+			var classRoutes = new ClassRoutes(new T(), this);
+			m_routes.Add(classRoutes);
+
+			return classRoutes;
 		}
 
 		public void RemoveHandler(ITinkerRoutes routes)
@@ -206,6 +241,7 @@ namespace Tekly.Tinker.Core
 			while (m_listener.IsListening) {
 				try {
 					var context = await m_listener.GetContextAsync();
+					await new EndOfFrameAwaiter();
 					ProcessRequest(context);
 					context.Response.Close();
 				} catch (ObjectDisposedException) { } catch (Exception ex) {

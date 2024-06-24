@@ -771,7 +771,7 @@ PlayerSettings:
     Android: WEBSTER_ENABLE
     Nintendo Switch: WEBSTER_ENABLE
     PS4: WEBSTER_ENABLE
-    Standalone: WEBSTER_ENABLE;SIMULANT_PERFORMANCE
+    Standalone: WEBSTER_ENABLE;SIMULANT_PERFORMANCE;TINKER_ENABLED
     XboxOne: WEBSTER_ENABLE
     iPhone: WEBSTER_ENABLE
   additionalCompilerArguments: {}

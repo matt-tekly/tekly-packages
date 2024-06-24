@@ -1,0 +1,41 @@
+
+<!doctype html>
+<html lang="en">
+
+{% assign title = 'Tinker' %}
+{% include tinker_head %}
+
+<script src="/Tinker/terminal/commands.js"></script>
+<script src="/Tinker/terminal/terminal.js"></script>
+
+<body>
+{%- include tinker_sidebar -%}
+
+
+<div class="terminal-page" id="terminal">
+	<div class="terminal-container" id="content">
+		<pre>====================================================================
+::::::::::: ::::::::::: ::::    ::: :::    ::: :::::::::: :::::::::  
+    :+:         :+:     :+:+:   :+: :+:   :+:  :+:        :+:    :+: 
+    +:+         +:+     :+:+:+  +:+ +:+  +:+   +:+        +:+    +:+ 
+    +#+         +#+     +#+ +:+ +#+ +#++:++    +#++:++#   +#++:++#:  
+    +#+         +#+     +#+  +#+#+# +#+  +#+   +#+        +#+    +#+ 
+    #+#         #+#     #+#   #+#+# #+#   #+#  #+#        #+#    #+# 
+    ###     ########### ###    #### ###    ### ########## ###    ###
+====================================================================</pre>
+	</div>
+	<div class="terminal-input-container">
+		<span id="prefix">></span>
+		<input id="input" class="terminal-input" type="text" autofocus>
+	</div>
+</div>
+
+</body>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const terminal = new Terminal("#terminal");
+    });
+</script>
+
+</html>

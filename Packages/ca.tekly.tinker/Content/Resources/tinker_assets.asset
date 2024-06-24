@@ -14,6 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_directory: {fileID: 102900000, guid: ab46caec12b99496680f810b535ea24c, type: 3}
   Assets:
+  - Asset: {fileID: 9027929339269108002, guid: e049be96c2f145f9921a292269f7896d, type: 3}
+    Name: terminal
+    Url: /Tinker/terminal.css
+    IsTemplate: 0
+  - Asset: {fileID: 9027929339269108002, guid: 1878ac49d0dd425993b2acda75005f13, type: 3}
+    Name: terminal
+    Url: /Tinker/terminal.js
+    IsTemplate: 0
   - Asset: {fileID: 9027929339269108002, guid: 991b823a64d04bfa9303fb6331e8e840, type: 3}
     Name: tinker_card_header
     Url: /Tinker/tinker_card_header.liquid
