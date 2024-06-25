@@ -116,6 +116,10 @@ namespace Tekly.TwoD.Cells
 				spriteFrame.Event = new AudioEvt {
 					Clip = evt.Substring(4)
 				};
+			} else {
+				spriteFrame.Event = new TextEvt {
+					Text = evt
+				};
 			}
 		}
 	}

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Tekly.Common.Timers;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -39,6 +40,15 @@ namespace Tekly.TwoD.Cells
 		}
 
 		public bool IsPlaying => m_isPlaying;
+		public bool Loop {
+			get => m_loop;
+			set => m_loop = value;
+		}
+
+		public float Time {
+			get => m_time;
+			set => m_time = value;
+		}
 
 		public abstract bool Visible { get; set; }
 		public abstract Color Color { get; set; }
@@ -55,10 +65,21 @@ namespace Tekly.TwoD.Cells
 			m_time = 0;
 			m_frame = -1;
 		}
+		
+		public void SetAnimation(string animName, bool loop)
+		{
+			m_loop = loop;
+			SetAnimation(animName);
+		}
 
 		public void Play()
 		{
 			m_isPlaying = true;
+		}
+		
+		public void Pause()
+		{
+			m_isPlaying = false;
 		}
 
 		public void RandomizeTime()
@@ -93,7 +114,7 @@ namespace Tekly.TwoD.Cells
 			}
 
 			if (m_timer == null) {
-				m_time += Time.deltaTime * m_speed;
+				m_time += UnityEngine.Time.deltaTime * m_speed;
 			} else {
 				m_time += m_timer.DeltaTime * m_speed;	
 			}

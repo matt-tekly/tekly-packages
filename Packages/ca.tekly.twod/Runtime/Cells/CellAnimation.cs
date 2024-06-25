@@ -9,6 +9,12 @@ namespace Tekly.TwoD.Cells
 	public class CellFrameEvt { }
 
 	[Serializable]
+	public class TextEvt : CellFrameEvt
+	{
+		public string Text;
+	}
+	
+	[Serializable]
 	public class AudioEvt : CellFrameEvt
 	{
 		public string Clip;
