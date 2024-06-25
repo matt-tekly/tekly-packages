@@ -19,19 +19,19 @@ namespace Tekly.Extensions.Ui
 		{
 			switch (state) {
 				case ButtonState.Up:
-					m_image.SetAnimation("up");
+					m_image.PlayAnimation("up");
 					m_image.FrameUpdate();
 					m_content.offsetMax = new Vector2(m_content.offsetMax.x, 0);
 					SetDisabledContentColor(Color.white);
 					break;
 				case ButtonState.Down:
-					m_image.SetAnimation("down");
+					m_image.PlayAnimation("down");
 					m_image.FrameUpdate();
 					m_content.offsetMax = new Vector2(m_content.offsetMax.x, m_contentDownOffset);
 					SetDisabledContentColor(Color.white);
 					break;
 				case ButtonState.Disabled:
-					m_image.SetAnimation("disabled");
+					m_image.PlayAnimation("disabled");
 					m_image.FrameUpdate();
 					m_content.offsetMax = new Vector2(m_content.offsetMax.x, m_contentDisabledOffset);
 					SetDisabledContentColor(m_disabledContentColor);

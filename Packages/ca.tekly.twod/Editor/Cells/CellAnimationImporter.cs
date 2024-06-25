@@ -44,7 +44,7 @@ namespace Tekly.TwoD.Cells
 							frameIndices.Add(i);
 						}
 						
-						for (var i = tag.to - 1; i >= tag.from; i--) {
+						for (var i = tag.to - 1; i > tag.from; i--) {
 							frameIndices.Add(i);
 						}
 						break;
