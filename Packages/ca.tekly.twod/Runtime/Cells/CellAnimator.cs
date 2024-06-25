@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Tekly.Common.Timers;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -23,6 +22,7 @@ namespace Tekly.TwoD.Cells
 		private int m_frame = -1;
 		private float m_time;
 		
+		// TODO: Sometimes this is called twice for some reason
 		public event Action<CellAnimator, CellFrameEvt> AnimationEvent;
 
 		public CellSprite Sprite {
@@ -30,7 +30,7 @@ namespace Tekly.TwoD.Cells
 			set {
 				m_sprite = value;
 				m_animation = null;
-				SetAnimation(m_animName);
+				PlayAnimation(m_animName);
 			}
 		}
 		
@@ -54,22 +54,16 @@ namespace Tekly.TwoD.Cells
 		public abstract Color Color { get; set; }
 		protected abstract Sprite RenderedSprite { get; set; }
 		
-		public void SetAnimation(string animName)
+		public void PlayAnimation(string animName)
 		{
-			if ((m_animation != null && m_animation.name == animName) || m_sprite == null) {
-				return;
-			}
-			
-			m_animName = animName;
-			m_animation = m_sprite.Get(animName);
-			m_time = 0;
-			m_frame = -1;
+			SetAnimation(animName);
+			m_isPlaying = true;
 		}
 		
-		public void SetAnimation(string animName, bool loop)
+		public void PlayAnimation(string animName, bool loop)
 		{
 			m_loop = loop;
-			SetAnimation(animName);
+			PlayAnimation(animName);
 		}
 
 		public void Play()
@@ -105,6 +99,18 @@ namespace Tekly.TwoD.Cells
 					RenderedSprite = m_animation.Frames[m_frame].Sprite;	
 				}
 			}
+		}
+
+		private void SetAnimation(string animName)
+		{
+			if ((m_animation != null && m_animation.name == animName) || m_sprite == null) {
+				return;
+			}
+			
+			m_animName = animName;
+			m_animation = m_sprite.Get(animName);
+			m_time = 0;
+			m_frame = -1;
 		}
 
 		private void Update()
@@ -152,7 +158,7 @@ namespace Tekly.TwoD.Cells
 
 			if (!m_loop) {
 				Stop();
-				return m_frame;
+				return m_animation.Frames.Length - 1;
 			}
 
 			m_time = 0;
