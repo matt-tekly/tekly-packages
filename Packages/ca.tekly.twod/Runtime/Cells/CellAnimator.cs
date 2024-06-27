@@ -103,7 +103,7 @@ namespace Tekly.TwoD.Cells
 
 		private void SetAnimation(string animName)
 		{
-			if (m_animation == null || m_sprite == null) {
+			if (m_sprite == null) {
 				return;
 			}
 			
