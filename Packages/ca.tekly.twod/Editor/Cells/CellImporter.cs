@@ -24,6 +24,11 @@ namespace Tekly.TwoD.Cells
 		
 		[SerializeField] private int m_pixelsPerUnit = 100;
 		[SerializeField] private Vector2 m_pivot = new Vector2(0.5f, 0f);
+
+		public void Initialize()
+		{
+			EditorUtility.CopySerializedManagedFieldsOnly(TwoDDefaults.instance.Cells, this);
+		}
 	}
 	
 	[ScriptedImporter(9, "cell")]
@@ -35,6 +40,7 @@ namespace Tekly.TwoD.Cells
 		{
 			if (m_settings == null) {
 				m_settings = new CellImporterSettings();
+				m_settings.Initialize();
 			}
 			
 			using var fileStream = File.OpenRead(ctx.assetPath);

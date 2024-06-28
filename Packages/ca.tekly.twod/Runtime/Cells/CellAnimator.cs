@@ -22,7 +22,6 @@ namespace Tekly.TwoD.Cells
 		private int m_frame = -1;
 		private float m_time;
 		
-		// TODO: Sometimes this is called twice for some reason
 		public event Action<CellAnimator, CellFrameEvt> AnimationEvent;
 
 		public CellSprite Sprite {
