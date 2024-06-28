@@ -26,6 +26,11 @@ namespace Tekly.TwoD.Tiles
 		
 		[SerializeField] private int m_pixelsPerUnit = 100;
 		[SerializeField] private bool m_generateTiles = true;
+
+		public void Initialize()
+		{
+			EditorUtility.CopySerializedManagedFieldsOnly(TwoDDefaults.instance.Tiles, this);
+		}
 	}
 	
 	[ScriptedImporter(0, "tiles")]
@@ -37,6 +42,7 @@ namespace Tekly.TwoD.Tiles
 		{
 			if (m_settings == null) {
 				m_settings = new TilesImporterSettings();
+				m_settings.Initialize();
 			}
 
 			using var fileStream = File.OpenRead(ctx.assetPath);
