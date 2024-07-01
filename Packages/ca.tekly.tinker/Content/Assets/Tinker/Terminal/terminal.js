@@ -11,17 +11,13 @@ class Terminal {
 
         document.addEventListener('keydown', this.processKey);
 
-        const resizeObserver = new ResizeObserver(entries => {
-            entries.forEach(entry => {
-                if (entry.target === this.content) {
-                    console.log("Observer");
-                }
-            });
-
-            this.scrollToBottom();
+        const resizeObserver= new MutationObserver(entries => {
+            // TODO: This doesn't seem like a good solution
+            // setTimeout(this.scrollToBottom, 100);
         });
-        
-        resizeObserver.observe(this.content);
+
+        var config = {childList: true};
+        resizeObserver.observe(this.content, config);
         
         this.addText("Tinker", "title");
     }
@@ -56,6 +52,13 @@ class Terminal {
 
     scrollToBottom = () => {
         this.content.scrollTop = this.content.scrollHeight;
+    }
+
+    scrollToBottomIfFollowingBottom = (element) => {
+        element.scrollIntoView({ behavior: "instant", block: "end" });
+        
+        // console.log(this.content.scrollTop === this.content.scrollHeight);
+        // this.content.scrollTop = this.content.scrollHeight;
     }
 
     clear = () => {

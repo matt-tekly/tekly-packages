@@ -70,3 +70,7 @@ MonoBehaviour:
     Name: tinker_styles
     Url: /Tinker/tinker_styles.css
     IsTemplate: 0
+  - Asset: {fileID: 9027929339269108002, guid: 64c59f0f374246a18aa471dbea0095ae, type: 3}
+    Name: tinker_test
+    Url: /Tinker/tinker_test.liquid
+    IsTemplate: 1

@@ -1,10 +1,9 @@
 {% assign card_name = Stats.Name %}
 {% include tinker_card_header %}
 
-
-<div class="tinker-stats-container">
+<div class="stats">
 	{%- for stat in Stats.Items-%}
-	<div class="tinker-stat">
+	<div class="stat">
 		<div class="value {{ stat.Color }}">
 			{{ stat.Value }}
 		</div>

@@ -1,4 +1,4 @@
-<div class="ui visible inverted vertical sidebar menu">
+<div class="sidebar">
     <div class="item">
         <a class="header" href="{{ Tinker.Sidebar.Title.Url }}">
             {{ Tinker.Sidebar.Title.Name }}
@@ -6,18 +6,18 @@
     </div>
 
     {%- for section in Tinker.Sidebar.Sections -%}
-    <div class="item">
-        <div class="header">{{ section.Name }}</div>
-        <div class="menu">
-            {%- for item in section.Items -%}
-                <a class="item" href="{{ item.Url }}">{{ item.Name }}</a>
-            {%- endfor -%}
+        <div class="section">
+            <div class="header">{{ section.Name }}</div>
+            <div class="items">
+                {%- for item in section.Items -%}
+                    <a class="item" href="{{ item.Url }}">{{ item.Name }}</a>
+                {%- endfor -%}
+            </div>
         </div>
-    </div>
     {%- endfor -%}
-    <div class="item">
+    <div class="section">
         <div class="header">Commands</div>
-        <div class="menu">
+        <div class="items">
             {% assign routes = Tinker.Routes | where: "Visible" %}
             {%- for route in routes -%}
                 <a class="item" href="/tinker/routes#{{ route.Id }}">{{ route.DisplayName }}</a>

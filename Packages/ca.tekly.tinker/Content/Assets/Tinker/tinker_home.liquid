@@ -5,8 +5,10 @@
 {% include tinker_head %}
 
 <body>
+<div class="main">
 {%- include tinker_sidebar -%}
-<div class="page ui basic">
+<div class="main-content box-shadow">
+	
 	<div class="ui menu">
 		<div class="header item">
 			Home
@@ -29,9 +31,10 @@
 			</div>
 		</div>
 	</div>
-
+	
 	<div class="grid-stack">
 	</div>
+</div>
 </div>
 </body>
 
@@ -104,7 +107,7 @@
     }
 
     function createWidgetHtml(widget) {
-        return `<div class="grid-stack-item"><div class="grid-stack-item-content data-card" hx-trigger="revealed,reload" hx-get="${widget.url}"></div></div>`;
+        return `<div class="grid-stack-item"><div class="grid-stack-item-content card box-shadow" hx-trigger="revealed,reload" hx-get="${widget.url}"></div></div>`;
     }
 
     function triggerReload(element) {

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+
+{% assign title = 'Tinker' %}
+{% include tinker_head %}
+
+<body>
+
+<div class="main">
+	<div class="sidebar">
+		<div class="item">
+			<a class="header" href="{{ Tinker.Sidebar.Title.Url }}">
+				{{ Tinker.Sidebar.Title.Name }}
+			</a>
+		</div>
+
+		{%- for section in Tinker.Sidebar.Sections -%}
+			<div class="section">
+				<div class="header">{{ section.Name }}</div>
+				<div class="items">
+					{%- for item in section.Items -%}
+						<a class="item" href="{{ item.Url }}">{{ item.Name }}</a>
+					{%- endfor -%}
+				</div>
+			</div>
+		{%- endfor -%}
+		<div class="section">
+			<div class="header">Commands</div>
+			<div class="items">
+				{% assign routes = Tinker.Routes | where: "Visible" %}
+				{%- for route in routes -%}
+					<a class="item" href="/tinker/routes#{{ route.Id }}">{{ route.DisplayName }}</a>
+				{%- endfor -%}
+			</div>
+		</div>
+	</div>
+
+	<div class="main-content box-shadow">
+		<h1>Stuff</h1>
+
+		<div class="card box-shadow">
+			This is a card
+		</div>
+
+		<div class="card box-shadow" hx-trigger="revealed,reload" hx-get="/game/inventory/card" data-hx-revealed="true">
+			<div class="header">
+				<h4>Inventory</h4>
+				<div>
+					<span class="button-icon" onclick="triggerReload(this)">
+						<i class='bx bx-refresh'></i>
+					</span>
+					<span class="button-icon hide edit-inline" onclick="triggerRemove(this)">
+						<i class='bx bx-trash'></i>
+					</span>
+				</div>
+			</div>
+			<div class="body">
+				<table class="table">
+					<tbody>
+						<tr>
+							<td>boar_gen_item</td>
+							<td>88853.00</td>
+						</tr>
+						<tr>
+							<td>chicken_gen_item</td>
+							<td>10982299491.00</td>
+						</tr>
+						<tr>
+							<td>credits_gen_item</td>
+							<td>1.00</td>
+						</tr>
+						<tr>
+							<td>credits_item</td>
+							<td>619998.00</td>
+						</tr>
+						<tr>
+							<td>dinosaur_gen_item</td>
+							<td>20.00</td>
+						</tr>
+						<tr>
+							<td>donkey_gen_item</td>
+							<td>23.00</td>
+						</tr>
+						<tr>
+							<td>egg_item</td>
+							<td>2182226927522.00</td>
+						</tr>
+						<tr>
+							<td>pig_gen_item</td>
+							<td>37526148.00</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+
+<script>
+</script>
+
+</html>

@@ -10,8 +10,12 @@ namespace Tekly.Tinker.Core
 	{
 		[Page("", "tinker_home", "page")]
 		public void Home() { }
+		
 		[Page("/", "tinker_home", "page")]
 		public void Home2() { }
+		
+		[Page("/test", "tinker_test", "page")]
+		public void Test() { }
 
 		[Page("/tinker/routes", "tinker_routes")]
 		public void Routes() { }

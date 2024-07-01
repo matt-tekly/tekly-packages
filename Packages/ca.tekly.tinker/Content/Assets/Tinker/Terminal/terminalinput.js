@@ -118,7 +118,7 @@ class TerminalInput {
 
             setTimeout(() => {
                 this.terminal.scrollToBottom();
-            }, 30)
+            }, 30);
         }
     }
 }

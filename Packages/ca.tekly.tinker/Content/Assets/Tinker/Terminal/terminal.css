@@ -1,27 +1,10 @@
-:root {
-    --base-color: #191724;
-    --surface-color: #1f1d2e;
-    --overlay-color: #26233a;
-    
-    --muted-color: #6e6a86;
-    --subtle-color: #908caa;
-    --text-color: #e0def4;
-    --selected-color: #ebbcba;
-
-    --foam-color: #9ccfd8;
-    
-    --error-color: #eb6f92;
-}
-
 .terminal-page {
-    margin-left: 210px;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    height: 100vh;
-
+    
     font-family: monospace;
-    background: var(--base-color) !important;
+    background: var(--surface-color) !important;
     color: var(--text-color);
 }
 
@@ -34,7 +17,10 @@
     flex-direction: column;
 
     scrollbar-width: thin; /* For Firefox */
-    scrollbar-color: #ccc #333; /* Thumb and track color */
+    scrollbar-color: #ccc rgba(0,0,0,0); /* Thumb and track color */
+    scrollbar-gutter: stable;
+    /*scroll-behavior: smooth;*/
+    overflow-anchor: ;
 }
 
 .terminal-container > :first-child {
@@ -44,10 +30,13 @@
 /* WebKit (Chrome, Safari, Edge) */
 .scrollable-content::-webkit-scrollbar {
     width: 10px; /* Width of the scrollbar */
+    background: rgba(0,0,0,0);
+    border-radius: 5px;
 }
 
 .scrollable-content::-webkit-scrollbar-track {
-    background: #333; /* Track color */
+    background: rgba(0,0,0,0);
+    border-radius: 5px;
 }
 
 .scrollable-content::-webkit-scrollbar-thumb {
@@ -75,10 +64,11 @@
     flex: 1;
     font-family: monospace;
     background: rgba(0, 0, 0, 0.1);
-    border: 0px;
+    border: 0;
     outline: none;
     color: var(--text-color);
     padding: 8px 8px 8px 10px;
+    border-radius: 8px;
 }
 
 .terminal-image {
@@ -104,7 +94,7 @@
 }
 
 .terminal-suggestion .active {
-    color: var(--selected-color)
+    color: var(--highlight-color)
 }
 
 .terminal-suggestion .command {
