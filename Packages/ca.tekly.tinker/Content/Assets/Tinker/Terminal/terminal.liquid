@@ -1,31 +1,29 @@
-
 <!doctype html>
 <html lang="en">
 
 {% assign title = 'Tinker' %}
 {% include tinker_head %}
 
+<script src="https://cdn.jsdelivr.net/npm/fuzzysort@3.0.2/fuzzysort.min.js"></script>
+
 <script src="/Tinker/terminal/commands.js"></script>
 <script src="/Tinker/terminal/terminal.js"></script>
+<script src="/Tinker/terminal/terminalinput.js"></script>
+<script src="/Tinker/terminal/terminalsuggestion.js"></script>
 
 <body>
 {%- include tinker_sidebar -%}
 
 
 <div class="terminal-page" id="terminal">
-	<div class="terminal-container" id="content">
-		<pre>====================================================================
-::::::::::: ::::::::::: ::::    ::: :::    ::: :::::::::: :::::::::  
-    :+:         :+:     :+:+:   :+: :+:   :+:  :+:        :+:    :+: 
-    +:+         +:+     :+:+:+  +:+ +:+  +:+   +:+        +:+    +:+ 
-    +#+         +#+     +#+ +:+ +#+ +#++:++    +#++:++#   +#++:++#:  
-    +#+         +#+     +#+  +#+#+# +#+  +#+   +#+        +#+    +#+ 
-    #+#         #+#     #+#   #+#+# #+#   #+#  #+#        #+#    #+# 
-    ###     ########### ###    #### ###    ### ########## ###    ###
-====================================================================</pre>
-	</div>
+	<div class="terminal-container" id="content"></div>
 	<div class="terminal-input-container">
-		<span id="prefix">></span>
+		<div class="terminal-suggestion" id="suggestion">
+			<div>
+				<span class="command">yes</span>
+				<span class="param">no</span>
+			</div>
+		</div>
 		<input id="input" class="terminal-input" type="text" autofocus>
 	</div>
 </div>
@@ -33,8 +31,78 @@
 </body>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    function triggerReload(element) {
+        let event = new Event("reload", {bubbles: true});
+        element.dispatchEvent(event);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
         const terminal = new Terminal("#terminal");
+
+        function createHtmxElement(url) {
+            let html = `<div hx-trigger="revealed,reload" hx-get="${url}"></div>`
+
+            const newEntry = document.createElement('div');
+            newEntry.innerHTML = html;
+
+            return newEntry;
+        }
+
+        terminal.commands.addFunction("test", () => {
+            return "bingus bongus";
+        });
+
+        terminal.commands.addFunction("test2", () => {
+            console.log("test function 2");
+            const newEntry = document.createElement('div');
+            newEntry.textContent = "bingus bongus 2";
+
+            return newEntry;
+        });
+
+        terminal.commands.addFunction("fetchy", () => {
+            return createHtmxElement("/tinker/info/app");
+        });
+
+        terminal.commands.addFunction("do_error", async () => {
+            throw new Error("oh no!");
+        });
+
+        terminal.commands.addFunction("inventory", () => {
+            return createHtmxElement("/game/inventory/card");
+        });
+
+        terminal.commands.addFunction("generator_run", async (generator) => {
+            const url = '/game/generators/run';
+            const params = new URLSearchParams();
+
+            params.append('generator', generator);
+
+            const fetchData = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: params
+            };
+
+            const fetchResult = await fetch(url, fetchData);
+
+            if (!fetchResult.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            return fetchResult.text();
+        });
+
+        terminal.commands.addFunction("screenshot", () => {
+            let url = "/screenshot?t=" + new Date().getTime();
+            const text = `<div><a href="${url}" target="_blank" class="clickable-image"><img class="terminal-image" src="${url}"></a></div>`
+
+            const range = document.createRange();
+            const fragment = range.createContextualFragment(text);
+            return fragment.firstChild;
+        });
     });
 </script>
 

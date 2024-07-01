@@ -1,21 +1,33 @@
-function triggerReload(element) {
-    let event = new Event("reload", {bubbles: true});
-    element.dispatchEvent(event);
+class Command
+{
+    /**
+     * @param {string} name - The name of the command
+     * @param {function} handler - The handler for the command
+     */
+    constructor(name, handler) {
+        this.name = name;
+        this.handler = handler
+        this.params = this.getParameterNames(this.handler);
+    }
+
+    getParameterNames(func) {
+        const funcStr = func.toString();
+        const result = funcStr.match(/^[^(]*\(\s*([^)]*?)\s*\)/);
+        
+        if (result && result[1]) {
+            return result[1]
+                .split(',')
+                .map(param => param.trim())
+                .filter(param => param);
+        }
+        
+        return [];
+    }
 }
 
-/**
- * @typedef {Object} Command
- * @property {string} name - The name of the command
- * @property {function} handler - The handler for the command
- */
-
-/**
- * @typedef {Object.<string, Command>} CommandMap
- * @description A map where keys are strings and values are User objects.
- */
 class Commands {
     constructor() {
-        /** @type {CommandMap} */
+        /** @type {Record<string, Command>} */
         this.commands = {};
         this.history = [];
         this.selectedHistory = 0;
@@ -23,11 +35,19 @@ class Commands {
 
     /**
      *
-     * @param {string} name
      * @param {Command} command
      */
-    add(name, command) {
-        this.commands[name] = command;
+    add(command) {
+        this.commands[command.name] = command;
+    }
+
+    /**
+     * 
+     * @param {string} name
+     * @param {function} func
+     */
+    addFunction(name, func) {
+        this.add(new Command(name, func));
     }
 
     /**
@@ -42,9 +62,10 @@ class Commands {
     /**
      * Processes and runs a command
      * @param {string} input
+     * @param {Terminal} terminal
      * @return {Promise<any>}
      */
-    async process(input) {
+    async process(input, terminal) {
         
         this.history.push(input);
         this.selectedHistory = this.history.length;
@@ -53,13 +74,21 @@ class Commands {
 
         let command = this.get(tokens[0]);
         if (command) {
-            let result = command.handler(tokens);
+            const context = {
+                terminal: terminal,
+                tokens: tokens
+            }
+            
+            const boundFunction = command.handler.bind(context);
+            let result = boundFunction(...tokens.slice(1));
 
             if (result instanceof Promise) {
                 result = await result;
             }
 
             return result;
+        } else {
+            throw Error(`Unknown command [${tokens[0]}]`);
         }
     }
     
@@ -95,5 +124,17 @@ class Commands {
         }
 
         return tokens;
+    }
+
+    /**
+     * 
+     * @param {string} text
+     * @return {Command[]}
+     */
+    search(text) {
+        const commands = Object.values(this.commands);
+        return fuzzysort.go(text, commands, {
+            key: "name", 
+        }).map(x => x.obj);
     }
 }

@@ -1,24 +1,37 @@
+:root {
+    --base-color: #191724;
+    --surface-color: #1f1d2e;
+    --overlay-color: #26233a;
+    
+    --muted-color: #6e6a86;
+    --subtle-color: #908caa;
+    --text-color: #e0def4;
+    --selected-color: #ebbcba;
+
+    --foam-color: #9ccfd8;
+    
+    --error-color: #eb6f92;
+}
+
 .terminal-page {
-    min-width: 1024px;
     margin-left: 210px;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    height: 100vh; /* Full viewport height */
-    
+    height: 100vh;
+
     font-family: monospace;
-    background: rgb(50,50,50) !important;
-    color: #00bf00;
+    background: var(--base-color) !important;
+    color: var(--text-color);
 }
 
 .terminal-container {
-    flex: 1; /* Take up remaining space */
-    overflow-y: auto; /* Enable vertical scrolling */
-    /*border: 1px solid #ccc;*/
+    flex: 1;
+    overflow-y: auto;
     padding: 10px;
-    display: flex; /* Use flexbox for aligning content */
-    
-    flex-direction: column; /* Stack items vertically, starting from the bottom */
+    display: flex;
+
+    flex-direction: column;
 
     scrollbar-width: thin; /* For Firefox */
     scrollbar-color: #ccc #333; /* Thumb and track color */
@@ -26,7 +39,6 @@
 
 .terminal-container > :first-child {
     margin-top: auto !important;
-    /* use !important to prevent breakage from child margin settings */
 }
 
 /* WebKit (Chrome, Safari, Edge) */
@@ -45,10 +57,11 @@
 
 .terminal-input-container {
     margin-top: 2px;
-    padding-left: 2px;
+    padding-left: 0;
     display: flex;
     align-items: stretch;
     flex-direction: row;
+    position: relative;;
 }
 
 .terminal-input-container span {
@@ -61,14 +74,51 @@
 .terminal-input {
     flex: 1;
     font-family: monospace;
-    background: transparent;
-    border: none;
+    background: rgba(0, 0, 0, 0.1);
+    border: 0px;
     outline: none;
-    color: #00bf00;
-    padding: 8px;
+    color: var(--text-color);
+    padding: 8px 8px 8px 10px;
 }
 
 .terminal-image {
     max-width: 300px;
     max-height: 500px;
+}
+
+.terminal-suggestion {
+    position: absolute;
+    bottom: 35px;
+    left: 3px;
+    z-index: 2;
+
+    background-color: var(--overlay-color);
+    border-radius: 8px;
+    padding: 4px;
+    margin: 4px;
+    min-width: 150px;
+}
+
+.terminal-sent-command {
+    color: var(--subtle-color)
+}
+
+.terminal-suggestion .active {
+    color: var(--selected-color)
+}
+
+.terminal-suggestion .command {
+    /*font-weight: bold;*/
+}
+
+.terminal-suggestion .param {
+    color: var(--muted-color);
+}
+
+.terminal-container .error {
+    color: var(--error-color);
+}
+
+.terminal-container .title {
+    color: var(--foam-color);
 }
