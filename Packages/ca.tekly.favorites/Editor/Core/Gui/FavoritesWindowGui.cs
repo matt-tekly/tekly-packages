@@ -19,6 +19,7 @@ namespace Tekly.Favorites.Gui
 		private readonly FavoriteAssetGui m_favoriteGui;
 
 		private bool m_edit;
+		private bool m_shift;
 
 		public FavoritesWindowGui(FavoritesData data, FavoritesWindowSettings settings, FavoritesWindow window)
 		{
@@ -188,11 +189,16 @@ namespace Tekly.Favorites.Gui
 		{
 			var evt = Event.current;
 			
+			// Shift has to be cached rom Repaint because it is unreliably reported in key event
+			if (evt.type == EventType.Repaint) {
+				m_shift = evt.shift || evt.modifiers == EventModifiers.Shift;
+			}
+			
 			if (evt.type != EventType.KeyDown) {
 				return;
 			}
 			
-			if (FavoritesData.Instance.HandleShortcut(evt.keyCode, evt.shift || m_edit, evt)) {
+			if (FavoritesData.Instance.HandleShortcut(evt.keyCode, m_shift || m_edit, evt)) {
 				m_window.Close();
 			}
 
