@@ -10,15 +10,6 @@
 <div class="main-content box-shadow nice-scrollbar">
 	
 	<div class="ui menu">
-		<div class="header item">
-			Home
-		</div>
-		<a class="item">
-			About Us
-		</a>
-		<a class="item">
-			Jobs
-		</a>
 		<div class="right menu">
 			<div class="item">
 				<button class="ui mini button" onclick="add()">add</button>
@@ -107,7 +98,14 @@
     }
 
     function createWidgetHtml(widget) {
-        return `<div class="grid-stack-item"><div class="grid-stack-item-content card box-shadow" hx-trigger="revealed,reload" hx-get="${widget.url}"></div></div>`;
+        return`
+<div class="grid-stack-item">
+	<div class="grid-stack-item-content">				
+		<div class="card box-shadow" hx-trigger="revealed,reload" hx-get="${widget.url}" hx-swap="outerHTML">				
+		</div>
+	</div>
+</div>
+`;
     }
 
     function triggerReload(element) {

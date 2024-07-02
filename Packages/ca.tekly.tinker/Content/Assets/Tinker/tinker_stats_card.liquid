@@ -1,19 +1,20 @@
-{% assign card_name = Stats.Name %}
-{% include tinker_card_header %}
+<div class="card box-shadow" hx-trigger="reload" hx-get="{{ Tinker.Url }}" hx-swap="outerHTML">
+	{% assign card_name = Stats.Name %}
+	{% include tinker_card_header %}
 
-<div class="stats">
-	{%- for stat in Stats.Items-%}
-	<div class="stat">
-		<div class="value {{ stat.Color }}">
-			{{ stat.Value }}
-		</div>
-		<div class="label">
-			{{ stat.Name }}
-		</div>
+	<div class="stats">
+		{%- for stat in Stats.Items -%}
+			<div class="stat">
+				<div class="value {{ stat.Color }}">
+					{{ stat.Value }}
+				</div>
+				<div class="label">
+					{{ stat.Name }}
+				</div>
+			</div>
+		{%- endfor -%}
 	</div>
-	{%- endfor -%}
 </div>
-
 
 
 

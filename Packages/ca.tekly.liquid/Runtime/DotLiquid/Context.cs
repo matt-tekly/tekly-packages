@@ -129,7 +129,7 @@ namespace DotLiquid
         /// Creates a new rendering context
         /// </summary>
         public Context(IFormatProvider formatProvider)
-            : this(new List<Hash>(), new Hash(), new Hash(), ErrorsOutputMode.Display, 0, 0, formatProvider)
+            : this(new List<Hash>(), new Hash(), new Hash(), ErrorsOutputMode.Display, 0, formatProvider, CancellationToken.None)
         {
         }
 

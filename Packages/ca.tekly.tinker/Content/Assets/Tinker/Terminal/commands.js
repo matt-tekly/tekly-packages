@@ -31,6 +31,19 @@ class Commands {
         this.commands = {};
         this.history = [];
         this.selectedHistory = 0;
+        
+        this.addFunction("list", () => {
+            let root = document.createElement('div');
+            
+            const commands = Object.values(this.commands);
+            commands.map(cmd => {
+                const newEntry = document.createElement('div');
+                newEntry.innerText = cmd.name;
+                root.appendChild(newEntry);
+            })
+            
+            return root;
+        });
     }
 
     /**

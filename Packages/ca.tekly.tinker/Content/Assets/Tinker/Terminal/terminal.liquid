@@ -42,8 +42,9 @@
             const newEntry = document.createElement('div');
             newEntry.setAttribute("hx-trigger", "revealed,reload,intersect");
             newEntry.setAttribute("hx-get", url);
+            newEntry.setAttribute("hx-swap", "outerHtml");
             
-            newEntry.classList.add("card");
+            // newEntry.classList.add("card");
             return newEntry;
         }
 

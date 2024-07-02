@@ -52,7 +52,7 @@ namespace TeklySample.App
 			return "okay?";
 		}
 		
-		[Page("/inventory/card", "tinker_data_list", "Data")]
+		[Page("/inventory/card", "tinker_data_card", "Data")]
 		public DataList GetInventoryCard()
 		{
 			var dataList = new DataList("Inventory");

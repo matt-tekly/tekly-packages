@@ -43,8 +43,8 @@ MonoBehaviour:
     Url: /Tinker/tinker_card_header.liquid
     IsTemplate: 1
   - Asset: {fileID: 9027929339269108002, guid: b4e7d0fdff9a4d169c06c8f75a0ea40c, type: 3}
-    Name: tinker_data_list
-    Url: /Tinker/tinker_data_list.liquid
+    Name: tinker_data_card
+    Url: /Tinker/tinker_data_card.liquid
     IsTemplate: 1
   - Asset: {fileID: 9027929339269108002, guid: fb4f4ea9a8b64da880a5494a0840b685, type: 3}
     Name: tinker_head
@@ -70,7 +70,3 @@ MonoBehaviour:
     Name: tinker_styles
     Url: /Tinker/tinker_styles.css
     IsTemplate: 0
-  - Asset: {fileID: 9027929339269108002, guid: 64c59f0f374246a18aa471dbea0095ae, type: 3}
-    Name: tinker_test
-    Url: /Tinker/tinker_test.liquid
-    IsTemplate: 1

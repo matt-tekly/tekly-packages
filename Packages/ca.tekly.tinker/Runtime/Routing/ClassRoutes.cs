@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Text.RegularExpressions;
 using DotLiquid;
 using Tekly.Common.Utils;
 using Tekly.Tinker.Core;
@@ -9,18 +10,37 @@ using UnityEngine.Assertions;
 
 namespace Tekly.Tinker.Routing
 {
+	public class CommandAttribute : Attribute
+	{
+		public string Name;
+
+		private static readonly Regex s_validPattern = new Regex("^[a-zA-Z0-9_-]+$");
+		public CommandAttribute(string name)
+		{
+			Name = name;
+			
+			if (!s_validPattern.IsMatch(name)) {
+				Debug.LogError($"Command name [{name}] must only contain letters, numbers, underscores and dashes");
+				Name = s_validPattern.Replace(name, "_");
+			}
+		}
+	}
+	
 	public class ClassRoutes : ITinkerRoutes
 	{
 		public string DisplayName => m_descriptionAttribute?.Name;
 		public string Description => m_descriptionAttribute?.Description;
 		public bool Visible => m_descriptionAttribute != null;
 		public string Id => DisplayName.Replace(" ", "_");
+		public bool IsCommand => m_commandAttribute != null;
+		public string CommandName => m_commandAttribute.Name;
 
 		public List<RouteFunction> Functions => m_routeFunctions;
 
 		private readonly object m_instance;
 		private readonly List<RouteFunction> m_routeFunctions = new List<RouteFunction>();
 		private readonly DescriptionAttribute m_descriptionAttribute;
+		private readonly CommandAttribute m_commandAttribute;
 
 		public ClassRoutes(object instance, TinkerServer tinkerServer)
 		{
@@ -32,6 +52,7 @@ namespace Tekly.Tinker.Routing
 			Assert.IsNotNull(topLevelRoute, $"Missing Route Attribute on class [{instance.GetType().Name}");
 
 			m_descriptionAttribute = instance.GetType().GetAttribute<DescriptionAttribute>();
+			m_commandAttribute = instance.GetType().GetAttribute<CommandAttribute>();
 
 			var root = topLevelRoute.Route;
 

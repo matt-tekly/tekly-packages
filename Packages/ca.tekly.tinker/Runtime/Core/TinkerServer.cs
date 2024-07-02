@@ -3,12 +3,10 @@
 #endif
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.CompilerServices;
 using DotLiquid;
 using DotLiquid.NamingConventions;
 using Newtonsoft.Json;
@@ -22,29 +20,6 @@ using UnityEngine;
 
 namespace Tekly.Tinker.Core
 {
-	public class EndOfFrameAwaiter : INotifyCompletion
-	{
-		private Action _continuation;
-		
-		public bool IsCompleted => false;
-
-		public void OnCompleted(Action continuation)
-		{
-			_continuation = continuation;
-			LifeCycle.Instance.StartCoroutine(WaitForEndOfFrameCoroutine());
-		}
-
-		public void GetResult() { }
-
-		private IEnumerator WaitForEndOfFrameCoroutine()
-		{
-			yield return new WaitForEndOfFrame();
-			_continuation?.Invoke();
-		}
-
-		public EndOfFrameAwaiter GetAwaiter() => this;
-	}
-	
 	public class TinkerData
 	{
 		public string Url;

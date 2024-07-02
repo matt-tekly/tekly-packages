@@ -147,7 +147,7 @@ a {
     grid-template-columns: 200px 1fr;
     height: 100vh;
     background: linear-gradient(var(--base-color) 40%,  var(--base-color-darker) 100%);
-    overflow: hidden;
+    overflow: visible;
 }
 
 .nice-scrollbar {
@@ -215,6 +215,11 @@ a {
     border-radius: 14px;
     color: var(--text-color);
     margin: 5px;
+    overflow: hidden;
+}
+
+.grid-stack-item-content .card {
+    flex: 1;
 }
 
 .card .header {
@@ -370,7 +375,7 @@ a {
 
 .grid-stack-item-content {
     overflow: hidden !important;
-    padding: 8px;
+    display: flex;
 }
 
 .grid-stack-placeholder .placeholder-content {
