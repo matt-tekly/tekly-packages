@@ -3,7 +3,7 @@
     flex-direction: column;
     justify-content: flex-end;
     
-    font-family: monospace;
+    font-variant-numeric: tabular-nums;
     background: var(--surface-color) !important;
     color: var(--text-color);
 }
@@ -14,17 +14,11 @@
     padding: 10px;
     display: flex;
 
-    flex-direction: column;
+    flex-direction: column-reverse;
 
     scrollbar-width: thin; /* For Firefox */
     scrollbar-color: #ccc rgba(0,0,0,0); /* Thumb and track color */
     scrollbar-gutter: stable;
-    /*scroll-behavior: smooth;*/
-    overflow-anchor: ;
-}
-
-.terminal-container > :first-child {
-    margin-top: auto !important;
 }
 
 /* WebKit (Chrome, Safari, Edge) */
@@ -76,21 +70,24 @@
     max-height: 500px;
 }
 
+.terminal-sent-command {
+    color: var(--subtle-color);
+    font-family: monospace;
+}
+
 .terminal-suggestion {
+    font-family: monospace;
     position: absolute;
     bottom: 35px;
     left: 3px;
     z-index: 2;
 
-    background-color: var(--overlay-color);
+    background-color: var(--base-color);
     border-radius: 8px;
     padding: 4px;
     margin: 4px;
     min-width: 150px;
-}
-
-.terminal-sent-command {
-    color: var(--subtle-color)
+    border: var(--highlight-low-color) 1px solid;
 }
 
 .terminal-suggestion .active {
@@ -111,4 +108,5 @@
 
 .terminal-container .title {
     color: var(--foam-color);
+    font-size: large;
 }

@@ -30,27 +30,17 @@
 </body>
 
 <script>
-	
-	let terminalOutside = null;
     function triggerReload(element) {
         let event = new Event("reload", {bubbles: true});
         element.dispatchEvent(event);
     }
-
-
-    function scrollToBottom(elem) {
-        console.log("yay");
-        terminalOutside.scrollToBottomIfFollowingBottom(elem);
-    }
-    
+	
     document.addEventListener('DOMContentLoaded', function () {
         const terminal = new Terminal("#terminal");
-        terminalOutside = terminal;
 		
         function createHtmxCard(url) {
             const newEntry = document.createElement('div');
-            newEntry.setAttribute("hx-trigger", "revealed,reload");
-            newEntry.setAttribute("hx-swap", "innerHtml show:bottom");
+            newEntry.setAttribute("hx-trigger", "revealed,reload,intersect");
             newEntry.setAttribute("hx-get", url);
             
             newEntry.classList.add("card");

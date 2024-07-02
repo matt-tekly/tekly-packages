@@ -19,7 +19,7 @@ class Terminal {
         var config = {childList: true};
         resizeObserver.observe(this.content, config);
         
-        this.addText("Tinker", "title");
+        this.addText("Tinker Terminal", "title");
     }
 
     addDefaultCommands = () => {
@@ -33,8 +33,8 @@ class Terminal {
     }
 
     addContent = (element) => {
-        const newEntry= this.content.appendChild(element);
-        htmx.process(newEntry);
+        this.content.prepend(element);
+        htmx.process(element);
     }
 
     addText = (text, className) => {
@@ -43,7 +43,8 @@ class Terminal {
         if (className){
             divElement.classList.add(className);    
         }
-        this.content.appendChild(divElement)
+        this.content.prepend(divElement);
+        // this.content.appendChild(divElement)
     }
 
     addError = (text) => {
@@ -51,11 +52,11 @@ class Terminal {
     }
 
     scrollToBottom = () => {
-        this.content.scrollTop = this.content.scrollHeight;
+        // this.content.scrollTop = this.content.scrollHeight;
     }
 
     scrollToBottomIfFollowingBottom = (element) => {
-        element.scrollIntoView({ behavior: "instant", block: "end" });
+        // element.scrollIntoView({ behavior: "instant", block: "end" });
         
         // console.log(this.content.scrollTop === this.content.scrollHeight);
         // this.content.scrollTop = this.content.scrollHeight;

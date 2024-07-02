@@ -7,20 +7,20 @@ namespace Tekly.Tinker.Routes
 	[Route("/unity"), Description("Unity Commands")]
 	public class UnityRoutes
 	{
-		[Post("/framerate"), Description("Set target framerate")]
+		[Post("/framerate"), Description("Set Target Framerate")]
 		public int SetTargetFrameRate(int framerate)
 		{
 			Application.targetFrameRate = framerate;
 			return framerate;
 		}
 
-		[Post("/quit"), Description("Quit the application")]
+		[Post("/quit"), Description("Quit", "Quit the application")]
 		public void Quit(int status = 0)
 		{
 			Application.Quit(status);
 		}
 		
-		[Post("/load_scene"), Description("Load a scene")]
+		[Post("/load_scene"), Description("Load Scene", "Loads the given scene")]
 		public string LoadScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)
 		{
 			var sceneAsset = SceneManager.GetSceneByName(scene);
@@ -32,7 +32,7 @@ namespace Tekly.Tinker.Routes
 			return $"Loading Scene: [{scene}]";
 		}
 		
-		[Get("/assets"), Description("Returns a summary of all assets in memory")]
+		[Get("/assets"), Description("Assets Summary", "Returns a summary of all assets in memory")]
 		public AssetsSummary AssetsSummary()
 		{
 			return new AssetsSummary();
