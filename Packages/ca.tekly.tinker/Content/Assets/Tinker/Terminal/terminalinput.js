@@ -42,8 +42,7 @@ class TerminalInput {
                 this.terminal.addText("> " + input, "terminal-sent-command")
                 
                 this.processCommandText(input)
-
-                this.terminal.scrollToBottom();
+                
                 this.input.value = '';
             }
             
@@ -115,10 +114,6 @@ class TerminalInput {
 
             this.input.blur();
             this.input.focus();
-
-            setTimeout(() => {
-                this.terminal.scrollToBottom();
-            }, 30);
         }
     }
 }

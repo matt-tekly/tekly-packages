@@ -30,10 +30,42 @@
 </body>
 
 <script>
+
+	{% assign routes = Tinker.Routes %}
+
+    const commands = [
+	{%- for route in routes -%}
+	{%- assign commands = route.Functions | where: "IsCommand" -%}
+	{%- for cmd in commands -%}
+	{{ cmd | json }},
+	{%- endfor -%}
+	{%- endfor -%}
+    ];
+	
     function triggerReload(element) {
         let event = new Event("reload", {bubbles: true});
         element.dispatchEvent(event);
     }
+    
+    async function handleResponse(response) {
+        const contentType = response.headers.get('Content-Type');
+        if (contentType.includes('text/html')) {
+            const htmlText = await response.text();
+
+            const range = document.createRange();
+            const fragment = range.createContextualFragment(htmlText);
+            return fragment.firstChild;
+        } else if (contentType.includes('application/json')) {
+            const json = await response.text();
+            const newEntry = document.createElement('pre');
+            newEntry.classList.add("json", "box-shadow");
+            newEntry.innerText = json;
+            
+            return newEntry
+        } else {
+            return response.text();
+        }
+	}
 	
     document.addEventListener('DOMContentLoaded', function () {
         const terminal = new Terminal("#terminal");
@@ -43,11 +75,12 @@
             newEntry.setAttribute("hx-trigger", "revealed,reload,intersect");
             newEntry.setAttribute("hx-get", url);
             newEntry.setAttribute("hx-swap", "outerHtml");
-            
-            // newEntry.classList.add("card");
+			
             return newEntry;
         }
-
+        
+        terminal.commands.addTinkerCommands(commands);
+		
         terminal.commands.addFunction("test", () => {
             return "bingus bongus";
         });
@@ -70,30 +103,7 @@
         terminal.commands.addFunction("do_error", async () => {
             throw new Error("oh no!");
         });
-
-        terminal.commands.addFunction("generator_run", async (generator) => {
-            const url = '/game/generators/run';
-            const params = new URLSearchParams();
-
-            params.append('generator', generator);
-
-            const fetchData = {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: params
-            };
-
-            const fetchResult = await fetch(url, fetchData);
-
-            if (!fetchResult.ok) {
-                throw new Error('Network response was not ok');
-            }
-
-            return fetchResult.text();
-        });
-
+		
         terminal.commands.addFunction("screenshot", () => {
             let url = "/screenshot?t=" + new Date().getTime();
             const text = `<div><a href="${url}" target="_blank" class="clickable-image"><img class="terminal-image" src="${url}"></a></div>`

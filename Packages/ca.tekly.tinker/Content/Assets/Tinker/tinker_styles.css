@@ -1,5 +1,6 @@
 :root {
     --base-color: #191724;
+    --base-color-transparent: rgba(25, 23, 36, 0.75);
     --base-color-darker: #1a1a26;
     --surface-color: #1f1d2e;
     --overlay-color: #26233a;

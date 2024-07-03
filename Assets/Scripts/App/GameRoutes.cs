@@ -3,6 +3,7 @@ using DotLiquid;
 using Tekly.Injectors;
 using Tekly.Logging;
 using Tekly.Tinker.Core;
+using Tekly.Tinker.Routing;
 using TeklySample.Game.Items;
 using TeklySample.Game.Worlds;
 using UnityEngine;
@@ -31,28 +32,28 @@ namespace TeklySample.App
 			};
 		}
 		
-		[Get("/inventory"), Description("Get the Inventory")]
+		[Get("/inventory"), Description("Get the Inventory"), Command("inventory.json")]
 		public ItemInventorySave GetInventory()
 		{
 			return m_gameWorld.ItemInventory.ToSave();
 		}
 		
-		[Post("/inventory/set"), Description("Set item count")]
-		public ItemInventorySave GetInventory(string item, double amount)
+		[Post("/inventory/set"), Description("Set item count"), Command("inventory.set")]
+		public string SetInventory(string item, double amount)
 		{
 			var inventory = m_gameWorld.ItemInventory;
 			inventory.SetCount(item, amount);
-			return inventory.ToSave();
+			return $"Item [{item}] set to [{amount}]";
 		}
 		
-		[Post("/generators/run"), Description("Run a generator")]
+		[Post("/generators/run"), Description("Run a generator"), Command("generator.run")]
 		public string RunGenerator(string generator)
 		{
 			m_gameWorld.GeneratorManager.Run(generator);
-			return "okay?";
+			return $"Ran Generator [{generator}]";
 		}
 		
-		[Page("/inventory/card", "tinker_data_card", "Data")]
+		[Page("/inventory/card", "tinker_data_card", "Data"), Command("inventory")]
 		public DataList GetInventoryCard()
 		{
 			var dataList = new DataList("Inventory");

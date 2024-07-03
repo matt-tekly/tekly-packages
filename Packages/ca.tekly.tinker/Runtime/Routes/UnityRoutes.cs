@@ -1,4 +1,5 @@
 using Tekly.Tinker.Core;
+using Tekly.Tinker.Routing;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -38,7 +39,7 @@ namespace Tekly.Tinker.Routes
 			return new AssetsSummary();
 		}
 		
-		[Page("/assets/card", "tinker_stats_card", "Stats")]
+		[Page("/assets/card", "tinker_stats_card", "Stats"), Command("assets.card")]
 		public DataList AssetsSummaryCard()
 		{
 			var summary = new AssetsSummary();

@@ -3,25 +3,12 @@ class Command
     /**
      * @param {string} name - The name of the command
      * @param {function} handler - The handler for the command
+     * @param {string[]} params
      */
-    constructor(name, handler) {
+    constructor(name, handler, params) {
         this.name = name;
         this.handler = handler
-        this.params = this.getParameterNames(this.handler);
-    }
-
-    getParameterNames(func) {
-        const funcStr = func.toString();
-        const result = funcStr.match(/^[^(]*\(\s*([^)]*?)\s*\)/);
-        
-        if (result && result[1]) {
-            return result[1]
-                .split(',')
-                .map(param => param.trim())
-                .filter(param => param);
-        }
-        
-        return [];
+        this.params = params
     }
 }
 
@@ -60,7 +47,7 @@ class Commands {
      * @param {function} func
      */
     addFunction(name, func) {
-        this.add(new Command(name, func));
+        this.add(new Command(name, func, this.getParameterNames(func)));
     }
 
     /**
@@ -149,5 +136,70 @@ class Commands {
         return fuzzysort.go(text, commands, {
             key: "name", 
         }).map(x => x.obj);
+    }
+    
+    addTinkerCommands(commands) {
+        for (const cmd of commands) {
+            
+            const parameters = cmd.Parameters.map(x => x.Name);
+            const name = cmd.CommandName;
+            const handler = functionHandler(cmd);
+            
+            const command = new Command(name, handler, parameters);
+            this.add(command)
+        }
+    }
+
+    getParameterNames(func) {
+        const funcStr = func.toString();
+        const result = funcStr.match(/^[^(]*\(\s*([^)]*?)\s*\)/);
+
+        if (result && result[1]) {
+            return result[1]
+                .split(',')
+                .map(param => param.trim())
+                .filter(param => param);
+        }
+
+        return [];
+    }
+}
+
+function functionHandler(cmd) {
+    return async function (a,b,c){
+        const url = cmd.Path;
+
+        let fetchData = null;
+        if (cmd.Verb === "GET") {
+            fetchData = {
+                method: cmd.Verb,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+            };
+        } else {
+            const params = new URLSearchParams();
+
+            for (let i = 1; i < this.tokens.length; i++) {
+                params.set(cmd.Parameters[i-1].Name, this.tokens[i]);
+            }
+
+            fetchData = {
+                method: cmd.Verb,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: params
+            };
+        }
+
+        const fetchResult = await fetch(url, fetchData);
+
+        if (!fetchResult.ok) {
+            let text = await fetchResult.text();
+            throw new Error('Network response was not ok: ' + text);
+        }
+
+        return handleResponse(fetchResult);
     }
 }

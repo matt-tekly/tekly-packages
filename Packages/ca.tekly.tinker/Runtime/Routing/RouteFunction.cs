@@ -11,10 +11,12 @@ using Tekly.Tinker.Core;
 
 namespace Tekly.Tinker.Routing
 {
-	public class FunctionParameter : Drop
+	public class FunctionParameter
 	{
 		public string Name { get; }
 		public string DisplayName { get; }
+		
+		[JsonIgnore]
 		public Type ActualType { get; }
 		public bool Optional { get; }
 		public string DefaultValue { get; }
@@ -51,7 +53,7 @@ namespace Tekly.Tinker.Routing
 		}
 	}
 
-	public class RouteFunction : Drop
+	public class RouteFunction
 	{
 		public bool Visible => m_descriptionAttribute != null;
 		public string DisplayName => m_descriptionAttribute?.Name;
@@ -60,6 +62,9 @@ namespace Tekly.Tinker.Routing
 		public string Path => m_path;
 		public string Verb => m_verb;
 		public string Id { get; }
+		
+		public bool IsCommand => m_commandAttribute != null;
+		public string CommandName => m_commandAttribute?.Name;
 
 		private readonly TinkerServer m_tinkerServer;
 
@@ -70,7 +75,8 @@ namespace Tekly.Tinker.Routing
 		private readonly FunctionParameter[] m_parameters;
 		private readonly DescriptionAttribute m_descriptionAttribute;
 		private readonly PageAttribute m_pageAttribute;
-
+		private readonly CommandAttribute m_commandAttribute;
+		
 		public RouteFunction(MethodInfo method, string root, TinkerServer tinkerServer)
 		{
 			m_method = method;
@@ -78,6 +84,8 @@ namespace Tekly.Tinker.Routing
 
 			m_descriptionAttribute = m_method.GetAttribute<DescriptionAttribute>();
 			m_pageAttribute = m_method.GetAttribute<PageAttribute>();
+			m_commandAttribute = m_method.GetAttribute<CommandAttribute>();
+			
 			var route = method.GetAttribute<RouteAttribute>();
 
 			m_path = root + route.Route;

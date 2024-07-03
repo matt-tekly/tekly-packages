@@ -77,16 +77,17 @@
 }
 
 .terminal-suggestion {
+    backdrop-filter: blur(10px);
     font-family: monospace;
     position: absolute;
     bottom: 35px;
-    left: 3px;
+    left: 0px;
     z-index: 2;
 
-    background-color: var(--base-color);
+    background-color: var(--base-color-transparent);
     border-radius: 8px;
-    padding: 4px;
-    margin: 4px;
+    padding: 4px 4px 4px 8px;
+    margin: 4px 4px 4px 0;
     min-width: 150px;
     border: var(--highlight-low-color) 1px solid;
 }
@@ -110,4 +111,17 @@
 .terminal-container .title {
     color: var(--foam-color);
     font-size: large;
+}
+
+.terminal-container .json {
+    background-color: var(--overlay-color);
+    padding: 15px;
+    border-radius: 14px;
+    color: var(--text-color);
+    margin: 5px;
+}
+
+.terminal-container .card {
+    flex: none;
+    margin-right: auto;
 }
