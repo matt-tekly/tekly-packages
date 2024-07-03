@@ -8,8 +8,11 @@ using Tekly.DataModels.Models;
 using Tekly.Injectors;
 using Tekly.Lofi.Core;
 using Tekly.Logging;
+using Tekly.Tinker;
+using Tekly.Tinker.Core;
 using Tekly.TreeState;
 using Tekly.Webster;
+using UnityEditor;
 using UnityEngine;
 
 namespace TeklySample.App
@@ -58,6 +61,11 @@ namespace TeklySample.App
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void InitializeDebug()
         {
+            TinkerServer.Instance.Initialize();
+            TinkerServer.Instance.Home
+                .Add("inventory", "/game/inventory/card", 6, 5)
+                .Add("logs", "/game/logs/stats", 4, 3);
+            
             WebsterServer.Start(true);
             WebsterServer.AddRouteHandler<SampleWebsterHandler>();
             WebsterServer.AddRouteHandler<AppPropertiesRoute>();

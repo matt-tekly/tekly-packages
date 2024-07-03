@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Tekly.Common.Utils
 {
@@ -49,6 +50,12 @@ namespace Tekly.Common.Utils
 				default:
 					throw new Exception($"Trying to parse unknown type: {type.Name}");
 			}
+		}
+		
+		public static string NiceName(string value)
+		{
+			var output = Regex.Replace(value, "(\\B[A-Z])", " $1");
+			return char.ToUpper(output[0]) + output.Substring(1);
 		}
 
 		public static string HumanName(Type type)
@@ -100,6 +107,11 @@ namespace Tekly.Common.Utils
 		public static bool IsNullable(Type type)
 		{
 			return Nullable.GetUnderlyingType(type) != null;
+		}
+
+		public static bool IsNumber(Type type)
+		{
+			return IsInteger(type) || IsFloatingPoint(type);
 		}
 		
 		public static bool IsInteger(Type type)

@@ -1,0 +1,127 @@
+.terminal-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    
+    font-variant-numeric: tabular-nums;
+    background: var(--surface-color) !important;
+    color: var(--text-color);
+}
+
+.terminal-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+
+    flex-direction: column-reverse;
+
+    scrollbar-width: thin; /* For Firefox */
+    scrollbar-color: #ccc rgba(0,0,0,0); /* Thumb and track color */
+    scrollbar-gutter: stable;
+}
+
+/* WebKit (Chrome, Safari, Edge) */
+.scrollable-content::-webkit-scrollbar {
+    width: 10px; /* Width of the scrollbar */
+    background: rgba(0,0,0,0);
+    border-radius: 5px;
+}
+
+.scrollable-content::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0);
+    border-radius: 5px;
+}
+
+.scrollable-content::-webkit-scrollbar-thumb {
+    background-color: #ccc; /* Thumb color */
+    border-radius: 5px; /* Rounded corners */
+}
+
+.terminal-input-container {
+    margin-top: 2px;
+    padding-left: 0;
+    display: flex;
+    align-items: stretch;
+    flex-direction: row;
+    position: relative;;
+}
+
+.terminal-input-container span {
+    margin-right: 8px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    flex: 0;
+}
+
+.terminal-input {
+    flex: 1;
+    font-family: monospace;
+    background: rgba(0, 0, 0, 0.1);
+    /*border: 0;*/
+    outline: none;
+    color: var(--text-color);
+    padding: 8px 8px 8px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--highlight-low-color);
+}
+
+.terminal-image {
+    max-width: 300px;
+    max-height: 500px;
+}
+
+.terminal-sent-command {
+    color: var(--subtle-color);
+    font-family: monospace;
+}
+
+.terminal-suggestion {
+    backdrop-filter: blur(10px);
+    font-family: monospace;
+    position: absolute;
+    bottom: 35px;
+    left: 0px;
+    z-index: 2;
+
+    background-color: var(--base-color-transparent);
+    border-radius: 8px;
+    padding: 4px 4px 4px 8px;
+    margin: 4px 4px 4px 0;
+    min-width: 150px;
+    border: var(--highlight-low-color) 1px solid;
+}
+
+.terminal-suggestion .active {
+    color: var(--highlight-color)
+}
+
+.terminal-suggestion .command {
+    /*font-weight: bold;*/
+}
+
+.terminal-suggestion .param {
+    color: var(--muted-color);
+}
+
+.terminal-container .error {
+    color: var(--error-color);
+}
+
+.terminal-container .title {
+    color: var(--foam-color);
+    font-size: large;
+}
+
+.terminal-container .json {
+    background-color: var(--overlay-color);
+    padding: 15px;
+    border-radius: 14px;
+    color: var(--text-color);
+    margin: 5px;
+}
+
+.terminal-container .card {
+    flex: none;
+    margin-right: auto;
+}

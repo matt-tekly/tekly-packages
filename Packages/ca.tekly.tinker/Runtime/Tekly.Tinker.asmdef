@@ -1,0 +1,20 @@
+{
+    "name": "Tekly.Tinker",
+    "rootNamespace": "Tekly.Tinker",
+    "references": [
+        "GUID:b9160372c6c55a741932d482673e3abb",
+        "GUID:98440020d9e5b425694d2699e5dc03b7"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Newtonsoft.Json.dll",
+        "DotLiquid.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

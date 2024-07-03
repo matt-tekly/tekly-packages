@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using Tekly.Simulant.Core;
-using Unity.Collections.LowLevel.Unsafe;
 
 namespace TeklySample.Samples.Town
 {
 	public abstract class TownSystem
 	{
 		protected readonly World m_world;
+		
 		public TownSystem(World world)
 		{
 			m_world = world;
@@ -18,21 +18,13 @@ namespace TeklySample.Samples.Town
 	
 	public class TownWorld
 	{
-		private readonly WorldConfig m_worldConfig = new WorldConfig {
-			EntityCapacity = 512,
-			DataPools = new DataPoolConfig {
-				Capacity = 512,
-				RecycleCapacity = 512
-			}
-		};
-
 		public readonly World World;
 
 		private readonly List<TownSystem> m_systems = new List<TownSystem>();
 
 		public TownWorld()
 		{
-			World = new World(m_worldConfig);
+			World = new World();
 			m_systems.Add(new GeneratorSystem(World));
 			m_systems.Add(new InventorySystem(World));
 		}

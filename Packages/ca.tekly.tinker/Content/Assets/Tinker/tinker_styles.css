@@ -1,0 +1,441 @@
+:root {
+    --base-color: #191724;
+    --base-color-transparent: rgba(25, 23, 36, 0.75);
+    --base-color-darker: #1a1a26;
+    --surface-color: #1f1d2e;
+    --overlay-color: #26233a;
+
+    --muted-color: #6e6a86;
+    --subtle-color: #908caa;
+    --text-color: #e0def4;
+    --highlight-color: #ebbcba;
+
+    --foam-color: #9ccfd8;
+    --pine-color: #31748f;
+    --gold-color: #f6c177;
+
+    --error-color: #eb6f92;
+    --warning-color: var(--gold-color);
+
+    --highlight-low-color: #21202e;
+    --highlight-med-color: #403d52;
+    --highlight-high-color: #524f67;
+
+    --table-stripe: rgba(110, 106, 134, 0.1);
+}
+
+[data-theme=light],
+:root:not([data-theme=dark]) {
+    --pico-background-color: #fff;
+    --pico-color: #373c44;
+    --pico-text-selection-color: rgba(2, 154, 232, 0.25);
+    --pico-muted-color: #646b79;
+    --pico-muted-border-color: #e7eaf0;
+    --pico-primary: #0172ad;
+    --pico-primary-background: #0172ad;
+    --pico-primary-border: var(--pico-primary-background);
+    --pico-primary-underline: rgba(1, 114, 173, 0.5);
+    --pico-primary-hover: #015887;
+    --pico-primary-hover-background: #02659a;
+    --pico-primary-hover-border: var(--pico-primary-hover-background);
+    --pico-primary-hover-underline: var(--pico-primary-hover);
+    --pico-primary-focus: rgba(2, 154, 232, 0.5);
+    --pico-primary-inverse: #fff;
+    --pico-secondary: #5d6b89;
+    --pico-secondary-background: #525f7a;
+    --pico-secondary-border: var(--pico-secondary-background);
+    --pico-secondary-underline: rgba(93, 107, 137, 0.5);
+    --pico-secondary-hover: #48536b;
+    --pico-secondary-hover-background: #48536b;
+    --pico-secondary-hover-border: var(--pico-secondary-hover-background);
+    --pico-secondary-hover-underline: var(--pico-secondary-hover);
+    --pico-secondary-focus: rgba(93, 107, 137, 0.25);
+    --pico-secondary-inverse: #fff;
+    --pico-contrast: #181c25;
+    --pico-contrast-background: #181c25;
+    --pico-contrast-border: var(--pico-contrast-background);
+    --pico-contrast-underline: rgba(24, 28, 37, 0.5);
+    --pico-contrast-hover: #000;
+    --pico-contrast-hover-background: #000;
+    --pico-contrast-hover-border: var(--pico-contrast-hover-background);
+    --pico-contrast-hover-underline: var(--pico-secondary-hover);
+    --pico-contrast-focus: rgba(93, 107, 137, 0.25);
+    --pico-contrast-inverse: #fff;
+    --pico-box-shadow: 0.0145rem 0.029rem 0.174rem rgba(129, 145, 181, 0.01698), 0.0335rem 0.067rem 0.402rem rgba(129, 145, 181, 0.024), 0.0625rem 0.125rem 0.75rem rgba(129, 145, 181, 0.03), 0.1125rem 0.225rem 1.35rem rgba(129, 145, 181, 0.036), 0.2085rem 0.417rem 2.502rem rgba(129, 145, 181, 0.04302), 0.5rem 1rem 6rem rgba(129, 145, 181, 0.06), 0 0 0 0.0625rem rgba(129, 145, 181, 0.015);
+    --pico-h1-color: #2d3138;
+    --pico-h2-color: #373c44;
+    --pico-h3-color: #424751;
+    --pico-h4-color: #4d535e;
+    --pico-h5-color: #5c6370;
+    --pico-h6-color: #646b79;
+    --pico-mark-background-color: #fde7c0;
+    --pico-mark-color: #0f1114;
+    --pico-ins-color: #1d6a54;
+    --pico-del-color: #883935;
+    --pico-blockquote-border-color: var(--pico-muted-border-color);
+    --pico-blockquote-footer-color: var(--pico-muted-color);
+    --pico-button-box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+    --pico-button-hover-box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+    --pico-table-border-color: var(--pico-muted-border-color);
+    --pico-table-row-stripped-background-color: rgba(111, 120, 135, 0.0375);
+    --pico-code-background-color: #f3f5f7;
+    --pico-code-color: #646b79;
+    --pico-code-kbd-background-color: var(--pico-color);
+    --pico-code-kbd-color: var(--pico-background-color);
+    --pico-form-element-background-color: #fbfcfc;
+    --pico-form-element-selected-background-color: #dfe3eb;
+    --pico-form-element-border-color: #cfd5e2;
+    --pico-form-element-color: #23262c;
+    --pico-form-element-placeholder-color: var(--pico-muted-color);
+    --pico-form-element-active-background-color: #fff;
+    --pico-form-element-active-border-color: var(--pico-primary-border);
+    --pico-form-element-focus-color: var(--pico-primary-border);
+    --pico-form-element-disabled-opacity: 0.5;
+    --pico-form-element-invalid-border-color: #b86a6b;
+    --pico-form-element-invalid-active-border-color: #c84f48;
+    --pico-form-element-invalid-focus-color: var(--pico-form-element-invalid-active-border-color);
+    --pico-form-element-valid-border-color: #4c9b8a;
+    --pico-form-element-valid-active-border-color: #279977;
+    --pico-form-element-valid-focus-color: var(--pico-form-element-valid-active-border-color);
+    --pico-switch-background-color: #bfc7d9;
+    --pico-switch-checked-background-color: var(--pico-primary-background);
+    --pico-switch-color: #fff;
+    --pico-switch-thumb-box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+    --pico-range-border-color: #dfe3eb;
+    --pico-range-active-border-color: #bfc7d9;
+    --pico-range-thumb-border-color: var(--pico-background-color);
+    --pico-range-thumb-color: var(--pico-secondary-background);
+    --pico-range-thumb-active-color: var(--pico-primary-background);
+    --pico-accordion-border-color: var(--pico-muted-border-color);
+    --pico-accordion-active-summary-color: var(--pico-primary-hover);
+    --pico-accordion-close-summary-color: var(--pico-color);
+    --pico-accordion-open-summary-color: var(--pico-muted-color);
+    --pico-card-background-color: var(--pico-background-color);
+    --pico-card-border-color: var(--pico-muted-border-color);
+    --pico-card-box-shadow: var(--pico-box-shadow);
+    --pico-card-sectioning-background-color: #fbfcfc;
+    --pico-dropdown-background-color: #fff;
+    --pico-dropdown-border-color: #eff1f4;
+    --pico-dropdown-box-shadow: var(--pico-box-shadow);
+    --pico-dropdown-color: var(--pico-color);
+    --pico-dropdown-hover-background-color: #eff1f4;
+    --pico-loading-spinner-opacity: 0.5;
+    --pico-modal-overlay-background-color: rgba(232, 234, 237, 0.75);
+    --pico-progress-background-color: #dfe3eb;
+    --pico-progress-color: var(--pico-primary-background);
+    --pico-tooltip-background-color: var(--pico-contrast-background);
+    --pico-tooltip-color: var(--pico-contrast-inverse);
+    --pico-icon-valid: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(76, 155, 138)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+    --pico-icon-invalid: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(200, 79, 72)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cline x1='12' y1='8' x2='12' y2='12'%3E%3C/line%3E%3Cline x1='12' y1='16' x2='12.01' y2='16'%3E%3C/line%3E%3C/svg%3E");
+    color-scheme: light;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Lato, system-ui, -apple-system, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";;
+    line-height: 1.43em;
+    font-size: 14px;
+}
+
+a {
+    text-decoration: none;
+}
+
+.main {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    height: 100vh;
+    background: linear-gradient(var(--base-color) 40%,  var(--base-color-darker) 100%);
+    overflow: visible;
+}
+
+.nice-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #ccc rgba(0,0,0,0);
+    scrollbar-gutter: stable;
+}
+
+.sidebar {
+    color: white;
+    padding: 15px;
+}
+
+.sidebar .header {
+    color: var(--foam-color);
+    font-size: medium;
+}
+
+.sidebar .section {
+    margin: 8px 0px 8px 0px;
+}
+
+.sidebar .section .header {
+    color: var(--foam-color);
+    font-size: medium;
+}
+
+.sidebar .items {
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.active .bar {
+    border-left: 1px solid var(--gold-color);
+}
+
+.bar {
+    border-left: 1px solid var(--muted-color);
+    padding-left: 12px;
+    padding-top: -4px;
+    padding-bottom: -4px;
+    font-size: 12px;
+}
+
+.sidebar .item {
+    color: var(--text-color);
+}
+
+.main-content {
+    background-color: var(--surface-color);
+    border: 1px solid var(--highlight-low-color);
+    padding: 15px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    margin-right: 8px;
+    border-radius: 14px;
+    color: var(--text-color);
+    overflow: auto;
+}
+
+.card {
+    background-color: var(--overlay-color);
+    padding: 15px;
+    border-radius: 14px;
+    color: var(--text-color);
+    margin: 5px;
+    overflow: hidden;
+}
+
+.grid-stack-item-content .card {
+    flex: 1;
+}
+
+.card .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 30px;
+    padding: 0 0 0 0px;
+    margin: -6px 0 6px 0;
+}
+
+.card .header .buttons {
+    display: flex;
+    flex-direction: row;
+}
+
+.card .header h4 {
+    margin: 0;
+    color: var(--foam-color);
+}
+
+.card .header h3 {
+    margin: 0;
+    color: var(--foam-color);
+}
+
+.card .header .icon {
+    color: rgba(0, 0, 0, 0.2);
+    transition: color 0.3s, transform 0.1s;
+    cursor: pointer;
+}
+
+.card .header .icon:hover {
+    color: #007BFF;
+}
+
+.card .header .icon:active {
+    color: #0056b3;
+    transform: scale(0.9);
+}
+
+.card .body {
+    display: flex;
+    overflow: hidden;
+}
+
+.card .outline {
+    border: var(--highlight-low-color) 1px solid;
+    border-radius: 8px;
+}
+
+.card .table {
+    flex-grow: 1;
+    border-spacing: 0;
+    padding-top: 2px;
+}
+
+.card .table tr:nth-child(even) {
+    background-color: var(--table-stripe);
+    border-radius: 10px;
+}
+
+.card .table td:first-child {
+    padding-left: 8px;
+}
+
+.card .stats {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.stats .stat {
+    display: inline-flex;
+    flex-direction: column;
+    max-width: none;
+    text-align: center;
+    color: var(--text-color);
+}
+
+.stats .stat .value {
+    font-size: 1.5rem;
+}
+
+.stats .stat .grey {
+    color: var(--subtle-color);
+}
+
+.stats .stat .yellow {
+    color: var(--warning-color);
+}
+
+.stats .stat .red {
+    color: var(--error-color);
+}
+
+.stats .stat .label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.button-icon {
+    font-size: 24px;
+    cursor: pointer;
+   
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.button-icon i {
+    color: var(--subtle-color);
+    transition: color 0.3s, transform 0.1s;
+    cursor: pointer;
+}
+
+.button-icon i:hover {
+    color: var(--foam-color);
+}
+
+.button-icon i:active {
+    color: var(--foam-color);
+    transform: scale(0.9);
+}
+
+/**    UTILITY    **/
+.box-shadow {
+    box-shadow: 0 1px 1px hsl(0deg 0% 0% / 0.075),
+    0 2px 2px hsl(0deg 0% 0% / 0.075),
+    0 4px 4px hsl(0deg 0% 0% / 0.075),
+    0 8px 8px hsl(0deg 0% 0% / 0.075),
+    0 16px 16px hsl(0deg 0% 0% / 0.075)
+}
+
+.page {
+    flex: 1 1 auto;
+    min-width: 1024px;
+    margin-left: 210px;
+    padding: 10px;
+}
+
+.json {
+    font-size: 12px;
+    background-color: var(--surface-color);
+    padding: 10px;
+    border-radius: 8px;
+    margin: 0;
+}
+
+.grid-stack-item-content {
+    overflow: hidden !important;
+    display: flex;
+}
+
+.grid-stack-placeholder .placeholder-content {
+    border-radius: 12px;
+}
+
+.hide {
+    display: none
+}
+
+.edit .edit-inline {
+    display: inline;
+}
+
+.routes {
+    background-color: var(--overlay-color);
+    display: flex;
+    flex-direction: column;
+    margin: 8px;
+    padding: 8px;
+    border-radius: 12px;
+}
+
+.routes .route {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-template-rows: min-content min-content;
+    gap: 0px 0px;
+    grid-template-areas: 
+    "header header"
+    "left right";
+}
+
+.header {
+    margin-top: 0;
+}
+
+.routes .route .header {
+    grid-area: header;
+    margin: 0;
+}
+
+.routes .route .header .function-name {
+    color: var(--foam-color);
+    margin-top: 0;
+}
+
+.routes .route .header .function-description {
+    color: var(--muted-color);
+    font-size: small;
+}
+
+.routes .route .left {
+    padding: 20px; /* Optional: Padding inside the left side */
+    grid-area: left;
+}
+
+.routes .route .right {
+    padding: 20px; /* Optional: Padding inside the right side */
+    grid-area: right;
+}

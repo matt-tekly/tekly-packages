@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+
+{% assign title = 'Tinker' %}
+{% include tinker_head %}
+
+<body>
+<div class="main">
+{%- include tinker_sidebar -%}
+    
+<div class="main-content nice-scrollbar">
+    {% assign routes = Tinker.Routes | where: "Visible" %}
+    {%- for route in routes -%}
+        <div class="routes" id="{{ route.Id }}">
+            <div class="heading">
+                <h3 class="header">{{route.DisplayName}} {{ route.Description }}</h3>    
+            </div>
+            
+            {% assign functions = route.Functions | where: "Visible" %}
+            {%- for function in functions -%}
+                <div class="route">
+                    <h3 class="header" id="{{ function.Id }}">
+                        <a class="function-name" href="#{{ function.Id }}">
+                            <i class='bx bx-link'></i>{{ function.DisplayName }}
+                            <span class="function-description">{{ function.Description }}</span>
+                        </a>
+                    </h3>
+                    <div class="left">
+                        <form class="ui tiny form" hx-{{function.Verb}}="{{function.Path}}" hx-target="#result_{{function.Id}}">
+                            {%- for parameter in function.Parameters -%}
+                                <div class="field">
+                                    <label>{{ parameter.DisplayName }}</label>
+                                    {% case parameter.EditType %}
+                                        {% when "select" %}
+                                            <select name="{{ parameter.Name }}">
+                                                {%- for value in parameter.Values -%}
+                                                    <option value="{{ value }}" {% if value == parameter.DefaultValue %}selected{% endif -%}>{{ value }}</option>
+                                                {%- endfor -%}
+                                            </select>
+                                        {% when "textarea" %}
+                                            <textarea  name="{{ parameter.Name }}" placeholder="{{ parameter.DefaultValue }}" required></textarea>
+                                        {% else %}
+                                            <input type="{{ parameter.EditType }}" name="{{ parameter.Name }}" placeholder="{{ parameter.DefaultValue }}" required value="{{ parameter.DefaultValue }}">
+                                    {% endcase %}
+                                </div>
+                            {%- endfor -%}
+                            <button class="ui tiny button primary" type="submit">SUBMIT</button>
+                        </form>
+
+                    </div>
+                    <div class="right">
+                        <pre class="json" id="result_{{function.Id}}"></pre>
+                    </div>
+                </div>
+            {%- endfor -%}
+        </div>
+    {%- endfor -%}
+</div>
+    
+</div>
+</body>
+
+</html>

@@ -80,6 +80,12 @@
         "ca.tekly.nsubstitute": "0.0.1"
       }
     },
+    "ca.tekly.liquid": {
+      "version": "file:ca.tekly.liquid",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "ca.tekly.localizations": {
       "version": "file:ca.tekly.localizations",
       "depth": 0,
@@ -185,6 +191,15 @@
       "dependencies": {
         "ca.tekly.nsubstitute": "0.0.1",
         "com.unity.mathematics": "1.1.0"
+      }
+    },
+    "ca.tekly.tinker": {
+      "version": "file:ca.tekly.tinker",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "ca.tekly.common": "0.0.1",
+        "com.unity.nuget.newtonsoft-json": "0.0.1"
       }
     },
     "ca.tekly.treestate": {

@@ -21,6 +21,7 @@ namespace Tekly.Logging
         public static readonly List<ILogDestination> Destinations = new List<ILogDestination>();
         public static readonly List<LoggerGroup> Groups = new List<LoggerGroup>();
         public static LoggerGroup DefaultGroup;
+        public static readonly TkLoggerStats Stats = new TkLoggerStats();
 
         public static readonly ConcurrentDictionary<string, string> CommonFields = new ConcurrentDictionary<string, string>();
         
@@ -100,6 +101,7 @@ namespace Tekly.Logging
             Destinations.Clear();
             CommonFields.Clear();
             Groups.Clear();
+            Stats.Clear();
 
             s_loggers.Clear();
             s_settingsTree.Clear();
@@ -273,6 +275,7 @@ namespace Tekly.Logging
 
         private static void LogToDestinations(LoggerGroup loggerGroup, TkLogMessage message, LogSource logSource = LogSource.TkLogger)
         {
+            Stats.Track(message);
             foreach (var destination in loggerGroup.Destinations) {
                 destination.LogMessage(message, logSource);
             }
@@ -280,6 +283,7 @@ namespace Tekly.Logging
 
         private static void LogToDestinations(LoggerGroup loggerGroup, TkLogMessage message, Object context, LogSource logSource = LogSource.TkLogger)
         {
+            Stats.Track(message);
             foreach (var destination in loggerGroup.Destinations) {
                 destination.LogMessage(message, context, logSource);
             }

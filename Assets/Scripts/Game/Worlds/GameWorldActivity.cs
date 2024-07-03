@@ -7,6 +7,8 @@ using Tekly.Content;
 using Tekly.Injectors;
 using Tekly.Lofi.Core;
 using Tekly.Logging;
+using Tekly.Tinker.Core;
+using Tekly.Tinker.Routing;
 using Tekly.TreeState.StandardActivities;
 using TeklySample.App;
 using UnityEngine;
@@ -26,6 +28,8 @@ namespace TeklySample.Game.Worlds
         private GameWorldModel m_gameWorldModel;
         
         private IDisposable m_disposable;
+
+        private ITinkerRoutes m_routes;
         
         private void Save()
         {
@@ -64,6 +68,7 @@ namespace TeklySample.Game.Worlds
 
             Save();
             
+            TinkerServer.Instance.RemoveHandler(m_routes);
             return Task.CompletedTask;
         }
 
@@ -83,6 +88,12 @@ namespace TeklySample.Game.Worlds
             m_gameWorld = new GameWorld(m_balanceManager, worldBalance, save);
 
             m_injectorContainer.Register(m_gameWorld);
+
+            var gameRoutes = new GameRoutes();
+            m_injectorContainer.Inject(gameRoutes);
+            m_routes = TinkerServer.Instance.AddClassHandler(gameRoutes);
+            
+            m_injectorContainer.Inject(m_routes);
         }
 
         protected override void ActiveUpdate()

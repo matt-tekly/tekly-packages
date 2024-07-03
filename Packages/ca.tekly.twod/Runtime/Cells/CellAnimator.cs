@@ -82,7 +82,7 @@ namespace Tekly.TwoD.Cells
 		
 		private void OnEnable()
 		{
-			SetAnimation(m_animName);	
+			SetAnimation(m_animName);
 			
 			if (m_playOnEnable) {
 				m_time = 0;

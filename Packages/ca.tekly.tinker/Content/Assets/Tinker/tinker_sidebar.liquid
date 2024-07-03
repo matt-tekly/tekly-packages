@@ -1,0 +1,47 @@
+<div class="sidebar">
+    <div class="item">
+        <a class="header" href="{{ Tinker.Sidebar.Title.Url }}">
+            {{ Tinker.Sidebar.Title.Name }}
+        </a>
+    </div>
+
+    {%- for section in Tinker.Sidebar.Sections -%}
+        <div class="section">
+            <div class="header">{{ section.Name }}</div>
+            <div class="items">
+                {%- for item in section.Items -%}
+                    <a class="item" href="{{ item.Url }}"><span class="bar"></span>{{ item.Name }}</a>
+                {%- endfor -%}
+            </div>
+        </div>
+    {%- endfor -%}
+    <div class="section">
+        <div class="header">Commands</div>
+        <div class="items">
+            {% assign routes = Tinker.Routes | where: "Visible" %}
+            {%- for route in routes -%}
+                <a class="item" href="/tinker/routes#{{ route.Id }}"><span class="bar"></span>{{ route.DisplayName }}</a>
+            {%- endfor -%}
+        </div>
+    </div>
+</div>
+
+<script>
+    updateActive(location.href);
+    
+    window.addEventListener("hashchange", (event) => {
+        updateActive(event.newURL);
+    });
+    
+    function updateActive(currentPage) {
+        const allAs = document.querySelectorAll('a');
+        const allAsLength = allAs.length
+
+        for (let i = 0; i < allAsLength; i++) {
+            allAs[i].classList.remove("active");
+            if (allAs[i].href === currentPage) {
+                allAs[i].classList.add("active");
+            }
+        }
+    }
+</script>

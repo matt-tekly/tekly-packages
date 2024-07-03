@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Tekly.Common.Utils
@@ -63,6 +64,17 @@ namespace Tekly.Common.Utils
 #else
 			return Object.FindObjectsOfType<T>(true);
 #endif
+        }
+        
+        public static T FindResource<T>(int instanceId) where T : Object
+        {
+            return Resources.FindObjectsOfTypeAll<T>().FirstOrDefault(resource => resource.GetInstanceID() == instanceId);
+        }
+		
+        public static T FindResource<T>(string name) where T : Object
+        {
+            var resources = Resources.FindObjectsOfTypeAll<T>();
+            return resources.FirstOrDefault(resource => resource.name == name);
         }
         
     }
