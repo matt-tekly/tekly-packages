@@ -1,9 +1,8 @@
 {
-    "name": "Tekly.Tinker",
-    "rootNamespace": "Tekly.Tinker",
+    "name": "Tekly.WebSockets",
+    "rootNamespace": "Tekly.WebSockets",
     "references": [
-        "GUID:b9160372c6c55a741932d482673e3abb",
-        "GUID:98440020d9e5b425694d2699e5dc03b7"
+        "GUID:b9160372c6c55a741932d482673e3abb"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -226,6 +226,15 @@
       "source": "embedded",
       "dependencies": {}
     },
+    "ca.tekly.websockets": {
+      "version": "file:ca.tekly.websockets",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "ca.tekly.common": "0.0.1",
+        "com.unity.nuget.newtonsoft-json": "0.0.1"
+      }
+    },
     "ca.tekly.webster": {
       "version": "file:ca.tekly.webster",
       "depth": 0,

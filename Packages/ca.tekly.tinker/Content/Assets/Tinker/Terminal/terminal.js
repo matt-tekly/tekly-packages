@@ -10,8 +10,6 @@ class Terminal {
         this.input = new TerminalInput(this, this.commands);
 
         document.addEventListener('keydown', this.processKey);
-        
-        this.addText("Tinker Terminal", "title");
     }
 
     addDefaultCommands = () => {
