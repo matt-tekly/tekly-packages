@@ -16,9 +16,12 @@ namespace Tekly.WebSockets
 
 		private TcpClient m_client;
 		private NetworkStream m_stream;
+		private StreamWriter m_writer;
 		private Thread m_thread;
 
 		public event Action<Client> Closed;
+		public event Action<Client, string> ReceivedText;
+		public event Action<Client, byte[]> ReceivedBinary;
 
 		public Client(WebSocketRequest request, TcpClient client, int id)
 		{
@@ -83,10 +86,9 @@ namespace Tekly.WebSockets
 
 					if (frame.Opcode == OpCode.Text) {
 						var receivedMessage = Encoding.UTF8.GetString(frame.PayloadData);
-						Send("Echo: " + receivedMessage);
+						ReceivedText?.Invoke(this, receivedMessage);
 					} else if (frame.Opcode == OpCode.Binary) {
-						// TODO: Handle Binary!
-						Debug.LogError("Binary is not implemented");
+						ReceivedBinary?.Invoke(this, frame.PayloadData);
 					} else if (frame.Opcode == OpCode.Ping) {
 						Debug.LogError("Ping frames are unsupported");
 					} else if (frame.Opcode == OpCode.Pong) {

@@ -129,21 +129,5 @@ namespace Tekly.WebSockets
 			// Write the payload
 			outputStream.Write(payload);
 		}
-		
-		public static void SendCloseFrame(Stream outputStream, ushort statusCode, string reason = null)
-		{
-			byte[] payload;
-			if (reason != null) {
-				byte[] reasonBytes = System.Text.Encoding.UTF8.GetBytes(reason);
-				payload = new byte[2 + reasonBytes.Length];
-				BinaryPrimitives.WriteUInt16BigEndian(payload, statusCode);
-				reasonBytes.CopyTo(payload, 2);
-			} else {
-				payload = new byte[2];
-				BinaryPrimitives.WriteUInt16BigEndian(payload, statusCode);
-			}
-
-			EncodeFrame(outputStream, true, OpCode.Close, payload);
-		}
 	}
 }

@@ -12,21 +12,14 @@ namespace Tekly.WebSockets
 		public string SecurityVersion { get; set; }
 		public string Upgrade { get; set; }
 		
-		public Dictionary<string, string> Headers { get; set; }
-
-		public bool IsValid {
-			get {
-				return Method == "GET"
-				       && !string.IsNullOrEmpty(SecurityKey)
-				       && !string.IsNullOrEmpty(SecurityVersion)
-				       && Upgrade == "websocket";
-			}
-		}
+		public bool IsValid =>
+			Method == "GET"
+			&& !string.IsNullOrEmpty(SecurityKey)
+			&& !string.IsNullOrEmpty(SecurityVersion)
+			&& Upgrade == "websocket";
 
 		public WebSocketRequest(string requestData)
 		{
-			Headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-
 			var lines = requestData.Split(new[] { "\r\n" }, StringSplitOptions.None);
 			var requestLine = lines[0].Split(' ');
 			
@@ -51,8 +44,6 @@ namespace Tekly.WebSockets
 						SecurityVersion = value;
 					} else if (key == "Upgrade"){
 						Upgrade = value;
-					}else {
-						Headers[key] = value;	
 					}
 				}
 			}

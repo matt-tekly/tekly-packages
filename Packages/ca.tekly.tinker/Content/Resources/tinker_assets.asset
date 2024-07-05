@@ -58,6 +58,10 @@ MonoBehaviour:
     Name: tinker_routes
     Url: /Tinker/tinker_routes.liquid
     IsTemplate: 1
+  - Asset: {fileID: 9027929339269108002, guid: 502157d1777d47dfb059a7c4844b2938, type: 3}
+    Name: tinker_server
+    Url: /Tinker/tinker_server.js
+    IsTemplate: 0
   - Asset: {fileID: 9027929339269108002, guid: a03f9c9d230f4549b0e279b29227420e, type: 3}
     Name: tinker_sidebar
     Url: /Tinker/tinker_sidebar.liquid
