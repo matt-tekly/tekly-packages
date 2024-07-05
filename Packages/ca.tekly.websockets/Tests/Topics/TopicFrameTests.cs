@@ -13,12 +13,12 @@ namespace Tekly.WebSockets.Topics
 
 			var bytes = Encoding.UTF8.GetBytes(CONTENT);
 
-			var message = new TopicFrame(bytes);
+			var frame = new TopicFrame(bytes);
 
-			Assert.That(message.Type, Is.EqualTo(TopicFrame.COMMAND_SUBSCRIBE));
-			Assert.That(message.Headers, Contains.Key("Topic"));
-			Assert.That(message.Headers["Topic"], Is.EqualTo("TEST_TOPIC"));
-			Assert.That(message.Body, Is.Null);
+			Assert.That(frame.Type, Is.EqualTo(FrameCommands.SUBSCRIBE));
+			Assert.That(frame.Headers, Contains.Key("Topic"));
+			Assert.That(frame.Headers["Topic"], Is.EqualTo("TEST_TOPIC"));
+			Assert.That(frame.Content, Is.Null);
 		}
 
 		[Test]
@@ -28,19 +28,32 @@ namespace Tekly.WebSockets.Topics
 
 			var bytes = Encoding.UTF8.GetBytes(CONTENT);
 
-			var message = new TopicFrame(bytes);
+			var frame = new TopicFrame(bytes);
 			
-			Assert.That(message.Type, Is.EqualTo(TopicFrame.COMMAND_SEND));
-			Assert.That(message.Headers, Contains.Key("Topic"));
-			Assert.That(message.Headers["Topic"], Is.EqualTo("TEST_TOPIC"));
-			Assert.That(message.Body, Is.EqualTo("BlingBong"));
+			Assert.That(frame.Type, Is.EqualTo(FrameCommands.SEND));
+			Assert.That(frame.Headers, Contains.Key("Topic"));
+			Assert.That(frame.Headers["Topic"], Is.EqualTo("TEST_TOPIC"));
+			Assert.That(frame.Content, Is.EqualTo("BlingBong"));
 		}
 		
 		[Test]
-		public void EncodeFrame()
+		public void EncodeDecodeFrame()
 		{
-			var frame = TopicFrame.EncodeFrame(TopicFrame.COMMAND_SEND, "TEST_TOPIC", "Blongus bingus");
-			Debug.Log(frame);
+			var frameText = TopicFrame.EncodeFrame(FrameCommands.SEND, "TEST_TOPIC", "Text", "Hello there");
+			
+			TestContext.Write(frameText);
+			var bytes = Encoding.UTF8.GetBytes(frameText);
+
+			var frame = new TopicFrame(bytes);
+			
+			Assert.That(frame.Type, Is.EqualTo(FrameCommands.SEND));
+			Assert.That(frame.Headers, Contains.Key("Topic"));
+			Assert.That(frame.Headers["Topic"], Is.EqualTo("TEST_TOPIC"));
+			
+			Assert.That(frame.Headers, Contains.Key("Content-Type"));
+			Assert.That(frame.Headers["Content-Type"], Is.EqualTo("Text"));
+			
+			Assert.That(frame.Content, Is.EqualTo("Hello there"));
 		}
 	}
 }

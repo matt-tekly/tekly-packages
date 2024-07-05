@@ -1,17 +1,36 @@
 class TinkerServer {
     constructor() {
         const hostname = window.location.hostname;
+        
         this.ws = new WebSocket(`ws://${hostname}:3334/`);
+        
         this.ws.onopen = () => {
             console.log('Connected to WebSocket server');
             this.ws.send('Hello Server');
         };
-        this.ws.onmessage = (event) => {
+        
+        this.ws.addEventListener("message", (event) => {
             console.log('Received:', event.data);
-        };
+
+            for (const listener of this.listeners) {
+                listener(event.data);
+            }
+        });
+        
         this.ws.onclose = () => {
             console.log('WebSocket connection closed');
         };
+        
+        this.listeners = [];
+        this.topics = new Topics(this.ws);
+        
+        this.topics.subscribe("general", (frame)=> {
+           console.log("General", frame) 
+        });
+    }
+    
+    addListener(listener) {
+        this.listeners.push(listener);
     }
 }
 

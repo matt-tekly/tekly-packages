@@ -1,30 +1,35 @@
-using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using UnityEngine.UI;
 
 namespace Tekly.WebSockets.Topics
 {
 	public class Topic
 	{
-		private List<Client> m_clients = new List<Client>();
+		private readonly string m_id;
+		private readonly List<Client> m_clients = new List<Client>();
 
-		public void OnSubscribe(Client connection)
+		public Topic(string id)
 		{
-			// SendJson(new TopicMessage(), connection);
+			m_id = id;
 		}
-
-		public void Send(Client connection) { }
-
-		public void Receive(Client connection, WebSocketFrame frame) { }
+		
+		public void Subscribe(Client client)
+		{
+			m_clients.Add(client);
+		}
+		
+		public void Unsubscribe(Client client)
+		{
+			m_clients.Remove(client);
+		}
 
 		public void SendJson<T>(T obj)
 		{
 			var json = JsonConvert.SerializeObject(obj);
-
+			var frame = TopicFrame.EncodeFrame(FrameCommands.SEND, m_id, "json", json);
+			
 			foreach (var client in m_clients) {
-				// TODO: This should have to send a message thingy
-				client.Send(json);	
+				client.Send(frame);	
 			}
 		}
 	}

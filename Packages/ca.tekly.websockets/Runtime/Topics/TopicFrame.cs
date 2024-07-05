@@ -1,27 +1,28 @@
 using System;
-using System.Buffers.Binary;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
-using UnityEngine;
 
 namespace Tekly.WebSockets.Topics
 {
+
+	public static class FrameCommands
+	{
+		public const string SEND = "SEND";
+		public const string SUBSCRIBE = "SUBSCRIBE";
+		public const string UNSUBSCRIBE = "UNSUBSCRIBE";
+	}
+	
 	public class TopicFrame
 	{
-		public const string COMMAND_SEND = "SEND";
-
-		public const string COMMAND_SUBSCRIBE = "SUBSCRIBE";
-		public const string COMMAND_UNSUBSCRIBE = "UNSUBSCRIBE";
-		public const string NEWLINE = "\r\n\r\n";
+		public const string NEWLINE = "\r\n";
 
 		public readonly string Type;
-		public readonly string Body;
+		public readonly string Content;
 
 		public readonly Dictionary<string, string> Headers = new Dictionary<string, string>();
 
 		private const int SEARCH_LENGTH = 4;
-		private static readonly byte[] s_searchSequence = Encoding.UTF8.GetBytes(NEWLINE);
+		private static readonly byte[] s_searchSequence = Encoding.UTF8.GetBytes(NEWLINE + NEWLINE);
 
 		public TopicFrame(byte[] bytes)
 		{
@@ -48,7 +49,7 @@ namespace Tekly.WebSockets.Topics
 				}
 
 				if (endIndex < bytes.Length) {
-					Body = Encoding.UTF8.GetString(bytes, endIndex, bytes.Length - endIndex);
+					Content = Encoding.UTF8.GetString(bytes, endIndex, bytes.Length - endIndex);
 				}
 			} else {
 				throw new Exception("Failed to parse TopicMessage: Double newline sequence not found.");
@@ -77,20 +78,36 @@ namespace Tekly.WebSockets.Topics
 			return (buffer, -1);
 		}
 		
-		public static string EncodeFrame(string command, string topic, string payload = null)
+		public static string EncodeFrame(string command, string topic)
 		{
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			sb.Append(command);
 			sb.Append(NEWLINE);
 
 			sb.Append("Topic:");
 			sb.Append(topic);
 			sb.Append(NEWLINE);
+			
+			return sb.ToString();
+		}
+		
+		public static string EncodeFrame(string command, string topic, string contentType, string content)
+		{
+			var sb = new StringBuilder();
+			sb.Append(command);
+			sb.Append(NEWLINE);
 
-			if (payload != null) {
-				sb.Append(payload);
-			}
+			sb.Append("Topic:");
+			sb.Append(topic);
+			sb.Append(NEWLINE);
+			
+			sb.Append("Content-Type:");
+			sb.Append(contentType);
+			sb.Append(NEWLINE);
+			sb.Append(NEWLINE);
 
+			sb.Append(content);
+			
 			return sb.ToString();
 		}
 	}

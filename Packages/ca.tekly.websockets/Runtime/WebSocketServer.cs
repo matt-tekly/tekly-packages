@@ -8,6 +8,8 @@ namespace Tekly.WebSockets
 {
 	public class WebSocketServer
 	{
+		public Clients Clients => m_clients;
+		
 		private TcpListener m_tcpListener;
 		private Thread m_listenerThread;
 		private TcpClient m_connectedClient;
@@ -16,7 +18,7 @@ namespace Tekly.WebSockets
 		private readonly int m_port;
 		private bool m_active;
 
-		private Clients m_clients = new Clients();
+		private readonly Clients m_clients = new Clients();
 
 		public WebSocketServer(int port)
 		{

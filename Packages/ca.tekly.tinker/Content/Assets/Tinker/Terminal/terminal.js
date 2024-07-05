@@ -10,6 +10,10 @@ class Terminal {
         this.input = new TerminalInput(this, this.commands);
 
         document.addEventListener('keydown', this.processKey);
+        
+        tinkerServer.addListener((data) => {
+            this.addJson(data);
+        });
     }
 
     addDefaultCommands = () => {
@@ -37,6 +41,14 @@ class Terminal {
             divElement.classList.add(className);    
         }
         this.content.prepend(divElement);
+    }
+
+    addJson = (text) => {
+        const pre = document.createElement('pre');
+        pre.textContent = text;
+        pre.classList.add("json", "box-shadow");
+        pre.innerText = text;
+        this.content.prepend(pre);
     }
 
     addError = (text) => {
