@@ -1,3 +1,5 @@
+using Tekly.Tinker.Http;
+
 namespace Tekly.Tinker.Core
 {
 	public static class TinkerElements

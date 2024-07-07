@@ -3,6 +3,7 @@ using DotLiquid;
 using Tekly.Injectors;
 using Tekly.Logging;
 using Tekly.Tinker.Core;
+using Tekly.Tinker.Http;
 using Tekly.Tinker.Routing;
 using TeklySample.Game.Items;
 using TeklySample.Game.Worlds;

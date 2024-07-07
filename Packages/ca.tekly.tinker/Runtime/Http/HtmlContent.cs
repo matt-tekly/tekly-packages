@@ -1,4 +1,4 @@
-namespace Tekly.Tinker.Core
+namespace Tekly.Tinker.Http
 {
 	public class HtmlContent
 	{

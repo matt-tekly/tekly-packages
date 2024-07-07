@@ -6,40 +6,12 @@ namespace Tekly.Tinker.Core
 	{
 		public string Name;
 		public string Value;
-		public string Color = "grey";
+		public string Color;
 
 		public DataItem(string name, string value, string color)
 		{
 			Name = name;
 			Value = value;
-			Color = color;
-		}
-
-		public DataItem(string name, float value, string color)
-		{
-			Name = name;
-			Value = value.ToString("0.00");
-			Color = color;
-		}
-		
-		public DataItem(string name, double value, string color)
-		{
-			Name = name;
-			Value = value.ToString("0.00");
-			Color = color;
-		}
-
-		public DataItem(string name, int value, string color)
-		{
-			Name = name;
-			Value = value.ToString();
-			Color = color;
-		}
-
-		public DataItem(string name, bool value, string color)
-		{
-			Name = name;
-			Value = value.ToString();
 			Color = color;
 		}
 	}
@@ -62,27 +34,26 @@ namespace Tekly.Tinker.Core
 
 		public DataList Add(string name, float value, string color = "grey")
 		{
-			Items.Add(new DataItem(name, value, color));
+			Items.Add(new DataItem(name, value.ToString("0.00"), color));
 			return this;
 		}
 		
 		public DataList Add(string name, double value, string color = "grey")
 		{
-			Items.Add(new DataItem(name, value, color));
+			Items.Add(new DataItem(name, value.ToString("0.00"), color));
 			return this;
 		}
 
 		public DataList Add(string name, int value, string color = "grey")
 		{
-			Items.Add(new DataItem(name, value, color));
+			Items.Add(new DataItem(name, value.ToString(), color));
 			return this;
 		}
 
 		public DataList Add(string name, bool value, string color = "grey")
 		{
-			Items.Add(new DataItem(name, value, color));
+			Items.Add(new DataItem(name, value.ToString(), color));
 			return this;
 		}
-		
 	}
 }
