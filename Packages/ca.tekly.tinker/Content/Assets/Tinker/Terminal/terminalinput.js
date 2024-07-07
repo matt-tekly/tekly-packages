@@ -1,4 +1,6 @@
-class TerminalInput {
+import {TerminalSuggestion} from "./terminalsuggestion.js";
+
+export class TerminalInput {
     /**
      *
      * @param {Terminal} terminal

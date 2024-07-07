@@ -1,22 +1,18 @@
-class Terminal {
+import { Commands } from "./commands.js";
+import { TerminalInput} from "./terminalinput.js";
+
+export class Terminal {
     constructor(query) {
         this.container = document.querySelector(query);
         this.content = this.container.querySelector('#content');
         this.prefix = this.container.querySelector('#prefix');
-        
+
         this.commands = new Commands();
         this.addDefaultCommands();
 
         this.input = new TerminalInput(this, this.commands);
 
         document.addEventListener('keydown', this.processKey);
-        
-        tinkerServer.topics.subscribe("terminal", (data) => {
-            let json = data.body;
-            let jsonData = JSON.parse(json);
-            
-            this.addJson(JSON.stringify(jsonData,0 , 4));
-        });
     }
 
     addDefaultCommands = () => {
@@ -41,7 +37,7 @@ class Terminal {
         const divElement = document.createElement('div');
         divElement.textContent = text;
         if (className) {
-            divElement.classList.add(className);    
+            divElement.classList.add(className);
         }
         this.content.prepend(divElement);
     }

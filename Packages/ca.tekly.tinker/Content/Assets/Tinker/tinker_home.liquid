@@ -108,11 +108,6 @@
 `;
     }
 
-    function triggerReload(element) {
-        let event = new Event("reload", {bubbles: true});
-        element.dispatchEvent(event);
-    }
-
     function triggerRemove(element) {
         let event = new Event("remove", {bubbles: true});
         element.dispatchEvent(event);

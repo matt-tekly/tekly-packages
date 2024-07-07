@@ -1,3 +1,5 @@
+import {server} from "./tinker_server.js";
+
 class TopicElement extends HTMLElement {
     static get observedAttributes() {
         return ['topic'];
@@ -10,7 +12,6 @@ class TopicElement extends HTMLElement {
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
-        console.log(name, oldValue, newValue);
         if (name === "topic") {
             this.trySubscribe(newValue);
         }
@@ -30,7 +31,7 @@ class TopicElement extends HTMLElement {
             this.topic = topic;
 
             if (this.topic) {
-                tinkerServer.topics.subscribe(this.topic, this.onTopicMessage);
+                server.topics.subscribe(this.topic, this.onTopicMessage);
                 this.isSubscribed = true;
             }
         }
@@ -40,7 +41,7 @@ class TopicElement extends HTMLElement {
 
     tryUnsubscribe() {
         if (this.isSubscribed) {
-            tinkerServer.topics.unsubscribe(this.topic, this.onTopicMessage);
+            server.topics.unsubscribe(this.topic, this.onTopicMessage);
             this.isSubscribed = false;
             this.topic = null;
         }

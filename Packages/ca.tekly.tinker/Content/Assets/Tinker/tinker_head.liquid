@@ -6,11 +6,6 @@
     
     <!-- JQuery -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-
-    <!-- Fomantic
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.js"></script>
-     -->
     
     <!-- Fancy Tree -->
     <link href="https://cdn.jsdelivr.net/npm/jquery.fancytree@2.27/dist/skin-win8/ui.fancytree.min.css" rel="stylesheet">
@@ -25,13 +20,18 @@
 
     <!-- Liquid -->
     <script src="https://cdn.jsdelivr.net/npm/liquidjs/dist/liquid.browser.min.js"></script>
-
-    <script src="/Tinker/topics/topics.js"></script>
-    <script src="/Tinker/tinker_server.js"></script>
-    <script src="/Tinker/components.js"></script>
+    
+    <script type="module" src="/Tinker/components.js"></script>
     
     <!-- All custom CSS -->
     {%- for css in Tinker.Css -%}
         <link rel="stylesheet" type="text/css" href="{{ css }}">
     {%- endfor -%}
+    
+    <script>
+        function triggerReload(element) {
+            let event = new Event("reload", {bubbles: true});
+            element.dispatchEvent(event);
+        }
+    </script>
 </head>

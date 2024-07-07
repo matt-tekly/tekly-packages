@@ -1,4 +1,4 @@
-class Topics {
+export class Topics {
     /**
      *
      * @param {WebSocket} ws
@@ -9,8 +9,18 @@ class Topics {
         /** type {Record<string, Topic> */
         this.topics = {};
         
+        this.frames = [];
+        
         this.ws.addEventListener("message", this.onMessage);
         this.ws.addEventListener("close", this.onClose);
+    }
+    
+    connected() {
+        for (let i = 0; i < this.frames.length; i++) {
+            this.ws.send(this.frames[i]);
+        }
+
+        this.frames.length = 0;
     }
     
     onMessage = (evt) => {
@@ -64,7 +74,13 @@ class Topics {
     }
     
     send(command, topicId, contentType, content) {
-        this.ws.send(this.encodeFrame(command, topicId, contentType, content));
+        
+        const frame = this.encodeFrame(command, topicId, contentType, content);
+        if (this.ws.readyState === WebSocket.OPEN) {
+            this.ws.send(frame);
+        } else {
+            this.frames.push(frame);
+        }
     }
 
     parseFrame(frameText) {
@@ -96,7 +112,7 @@ class Topics {
     }
 }
 
-class Topic {
+export class Topic {
 
     /**
      *

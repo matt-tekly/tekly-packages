@@ -1,5 +1,5 @@
 
-class Suggestion {
+export class Suggestion {
     /**
      * 
      * @param {Command} command
@@ -34,7 +34,7 @@ class Suggestion {
     }
 }
 
-class TerminalSuggestion {
+export class TerminalSuggestion {
 
     /**
      *

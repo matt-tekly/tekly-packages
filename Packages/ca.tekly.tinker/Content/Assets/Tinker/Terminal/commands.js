@@ -1,4 +1,4 @@
-class Command
+export class Command
 {
     /**
      * @param {string} name - The name of the command
@@ -12,7 +12,7 @@ class Command
     }
 }
 
-class Commands {
+export class Commands {
     constructor() {
         /** @type {Record<string, Command>} */
         this.commands = {};
@@ -201,5 +201,46 @@ function functionHandler(cmd) {
         }
         
         return handleResponse(fetchResult);
+    }
+}
+
+async function handleResponse(response) {
+    const contentType = response.headers.get('Content-Type');
+    if (contentType.includes('text/html')) {
+        const htmlText = await response.text();
+
+        const range = document.createRange();
+        const fragment = range.createContextualFragment(htmlText);
+        return fragment.firstChild;
+    } else if (contentType.includes('application/json')) {
+        const json = await response.text();
+        const newEntry = document.createElement('pre');
+        newEntry.classList.add("json", "box-shadow");
+        newEntry.innerText = json;
+
+        return newEntry
+    } else if (contentType.includes('image/png')) {
+        const blob = await response.blob();
+        const objectURL = URL.createObjectURL(blob);
+
+        const div = document.createElement('div');
+        const a = document.createElement('a');
+        a.href=response.url;
+        a.target = "_blank";
+
+        const img = document.createElement('img');
+        img.classList.add("terminal-image");
+        img.src = objectURL;
+
+        img.onload = () => {
+            URL.revokeObjectURL(objectURL);
+        };
+
+        a.appendChild(img);
+        div.appendChild(a);
+
+        return div;
+    } else {
+        return response.text();
     }
 }
