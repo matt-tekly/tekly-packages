@@ -12,6 +12,7 @@ namespace Tekly.Tinker.Assets
 	public class TinkerAssetRoutes : IFileSystem, ITinkerRoutes
 	{
 		private bool m_initialized;
+		private float m_lastRefreshTime;
 		private readonly List<TinkerAssets> m_tinkerAssets = new List<TinkerAssets>();
 		
 		public void AddAssets(TinkerAssets tinkerAssets)
@@ -26,9 +27,7 @@ namespace Tekly.Tinker.Assets
 		
 		public string ReadTemplateFile(string templateName)
 		{
-#if UNITY_EDITOR
-			UnityEditor.AssetDatabase.Refresh();
-#endif
+			RefreshAssetDatabase();
 			Initialize();
 
 #if TINKER_ENABLED
@@ -74,11 +73,10 @@ namespace Tekly.Tinker.Assets
 			}
 		}
 
-		private static bool TryHandleAsset(HttpListenerResponse response, TinkerAsset tinkerAsset)
+		private bool TryHandleAsset(HttpListenerResponse response, TinkerAsset tinkerAsset)
 		{
-#if UNITY_EDITOR
-			UnityEditor.AssetDatabase.Refresh();
-#endif
+			RefreshAssetDatabase();
+			
 			if (tinkerAsset.Asset is Texture texture) {
 				response.WritePng(texture);
 			}
@@ -118,6 +116,18 @@ namespace Tekly.Tinker.Assets
 			}
 
 			m_initialized = true;
+		}
+
+		private void RefreshAssetDatabase()
+		{
+			if ((Time.realtimeSinceStartup - m_lastRefreshTime) > 1f) {
+				return;
+			}
+
+			m_lastRefreshTime = Time.realtimeSinceStartup;
+#if UNITY_EDITOR
+			UnityEditor.AssetDatabase.Refresh();
+#endif
 		}
 	}
 }

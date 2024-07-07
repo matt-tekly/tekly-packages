@@ -26,8 +26,7 @@ namespace Tekly.Webster.FramelineCore
 
 		private readonly Stopwatch m_stopwatch = new Stopwatch();
 
-		public string Json
-		{
+		public string Json {
 			get {
 				lock (m_eventsLock) {
 					m_events.Sort();
@@ -52,7 +51,8 @@ namespace Tekly.Webster.FramelineCore
 				m_config = asset.Config;
 			} else {
 				m_config = new FramelineConfig();
-				Debug.LogWarning("Frameline did not find a FramelineConfigAsset. Please create one in a Resources directory to configure Frameline");
+				Debug.LogWarning(
+					"Frameline did not find a FramelineConfigAsset. Please create one in a Resources directory to configure Frameline");
 			}
 
 			m_stopwatch.Start();
@@ -78,14 +78,14 @@ namespace Tekly.Webster.FramelineCore
 		{
 			var unixTime = m_stopwatch.Elapsed.TotalMilliseconds;
 
-			var frameEvent = new FrameEvent {
-				Id = id,
-				EventType = type,
-				StartFrame = m_frame,
-				EndFrame = m_frame,
-				StartTime = unixTime,
-				EndTime = unixTime
-			};
+			var frameEvent = FrameEvent.Create();
+			
+			frameEvent.Id = id;
+			frameEvent.EventType = type;
+			frameEvent.StartFrame = m_frame;
+			frameEvent.EndFrame = m_frame;
+			frameEvent.StartTime = unixTime;
+			frameEvent.EndTime = unixTime;
 
 			lock (m_pendingEventsLock) {
 				m_pendingEvents.Add(frameEvent);
@@ -104,13 +104,13 @@ namespace Tekly.Webster.FramelineCore
 			lock (m_pendingEventsLock) {
 				for (var index = 0; index < m_pendingEvents.Count; index++) {
 					var target = m_pendingEvents[index];
-					
+
 					if (target.FrameEventId != frameEventId) {
 						continue;
 					}
 
 					m_pendingEvents.RemoveAt(index);
-						
+
 					target.EndFrame = m_frame;
 					target.EndTime = m_stopwatch.Elapsed.TotalMilliseconds;
 
@@ -132,7 +132,7 @@ namespace Tekly.Webster.FramelineCore
 					var target = m_pendingEvents[index];
 					if (target.EventType == type && target.Id == id) {
 						m_pendingEvents.RemoveAt(index);
-						
+
 						target.EndFrame = m_frame;
 						target.EndTime = m_stopwatch.Elapsed.TotalMilliseconds;
 
@@ -144,7 +144,7 @@ namespace Tekly.Webster.FramelineCore
 					}
 				}
 			}
-			
+
 			Debug.LogErrorFormat("Frameline - EndEvent with no BeginEvent ID: {0} - Type: {1}", id, type);
 		}
 
@@ -173,7 +173,7 @@ namespace Tekly.Webster.FramelineCore
 		{
 			m_frame = Time.frameCount;
 			var frameEvent = InstantEventInternal("__LongFrame", "__LongFrame");
-			
+
 			m_previousFrameEvent.EndTime = frameEvent.StartTime;
 
 			var frameLength = m_previousFrameEvent.EndTime - m_previousFrameEvent.StartTime;
@@ -182,7 +182,7 @@ namespace Tekly.Webster.FramelineCore
 					m_events.Add(m_previousFrameEvent);
 				}
 			}
-			
+
 			m_previousFrameEvent = frameEvent;
 		}
 
