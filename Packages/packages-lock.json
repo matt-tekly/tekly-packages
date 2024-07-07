@@ -199,6 +199,8 @@
       "source": "embedded",
       "dependencies": {
         "ca.tekly.common": "0.0.1",
+        "ca.tekly.liquid": "0.0.1",
+        "ca.tekly.websockets": "0.0.1",
         "com.unity.nuget.newtonsoft-json": "0.0.1"
       }
     },

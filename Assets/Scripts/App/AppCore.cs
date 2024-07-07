@@ -63,8 +63,8 @@ namespace TeklySample.App
         {
             TinkerServer.Instance.Initialize();
             TinkerServer.Instance.Home
-                .Add("inventory", "/game/inventory/card", 6, 5)
-                .Add("logs", "/game/logs/stats", 4, 3);
+                .Add("inventory", "/game/inventory/card", 6, 10)
+                .Add("logs", "/game/logs/stats", 4, 5);
             
             WebsterServer.Start(true);
             WebsterServer.AddRouteHandler<SampleWebsterHandler>();

@@ -199,7 +199,7 @@ function functionHandler(cmd) {
             let text = await fetchResult.text();
             throw new Error('Network response was not ok: ' + text);
         }
-
+        
         return handleResponse(fetchResult);
     }
 }

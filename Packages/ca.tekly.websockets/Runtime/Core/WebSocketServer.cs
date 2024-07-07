@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using System.Threading;
 using UnityEngine;
 
-namespace Tekly.WebSockets
+namespace Tekly.WebSockets.Core
 {
 	public class WebSocketServer
 	{
@@ -16,7 +16,6 @@ namespace Tekly.WebSockets
 		private NetworkStream m_clientStream;
 
 		private readonly int m_port;
-		private bool m_active;
 
 		private readonly Clients m_clients = new Clients();
 
@@ -27,8 +26,6 @@ namespace Tekly.WebSockets
 
 		public void Start()
 		{
-			m_active = true;
-
 			m_listenerThread = new Thread(ListenForClients);
 			m_listenerThread.IsBackground = true;
 			m_listenerThread.Start();
@@ -38,11 +35,9 @@ namespace Tekly.WebSockets
 		{
 			m_tcpListener = new TcpListener(IPAddress.Any, m_port);
 			m_tcpListener.Start();
-
-			Debug.Log($"WebSocket server started on ws://localhost:{m_port}");
-
+			
 			try {
-				while (m_active) {
+				while (true) {
 					var client = m_tcpListener.AcceptTcpClient();
 					m_clients.TryAdd(client);
 				}
@@ -56,10 +51,11 @@ namespace Tekly.WebSockets
 		public void Stop()
 		{
 			m_clients.Stop();
-			m_tcpListener.Stop();
+			m_tcpListener?.Stop();
 			
-			m_listenerThread.Abort();
-			
+			m_listenerThread?.Abort();
+
+			m_listenerThread = null;
 			m_tcpListener = null;
 		}
 	}

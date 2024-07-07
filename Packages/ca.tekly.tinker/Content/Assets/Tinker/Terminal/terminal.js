@@ -11,8 +11,11 @@ class Terminal {
 
         document.addEventListener('keydown', this.processKey);
         
-        tinkerServer.addListener((data) => {
-            this.addJson(data);
+        tinkerServer.topics.subscribe("terminal", (data) => {
+            let json = data.body;
+            let jsonData = JSON.parse(json);
+            
+            this.addJson(JSON.stringify(jsonData,0 , 4));
         });
     }
 
@@ -37,7 +40,7 @@ class Terminal {
     addText = (text, className) => {
         const divElement = document.createElement('div');
         divElement.textContent = text;
-        if (className){
+        if (className) {
             divElement.classList.add(className);    
         }
         this.content.prepend(divElement);

@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using UnityEngine;
 
-namespace Tekly.WebSockets
+namespace Tekly.WebSockets.Core
 {
 	public class Clients
 	{

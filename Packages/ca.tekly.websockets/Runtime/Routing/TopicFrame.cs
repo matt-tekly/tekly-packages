@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Tekly.WebSockets.Topics
+namespace Tekly.WebSockets.Routing
 {
 
 	public static class FrameCommands
@@ -16,13 +16,31 @@ namespace Tekly.WebSockets.Topics
 	{
 		public const string NEWLINE = "\r\n";
 
-		public readonly string Type;
+		public readonly string Command;
 		public readonly string Content;
 
 		public readonly Dictionary<string, string> Headers = new Dictionary<string, string>();
 
 		private const int SEARCH_LENGTH = 4;
 		private static readonly byte[] s_searchSequence = Encoding.UTF8.GetBytes(NEWLINE + NEWLINE);
+
+		public TopicFrame(string data)
+		{
+			var split = data.Split("\r\n\r\n");
+			var headers = split[0];
+			
+			var headerPairs = headers.Trim().Split(NEWLINE);
+			Command = headerPairs[0];
+
+			for (var i = 1; i < headerPairs.Length; i++) {
+				var headerSplit = headerPairs[i].Split(':');
+				Headers[headerSplit[0]] = headerSplit[1];
+			}
+
+			if (split.Length > 1) {
+				Content = split[1];
+			}
+		}
 
 		public TopicFrame(byte[] bytes)
 		{
@@ -32,7 +50,7 @@ namespace Tekly.WebSockets.Topics
 				string header = Encoding.UTF8.GetString(result);
 
 				var lines = header.Split(new[] { "\r\n" }, StringSplitOptions.None);
-				Type = lines[0];
+				Command = lines[0];
 
 				for (var i = 1; i < lines.Length; i++) {
 					var line = lines[i];

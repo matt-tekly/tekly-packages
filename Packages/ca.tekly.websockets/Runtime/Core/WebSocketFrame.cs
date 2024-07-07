@@ -2,7 +2,7 @@ using System;
 using System.Buffers.Binary;
 using System.IO;
 
-namespace Tekly.WebSockets
+namespace Tekly.WebSockets.Core
 {
 	public enum OpCode : byte
 	{
@@ -32,18 +32,19 @@ namespace Tekly.WebSockets
 			return $"Fin: {Fin}, Opcode: {Opcode}, Mask: {Mask}, PayloadLength: {PayloadLength}";
 		}
 
+		/// <summary>
+		/// Parses an incoming WebSocketFrame
+		/// </summary>
 		public static WebSocketFrame Parse(Stream stream)
 		{
 			var frame = new WebSocketFrame();
 
 			Span<byte> headerBuffer = stackalloc byte[14]; // Max header size (2 + 8 + 4)
-
-			// Read first two bytes
+			
 			if (stream.Read(headerBuffer.Slice(0, 2)) != 2) {
 				throw new EndOfStreamException("Unable to read WebSocket frame header");
 			}
-
-			// Parse first byte
+			
 			frame.Fin = (headerBuffer[0] & 0x80) == 0x80;
 			frame.Rsv1 = (headerBuffer[0] & 0x40) == 0x40;
 			frame.Rsv2 = (headerBuffer[0] & 0x20) == 0x20;

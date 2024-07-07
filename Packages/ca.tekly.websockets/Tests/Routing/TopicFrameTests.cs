@@ -1,8 +1,8 @@
 using System.Text;
 using NUnit.Framework;
-using UnityEngine;
+using Tekly.WebSockets.Routing;
 
-namespace Tekly.WebSockets.Topics
+namespace Tekly.WebSockets
 {
 	public class TopicFrameTests
 	{
@@ -15,7 +15,7 @@ namespace Tekly.WebSockets.Topics
 
 			var frame = new TopicFrame(bytes);
 
-			Assert.That(frame.Type, Is.EqualTo(FrameCommands.SUBSCRIBE));
+			Assert.That(frame.Command, Is.EqualTo(FrameCommands.SUBSCRIBE));
 			Assert.That(frame.Headers, Contains.Key("Topic"));
 			Assert.That(frame.Headers["Topic"], Is.EqualTo("TEST_TOPIC"));
 			Assert.That(frame.Content, Is.Null);
@@ -30,7 +30,7 @@ namespace Tekly.WebSockets.Topics
 
 			var frame = new TopicFrame(bytes);
 			
-			Assert.That(frame.Type, Is.EqualTo(FrameCommands.SEND));
+			Assert.That(frame.Command, Is.EqualTo(FrameCommands.SEND));
 			Assert.That(frame.Headers, Contains.Key("Topic"));
 			Assert.That(frame.Headers["Topic"], Is.EqualTo("TEST_TOPIC"));
 			Assert.That(frame.Content, Is.EqualTo("BlingBong"));
@@ -46,7 +46,7 @@ namespace Tekly.WebSockets.Topics
 
 			var frame = new TopicFrame(bytes);
 			
-			Assert.That(frame.Type, Is.EqualTo(FrameCommands.SEND));
+			Assert.That(frame.Command, Is.EqualTo(FrameCommands.SEND));
 			Assert.That(frame.Headers, Contains.Key("Topic"));
 			Assert.That(frame.Headers["Topic"], Is.EqualTo("TEST_TOPIC"));
 			

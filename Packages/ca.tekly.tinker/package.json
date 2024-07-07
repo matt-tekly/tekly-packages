@@ -2,9 +2,11 @@
   "name": "ca.tekly.tinker",
   "displayName": "Tekly Tinker",
   "version": "0.0.1",
-  "unity": "2019.4",
+  "unity": "2021.4",
   "dependencies": {
     "ca.tekly.common": "0.0.1",
+    "ca.tekly.liquid": "0.0.1",
+    "ca.tekly.websockets": "0.0.1",
     "com.unity.nuget.newtonsoft-json": "0.0.1"
   },
   "author": {
@@ -12,5 +14,6 @@
     "email": "matt@tekly.ca"
   },
   "hideInEditor": false,
-  "type": "library"
+  "type": "library",
+  "description": "A debug tool hosted in your game and accessed from your browser!"
 }

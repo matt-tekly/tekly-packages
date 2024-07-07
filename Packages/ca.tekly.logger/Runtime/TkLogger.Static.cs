@@ -22,6 +22,7 @@ namespace Tekly.Logging
         public static readonly List<LoggerGroup> Groups = new List<LoggerGroup>();
         public static LoggerGroup DefaultGroup;
         public static readonly TkLoggerStats Stats = new TkLoggerStats();
+        public static event Action<TkLogMessage> MessageLogged;
 
         public static readonly ConcurrentDictionary<string, string> CommonFields = new ConcurrentDictionary<string, string>();
         
@@ -110,6 +111,8 @@ namespace Tekly.Logging
             LifeCycle.Instance.Update -= Update;
             
             LoggerConfigDeserializer.Reset();
+
+            MessageLogged = null;
         }
         
         private static TkLogger Create(Type type)
@@ -279,6 +282,8 @@ namespace Tekly.Logging
             foreach (var destination in loggerGroup.Destinations) {
                 destination.LogMessage(message, logSource);
             }
+            
+            MessageLogged?.Invoke(message);
         }
 
         private static void LogToDestinations(LoggerGroup loggerGroup, TkLogMessage message, Object context, LogSource logSource = LogSource.TkLogger)
@@ -287,6 +292,8 @@ namespace Tekly.Logging
             foreach (var destination in loggerGroup.Destinations) {
                 destination.LogMessage(message, context, logSource);
             }
+            
+            MessageLogged?.Invoke(message);
         }
 
         private static LoggerProfileData CreateDefaultProfile()

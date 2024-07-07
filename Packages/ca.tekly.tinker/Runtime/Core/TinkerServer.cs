@@ -81,7 +81,7 @@ namespace Tekly.Tinker.Core
 				ListenAsync();
 
 				InitializeLiquid();
-				InitializeSidebar();
+				InitializeContent();
 
 				AddHandler(AssetRoutes);
 				
@@ -99,7 +99,7 @@ namespace Tekly.Tinker.Core
 			}
 		}
 
-		private void InitializeSidebar()
+		private void InitializeContent()
 		{
 			Sidebar.Section("Main")
 				.Item("Home", "/");
@@ -107,8 +107,8 @@ namespace Tekly.Tinker.Core
 			Sidebar.Section("Utility")
 				.Item("Terminal", "/tinker/terminal");
 
-			Home.Add("appinfo", "/tinker/info/app", 6, 5)
-				.Add("assets", "/unity/assets/card", 4, 5);
+			Home.Add("appinfo", "/unity/info/app", 6, 10)
+				.Add("assets", "/unity/assets/card", 5, 5);
 		}
 
 		public string GetLocalIP()

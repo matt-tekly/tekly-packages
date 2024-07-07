@@ -4,7 +4,7 @@ namespace Tekly.Tinker.Core
 {
 	public class TinkerHome
 	{
-		public int CellHeight = 40;
+		public int CellHeight = 25;
 		
 		public List<TinkerHomeCard> Cards = new List<TinkerHomeCard>();
 		

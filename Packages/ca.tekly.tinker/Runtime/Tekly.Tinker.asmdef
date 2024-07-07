@@ -3,7 +3,8 @@
     "rootNamespace": "Tekly.Tinker",
     "references": [
         "GUID:b9160372c6c55a741932d482673e3abb",
-        "GUID:98440020d9e5b425694d2699e5dc03b7"
+        "GUID:98440020d9e5b425694d2699e5dc03b7",
+        "GUID:a33f1247f29a2420d94cbd52cf2968e7"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

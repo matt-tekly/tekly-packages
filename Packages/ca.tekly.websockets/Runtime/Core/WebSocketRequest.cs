@@ -1,7 +1,6 @@
 using System;
-using System.Collections.Generic;
 
-namespace Tekly.WebSockets
+namespace Tekly.WebSockets.Core
 {
 	public class WebSocketRequest
 	{

@@ -14,6 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_directory: {fileID: 102900000, guid: ab46caec12b99496680f810b535ea24c, type: 3}
   Assets:
+  - Asset: {fileID: 9027929339269108002, guid: 8a35a224ffbc4ec88cb6853424e2b2de, type: 3}
+    Name: components
+    Url: /Tinker/components.js
+    IsTemplate: 0
   - Asset: {fileID: 9027929339269108002, guid: c1d7bdeba9f441ce83581beda33cc50f, type: 3}
     Name: commands
     Url: /Tinker/Terminal/commands.js
@@ -73,4 +77,8 @@ MonoBehaviour:
   - Asset: {fileID: 9027929339269108002, guid: 71b6ab80d3b24ff1945c7aefd84427f3, type: 3}
     Name: tinker_styles
     Url: /Tinker/tinker_styles.css
+    IsTemplate: 0
+  - Asset: {fileID: 9027929339269108002, guid: 7ef48439f9b247a3b7e224eb262c60cd, type: 3}
+    Name: topics
+    Url: /Tinker/Topics/topics.js
     IsTemplate: 0

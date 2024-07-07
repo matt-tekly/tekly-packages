@@ -17,8 +17,11 @@
 	{%- include tinker_sidebar -%}
 
 	<div class="main-content terminal-page" id="terminal">
-		<div class="terminal-container" id="content"></div>
-		<div class="terminal-input-container">
+		<div class="terminal-container" id="content">
+			<stats-card topic="logs/stats" class="card box-shadow">
+			</stats-card>
+		</div>
+		<div class="terminal-input-container">1
 			<div class="terminal-suggestion hide box-shadow" id="suggestion">
 			</div>
 			<input id="input" class="terminal-input box-shadow" type="text" autofocus>
@@ -46,7 +49,7 @@
         let event = new Event("reload", {bubbles: true});
         element.dispatchEvent(event);
     }
-    
+	
     async function handleResponse(response) {
         const contentType = response.headers.get('Content-Type');
         if (contentType.includes('text/html')) {
@@ -62,6 +65,27 @@
             newEntry.innerText = json;
             
             return newEntry
+        } else if (contentType.includes('image/png')) {
+            const blob = await response.blob();
+            const objectURL = URL.createObjectURL(blob);
+			
+            const div = document.createElement('div');
+            const a = document.createElement('a');
+            a.href=response.url;
+            a.target = "_blank";
+            
+            const img = document.createElement('img');
+            img.classList.add("terminal-image");
+            img.src = objectURL;
+			
+            img.onload = () => {
+                URL.revokeObjectURL(objectURL);
+            };
+            
+            a.appendChild(img);
+            div.appendChild(a);
+            
+            return div;
         } else {
             return response.text();
         }
@@ -70,36 +94,9 @@
     document.addEventListener('DOMContentLoaded', function () {
         const terminal = new Terminal("#terminal");
 		
-        function createHtmxCard(url) {
-            const newEntry = document.createElement('div');
-            newEntry.setAttribute("hx-trigger", "revealed,reload,intersect");
-            newEntry.setAttribute("hx-get", url);
-            newEntry.setAttribute("hx-swap", "outerHtml");
-			
-            return newEntry;
-        }
-        
-        terminal.commands.addTinkerCommands(commands);
+		terminal.commands.addTinkerCommands(commands);
+
 		
-        terminal.commands.addFunction("test", () => {
-            return "bingus bongus";
-        });
-
-        terminal.commands.addFunction("test2", () => {
-            const newEntry = document.createElement('div');
-            newEntry.textContent = "bingus bongus 2";
-
-            return newEntry;
-        });
-
-        terminal.commands.addFunction("fetchy", () => {
-            return createHtmxCard("/tinker/info/app");
-        });
-
-        terminal.commands.addFunction("inventory", () => {
-            return createHtmxCard("/game/inventory/card");
-        });
-
         terminal.commands.addFunction("do_error", async () => {
             throw new Error("oh no!");
         });

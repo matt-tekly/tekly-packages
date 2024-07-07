@@ -7,24 +7,10 @@ class Topics {
         this.ws = ws;
         
         /** type {Record<string, Topic> */
-        this.topics = {}
+        this.topics = {};
         
         this.ws.addEventListener("message", this.onMessage);
         this.ws.addEventListener("close", this.onClose);
-    }
-
-    parseFrame(frameText) {
-        const [headersStr, body] = frameText.split('\r\n\r\n');
-        const headers = {};
-        const headerPairs = headersStr.trim().split('\r\n');
-        let command = headerPairs[0];
-        
-        for (let i = 1; i < headerPairs.length; i++) {
-            const [key, value] = headerPairs[i].split(':');
-            headers[key] = value;
-        }
-
-        return { command, headers, body };
     }
     
     onMessage = (evt) => {
@@ -54,6 +40,10 @@ class Topics {
             this.topics[topicId] = topic;
         }
         
+        if (!topic.subscribers.length) {
+            this.send("SUBSCRIBE", topicId);
+        }
+        
         topic.subscribe(func);
     }
 
@@ -66,8 +56,43 @@ class Topics {
         let topic = this.topics[topicId];
 
         if (topic) {
-            topic.unsubscribe(topicId);
+            topic.unsubscribe(func);
+            if (!topic.subscribers.length) {
+                this.send("UNSUBSCRIBE", topicId);
+            }
         }
+    }
+    
+    send(command, topicId, contentType, content) {
+        this.ws.send(this.encodeFrame(command, topicId, contentType, content));
+    }
+
+    parseFrame(frameText) {
+        const [headersStr, body] = frameText.split('\r\n\r\n');
+        const headers = {};
+        const headerPairs = headersStr.trim().split('\r\n');
+        let command = headerPairs[0];
+
+        for (let i = 1; i < headerPairs.length; i++) {
+            const [key, value] = headerPairs[i].split(':');
+            headers[key] = value;
+        }
+
+        return { command, headers, body };
+    }
+
+    encodeFrame(command, topicId, contentType, content) {
+        const NEWLINE = "\r\n";
+        
+        let frame = command + NEWLINE;
+        frame += "Topic:" + topicId + NEWLINE;
+        
+        if (contentType != null) {
+            frame += "Content-Type:" + contentType + NEWLINE + NEWLINE;
+            frame += content;
+        }
+        
+        return frame;
     }
 }
 

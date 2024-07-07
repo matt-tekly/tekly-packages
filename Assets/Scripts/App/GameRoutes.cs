@@ -73,16 +73,11 @@ namespace TeklySample.App
 				Type = LogType.Log
 			};
 		}
-
-		[Page("/logs/stats", "tinker_stats_card", "Stats")]
-		public DataList Stats()
+		
+		[Get("/logs/stats"), Command("logs")]
+		public HtmlContent StatsElement()
 		{
-			return new DataList("Logs")
-				.Add("Debug", TkLogger.Stats.Debug)
-				.Add("Info", TkLogger.Stats.Info)
-				.Add("Warning", TkLogger.Stats.Warning, "yellow")
-				.Add("Error", TkLogger.Stats.Error, "red")
-				.Add("Exception", TkLogger.Stats.Exception, "red");
+			return TinkerElements.StatsTopic("logs/stats");
 		}
 	}
 }

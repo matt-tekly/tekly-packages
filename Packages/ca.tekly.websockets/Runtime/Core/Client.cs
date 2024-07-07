@@ -5,9 +5,12 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Tekly.WebSockets.Routing;
 using UnityEngine;
 
-namespace Tekly.WebSockets
+namespace Tekly.WebSockets.Core
 {
 	public class Client
 	{
@@ -23,10 +26,15 @@ namespace Tekly.WebSockets
 		public event Action<Client, string> ReceivedText;
 		public event Action<Client, byte[]> ReceivedBinary;
 
+		private readonly JsonSerializerSettings m_serializerSettings;
+		
 		public Client(WebSocketRequest request, TcpClient client, int id)
 		{
 			m_client = client;
 			Id = id;
+			
+			m_serializerSettings = new JsonSerializerSettings();
+			m_serializerSettings.Converters.Add(new StringEnumConverter());
 
 			m_stream = m_client.GetStream();
 
@@ -66,6 +74,14 @@ namespace Tekly.WebSockets
 			SendTextFrame(m_stream, message);
 		}
 		
+		public void SendJson<T>(string topic, T obj)
+		{
+			var json = JsonConvert.SerializeObject(obj, m_serializerSettings);
+			var frame = TopicFrame.EncodeFrame(FrameCommands.SEND, topic, "json", json);
+			
+			Send(frame);
+		}
+		
 		public void Send(byte[] message)
 		{
 			if (!Active || m_client == null || m_stream == null) {
@@ -82,8 +98,6 @@ namespace Tekly.WebSockets
 				try {
 					var frame = WebSocketFrame.Parse(m_stream);
 					
-					Debug.Log(frame.ToString());
-
 					if (frame.Opcode == OpCode.Text) {
 						var receivedMessage = Encoding.UTF8.GetString(frame.PayloadData);
 						ReceivedText?.Invoke(this, receivedMessage);
@@ -160,10 +174,9 @@ namespace Tekly.WebSockets
 
 		private static void SendCloseFrame(Stream outputStream, ushort statusCode, string reason = null)
 		{
-			byte[] payload;
 			if (reason != null) {
 				var reasonBytes = Encoding.UTF8.GetBytes(reason);
-				payload = new byte[2 + reasonBytes.Length];
+				var payload = new byte[2 + reasonBytes.Length];
 				BinaryPrimitives.WriteUInt16BigEndian(payload, statusCode);
 				reasonBytes.CopyTo(payload, 2);
 				WebSocketFrame.EncodeFrame(outputStream, true, OpCode.Close, payload);
