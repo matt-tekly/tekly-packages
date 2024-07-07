@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using Tekly.Tinker.Core;
+using Tekly.Tinker.Http;
 using Tekly.Tinker.Routing;
 using UnityEngine;
 using UnityEngine.SceneManagement;

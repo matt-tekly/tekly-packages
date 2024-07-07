@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Text.RegularExpressions;
-using DotLiquid;
-using Newtonsoft.Json;
 using Tekly.Common.Utils;
 using Tekly.Tinker.Core;
 using UnityEngine;
@@ -11,22 +8,6 @@ using UnityEngine.Assertions;
 
 namespace Tekly.Tinker.Routing
 {
-	public class CommandAttribute : Attribute
-	{
-		public string Name;
-
-		private static readonly Regex s_validPattern = new Regex("^[a-zA-Z0-9._-]+$");
-		public CommandAttribute(string name)
-		{
-			Name = name;
-			
-			if (!s_validPattern.IsMatch(name)) {
-				Debug.LogError($"Command name [{name}] must only contain letters, numbers, periods, underscores and dashes");
-				Name = s_validPattern.Replace(name, "_");
-			}
-		}
-	}
-	
 	public class ClassRoutes : ITinkerRoutes
 	{
 		public string DisplayName => m_descriptionAttribute?.Name;

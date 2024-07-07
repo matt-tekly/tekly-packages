@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using DotLiquid;
 using DotLiquid.FileSystems;
-using Tekly.Tinker.Core;
+using Tekly.Tinker.Http;
 using Tekly.Tinker.Routing;
 using UnityEngine;
 
@@ -12,14 +12,7 @@ namespace Tekly.Tinker.Assets
 	public class TinkerAssetRoutes : IFileSystem, ITinkerRoutes
 	{
 		private bool m_initialized;
-		
-		private readonly Dictionary<string, string> m_constantTemplates = new Dictionary<string, string>();
 		private readonly List<TinkerAssets> m_tinkerAssets = new List<TinkerAssets>();
-
-		public void AddTemplate(string name, string content)
-		{
-			m_constantTemplates[name] = content;
-		}
 		
 		public void AddAssets(TinkerAssets tinkerAssets)
 		{
@@ -37,10 +30,6 @@ namespace Tekly.Tinker.Assets
 			UnityEditor.AssetDatabase.Refresh();
 #endif
 			Initialize();
-			
-			if (m_constantTemplates.TryGetValue(templateName, out var content)) {
-				return content;
-			}
 
 #if TINKER_ENABLED
 			foreach (var tinkerAssets in m_tinkerAssets) {

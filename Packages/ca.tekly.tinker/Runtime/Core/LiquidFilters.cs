@@ -4,8 +4,10 @@ using Newtonsoft.Json;
 
 namespace Tekly.Tinker.Core
 {
+	[TinkerPreserve]
 	public static class LiquidFilters
 	{
+		[TinkerPreserve]
 		public static string Stringify(object obj)
 		{
 			if (obj is DropProxy p) {
@@ -19,6 +21,7 @@ namespace Tekly.Tinker.Core
 			return obj.ToString();
 		}
 		
+		[TinkerPreserve]
 		public static string Json(object obj)
 		{
 			if (obj == null) {
@@ -37,6 +40,7 @@ namespace Tekly.Tinker.Core
 			return stringWriter.ToString();
 		}
 		
+		[TinkerPreserve]
 		public static string CurrentUrl(Context context, string input)
 		{
 			var possibleCurrentUrl = context["Tinker.Url"];

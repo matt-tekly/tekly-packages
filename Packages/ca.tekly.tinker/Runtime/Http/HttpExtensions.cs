@@ -4,10 +4,11 @@ using System.IO;
 using System.Net;
 using System.Text;
 using Tekly.Common.Utils;
+using Tekly.Tinker.Core;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace Tekly.Tinker.Core
+namespace Tekly.Tinker.Http
 {
 	public static class HttpExtensions
 	{

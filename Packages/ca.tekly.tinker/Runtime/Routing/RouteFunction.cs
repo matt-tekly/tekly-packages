@@ -7,6 +7,7 @@ using System.Text;
 using Newtonsoft.Json;
 using Tekly.Common.Utils;
 using Tekly.Tinker.Core;
+using Tekly.Tinker.Http;
 
 namespace Tekly.Tinker.Routing
 {

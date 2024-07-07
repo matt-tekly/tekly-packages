@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using DotLiquid;
 using DotLiquid.NamingConventions;
 using Newtonsoft.Json;
@@ -14,6 +15,7 @@ using Newtonsoft.Json.Converters;
 using Tekly.Common.LifeCycles;
 using Tekly.Common.Utils;
 using Tekly.Tinker.Assets;
+using Tekly.Tinker.Http;
 using Tekly.Tinker.Routes;
 using Tekly.Tinker.Routing;
 using UnityEngine;
@@ -47,39 +49,29 @@ namespace Tekly.Tinker.Core
 		public readonly TinkerAssetRoutes AssetRoutes = new TinkerAssetRoutes();
 		public readonly Sidebar Sidebar = new Sidebar();
 		public readonly TinkerHome Home = new TinkerHome();
+
+		public string LocalIP => m_httpServer?.GetLocalIP();
 		
-		private const int PORT = 3333;
-
-		private int m_port;
-		private HttpListener m_listener;
-
 		private readonly List<ITinkerRoutes> m_routes = new List<ITinkerRoutes>();
-		private const string TINKER_KEY = "Tinker";
+		
+		private const int PORT_DEFAULT = 3333;
+		private const string TINKER_DATA_KEY = "Tinker";
 
-		public TinkerData GetData(string url)
-		{
-			return new TinkerData(url, m_routes, Sidebar, AssetRoutes, Home);
-		}
+		private HttpServer m_httpServer;
 
 		public TinkerServer()
 		{
 			Serializer.Converters.Add(new StringEnumConverter());
 		}
 		
-		public void Initialize(int port = PORT)
+		public void Initialize(int port = PORT_DEFAULT)
 		{
 			Application.runInBackground = true;
-			m_port = port;
-
+			
 			try {
-				m_listener = new HttpListener();
-				m_listener.Prefixes.Add($"http://*:{port}/");
-
-				m_listener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
-				m_listener.Start();
-
-				ListenAsync();
-
+				m_httpServer = new HttpServer(port, ProcessRequest);
+				m_httpServer.Start();
+				
 				InitializeLiquid();
 				InitializeContent();
 
@@ -88,14 +80,11 @@ namespace Tekly.Tinker.Core
 				AddHandler(new TextureRoutes());
 				AddHandler<TinkerPages>();
 				AddHandler<UnityRoutes>();
-				AddHandler<TinkerRpc>();
 
 				LifeCycle.Instance.Quit += OnApplicationQuit;
 			} catch (Exception e) {
 				Debug.LogException(e);
-				if (m_listener != null && m_listener.IsListening) {
-					m_listener.Stop();
-				}
+				m_httpServer?.Stop();
 			}
 		}
 
@@ -110,79 +99,28 @@ namespace Tekly.Tinker.Core
 			Home.Add("appinfo", "/unity/info/app", 6, 10)
 				.Add("assets", "/unity/assets/card", 5, 5);
 		}
-
-		public string GetLocalIP()
-		{
-			try {
-				using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0);
-
-				socket.Connect("8.8.8.8", 65530);
-
-				var endPoint = socket.LocalEndPoint as IPEndPoint;
-				return $"{endPoint.Address}:{m_port}";
-			} catch (Exception e) {
-				Debug.LogError("Failed to get IP");
-				Debug.LogException(e);
-			}
-
-			return "[Failed to get IP]";
-		}
-
-		public HtmlContent RenderTemplate(string templateName, object content, string contentKey = null)
-		{
-			var template = Template.Parse(AssetRoutes.ReadTemplateFile(templateName));
-
-			var dict = new Dictionary<string, object>();
-			dict[TINKER_KEY] = Hash.FromAnonymousObject(GetData(""));
-
-			if (content == null) {
-				return template.Render(Hash.FromDictionary(dict));
-			}
-
-			if (contentKey != null) {
-				dict[contentKey] = content;
-				var localHash = Hash.FromDictionary(dict);
-				return template.Render(localHash);
-			}
-
-			var hash = Hash.FromDictionary(dict);
-			hash.Merge(Hash.FromAnonymousObject(content));
-
-			return template.Render(hash);
-		}
 		
-		public HtmlContent RenderPage(string url, string templateName, string dataKey, object content)
+		public HtmlContent RenderPage(string url, string templateName, string dataKey, object data)
 		{
 			var template = Template.Parse(AssetRoutes.ReadTemplateFile(templateName));
 
 			var dict = new Dictionary<string, object>();
-			dict[TINKER_KEY] = Hash.FromAnonymousObject(GetData(url));
+			dict[TINKER_DATA_KEY] = Hash.FromAnonymousObject(GetData(url));
 
-			if (content == null) {
+			if (data == null) {
 				return template.Render(Hash.FromDictionary(dict));
 			}
 
 			if (dataKey != null) {
-				dict[dataKey] = content;
+				dict[dataKey] = data;
 				var localHash = Hash.FromDictionary(dict);
 				return template.Render(localHash);
 			}
 
 			var hash = Hash.FromDictionary(dict);
-			hash.Merge(Hash.FromAnonymousObject(content));
+			hash.Merge(Hash.FromAnonymousObject(data));
 
 			return template.Render(hash);
-		}
-
-		public HtmlContent RenderTemplate(PageAttribute page)
-		{
-			var template = Template.Parse(AssetRoutes.ReadTemplateFile(page.TemplateName));
-			var dict = new Dictionary<string, object>();
-			dict[TINKER_KEY] = Hash.FromAnonymousObject(GetData(page.Route));
-
-			var tinkerHash = Hash.FromDictionary(dict);
-
-			return template.Render(tinkerHash);
 		}
 
 		public void AddHandler(ITinkerRoutes routes)
@@ -200,53 +138,33 @@ namespace Tekly.Tinker.Core
 
 		public ITinkerRoutes AddHandler<T>() where T : new()
 		{
-			var classRoutes = new ClassRoutes(new T(), this);
-			m_routes.Add(classRoutes);
-
-			return classRoutes;
+			return AddClassHandler(new T());
 		}
 
 		public void RemoveHandler(ITinkerRoutes routes)
 		{
 			m_routes.Remove(routes);
 		}
-
-		private async void ListenAsync()
+		
+		private void ProcessRequest(HttpListenerContext context)
 		{
-			while (m_listener.IsListening) {
-				try {
-					var context = await m_listener.GetContextAsync();
-					await new EndOfFrameAwaiter();
-					ProcessRequest(context);
-					context.Response.Close();
-				} catch (ObjectDisposedException) { } catch (Exception ex) {
-					Debug.LogException(ex);
+			var route = context.Request.Url.LocalPath;
+			
+			foreach (var routeHandler in m_routes) {
+				if (routeHandler.TryHandle(route, context.Request, context.Response)) {
+					break;
 				}
 			}
 		}
-
-		private void ProcessRequest(HttpListenerContext context)
+		
+		private TinkerData GetData(string url)
 		{
-			try {
-				var route = context.Request.Url.LocalPath;
-				
-				foreach (var routeHandler in m_routes) {
-					if (routeHandler.TryHandle(route, context.Request, context.Response)) {
-						break;
-					}
-				}
-			} catch (Exception e) {
-				Debug.LogException(e);
-				context.Response.StatusCode = 500;
-				context.Response.WriteText(e.ToString());
-			}
+			return new TinkerData(url, m_routes, Sidebar, AssetRoutes, Home);
 		}
 
 		private void OnApplicationQuit()
 		{
-			if (m_listener != null && m_listener.IsListening) {
-				m_listener.Stop();
-			}
+			m_httpServer?.Stop();
 		}
 
 		private void InitializeLiquid()

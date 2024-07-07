@@ -1,3 +1,5 @@
+using Tekly.Tinker.Routing;
+
 namespace Tekly.Tinker.Core
 {
 	[Route("")]

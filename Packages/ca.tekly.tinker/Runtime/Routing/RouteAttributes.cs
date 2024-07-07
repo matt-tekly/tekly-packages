@@ -1,19 +1,10 @@
-#if UNITY_EDITOR
-#define TINKER_ENABLED
-#endif
 using System;
-using UnityEngine.Scripting;
+using Tekly.Tinker.Core;
 
-namespace Tekly.Tinker.Core
+namespace Tekly.Tinker.Routing
 {
-#if TINKER_ENABLED
-	public class BaseAttribute : PreserveAttribute { }
-#else
-	public class BaseAttribute : Attribute { }
-#endif
-
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-	public class RouteAttribute : BaseAttribute
+	public class RouteAttribute : TinkerPreserveAttribute
 	{
 		public readonly string Route;
 		public readonly string Verb;
