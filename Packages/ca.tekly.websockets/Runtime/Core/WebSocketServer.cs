@@ -15,17 +15,13 @@ namespace Tekly.WebSockets.Core
 		private TcpClient m_connectedClient;
 		private NetworkStream m_clientStream;
 
-		private readonly int m_port;
+		private int m_port;
 
 		private readonly Clients m_clients = new Clients();
-
-		public WebSocketServer(int port)
+		
+		public void Start(int port)
 		{
 			m_port = port;
-		}
-
-		public void Start()
-		{
 			m_listenerThread = new Thread(ListenForClients);
 			m_listenerThread.IsBackground = true;
 			m_listenerThread.Start();

@@ -4,10 +4,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Sockets;
-using System.Threading.Tasks;
 using DotLiquid;
 using DotLiquid.NamingConventions;
 using Newtonsoft.Json;
@@ -18,31 +15,12 @@ using Tekly.Tinker.Assets;
 using Tekly.Tinker.Http;
 using Tekly.Tinker.Routes;
 using Tekly.Tinker.Routing;
+using Tekly.WebSockets.Core;
+using Tekly.WebSockets.Routing;
 using UnityEngine;
 
 namespace Tekly.Tinker.Core
 {
-	public class TinkerData
-	{
-		public string Url;
-		public List<ClassRoutes> Routes;
-		public Sidebar Sidebar;
-		public List<string> Css = new List<string>();
-		public TinkerHome Home;
-
-		public TinkerData(string url, List<ITinkerRoutes> routes, Sidebar sidebar, TinkerAssetRoutes assetRoutes, TinkerHome home)
-		{
-			Home = home;
-			Url = url;
-			Routes = routes.OfType<ClassRoutes>().ToList();
-			Sidebar = sidebar;
-
-			var cssAssets = new List<TinkerAsset>();
-			assetRoutes.GetAssets("css", cssAssets);
-			Css.AddRange(cssAssets.Select(x => x.Url));
-		}
-	}
-
 	public class TinkerServer : Singleton<TinkerServer>
 	{
 		public readonly JsonSerializer Serializer = new JsonSerializer();
@@ -51,6 +29,9 @@ namespace Tekly.Tinker.Core
 		public readonly TinkerHome Home = new TinkerHome();
 
 		public string LocalIP => m_httpServer?.GetLocalIP();
+
+		public WebSocketServer WebSocketServer => m_webSocketServer;
+		public Topics Topics => m_topics;
 		
 		private readonly List<ITinkerRoutes> m_routes = new List<ITinkerRoutes>();
 		
@@ -58,10 +39,14 @@ namespace Tekly.Tinker.Core
 		private const string TINKER_DATA_KEY = "Tinker";
 
 		private HttpServer m_httpServer;
-
+		private WebSocketServer m_webSocketServer;
+		private Topics m_topics;
+		
 		public TinkerServer()
 		{
 			Serializer.Converters.Add(new StringEnumConverter());
+			m_webSocketServer = new WebSocketServer();
+			m_topics = new Topics(m_webSocketServer.Clients);
 		}
 		
 		public void Initialize(int port = PORT_DEFAULT)
@@ -71,6 +56,7 @@ namespace Tekly.Tinker.Core
 			try {
 				m_httpServer = new HttpServer(port, ProcessRequest);
 				m_httpServer.Start();
+				m_webSocketServer.Start(port + 1);
 				
 				InitializeLiquid();
 				InitializeContent();
@@ -165,6 +151,7 @@ namespace Tekly.Tinker.Core
 		private void OnApplicationQuit()
 		{
 			m_httpServer?.Stop();
+			m_webSocketServer?.Stop();
 		}
 
 		private void InitializeLiquid()

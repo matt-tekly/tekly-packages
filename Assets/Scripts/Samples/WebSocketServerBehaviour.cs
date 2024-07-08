@@ -8,33 +8,19 @@ namespace Tekly.WebSockets
 {
 	public class WebSocketServerBehaviour : MonoBehaviour
 	{
-		[SerializeField] private int m_port;
-
-		private WebSocketServer m_server;
-		private Topics m_topics;
-
 		private LogTopic m_logTopic;
 		private LogStatsTopic m_logStatsTopic;
 
 		private void Awake()
 		{
-			m_server = new WebSocketServer(m_port);
-			m_server.Start();
-
-			m_topics = new Topics(m_server.Clients);
-
-			m_logTopic = new LogTopic(m_topics.Get("logs"));
-			m_logStatsTopic = new LogStatsTopic(m_topics.Get("logs/stats"));
+			m_logTopic = new LogTopic(TinkerServer.Instance.Topics.Get("logs"));
+			m_logStatsTopic = new LogStatsTopic(TinkerServer.Instance.Topics.Get("logs/stats"));
 		}
 
 		private void OnDestroy()
 		{
 			m_logTopic.Dispose();
 			m_logStatsTopic.Dispose();
-
-			if (m_server != null) {
-				m_server.Stop();
-			}
 		}
 	}
 
