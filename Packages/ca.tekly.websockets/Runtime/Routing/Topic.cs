@@ -17,7 +17,7 @@ namespace Tekly.WebSockets.Routing
 				
 				if (m_controller != null) {
 					foreach (var client in m_clients) {
-						m_controller.ClientAdded(client);
+						m_controller.ClientAdded(client, Id);
 					}
 				}
 			}
@@ -37,7 +37,7 @@ namespace Tekly.WebSockets.Routing
 		public void Subscribe(Client client)
 		{
 			m_clients.Add(client);
-			m_controller?.ClientAdded(client);
+			m_controller?.ClientAdded(client, Id);
 		}
 		
 		public void Unsubscribe(Client client)
@@ -45,7 +45,7 @@ namespace Tekly.WebSockets.Routing
 			m_clients.Remove(client);
 			m_controller?.ClientRemoved(client);
 		}
-
+		
 		public void SendJson<T>(T obj)
 		{
 			var json = JsonConvert.SerializeObject(obj, m_serializerSettings);

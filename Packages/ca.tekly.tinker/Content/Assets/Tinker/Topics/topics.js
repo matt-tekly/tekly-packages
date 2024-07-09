@@ -50,9 +50,9 @@ export class Topics {
             this.topics[topicId] = topic;
         }
         
-        if (!topic.subscribers.length) {
+        //if (!topic.subscribers.length) {
             this.send("SUBSCRIBE", topicId);
-        }
+        //}
         
         topic.subscribe(func);
     }

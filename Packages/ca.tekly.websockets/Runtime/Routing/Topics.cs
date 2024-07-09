@@ -1,12 +1,53 @@
+using System;
 using System.Collections.Generic;
 using Tekly.WebSockets.Core;
 
 namespace Tekly.WebSockets.Routing
 {
-	public class Topics
+	public class TopicConnector : IDisposable
+	{
+		public readonly Topic Topic;
+		public readonly ITopicController Controller;
+		
+		private readonly bool m_dispose;
+		private readonly Topics m_topics;
+
+		public TopicConnector(Topic topic, ITopicController controller, bool dispose, Topics topics)
+		{
+			Topic = topic;
+			Controller = controller;
+			
+			m_dispose = dispose;
+			m_topics = topics;
+
+			Topic.Controller = controller;
+			Controller.Emit += HandleEmit;
+		}
+
+		public void Dispose()
+		{
+			Controller.Emit -= HandleEmit;
+			
+			Topic.Controller = null;
+			
+			if (m_dispose) {
+				Controller?.Dispose();	
+			}
+
+			m_topics.Disconnect(this);
+		}
+
+		private void HandleEmit(object obj)
+		{
+			Topic.SendJson(obj);
+		}
+	}
+	
+	public class Topics : IDisposable
 	{
 		private readonly Clients m_clients;
 		private readonly Dictionary<string, Topic> m_topics = new Dictionary<string, Topic>();
+		private readonly List<TopicConnector> m_connectors = new List<TopicConnector>();
 		
 		public Topics(Clients clients)
 		{
@@ -14,6 +55,13 @@ namespace Tekly.WebSockets.Routing
 
 			m_clients.ClientConnected += OnClientConnected;
 			m_clients.ClientClosed += OnClientClosed;
+		}
+
+		public void Dispose()
+		{
+			for (var i = m_connectors.Count - 1; i >= 0; i--) {
+				m_connectors[i].Dispose();
+			}
 		}
 
 		public Topic Get(string topicId)
@@ -24,6 +72,14 @@ namespace Tekly.WebSockets.Routing
 			}
 
 			return topic;
+		}
+
+		public IDisposable Connect(string topicId, ITopicController topicController, bool dispose = true)
+		{
+			var connector = new TopicConnector(Get(topicId), topicController, dispose, this);
+			m_connectors.Add(connector);
+			
+			return connector;
 		}
 
 		private void OnClientConnected(Client client)
@@ -99,6 +155,11 @@ namespace Tekly.WebSockets.Routing
 			if (m_topics.TryGetValue(topicId, out var topic)) {
 				topic.ProcessSend(client, frame);
 			}
+		}
+
+		public void Disconnect(TopicConnector topicConnector)
+		{
+			m_connectors.Remove(topicConnector);
 		}
 	}
 }

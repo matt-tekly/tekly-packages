@@ -6,32 +6,25 @@ namespace Tekly.WebSockets.Routing
 {
 	public interface ITopicController : IDisposable
 	{
-		void ClientAdded(Client client);
+		void ClientAdded(Client client, string topicId);
 		void ClientRemoved(Client client);
 
 		void ReceivedSend(Client client, TopicFrame frame);
+
+		event Action<object> Emit;
 	}
 
 	public abstract class HistoricalTopic<T> : ITopicController
 	{
-		private readonly Topic m_topic;
+		public event Action<object> Emit;
 		private readonly List<T> m_history = new List<T>();
 
-		protected HistoricalTopic(Topic topic)
-		{
-			m_topic = topic;
-			m_topic.Controller = this;
-		}
+		public virtual void Dispose() { }
 
-		public virtual void Dispose()
-		{
-			m_topic.Controller = null;
-		}
-
-		public void ClientAdded(Client client)
+		public void ClientAdded(Client client, string topicId)
 		{
 			foreach (var message in m_history) {
-				client.SendJson(m_topic.Id, message);
+				client.SendJson(topicId, message);
 			}
 		}
 
@@ -41,30 +34,21 @@ namespace Tekly.WebSockets.Routing
 		protected void Send(T message)
 		{
 			m_history.Add(message);
-			m_topic.SendJson(message);
+			Emit?.Invoke(message);
 		}
 	}
 
 	public abstract class ValueTopic<T> : ITopicController where T : class
 	{
-		private readonly Topic m_topic;
+		public event Action<object> Emit;
 
 		private T m_value;
 
-		protected ValueTopic(Topic topic)
-		{
-			m_topic = topic;
-			m_topic.Controller = this;
-		}
+		public virtual void Dispose() { }
 
-		public virtual void Dispose()
+		public void ClientAdded(Client client, string topicId)
 		{
-			m_topic.Controller = null;
-		}
-
-		public void ClientAdded(Client client)
-		{
-			client.SendJson(m_topic.Id, m_value);
+			client.SendJson(topicId, m_value);
 		}
 
 		public void ClientRemoved(Client client) { }
@@ -78,7 +62,7 @@ namespace Tekly.WebSockets.Routing
 		private void Send(T message)
 		{
 			m_value = message;
-			m_topic.SendJson(message);
+			Emit?.Invoke(message);
 		}
 
 		protected abstract T GetValue();

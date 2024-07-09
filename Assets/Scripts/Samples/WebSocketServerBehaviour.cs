@@ -1,6 +1,6 @@
+using System;
 using Tekly.Logging;
 using Tekly.Tinker.Core;
-using Tekly.WebSockets.Core;
 using Tekly.WebSockets.Routing;
 using UnityEngine;
 
@@ -8,13 +8,13 @@ namespace Tekly.WebSockets
 {
 	public class WebSocketServerBehaviour : MonoBehaviour
 	{
-		private LogTopic m_logTopic;
-		private LogStatsTopic m_logStatsTopic;
+		private IDisposable m_logTopic;
+		private IDisposable m_logStatsTopic;
 
 		private void Awake()
 		{
-			m_logTopic = new LogTopic(TinkerServer.Instance.Topics.Get("logs"));
-			m_logStatsTopic = new LogStatsTopic(TinkerServer.Instance.Topics.Get("logs/stats"));
+			m_logTopic = TinkerServer.Instance.Topics.Connect("logs", new LogTopic());
+			m_logStatsTopic = TinkerServer.Instance.Topics.Connect("logs/stats", new LogStatsTopic());
 		}
 
 		private void OnDestroy()
@@ -26,7 +26,7 @@ namespace Tekly.WebSockets
 
 	public class LogTopic : HistoricalTopic<TkLogMessage>
 	{
-		public LogTopic(Topic topic) : base(topic)
+		public LogTopic()
 		{
 			TkLogger.MessageLogged += MessageLogged;
 		}
@@ -45,9 +45,7 @@ namespace Tekly.WebSockets
 
 	public class LogStatsTopic : ValueTopic<DataList>
 	{
-		private readonly Topic m_topic;
-
-		public LogStatsTopic(Topic topic) : base(topic)
+		public LogStatsTopic()
 		{
 			TkLogger.MessageLogged += MessageLogged;
 		}

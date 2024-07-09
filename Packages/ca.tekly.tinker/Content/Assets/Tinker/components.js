@@ -8,7 +8,7 @@ class TopicElement extends HTMLElement {
     constructor() {
         super();
         this.isSubscribed = false;
-        this.topic = null;
+        this.topicId = null;
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
@@ -26,12 +26,12 @@ class TopicElement extends HTMLElement {
     }
 
     trySubscribe(topic) {
-        if (topic !== this.topic) {
+        if (topic !== this.topicId) {
             this.tryUnsubscribe();
-            this.topic = topic;
+            this.topicId = topic;
 
-            if (this.topic) {
-                server.topics.subscribe(this.topic, this.onTopicMessage);
+            if (this.topicId) {
+                server.topics.subscribe(this.topicId, this.onTopicMessage);
                 this.isSubscribed = true;
             }
         }
@@ -41,9 +41,9 @@ class TopicElement extends HTMLElement {
 
     tryUnsubscribe() {
         if (this.isSubscribed) {
-            server.topics.unsubscribe(this.topic, this.onTopicMessage);
+            server.topics.unsubscribe(this.topicId, this.onTopicMessage);
             this.isSubscribed = false;
-            this.topic = null;
+            this.topicId = null;
         }
     }
 
