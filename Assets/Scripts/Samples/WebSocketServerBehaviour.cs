@@ -25,6 +25,11 @@ namespace Tekly.WebSockets
 			m_logChannel.Dispose();
 			m_logStatsChannel.Dispose();
 		}
+
+		private void OnApplicationQuit()
+		{
+			OnDestroy();
+		}
 	}
 
 	public class LogChannel : HistoricalChannel<TkLogMessage>

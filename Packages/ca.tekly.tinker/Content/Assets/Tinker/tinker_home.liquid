@@ -6,26 +6,24 @@
 
 <body>
 <div class="main">
-{%- include tinker_sidebar -%}
-<div class="main-content box-shadow nice-scrollbar">
-	
-	<div class="ui menu">
-		<div class="right menu">
-			<div class="item">
-				<button class="ui mini button" onclick="add()">add</button>
-				<button class="ui mini button" onclick="save()">save</button>
-				<button class="ui mini button" onclick="resetWidgets()">reset</button>
+	{%- include tinker_sidebar -%}
+	<div class="main-content box-shadow nice-scrollbar dashboard">
+		<div class="flex-row">
+			<h1 class="header">Dashboard</h1>
+			<div class="flex-row flex-end flex-space-1">
 				<div class="ui toggle checkbox">
 					<input type="checkbox" onclick="toggleGridEditing(this)">
 					<label>Edit</label>
 				</div>
+				<select id="cardOptions"></select>
+				<button class="ui mini button" onclick="add()">add</button>
+				<button class="ui mini button" onclick="save()">save</button>
+				<button class="ui mini button" onclick="resetWidgets()">reset</button>
 			</div>
 		</div>
+		<div class="grid-stack">
+		</div>
 	</div>
-	
-	<div class="grid-stack">
-	</div>
-</div>
 </div>
 </body>
 
@@ -34,7 +32,7 @@
 
     const widgets = {
 	{%- for card in Tinker.Home.Cards -%}
-	{{ card.name }}: {
+	{{ card.Name }}: {
         name: "{{ card.Name }}",
             url: "{{ card.Url }}",
             width: {{ card.Width }},
@@ -43,6 +41,15 @@
     },
 	{%- endfor -%}
     };
+
+    const cardOptions = document.getElementById('cardOptions');
+    
+    Object.values(widgets).forEach(widget => {
+        let optionElement = document.createElement('option');
+        optionElement.value = widget.name
+        optionElement.textContent = widget.name;
+        cardOptions.appendChild(optionElement);
+    });
 
     const grid = GridStack.init({
         cellHeight: "{{ Tinker.Home.CellHeight }}px",
@@ -84,7 +91,7 @@
     }
 
     function add() {
-        addWidget(widgets["appinfo"]);
+        addWidget(widgets[cardOptions.value]);
 	}
     
     function addWidget(widget) {
@@ -94,6 +101,8 @@
             name: widget.name,
         });
 
+        element.addEventListener("remove", () => grid.removeWidget(element));
+        
         htmx.process(element);
     }
 

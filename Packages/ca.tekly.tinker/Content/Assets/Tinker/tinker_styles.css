@@ -413,6 +413,7 @@ a {
 
 .header {
     margin-top: 0;
+    margin-bottom: 0;
 }
 
 .routes .route .header {
@@ -438,4 +439,44 @@ a {
 .routes .route .right {
     padding: 20px; /* Optional: Padding inside the right side */
     grid-area: right;
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.flex-space-between {
+    display: flex;
+    flex-direction: row;
+    justify-content: stretch;
+}
+
+.flex-end {
+    align-self: end;
+}
+
+.flex-space-1 {
+    gap: 1em;
+}
+
+button {
+    background: var(--muted-color);
+    border-radius: .25rem;
+    border-style: none;
+    box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .15) !important;
+    cursor: pointer;
+}
+
+button:hover {
+    background: var(--highlight-color);
+}
+
+select {
+    background: var(--muted-color);
+    box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .15) !important;
+    border-style: none;
+    border-radius: .25rem;
+    outline: none;
 }
