@@ -1,38 +1,35 @@
 import {server} from "./tinker_server.js";
 
-class TopicElement extends HTMLElement {
+class ChannelElement extends HTMLElement {
     static get observedAttributes() {
-        return ['topic'];
+        return ['channel'];
     }
 
     constructor() {
         super();
-        this.isSubscribed = false;
-        this.topicId = null;
+        this.subscription = null;
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
-        if (name === "topic") {
+        if (name === "channel") {
             this.trySubscribe(newValue);
         }
     }
 
     connectedCallback() {
-        this.trySubscribe(this.getAttribute('topic'));
+        this.trySubscribe(this.getAttribute('channel'));
     }
 
     disconnectedCallback() {
         this.tryUnsubscribe();
     }
 
-    trySubscribe(topic) {
-        if (topic !== this.topicId) {
+    trySubscribe(channel) {
+        if (!this.subscription || this.subscription.channel !== channel) {
             this.tryUnsubscribe();
-            this.topicId = topic;
 
-            if (this.topicId) {
-                server.topics.subscribe(this.topicId, this.onTopicMessage);
-                this.isSubscribed = true;
+            if (channel) {
+                this.subscription = server.channels.subscribe(channel, this.onTopicMessage);
             }
         }
         
@@ -40,15 +37,14 @@ class TopicElement extends HTMLElement {
     }
 
     tryUnsubscribe() {
-        if (this.isSubscribed) {
-            server.topics.unsubscribe(this.topicId, this.onTopicMessage);
-            this.isSubscribed = false;
-            this.topicId = null;
+        if (this.subscription) {
+            this.subscription.unsubscribe();
+            this.subscription = null;
         }
     }
 
     onTopicMessage = (message) => {
-        this._data = JSON.parse(message.body);
+        this._data = JSON.parse(message.Content);
         this.render();
     }
 
@@ -56,7 +52,7 @@ class TopicElement extends HTMLElement {
     }
 }
 
-class StatsCard extends TopicElement {
+class StatsCard extends ChannelElement {
     render() {
         this.innerHTML = '';
 
@@ -113,5 +109,4 @@ class StatsCard extends TopicElement {
     }
 }
 
-customElements.define('dyn-element', TopicElement);
 customElements.define('stats-card', StatsCard);

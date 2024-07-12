@@ -78,7 +78,7 @@ namespace TeklySample.App
 		[Get("/logs/stats"), Command("logs")]
 		public HtmlContent StatsElement()
 		{
-			return TinkerElements.StatsTopic("logs/stats");
+			return TinkerElements.StatsChannel("logs/stats");
 		}
 	}
 }

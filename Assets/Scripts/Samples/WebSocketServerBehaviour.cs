@@ -1,7 +1,7 @@
 using System;
 using Tekly.Logging;
 using Tekly.Tinker.Core;
-using Tekly.WebSockets.Routing;
+using Tekly.WebSockets.Channeled;
 using UnityEngine;
 
 namespace Tekly.WebSockets
@@ -13,8 +13,11 @@ namespace Tekly.WebSockets
 
 		private void Awake()
 		{
-			m_logTopic = TinkerServer.Instance.Topics.Connect("logs", new LogTopic());
-			m_logStatsTopic = TinkerServer.Instance.Topics.Connect("logs/stats", new LogStatsTopic());
+			var logChannel = TinkerServer.Instance.Channels.GetChannel("logs");
+			m_logTopic = new LogTopic(logChannel);
+			
+			var logStatsChannel = TinkerServer.Instance.Channels.GetChannel("logs/stats");
+			m_logStatsTopic = new LogStatsTopic(logStatsChannel);
 		}
 
 		private void OnDestroy()
@@ -24,9 +27,9 @@ namespace Tekly.WebSockets
 		}
 	}
 
-	public class LogTopic : HistoricalTopic<TkLogMessage>
+	public class LogTopic : HistoricalChannel<TkLogMessage>
 	{
-		public LogTopic()
+		public LogTopic(Channel channel) : base(channel)
 		{
 			TkLogger.MessageLogged += MessageLogged;
 		}
@@ -39,13 +42,13 @@ namespace Tekly.WebSockets
 
 		private void MessageLogged(TkLogMessage message)
 		{
-			Send(message);
+			Message(message);
 		}
 	}
 
-	public class LogStatsTopic : ValueTopic<DataList>
+	public class LogStatsTopic : ValueChannel<DataList>
 	{
-		public LogStatsTopic()
+		public LogStatsTopic(Channel channel) : base(channel)
 		{
 			TkLogger.MessageLogged += MessageLogged;
 		}
@@ -58,10 +61,10 @@ namespace Tekly.WebSockets
 
 		private void MessageLogged(TkLogMessage message)
 		{
-			UpdateValue();
+			Message(GetValue());
 		}
 		
-		protected override DataList GetValue()
+		private DataList GetValue()
 		{
 			return new DataList("Logs")
 				.Add("Debug", TkLogger.Stats.Debug)

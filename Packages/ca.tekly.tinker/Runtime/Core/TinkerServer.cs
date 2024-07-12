@@ -15,8 +15,8 @@ using Tekly.Tinker.Assets;
 using Tekly.Tinker.Http;
 using Tekly.Tinker.Routes;
 using Tekly.Tinker.Routing;
+using Tekly.WebSockets.Channeled;
 using Tekly.WebSockets.Core;
-using Tekly.WebSockets.Routing;
 using UnityEngine;
 
 namespace Tekly.Tinker.Core
@@ -31,7 +31,7 @@ namespace Tekly.Tinker.Core
 		public string LocalIP => m_httpServer?.GetLocalIP();
 
 		public WebSocketServer WebSocketServer => m_webSocketServer;
-		public Topics Topics => m_topics;
+		public Channels Channels => m_channels;
 		
 		private readonly List<ITinkerRoutes> m_routes = new List<ITinkerRoutes>();
 		
@@ -40,13 +40,13 @@ namespace Tekly.Tinker.Core
 
 		private HttpServer m_httpServer;
 		private WebSocketServer m_webSocketServer;
-		private Topics m_topics;
+		private Channels m_channels;
 		
 		public TinkerServer()
 		{
 			Serializer.Converters.Add(new StringEnumConverter());
 			m_webSocketServer = new WebSocketServer();
-			m_topics = new Topics(m_webSocketServer.Clients);
+			m_channels = new Channels(m_webSocketServer.Clients);
 		}
 		
 		public void Initialize(int port = PORT_DEFAULT)

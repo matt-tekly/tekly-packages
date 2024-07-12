@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Tekly.WebSockets.Routing;
 using UnityEngine;
 
 namespace Tekly.WebSockets.Core
@@ -27,12 +26,12 @@ namespace Tekly.WebSockets.Core
 		public event Action<Client, byte[]> ReceivedBinary;
 
 		private readonly JsonSerializerSettings m_serializerSettings;
-		
+
 		public Client(WebSocketRequest request, TcpClient client, int id)
 		{
 			m_client = client;
 			Id = id;
-			
+
 			m_serializerSettings = new JsonSerializerSettings();
 			m_serializerSettings.Converters.Add(new StringEnumConverter());
 
@@ -63,32 +62,24 @@ namespace Tekly.WebSockets.Core
 		{
 			Close();
 		}
-		
+
 		public void Send(string message)
 		{
 			if (!Active || m_client == null || m_stream == null) {
 				Debug.LogError("Trying to send message to Connection that is not active.");
 				return;
 			}
-			
+
 			SendTextFrame(m_stream, message);
 		}
-		
-		public void SendJson<T>(string topic, T obj)
-		{
-			var json = JsonConvert.SerializeObject(obj, m_serializerSettings);
-			var frame = TopicFrame.EncodeFrame(FrameCommands.SEND, topic, "json", json);
-			
-			Send(frame);
-		}
-		
+
 		public void Send(byte[] message)
 		{
 			if (!Active || m_client == null || m_stream == null) {
 				Debug.LogError("Trying to send message to Connection that is not active.");
 				return;
 			}
-			
+
 			SendBinaryFrame(m_stream, message);
 		}
 
@@ -96,8 +87,10 @@ namespace Tekly.WebSockets.Core
 		{
 			while (true) {
 				try {
+					while (m_client.Available < 2) { }
+
 					var frame = WebSocketFrame.Parse(m_stream);
-					
+
 					if (frame.Opcode == OpCode.Text) {
 						var receivedMessage = Encoding.UTF8.GetString(frame.PayloadData);
 						ReceivedText?.Invoke(this, receivedMessage);
@@ -121,10 +114,10 @@ namespace Tekly.WebSockets.Core
 					break;
 				}
 			}
-			
+
 			m_client?.Close();
 			m_client = null;
-			
+
 			Closed?.Invoke(this);
 		}
 
@@ -134,23 +127,23 @@ namespace Tekly.WebSockets.Core
 
 			// TODO: This clean up logic needs to be better
 			if (m_client != null) {
-				SendCloseFrame(m_stream, 0);	
+				SendCloseFrame(m_stream, 0);
 			}
-			
+
 			Active = false;
-			
+
 			if (m_thread != null) {
 				m_thread.Abort();
 				m_thread = null;
 			}
-			
+
 			m_client?.Close();
 			m_stream?.Dispose();
 
 			m_client = null;
 			m_stream = null;
 		}
-		
+
 		private static void SendTextFrame(Stream outputStream, string text)
 		{
 			var payload = Encoding.UTF8.GetBytes(text);
