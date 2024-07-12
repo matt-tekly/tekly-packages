@@ -46,7 +46,8 @@ namespace Tekly.Tinker.Assets
 		public bool TryHandle(string route, HttpListenerRequest request, HttpListenerResponse response)
 		{
 			Initialize();
-
+			RefreshAssetDatabase();
+			
 			foreach (var tinkerAssets in m_tinkerAssets) {
 				foreach (var tinkerAsset in tinkerAssets.Assets) {
 					if (!string.Equals(tinkerAsset.Url, route, StringComparison.OrdinalIgnoreCase)) {
@@ -75,8 +76,6 @@ namespace Tekly.Tinker.Assets
 
 		private bool TryHandleAsset(HttpListenerResponse response, TinkerAsset tinkerAsset)
 		{
-			RefreshAssetDatabase();
-			
 			if (tinkerAsset.Asset is Texture texture) {
 				response.WritePng(texture);
 			}
@@ -120,11 +119,12 @@ namespace Tekly.Tinker.Assets
 
 		private void RefreshAssetDatabase()
 		{
-			if ((Time.realtimeSinceStartup - m_lastRefreshTime) > 1f) {
+			if ((Time.realtimeSinceStartup - m_lastRefreshTime) < 1f) {
 				return;
 			}
 
 			m_lastRefreshTime = Time.realtimeSinceStartup;
+			
 #if UNITY_EDITOR
 			UnityEditor.AssetDatabase.Refresh();
 #endif

@@ -30,7 +30,6 @@ namespace Tekly.Tinker.Core
 
 		public string LocalIP => m_httpServer?.GetLocalIP();
 
-		public WebSocketServer WebSocketServer => m_webSocketServer;
 		public Channels Channels => m_channels;
 		
 		private readonly List<ITinkerRoutes> m_routes = new List<ITinkerRoutes>();
@@ -39,8 +38,8 @@ namespace Tekly.Tinker.Core
 		private const string TINKER_DATA_KEY = "Tinker";
 
 		private HttpServer m_httpServer;
-		private WebSocketServer m_webSocketServer;
-		private Channels m_channels;
+		private readonly WebSocketServer m_webSocketServer;
+		private readonly Channels m_channels;
 		
 		public TinkerServer()
 		{

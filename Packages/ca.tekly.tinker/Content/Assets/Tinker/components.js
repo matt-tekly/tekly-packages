@@ -29,7 +29,7 @@ class ChannelElement extends HTMLElement {
             this.tryUnsubscribe();
 
             if (channel) {
-                this.subscription = server.channels.subscribe(channel, this.onTopicMessage);
+                this.subscription = server.channels.subscribe(channel, this.onChannelMessage);
             }
         }
         
@@ -43,7 +43,10 @@ class ChannelElement extends HTMLElement {
         }
     }
 
-    onTopicMessage = (message) => {
+    /**
+     * @param {ChannelFrame} message
+     */
+    onChannelMessage = (message) => {
         this._data = JSON.parse(message.Content);
         this.render();
     }

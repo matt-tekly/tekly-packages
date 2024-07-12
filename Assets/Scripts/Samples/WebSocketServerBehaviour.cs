@@ -8,28 +8,28 @@ namespace Tekly.WebSockets
 {
 	public class WebSocketServerBehaviour : MonoBehaviour
 	{
-		private IDisposable m_logTopic;
-		private IDisposable m_logStatsTopic;
+		private IDisposable m_logChannel;
+		private IDisposable m_logStatsChannel;
 
 		private void Awake()
 		{
 			var logChannel = TinkerServer.Instance.Channels.GetChannel("logs");
-			m_logTopic = new LogTopic(logChannel);
+			m_logChannel = new LogChannel(logChannel);
 			
 			var logStatsChannel = TinkerServer.Instance.Channels.GetChannel("logs/stats");
-			m_logStatsTopic = new LogStatsTopic(logStatsChannel);
+			m_logStatsChannel = new LogStatsChannel(logStatsChannel);
 		}
 
 		private void OnDestroy()
 		{
-			m_logTopic.Dispose();
-			m_logStatsTopic.Dispose();
+			m_logChannel.Dispose();
+			m_logStatsChannel.Dispose();
 		}
 	}
 
-	public class LogTopic : HistoricalChannel<TkLogMessage>
+	public class LogChannel : HistoricalChannel<TkLogMessage>
 	{
-		public LogTopic(Channel channel) : base(channel)
+		public LogChannel(Channel channel) : base(channel)
 		{
 			TkLogger.MessageLogged += MessageLogged;
 		}
@@ -46,9 +46,9 @@ namespace Tekly.WebSockets
 		}
 	}
 
-	public class LogStatsTopic : ValueChannel<DataList>
+	public class LogStatsChannel : ValueChannel<DataList>
 	{
-		public LogStatsTopic(Channel channel) : base(channel)
+		public LogStatsChannel(Channel channel) : base(channel)
 		{
 			TkLogger.MessageLogged += MessageLogged;
 		}

@@ -16,7 +16,7 @@ MonoBehaviour:
   Assets:
   - Asset: {fileID: 9027929339269108002, guid: 9e8fec31414d46de8bd6f85f613a1d1e, type: 3}
     Name: channels
-    Url: /Tinker/Channeled/channels.js
+    Url: /Tinker/Channeling/channels.js
     IsTemplate: 0
   - Asset: {fileID: 9027929339269108002, guid: 8a35a224ffbc4ec88cb6853424e2b2de, type: 3}
     Name: components

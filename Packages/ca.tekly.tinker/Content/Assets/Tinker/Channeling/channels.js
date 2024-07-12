@@ -1,16 +1,31 @@
+/**
+ * @typedef {Object} ChannelFrame
+ * @property {string} Command - The command
+ * @property {string} Channel - The name of the channel
+ * @property {string} Session - The session id
+ * @property {string} ContentType - The type of content
+ * @property {string} Content - The content
+ */
+
+/**
+ * Handles the completion of an asynchronous operation.
+ *
+ * @callback SubscriptionHandler
+ * @param {ChannelFrame} frame
+ */
+
 export class Channels {
+    
     /**
-     *
      * @param {WebSocket} ws
      */
     constructor(ws) {
         this.ws = ws;
-
-        /** type {Record<string, Topic> */
-        this.channels = {};
+        
+        /** type {Record<string, Subscription> */
         this.subscriptions = {};
 
-        this.frames = [];
+        this.queuedFrames = [];
         this.id = 0;
 
         this.ws.addEventListener("open", this.connected)
@@ -19,13 +34,17 @@ export class Channels {
     }
 
     connected = () => {
-        for (let i = 0; i < this.frames.length; i++) {
-            this.ws.send(this.frames[i]);
+        for (let i = 0; i < this.queuedFrames.length; i++) {
+            this.ws.send(this.queuedFrames[i]);
         }
 
-        this.frames.length = 0;
+        this.queuedFrames.length = 0;
     }
 
+    /**
+     * 
+     * @param {MessageEvent<T = any>} evt
+     */
     onMessage = (evt) => {
         const frame = this.parseFrame(evt.data);
 
@@ -42,7 +61,7 @@ export class Channels {
         if (this.ws.readyState === WebSocket.OPEN) {
             this.ws.send(frame);
         } else {
-            this.frames.push(frame);
+            this.queuedFrames.push(frame);
         }
     }
 
@@ -65,12 +84,16 @@ export class Channels {
         // Do something?
     }
 
+    /**
+     * @param {string} frameText
+     * @return {ChannelFrame}
+     */
     parseFrame(frameText) {
         const [headersStr, content] = frameText.split('\r\n\r\n');
         const headerPairs = headersStr.trim().split('\r\n');
 
         let frame = {};
-        frame.command = headerPairs[0];
+        frame.Command = headerPairs[0];
 
         for (let i = 1; i < headerPairs.length; i++) {
             const [key, value] = headerPairs[i].split(':');
@@ -82,6 +105,12 @@ export class Channels {
         return frame;
     }
 
+    /**
+     * 
+     * @param {string} channel
+     * @param {SubscriptionHandler} handler
+     * @return {Subscription}
+     */
     subscribe(channel, handler) {
         const id = (this.id++).toString();
         const subscription = new Subscription(channel, id, handler, this);
@@ -91,6 +120,9 @@ export class Channels {
         return subscription;
     }
 
+    /**
+     * @param {Subscription} subscription
+     */
     unsubscribe(subscription) {
         this.send("UNSUBSCRIBE", subscription.channel, subscription.id);
         delete this.subscriptions[subscription.id];
@@ -98,6 +130,13 @@ export class Channels {
 }
 
 class Subscription {
+
+    /**
+     * @param {string} channel
+     * @param {string} id
+     * @param {SubscriptionHandler} handler
+     * @param {Channels} channels
+     */
     constructor(channel, id, handler, channels) {
         this.channel = channel;
         this.id = id;
@@ -105,6 +144,9 @@ class Subscription {
         this.channels = channels;
     }
 
+    /**
+     * @param {ChannelFrame} frame
+     */
     onMessage(frame) {
         this.handler(frame);
     }

@@ -1,4 +1,4 @@
-import {Channels} from "./Channeled/channels.js";
+import {Channels} from "./Channeling/channels.js";
 
 export class TinkerServer {
     constructor() {
