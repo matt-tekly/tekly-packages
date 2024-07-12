@@ -5,7 +5,7 @@ using Newtonsoft.Json.Converters;
 using Tekly.WebSockets.Core;
 using UnityEngine;
 
-namespace Tekly.WebSockets.Channeled
+namespace Tekly.WebSockets.Channeling
 {
 	public class Channels : IDisposable
 	{

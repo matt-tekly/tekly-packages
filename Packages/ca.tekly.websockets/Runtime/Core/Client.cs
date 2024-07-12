@@ -144,14 +144,22 @@ namespace Tekly.WebSockets.Core
 			m_stream = null;
 		}
 
-		private static void SendTextFrame(Stream outputStream, string text)
+		private void SendTextFrame(Stream outputStream, string text)
 		{
+			if (!m_client.Client.Connected) {
+				return;
+			}
+			
 			var payload = Encoding.UTF8.GetBytes(text);
 			WebSocketFrame.EncodeFrame(outputStream, true, OpCode.Text, payload);
 		}
 
-		private static void SendBinaryFrame(Stream outputStream, byte[] data)
+		private void SendBinaryFrame(Stream outputStream, byte[] data)
 		{
+			if (!m_client.Client.Connected) {
+				return;
+			}
+			
 			WebSocketFrame.EncodeFrame(outputStream, true, OpCode.Binary, data);
 		}
 
@@ -165,8 +173,12 @@ namespace Tekly.WebSockets.Core
 			WebSocketFrame.EncodeFrame(outputStream, true, OpCode.Pong, applicationData ?? Array.Empty<byte>());
 		}
 
-		private static void SendCloseFrame(Stream outputStream, ushort statusCode, string reason = null)
+		private void SendCloseFrame(Stream outputStream, ushort statusCode, string reason = null)
 		{
+			if (!m_client.Client.Connected) {
+				return;
+			}
+			
 			if (reason != null) {
 				var reasonBytes = Encoding.UTF8.GetBytes(reason);
 				var payload = new byte[2 + reasonBytes.Length];

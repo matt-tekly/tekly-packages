@@ -2,17 +2,14 @@ using System;
 using Tekly.Balance;
 using Tekly.Common.TimeProviders;
 using Tekly.Common.Utils;
-using Tekly.Common.Utils.PropertyBags;
 using Tekly.Content;
 using Tekly.DataModels.Models;
 using Tekly.Injectors;
 using Tekly.Lofi.Core;
 using Tekly.Logging;
-using Tekly.Tinker;
 using Tekly.Tinker.Core;
 using Tekly.TreeState;
 using Tekly.Webster;
-using UnityEditor;
 using UnityEngine;
 
 namespace TeklySample.App
@@ -65,6 +62,8 @@ namespace TeklySample.App
             TinkerServer.Instance.Home
                 .Add("inventory", "/game/inventory/card", 6, 10)
                 .Add("logs", "/game/logs/stats", 4, 5);
+
+            new GameChannels();
             
             WebsterServer.Start(true);
             WebsterServer.AddRouteHandler<SampleWebsterHandler>();

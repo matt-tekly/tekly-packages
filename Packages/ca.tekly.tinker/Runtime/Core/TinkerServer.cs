@@ -15,7 +15,7 @@ using Tekly.Tinker.Assets;
 using Tekly.Tinker.Http;
 using Tekly.Tinker.Routes;
 using Tekly.Tinker.Routing;
-using Tekly.WebSockets.Channeled;
+using Tekly.WebSockets.Channeling;
 using Tekly.WebSockets.Core;
 using UnityEngine;
 

@@ -1,6 +1,6 @@
 using System;
 
-namespace Tekly.WebSockets.Channeled
+namespace Tekly.WebSockets.Channeling
 {
 	public class Channel
 	{

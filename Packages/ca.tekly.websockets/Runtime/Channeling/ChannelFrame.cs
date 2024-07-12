@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Tekly.WebSockets.Channeled
+namespace Tekly.WebSockets.Channeling
 {
 	public static class FrameCommands
 	{

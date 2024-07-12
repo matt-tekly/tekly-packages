@@ -1,18 +1,20 @@
 using System;
+using Tekly.Common.LifeCycles;
 using Tekly.Logging;
 using Tekly.Tinker.Core;
-using Tekly.WebSockets.Channeled;
-using UnityEngine;
+using Tekly.WebSockets.Channeling;
 
-namespace Tekly.WebSockets
+namespace TeklySample.App
 {
-	public class WebSocketServerBehaviour : MonoBehaviour
+	public class GameChannels
 	{
 		private IDisposable m_logChannel;
 		private IDisposable m_logStatsChannel;
-
-		private void Awake()
+		
+		public GameChannels()
 		{
+			LifeCycle.Instance.Quit += Quit;
+			
 			var logChannel = TinkerServer.Instance.Channels.GetChannel("logs");
 			m_logChannel = new LogChannel(logChannel);
 			
@@ -20,18 +22,13 @@ namespace Tekly.WebSockets
 			m_logStatsChannel = new LogStatsChannel(logStatsChannel);
 		}
 
-		private void OnDestroy()
+		private void Quit()
 		{
 			m_logChannel.Dispose();
 			m_logStatsChannel.Dispose();
 		}
-
-		private void OnApplicationQuit()
-		{
-			OnDestroy();
-		}
 	}
-
+	
 	public class LogChannel : HistoricalChannel<TkLogMessage>
 	{
 		public LogChannel(Channel channel) : base(channel)

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Tekly.WebSockets.Channeled
+namespace Tekly.WebSockets.Channeling
 {
 	public class ChannelController : IDisposable
 	{

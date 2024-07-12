@@ -1,6 +1,6 @@
 using Tekly.WebSockets.Core;
 
-namespace Tekly.WebSockets.Channeled
+namespace Tekly.WebSockets.Channeling
 {
 	public class Subscription
 	{
