@@ -15,11 +15,8 @@ namespace TeklySample.Game.Worlds.BuyMultipliers
         public BuyMultiplierModel(BuyMultiplier buyMultiplier)
         {
             m_buyMultiplier = buyMultiplier;
-            m_button = new ButtonModel();
-            m_shortText = new StringValueModel(GetModeText(m_buyMultiplier.Mode));
-            
-            Add("button", m_button);
-            Add("shorttext", m_shortText);
+            m_button = AddButton("button");
+            m_shortText = Add("shorttext", GetModeText(m_buyMultiplier.Mode));
             
             m_buttonDisposable = m_button.Activated.Subscribe(OnButtonActivation);
         }

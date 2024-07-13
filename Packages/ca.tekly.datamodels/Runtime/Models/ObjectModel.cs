@@ -62,6 +62,14 @@ namespace Tekly.DataModels.Models
 			EmitModified();
 		}
 		
+		public T Add<T>(string name, T model, ReferenceType referenceType = ReferenceType.Owner) where T : IModel
+		{
+			m_models.Add(new ModelReference(model, referenceType, name, name.GetHashCode()));
+			EmitModified();
+			
+			return model;
+		}
+		
 		public StringValueModel Add(string name, string value, bool needsLocalization = false)
 		{
 			var model = new StringValueModel(value, needsLocalization);

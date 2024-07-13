@@ -22,9 +22,21 @@ namespace Tekly.DataModels.Binders
         
         public bool BindOnEnable => m_bindOnEnable;
         public List<Binder> Binders => m_binders;
+
+        private bool m_started;
+        
+        private void Start()
+        {
+            m_started = true;
+            OnEnable();
+        }
         
         public void OnEnable()
         {
+            if (!m_started) {
+                return;
+            }
+            
             if (m_bindOnEnable) {
                 Bind();
             }

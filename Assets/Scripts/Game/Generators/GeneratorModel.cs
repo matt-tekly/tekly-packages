@@ -1,7 +1,5 @@
 ﻿using Tekly.Common.Utils;
 using Tekly.DataModels.Models;
-using Tekly.Localizations;
-using TeklySample.Game.Items;
 using TeklySample.Game.Worlds.BuyMultipliers;
 
 namespace TeklySample.Game.Generators
@@ -17,7 +15,7 @@ namespace TeklySample.Game.Generators
         private readonly SpriteValueModel m_iconModel = new SpriteValueModel();
         private readonly NumberValueModel m_count = new NumberValueModel(0);
 
-        public ItemCountModel(ItemBalance itemBalance)
+        public ItemCountModel()
         {
             Add("icon", m_iconModel);
             Add("count", m_count);
@@ -48,9 +46,7 @@ namespace TeklySample.Game.Generators
             m_generator = generator;
             m_generatorManager = generatorManager;
             m_buyMultiplier = buyMultiplier;
-
-            m_generation = new ItemCountModel(generator.GenerationItem);
-
+            
             Add("name", m_name);
             Add("progress", m_progress);
             Add("count", m_count);
@@ -60,7 +56,8 @@ namespace TeklySample.Game.Generators
             Add("itemid", m_itemId);
             Add("icon", m_iconModel);
             Add("affordable", m_affordableCount);
-            Add("generation", m_generation);
+            
+            m_generation = Add("generation", new ItemCountModel());
 
             m_name.Value = generator.Balance.Item.NameId;
             m_itemId.Value = m_generator.InventoryItem.ItemId;
