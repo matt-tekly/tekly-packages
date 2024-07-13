@@ -74,6 +74,10 @@ export class Commands {
 
         let command = this.get(tokens[0]);
         if (command) {
+            if (command.params.length > tokens.length - 1) {
+                throw Error(`Not enough params`);
+            }
+            
             const context = {
                 terminal: terminal,
                 tokens: tokens
