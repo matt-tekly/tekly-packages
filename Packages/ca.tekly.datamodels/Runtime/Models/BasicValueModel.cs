@@ -48,7 +48,7 @@ namespace Tekly.DataModels.Models
             sb.Append($"\"{Value}\"");
         }
 
-        public override string ToDisplayString()
+        protected override string OnToDisplayString()
         {
             return Value;
         }
@@ -75,7 +75,7 @@ namespace Tekly.DataModels.Models
             sb.Append(Value.ToString());
         }
 
-        public override string ToDisplayString()
+        protected override string OnToDisplayString()
         {
             if (Value == 0) {
                 return "0";
@@ -98,7 +98,7 @@ namespace Tekly.DataModels.Models
             sb.Append(Value ? "true": "false");
         }
 
-        public override string ToDisplayString()
+        protected override string OnToDisplayString()
         {
             return Value ? "true" : "false";
         }

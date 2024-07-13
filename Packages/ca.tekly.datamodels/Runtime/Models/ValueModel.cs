@@ -8,6 +8,7 @@ namespace Tekly.DataModels.Models
     public abstract class ValueModel<T> : ObservableValue<T>, IValueModel, IComparable<ValueModel<T>>
     {
         private bool m_isDisposed;
+        private string m_displayString;
         
         protected ValueModel(T value) : this()
         {
@@ -45,9 +46,25 @@ namespace Tekly.DataModels.Models
             sb.Append("[UNIMPLEMENTED]");
         }
 
-        public virtual string ToDisplayString()
+        public string ToDisplayString()
         {
-            return "[UNIMPLEMENTED]";
+            if (m_displayString != null) {
+                return m_displayString;
+            }
+
+            m_displayString = OnToDisplayString();
+            return m_displayString;
+        }
+
+        protected virtual string OnToDisplayString()
+        {
+            return "[UNIMPLEMENTED]"; 
+        }
+
+        protected override void Emit(T value)
+        {
+            base.Emit(value);
+            m_displayString = null;
         }
 
         public int Compare(IValueModel valueModel)

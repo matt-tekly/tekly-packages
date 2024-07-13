@@ -21,6 +21,7 @@ namespace Tekly.DataModels.Models
 		public readonly ReferenceType ReferenceType;
 		public readonly string Key;
 		public readonly int Hash;
+		public readonly string TypeName;
 
 		public ModelReference(IModel model, ReferenceType referenceType, string key, int hash)
 		{
@@ -28,6 +29,12 @@ namespace Tekly.DataModels.Models
 			ReferenceType = referenceType;
 			Key = key;
 			Hash = hash;
+			
+#if UNITY_EDITOR
+			TypeName = model.GetType().Name;
+#else
+			TypeName = null;
+#endif
 		}
 	}
 

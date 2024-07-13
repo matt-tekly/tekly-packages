@@ -18,7 +18,7 @@ namespace Tekly.DataModels.Models
             sb.Append($"\"{Value}\"");
         }
 
-        public override string ToDisplayString()
+        protected override string OnToDisplayString()
         {
             return Value.ToString();
         }

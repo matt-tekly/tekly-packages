@@ -21,6 +21,8 @@ namespace Tekly.DataModels.Models
 		[SerializeField] private Vector2 m_scrollPos;
 		[SerializeField] private string m_search;
 
+		private Stack<(ObjectModel, string, int)> m_entriesStack = new Stack<(ObjectModel, string, int)>();
+		
 		private HashSet<string> m_collapsedEntries = new HashSet<string>();
 		private List<ObjectEntry> m_visibleEntries = new List<ObjectEntry>();
 
@@ -46,6 +48,11 @@ namespace Tekly.DataModels.Models
 			m_highlightColor = backgroundColor * new Color(0, .5f, .7f, 1f);
 
 			m_updateVisibleEntries = true;
+		}
+
+		private void Update()
+		{
+			Repaint();
 		}
 
 		public void OnGUI()
@@ -247,7 +254,7 @@ namespace Tekly.DataModels.Models
 
 				var entry = ObjectEntryPool.Get();
 				entry.Id.text = modelReference.Key;
-				entry.Id.tooltip = StringPool.GetName(childModel.GetType());
+				entry.Id.tooltip = modelReference.TypeName;
 				entry.FullPath = fullPath;
 				entry.FullPathGui.text = fullPath;
 				entry.Depth = depth;
@@ -334,7 +341,6 @@ namespace Tekly.DataModels.Models
 	internal static class StringPool
 	{
 		private static readonly Dictionary<Hash128, string> s_strings = new Dictionary<Hash128, string>();
-		private static readonly Dictionary<Type, string> s_typeNames = new Dictionary<Type, string>();
 
 		public static string Get(string first, string second)
 		{
@@ -345,16 +351,6 @@ namespace Tekly.DataModels.Models
 			if (!s_strings.TryGetValue(hash, out var val)) {
 				val = first + "." + second;
 				s_strings.Add(hash, val);
-			}
-
-			return val;
-		}
-
-		public static string GetName(Type type)
-		{
-			if (!s_typeNames.TryGetValue(type, out var val)) {
-				val = type.Name;
-				s_typeNames.Add(type, val);
 			}
 
 			return val;

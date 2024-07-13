@@ -14,7 +14,7 @@ namespace Tekly.Extensions.Ui
 			sb.Append(Value != null ? Value.name : "[null]");
 		}
 
-		public override string ToDisplayString()
+		protected override string OnToDisplayString()
 		{
 			return Value != null ? Value.name : "[null]";
 		}

@@ -5,7 +5,7 @@ namespace Tekly.Common.Observables
 {
     public class ObservableValue<T> : ITriggerable<T>
     {
-        private static readonly IEqualityComparer<T> s_defaultEqualityComparer = EqualityComparer<T>.Default;
+        protected static readonly IEqualityComparer<T> s_defaultEqualityComparer = EqualityComparer<T>.Default;
 
         private Triggerable<Unit> m_modified;
         
@@ -13,7 +13,7 @@ namespace Tekly.Common.Observables
             get { return m_modified ??= new Triggerable<Unit>(); }
         }
 
-        public virtual T Value
+        public T Value
         {
             get => m_value;
             set {
@@ -48,7 +48,7 @@ namespace Tekly.Common.Observables
             return Subscribe(new ActionObserver<T>(observer));
         }
 
-        protected void Emit(T value)
+        protected virtual void Emit(T value)
         {
             m_observers?.Emit(value);
             m_modified?.Emit(Unit.Default);
