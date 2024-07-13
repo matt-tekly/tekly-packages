@@ -141,7 +141,7 @@ export class Commands {
     addTinkerCommands(commands) {
         for (const cmd of commands) {
             
-            const parameters = cmd.Parameters.map(x => x.Name);
+            const parameters = cmd.Parameters.filter(x => x.EditType).map(x => x.Name);
             const name = cmd.CommandName;
             const handler = functionHandler(cmd);
             
@@ -166,7 +166,7 @@ export class Commands {
 }
 
 function functionHandler(cmd) {
-    return async function (a,b,c){
+    return async function (){
         const url = cmd.Path;
 
         let fetchData = null;
@@ -225,7 +225,7 @@ async function handleResponse(response) {
 
         const div = document.createElement('div');
         const a = document.createElement('a');
-        a.href=response.url;
+        a.href = response.url;
         a.target = "_blank";
 
         const img = document.createElement('img');

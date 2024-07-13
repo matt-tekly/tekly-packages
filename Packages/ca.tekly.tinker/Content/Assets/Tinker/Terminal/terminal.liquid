@@ -12,9 +12,7 @@
 	{%- include tinker_sidebar -%}
 
 	<div class="main-content terminal-page" id="terminal">
-		<div class="terminal-container" id="content">
-			<stats-card channel="logs/stats" class="card box-shadow"></stats-card>
-		</div>
+		<div class="terminal-container" id="content"></div>
 		<div class="terminal-input-container">
 			<div class="terminal-suggestion hide box-shadow" id="suggestion">
 			</div>
@@ -42,22 +40,7 @@
 	
     document.addEventListener('DOMContentLoaded', function () {
         const terminal = new Terminal("#terminal");
-		
 		terminal.commands.addTinkerCommands(commands);
-
-		
-        terminal.commands.addFunction("do_error", async () => {
-            throw new Error("oh no!");
-        });
-		
-        terminal.commands.addFunction("screenshot", () => {
-            let url = "/screenshot?t=" + new Date().getTime();
-            const text = `<div><a href="${url}" target="_blank" class="clickable-image"><img class="terminal-image" src="${url}"></a></div>`
-
-            const range = document.createRange();
-            const fragment = range.createContextualFragment(text);
-            return fragment.firstChild;
-        });
     });
 </script>
 

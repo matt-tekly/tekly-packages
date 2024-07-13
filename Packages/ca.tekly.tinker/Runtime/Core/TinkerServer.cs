@@ -81,8 +81,8 @@ namespace Tekly.Tinker.Core
 			Sidebar.Section("Utility")
 				.Item("Terminal", "/tinker/terminal");
 
-			Home.Add("appinfo", "/unity/info/app", 6, 10)
-				.Add("assets", "/unity/assets/card", 5, 5);
+			Home.Add("App Info", "/unity/info/app", 6, 10)
+				.Add("Assets", "/unity/assets/card", 5, 5);
 		}
 		
 		public HtmlContent RenderPage(string url, string templateName, string dataKey, object data)

@@ -30,17 +30,17 @@
 <script>
     const SETTINGS_KEY = "home.settings";
 
-    const widgets = {
+    const widgets = {};
+    
 	{%- for card in Tinker.Home.Cards -%}
-	{{ card.Name }}: {
+    widgets["{{ card.Name }}"] =  {
         name: "{{ card.Name }}",
             url: "{{ card.Url }}",
             width: {{ card.Width }},
         height: {{ card.Height }},
         isDefault: {{ card.Default }}
-    },
-	{%- endfor -%}
     };
+	{%- endfor -%}
 
     const cardOptions = document.getElementById('cardOptions');
     
