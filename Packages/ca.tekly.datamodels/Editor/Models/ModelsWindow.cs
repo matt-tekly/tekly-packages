@@ -20,8 +20,6 @@ namespace Tekly.DataModels.Models
 
 		[SerializeField] private Vector2 m_scrollPos;
 		[SerializeField] private string m_search;
-
-		private Stack<(ObjectModel, string, int)> m_entriesStack = new Stack<(ObjectModel, string, int)>();
 		
 		private HashSet<string> m_collapsedEntries = new HashSet<string>();
 		private List<ObjectEntry> m_visibleEntries = new List<ObjectEntry>();
@@ -32,6 +30,12 @@ namespace Tekly.DataModels.Models
 		private Color[] m_backgroundColors = new Color[2];
 		private Color m_highlightColor;
 
+		private Color m_lineColor = new Color(0.769f, 0.769f, 0.769f, 0.3f);
+		private float m_timeBetweenRenders = 0.25f;
+		private float m_nextRenderTime;
+		
+		private static readonly int s_floatFieldHash = "EditorTextField".GetHashCode();
+
 		[MenuItem("Tools/Tekly/DataModels", false, 1)]
 		private static void OpenWindow()
 		{
@@ -40,6 +44,8 @@ namespace Tekly.DataModels.Models
 
 		private void OnEnable()
 		{
+			m_nextRenderTime = 0;
+			
 			wantsMouseMove = true;
 			var backgroundColor = EditorGuiExt.BackgroundColor;
 
@@ -52,7 +58,10 @@ namespace Tekly.DataModels.Models
 
 		private void Update()
 		{
-			Repaint();
+			if (Application.isPlaying && Time.realtimeSinceStartup >= m_nextRenderTime) {
+				m_nextRenderTime = Time.realtimeSinceStartup + m_timeBetweenRenders;
+				Repaint();	
+			}
 		}
 
 		public void OnGUI()
@@ -69,11 +78,11 @@ namespace Tekly.DataModels.Models
 			if (Event.current.type == EventType.Layout) {
 				if (Application.isPlaying && !EditorApplication.isPaused) {
 					UpdateEntries();
-				}
-			}
 
-			if (m_updateVisibleEntries) {
-				UpdateVisibleEntries();
+					if (m_updateVisibleEntries) {
+						UpdateVisibleEntries();
+					}
+				}
 			}
 
 			var width = position.width;
@@ -143,24 +152,24 @@ namespace Tekly.DataModels.Models
 		private void DrawEntry(ObjectEntry objectEntry, int row, float viewWidth)
 		{
 			viewWidth -= 4;
-			var backgroundRect = new Rect(4, row * s_height, viewWidth, s_height);
-			var backgroundColor = m_backgroundColors[row % m_backgroundColors.Length];
+			
+			if (Event.current.type == EventType.Repaint) {
+				var backgroundRect = new Rect(4, row * s_height, viewWidth, s_height);
+				var backgroundColor = m_backgroundColors[row % m_backgroundColors.Length];
 
-			if (backgroundRect.Contains(Event.current.mousePosition)) {
-				backgroundColor = m_highlightColor;
-			}
+				if (backgroundRect.Contains(Event.current.mousePosition)) {
+					backgroundColor = m_highlightColor;
+				}
 
-			EditorGUI.DrawRect(backgroundRect, backgroundColor);
-
-			// Hierarchy lines
-			var color = EditorStyles.label.normal.textColor;
-			color.a = .3f;
-
-			for (var i = 0; i <= objectEntry.Depth; i++) {
-				var lineRect = backgroundRect;
-				lineRect.xMin = (i - 1) * INDENT + 10;
-				lineRect.width = 1;
-				EditorGUI.DrawRect(lineRect, color);
+				DrawRect(backgroundRect, backgroundColor);
+				
+				// Hierarchy lines
+				for (var i = 0; i <= objectEntry.Depth; i++) {
+					var lineRect = backgroundRect;
+					lineRect.xMin = (i - 1) * INDENT + 10;
+					lineRect.width = 1;
+					DrawRect(lineRect, m_lineColor);
+				}
 			}
 
 			var indent = objectEntry.Depth * INDENT + 4;
@@ -182,11 +191,12 @@ namespace Tekly.DataModels.Models
 				}
 			} else {
 				foldOutRect.xMin += 14f;
-				EditorGUI.LabelField(foldOutRect, objectEntry.Id);
+				LabelField(foldOutRect, objectEntry.Id);
 				var idWidth = EditorStyles.label.CalcSize(objectEntry.Id).x;
 				var valueWidth = EditorStyles.label.CalcSize(objectEntry.Value).x;
-				var valueRect = new Rect(Mathf.Max(foldOutRect.xMax - valueWidth, foldOutRect.x + idWidth + 14), row * s_height, valueWidth, s_height);
-				EditorGUI.LabelField(valueRect, objectEntry.Value);
+				var valueRect = new Rect(Mathf.Max(foldOutRect.xMax - valueWidth, foldOutRect.x + idWidth + 14),
+					row * s_height, valueWidth, s_height);
+				LabelField(valueRect, objectEntry.Value);
 			}
 		}
 
@@ -195,14 +205,17 @@ namespace Tekly.DataModels.Models
 			var objectEntry = m_visibleEntries[index];
 			var labelRect = new Rect(0, index * s_height, viewWidth, s_height);
 
-			EditorGUI.DrawRect(labelRect, new Color(0, 0, 0, .2f * ((1 + index % 2) / 2f)));
-			EditorGUI.LabelField(labelRect, objectEntry.FullPath);
+			DrawRect(labelRect, new Color(0, 0, 0, .2f * ((1 + index % 2) / 2f)));
+			LabelField(labelRect, objectEntry.FullPathGui);
 
 			if (objectEntry.Value != null) {
-				var idWidth = GUI.skin.label.CalcSize(objectEntry.FullPathGui).x;
-				var valueWidth = GUI.skin.label.CalcSize(objectEntry.Value).x;
-				var valueRect = new Rect(Mathf.Max(labelRect.xMax - valueWidth, labelRect.x + idWidth + 14), index * s_height, valueWidth, s_height);
-				EditorGUI.LabelField(valueRect, objectEntry.Value);
+				var labelStyle = EditorStyles.label;
+
+				var idWidth = labelStyle.CalcSize(objectEntry.FullPathGui).x;
+				var valueWidth = labelStyle.CalcSize(objectEntry.Value).x;
+				var valueRect = new Rect(Mathf.Max(labelRect.xMax - valueWidth, labelRect.x + idWidth + 14),
+					index * s_height, valueWidth, s_height);
+				LabelField(valueRect, objectEntry.Value);
 			}
 		}
 
@@ -298,10 +311,11 @@ namespace Tekly.DataModels.Models
 				}
 			} else {
 				var search = m_search.Split(" ");
-				Parallel.For(0, m_entries.Count, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, (index) => {
-					var entry = m_entries[index];
-					entry.Visible = MatchesSearch(search, entry.FullPath);
-				});
+				Parallel.For(0, m_entries.Count,
+					new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, (index) => {
+						var entry = m_entries[index];
+						entry.Visible = MatchesSearch(search, entry.FullPath);
+					});
 
 				for (var index = 0; index < m_entries.Count; index++) {
 					var entry = m_entries[index];
@@ -335,6 +349,28 @@ namespace Tekly.DataModels.Models
 			foreach (var entry in m_collapsedEntriesList) {
 				m_collapsedEntries.Add(entry);
 			}
+		}
+
+		private void DrawRect(Rect rectPosition, Color color)
+		{
+			if (Event.current.type != EventType.Repaint) {
+				return;
+			}
+
+			var texture = (Texture)EditorGUIUtility.whiteTexture;
+			var zero = Vector4.zero;
+			GUI.DrawTexture(rectPosition, texture, ScaleMode.StretchToFill, true, 0, color, zero, zero);
+		}
+
+		private void LabelField(Rect labelPosition, GUIContent label)
+		{
+			var controlId = GUIUtility.GetControlID(s_floatFieldHash, FocusType.Passive, labelPosition);
+
+			if (Event.current.type != EventType.Repaint) {
+				return;
+			}
+
+			EditorStyles.label.Draw(labelPosition, label, controlId);
 		}
 	}
 
