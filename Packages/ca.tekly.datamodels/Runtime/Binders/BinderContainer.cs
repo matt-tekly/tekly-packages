@@ -10,6 +10,9 @@ namespace Tekly.DataModels.Binders
 {
     public class BinderContainer : Binder
     {
+        public bool BindOnEnable => m_bindOnEnable;
+        public List<Binder> Binders => m_binders;
+        
         [FormerlySerializedAs("Key")][SerializeField] protected ModelRef m_key;
         [FormerlySerializedAs("BindOnEnable")][SerializeField] protected bool m_bindOnEnable;
         [FormerlySerializedAs("Binders")][SerializeField] protected List<Binder> m_binders;
@@ -17,13 +20,9 @@ namespace Tekly.DataModels.Binders
         [NonSerialized] protected BinderContainer m_parent;
         [NonSerialized] protected string m_keyOverride;
         [NonSerialized] protected bool m_hasBound;
-
-        protected TkLogger m_logger => TkLogger.Get<BinderContainer>();
+        [NonSerialized] private bool m_started;
         
-        public bool BindOnEnable => m_bindOnEnable;
-        public List<Binder> Binders => m_binders;
-
-        private bool m_started;
+        protected TkLogger m_logger => TkLogger.Get<BinderContainer>();
         
         private void Start()
         {
