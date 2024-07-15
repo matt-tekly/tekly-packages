@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using Tekly.Logging.Configurations;
 
 namespace Tekly.Logging
 {
@@ -18,15 +18,28 @@ namespace Tekly.Logging
         Unity
     }
     
-    public class LoggerGroup
+    public enum LogPrefixes
     {
-        public string Name;
-        public readonly List<ILogDestination> Destinations = new List<ILogDestination>();
+        Logger,
+        Frame,
+        Level,
     }
     
     public class LoggerSettings
     {
         public TkLogLevel Level;
-        public LoggerGroup Group;
+        public ILogDestination Destination;
+        
+        public LoggerSettings(TkLogLevel level, ILogDestination destination)
+        {
+            Level = level;
+            Destination = destination;
+        }
+        
+        public LoggerSettings(TkLogLevel level, LogDestinationConfig destinationConfig)
+        {
+            Level = level;
+            Destination = TkLogger.GetDestination(destinationConfig);
+        }
     }
 }

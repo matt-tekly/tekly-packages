@@ -3,25 +3,18 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Text;
 using System.Threading;
-using System.Xml.Serialization;
 using Tekly.Common.LocalFiles;
 using Tekly.Common.Utils;
 using Object = UnityEngine.Object;
 
 namespace Tekly.Logging.LogDestinations
 {
-    public abstract class FileLogConfig : LogDestinationConfig
-    {
-        [XmlAttribute] public string Prefix;
-        [XmlAttribute] public TkLogLevel MinimumLevel;
-    }
-    
     public abstract class FileLogDestination : ILogDestination
     {
         public string Name { get; }
         public string CurrentFilePath { get; }
         public string PrevFilePath { get; }
-        
+
         private readonly TkLogLevel m_minimumLevel;
         private StreamWriter m_streamWriter;
         private AutoResetEvent m_newLogEvent = new AutoResetEvent(false);
@@ -35,12 +28,12 @@ namespace Tekly.Logging.LogDestinations
         private bool m_disposing;
         private bool m_disposed;
 
-        protected FileLogDestination(FileLogConfig config)
+        protected FileLogDestination(string name, string prefix, TkLogLevel minimumLevel)
         {
-            Name = config.Name;
+            Name = name;
             
-            CurrentFilePath = $"logs/{config.Prefix}_curr.log";
-            PrevFilePath = $"logs/{config.Prefix}_prev.log";
+            CurrentFilePath = $"logs/{prefix}_curr.log";
+            PrevFilePath = $"logs/{prefix}_prev.log";
             
             if (LocalFile.Exists(CurrentFilePath)) {
                 LocalFile.Rename(CurrentFilePath, PrevFilePath);
@@ -48,11 +41,11 @@ namespace Tekly.Logging.LogDestinations
 
             m_streamWriter = LocalFile.GetStreamWriter(CurrentFilePath, FileMode.Append, FileAccess.Write, FileShare.Read);
             m_streamWriter.AutoFlush = true;
-            m_minimumLevel = config.MinimumLevel;
+            m_minimumLevel = minimumLevel;
 
             m_thread = StartLongLivingThread(WriteMessageLoop);
         }
-
+        
         ~FileLogDestination()
         {
             if (m_disposing || m_disposed) {

@@ -408,7 +408,7 @@ namespace Tekly.Logging
                 return;
             }
 
-            LogToDestinations(LoggerSettings.Group, new TkLogMessage(level, Name, FullName, message, GetStackTrace()));
+            LogToDestination(LoggerSettings.Destination, new TkLogMessage(level, Name, FullName, message, GetStackTrace()));
         }
 
         public void LogMessageStackTrace(TkLogLevel level, string message, string stackTrace)
@@ -417,7 +417,7 @@ namespace Tekly.Logging
                 return;
             }
 
-            LogToDestinations(LoggerSettings.Group, new TkLogMessage(level, Name, FullName, message, stackTrace));
+            LogToDestination(LoggerSettings.Destination, new TkLogMessage(level, Name, FullName, message, stackTrace));
         }
 
         public void LogMessage(TkLogLevel level, string message, params (string, object)[] logParams)
@@ -426,7 +426,7 @@ namespace Tekly.Logging
                 return;
             }
 
-            LogToDestinations(LoggerSettings.Group, new TkLogMessage(level, Name, FullName, message, GetStackTrace(), logParams));
+            LogToDestination(LoggerSettings.Destination, new TkLogMessage(level, Name, FullName, message, GetStackTrace(), logParams));
         }
 
         public void LogMessage<T>(TkLogLevel level, string message, (string, T) logParam1)
@@ -435,7 +435,7 @@ namespace Tekly.Logging
                 return;
             }
 
-            LogToDestinations(LoggerSettings.Group, new TkLogMessage(level, Name, FullName, message, GetStackTrace(), logParam1));
+            LogToDestination(LoggerSettings.Destination, new TkLogMessage(level, Name, FullName, message, GetStackTrace(), logParam1));
         }
 
         public void LogMessage<T, U>(TkLogLevel level, string message, (string, T) logParam1, (string, U) logParam2)
@@ -444,7 +444,7 @@ namespace Tekly.Logging
                 return;
             }
 
-            LogToDestinations(LoggerSettings.Group, new TkLogMessage(level, Name, FullName, message, GetStackTrace(), logParam1, logParam2));
+            LogToDestination(LoggerSettings.Destination, new TkLogMessage(level, Name, FullName, message, GetStackTrace(), logParam1, logParam2));
         }
 
         public void LogMessage<T, U, V>(TkLogLevel level, string message, (string, T) logParam1, (string, U) logParam2, (string, V) logParam3)
@@ -453,7 +453,7 @@ namespace Tekly.Logging
                 return;
             }
 
-            LogToDestinations(LoggerSettings.Group, new TkLogMessage(level, Name, FullName, message, GetStackTrace(), logParam1, logParam2, logParam3));
+            LogToDestination(LoggerSettings.Destination, new TkLogMessage(level, Name, FullName, message, GetStackTrace(), logParam1, logParam2, logParam3));
         }
 
         public void LogMessageStackTrace(TkLogLevel level, string message, string stacktrace, params (string, object)[] logParams)
@@ -462,7 +462,7 @@ namespace Tekly.Logging
                 return;
             }
 
-            LogToDestinations(LoggerSettings.Group, new TkLogMessage(level, Name, FullName, message, stacktrace, logParams));
+            LogToDestination(LoggerSettings.Destination, new TkLogMessage(level, Name, FullName, message, stacktrace, logParams));
         }
 
         public void LogMessage(TkLogLevel level, string message, Object context)
@@ -471,7 +471,7 @@ namespace Tekly.Logging
                 return;
             }
 
-            LogToDestinations(LoggerSettings.Group, new TkLogMessage(level, Name, FullName, message, GetStackTrace()), context);
+            LogToDestination(LoggerSettings.Destination, new TkLogMessage(level, Name, FullName, message, GetStackTrace()), context);
         }
 
         public void LogMessage(TkLogLevel level, string message, Object context, params (string, object)[] logParams)
@@ -480,7 +480,7 @@ namespace Tekly.Logging
                 return;
             }
 
-            LogToDestinations(LoggerSettings.Group, new TkLogMessage(level, Name, FullName, message, GetStackTrace(), logParams), context);
+            LogToDestination(LoggerSettings.Destination, new TkLogMessage(level, Name, FullName, message, GetStackTrace(), logParams), context);
         }
     }
 }

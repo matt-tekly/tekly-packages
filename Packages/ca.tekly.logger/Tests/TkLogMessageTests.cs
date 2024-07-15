@@ -21,7 +21,7 @@ namespace Tekly.Logging.Tests
 
         public void Cleanup()
         {
-            TkLogger.Reset();
+            TkLogger.HardReset();
         }
     }
 }

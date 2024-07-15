@@ -15,7 +15,6 @@ namespace Tekly.Balance
 		
 		private readonly IContentOperation<IList<BalanceObject>> m_operation;
 		
-		private readonly string m_balanceLabel;
 		private readonly IContentProvider m_contentProvider;
 		private readonly TkLogger m_logger = TkLogger.Get<BalanceBank>();
 		
@@ -32,17 +31,17 @@ namespace Tekly.Balance
 
 		private void OperationCompleted(IContentOperation<IList<BalanceObject>> operation)
 		{
-			m_logger.Debug("Loading BalanceBank started: [{balance}]", ("balance", m_balanceLabel));
+			m_logger.Debug("Loading BalanceBank started: [{balance}]", ("balance", Label));
 			
 			if (m_operation.HasError) {
-				m_logger.Error("Failed to load Balance [{balance}]", ("balance", m_balanceLabel));
+				m_logger.Error("Failed to load Balance [{balance}]", ("balance", Label));
 				Dispose();
 				return;
 			}
 
 			m_objects = m_operation.Result;
 			if (m_objects == null || m_objects.Count == 0) {
-				m_logger.Error("Loaded BalanceBank [{balance}] but found no objects", ("balance", m_balanceLabel));
+				m_logger.Error("Loaded BalanceBank [{balance}] but found no objects", ("balance", Label));
 				Dispose();
 				return;
 			}
@@ -51,7 +50,7 @@ namespace Tekly.Balance
 				m_objectMap.Add(balanceObject.Id, balanceObject);
 			}
 			
-			m_logger.Debug("Loading BalanceBank finished: [{balance}]", ("balance", m_balanceLabel));
+			m_logger.Debug("Loading BalanceBank finished: [{balance}]", ("balance", Label));
 		}
 
 		public void Dispose()

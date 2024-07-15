@@ -216,10 +216,28 @@ namespace Tekly.Logging
             var tkLogParams = new TkLogParam[reserve + logParams.Length];
 
             for (var index = 0; index < logParams.Length; index++) {
-                tkLogParams[index] = new TkLogParam(logParams[index].Item1, logParams[index].Item2.ToString());
+                tkLogParams[index] = new TkLogParam(Stringify(logParams[index].Item1), Stringify(logParams[index].Item2));
             }
 
             return tkLogParams;
+        }
+
+        private static string Stringify(string str)
+        {
+            if (str == null) {
+                return "[null]";
+            }
+
+            return str;
+        }
+
+        private static string Stringify(object obj)
+        {
+            if (obj == null) {
+                return "[null]";
+            }
+
+            return obj.ToString();
         }
     }
 }

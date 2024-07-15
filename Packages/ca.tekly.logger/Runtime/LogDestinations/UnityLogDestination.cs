@@ -2,7 +2,6 @@
 using System.Text;
 using System.Threading;
 using UnityEngine;
-using UnityEngine.Scripting;
 using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using System.Text.RegularExpressions;
@@ -10,19 +9,11 @@ using System.Text.RegularExpressions;
 
 namespace Tekly.Logging.LogDestinations
 {
-    [Preserve]
-    public class UnityLogDestinationConfig : LogDestinationConfig
-    {
-        public override ILogDestination CreateInstance()
-        {
-            return new UnityLogDestination(this);
-        }
-    }
-
     public class UnityLogDestination : ILogDestination
     {
         public string Name { get; }
 
+        private readonly LogPrefixes[] m_prefixes;
         private int m_currentFrame;
 
         private readonly ThreadLocal<StringBuilder> m_stringBuilders = new ThreadLocal<StringBuilder>(() => new StringBuilder(512));
@@ -31,9 +22,10 @@ namespace Tekly.Logging.LogDestinations
         private Regex m_linkRegex = new Regex("(.* \\(at )(([^\\/].*):([0-9]+))", RegexOptions.RightToLeft);
 #endif
 
-        public UnityLogDestination(LogDestinationConfig config)
+        public UnityLogDestination(string name, LogPrefixes[] prefixes)
         {
-            Name = config.Name;
+            m_prefixes = prefixes;
+            Name = name;
         }
 
         public void Dispose() { }
@@ -52,7 +44,32 @@ namespace Tekly.Logging.LogDestinations
             var sb = m_stringBuilders.Value;
             sb.Clear();
 
-            sb.AppendFormat("[{0}] [{1}] ", m_currentFrame, message.LoggerName);
+            for (var i = 0; i < m_prefixes.Length; i++) {
+                switch (m_prefixes[i]) {
+                    case LogPrefixes.Logger:
+                        sb.Append("[");
+                        sb.Append(message.LoggerName);
+                        sb.Append("]");
+                        break;
+                    case LogPrefixes.Frame:
+                        sb.Append("[");
+                        sb.Append(m_currentFrame);
+                        sb.Append("]");
+                        break;
+                    case LogPrefixes.Level:
+                        sb.Append("[");
+                        sb.Append(message.Level);
+                        sb.Append("]");
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            if (m_prefixes.Length > 0) {
+                sb.Append(" ");
+            }
+            
             message.Print(sb);
 
             sb.Append("\n\n");

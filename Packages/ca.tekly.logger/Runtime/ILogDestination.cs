@@ -11,10 +11,4 @@ namespace Tekly.Logging
         void LogMessage(TkLogMessage message, Object context, LogSource logSource);
         void Update();
     }
-
-    public abstract class LogDestinationConfig
-    {
-        [XmlAttribute] public string Name;
-        public abstract ILogDestination CreateInstance();
-    }
 }

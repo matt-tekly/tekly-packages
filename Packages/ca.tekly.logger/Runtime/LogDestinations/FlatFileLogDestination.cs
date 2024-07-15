@@ -1,21 +1,11 @@
 using System;
 using System.Text;
-using UnityEngine.Scripting;
 
 namespace Tekly.Logging.LogDestinations
 {
-    [Preserve]
-    public class FlatFileLogConfig : FileLogConfig
-    {
-        public override ILogDestination CreateInstance()
-        {
-            return new FlatFileLogDestination(this);
-        }
-    }
-
     public class FlatFileLogDestination : FileLogDestination
     {
-        public FlatFileLogDestination(FlatFileLogConfig config) : base(config) { }
+        public FlatFileLogDestination(string name, string prefix, TkLogLevel minimumLevel) : base(name, prefix, minimumLevel) { }
 
         protected override void ConvertLogMessage(TkLogMessage message, StringBuilder sb)
         {

@@ -6,7 +6,6 @@ using System.Text;
 using Unity.IL2CPP.CompilerServices;
 using UnityEngine;
 using UnityEngine.Assertions;
-using Debug = UnityEngine.Debug;
 
 namespace Tekly.Logging
 {
