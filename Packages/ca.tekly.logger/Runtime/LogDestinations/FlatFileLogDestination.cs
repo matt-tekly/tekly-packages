@@ -10,7 +10,7 @@ namespace Tekly.Logging.LogDestinations
         protected override void ConvertLogMessage(TkLogMessage message, StringBuilder sb)
         {
             var timeStamp = message.DateTime.ToLocalTime().ToString(LoggerConstants.TIME_FORMAT_LOCAL);
-            sb.AppendFormat("[{0}] {1} [{2}] ", timeStamp, LevelToCharacter(message.Level), message.LoggerName);
+            sb.AppendFormat("[{0}] {1} [{2}] ", timeStamp, TkLoggerUtils.LevelToCharacter(message.Level), message.LoggerName);
             message.Print(sb);
 
             sb.Append("\n\n");
@@ -33,24 +33,6 @@ namespace Tekly.Logging.LogDestinations
 
             if (!foundException && !string.IsNullOrEmpty(message.StackTrace)) {
                 sb.Append(message.StackTrace).Append('\n');
-            }
-        }
-
-        private static string LevelToCharacter(TkLogLevel level)
-        {
-            switch (level) {
-                case TkLogLevel.Debug:
-                    return "[D]";
-                case TkLogLevel.Info:
-                    return "[I]";
-                case TkLogLevel.Warning:
-                    return "[W]";
-                case TkLogLevel.Error:
-                    return "[E]";
-                case TkLogLevel.Exception:
-                    return "[X]";
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(level), level, null);
             }
         }
     }

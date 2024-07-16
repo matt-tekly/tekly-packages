@@ -45,7 +45,7 @@ namespace Tekly.Logging
 
         public static void Initialize()
         {
-            var profile = Resources.Load<LoggingProfileConfig>("Logging/default_profile");
+            var profile = Resources.Load<LoggingProfileConfig>("Logger/default_profile");
             
             if (profile != null) {
                 Initialize(profile);

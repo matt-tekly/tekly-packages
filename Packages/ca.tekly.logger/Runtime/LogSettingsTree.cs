@@ -28,8 +28,8 @@ namespace Tekly.Logging
 			foreach (var config in configs) {
 				var loggerDestination = defaultDestination;
 				
-				if (config.Destination != null) {
-					loggerDestination = TkLogger.GetDestination(config.Destination);
+				if (config.DestinationOverride != null) {
+					loggerDestination = TkLogger.GetDestination(config.DestinationOverride);
 				}
 				
 				AddLevel(config.Logger, new LoggerSettings(config.Level, loggerDestination));

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: default_profile
   m_EditorClassIdentifier: 
   DefaultLevel: 1
-  DefaultDestination: {fileID: 11400000, guid: 115b00230083f4e1babf71a962e4c4e2, type: 2}
+  DefaultDestination: {fileID: 11400000, guid: 88a8d3ab2654242648c08d26e5bbe5d6, type: 2}
   Configs:
-  - Logger: TeklySample.Game.Worlds
-    Level: 1
+  - Logger: MyNamespace.Class
+    Level: 0
     Destination: {fileID: 0}

@@ -57,9 +57,7 @@ namespace Tekly.Logging.LogDestinations
                         sb.Append("]");
                         break;
                     case LogPrefixes.Level:
-                        sb.Append("[");
-                        sb.Append(message.Level);
-                        sb.Append("]");
+                        sb.Append(TkLoggerUtils.LevelToCharacter(message.Level));
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();

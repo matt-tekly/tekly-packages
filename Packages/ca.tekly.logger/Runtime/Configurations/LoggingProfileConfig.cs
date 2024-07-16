@@ -14,7 +14,9 @@ namespace Tekly.Logging.Configurations
 #if UNITY_EDITOR
 		private void OnValidate()
 		{
-			TkLogger.Initialize(this);
+			if (Application.isPlaying) {
+				TkLogger.Initialize(this);	
+			}
 		}
 #endif
 	}
@@ -22,8 +24,13 @@ namespace Tekly.Logging.Configurations
 	[Serializable]
 	public class LoggerConfig
 	{
+		[Tooltip("A namespace or fully full class name. \"Namespace.ChildNameSpace\" would apply to anything under that namespace")]
 		public string Logger;
+		
+		[Tooltip("The minimum log level to be logged")]
 		public TkLogLevel Level;
-		public LogDestinationConfig Destination;
+		
+		[Tooltip("An optional destination to use instead of the default")]
+		public LogDestinationConfig DestinationOverride;
 	}
 }

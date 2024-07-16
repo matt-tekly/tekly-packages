@@ -98,50 +98,9 @@ public class AppCore
 
 
 ## Configuration
-If you don't pass a config to `TkLogger.Initialize()` the system looks for a config in the Resources directory. It must be named `logger_config.xml`.
+If you don't pass a config to `TkLogger.Initialize()` the system looks for a config in the Resources directory. It must be named `Logger/default_profile`.
 
-A simple example config where:
-- For all loggers:
-    - `LogLevel` is `Info`
-    - They log to a `FlatFile` with the prefix `main` and log to `Unity` which is the console
-- For classes in the `Net` namespace the configuration is overridden
-    - `LogLevel` is `Warning`
-    - They log to a `FlatFile` with the prefix `net` and log to `Unity` which is the console
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<LoggerConfig>
-    <Profile Name="default" Default="true">
-        <Destinations>
-            <FlatFile Name="main" Prefix="main"/>
-            <FlatFile Name="net" Prefix="net"/>
-            <Unity Name="unity" />
-        </Destinations>
-
-        <Groups>
-            <Group Name="default" Default="true">
-                <Destinations>
-                    <string>main</string>
-                    <string>unity</string>
-                </Destinations>
-            </Group>
-
-            <Group Name="network">
-                <Destinations>
-                    <string>net</string>
-                    <string>unity</string>
-                </Destinations>
-            </Group>
-        </Groups>
-
-        <Loggers>
-            <Default Level="Info" Group="default" />
-            <Logger Logger="Net" Level="Warning" Group="network" />
-        </Loggers>
-    </Profile>
-</LoggerConfig>
-```
-
+You can use the menu item `Tekly/Logger/Create Default Configuration` to create a basic configuration.
 
 ## Runtime
 ```csharp

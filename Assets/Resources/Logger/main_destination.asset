@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: main_destination
   m_EditorClassIdentifier: 
   Destinations:
-  - {fileID: 11400000, guid: ee58876f82213487fb5fb5d68b060c1a, type: 2}
-  - {fileID: 11400000, guid: 35e55e8e88aff449e91232d0f36930ba, type: 2}
+  - {fileID: 11400000, guid: 7f6812ff0921245679a06e4fdc290478, type: 2}
+  - {fileID: 11400000, guid: 8c008395f0b2b4efd884ca00f2ac6fae, type: 2}
