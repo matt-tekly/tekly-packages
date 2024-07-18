@@ -9,18 +9,25 @@ using Tekly.Localizations;
 using Tekly.Logging;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 namespace Tekly.DataModels.Binders
 {
     public class FormattedStringBinder : Binder
     {
+        
+        public TextSetEvent OnTextSet => m_onTextSet;
+        
         [FormerlySerializedAs("Keys")] [SerializeField] private ModelRef[] m_keys;
 
         [FormerlySerializedAs("Format")] [SerializeField] [TextArea] private string m_format;
 
         [FormerlySerializedAs("Text")] [SerializeField] private TMP_Text m_text;
-
+        
+        [SerializeField] private TextSetEvent m_onTextSet = new TextSetEvent();
+        
         private object[] m_values;
         private IDisposable[] m_listeners;
 
@@ -69,7 +76,13 @@ namespace Tekly.DataModels.Binders
                 return;
             }
 
-            m_text.text = string.Format(m_format, m_values);
+            var text = string.Format(m_format, m_values);
+            
+            if (m_text != null) {
+                m_text.text = text;    
+            }
+            
+            m_onTextSet.Invoke(text);
         }
 
         protected override void OnDestroy()

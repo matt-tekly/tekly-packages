@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using Tekly.Common.LocalFiles;
+using Tekly.Common.Observables;
 using Tekly.Common.Utils;
 using Object = UnityEngine.Object;
 
@@ -31,7 +32,6 @@ namespace Tekly.Logging.LogDestinations
         protected FileLogDestination(string name, string prefix, TkLogLevel minimumLevel)
         {
             Name = name;
-            
             CurrentFilePath = $"logs/{prefix}_curr.log";
             PrevFilePath = $"logs/{prefix}_prev.log";
             

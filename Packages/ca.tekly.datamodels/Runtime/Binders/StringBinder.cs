@@ -8,8 +8,11 @@ namespace Tekly.DataModels.Binders
 {
 	public class StringBinder : Binder
 	{
+		public TextSetEvent OnTextSet => m_onTextSet;
+		
 		[SerializeField] private ModelRef m_key;
 		[SerializeField] private TMP_Text m_text;
+		[SerializeField] private TextSetEvent m_onTextSet = new TextSetEvent();
 
 		private IDisposable m_disposable;
 		private StringValueModel m_stringValueModel;
@@ -24,11 +27,19 @@ namespace Tekly.DataModels.Binders
 
 		private void BindString(string value)
 		{
+			string text;
+			
 			if (m_stringValueModel.NeedsLocalization) {
-				m_text.text = Localizer.Instance.Localize(value);	
+				text = Localizer.Instance.Localize(value);	
 			} else {
-				m_text.text = value;
+				text = value;
 			}
+
+			if (m_text != null) {
+				m_text.text = text;
+			}
+			
+			m_onTextSet.Invoke(text);
 		}
 
 		public override void UnBind()
