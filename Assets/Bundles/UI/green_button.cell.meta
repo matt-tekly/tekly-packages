@@ -14,3 +14,7 @@ ScriptedImporter:
     filterMode: 0
     pixelsPerUnit: 30
     pivot: {x: 0.5, y: 0}
+    pixelDataSettings:
+      Generate: 0
+      AlphaFilter: 0.01
+      ValueFilter: 0.15

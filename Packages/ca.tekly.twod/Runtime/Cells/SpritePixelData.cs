@@ -5,6 +5,14 @@ using UnityEngine;
 namespace Tekly.TwoD.Cells
 {
 	[Serializable]
+	public struct PixelDataSettings
+	{
+		public bool Generate;
+		public float AlphaFilter;
+		public float ValueFilter;
+	}
+	
+	[Serializable]
 	public struct SpritePixel
 	{
 		public Vector2 Position;
@@ -19,34 +27,34 @@ namespace Tekly.TwoD.Cells
 		public int Width;
 		public int Height;
 
-		public SpritePixelData(Texture2D texture)
+		public SpritePixelData(Texture2D texture, PixelDataSettings pixelDataSettings)
 		{
 			Width = texture.width;
 			Height = texture.height;
 			
 			Pixels = new List<SpritePixel>((int) ((Width + Height) * 0.33f));
 			
-			ProcessColors(texture.GetPixels());
+			ProcessColors(texture.GetPixels(), pixelDataSettings);
 		}
 
-		public SpritePixelData(Sprite sprite)
+		public SpritePixelData(Sprite sprite, PixelDataSettings pixelDataSettings)
 		{
 			var rect = sprite.rect;
 
 			Width = (int) rect.width;
 			Height = (int) rect.height;
 
-			ProcessColors(sprite.texture.GetPixels((int) rect.x, (int) rect.y, Width, Height));
+			ProcessColors(sprite.texture.GetPixels((int) rect.x, (int) rect.y, Width, Height), pixelDataSettings);
 		}
 
-		private void ProcessColors(Color[] colors)
+		private void ProcessColors(Color[] colors, PixelDataSettings pixelDataSettings)
 		{
 			for (var y = 0; y < Height; y++) {
 				for (var x = 0; x < Width; x++) {
 					var color = colors[x + y * Width];
 					Color.RGBToHSV(color, out var h, out var s, out var v);
 					
-					if (color.a <= 0.01f || v < 0.15f) {
+					if (color.a <= pixelDataSettings.AlphaFilter || v < pixelDataSettings.ValueFilter) {
 						continue;
 					}
 

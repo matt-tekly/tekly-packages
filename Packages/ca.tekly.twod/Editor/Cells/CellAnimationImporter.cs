@@ -10,7 +10,7 @@ namespace Tekly.TwoD.Cells
 {
 	public static class CellAnimationImporter
 	{
-		public static void Import(Sprite[] sprites, AsepriteData data, AssetImportContext ctx)
+		public static void Import(Sprite[] sprites, AsepriteData data, AssetImportContext ctx, PixelDataSettings pixelDataSettings)
 		{
 			var spriteMap = sprites.ToDictionary(x => x.name);
 			
@@ -59,7 +59,10 @@ namespace Tekly.TwoD.Cells
 				cellSprite.Icon = iconSprite;
 				
 				var texture = TextureExtensions.GetSpriteTexture(iconSprite);
-				cellSprite.PixelData = new SpritePixelData(texture);
+				if (pixelDataSettings.Generate) {
+					cellSprite.PixelData = new SpritePixelData(texture, pixelDataSettings);	
+				}
+				
 				ctx.AddObjectToAsset("main", cellSprite, texture);
 			} else {
 				var texture = TextureExtensions.GetSpriteTexture(sprites[0]);

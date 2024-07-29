@@ -6,6 +6,7 @@ using Tekly.TwoD.Common;
 using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Tekly.TwoD.Cells
 {
@@ -17,13 +18,21 @@ namespace Tekly.TwoD.Cells
 		public FilterMode FilterMode => m_filterMode;
 		public int PixelsPerUnit => m_pixelsPerUnit;
 		public Vector2 Pivot => m_pivot;
-		
+
+		public PixelDataSettings PixelDataSettings => m_pixelDataSettings;
+
 		[SerializeField] private TextureFormat m_textureFormat = TextureFormat.RGBA32;
 		[SerializeField] private TextureCompressionQuality m_textureCompressionQuality = TextureCompressionQuality.Best;
 		[SerializeField] private FilterMode m_filterMode = FilterMode.Point;
 		
 		[SerializeField] private int m_pixelsPerUnit = 100;
 		[SerializeField] private Vector2 m_pivot = new Vector2(0.5f, 0f);
+
+		[SerializeField] private PixelDataSettings m_pixelDataSettings = new PixelDataSettings {
+			Generate = true,
+			AlphaFilter = 0.01f,
+			ValueFilter = 0.15f
+		};
 
 		public void Initialize()
 		{
@@ -56,7 +65,7 @@ namespace Tekly.TwoD.Cells
 				ctx.AddObjectToAsset(sprite.name, sprite);
 			}
 			
-			CellAnimationImporter.Import(sprites, asepriteData, ctx);
+			CellAnimationImporter.Import(sprites, asepriteData, ctx, m_settings.PixelDataSettings);
 		}
 	}
 }
