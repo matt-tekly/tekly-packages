@@ -1492,6 +1492,9 @@ MonoBehaviour:
   - Path: '*.generation.count'
   m_format: '{0}'
   m_text: {fileID: 154337209946430448}
+  m_onTextSet:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &154337210090441716
 GameObject:
   m_ObjectHideFlags: 0
@@ -1741,6 +1744,9 @@ MonoBehaviour:
   - Path: '*.timeremaining'
   m_format: '{0:N}s'
   m_text: {fileID: 154337210105065506}
+  m_onTextSet:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &154337210146752418
 GameObject:
   m_ObjectHideFlags: 0
@@ -1893,6 +1899,9 @@ MonoBehaviour:
   - Path: '*.count'
   m_format: '{0}'
   m_text: {fileID: 154337210146752416}
+  m_onTextSet:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &154337210165914393
 GameObject:
   m_ObjectHideFlags: 0

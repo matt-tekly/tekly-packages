@@ -9,7 +9,7 @@ namespace Tekly.Lofi.Emitters
 	{
 		public float Volume { get; set; } = 1f;
 		public float Pitch { get; set; } = 1f;
-		
+
 		private List<LofiClipRunner> m_runners = new List<LofiClipRunner>();
 		private AudioSourcePool m_audioSourcePool;
 		
@@ -49,6 +49,16 @@ namespace Tekly.Lofi.Emitters
 			}
 
 			return Constants.INVALID_ID;
+		}
+		
+		public int Play(LofiClip clip, LofiClipRunnerData runnerData)
+		{
+			Init();
+			
+			var runner = clip.CreateRunner(this, runnerData);
+			m_runners.Add(runner);
+			
+			return runner.Id;
 		}
 
 		public void Stop(int runnerId)

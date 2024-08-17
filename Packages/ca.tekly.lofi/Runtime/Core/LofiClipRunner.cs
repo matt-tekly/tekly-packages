@@ -1,7 +1,6 @@
 using System;
 using Tekly.Lofi.Emitters;
 using UnityEngine;
-using UnityEngine.Audio;
 
 namespace Tekly.Lofi.Core
 {
@@ -9,7 +8,8 @@ namespace Tekly.Lofi.Core
 	{
 		public LofiClip SourceClip;
 		public AudioClip Clip;
-		public AudioMixerGroup MixerGroup;
+		public LofiMixerGroup MixerGroup;
+		public Vector3 Position;
 		
 		public float Volume;
 		public float Pitch;
@@ -29,6 +29,8 @@ namespace Tekly.Lofi.Core
 	{
 		public readonly int Id;
 		public bool IsComplete => m_isDisposed || !m_audioSource.IsPlaying;
+
+		public LofiClip Clip => m_clip;
 		
 		private readonly LofiEmitter m_emitter;
 		private readonly LofiAudioSource m_audioSource;
@@ -61,6 +63,7 @@ namespace Tekly.Lofi.Core
 			m_audioSource.Clip = data.Clip;
 			m_audioSource.MixerGroup = data.MixerGroup;
 			m_audioSource.Loop = data.Loop;
+			m_audioSource.Position = data.Position;
 
 			m_initialVolume = data.Volume;
 

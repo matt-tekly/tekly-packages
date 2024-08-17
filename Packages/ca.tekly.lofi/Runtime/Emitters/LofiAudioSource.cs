@@ -1,5 +1,5 @@
+using Tekly.Lofi.Core;
 using UnityEngine;
-using UnityEngine.Audio;
 
 namespace Tekly.Lofi.Emitters
 {
@@ -7,12 +7,15 @@ namespace Tekly.Lofi.Emitters
 	{
 		private readonly LofiEmitter m_emitter;
 		private readonly AudioSource m_audioSource;
+		private readonly Transform m_transform;
 
 		private float m_volume = 1f;
 		private float m_pitch = 1f;
 		private bool m_playing;
+
+		private LofiMixerGroup m_mixerGroup;
 		
-		public bool IsPlaying => m_playing && m_audioSource.time <= Clip.length;
+		public bool IsPlaying => m_playing && (m_audioSource.isPlaying || Core.Lofi.Instance.Paused);
 		
 		public bool Loop {
 			get => m_audioSource.loop;
@@ -35,20 +38,35 @@ namespace Tekly.Lofi.Emitters
 			}
 		}
 
+		public Vector3 Position {
+			get => m_transform.position;
+			set => m_transform.position = value;
+		}
+
 		public AudioClip Clip {
 			get => m_audioSource.clip;
 			set => m_audioSource.clip = value;
 		}
 		
-		public AudioMixerGroup MixerGroup {
-			get => m_audioSource.outputAudioMixerGroup;
-			set => m_audioSource.outputAudioMixerGroup = value;
+		public LofiMixerGroup MixerGroup {
+			get => m_mixerGroup;
+			set {
+				m_mixerGroup = value;
+				if (m_mixerGroup != null) {
+					m_audioSource.outputAudioMixerGroup = m_mixerGroup.MixerGroup;
+					m_audioSource.ignoreListenerPause = m_mixerGroup.IgnoreListenerPause;
+				} else {
+					m_audioSource.outputAudioMixerGroup = null;
+					m_audioSource.ignoreListenerPause = false;
+				}
+			}
 		}
 
 		public LofiAudioSource(LofiEmitter emitter)
 		{
 			m_emitter = emitter;
 			m_audioSource = emitter.gameObject.AddComponent<AudioSource>();
+			m_transform = m_audioSource.transform;
 		}
 
 		public void Play()

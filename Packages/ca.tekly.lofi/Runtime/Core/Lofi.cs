@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Tekly.Common.LifeCycles;
 using Tekly.Common.Utils;
 using Tekly.Common.Utils.PropertyBags;
 using Tekly.Content;
@@ -11,9 +12,17 @@ using Object = UnityEngine.Object;
 
 namespace Tekly.Lofi.Core
 {
+	public struct OneShotRequest
+	{
+		public string SfxId;
+		public float Pitch;
+		public Vector3 Position;
+	}
+	
 	public class Lofi : Singleton<Lofi>
 	{
 		public bool IsLoading => !m_coreAssetsHandle.IsDone || m_banks.Any(x => x.IsLoading);
+		public bool Paused { get; private set; }
 
 		private readonly List<LofiClipBank> m_banks = new List<LofiClipBank>();
 		private readonly Dictionary<string, LofiClip> m_clips = new Dictionary<string, LofiClip>();
@@ -39,6 +48,12 @@ namespace Tekly.Lofi.Core
 		public Lofi()
 		{
 			Initialize();
+			LifeCycle.Instance.Pause += OnPause;
+		}
+		
+		private void OnPause(bool paused)
+		{
+			Paused = paused;
 		}
 
 		public void SetPropertyBag(PropertyBag propertyBag)
@@ -136,6 +151,31 @@ namespace Tekly.Lofi.Core
 				m_oneShot.Play(clip);
 			} else {
 				m_logger.Error("PlayOneShot Failed to find LofiClip [{id}]", ("id", id));
+			}
+		}
+		
+		public void PlayOneShot(string id, float pitch)
+		{
+			var request = new OneShotRequest {
+				SfxId = id,
+				Pitch = pitch,
+				Position = Vector3.zero
+			};
+
+			PlayOneShot(request);
+		}
+		
+		public void PlayOneShot(OneShotRequest request)
+		{
+			if (m_oneShot == null) {
+				m_oneShot = CreateEmitter("[Lofi] One Shot");
+			}
+			
+			if (TryGetClip(request.SfxId, out var clip)) {
+				var runnerData = clip.CreateRunnerData(request.Pitch, request.Position);
+				m_oneShot.Play(clip, runnerData);
+			} else {
+				m_logger.Error("PlayOneShot Failed to find LofiClip [{id}]", ("id", request.SfxId));
 			}
 		}
 
