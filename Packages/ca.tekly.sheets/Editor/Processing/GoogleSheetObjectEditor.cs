@@ -16,6 +16,10 @@ namespace Tekly.Sheets.Processing
 				var googleSheetObject = target as GoogleSheetObject;
 				googleSheetObject.OpenSheet();
 			}
+			
+			if (GUILayout.Button("Open Fetcher")) {
+				SheetFetcherWindow.Open();
+			}
 
 			serializedObject.ApplyModifiedProperties();
 		}

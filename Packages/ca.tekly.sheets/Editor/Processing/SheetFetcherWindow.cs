@@ -1,34 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Tekly.Common.Gui;
 using Tekly.EditorUtils.Assets;
-using Tekly.EditorUtils.Console;
 using Tekly.EditorUtils.Gui;
-using Tekly.Sheets.Core;
 using UnityEditor;
 using UnityEngine;
 
 namespace Tekly.Sheets.Processing
 {
-	public class DataFetchOperation
-	{
-		private readonly GoogleSheetObject m_googleSheetObject;
-		private readonly SheetsApi m_sheetsApi;
-
-		public DataFetchOperation(GoogleSheetObject googleSheetObject, SheetsApi sheetsApi)
-		{
-			m_googleSheetObject = googleSheetObject;
-			m_sheetsApi = sheetsApi;
-		}
-
-		public async Task Start()
-		{
-			var sheets = await m_sheetsApi.GetAllSheets(m_googleSheetObject.SheetId);
-			m_googleSheetObject.Processor.Process(m_googleSheetObject, sheets);
-		}
-	}
-
 	public class SheetFetcherWindow : EditorWindow
 	{
 		private Task m_activeTask;
@@ -39,7 +17,7 @@ namespace Tekly.Sheets.Processing
 		private readonly Color m_outerContainerColor = new Color(0.3f, 0.3f, 0.3f, 1);
 		
 		[MenuItem("Tools/Tekly/Sheets/Fetcher")]
-		private static void Init()
+		public static void Open()
 		{
 			var window = CreateWindow<SheetFetcherWindow>("Sheet Fetcher");
 			window.Show();
@@ -57,7 +35,7 @@ namespace Tekly.Sheets.Processing
 
 		public void OnGUI()
 		{
-			GUI.enabled = m_activeTask == null && EditorApplication.isPlaying == false;
+			GUI.enabled = !(SheetFetcher.IsActive || EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling);
 
 			using (EditorGuiExt.LargeContainer(m_outerContainerColor)) {
 				EditorGUILayout.LabelField("Data Fetch", EditorGuiStyles.Instance.Heading);
@@ -69,7 +47,7 @@ namespace Tekly.Sheets.Processing
 				}
 				
 				if (GUILayout.Button("Download All")) {
-					StartDownload();
+					SheetFetcher.DownloadAsync(m_googleSheetObjects);
 				}
 
 				GUI.enabled = true;
@@ -89,63 +67,10 @@ namespace Tekly.Sheets.Processing
 			}
 			
 			if (GUILayout.Button(m_downloadIcon)) {
-				Download(sheetObject);
+				SheetFetcher.DownloadAsync(sheetObject);
 			}
 
 			EditorGUILayout.EndHorizontal();
-		}
-
-		private async void Download(GoogleSheetObject sheetObject)
-		{
-			Debug.Log("Downloading Sheet");
-			
-			try {
-				var credentialsPath = AssetDatabase.GetAssetPath(sheetObject.Credentials);
-				
-				var sheetsApi = new SheetsApi(credentialsPath);
-				var operation = new DataFetchOperation(sheetObject, sheetsApi);
-
-				m_activeTask = operation.Start();
-				await m_activeTask;
-				
-				AssetDatabase.Refresh();
-			} catch (Exception e) {
-				Debug.LogException(e);
-			} finally {
-				m_activeTask = null;
-			}
-			
-			Debug.Log("Downloading Complete");
-		}
-
-		private async void StartDownload()
-		{
-			EditorConsole.Clear();
-
-			Debug.Log("Downloading All Data");
-			m_activeTask = Download();
-
-			try {
-				await m_activeTask;
-			} catch (Exception e) {
-				Debug.LogException(e);
-			}
-
-			Debug.Log("Downloading Complete");
-			m_activeTask = null;
-		}
-
-		private async Task Download()
-		{
-			var tasks = m_googleSheetObjects.Select(x => {
-				var credentialsPath = AssetDatabase.GetAssetPath(x.Credentials);
-				var sheetsApi = new SheetsApi(credentialsPath);
-				return new DataFetchOperation(x, sheetsApi);
-			}).Select(x => x.Start());
-
-			await Task.WhenAll(tasks);
-
-			AssetDatabase.Refresh();
 		}
 	}
 }
