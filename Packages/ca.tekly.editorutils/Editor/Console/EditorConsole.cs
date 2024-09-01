@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-namespace Tekly.Common.Utils
+namespace Tekly.EditorUtils.Console
 {
 	public static class EditorConsole
 	{

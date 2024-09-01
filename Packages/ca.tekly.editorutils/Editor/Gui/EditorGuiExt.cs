@@ -1,8 +1,8 @@
-using Tekly.Common.Maths;
+using Tekly.Common.Gui;
 using UnityEditor;
 using UnityEngine;
 
-namespace Tekly.Common.Gui
+namespace Tekly.EditorUtils.Gui
 {
     public static class EditorGuiExt 
     {
@@ -103,8 +103,19 @@ namespace Tekly.Common.Gui
             uv.y /= sprite.texture.height;
             uv.height /= sprite.texture.height;
 			
-            var rect = RectExtensions.FitTargetIntoContainer(sprite.textureRect, containerRect);
+            var rect = FitTargetIntoContainer(sprite.textureRect, containerRect);
             GUI.DrawTextureWithTexCoords(rect, sprite.texture, uv, true);
+        }
+        
+        public static Rect FitTargetIntoContainer(Rect target, Rect container)
+        {
+            var scaleFactor = Mathf.Min(container.width / target.width, container.height / target.height);
+            var scaledWidth = target.width * scaleFactor;
+            var scaledHeight = target.height * scaleFactor;
+            var offsetX = (container.width - scaledWidth) * 0.5f;
+            var offsetY = (container.height - scaledHeight) * 0.5f;
+
+            return new Rect(container.x + offsetX, container.y + offsetY, scaledWidth, scaledHeight);
         }
     }
 }

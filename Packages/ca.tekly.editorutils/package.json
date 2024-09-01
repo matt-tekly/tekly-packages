@@ -1,6 +1,6 @@
 {
-  "name": "ca.tekly.common",
-  "displayName": "Tekly Common",
+  "name": "ca.tekly.editorutils",
+  "displayName": "Tekly Editor Utils",
   "version": "0.0.1",
   "unity": "2019.4",
   "author": {
@@ -9,10 +9,9 @@
   },
   "hideInEditor": false,
   "type": "library",
-  "description": "Common utilities",
+  "description": "Editor utilities",
   "dependencies": {
     "ca.tekly.nsubstitute": "0.0.1",
-    "com.unity.mathematics": "1.1.0",
-    "ca.tekly.editorutils": "1.1.0"
+    "com.unity.mathematics": "1.1.0"
   }
 }

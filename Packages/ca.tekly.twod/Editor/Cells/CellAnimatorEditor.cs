@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
-using Tekly.Common.Gui;
 using Tekly.Common.Timers;
+using Tekly.EditorUtils.Gui;
 using UnityEditor;
 using UnityEngine;
 

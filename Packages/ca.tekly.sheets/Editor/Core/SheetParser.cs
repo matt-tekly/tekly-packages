@@ -25,6 +25,34 @@ namespace Tekly.Sheets.Core
                 throw;
             }
         }
+        
+        public static Dynamic ParseAsSingle(IList<IList<object>> sheet, string sheetName)
+        {
+            var paths = ParseHeaderPaths(sheet[0]);
+            
+            var result = new SheetResult {
+                Type = SheetType.Objects,
+                Key = paths[0].Path[0].Key,
+                Name = sheetName
+            };
+            
+            var current = new Dynamic(DynamicType.Object);
+
+ 
+            for (var i = 1; i < sheet.Count; i++) {
+                var row = sheet[i];
+
+                if (row == null || row.Count == 0 || IsComment(row[0])) {
+                    continue;
+                }
+                
+                ParseRow(paths, row, current, i);
+            }
+
+            result.Dynamic = new Dynamic(DynamicType.Array);
+            
+            return current;
+        }
 
         private static List<HeaderPath> ParseHeaderPaths(IList<object> headers)
         {

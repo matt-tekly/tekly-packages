@@ -12,6 +12,7 @@
   "dependencies": {
     "com.unity.addressables": "1.19.18",
     "ca.tekly.common": "0.0.1",
-    "ca.tekly.zipfile": "0.0.1"
+    "ca.tekly.zipfile": "0.0.1",
+    "ca.tekly.editorutils": "0.0.1"
   }
 }

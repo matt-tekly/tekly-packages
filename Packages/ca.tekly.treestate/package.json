@@ -6,7 +6,8 @@
   "dependencies": {
     "ca.tekly.logger": "0.0.7",
     "ca.tekly.injectors": "1.0.0",
-    "ca.tekly.common": "0.0.1"
+    "ca.tekly.common": "0.0.1",
+    "ca.tekly.editorutils": "0.0.1"
   },
   "author": {
     "name": "Matt King",

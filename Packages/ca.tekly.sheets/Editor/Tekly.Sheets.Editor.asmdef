@@ -2,8 +2,8 @@
     "name": "Tekly.Sheets.Editor",
     "rootNamespace": "Tekly.Sheets",
     "references": [
-        "GUID:b9160372c6c55a741932d482673e3abb",
-        "GUID:31f6ca066cb1421498e9be3571072338"
+        "GUID:887f3a95b2de83a4c85de4a815e3e391",
+        "GUID:46f35668e590e7d44a86f9e0605c9b54"
     ],
     "includePlatforms": [
         "Editor"

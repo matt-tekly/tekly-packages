@@ -1,4 +1,4 @@
-﻿using Tekly.Common.Gui;
+﻿using Tekly.EditorUtils.Gui;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;

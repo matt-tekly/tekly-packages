@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using Object = UnityEngine.Object;
 
-namespace Tekly.Common.Utils
+namespace Tekly.EditorUtils.Assets
 {
 	public static class AssetDatabaseExt
 	{
