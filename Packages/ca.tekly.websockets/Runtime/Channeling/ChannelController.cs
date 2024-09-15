@@ -5,9 +5,9 @@ namespace Tekly.WebSockets.Channeling
 {
 	public class ChannelController : IDisposable
 	{
-		protected readonly Channel m_channel;
+		protected readonly IChannel m_channel;
 
-		public ChannelController(Channel channel)
+		public ChannelController(IChannel channel)
 		{
 			m_channel = channel;
 			m_channel.Received += ReceivedFrame;
@@ -29,7 +29,7 @@ namespace Tekly.WebSockets.Channeling
 	{
 		private readonly List<T> m_history = new List<T>();
 
-		protected HistoricalChannel(Channel channel) : base(channel) { }
+		protected HistoricalChannel(IChannel channel) : base(channel) { }
 
 		protected void Message(T value)
 		{
@@ -49,7 +49,7 @@ namespace Tekly.WebSockets.Channeling
 	{
 		private T m_value;
 
-		protected ValueChannel(Channel channel) : base(channel) { }
+		protected ValueChannel(IChannel channel) : base(channel) { }
 
 		protected void Message(T value)
 		{

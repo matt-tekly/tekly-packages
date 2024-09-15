@@ -7,8 +7,12 @@ namespace Tekly.BasicBuilder
 {
     public static class BasicBuilder
     {
-        private static string FOLDER_TO_DELETE => BuildUtility.ApplicationName + "_BurstDebugInformation_DoNotShip";
-        
+        private static string[] FOLDERS_TO_DELETE => new string[] {
+            BuildUtility.ApplicationName + "_BurstDebugInformation_DoNotShip",
+            BuildUtility.ApplicationName + "_BackUpThisFolder_ButDontShipItWithYourGame",
+
+        };
+
         public static void Build(bool autoRun, BuildWindowSettings buildWindowSettings)
         {
             if (buildWindowSettings.UseAddressables) {
@@ -55,7 +59,10 @@ namespace Tekly.BasicBuilder
                 return;
             }
 
-            FileUtils.SafeDeleteDirectory($"{buildDirectory}/{FOLDER_TO_DELETE}", true);
+            // TODO: We're deleting these files so they're not in the zip. I don't think this is a good solution.
+            foreach (var folder in FOLDERS_TO_DELETE) {
+                FileUtils.SafeDeleteDirectory($"{buildDirectory}/{folder}", true);    
+            }
 
             if (buildTarget == BuildTarget.StandaloneWindows64) {
                 System.IO.File.Delete(options.locationPathName + ".zip");

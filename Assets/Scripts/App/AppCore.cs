@@ -1,3 +1,7 @@
+#if UNITY_EDITOR && TINKER_ENABLED_EDITOR
+#define TINKER_ENABLED
+#endif
+
 using System;
 using Tekly.Balance;
 using Tekly.Common.TimeProviders;
@@ -58,17 +62,18 @@ namespace TeklySample.App
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void InitializeDebug()
         {
-            TinkerServer.Instance.Initialize();
-            TinkerServer.Instance.Home
-                .Add("Inventory", "/game/inventory/card", 6, 10)
+#if TINKER_ENABLED
+            TinkerServer.Initialize();
+            TinkerServer
+                .AddHomeCard("Inventory", "/game/inventory/card", 6, 10)
                 .Add("Logs", "/game/logs/stats", 4, 5);
 
             new GameChannels();
-            
+#endif  
             WebsterServer.Start(true);
             WebsterServer.AddRouteHandler<SampleWebsterHandler>();
             WebsterServer.AddRouteHandler<AppPropertiesRoute>();
-
+            
             TreeStateRegistry.Instance.ActivityModeChanged.Subscribe(evt => {
                 var type = evt.IsState ? "Tree State" : "Tree Activity";
                 switch (evt.Mode) {

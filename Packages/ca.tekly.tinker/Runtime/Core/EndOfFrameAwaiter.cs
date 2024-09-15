@@ -1,7 +1,11 @@
+#if UNITY_EDITOR && TINKER_ENABLED_EDITOR
+#define TINKER_ENABLED
+#endif
+
+#if TINKER_ENABLED
 using System;
 using System.Collections;
 using System.Runtime.CompilerServices;
-using Tekly.Common.LifeCycles;
 using UnityEngine;
 
 namespace Tekly.Tinker.Core
@@ -12,7 +16,7 @@ namespace Tekly.Tinker.Core
 
 		public void OnCompleted(Action continuation)
 		{
-			LifeCycle.Instance.StartCoroutine(WaitForEndOfFrameCoroutine(continuation));
+			TinkerServer.Instance.StartCoroutine(WaitForEndOfFrameCoroutine(continuation));
 		}
 
 		public void GetResult() { }
@@ -26,3 +30,4 @@ namespace Tekly.Tinker.Core
 		public EndOfFrameAwaiter GetAwaiter() => this;
 	}
 }
+#endif

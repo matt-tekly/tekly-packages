@@ -1,3 +1,8 @@
+#if UNITY_EDITOR && TINKER_ENABLED_EDITOR
+#define TINKER_ENABLED
+#endif
+
+#if TINKER_ENABLED
 using System.IO;
 using DotLiquid;
 using Newtonsoft.Json;
@@ -53,3 +58,4 @@ namespace Tekly.Tinker.Core
 		}
 	}
 }
+#endif

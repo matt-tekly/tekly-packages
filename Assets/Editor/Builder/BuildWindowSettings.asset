@@ -13,31 +13,35 @@ MonoBehaviour:
   m_Name: BuildWindowSettings
   m_EditorClassIdentifier: 
   Platforms:
-  - Content:
+  - BuildTarget: 13
+    BuildTargetGroup: 7
+    Content:
       m_Text: 
       m_Image: {fileID: 2800000, guid: 5a219420588d74cfe8aec78290c35ce4, type: 3}
       m_Tooltip: Android
-    BuildTarget: 13
-    BuildTargetGroup: 7
-  - Content:
+  - BuildTarget: 9
+    BuildTargetGroup: 4
+    Content:
       m_Text: 
       m_Image: {fileID: 2800000, guid: 17a915f2f5a774d8abab77b2a0e6a767, type: 3}
       m_Tooltip: iOS
-    BuildTarget: 9
-    BuildTargetGroup: 4
-  - Content:
+  - BuildTarget: 2
+    BuildTargetGroup: 1
+    Content:
       m_Text: 
       m_Image: {fileID: 2800000, guid: 3c76e2101a7d04cf7900b985e2e69378, type: 3}
       m_Tooltip: macOS
-    BuildTarget: 2
+  - BuildTarget: 19
     BuildTargetGroup: 1
-  - Content:
+    Content:
       m_Text: 
       m_Image: {fileID: 2800000, guid: 891bcf6cb517746e5a1a92411a9e1502, type: 3}
       m_Tooltip: Windows
-    BuildTarget: 19
-    BuildTargetGroup: 1
   Defines:
   - DisplayName: Enable Webster
     Define: WEBSTER_ENABLE
     ToolTip: Enables Webster
+  - DisplayName: Enable Tinker
+    Define: TINKER_ENABLED
+    ToolTip: Enables Tinker
+  UseAddressables: 0

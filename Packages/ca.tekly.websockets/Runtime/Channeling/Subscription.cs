@@ -8,11 +8,12 @@ namespace Tekly.WebSockets.Channeling
 		private readonly Channels m_channels;
 
 		private readonly Client m_client;
-		private readonly Channel m_channel;
+		private readonly IChannel m_channel;
 
 		private readonly FrameEncoding m_frameEncoding = new FrameEncoding();
+		private readonly object m_lock = new object();
 
-		public Subscription(Client client, Channel channel, string sessionId, Channels channels)
+		public Subscription(Client client, IChannel channel, string sessionId, Channels channels)
 		{
 			m_client = client;
 			m_channel = channel;
@@ -30,15 +31,19 @@ namespace Tekly.WebSockets.Channeling
 
 		public void Message(ChannelFrameEvt evt)
 		{
-			var frameData = m_frameEncoding.Encode(evt.Command, SessionId, m_channel.Id, evt.ContentType, evt.Content);
-			m_client.Send(frameData);
+			lock (m_lock) {
+				var frameData = m_frameEncoding.Encode(evt.Command, SessionId, m_channel.Id, evt.ContentType, evt.Content);
+				m_client.Send(frameData);
+			}
 		}
 		
 		public void Message<T>(T value)
 		{
 			var json = m_channels.Serialize(value);
-			var frameData = m_frameEncoding.Encode(FrameCommands.MESSAGE, SessionId, m_channel.Id, "json", json);
-			m_client.Send(frameData);
+			lock (m_lock) {
+				var frameData = m_frameEncoding.Encode(FrameCommands.MESSAGE, SessionId, m_channel.Id, "json", json);
+				m_client.Send(frameData);
+			}
 		}
 	}
 }

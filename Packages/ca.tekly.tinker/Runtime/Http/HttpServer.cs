@@ -1,3 +1,8 @@
+#if UNITY_EDITOR && TINKER_ENABLED_EDITOR
+#define TINKER_ENABLED
+#endif
+
+#if TINKER_ENABLED
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -81,3 +86,4 @@ namespace Tekly.Tinker.Http
 		}
 	}
 }
+#endif

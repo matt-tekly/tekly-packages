@@ -1,13 +1,25 @@
+using System.Linq;
 using UnityEngine;
 
-namespace Tekly.Common.Utils
+namespace Tekly.Tinker.Http
 {
 	public static class TextureUtils
 	{
 		public static byte[] GetSpriteBytes(int instanceId)
 		{
-			var sprite = UnityExtensions.FindResource<Sprite>(instanceId);
+			var sprite = FindResource<Sprite>(instanceId);
 			return GetSpriteBytes(sprite);
+		}
+		
+		public static T FindResource<T>(int instanceId) where T : Object
+		{
+			return Resources.FindObjectsOfTypeAll<T>().FirstOrDefault(resource => resource.GetInstanceID() == instanceId);
+		}
+		
+		public static T FindResource<T>(string name) where T : Object
+		{
+			var resources = Resources.FindObjectsOfTypeAll<T>();
+			return resources.FirstOrDefault(resource => resource.name == name);
 		}
 
 		public static byte[] GetSpriteBytes(Sprite sprite)
@@ -42,13 +54,13 @@ namespace Tekly.Common.Utils
 
 		public static byte[] GetTextureBytes(int instanceId)
 		{
-			var sprite = UnityExtensions.FindResource<Texture>(instanceId);
+			var sprite = FindResource<Texture>(instanceId);
 			return GetTextureBytes(sprite);
 		}
 		
 		public static byte[] GetTextureBytes(string name)
 		{
-			var sprite = UnityExtensions.FindResource<Texture>(name);
+			var sprite = FindResource<Texture>(name);
 			return GetTextureBytes(sprite);
 		}
 

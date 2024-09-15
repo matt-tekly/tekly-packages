@@ -4,7 +4,6 @@
   "version": "0.0.1",
   "unity": "2021.4",
   "dependencies": {
-    "ca.tekly.common": "0.0.1",
     "ca.tekly.liquid": "0.0.1",
     "ca.tekly.websockets": "0.0.1",
     "com.unity.nuget.newtonsoft-json": "0.0.1"

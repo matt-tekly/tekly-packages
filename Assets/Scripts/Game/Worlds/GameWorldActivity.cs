@@ -68,7 +68,7 @@ namespace TeklySample.Game.Worlds
 
             Save();
             
-            TinkerServer.Instance.RemoveHandler(m_routes);
+            TinkerServer.RemoveHandler(m_routes);
             return Task.CompletedTask;
         }
 
@@ -91,7 +91,7 @@ namespace TeklySample.Game.Worlds
 
             var gameRoutes = new GameRoutes();
             m_injectorContainer.Inject(gameRoutes);
-            m_routes = TinkerServer.Instance.AddClassHandler(gameRoutes);
+            m_routes = TinkerServer.AddClassHandler(gameRoutes);
             
             m_injectorContainer.Inject(m_routes);
         }

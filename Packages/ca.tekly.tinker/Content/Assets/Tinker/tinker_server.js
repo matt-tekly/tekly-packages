@@ -4,7 +4,7 @@ export class TinkerServer {
     constructor() {
         const hostname = window.location.hostname;
         
-        this.ws = new WebSocket(`ws://${hostname}:3334/`);
+        this.ws = new WebSocket(`ws://${hostname}:${TINKER_WS_PORT}/`);
         this.channels = new Channels(this.ws);
     }
 }

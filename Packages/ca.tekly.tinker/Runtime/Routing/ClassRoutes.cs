@@ -1,7 +1,11 @@
+#if UNITY_EDITOR && TINKER_ENABLED_EDITOR
+#define TINKER_ENABLED
+#endif
+
+#if TINKER_ENABLED
 using System;
 using System.Collections.Generic;
 using System.Net;
-using Tekly.Common.Utils;
 using Tekly.Tinker.Core;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -66,3 +70,4 @@ namespace Tekly.Tinker.Routing
 		}
 	}
 }
+#endif

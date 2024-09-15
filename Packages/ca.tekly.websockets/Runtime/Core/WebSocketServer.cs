@@ -15,13 +15,15 @@ namespace Tekly.WebSockets.Core
 		private TcpClient m_connectedClient;
 		private NetworkStream m_clientStream;
 
-		private int m_port;
+		public int Port { get; private set; }
 
 		private readonly Clients m_clients = new Clients();
 		
+		private bool m_listening;
+		
 		public void Start(int port)
 		{
-			m_port = port;
+			Port = port;
 			m_listenerThread = new Thread(ListenForClients);
 			m_listenerThread.IsBackground = true;
 			m_listenerThread.Start();
@@ -29,15 +31,16 @@ namespace Tekly.WebSockets.Core
 
 		private void ListenForClients()
 		{
-			m_tcpListener = new TcpListener(IPAddress.Any, m_port);
+			m_listening = true;
+			m_tcpListener = new TcpListener(IPAddress.Any, Port);
 			m_tcpListener.Start();
 			
 			try {
-				while (true) {
+				while (m_listening) {
 					var client = m_tcpListener.AcceptTcpClient();
 					m_clients.TryAdd(client);
 				}
-			} catch (ThreadAbortException) {
+			} catch (SocketException) {
 				// Do Nothing
 			} catch (Exception exception) {
 				Debug.LogException(exception);
@@ -48,8 +51,8 @@ namespace Tekly.WebSockets.Core
 		{
 			m_clients.Stop();
 			m_tcpListener?.Stop();
-			
-			m_listenerThread?.Abort();
+
+			m_listening = false;
 
 			m_listenerThread = null;
 			m_tcpListener = null;

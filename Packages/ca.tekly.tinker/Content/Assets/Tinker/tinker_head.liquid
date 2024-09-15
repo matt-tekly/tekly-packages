@@ -29,6 +29,8 @@
     {%- endfor -%}
     
     <script>
+        TINKER_WS_PORT = {{ Tinker.WebSocketPort }};
+        
         function triggerReload(element) {
             let event = new Event("reload", {bubbles: true});
             element.dispatchEvent(event);

@@ -1,7 +1,8 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && TINKER_ENABLED_EDITOR
 #define TINKER_ENABLED
 #endif
 
+#if TINKER_ENABLED
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -9,8 +10,6 @@ using DotLiquid;
 using DotLiquid.NamingConventions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Tekly.Common.LifeCycles;
-using Tekly.Common.Utils;
 using Tekly.Tinker.Assets;
 using Tekly.Tinker.Http;
 using Tekly.Tinker.Routes;
@@ -21,7 +20,7 @@ using UnityEngine;
 
 namespace Tekly.Tinker.Core
 {
-	public class TinkerServer : Singleton<TinkerServer>
+	public partial class TinkerServer : MonoBehaviour
 	{
 		public readonly JsonSerializer Serializer = new JsonSerializer();
 		public readonly TinkerAssetRoutes AssetRoutes = new TinkerAssetRoutes();
@@ -38,35 +37,49 @@ namespace Tekly.Tinker.Core
 		private const string TINKER_DATA_KEY = "Tinker";
 
 		private HttpServer m_httpServer;
-		private readonly WebSocketServer m_webSocketServer;
-		private readonly Channels m_channels;
+		private WebSocketServer m_webSocketServer;
+		private Channels m_channels;
+
+		private static TinkerServer s_instance;
+		public static TinkerServer Instance {
+			get {
+				if (s_instance == null) {
+					GameObject tinkerGo = new GameObject();
+					DontDestroyOnLoad(tinkerGo);
+					s_instance = tinkerGo.AddComponent<TinkerServer>();
+				}
+
+				return s_instance;
+			}
+		}
 		
-		public TinkerServer()
+		public void InitializeInternal(int port = PORT_DEFAULT)
 		{
+			port = HttpUtils.GetAvailablePort(port);
+			
+			Debug.Log($"Initializing Tinker at port [{port}]");
+			
 			Serializer.Converters.Add(new StringEnumConverter());
 			m_webSocketServer = new WebSocketServer();
 			m_channels = new Channels(m_webSocketServer.Clients);
-		}
-		
-		public void Initialize(int port = PORT_DEFAULT)
-		{
+			
 			Application.runInBackground = true;
 			
 			try {
 				m_httpServer = new HttpServer(port, ProcessRequest);
 				m_httpServer.Start();
-				m_webSocketServer.Start(port + 1);
+
+				var webSocketPort = HttpUtils.GetAvailablePort();
+				m_webSocketServer.Start(webSocketPort);
 				
 				InitializeLiquid();
 				InitializeContent();
 
-				AddHandler(AssetRoutes);
+				AddHandlerInternal(AssetRoutes);
 				
-				AddHandler(new TextureRoutes());
-				AddHandler<TinkerPages>();
-				AddHandler<UnityRoutes>();
-
-				LifeCycle.Instance.Quit += OnApplicationQuit;
+				AddHandlerInternal(new TextureRoutes());
+				AddHandlerInternal<TinkerPages>();
+				AddHandlerInternal<UnityRoutes>();
 			} catch (Exception e) {
 				Debug.LogException(e);
 				m_httpServer?.Stop();
@@ -108,12 +121,12 @@ namespace Tekly.Tinker.Core
 			return template.Render(hash);
 		}
 
-		public void AddHandler(ITinkerRoutes routes)
+		public void AddHandlerInternal(ITinkerRoutes routes)
 		{
 			m_routes.Add(routes);
 		}
 		
-		public ITinkerRoutes AddClassHandler(object handler)
+		public ITinkerRoutes AddClassHandlerInternal(object handler)
 		{
 			var classRoutes = new ClassRoutes(handler, this);
 			m_routes.Add(classRoutes);
@@ -121,12 +134,12 @@ namespace Tekly.Tinker.Core
 			return classRoutes;
 		}
 
-		public ITinkerRoutes AddHandler<T>() where T : new()
+		public ITinkerRoutes AddHandlerInternal<T>() where T : new()
 		{
 			return AddClassHandler(new T());
 		}
 
-		public void RemoveHandler(ITinkerRoutes routes)
+		public void RemoveHandlerInternal(ITinkerRoutes routes)
 		{
 			m_routes.Remove(routes);
 		}
@@ -144,11 +157,12 @@ namespace Tekly.Tinker.Core
 		
 		private TinkerData GetData(string url)
 		{
-			return new TinkerData(url, m_routes, Sidebar, AssetRoutes, Home);
+			return new TinkerData(url, m_routes, Sidebar, AssetRoutes, Home, m_webSocketServer.Port);
 		}
 
 		private void OnApplicationQuit()
 		{
+			s_instance = null;
 			m_httpServer?.Stop();
 			m_webSocketServer?.Stop();
 		}
@@ -161,3 +175,4 @@ namespace Tekly.Tinker.Core
 		}
 	}
 }
+#endif

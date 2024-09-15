@@ -3,6 +3,7 @@ using Tekly.Common.LifeCycles;
 using Tekly.Logging;
 using Tekly.Tinker.Core;
 using Tekly.WebSockets.Channeling;
+using UnityEngine;
 
 namespace TeklySample.App
 {
@@ -15,10 +16,10 @@ namespace TeklySample.App
 		{
 			LifeCycle.Instance.Quit += Quit;
 			
-			var logChannel = TinkerServer.Instance.Channels.GetChannel("logs");
+			var logChannel = TinkerServer.GetChannel("logs");
 			m_logChannel = new LogChannel(logChannel);
 			
-			var logStatsChannel = TinkerServer.Instance.Channels.GetChannel("logs/stats");
+			var logStatsChannel = TinkerServer.GetChannel("logs/stats");
 			m_logStatsChannel = new LogStatsChannel(logStatsChannel);
 		}
 
@@ -31,7 +32,7 @@ namespace TeklySample.App
 	
 	public class LogChannel : HistoricalChannel<TkLogMessage>
 	{
-		public LogChannel(Channel channel) : base(channel)
+		public LogChannel(IChannel channel) : base(channel)
 		{
 			TkLogger.MessageLogged += MessageLogged;
 		}
@@ -50,9 +51,14 @@ namespace TeklySample.App
 
 	public class LogStatsChannel : ValueChannel<DataList>
 	{
-		public LogStatsChannel(Channel channel) : base(channel)
+		public LogStatsChannel(IChannel channel) : base(channel)
 		{
 			TkLogger.MessageLogged += MessageLogged;
+		}
+
+		private void MessageLogged(string condition, string stacktrace, LogType type)
+		{
+			Message(GetValue());
 		}
 
 		public override void Dispose()

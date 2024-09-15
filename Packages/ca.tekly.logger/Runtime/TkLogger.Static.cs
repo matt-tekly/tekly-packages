@@ -134,21 +134,6 @@ namespace Tekly.Logging
             }
         }
 
-        private static void HandleUnityLog(string message, string stacktrace, LogType type)
-        {
-            if (!string.IsNullOrEmpty(message) && message[message.Length - 1] == LoggerConstants.UNITY_LOG_MARKER) {
-                return;
-            }
-
-            var level = UnityLogDestination.TypeToLevel(type);
-            var loggerName = LoggerConstants.UNITY_LOG_NAME;
-            var logMessage = new TkLogMessage(level, loggerName, loggerName, message, stacktrace);
-
-            foreach (var logDestination in Destinations) {
-                logDestination.LogMessage(logMessage, LogSource.Unity);
-            }
-        }
-
         public static void SetCommonField(string id, object value)
         {
             CommonFields[id] = value.ToString();
@@ -191,6 +176,25 @@ namespace Tekly.Logging
             StackTraceUtilities.ExtractStackTrace(sb, 4);
 
             return sb.ToString();
+        }
+        
+        private static void HandleUnityLog(string message, string stacktrace, LogType type)
+        {
+            if (!string.IsNullOrEmpty(message) && message[message.Length - 1] == LoggerConstants.UNITY_LOG_MARKER) {
+                return;
+            }
+
+            var level = UnityLogDestination.TypeToLevel(type);
+            var loggerName = LoggerConstants.UNITY_LOG_NAME;
+            var logMessage = new TkLogMessage(level, loggerName, loggerName, message, stacktrace);
+
+            
+            foreach (var logDestination in Destinations) {
+                logDestination.LogMessage(logMessage, LogSource.Unity);
+            }
+            
+            Stats.Track(logMessage);
+            MessageLogged?.Invoke(logMessage);
         }
 
         private static void LogToDestination(ILogDestination destination, TkLogMessage message, LogSource logSource = LogSource.TkLogger)

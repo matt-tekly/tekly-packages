@@ -1,3 +1,8 @@
+#if UNITY_EDITOR && TINKER_ENABLED_EDITOR
+#define TINKER_ENABLED
+#endif
+
+#if TINKER_ENABLED
 using System;
 using System.IO;
 using System.Linq;
@@ -5,7 +10,6 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
-using Tekly.Common.Utils;
 using Tekly.Tinker.Core;
 using Tekly.Tinker.Http;
 
@@ -26,7 +30,7 @@ namespace Tekly.Tinker.Routing
 		public FunctionParameter(ParameterInfo param)
 		{
 			Name = param.Name;
-			DisplayName = TypeUtility.NiceName(Name);
+			DisplayName = RouteUtils.NiceName(Name);
 			ActualType = param.ParameterType;
 			Optional = param.IsOptional;
 
@@ -39,7 +43,7 @@ namespace Tekly.Tinker.Routing
 				}
 
 				EditType = "select";
-			} else if (TypeUtility.IsNumber(param.ParameterType)) {
+			} else if (RouteUtils.IsNumber(param.ParameterType)) {
 				EditType = "number";
 			} else if (param.ParameterType == typeof(string)) {
 				if (param.GetAttribute<LargeTextAttribute>() != null) {
@@ -156,9 +160,9 @@ namespace Tekly.Tinker.Routing
 				var value = queryParams.Get(parameter.Name);
 
 				if (value != null) {
-					invokeParams[index] = TypeUtility.Parse(parameter.ActualType, value);
+					invokeParams[index] = RouteUtils.Parse(parameter.ActualType, value);
 				} else if (parameter.Optional) {
-					invokeParams[index] = TypeUtility.Parse(parameter.ActualType, parameter.DefaultValue);
+					invokeParams[index] = RouteUtils.Parse(parameter.ActualType, parameter.DefaultValue);
 				} else {
 					throw new Exception($"Query missing required parameter: {parameter.Name}");
 				}
@@ -168,3 +172,4 @@ namespace Tekly.Tinker.Routing
 		}
 	}
 }
+#endif

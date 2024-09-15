@@ -33,7 +33,7 @@ namespace Tekly.WebSockets.Channeling
 			m_clients.ClientClosed -= OnClientClosed;
 		}
 
-		public Channel GetChannel(string channelId)
+		public IChannel GetChannel(string channelId)
 		{
 			if (!m_channels.TryGetValue(channelId, out var channel)) {
 				channel = new Channel(channelId, this);

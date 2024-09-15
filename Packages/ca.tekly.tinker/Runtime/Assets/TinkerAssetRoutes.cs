@@ -1,3 +1,7 @@
+#if UNITY_EDITOR && TINKER_ENABLED_EDITOR
+#define TINKER_ENABLED
+#endif
+
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -45,6 +49,7 @@ namespace Tekly.Tinker.Assets
 
 		public bool TryHandle(string route, HttpListenerRequest request, HttpListenerResponse response)
 		{
+#if TINKER_ENABLED
 			Initialize();
 			RefreshAssetDatabase();
 			
@@ -59,12 +64,13 @@ namespace Tekly.Tinker.Assets
 					}
 				}
 			}
-
+#endif
 			return false;
 		}
 
 		public void GetAssets(string extension, List<TinkerAsset> assets)
 		{
+#if TINKER_ENABLED
 			foreach (var tinkerAssets in m_tinkerAssets) {
 				foreach (var tinkerAsset in tinkerAssets.Assets) {
 					if (tinkerAsset.Url.EndsWith(extension)) {
@@ -72,6 +78,7 @@ namespace Tekly.Tinker.Assets
 					}
 				}
 			}
+#endif
 		}
 
 		private bool TryHandleAsset(HttpListenerResponse response, TinkerAsset tinkerAsset)
