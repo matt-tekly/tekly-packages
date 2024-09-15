@@ -199,7 +199,7 @@ namespace Tekly.Favorites.Gui
 			}
 			
 			if (FavoritesData.Instance.HandleShortcut(evt.keyCode, m_shift || m_edit, evt)) {
-				m_window.Close();
+				m_window.HideIfPopup();
 			}
 
 			if (evt.keyCode == KeyCode.Escape && m_window.IsPopup) {
