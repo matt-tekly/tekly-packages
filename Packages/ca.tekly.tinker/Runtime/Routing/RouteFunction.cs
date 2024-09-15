@@ -9,6 +9,8 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Tekly.Tinker.Core;
 using Tekly.Tinker.Http;
@@ -19,9 +21,8 @@ namespace Tekly.Tinker.Routing
 	{
 		public string Name { get; }
 		public string DisplayName { get; }
-		
-		[JsonIgnore]
-		public Type ActualType { get; }
+
+		[JsonIgnore] public Type ActualType { get; }
 		public bool Optional { get; }
 		public string DefaultValue { get; }
 		public string[] Values { get; }
@@ -47,7 +48,7 @@ namespace Tekly.Tinker.Routing
 				EditType = "number";
 			} else if (param.ParameterType == typeof(string)) {
 				if (param.GetAttribute<LargeTextAttribute>() != null) {
-					EditType = "textarea";	
+					EditType = "textarea";
 				} else {
 					EditType = "text";
 				}
@@ -66,7 +67,7 @@ namespace Tekly.Tinker.Routing
 		public string Path => m_path;
 		public string Verb => m_verb;
 		public string Id { get; }
-		
+
 		public bool IsCommand => m_commandAttribute != null;
 		public string CommandName => m_commandAttribute?.Name;
 
@@ -80,7 +81,7 @@ namespace Tekly.Tinker.Routing
 		private readonly DescriptionAttribute m_descriptionAttribute;
 		private readonly PageAttribute m_pageAttribute;
 		private readonly CommandAttribute m_commandAttribute;
-		
+
 		public RouteFunction(MethodInfo method, string root, TinkerServer tinkerServer)
 		{
 			m_method = method;
@@ -89,7 +90,7 @@ namespace Tekly.Tinker.Routing
 			m_descriptionAttribute = m_method.GetAttribute<DescriptionAttribute>();
 			m_pageAttribute = m_method.GetAttribute<PageAttribute>();
 			m_commandAttribute = m_method.GetAttribute<CommandAttribute>();
-			
+
 			var route = method.GetAttribute<RouteAttribute>();
 
 			m_path = root + route.Route;
@@ -101,37 +102,71 @@ namespace Tekly.Tinker.Routing
 				.Select(x => new FunctionParameter(x))
 				.ToArray();
 		}
+		
+		public bool Matches(HttpListenerRequest request)
+		{
+			return request.HttpMethod == m_verb && request.Url.LocalPath == m_path;
+		}
 
 		public void Invoke(object instance, HttpListenerRequest request, HttpListenerResponse response)
+		{
+			response.Headers.Add("Access-Control-Allow-Origin", "*");
+			HandleInvokeAsync(instance, request, response);
+		}
+
+		private async void HandleInvokeAsync(object instance, HttpListenerRequest request, HttpListenerResponse response)
 		{
 			var invokeParams = GetInvokeParams(request, response);
 			var result = m_method.Invoke(instance, invokeParams);
 
-			response.Headers.Add("Access-Control-Allow-Origin", "*");
+			try {
+				result = await HandleTask(result);
+			
+				if (m_pageAttribute != null) {
+					var content = m_tinkerServer.RenderPage(m_path, m_pageAttribute.TemplateName, m_pageAttribute.DataKey, result);
+					response.WriteHtml(content);
+				} else if (m_method.ReturnType == typeof(string)) {
+					response.WriteText(result.ToString());
+				} else if (m_method.ReturnType == typeof(HtmlContent)) {
+					response.WriteHtml(result.ToString());
+				} else if (m_method.ReturnType == typeof(void)) {
+					// Do nothing
+				} else {
+					using var sw = new StreamWriter(response.OutputStream);
+					using var writer = new JsonTextWriter(sw);
+					writer.Formatting = Formatting.Indented;
 
-			if (m_pageAttribute != null) {
-				var content = m_tinkerServer.RenderPage(m_path, m_pageAttribute.TemplateName, m_pageAttribute.DataKey, result);
-				response.WriteHtml(content);
-			} else if (m_method.ReturnType == typeof(string)) {
-				response.WriteText(result.ToString());
-			} else if (m_method.ReturnType == typeof(HtmlContent)) {
-				response.WriteHtml(result.ToString());
-			} else if (m_method.ReturnType == typeof(void)) {
-				// Do nothing
-			} else {
-				using var sw = new StreamWriter(response.OutputStream);
-				using var writer = new JsonTextWriter(sw);
-				writer.Formatting = Formatting.Indented;
-				
-				response.ContentEncoding = Encoding.UTF8;
-				response.ContentType = "application/json";
-				m_tinkerServer.Serializer.Serialize(writer, result);
+					response.ContentEncoding = Encoding.UTF8;
+					response.ContentType = "application/json";
+					m_tinkerServer.Serializer.Serialize(writer, result);
+				}
+			} catch (Exception e) {
+				response.StatusCode = (int)HttpStatusCode.InternalServerError;
+				response.WriteText(e.ToString());
 			}
 		}
 
-		public bool Matches(HttpListenerRequest request)
+		private async Task<object> HandleTask(object invokeResult)
 		{
-			return request.HttpMethod == m_verb && request.Url.LocalPath == m_path;
+			if (invokeResult == null) {
+				return null;
+			}
+			
+			var taskType = invokeResult.GetType();
+
+			if (invokeResult is Task task) {
+				await task;
+				
+				var resultProperty = taskType.GetProperty("Result");
+				if (resultProperty != null) {
+					var taskValue = resultProperty.GetValue(task);
+					return taskValue;
+				}
+				
+				return null;
+			}
+
+			return invokeResult;
 		}
 
 		private object[] GetInvokeParams(HttpListenerRequest request, HttpListenerResponse response)
@@ -154,6 +189,11 @@ namespace Tekly.Tinker.Routing
 
 				if (parameter.ActualType == typeof(TinkerServer)) {
 					invokeParams[index] = m_tinkerServer;
+					continue;
+				}
+				
+				if (parameter.ActualType == typeof(CancellationToken)) {
+					invokeParams[index] = m_tinkerServer.CancellationToken;
 					continue;
 				}
 

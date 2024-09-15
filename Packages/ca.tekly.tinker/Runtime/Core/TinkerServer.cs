@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using DotLiquid;
 using DotLiquid.NamingConventions;
 using Newtonsoft.Json;
@@ -30,6 +31,7 @@ namespace Tekly.Tinker.Core
 		public string LocalIP => m_httpServer?.GetLocalIP();
 
 		public Channels Channels => m_channels;
+		public CancellationToken CancellationToken => m_cancellationTokenSource.Token;
 		
 		private readonly List<ITinkerRoutes> m_routes = new List<ITinkerRoutes>();
 		
@@ -39,8 +41,10 @@ namespace Tekly.Tinker.Core
 		private HttpServer m_httpServer;
 		private WebSocketServer m_webSocketServer;
 		private Channels m_channels;
+		private CancellationTokenSource m_cancellationTokenSource = new CancellationTokenSource();
 
 		private static TinkerServer s_instance;
+		
 		public static TinkerServer Instance {
 			get {
 				if (s_instance == null) {
@@ -162,6 +166,8 @@ namespace Tekly.Tinker.Core
 
 		private void OnApplicationQuit()
 		{
+			m_cancellationTokenSource.Cancel();
+			
 			s_instance = null;
 			m_httpServer?.Stop();
 			m_webSocketServer?.Stop();

@@ -1,4 +1,6 @@
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using DotLiquid;
 using Tekly.Injectors;
 using Tekly.Logging;
@@ -64,15 +66,6 @@ namespace TeklySample.App
 			}
 
 			return dataList;
-		}
-
-		[Page("/logs/all", "logs")]
-		public LogMessage LogMessage()
-		{
-			return new LogMessage {
-				Message = "Test Log",
-				Type = LogType.Log
-			};
 		}
 		
 		[Get("/logs/stats"), Command("logs")]

@@ -144,13 +144,13 @@ namespace Tekly.Logging.LogDestinations
 
             m_disposing = true;
             
-            m_newLogEvent.Set();
+            m_newLogEvent?.Set();
             m_thread.Join();
 
             m_streamWriter.Dispose();
             m_streamWriter = null;
 
-            m_newLogEvent.Close();
+            m_newLogEvent?.Close();
             m_newLogEvent = null;
 
             m_disposed = true;

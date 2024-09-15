@@ -67,8 +67,8 @@ namespace Tekly.Tinker.Http
 					var context = await m_listener.GetContextAsync();
 					await new EndOfFrameAwaiter();
 					ProcessRequest(context);
-					context.Response.Close();
-				} catch (ObjectDisposedException) { } catch (Exception ex) {
+				} catch (ObjectDisposedException) {
+				} catch (Exception ex) {
 					Debug.LogException(ex);
 				}
 			}
