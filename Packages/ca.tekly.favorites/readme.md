@@ -9,7 +9,7 @@
 - You can drag items in the Favorites window to reorder them
 
 ## Shortcuts
-- You can use the number keys to active a favorite in the actively selected collection
+- You can use the number keys to activate a favorite in the actively selected collection
 - Hold shift to bring up the collections and use the number keys to swap between them
 
 ## Collections

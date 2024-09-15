@@ -2,7 +2,8 @@
     "name": "Tekly.TwoD.Runtime",
     "rootNamespace": "Tekly.TwoD",
     "references": [
-        "GUID:b9160372c6c55a741932d482673e3abb"
+        "GUID:b9160372c6c55a741932d482673e3abb",
+        "GUID:887f3a95b2de83a4c85de4a815e3e391"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

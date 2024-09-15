@@ -8,5 +8,8 @@
     "email": "matt@tekly.ca"
   },
   "hideInEditor": false,
-  "type": "library"
+  "type": "library",
+  "dependencies": {
+    "ca.tekly.editorutils": "0.0.1"
+  }
 }

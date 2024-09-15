@@ -1,7 +1,7 @@
 {
     "name": "Tekly.EditorUtils.Editor",
     "rootNamespace": "Tekly.EditorUtils",
-    "references": [],
+    "references": ["GUID:887f3a95b2de83a4c85de4a815e3e391"],
     "includePlatforms": [
         "Editor"
     ],

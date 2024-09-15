@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-namespace Tekly.Common.Utils
+namespace Tekly.EditorUtils.Attributes
 {
     [CustomPropertyDrawer(typeof(PolymorphicAttribute))]
     public class PolymorphicPropertyDrawer : PropertyDrawer

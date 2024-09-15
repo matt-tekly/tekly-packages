@@ -1,4 +1,4 @@
-using Tekly.Common.Utils;
+using Tekly.EditorUtils.Attributes;
 using UnityEngine;
 
 namespace Tekly.Common.Registrys

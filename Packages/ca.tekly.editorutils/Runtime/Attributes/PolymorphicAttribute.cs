@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Tekly.Common.Utils
+namespace Tekly.EditorUtils.Attributes
 {
     public class PolymorphicAttribute : PropertyAttribute
     {

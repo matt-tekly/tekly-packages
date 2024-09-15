@@ -66,14 +66,17 @@
         "ca.tekly.logger": "0.0.7",
         "ca.tekly.common": "0.0.7",
         "com.unity.addressables": "1.19.18",
-        "ca.tekly.datamodels": "1.0.0"
+        "ca.tekly.datamodels": "1.0.0",
+        "ca.tekly.editorutils": "0.0.1"
       }
     },
     "ca.tekly.favorites": {
       "version": "file:ca.tekly.favorites",
       "depth": 0,
       "source": "embedded",
-      "dependencies": {}
+      "dependencies": {
+        "ca.tekly.editorutils": "0.0.1"
+      }
     },
     "ca.tekly.imageutils": {
       "version": "file:ca.tekly.imageutils",
