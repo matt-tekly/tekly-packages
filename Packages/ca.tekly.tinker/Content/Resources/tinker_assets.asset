@@ -14,37 +14,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_directory: {fileID: 102900000, guid: ab46caec12b99496680f810b535ea24c, type: 3}
   Assets:
-  - Asset: {fileID: 9027929339269108002, guid: 9e8fec31414d46de8bd6f85f613a1d1e, type: 3}
+  - Asset: {fileID: 9027929339269108002, guid: 1747e6f6385355448882ef57f22a662c, type: 3}
     Name: channels
-    Url: /Tinker/Channeling/channels.js
+    Url: /Tinker/Channeling/channels.jst
     IsTemplate: 0
-  - Asset: {fileID: 9027929339269108002, guid: 8a35a224ffbc4ec88cb6853424e2b2de, type: 3}
+  - Asset: {fileID: 9027929339269108002, guid: df05aec63a9cf4e449fb5a726263091b, type: 3}
     Name: components
-    Url: /Tinker/components.js
+    Url: /Tinker/components.jst
     IsTemplate: 0
-  - Asset: {fileID: 9027929339269108002, guid: c1d7bdeba9f441ce83581beda33cc50f, type: 3}
+  - Asset: {fileID: 9027929339269108002, guid: 8587807172fec2944a58ff82f277efe0, type: 3}
     Name: commands
-    Url: /Tinker/Terminal/commands.js
+    Url: /Tinker/Terminal/commands.jst
     IsTemplate: 0
   - Asset: {fileID: 9027929339269108002, guid: e049be96c2f145f9921a292269f7896d, type: 3}
     Name: terminal
     Url: /Tinker/Terminal/terminal.css
     IsTemplate: 0
-  - Asset: {fileID: 9027929339269108002, guid: 1878ac49d0dd425993b2acda75005f13, type: 3}
+  - Asset: {fileID: 9027929339269108002, guid: 20f86eaf138b6714986a878d35d0897d, type: 3}
     Name: terminal
-    Url: /Tinker/Terminal/terminal.js
+    Url: /Tinker/Terminal/terminal.jst
     IsTemplate: 0
   - Asset: {fileID: 9027929339269108002, guid: 339789698f56493796be2ebe89dc4b18, type: 3}
     Name: terminal
     Url: /Tinker/Terminal/terminal.liquid
     IsTemplate: 1
-  - Asset: {fileID: 9027929339269108002, guid: d20e0bdeb6a34fea821ba349be218a40, type: 3}
+  - Asset: {fileID: 9027929339269108002, guid: 731209f793bd2214997d43ee01f70f04, type: 3}
     Name: terminalinput
-    Url: /Tinker/Terminal/terminalinput.js
+    Url: /Tinker/Terminal/terminalinput.jst
     IsTemplate: 0
-  - Asset: {fileID: 9027929339269108002, guid: 4e39757bcae64a14a38175df6ba296db, type: 3}
+  - Asset: {fileID: 9027929339269108002, guid: 130fe3862dcdaad4793178ebbd2333fb, type: 3}
     Name: terminalsuggestion
-    Url: /Tinker/Terminal/terminalsuggestion.js
+    Url: /Tinker/Terminal/terminalsuggestion.jst
     IsTemplate: 0
   - Asset: {fileID: 9027929339269108002, guid: 991b823a64d04bfa9303fb6331e8e840, type: 3}
     Name: tinker_card_header
@@ -66,9 +66,9 @@ MonoBehaviour:
     Name: tinker_routes
     Url: /Tinker/tinker_routes.liquid
     IsTemplate: 1
-  - Asset: {fileID: 9027929339269108002, guid: 502157d1777d47dfb059a7c4844b2938, type: 3}
+  - Asset: {fileID: 9027929339269108002, guid: a9a5e1e45c68a864cbf916c805340237, type: 3}
     Name: tinker_server
-    Url: /Tinker/tinker_server.js
+    Url: /Tinker/tinker_server.jst
     IsTemplate: 0
   - Asset: {fileID: 9027929339269108002, guid: a03f9c9d230f4549b0e279b29227420e, type: 3}
     Name: tinker_sidebar

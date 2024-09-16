@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Tekly.Tinker.Assets
 {
-	[ScriptedImporter(1, new[] {"css", "js", "liquid"})]
+	[ScriptedImporter(1, new[] { "css", "jst", "liquid" }, new[] { "js" })]
 	public class WebAssetsImporter : ScriptedImporter
 	{
 		public override void OnImportAsset(AssetImportContext ctx)

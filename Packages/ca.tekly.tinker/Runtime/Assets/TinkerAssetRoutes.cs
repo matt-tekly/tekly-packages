@@ -100,7 +100,7 @@ namespace Tekly.Tinker.Assets
 					return true;
 				}
 
-				if (tinkerAsset.Url.EndsWith("js")) {
+				if (tinkerAsset.Url.EndsWith("js") || tinkerAsset.Url.EndsWith("jst")) {
 					var template = Template.Parse(textAsset.text);
 					response.WriteJavascript(template.Render());
 					return true;
