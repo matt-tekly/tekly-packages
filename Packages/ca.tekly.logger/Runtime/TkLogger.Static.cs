@@ -129,7 +129,7 @@ namespace Tekly.Logging
             s_frame = Time.frameCount;
             s_realtimeSinceStartup = Time.realtimeSinceStartup;
 
-            foreach (var destination in Destinations) {
+            foreach (var destination in s_logDestinations.Values) {
                 destination.Update();
             }
         }

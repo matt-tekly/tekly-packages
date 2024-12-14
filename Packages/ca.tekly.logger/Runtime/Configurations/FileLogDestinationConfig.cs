@@ -9,6 +9,7 @@ namespace Tekly.Logging.Configurations
 		Flat,
 		JsonNewlineDelimited
 	}
+	
 	[CreateAssetMenu(menuName = "Tekly/Logger/File Destination", fileName = "FileLogDestinationConfig", order = 0)]
 	public class FileLogDestinationConfig : LogDestinationConfig
 	{
