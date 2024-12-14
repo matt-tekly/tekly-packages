@@ -120,7 +120,7 @@ namespace Tekly.TwoD.Cells
 				return;
 			}
 
-			if (m_timer == null) {
+			if (ReferenceEquals(m_timer, null)) {
 				m_time += UnityEngine.Time.deltaTime * m_speed;
 			} else {
 				m_time += m_timer.DeltaTime * m_speed;	

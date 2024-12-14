@@ -28,7 +28,7 @@ namespace Tekly.Logging
         // *** BEGIN codegen ***
 
 #if TKLOG_DISABLE_DEBUG
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void Debug(string message)
         {
@@ -36,7 +36,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_DEBUG
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void Debug<T>(string message, (string, T) logParam1)
         {
@@ -44,7 +44,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_DEBUG
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void Debug<T, U>(string message, (string, T) logParam1, (string, U) logParam2)
         {
@@ -52,7 +52,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_DEBUG
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void Debug<T, U, V>(string message, (string, T) logParam1, (string, U) logParam2, (string, V) logParam3)
         {
@@ -60,7 +60,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_DEBUG
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void Debug(string message, params (string, object)[] logParams)
         {
@@ -68,7 +68,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_DEBUG
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void DebugContext(string message, Object context)
         {
@@ -76,7 +76,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_DEBUG
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void DebugContext<T>(string message, Object context, (string, T) logParam1)
         {
@@ -84,7 +84,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_DEBUG
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void DebugContext<T, U>(string message, Object context, (string, T) logParam1, (string, U) logParam2)
         {
@@ -92,7 +92,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_DEBUG
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void DebugContext<T, U, V>(string message, Object context, (string, T) logParam1, (string, U) logParam2, (string, V) logParam3)
         {
@@ -100,14 +100,14 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_DEBUG
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void DebugContext(string message, Object context, params (string, object)[] logParams)
         {
             LogMessage(TkLogLevel.Debug, message, context, logParams);
         }
 #if TKLOG_DISABLE_INFO
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void Info(string message)
         {
@@ -115,7 +115,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_INFO
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void Info<T>(string message, (string, T) logParam1)
         {
@@ -123,7 +123,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_INFO
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void Info<T, U>(string message, (string, T) logParam1, (string, U) logParam2)
         {
@@ -131,7 +131,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_INFO
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void Info<T, U, V>(string message, (string, T) logParam1, (string, U) logParam2, (string, V) logParam3)
         {
@@ -139,7 +139,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_INFO
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void Info(string message, params (string, object)[] logParams)
         {
@@ -147,7 +147,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_INFO
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void InfoContext(string message, Object context)
         {
@@ -155,7 +155,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_INFO
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void InfoContext<T>(string message, Object context, (string, T) logParam1)
         {
@@ -163,7 +163,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_INFO
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void InfoContext<T, U>(string message, Object context, (string, T) logParam1, (string, U) logParam2)
         {
@@ -171,7 +171,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_INFO
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void InfoContext<T, U, V>(string message, Object context, (string, T) logParam1, (string, U) logParam2, (string, V) logParam3)
         {
@@ -179,14 +179,14 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_INFO
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void InfoContext(string message, Object context, params (string, object)[] logParams)
         {
             LogMessage(TkLogLevel.Info, message, context, logParams);
         }
 #if TKLOG_DISABLE_WARNING
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void Warning(string message)
         {
@@ -194,7 +194,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_WARNING
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void Warning<T>(string message, (string, T) logParam1)
         {
@@ -202,7 +202,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_WARNING
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void Warning<T, U>(string message, (string, T) logParam1, (string, U) logParam2)
         {
@@ -210,7 +210,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_WARNING
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void Warning<T, U, V>(string message, (string, T) logParam1, (string, U) logParam2, (string, V) logParam3)
         {
@@ -218,7 +218,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_WARNING
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void Warning(string message, params (string, object)[] logParams)
         {
@@ -226,7 +226,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_WARNING
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void WarningContext(string message, Object context)
         {
@@ -234,7 +234,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_WARNING
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void WarningContext<T>(string message, Object context, (string, T) logParam1)
         {
@@ -242,7 +242,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_WARNING
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void WarningContext<T, U>(string message, Object context, (string, T) logParam1, (string, U) logParam2)
         {
@@ -250,7 +250,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_WARNING
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void WarningContext<T, U, V>(string message, Object context, (string, T) logParam1, (string, U) logParam2, (string, V) logParam3)
         {
@@ -258,14 +258,14 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_WARNING
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void WarningContext(string message, Object context, params (string, object)[] logParams)
         {
             LogMessage(TkLogLevel.Warning, message, context, logParams);
         }
 #if TKLOG_DISABLE_ERROR
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void Error(string message)
         {
@@ -273,7 +273,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_ERROR
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void Error<T>(string message, (string, T) logParam1)
         {
@@ -281,7 +281,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_ERROR
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void Error<T, U>(string message, (string, T) logParam1, (string, U) logParam2)
         {
@@ -289,7 +289,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_ERROR
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void Error<T, U, V>(string message, (string, T) logParam1, (string, U) logParam2, (string, V) logParam3)
         {
@@ -297,7 +297,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_ERROR
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void Error(string message, params (string, object)[] logParams)
         {
@@ -305,7 +305,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_ERROR
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void ErrorContext(string message, Object context)
         {
@@ -313,7 +313,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_ERROR
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void ErrorContext<T>(string message, Object context, (string, T) logParam1)
         {
@@ -321,7 +321,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_ERROR
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void ErrorContext<T, U>(string message, Object context, (string, T) logParam1, (string, U) logParam2)
         {
@@ -329,7 +329,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_ERROR
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void ErrorContext<T, U, V>(string message, Object context, (string, T) logParam1, (string, U) logParam2, (string, V) logParam3)
         {
@@ -337,7 +337,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_ERROR
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void ErrorContext(string message, Object context, params (string, object)[] logParams)
         {
@@ -348,7 +348,7 @@ namespace Tekly.Logging
 
 
 #if TKLOG_DISABLE_EXCEPTION
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void Exception(Exception exception, string message, params (string, object)[] logParams)
         {
@@ -369,7 +369,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_EXCEPTION
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void ExceptionContext(Exception exception, string message, Object context)
         {
@@ -382,7 +382,7 @@ namespace Tekly.Logging
         }
 
 #if TKLOG_DISABLE_EXCEPTION
-        [Conditional("TK_UNDEFINED")]
+        [System.Diagnostics.Conditional("TK_UNDEFINED")]
 #endif
         public void ExceptionContext(Exception exception, string message, Object context, params (string, object)[] logParams)
         {
