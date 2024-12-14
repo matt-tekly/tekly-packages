@@ -19,18 +19,18 @@ namespace Tekly.EditorUtils.Assets
 		public static T[] FindAndLoad<T>(string search, string[] searchInFolders = null) where T : Object
 		{
 			return AssetDatabase.FindAssets(search, searchInFolders)
-				.Select(AssetDatabase.GUIDToAssetPath)
-				.Select(AssetDatabase.LoadAssetAtPath<T>)
-				.Where(x => x != null)
+				.SelectMany(guid => AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GUIDToAssetPath(guid)))
+				.OfType<T>()
+				.Distinct()
 				.ToArray();
 		}
 
 		public static Object[] FindAndLoad(Type type, string search, string[] searchInFolders = null)
 		{
 			return AssetDatabase.FindAssets(search, searchInFolders)
-				.Select(AssetDatabase.GUIDToAssetPath)
-				.Select(x => AssetDatabase.LoadAssetAtPath(x, type))
-				.Where(x => x != null)
+				.SelectMany(guid => AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GUIDToAssetPath(guid)))
+				.Where(x => x != null && type.IsInstanceOfType(x))
+				.Distinct()
 				.ToArray();
 		}
 
