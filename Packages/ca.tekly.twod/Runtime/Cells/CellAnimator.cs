@@ -49,6 +49,8 @@ namespace Tekly.TwoD.Cells
 			set => m_time = value;
 		}
 
+		public int Frame => m_frame;
+
 		public abstract bool Visible { get; set; }
 		public abstract Color Color { get; set; }
 		protected abstract Sprite RenderedSprite { get; set; }
