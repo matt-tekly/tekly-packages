@@ -7,7 +7,7 @@ namespace Tekly.Lofi.Core
 	{
 		private readonly LofiEmitter m_emitter;
 
-		private int m_activeRunner;
+		private int m_activeRunner = Constants.INVALID_ID;
 
 		public LofiTrack(LofiEmitter emitter)
 		{
@@ -37,6 +37,28 @@ namespace Tekly.Lofi.Core
 
 			m_activeRunner = m_emitter.Play(clip);
 			m_emitter.FadeIn(m_activeRunner, duration);
+		}
+
+		public void FadeOut(float duration)
+		{
+			if (m_activeRunner != Constants.INVALID_ID) {
+				m_emitter.FadeOut(m_activeRunner, duration);
+				m_activeRunner = Constants.INVALID_ID;
+			}
+		}
+
+		public void FadeToDuration(float volume, float duration)
+		{
+			if (m_activeRunner != Constants.INVALID_ID) {
+				m_emitter.FadeToDuration(m_activeRunner, volume, duration);
+			}
+		}
+		
+		public void FadeToSpeed(float volume, float speed)
+		{
+			if (m_activeRunner != Constants.INVALID_ID) {
+				m_emitter.FadeToSpeed(m_activeRunner, volume, speed);
+			}
 		}
 	}
 }

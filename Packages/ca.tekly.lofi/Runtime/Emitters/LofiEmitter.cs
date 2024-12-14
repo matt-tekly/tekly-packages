@@ -115,6 +115,18 @@ namespace Tekly.Lofi.Emitters
 			var runner = GetRunner(runnerId);
 			runner?.FadeOut(duration);
 		}
+		
+		public void FadeToDuration(int runnerId, float volume, float duration)
+		{
+			var runner = GetRunner(runnerId);
+			runner?.FadeToDuration(volume, duration);
+		}
+		
+		public void FadeToSpeed(int runnerId, float volume, float speed)
+		{
+			var runner = GetRunner(runnerId);
+			runner?.FadeToSpeed(volume, speed);
+		}
 
 		private void Update()
 		{
@@ -131,7 +143,13 @@ namespace Tekly.Lofi.Emitters
 
 		private LofiClipRunner GetRunner(int id)
 		{
-			return m_runners.FirstOrDefault(x => x.Id == id);
+			var runner = m_runners.FirstOrDefault(x => x.Id == id);
+
+			if (runner == null) {
+				Debug.LogWarning($"Failed to find runner with id: [{id}]");
+			}
+
+			return runner;
 		}
 
 		private static void CopyProperties(AudioSource source, AudioSource destination)

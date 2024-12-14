@@ -107,25 +107,25 @@ namespace Tekly.Lofi.Core
 			}
 		}
 
-		public void PlayOnTrack(string id, string trackId)
+		public void PlayOnTrack(string clipId, string trackId)
 		{
 			var track = GetTrack(trackId);
 
-			if (TryGetClip(id, out var clip)) {
+			if (TryGetClip(clipId, out var clip)) {
 				track.Play(clip);
 			} else {
-				m_logger.Error("PlayOnTrack Failed to find LofiClip [{id}]", ("id", id));
+				m_logger.Error("PlayOnTrack Failed to find LofiClip [{id}]", ("id", clipId));
 			}
 		}
 
-		public void CrossFadeOnTrack(string id, string trackId, float duration)
+		public void CrossFadeOnTrack(string clipId, string trackId, float duration)
 		{
 			var track = GetTrack(trackId);
 
-			if (TryGetClip(id, out var clip)) {
+			if (TryGetClip(clipId, out var clip)) {
 				track.CrossFade(clip, duration);
 			} else {
-				m_logger.Error("CrossFadeOnTrack Failed to find LofiClip [{id}]", ("id", id));
+				m_logger.Error("CrossFadeOnTrack Failed to find LofiClip [{id}]", ("id", clipId));
 			}
 		}
 
@@ -178,7 +178,7 @@ namespace Tekly.Lofi.Core
 			}
 		}
 
-		private LofiTrack GetTrack(string trackId)
+		public LofiTrack GetTrack(string trackId)
 		{
 			if (m_trackEmitter == null) {
 				m_trackEmitter = CreateEmitter("[Lofi] Track Emitter");

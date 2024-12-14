@@ -20,7 +20,8 @@ namespace Tekly.Lofi.Core
 		Normal,
 		Disposed,
 		FadeIn,
-		FadeOut
+		FadeOut,
+		FadeTo,
 	}
 	
 	/// A running instance of a LofiClip
@@ -103,7 +104,24 @@ namespace Tekly.Lofi.Core
 			m_fadeVolumeStart = m_audioSource.Volume;
 			m_fadeVolumeEnd = 0;
 
-			m_state = RunnerState.FadeOut;
+			m_state = RunnerState.FadeTo;
+		}
+		
+		public void FadeToDuration(float volume, float duration)
+		{
+			m_fadeTime = 0;
+			m_fadeDuration = duration;
+			
+			m_fadeVolumeStart = m_audioSource.Volume;
+			m_fadeVolumeEnd = volume;
+
+			m_state = RunnerState.FadeTo;
+		}
+		
+		public void FadeToSpeed(float volume, float speed)
+		{
+			var length = m_audioSource.Volume - volume;
+			FadeToDuration(volume, Math.Abs(length) / speed);
 		}
 
 		public void Update()
@@ -128,6 +146,14 @@ namespace Tekly.Lofi.Core
 					if (m_fadeTime >= m_fadeDuration) {
 						m_state = RunnerState.Normal;
 						Stop();
+					}
+					break;
+				case RunnerState.FadeTo:
+					m_fadeTime += Time.deltaTime;
+					m_audioSource.Volume = Mathf.Lerp(m_fadeVolumeStart, m_fadeVolumeEnd, m_fadeTime / m_fadeDuration);
+
+					if (m_fadeTime >= m_fadeDuration) {
+						m_state = RunnerState.Normal;
 					}
 					break;
 				default:
