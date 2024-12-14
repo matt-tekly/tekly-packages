@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace Tekly.Common.Utils.PropertyBags
 {
+    /// <summary>
+    /// A serializable collection of properties
+    /// </summary>
     [Serializable]
     public class PropertyBag : ISerializationCallbackReceiver
     {
@@ -13,6 +16,9 @@ namespace Tekly.Common.Utils.PropertyBags
         [SerializeField] private List<BoolProperty> m_bools = new List<BoolProperty>();
         [SerializeField] private List<DateProperty> m_dates = new List<DateProperty>();
 
+        /// <summary>
+        /// Subscribe to this to know when any property is modified
+        /// </summary>
         public ITriggerable<Property> Modified {
             get {
                 if (m_modified == null) {

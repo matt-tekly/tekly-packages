@@ -5,11 +5,28 @@ using UnityEngine;
 
 namespace Tekly.Lofi.Emitters
 {
+	/// <summary>
+	/// An Emitter represents an object that will play audio using LofiClips
+	/// </summary>
 	public class LofiEmitter : MonoBehaviour
 	{
 		public float Volume { get; set; } = 1f;
 		public float Pitch { get; set; } = 1f;
 
+		public bool IsPlaying {
+			get {
+				for (var index = 0; index < m_runners.Count; index++) {
+					var runner = m_runners[index];
+					if (!runner.IsComplete) {
+						return true;
+					}
+				}
+
+				return false;
+			}
+		}
+
+		[SerializeField] private AudioSource m_audioSourceTemplate;
 		private List<LofiClipRunner> m_runners = new List<LofiClipRunner>();
 		private AudioSourcePool m_audioSourcePool;
 		
@@ -26,6 +43,17 @@ namespace Tekly.Lofi.Emitters
 			Init();
 			m_audioSourcePool.Free(audioSource);
 		}
+
+		internal AudioSource CreateAudioSource()
+		{
+			var instance = gameObject.AddComponent<AudioSource>();
+
+			if (m_audioSourceTemplate != null) {
+				CopyProperties(m_audioSourceTemplate, instance);
+			}
+			
+			return instance;
+		}
 		
 		private void Init()
 		{
@@ -35,6 +63,15 @@ namespace Tekly.Lofi.Emitters
 			
 			m_audioSourcePool = new AudioSourcePool(this);
 			m_initialized = true;
+		}
+		
+		public int Play(string id)
+		{
+			if (Lofi.Core.Lofi.Instance.TryGetClip(id, out var clip)) {
+				return Play(clip);
+			}
+			
+			return Constants.INVALID_ID;
 		}
 		
 		public int Play(LofiClip clip)
@@ -96,34 +133,61 @@ namespace Tekly.Lofi.Emitters
 		{
 			return m_runners.FirstOrDefault(x => x.Id == id);
 		}
-	}
 
-	public class AudioSourcePool
-	{
-		private readonly LofiEmitter m_emitter;
-		
-		private readonly List<LofiAudioSource> m_all = new List<LofiAudioSource>();
-		private readonly Stack<LofiAudioSource> m_free = new Stack<LofiAudioSource>();
-		
-		public AudioSourcePool(LofiEmitter emitter)
+		private static void CopyProperties(AudioSource source, AudioSource destination)
 		{
-			m_emitter = emitter;
-		}
-
-		public LofiAudioSource Claim()
-		{
-			if (!m_free.TryPop(out var audioSource)) {
-				audioSource = new LofiAudioSource(m_emitter);
-				m_all.Add(audioSource);
-			}	
+			destination.bypassEffects = source.bypassEffects;
+			destination.bypassListenerEffects = source.bypassListenerEffects;
+			destination.bypassReverbZones = source.bypassReverbZones;
+			destination.priority = source.priority;
 			
-			return audioSource;
+			destination.panStereo = source.panStereo;
+			destination.spatialBlend = source.spatialBlend;
+			
+			destination.reverbZoneMix = source.reverbZoneMix;
+			destination.dopplerLevel = source.dopplerLevel;
+			
+			destination.rolloffMode = source.rolloffMode;
+			destination.minDistance = source.minDistance;
+			destination.maxDistance = source.maxDistance;
+			destination.spatialize = source.spatialize;
+			destination.spatializePostEffects = source.spatializePostEffects;
+			
+			destination.spread = source.spread;
+			
+			destination.SetCustomCurve(AudioSourceCurveType.CustomRolloff, source.GetCustomCurve(AudioSourceCurveType.CustomRolloff));
+			destination.SetCustomCurve(AudioSourceCurveType.SpatialBlend, source.GetCustomCurve(AudioSourceCurveType.SpatialBlend));
+			destination.SetCustomCurve(AudioSourceCurveType.ReverbZoneMix, source.GetCustomCurve(AudioSourceCurveType.ReverbZoneMix));
+			destination.SetCustomCurve(AudioSourceCurveType.Spread, source.GetCustomCurve(AudioSourceCurveType.Spread));
 		}
 
-		public void Free(LofiAudioSource audioSource)
+		private class AudioSourcePool
 		{
-			m_free.Push(audioSource);
-			audioSource.Free();
+			private readonly LofiEmitter m_emitter;
+		
+			private readonly List<LofiAudioSource> m_all = new List<LofiAudioSource>();
+			private readonly Stack<LofiAudioSource> m_free = new Stack<LofiAudioSource>();
+		
+			public AudioSourcePool(LofiEmitter emitter)
+			{
+				m_emitter = emitter;
+			}
+
+			public LofiAudioSource Claim()
+			{
+				if (!m_free.TryPop(out var audioSource)) {
+					audioSource = new LofiAudioSource(m_emitter);
+					m_all.Add(audioSource);
+				}	
+			
+				return audioSource;
+			}
+
+			public void Free(LofiAudioSource audioSource)
+			{
+				m_free.Push(audioSource);
+				audioSource.Free();
+			}
 		}
 	}
 }

@@ -9,7 +9,6 @@ namespace Tekly.Lofi.Core
 		public LofiClip SourceClip;
 		public AudioClip Clip;
 		public LofiMixerGroup MixerGroup;
-		public Vector3 Position;
 		
 		public float Volume;
 		public float Pitch;
@@ -24,7 +23,7 @@ namespace Tekly.Lofi.Core
 		FadeOut
 	}
 	
-	// A running instance of a LofiClip
+	/// A running instance of a LofiClip
 	public class LofiClipRunner
 	{
 		public readonly int Id;
@@ -63,7 +62,6 @@ namespace Tekly.Lofi.Core
 			m_audioSource.Clip = data.Clip;
 			m_audioSource.MixerGroup = data.MixerGroup;
 			m_audioSource.Loop = data.Loop;
-			m_audioSource.Position = data.Position;
 
 			m_initialVolume = data.Volume;
 

@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using Tekly.Common.Collections;
 using Tekly.Lofi.Emitters;
 using UnityEngine;
-using UnityEngine.Audio;
 
 namespace Tekly.Lofi.Core
 {
@@ -43,20 +42,14 @@ namespace Tekly.Lofi.Core
 
 			return runner;
 		}
-
-		public LofiClipRunnerData CreateRunnerData(float pitch)
-		{
-			return CreateRunnerData(pitch, Vector3.zero);
-		}
 		
-		public LofiClipRunnerData CreateRunnerData(float pitch, Vector3 position)
+		public LofiClipRunnerData CreateRunnerData(float pitch)
 		{
 			return new LofiClipRunnerData {
 				SourceClip = this,
 				Clip = RandomClip,
 				Volume = m_definition.Volume.Get(),
 				Pitch = pitch,
-				Position = position,
 				MixerGroup = MixerGroup,
 				Loop = m_definition.Loop
 			};
@@ -69,7 +62,6 @@ namespace Tekly.Lofi.Core
 				Clip = RandomClip,
 				Volume = m_definition.Volume.Get(),
 				Pitch = m_definition.Pitch.Get(),
-				Position = Vector3.zero,
 				MixerGroup = MixerGroup,
 				Loop = m_definition.Loop
 			});

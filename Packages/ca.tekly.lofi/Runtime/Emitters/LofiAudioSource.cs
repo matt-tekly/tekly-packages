@@ -65,7 +65,7 @@ namespace Tekly.Lofi.Emitters
 		public LofiAudioSource(LofiEmitter emitter)
 		{
 			m_emitter = emitter;
-			m_audioSource = emitter.gameObject.AddComponent<AudioSource>();
+			m_audioSource = emitter.CreateAudioSource();
 			m_transform = m_audioSource.transform;
 		}
 

@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using Tekly.Common.LocalFiles;
 using Tekly.Common.Utils;
@@ -26,12 +25,7 @@ namespace TeklySample.App
 		{
 			if (File.Exists(s_filePath)) {
 				var json = File.ReadAllText(s_filePath);
-				
-				try {
-					Instance = JsonUtility.FromJson<PropertyBag>(json);
-				} catch (Exception e) {
-					Debug.LogException(e);
-				}
+				Instance = JsonUtility.FromJson<PropertyBag>(json);
 			}
 
 			if (Instance == null) {

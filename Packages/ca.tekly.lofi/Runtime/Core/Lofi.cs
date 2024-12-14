@@ -16,9 +16,8 @@ namespace Tekly.Lofi.Core
 	{
 		public string SfxId;
 		public float Pitch;
-		public Vector3 Position;
 	}
-	
+
 	public class Lofi : Singleton<Lofi>
 	{
 		public bool IsLoading => !m_coreAssetsHandle.IsDone || m_banks.Any(x => x.IsLoading);
@@ -29,18 +28,18 @@ namespace Tekly.Lofi.Core
 		private readonly Dictionary<string, LofiTrack> m_tracks = new Dictionary<string, LofiTrack>();
 
 		private LofiCoreAssets m_coreAssets;
-		
+
 		private LofiEmitter m_trackEmitter;
 		private LofiEmitter m_oneShot;
-		
+
 		private bool m_initialized;
 		private IContentOperation<LofiCoreAssets> m_coreAssetsHandle;
 
 		private PropertyBag m_propertyBag;
 		private IDisposable m_propertyListener;
-		
+
 		private readonly List<NumberProperty> m_volumeProperties = new List<NumberProperty>();
-		
+
 		private readonly TkLogger m_logger = TkLogger.Get<Lofi>();
 
 		private const string LOFI_CORE_KEY = "lofi_core";
@@ -50,7 +49,7 @@ namespace Tekly.Lofi.Core
 			Initialize();
 			LifeCycle.Instance.Pause += OnPause;
 		}
-		
+
 		private void OnPause(bool paused)
 		{
 			Paused = paused;
@@ -60,7 +59,7 @@ namespace Tekly.Lofi.Core
 		{
 			m_propertyListener?.Dispose();
 			m_propertyBag = propertyBag;
-			
+
 			if (m_coreAssets != null) {
 				ApplyProperties();
 			}
@@ -107,7 +106,7 @@ namespace Tekly.Lofi.Core
 				}
 			}
 		}
-		
+
 		public void PlayOnTrack(string id, string trackId)
 		{
 			var track = GetTrack(trackId);
@@ -129,7 +128,7 @@ namespace Tekly.Lofi.Core
 				m_logger.Error("CrossFadeOnTrack Failed to find LofiClip [{id}]", ("id", id));
 			}
 		}
-		
+
 		public void StopTrack(string trackId)
 		{
 			var track = GetTrack(trackId);
@@ -138,7 +137,12 @@ namespace Tekly.Lofi.Core
 
 		public bool TryGetClip(string id, out LofiClip clip)
 		{
-			return m_clips.TryGetValue(id, out clip);
+			if (m_clips.TryGetValue(id, out clip)) {
+				return true;
+			}
+
+			m_logger.Error("Failed to find LofiClip [{id}]", ("id", id));
+			return false;
 		}
 
 		public void PlayOneShot(string id)
@@ -146,36 +150,31 @@ namespace Tekly.Lofi.Core
 			if (m_oneShot == null) {
 				m_oneShot = CreateEmitter("[Lofi] One Shot");
 			}
-			
+
 			if (TryGetClip(id, out var clip)) {
 				m_oneShot.Play(clip);
-			} else {
-				m_logger.Error("PlayOneShot Failed to find LofiClip [{id}]", ("id", id));
 			}
 		}
-		
+
 		public void PlayOneShot(string id, float pitch)
 		{
 			var request = new OneShotRequest {
 				SfxId = id,
 				Pitch = pitch,
-				Position = Vector3.zero
 			};
 
 			PlayOneShot(request);
 		}
-		
+
 		public void PlayOneShot(OneShotRequest request)
 		{
 			if (m_oneShot == null) {
 				m_oneShot = CreateEmitter("[Lofi] One Shot");
 			}
-			
+
 			if (TryGetClip(request.SfxId, out var clip)) {
-				var runnerData = clip.CreateRunnerData(request.Pitch, request.Position);
+				var runnerData = clip.CreateRunnerData(request.Pitch);
 				m_oneShot.Play(clip, runnerData);
-			} else {
-				m_logger.Error("PlayOneShot Failed to find LofiClip [{id}]", ("id", request.SfxId));
 			}
 		}
 
@@ -197,13 +196,13 @@ namespace Tekly.Lofi.Core
 		{
 			var emitter = new GameObject(name);
 			Object.DontDestroyOnLoad(emitter);
-			
+
 			return emitter.AddComponent<LofiEmitter>();
 		}
 
 		private void SetVolume(string id, double linearValue)
 		{
-			m_coreAssets.Mixer.SetFloat(id, Constants.ToDecibel((float) linearValue));
+			m_coreAssets.Mixer.SetFloat(id, Constants.ToDecibel((float)linearValue));
 		}
 
 		private void ApplyProperties()
@@ -217,14 +216,14 @@ namespace Tekly.Lofi.Core
 				var volumeId = group.name + ".volume";
 				if (m_coreAssets.Mixer.GetFloat(volumeId, out var currentVolume)) {
 					currentVolume = Constants.ToLinear(currentVolume);
-					
+
 					m_propertyBag.GetOrAdd(volumeId, currentVolume, out var volumeProp);
 					SetVolume(volumeId, volumeProp.Value);
-				
-					m_volumeProperties.Add(volumeProp);	
+
+					m_volumeProperties.Add(volumeProp);
 				}
 			}
-			
+
 			m_propertyListener = m_propertyBag.Modified.Subscribe(PropertyModified);
 		}
 
@@ -233,7 +232,7 @@ namespace Tekly.Lofi.Core
 			if (property is NumberProperty numberProperty) {
 				if (m_volumeProperties.Contains(property)) {
 					SetVolume(numberProperty.Id, numberProperty.Value);
-				}	
+				}
 			}
 		}
 	}
