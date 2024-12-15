@@ -43,12 +43,15 @@ namespace Tekly.Lofi.Core
 			return runner;
 		}
 		
-		public LofiClipRunnerData CreateRunnerData(float pitch)
+		public LofiClipRunnerData CreateRunnerData(OneShotRequest request)
 		{
+			var volume = (request.Overrides & OneShotRequestOverrides.Volume) != 0 ? request.Volume : m_definition.Volume.Get();
+			var pitch = (request.Overrides & OneShotRequestOverrides.Pitch) != 0 ? request.Pitch : m_definition.Pitch.Get();
+			
 			return new LofiClipRunnerData {
 				SourceClip = this,
 				Clip = RandomClip,
-				Volume = m_definition.Volume.Get(),
+				Volume = volume,
 				Pitch = pitch,
 				MixerGroup = MixerGroup,
 				Loop = m_definition.Loop

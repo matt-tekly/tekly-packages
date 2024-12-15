@@ -12,10 +12,38 @@ using Object = UnityEngine.Object;
 
 namespace Tekly.Lofi.Core
 {
+
+	[Flags]
+	public enum OneShotRequestOverrides
+	{
+		None,
+		Pitch = 1,
+		Volume = 2
+	}
+	
 	public struct OneShotRequest
 	{
 		public string SfxId;
-		public float Pitch;
+		public OneShotRequestOverrides Overrides;
+		
+		public float Pitch {
+			get => m_pitch;
+			set {
+				m_pitch = Mathf.Max(0.01f, value);
+				Overrides |= OneShotRequestOverrides.Pitch;
+			}
+		}
+		
+		public float Volume {
+			get => m_volume;
+			set {
+				m_volume = value;
+				Overrides |= OneShotRequestOverrides.Volume;
+			}
+		}
+
+		private float m_pitch;
+		private float m_volume;
 	}
 
 	public class Lofi : Singleton<Lofi>
@@ -156,16 +184,6 @@ namespace Tekly.Lofi.Core
 			}
 		}
 
-		public void PlayOneShot(string id, float pitch)
-		{
-			var request = new OneShotRequest {
-				SfxId = id,
-				Pitch = pitch,
-			};
-
-			PlayOneShot(request);
-		}
-
 		public void PlayOneShot(OneShotRequest request)
 		{
 			if (m_oneShot == null) {
@@ -173,7 +191,7 @@ namespace Tekly.Lofi.Core
 			}
 
 			if (TryGetClip(request.SfxId, out var clip)) {
-				var runnerData = clip.CreateRunnerData(request.Pitch);
+				var runnerData = clip.CreateRunnerData(request);
 				m_oneShot.Play(clip, runnerData);
 			}
 		}
