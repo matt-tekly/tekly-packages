@@ -1,5 +1,6 @@
 using System;
 using Tekly.Common.Maths;
+using Tekly.Common.Utils;
 using UnityEngine;
 
 namespace Tekly.Lofi.Core
@@ -13,6 +14,7 @@ namespace Tekly.Lofi.Core
 	[CreateAssetMenu(menuName = "Tekly/Lofi/Clip")]
 	public class LofiClipDefinition : ScriptableObject
 	{
+		public RandomSelectMode RandomMode;
 		public ClipRef[] Clips;
 
 		public FloatRange Volume;
@@ -32,6 +34,8 @@ namespace Tekly.Lofi.Core
 		{
 			Volume = new FloatRange(1, 1);
 			Pitch = new FloatRange(1, 1);
+			Loop = false;
+			MinTimeBetweenPlays = 0;
 		}
 	}	
 }
