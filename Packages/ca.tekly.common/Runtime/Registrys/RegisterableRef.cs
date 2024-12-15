@@ -25,6 +25,17 @@ namespace Tekly.Common.Registrys
 				return m_value;
 			}
 		}
+
+		public bool TryGetValue(out T value)
+		{
+			if (m_value != null) {
+				value = m_value;
+				return true;
+			}
+
+			value = default;
+			return false;
+		}
 		
 		public void Initialize(T value)
 		{
