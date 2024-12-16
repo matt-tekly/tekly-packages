@@ -29,7 +29,8 @@ namespace Tekly.Lofi.Core
 	{
 		public readonly int Id;
 		public bool IsComplete => m_isDisposed || !m_audioSource.IsPlaying;
-
+		public float TimeRemaining => m_audioSource.TimeRemaining;
+		
 		public LofiClip Clip => m_clip;
 		
 		private readonly LofiEmitter m_emitter;
@@ -48,6 +49,7 @@ namespace Tekly.Lofi.Core
 
 		private RunnerState m_state;
 		
+
 		private static int s_id;
 		
 		public LofiClipRunner(LofiEmitter emitter, LofiClipRunnerData data)

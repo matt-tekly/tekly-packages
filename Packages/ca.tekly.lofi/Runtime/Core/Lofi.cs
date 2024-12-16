@@ -76,6 +76,14 @@ namespace Tekly.Lofi.Core
 		{
 			Initialize();
 			LifeCycle.Instance.Pause += OnPause;
+			LifeCycle.Instance.Update += OnTick;
+		}
+
+		private void OnTick()
+		{
+			foreach (var track in m_tracks.Values) {
+				track.Tick();
+			}
 		}
 
 		private void OnPause(bool paused)
@@ -152,6 +160,17 @@ namespace Tekly.Lofi.Core
 
 			if (TryGetClip(clipId, out var clip)) {
 				track.CrossFade(clip, duration);
+			} else {
+				m_logger.Error("CrossFadeOnTrack Failed to find LofiClip [{id}]", ("id", clipId));
+			}
+		}
+		
+		public void LoopTrack(string clipId, string trackId, float crossFadeDuration)
+		{
+			var track = GetTrack(trackId);
+
+			if (TryGetClip(clipId, out var clip)) {
+				track.Loop(clip, crossFadeDuration);
 			} else {
 				m_logger.Error("CrossFadeOnTrack Failed to find LofiClip [{id}]", ("id", clipId));
 			}

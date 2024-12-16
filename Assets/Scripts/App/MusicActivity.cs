@@ -13,7 +13,7 @@ namespace TeklySample.App
 		
 		protected override void ActiveStarted()
 		{
-			Lofi.Instance.CrossFadeOnTrack(m_musicClip, m_track, m_fadeDuration);
+			Lofi.Instance.LoopTrack(m_musicClip, m_track, m_fadeDuration);
 		}
 
 		protected override void InactiveStarted()

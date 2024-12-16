@@ -38,6 +38,8 @@ namespace Tekly.Lofi.Emitters
 			}
 		}
 
+		public float TimeRemaining => m_audioSource.clip.length - m_audioSource.time;
+
 		public Vector3 Position {
 			get => m_transform.position;
 			set => m_transform.position = value;

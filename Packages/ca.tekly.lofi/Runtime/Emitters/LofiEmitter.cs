@@ -128,6 +128,12 @@ namespace Tekly.Lofi.Emitters
 			runner?.FadeToSpeed(volume, speed);
 		}
 
+		public float GetTimeRemaining(int runnerId)
+		{
+			var runner = GetRunner(runnerId);
+			return runner?.TimeRemaining ?? 0;
+		}
+
 		private void Update()
 		{
 			for (var index = m_runners.Count - 1; index >= 0; index--) {

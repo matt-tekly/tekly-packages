@@ -76,6 +76,14 @@ namespace Tekly.Common.LifeCycles
 					Debug.LogException(e);
 				}
 			}
+
+			s_listener = null;
+			
+			m_quitDelegates.Clear();
+			m_focusDelegates.Clear();
+			m_pauseDelegates.Clear();
+
+			m_updatesDelegates.Clear();
 		}
 
 		public void OnApplicationPause(bool paused)
