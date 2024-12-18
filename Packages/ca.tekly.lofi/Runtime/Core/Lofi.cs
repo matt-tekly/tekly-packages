@@ -149,8 +149,6 @@ namespace Tekly.Lofi.Core
 
 			if (TryGetClip(clipId, out var clip)) {
 				track.Play(clip);
-			} else {
-				m_logger.Error("PlayOnTrack Failed to find LofiClip [{id}]", ("id", clipId));
 			}
 		}
 
@@ -160,8 +158,6 @@ namespace Tekly.Lofi.Core
 
 			if (TryGetClip(clipId, out var clip)) {
 				track.CrossFade(clip, duration);
-			} else {
-				m_logger.Error("CrossFadeOnTrack Failed to find LofiClip [{id}]", ("id", clipId));
 			}
 		}
 		
@@ -171,8 +167,6 @@ namespace Tekly.Lofi.Core
 
 			if (TryGetClip(clipId, out var clip)) {
 				track.Loop(clip, crossFadeDuration);
-			} else {
-				m_logger.Error("CrossFadeOnTrack Failed to find LofiClip [{id}]", ("id", clipId));
 			}
 		}
 
@@ -194,13 +188,9 @@ namespace Tekly.Lofi.Core
 
 		public void PlayOneShot(string id)
 		{
-			if (m_oneShot == null) {
-				m_oneShot = CreateEmitter("[Lofi] One Shot");
-			}
-
-			if (TryGetClip(id, out var clip)) {
-				m_oneShot.Play(clip);
-			}
+			PlayOneShot(new OneShotRequest {
+				SfxId = id
+			});
 		}
 
 		public void PlayOneShot(OneShotRequest request)

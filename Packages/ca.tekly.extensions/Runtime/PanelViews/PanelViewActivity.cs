@@ -1,5 +1,7 @@
 using Tekly.Common.Presentables;
 using Tekly.EditorUtils.Attributes;
+using Tekly.Injectors;
+using Tekly.Injectors.Utils;
 using Tekly.Logging;
 using Tekly.PanelViews;
 using Tekly.TreeState.StandardActivities;
@@ -15,7 +17,10 @@ namespace Tekly.Extensions.PanelViews
         
         [SerializeField] private bool m_showOnLoad;
         [SerializeField] private bool m_hideOnLeave;
+        [SerializeField] private bool m_injectIntoPanel;
 
+        [Inject] private InjectorContainer m_injectorContainer;
+        
         private PanelView m_panelView;
         private TkLogger m_logger = TkLogger.Get<PanelViewActivity>();
 		
@@ -23,6 +28,9 @@ namespace Tekly.Extensions.PanelViews
         {
             if (PanelViewRegistry.Instance.TryGet(m_panelId, out m_panelView)) {
                 if (m_showOnLoad) {
+                    if (m_panelView.TryGetComponent(out HierarchyInjector hierarchyInjector)) {
+                        hierarchyInjector.Inject(m_injectorContainer);
+                    }
                     m_panelView.Show(m_context, m_panelData);	
                 }
             } else {
