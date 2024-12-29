@@ -32,6 +32,11 @@ namespace Tekly.Injectors
             m_instances.Add(typeof(T), SingletonProvider.Create<T>(this));
         }
         
+        public void Singleton<TInterface, TImpl>() where TImpl : TInterface
+        {
+            m_instances.Add(typeof(TInterface), SingletonProvider.Create<TImpl>(this));
+        }
+        
         public void Factory<T>()
         {
             m_instances.Add(typeof(T), FactoryProvider.Create<T>(this));
