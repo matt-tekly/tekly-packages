@@ -11,7 +11,7 @@ namespace Tekly.TwoD.Cells
         public CellAnimation Get(string animName)
         {
             foreach (var spriteAnimation in Animations) {
-                if (spriteAnimation.name == animName) {
+                if (spriteAnimation.Name == animName) {
                     return spriteAnimation;
                 }
             }

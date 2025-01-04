@@ -33,6 +33,9 @@ namespace Tekly.TwoD.Cells
 	
 	public class CellAnimation : ScriptableObject
 	{
+		[NonSerialized] private string m_name;
+		public string Name => m_name ??= name;
+		
 		public SpriteFrame[] Frames;
 		public float Duration => Frames.Sum(x => x.Duration);
 	}

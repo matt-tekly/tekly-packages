@@ -1,4 +1,6 @@
-﻿namespace Tekly.Common.Utils
+﻿using System;
+
+namespace Tekly.Common.Utils
 {
     public class Singleton<T> where T : Singleton<T>, new()
     {
@@ -17,6 +19,10 @@
 
         private static void Reset()
         {
+            if (Instance is IDisposable disposable) {
+                disposable.Dispose();
+            }
+            
             Instance = null;
         }
 
@@ -46,6 +52,10 @@
 
         private static void Reset()
         {
+            if (Instance is IDisposable disposable) {
+                disposable.Dispose();
+            }
+            
             Instance = null;
         }
         
