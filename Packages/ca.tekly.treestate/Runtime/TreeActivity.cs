@@ -123,5 +123,10 @@ namespace Tekly.TreeState
 
         protected virtual void InactiveStarted() { }
         protected virtual void PostInactive() { }
+
+        protected virtual void OnApplicationQuit()
+        {
+            
+        }
     }
 }

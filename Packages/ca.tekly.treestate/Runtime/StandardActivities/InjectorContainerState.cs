@@ -85,5 +85,12 @@ namespace Tekly.TreeState.StandardActivities
 				SelfContainer.Clear();
 			}
 		}
+		
+		protected override void OnApplicationQuit()
+		{
+			if (SelfContainer != null) {
+				SelfContainer.Clear();
+			}
+		}
 	}
 }

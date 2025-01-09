@@ -92,10 +92,14 @@ namespace Tekly.Lofi.Emitters
 		{
 			Init();
 			
-			var runner = clip.CreateRunner(this, runnerData);
-			m_runners.Add(runner);
+			if (clip.CanRun) {
+				var runner = clip.CreateRunner(this, runnerData);
+				m_runners.Add(runner);
+
+				return runner.Id;
+			}
 			
-			return runner.Id;
+			return Constants.INVALID_ID;
 		}
 
 		public void Stop(int runnerId)

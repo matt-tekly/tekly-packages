@@ -51,6 +51,10 @@ namespace Tekly.Common.Registrys
 
 		public void Clear()
 		{
+			if (!m_initialized) {
+				return;
+			}
+			
 			Registry.Remove(name);
 			m_initialized = false;
 			m_value = default;
