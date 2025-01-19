@@ -7,7 +7,7 @@ namespace Tekly.Lofi.Core
 {
 	public class LofiClip
 	{
-		public bool CanRun => Time.realtimeSinceStartup >= m_nextRunTime;
+		public bool CanRun => Time.time >= m_nextRunTime;
 		public string Name => m_definition.name;
 
 		public AudioClip RandomClip => m_definition.Clips[m_selector.Select()].Clip;
