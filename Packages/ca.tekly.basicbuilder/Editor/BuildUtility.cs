@@ -40,7 +40,7 @@ namespace Tekly.BasicBuilder
 		public static string GetTargetSimpleName(BuildTarget buildTarget)
 		{
 			switch (buildTarget) {
-				case BuildTarget.StandaloneOSX: return "osx";
+				case BuildTarget.StandaloneOSX: return "macos";
 				case BuildTarget.StandaloneWindows64: return "windows";
 				case BuildTarget.iOS: return "ios";
 				case BuildTarget.Android: return "android";
