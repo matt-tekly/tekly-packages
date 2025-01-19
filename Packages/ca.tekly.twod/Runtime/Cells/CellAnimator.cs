@@ -136,11 +136,11 @@ namespace Tekly.TwoD.Cells
 
 			if (prevFrame != m_frame) {
 				var frame = m_animation.Frames[m_frame];
+				RenderedSprite = frame.Sprite;
+				
 				if (frame.Event != null) {
 					AnimationEvent?.Invoke(this, frame.Event);	
 				}
-
-				RenderedSprite = m_animation.Frames[m_frame].Sprite;
 			}
 		}
 
