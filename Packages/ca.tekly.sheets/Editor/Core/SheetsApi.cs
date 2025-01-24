@@ -9,7 +9,11 @@ using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Google.Apis.Util;
 using Tekly.Sheets.Dynamics;
+using Tekly.Sheets.Processing;
 using UnityEngine;
+using System.Threading;
+using Google.Apis.Util.Store;
+using UnityEditor;
 
 namespace Tekly.Sheets.Core
 {
@@ -37,24 +41,84 @@ namespace Tekly.Sheets.Core
 		private static readonly string[] Scopes = {
 			SheetsService.Scope.SpreadsheetsReadonly
 		};
+		
+		private static readonly string[] k_Scopes = {
+			SheetsService.Scope.Spreadsheets
+		};
 
 		private readonly SheetsService m_sheetsService;
 
-		public SheetsApi(string credentialsFile)
+		public SheetsApi(string credentialsFile, GoogleAuthenticationType authType, string applicationName)
 		{
-			try {
-				string file = Path.GetFullPath(credentialsFile);
-				var credential = GoogleCredential.FromFile(file).CreateScoped(Scopes);
+			if (authType == GoogleAuthenticationType.ServiceAccount)
+			{
+				try
+				{
+					string file = Path.GetFullPath(credentialsFile);
+					var credential = GoogleCredential.FromFile(file).CreateScoped(Scopes);
 
-				m_sheetsService = new SheetsService(new BaseClientService.Initializer {
-					HttpClientInitializer = credential
-				});
-			} catch (Exception ex) {
-				Debug.LogException(ex);
-				throw;
+					m_sheetsService = new SheetsService(new BaseClientService.Initializer
+					{
+						HttpClientInitializer = credential
+					});
+				}
+				catch (Exception ex)
+				{
+					Debug.LogException(ex);
+					throw;
+				}
+			}
+			else if (authType == GoogleAuthenticationType.OAuth)
+			{
+				try
+				{
+					var userCredentials = AuthorizeOAuth(credentialsFile, applicationName);
+
+					m_sheetsService = new SheetsService(new BaseClientService.Initializer
+					{
+						HttpClientInitializer = userCredentials,
+						ApplicationName = applicationName
+					});
+				}
+				catch (Exception ex)
+				{
+					Debug.LogException(ex);
+					throw;
+				}
 			}
 		}
 
+		private static UserCredential AuthorizeOAuth(string credentialsFile, string applicationName)
+		{
+			string file = Path.GetFullPath(credentialsFile);
+			var secrets = LoadSecrets(File.ReadAllText(file));
+			
+			// Auto cancel after 60 secs
+			var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+			var dataStore = new FileDataStore($"Library/Google/{applicationName}", true);
+			var connectTask = GoogleWebAuthorizationBroker.AuthorizeAsync(secrets, k_Scopes, secrets.ClientId, cts.Token, dataStore);
+
+			while (!connectTask.IsCompleted)
+				Thread.Sleep(100);
+
+			if (connectTask.Status == TaskStatus.Faulted)
+			{
+				throw new Exception($"Failed to connect to Google Sheets.\n{connectTask.Exception}");
+			}
+			return connectTask.Result;
+		}
+		
+		private static ClientSecrets LoadSecrets(string credentials)
+		{
+			if (string.IsNullOrEmpty(credentials))
+				throw new ArgumentException(nameof(credentials));
+
+			using var stream = new MemoryStream(System.Text.Encoding.ASCII.GetBytes(credentials));
+			var gcs = GoogleClientSecrets.FromStream(stream);
+			
+			return gcs.Secrets;
+		}
+		
 		public async Task<IList<Sheet>> GetAllSheets(string spreadSheetId)
 		{
 			try {

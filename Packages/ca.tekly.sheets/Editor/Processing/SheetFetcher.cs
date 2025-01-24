@@ -40,7 +40,7 @@ namespace Tekly.Sheets.Processing
 			try {
 				var credentialsPath = AssetDatabase.GetAssetPath(sheetObject.Credentials);
 				
-				var sheetsApi = new SheetsApi(credentialsPath);
+				var sheetsApi = new SheetsApi(credentialsPath, sheetObject.Authentication, sheetObject.GoogleApplicationName);
 				var operation = new DataFetchOperation(sheetObject, sheetsApi);
 
 				s_activeTask = operation.Start();
@@ -77,7 +77,7 @@ namespace Tekly.Sheets.Processing
 		{
 			var tasks = googleSheetObjects.Select(x => {
 				var credentialsPath = AssetDatabase.GetAssetPath(x.Credentials);
-				var sheetsApi = new SheetsApi(credentialsPath);
+				var sheetsApi = new SheetsApi(credentialsPath, x.Authentication, x.GoogleApplicationName);
 				return new DataFetchOperation(x, sheetsApi);
 			}).Select(x => x.Start());
 

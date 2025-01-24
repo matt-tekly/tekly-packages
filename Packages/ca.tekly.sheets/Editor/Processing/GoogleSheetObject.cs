@@ -2,6 +2,12 @@ using UnityEngine;
 
 namespace Tekly.Sheets.Processing
 {
+	public enum GoogleAuthenticationType
+	{
+		OAuth,
+		ServiceAccount
+	}
+	
 	[CreateAssetMenu(menuName = "Tekly/Sheets/Google Sheet")]
 	public class GoogleSheetObject : ScriptableObject
 	{
@@ -9,6 +15,8 @@ namespace Tekly.Sheets.Processing
 		
 		public string SheetId;
 		public GoogleSheetProcessor Processor;
+		public GoogleAuthenticationType Authentication;
+		public string GoogleApplicationName;
 		public TextAsset Credentials;
 
 		public void OpenSheet()
