@@ -29,31 +29,28 @@ namespace Tekly.Sheets.Processing
 	
 	public static class SheetFetcher
 	{
-		public static bool IsActive => s_activeTask != null;
-		
-		private static Task s_activeTask;
+		public static bool IsActive { get; private set; }
 		
 		public static async void DownloadAsync(GoogleSheetObject sheetObject)
 		{
 			Debug.Log("Downloading Sheet: " + sheetObject.name);
 			
 			try {
-				var credentialsPath = AssetDatabase.GetAssetPath(sheetObject.Credentials);
+				IsActive = true;
 				
-				var sheetsApi = new SheetsApi(credentialsPath, sheetObject.Authentication, sheetObject.GoogleApplicationName);
+				var sheetsApi = await sheetObject.CreateSheetsApiAsync();
 				var operation = new DataFetchOperation(sheetObject, sheetsApi);
 
-				s_activeTask = operation.Start();
-				await s_activeTask;
+				await operation.Start();
 				
 				AssetDatabase.Refresh();
+				Debug.Log("Downloading Complete: " + sheetObject.name);
 			} catch (Exception e) {
+				Debug.LogError("Downloading failed!");
 				Debug.LogException(e);
 			} finally {
-				s_activeTask = null;
+				IsActive = false;
 			}
-			
-			Debug.Log("Downloading Complete: " + sheetObject.name);
 		}
 		
 		public static async void DownloadAsync(GoogleSheetObject[] googleSheetObjects)
@@ -61,25 +58,26 @@ namespace Tekly.Sheets.Processing
 			EditorConsole.Clear();
 			
 			Debug.Log("Downloading All Data");
-			s_activeTask = DownloadSheetsAsync(googleSheetObjects);
 
 			try {
-				await s_activeTask;
+				IsActive = true;
+				await DownloadSheetsAsync(googleSheetObjects);
+				Debug.Log("Downloading Complete");
 			} catch (Exception e) {
+				Debug.LogError("Downloading Failed!");
 				Debug.LogException(e);
+			} finally {
+				IsActive = false;
 			}
-
-			Debug.Log("Downloading Complete");
-			s_activeTask = null;
 		}
 
 		private static async Task DownloadSheetsAsync(GoogleSheetObject[] googleSheetObjects)
 		{
-			var tasks = googleSheetObjects.Select(x => {
-				var credentialsPath = AssetDatabase.GetAssetPath(x.Credentials);
-				var sheetsApi = new SheetsApi(credentialsPath, x.Authentication, x.GoogleApplicationName);
-				return new DataFetchOperation(x, sheetsApi);
-			}).Select(x => x.Start());
+			var tasks = googleSheetObjects.Select(async x => {
+				var sheetsApi = await x.CreateSheetsApiAsync();
+				var operation = new DataFetchOperation(x, sheetsApi);
+				return operation.Start();
+			});
 
 			await Task.WhenAll(tasks);
 

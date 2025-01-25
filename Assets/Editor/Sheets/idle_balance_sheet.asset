@@ -14,4 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SheetId: 15yeM4l2SNquxrFlujtlX40YKsb2cl14h0aMl7sdWTkw
   Processor: {fileID: 11400000, guid: db0745833e5114e98aff6bce4f324f30, type: 2}
+  Authentication: 0
   Credentials: {fileID: 4900000, guid: 7c78b322665b24baabcbfadb2f5ae235, type: 3}
+  GoogleApplicationName: 
