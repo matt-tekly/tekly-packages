@@ -1,4 +1,4 @@
-﻿namespace Tekly.Common.Terminal
+﻿namespace Tekly.Backtick
 {
     public static class StringExtensions
     {

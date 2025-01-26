@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Linq;
-using Tekly.Common.Terminal.Commands;
+using Tekly.Backtick.Commands;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Tekly.Common.Terminal.Mobile
+namespace Tekly.Backtick.Mobile
 {
 	public class MobileTerminalView : TerminalView
 	{
@@ -161,6 +161,8 @@ namespace Tekly.Common.Terminal.Mobile
 
 #elif UNITY_IOS
         return (int)TouchScreenKeyboard.area.height;
+#else
+		return 0;
 #endif
 		}
 	}

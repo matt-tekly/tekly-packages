@@ -6,7 +6,7 @@ using System.Text;
 using Tekly.Common.Utils;
 using UnityEngine;
 
-namespace Tekly.Common.Terminal.Commands
+namespace Tekly.Backtick.Commands
 {
     public interface ICommandSource { }
 

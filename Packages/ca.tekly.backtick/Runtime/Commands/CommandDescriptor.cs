@@ -1,5 +1,5 @@
-﻿#if UNITY_EDITOR || !TEKLY_CONSOLE_DISABLE
-    #define CONSOLE_ENABLED
+﻿#if UNITY_EDITOR || !TEKLY_BACKTICK_DISABLE
+    #define BACKTICK_ENABLED
 #endif
 
 using System;
@@ -9,9 +9,9 @@ using System.Text;
 using Tekly.Common.Utils;
 using UnityEngine.Scripting;
 
-namespace Tekly.Common.Terminal.Commands
+namespace Tekly.Backtick.Commands
 {
-#if CONSOLE_ENABLED
+#if BACKTICK_ENABLED
     public class CommandAttribute : PreserveAttribute
 #else
     public class CommandAttribute : Attribute

@@ -1,5 +1,15 @@
 {
   "dependencies": {
+    "ca.tekly.backtick": {
+      "version": "file:ca.tekly.backtick",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "ca.tekly.nsubstitute": "0.0.1",
+        "ca.tekly.common": "1.1.0",
+        "ca.tekly.editorutils": "1.1.0"
+      }
+    },
     "ca.tekly.balance": {
       "version": "file:ca.tekly.balance",
       "depth": 0,

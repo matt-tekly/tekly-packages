@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Tekly.Common.Terminal.Commands
+namespace Tekly.Backtick.Commands
 {
     public class DisplayItem
     {

@@ -1,16 +1,14 @@
-﻿#if UNITY_EDITOR || !TEKLY_CONSOLE_DISABLE
-    #define TERMINAL_ENABLED
+﻿#if UNITY_EDITOR || !TEKLY_BACKTICK_DISABLE
+    #define BACKTICK_ENABLED
 #endif
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Tekly.Common.LocalFiles;
-using Tekly.Common.Terminal.Commands;
-using Tekly.Common.Utils;
+using Tekly.Backtick.Commands;
 using UnityEngine;
 
-namespace Tekly.Common.Terminal
+namespace Tekly.Backtick
 {
     // TODO: Additional Terminal Tasks
     // - Mobile
@@ -33,7 +31,7 @@ namespace Tekly.Common.Terminal
         [Range(0.5f, 3f)]
         public float DefaultViewScale = 1;
 
-#if TERMINAL_ENABLED
+#if BACKTICK_ENABLED
         public TerminalView DesktopTerminal;
         public TerminalView MobileTerminal;
 #endif
@@ -45,7 +43,7 @@ namespace Tekly.Common.Terminal
         
         private float m_touchTimer;
         
-        private const string PLAYER_PREFS_KEY = "_tk_terminal_prefs";
+        private const string PLAYER_PREFS_KEY = "_tk_backtick_prefs";
 
         public void SetActive(bool active)
         {
@@ -93,12 +91,12 @@ namespace Tekly.Common.Terminal
 
         public void Save()
         {
-#if TERMINAL_ENABLED
+#if BACKTICK_ENABLED
             SavePrefs();
 #endif            
         }
         
-#if TERMINAL_ENABLED
+#if BACKTICK_ENABLED
         private void Awake()
         {
             Debug.Log("Terminal Enabled");

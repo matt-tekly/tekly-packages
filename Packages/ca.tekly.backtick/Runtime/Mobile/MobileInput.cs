@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace Tekly.Common.Terminal.Mobile
+namespace Tekly.Backtick.Mobile
 {
     public class MobileInput : MonoBehaviour
     {

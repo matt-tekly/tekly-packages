@@ -1,8 +1,8 @@
 using System.IO;
-using Tekly.Common.Terminal.Commands;
+using Tekly.Common.LocalFiles;
 using Tekly.Common.Utils;
 
-namespace Tekly.Common.LocalFiles
+namespace Tekly.Backtick.Commands
 {
     public class LocalFileCommands : ICommandSource
     {

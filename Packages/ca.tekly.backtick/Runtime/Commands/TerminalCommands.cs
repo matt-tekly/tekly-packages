@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-namespace Tekly.Common.Terminal.Commands
+namespace Tekly.Backtick.Commands
 {
     public class TerminalCommands : ICommandSource
     {

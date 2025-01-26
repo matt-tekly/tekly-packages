@@ -1,7 +1,7 @@
 using Tekly.Common.LocalFiles;
-using Tekly.Common.Terminal.Commands;
+using Tekly.Common.Utils;
 
-namespace Tekly.Common.Utils
+namespace Tekly.Backtick.Commands
 {
     public class OverridableDataCommands : ICommandSource
     {

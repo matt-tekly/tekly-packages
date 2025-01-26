@@ -1,7 +1,7 @@
-﻿using Tekly.Common.Terminal.Commands;
+﻿using Tekly.Backtick.Commands;
 using UnityEngine;
 
-namespace Tekly.Common.Terminal
+namespace Tekly.Backtick
 {
     public abstract class TerminalView : MonoBehaviour
     {

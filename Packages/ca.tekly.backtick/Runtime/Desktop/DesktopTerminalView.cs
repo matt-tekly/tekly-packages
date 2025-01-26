@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
-using Tekly.Common.Terminal.Commands;
+using Tekly.Backtick.Commands;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Tekly.Common.Terminal.Desktop
+namespace Tekly.Backtick.Desktop
 {
     public class DesktopTerminalView : TerminalView, IInputFilter
     {

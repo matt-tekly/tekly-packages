@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Tekly.Common.Terminal.Commands
+namespace Tekly.Backtick.Commands
 {
     public class PlayerPrefsCommands : ICommandSource
     {

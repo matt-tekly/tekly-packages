@@ -1,7 +1,7 @@
 ﻿using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Tekly.Common.Terminal.Desktop
+namespace Tekly.Backtick.Desktop
 {
     /// <summary>
     /// When this is selected it passes the focus to the Messages ConsoleInputField

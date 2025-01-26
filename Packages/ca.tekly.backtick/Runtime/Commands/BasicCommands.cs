@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Diagnostics;
 
-namespace Tekly.Common.Terminal.Commands
+namespace Tekly.Backtick.Commands
 {
     public class BasicCommands : ICommandSource
     {
