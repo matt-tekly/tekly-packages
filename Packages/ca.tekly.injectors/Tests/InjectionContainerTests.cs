@@ -84,7 +84,7 @@ namespace Tekly.Injectors.Tests
             container.Register(string2, "String2");
             
             container.Register(ints);
-            container.Register<TestClass, ITestInterface>(testInterface);
+            container.Register<ITestInterface, TestClass>(testInterface);
 
             var sampleInjectClass = new SampleInjectClass();
             container.Inject(sampleInjectClass);

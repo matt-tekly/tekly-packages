@@ -52,15 +52,15 @@ namespace Tekly.Injectors
             m_instances.Add(typeof(T), InstanceProvider.Create(instance));
         }
         
-        public void Register<T1, T2>(T1 instance) where T1 : T2
+        public void Register<TInterface, TImpl>(TInterface instance) where TImpl : TInterface
         {
             if (instance == null) {
-                m_logger.Error("Trying to register instance of [{type}] but instance is null", ("type", typeof(T1)));
+                m_logger.Error("Trying to register instance of [{type}] but instance is null", ("type", typeof(TInterface)));
                 return;
             }
             
-            m_instances.Add(typeof(T1), InstanceProvider.Create(instance));
-            m_instances.Add(typeof(T2), InstanceProvider.Create(instance));
+            m_instances.Add(typeof(TInterface), InstanceProvider.Create(instance));
+            m_instances.Add(typeof(TImpl), InstanceProvider.Create(instance));
         }
         
         public void Register(Type type, object instance)
