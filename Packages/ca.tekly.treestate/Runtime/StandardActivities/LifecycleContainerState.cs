@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Tekly.TreeState.StandardActivities
 {
-	public class LifecycleContainerState : TreeStateActivity
+	public class LifecycleContainerState : TreeStateActivity, IInjectorContainerState
 	{
 		[Tooltip("The container will use this ref as the parent otherwise it will search up the hierarchy for a parent")]
 		public InjectorContainerRef ParentContainer;
@@ -57,7 +57,7 @@ namespace Tekly.TreeState.StandardActivities
 			}
 
 			Container = new InjectorContainer(m_parentContainer, name);
-			m_lifecycleContainer = new LifecycleContainer(m_parentContainer);
+			m_lifecycleContainer = new LifecycleContainer(Container);
 			
 			if (m_instances != null) {
 				foreach (var scriptableInjector in m_instances) {

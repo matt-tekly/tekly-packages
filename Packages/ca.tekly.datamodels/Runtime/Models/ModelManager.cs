@@ -4,7 +4,7 @@ using Tekly.Common.Utils;
 
 namespace Tekly.DataModels.Models
 {
-    public class ModelManager : Singleton<ModelManager>
+    public class ModelManager : Singleton<ModelManager>, ITickable
     {
         private readonly List<IModel> m_models = new List<IModel>(2048);
         private readonly LinkedList<ITickable> m_tickList = new LinkedList<ITickable>();

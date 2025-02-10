@@ -5,7 +5,12 @@ using UnityEngine;
 
 namespace Tekly.TreeState.StandardActivities
 {
-	public class InjectorContainerState : TreeStateActivity
+	public interface IInjectorContainerState
+	{
+		public InjectorContainer Container { get; }
+	}
+	
+	public class InjectorContainerState : TreeStateActivity, IInjectorContainerState
 	{
 		[Tooltip("The container will use this ref as the parent otherwise it will search up the hierarchy for a parent")]
 		public InjectorContainerRef ParentContainer;

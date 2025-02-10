@@ -4,13 +4,13 @@ namespace Tekly.TreeState.StandardActivities
 {
     public class InjectableActivity : TreeStateActivity
     {
-        private InjectorContainerState m_injectorContainerState;
+        private IInjectorContainerState m_injectorContainerState;
         private InjectorContainer m_container;
         
         protected override void Awake()
         {
             base.Awake();
-            m_injectorContainerState = GetComponentInParent<InjectorContainerState>();
+            m_injectorContainerState = GetComponentInParent<IInjectorContainerState>();
         }
         
         protected override void PreLoad()

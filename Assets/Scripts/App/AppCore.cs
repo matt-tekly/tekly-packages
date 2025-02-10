@@ -9,6 +9,7 @@ using Tekly.Common.Utils;
 using Tekly.Content;
 using Tekly.DataModels.Models;
 using Tekly.Injectors;
+using Tekly.Injectors.Utils;
 using Tekly.Lofi.Core;
 using Tekly.Logging;
 using Tekly.Tinker.Core;
@@ -18,11 +19,11 @@ using UnityEngine;
 
 namespace TeklySample.App
 {
-    public class AppCore : MonoBehaviour, IInjectionProvider
+    public class AppCore : MonoBehaviour, ILifecycleInjectorProvider
     {
         [SerializeField] private TimeProviderRef m_localTimeProviderRef;
         
-        public void Provide(InjectorContainer container)
+        public void Provide(LifecycleContainer container)
         {
             ITimeProvider localTimeProvider = new LocalTimeProvider();
             m_localTimeProviderRef.Initialize(localTimeProvider);
@@ -34,6 +35,7 @@ namespace TeklySample.App
             container.Register(ContentProvider.Instance);
             container.Register(balanceManager);
             container.Register(RootModel.Instance);
+            container.Register(ModelManager.Instance);
             container.Register(localTimeProvider);
             
             RootModel.Instance.Add("app", new AppModel(balanceManager));
@@ -49,8 +51,6 @@ namespace TeklySample.App
                 Application.Quit();
                 return;
             }
-
-            ModelManager.Instance.Tick();
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

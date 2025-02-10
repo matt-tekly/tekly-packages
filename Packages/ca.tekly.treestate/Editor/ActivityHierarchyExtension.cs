@@ -74,7 +74,7 @@ namespace Tekly.TreeState
 		
 		private static Rect DrawInjectionContainer(Rect imageRect, TreeActivity activity)
 		{
-			var injectorContainerState = activity.GetComponent<InjectorContainerState>();
+			var injectorContainerState = activity.GetComponent<IInjectorContainerState>() as Object;
 			if (injectorContainerState != null) {
 				imageRect.xMin -= 16;
 				imageRect.width = 16;
