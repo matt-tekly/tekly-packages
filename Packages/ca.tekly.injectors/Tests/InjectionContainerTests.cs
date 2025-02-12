@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using NUnit.Framework;
+using UnityEngine.Scripting;
 
 namespace Tekly.Injectors.Tests
 {
@@ -17,32 +18,51 @@ namespace Tekly.Injectors.Tests
     
     public interface ITestInterface { }
     public class TestClass : ITestInterface { }
-    
-    public class SingletonClass { }
+
+    [Preserve]
+    public class SingletonClass
+    {
+        [Preserve]
+        public SingletonClass() { }
+    }
         
+    [Preserve]
     public class SingletonConsumer
     {
         public readonly SingletonClass Singleton;
 
+        [Preserve]
         public SingletonConsumer(SingletonClass singleton)
         {
             Singleton = singleton;
         }
     }
     
+    [Preserve]
     public class LoopClassA
     {
         [Inject] public LoopClassB Looper;
+        
+        [Preserve]
+        public LoopClassA() {}
     }
         
+    [Preserve]
     public class LoopClassB
     {
         [Inject] public LoopClassA Looper;
-    }
         
+        [Preserve]
+        public LoopClassB() {}
+    }
+       
+    [Preserve]
     public class LoopClassC
     {
         [Inject] public LoopClassC Looper;
+        
+        [Preserve]
+        public LoopClassC() {}
     }
 
     public class BaseClass

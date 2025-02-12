@@ -21,6 +21,7 @@ namespace Tekly.Injectors.Utils
 		public LifecycleContainer(InjectorContainer container)
 		{
 			Container = container;
+			Container.Register(this);
 		}
 
 		public void Singleton<T>()

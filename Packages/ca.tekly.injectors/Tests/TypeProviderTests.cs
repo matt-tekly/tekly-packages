@@ -1,5 +1,6 @@
 using System;
 using NUnit.Framework;
+using UnityEngine.Scripting;
 
 namespace Tekly.Injectors.Tests
 {
@@ -35,10 +36,14 @@ namespace Tekly.Injectors.Tests
 			public T Value { get; set; }
 		}
 
+		[Preserve]
 		internal class InjectionClass
 		{
 			[Inject] public Base<int> Ints;
 			[Inject] public Base<string> Strings;
+			
+			[Preserve]
+			public InjectionClass() {}
 		}
 
 		[Test]
