@@ -108,7 +108,7 @@ namespace Tekly.Balance
         
         public void Dispose()
         {
-            m_balanceManifestHandle.Release();
+            m_balanceManifestHandle?.Release();
 
             foreach (var bank in m_banks.Values) {
                 bank.Dispose();

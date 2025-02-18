@@ -1,0 +1,23 @@
+{
+    "name": "Tekly.DebugKit",
+    "rootNamespace": "Tekly.DebugKit",
+    "references": [
+        "GUID:b9160372c6c55a741932d482673e3abb",
+        "GUID:75469ad4d38634e559750d17036d5f7c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "",
+            "define": "DEBUGKIT_INPUT_SYSTEM"
+        }
+    ],
+    "noEngineReferences": false
+}

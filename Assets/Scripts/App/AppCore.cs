@@ -8,6 +8,8 @@ using Tekly.Common.TimeProviders;
 using Tekly.Common.Utils;
 using Tekly.Content;
 using Tekly.DataModels.Models;
+using Tekly.DebugKit;
+using Tekly.DebugKit.Menus;
 using Tekly.Injectors;
 using Tekly.Injectors.Utils;
 using Tekly.Lofi.Core;
@@ -62,6 +64,10 @@ namespace TeklySample.App
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void InitializeDebug()
         {
+            DebugKit.Instance.Initialize();
+            TimeMenu.Register();
+            TimeMenu.Register();
+            
 #if TINKER_ENABLED
             TinkerServer.Initialize();
             TinkerServer

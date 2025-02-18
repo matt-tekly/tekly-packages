@@ -1,0 +1,393 @@
+:root {
+    /* Gruvbox */
+    --bg: #282828; /* bg0 */
+    --bg-raised: #32302f; /* bg0_s */
+
+    --text: #f9efc5; /*fg0 */
+    --text-focused: #82a497;
+    --text-value: #fabd2f; /* yellow */
+
+    --button: #504945; /* BG2 */
+    --button-hover: #665c54; /* BG3*/
+    --button-pressed: #3c3836; /* bg1 */
+
+    --text-input-bg: #7c6f64; /* bg4 */
+    --text-input-face: #a79883; /* fg4 */
+    --text-input-outline: #282828; /* bg */
+
+    --font-size: 12px;
+    --line-height: 16px;
+}
+
+/* ==========================================
+    GENERAL STYLES
+/* ========================================== */
+* {
+    color: var(--text);
+    font-size: var(--font-size);
+    padding: 0px;
+    -unity-text-align: middle-left;
+}
+
+.dk-root {
+    background-color: var(--bg);
+    min-width: 100px;
+    max-width: 200px;
+    border-bottom-right-radius: 10px;
+    padding: 0 6px 6px 6px;
+}
+
+.unity-base-field:hover:enabled > .unity-base-field__label {
+    color: var(--text-focused);
+}
+
+.unity-base-field:focus:enabled > .unity-base-field__label {
+    color: var(--text-focused);
+}
+
+.dk-horizontal-separator {
+    height: 1px;
+    background-color: var(--text);
+    margin: 3px 3px;
+}
+
+.dk-heading, .unity-label.dk-heading {
+    font-size: 14px;
+    height: auto;
+    padding: 2px;
+    -unity-font-style: bold;
+}
+
+/* ==========================================
+    UTILITY STYLES
+/* ========================================== */
+.spaced {
+    justify-content: space-between;
+}
+
+.raised {
+    background-color: var(--bg-raised);
+    border-color: #3c3836;
+}
+
+.p8 { padding: 8px; }
+.p4 { padding: 4px; }
+
+.r8 { border-radius: 8px; }
+.r4 { border-radius: 4px; }
+
+.m8 { margin: 8px; }
+.m4 { margin: 4px; }
+
+.items-center {
+    align-items: center;
+}
+
+
+/* ==========================================
+    BUTTON
+/* ========================================== */
+
+.dk-button.small {
+    width: 30px;
+}
+
+.unity-button.dk-button {
+    
+}
+
+.dk-button {
+    background-color: var(--button);
+    /*height: var(--line-height);*/
+    height: 20px;
+
+    border-radius: 4px;
+    border-width: 1px;
+    border-color: transparent;
+    padding: 0px 10px;
+    margin: 3px 0px;
+}
+
+.dk-button:focus, .dk-button:hover:enabled, .dk-button:focus:enabled {
+    border-color: var(--text-value);
+    border-width: 1px;
+}
+
+.dk-button:hover:focus, .dk-button:hover:enabled {
+    background-color: var(--button-hover);
+}
+
+.dk-button:active:hover:focus {
+    background-color: var(--button-pressed);
+}
+
+.button-group .right {
+    border-top-left-radius: 0px ;
+    border-bottom-left-radius: 0px ;
+}
+
+.button-group .left {
+    border-top-right-radius: 0px ;
+    border-bottom-right-radius: 0px ;
+}
+
+/* ==========================================
+    LAYOUTS
+/* ========================================== */
+.dk-layout-row {
+    flex-direction: row;
+    flex-shrink: 1;
+}
+
+/* ==========================================
+    LABELS
+/* ========================================== */
+Label, .unity-label {
+    height: var(--line-height);
+    padding: 0;
+}
+
+/* ==========================================
+    TEXT FIELD 
+/* ========================================== */
+TextField, .unity-text-field, .unity-base-text-field, .unity-base-field {
+    margin: 0px 0px;
+    align-items: center;
+}
+
+.unity-text-element--inner-input-field-component {
+    color: #1d2021;
+}
+
+TextInput, .unity-base-text-field__input {
+    background-color: var(--text-input-bg);
+    padding: 1px 3px;
+    border-color: var(--text-input-outline);
+    border-radius: 4px;
+}
+
+TextInput, .unity-base-text-field__input:hover:focus:enabled {
+    border-color: transparent;
+}
+
+.dk-input {
+    --unity-cursor-color:#B4B4B4;
+}
+
+.unity-base-field > .unity-base-field__label {
+    min-width: 80px;
+}
+
+.small > .unity-base-field > .unity-base-field__label {
+    min-width: 50px;
+}
+
+/* If a TextField is in a row it should grow by default */
+.dk-layout-row > TextField {
+    flex-grow: 1;
+}
+
+/* ==========================================
+    Slider
+/* ========================================== */
+.dk-slider {
+    height: var(--line-height);
+    min-height: 0px;
+    margin: 0px;
+}
+
+.unity-label.unity-base-field__label {
+    margin: 0px 3px;
+}
+
+.dk-slider > * {
+    min-height: 0px;
+}
+
+#unity-dragger {
+    height: var(--font-size);
+    margin-bottom: auto;
+    margin-top: auto;
+    top: 0;
+    position: relative;
+    border-radius: 4px;
+    background-color: var(--text);
+}
+
+#unity-tracker {
+    background-color: var(--text-input-bg);
+    border-width: 0px;
+    border-radius: 4px;
+}
+
+/* ==========================================
+    Property
+/* ========================================== */
+.dk-property {
+    flex-direction: row;
+    height: var(--line-height);
+    justify-content: space-between;
+    margin: 1px 3px 1px 3px;
+}
+
+.dk-property > Label {
+    font-size: var(--font-size);
+    margin: 0px;
+}
+
+.dk-property-label {
+    
+}
+
+.dk-property-value {
+    color: var(--text-value);
+}
+
+/* ==========================================
+    Checkbox
+/* ========================================== */
+.dk-checkbox .unity-toggle__input {
+    justify-content: flex-end;
+}
+
+.unity-toggle__checkmark {
+    height: var(--line-height);
+    width: var(--line-height);
+    background-color: var(--text-input-bg);
+    border-radius: 4px;
+}
+
+/* ==========================================
+    Foldout
+/* ========================================== */
+Foldout #unity-checkmark.unity-toggle__checkmark {
+    -unity-background-image-tint-color: var(--text);
+}
+
+Foldout Label:hover:enabled {
+    color: var(--text-focused);
+}
+
+Foldout Label:hover:focus:enabled {
+    color: var(--text-focused);
+}
+
+Foldout:focus Label {
+    color: var(--text-focused);
+}
+
+.unity-base-field:focus:enabled .unity-base-field__label {
+    -unity-background-image-tint-color: var(--text-focused);
+}
+
+.unity-foldout__text {
+    margin: 0px;
+}
+
+.unity-foldout__content {
+    margin: 0 0 0 20px;
+}
+
+Foldout #unity-checkmark {
+    margin: 0px;
+}
+
+
+/*.dk-layout-column {*/
+/*    flex-direction: column;*/
+/*}*/
+
+/*.dk-layout-row {*/
+/*    flex-direction: row;*/
+/*}*/
+
+/*.dk-layout-row.stretch > * {*/
+/*    flex: 1;*/
+/*}*/
+
+/*.dk-layout-stretch {*/
+/*    flex-direction: row;*/
+/*}*/
+
+/*.dk-property {*/
+/*    flex-direction: row;*/
+/*    height: var(--line-height);*/
+/*    justify-content: space-between;*/
+/*    margin: 1px 3px 1px 3px;*/
+/*}*/
+
+/*.dk-property > Label {*/
+/*    font-size: var(--font-size);*/
+/*    margin: 0px;*/
+/*}*/
+
+/*.dk-property-label {*/
+/*    */
+/*}*/
+
+/*.dk-property-value {*/
+/*    color: var(--text-value);*/
+/*}*/
+
+/*.dk-label {*/
+/*    height: var(--line-height);*/
+/*}*/
+
+
+/*.dk-input > TextField {*/
+/*    height: var(--line-height);*/
+/*}*/
+
+/*.dk-input > TextInput {*/
+/*    background-color: var(--text-input-bg);*/
+/*    color: var(--text-input-face);*/
+/*    border-radius: 8px;*/
+/*    */
+/*    height: var(--line-height);*/
+/*    */
+/*    font-size: var(--font-size);*/
+/*    padding: 0px 6px;*/
+/*    border-width: 0px;*/
+/*}*/
+
+/*TextElement {*/
+/*    background-color: var(--text-input-bg);*/
+/*    color: var(--text-input-face);*/
+/*    border-radius: 8px;*/
+/*}*/
+
+/*Label {*/
+/*    font-size: var(--font-size);*/
+/*    margin: 0px;*/
+/*}*/
+
+/*.dk-input > Label, .dk-slider > Label {*/
+/*    font-size: var(--font-size);*/
+/*    margin: 0px;*/
+/*}*/
+
+/*.dk-slider {*/
+/*    height: var(--line-height);*/
+/*    min-height: 0px;*/
+/*}*/
+
+/*.dk-slider > * {*/
+/*    min-height: 0px;*/
+/*}*/
+
+/*#unity-dragger {*/
+/*    height: 16px;*/
+/*    margin-bottom: auto;*/
+/*    margin-top: auto;*/
+/*    top: 0;*/
+/*    position: relative;*/
+/*    border-radius: 4px;*/
+/*}*/
+
+/*#unity-tracker {*/
+/*    background-color: var(--text-input-bg);*/
+/*    border-width: 0px;*/
+/*    border-radius: 4px;*/
+/*}*/
+
+
