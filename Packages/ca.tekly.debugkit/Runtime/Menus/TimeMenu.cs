@@ -11,18 +11,12 @@ namespace Tekly.DebugKit.Menus
 		{
 			DebugKit.Instance.Menu("Time")
 				.Property("Real Time", () => Time.realtimeSinceStartup, "{0:F2}")
-				.FloatField("Time Scale", () => Time.timeScale, v => Time.timeScale = v)
-				.SliderFloat(null, 0.01f, 3f, () => Time.timeScale, v => Time.timeScale = v)
-				.TextField("Test Field", () => _test, v => _test = v)
-				.Button("Button", () => Debug.Log("Poopy"))
-				.Foldout("Foldout", foldout => {
-					foldout.Property("Real Time", () => Time.realtimeSinceStartup, "{0:F2}")
-						.FloatField("Time Scale", () => Time.timeScale, v => Time.timeScale = v)
-						.SliderFloat(null, 0.01f, 3f, () => Time.timeScale, v => Time.timeScale = v)
-						.TextField("Test Field", () => _test, v => _test = v)
-						.Button("Button", () => foldout.Detach())
-						.Checkbox("Checkit", () => _bool, v => _bool = v);
-				});
+				.Property("Frame Count", () => Time.frameCount)
+				.Column("raised p4 r4 mv4", column => {
+					column.FloatField("Time Scale", () => Time.timeScale, v => Time.timeScale = v)
+						.SliderFloat(null, 0.00f, 3f, () => Time.timeScale, v => Time.timeScale = v);
+				})
+				.IntField("Target FPS", () => Application.targetFrameRate, v => Application.targetFrameRate = v);
 		}
 	}
 }

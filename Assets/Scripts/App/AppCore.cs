@@ -66,7 +66,7 @@ namespace TeklySample.App
         {
             DebugKit.Instance.Initialize();
             TimeMenu.Register();
-            TimeMenu.Register();
+            UIMenu.Register();
             
 #if TINKER_ENABLED
             TinkerServer.Initialize();

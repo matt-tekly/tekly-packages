@@ -1,7 +1,7 @@
 :root {
     /* Gruvbox */
     --bg: #282828; /* bg0 */
-    --bg-raised: #32302f; /* bg0_s */
+    --bg-raised: #3c3836; /* bg1 */
 
     --text: #f9efc5; /*fg0 */
     --text-focused: #82a497;
@@ -32,7 +32,7 @@
 .dk-root {
     background-color: var(--bg);
     min-width: 100px;
-    max-width: 200px;
+    max-width: 225px;
     border-bottom-right-radius: 10px;
     padding: 0 6px 6px 6px;
 }
@@ -78,6 +78,7 @@
 
 .m8 { margin: 8px; }
 .m4 { margin: 4px; }
+.mv4 { margin-top: 4px; margin-bottom: 4px }
 
 .items-center {
     align-items: center;

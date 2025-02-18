@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Tekly.DebugKit.Utils;
+using UnityEngine.PlayerLoop;
 using UnityEngine.UIElements;
 
 namespace Tekly.DebugKit.Widgets
@@ -75,6 +76,14 @@ namespace Tekly.DebugKit.Widgets
 		public Container FloatField(string label, Func<float> getValue, Action<float> setValue)
 		{
 			var textField = new FloatFieldWidget(this, label, getValue, setValue);
+			m_widgets.Add(textField);
+
+			return this;
+		}
+		
+		public Container IntField(string label, Func<int> getValue, Action<int> setValue)
+		{
+			var textField = new IntFieldWidget(this, label, getValue, setValue);
 			m_widgets.Add(textField);
 
 			return this;
@@ -163,6 +172,10 @@ namespace Tekly.DebugKit.Widgets
 			return this;
 		}
 
+		public Container Column(Action<Container> builder)
+		{
+			return Column(null, builder);
+		}
 		public Container Column(string className, Action<Container> builder)
 		{
 			var container = new Container(Root, "dk-layout-column", className);
@@ -201,6 +214,12 @@ namespace Tekly.DebugKit.Widgets
 			m_widgets.Add(container);
 			Root.Add(foldout);
 
+			return this;
+		}
+
+		public Container Updater(Action action, Func<bool> canUpdate = null)
+		{
+			m_widgets.Add(new Updater(action, canUpdate));
 			return this;
 		}
 	}
