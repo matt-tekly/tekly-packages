@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Tekly.Sheets.Dynamics
 {
@@ -23,9 +22,11 @@ namespace Tekly.Sheets.Dynamics
 
 		public DynamicConverterDatabase()
 		{
-			Register(typeof(Vector2), new DynamicConverterVector2());
-			Register(typeof(Vector3), new DynamicConverterVector3());
-			Register(typeof(Quaternion), new DynamicConverterQuaternion());
+#if UNITY_5_3_OR_NEWER
+			Register(typeof(UnityEngine.Vector2), new DynamicConverterVector2());
+			Register(typeof(UnityEngine.Vector3), new DynamicConverterVector3());
+			Register(typeof(UnityEngine.Quaternion), new DynamicConverterQuaternion());
+#endif
 		}
 		
 		public DynamicConverter Get(Type type)

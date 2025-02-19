@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Tekly.Sheets.Dynamics;
-using UnityEngine;
 
 namespace Tekly.Sheets.Core
 {
@@ -20,9 +19,8 @@ namespace Tekly.Sheets.Core
                 }
 
                 return ParseObjectSheet(rows, sheetName);
-            } catch {
-                Debug.LogError($"Failed to parse sheet: [{sheetName}]");
-                throw;
+            } catch (Exception exception) {
+                throw new SheetParserException(sheetName, exception);
             }
         }
         
