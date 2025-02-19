@@ -42,7 +42,7 @@ namespace Tekly.TreeState.StandardActivities
 					m_parentContainer = ParentContainer.Value;
 				}
 			} else {
-				var parent = transform.GetComponentInAncestor<InjectorContainerState>();
+				var parent = transform.GetComponentInAncestor<IInjectorContainerState>();
 				if (parent != null) {
 					m_parentContainer = parent.Container;
 				}

@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -302,7 +301,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a706c099a875488b8e1eeadc29f87ade, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ParentContainer: {fileID: 11400000, guid: 770f7e6e7b8374f90b4317f4ec21f795, type: 2}
+  ParentContainer: {fileID: 0}
   ParentContainerIsOptional: 0
   SelfContainer: {fileID: 11400000, guid: 3d25e8fba63f64ec3a292d30371f6752, type: 2}
   ScriptableBindings: []
@@ -384,6 +383,7 @@ MonoBehaviour:
   m_DeselectOnBackgroundClick: 1
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
+  m_ScrollDeltaPerTick: 6
 --- !u!1 &478064001
 GameObject:
   m_ObjectHideFlags: 0

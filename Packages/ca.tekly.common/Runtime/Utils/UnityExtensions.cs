@@ -9,7 +9,7 @@ namespace Tekly.Common.Utils
         /// <summary>
         /// Like GetComponentInParent but doesn't include itself
         /// </summary>
-        public static T GetComponentInAncestor<T>(this Transform transform) where T : Component
+        public static T GetComponentInAncestor<T>(this Transform transform) where T : class
         {
             var parent = transform.parent;
             return parent != null ? parent.GetComponentInParent<T>() : null;
