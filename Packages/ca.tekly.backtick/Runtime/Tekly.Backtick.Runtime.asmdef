@@ -2,7 +2,8 @@
     "name": "Tekly.Backtick.Runtime",
     "rootNamespace": "Tekly.Backtick",
     "references": [
-        "GUID:b9160372c6c55a741932d482673e3abb"
+        "GUID:b9160372c6c55a741932d482673e3abb",
+        "GUID:75469ad4d38634e559750d17036d5f7c"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

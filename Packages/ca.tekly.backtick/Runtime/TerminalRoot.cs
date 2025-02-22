@@ -164,7 +164,7 @@ namespace Tekly.Backtick
                 SetActive(!m_active);
             }
             
-            // Checking if the it was active prevents opening the console again when it was closed by pressing backquote
+            // Checking if it was active prevents opening the console again when it was closed by pressing backquote
             if (!m_wasActive && IsBackTickPressed()) {
                 SetActive(true);
             }
@@ -190,18 +190,21 @@ namespace Tekly.Backtick
 
         private bool IsBackTickPressed()
         {
-#if COMMON_INPUT_SYSTEM
-            return UnityEngine.InputSystem.Keyboard.current.backquoteKey.wasReleasedThisFrame;
-#elif ENABLE_LEGACY_INPUT_MANAGER
+#if ENABLE_INPUT_SYSTEM
+            return UnityEngine.InputSystem.Keyboard.current.backquoteKey.wasPressedThisFrame;
+#else
             return Input.GetKeyDown(KeyCode.BackQuote);
 #endif
         }
         
         private int GetTouchCount()
         {
-#if COMMON_INPUT_SYSTEM
+#if ENABLE_INPUT_SYSTEM
+            if (!UnityEngine.InputSystem.EnhancedTouch.EnhancedTouchSupport.enabled) {
+                UnityEngine.InputSystem.EnhancedTouch.EnhancedTouchSupport.Enable();
+            }
             return UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches.Count;
-#elif ENABLE_LEGACY_INPUT_MANAGER
+#else
             return Input.touchCount;
 #endif
         }

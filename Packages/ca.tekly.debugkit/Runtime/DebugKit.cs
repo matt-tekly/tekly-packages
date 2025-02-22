@@ -20,6 +20,8 @@ namespace Tekly.DebugKit
 
             m_menuController = new MenuController(m_debugKitGui.Root);
             Object.DontDestroyOnLoad(go);
+            
+            // Create one if not found
         }
 
         public Menu Menu(string name, string classNames = null)
@@ -29,7 +31,7 @@ namespace Tekly.DebugKit
 
         public void Update()
         {
-#if DEBUGKIT_INPUT_SYSTEM
+#if ENABLE_INPUT_SYSTEM
             if (UnityEngine.InputSystem.Keyboard.current[Settings.OpenKey].wasPressedThisFrame) {
                 m_menuController.Toggle();
             }
