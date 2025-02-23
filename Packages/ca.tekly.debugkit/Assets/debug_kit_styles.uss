@@ -104,7 +104,7 @@
 }
 
 .unity-button.dk-button {
-    
+
 }
 
 .dk-button {
@@ -147,7 +147,7 @@
 /* ========================================== */
 .dk-layout-row {
     flex-direction: row;
-    flex-shrink: 1;
+    flex-shrink: 0;
 }
 
 /* ==========================================
@@ -159,7 +159,7 @@ Label, .unity-label {
 }
 
 /* ==========================================
-    TEXT FIELD 
+    TEXT FIELD
 /* ========================================== */
 TextField, .unity-text-field, .unity-base-text-field, .unity-base-field {
     margin: 0px 0px;
@@ -217,8 +217,8 @@ TextInput, .unity-base-text-field__input:hover:focus:enabled {
 
 #unity-dragger {
     height: var(--font-size);
-    margin-bottom: auto;
-    margin-top: auto;
+    margin-bottom: 0;
+    margin-top: 0;
     top: 0;
     position: relative;
     border-radius: 4px;
@@ -247,7 +247,7 @@ TextInput, .unity-base-text-field__input:hover:focus:enabled {
 }
 
 .dk-property-label {
-    
+
 }
 
 .dk-property-value {
@@ -303,6 +303,56 @@ Foldout #unity-checkmark {
     margin: 0px;
 }
 
+/* ==========================================
+    ScrollView
+/* ========================================== */
+.unity-scroll-view {
+    flex-shrink: 100;
+}
+
+.unity-scroller--vertical .unity-base-slider__dragger {
+    left: 0px;
+    width: 100%;
+}
+
+/* ==========================================
+    Dropdown
+/* ========================================== */
+.dk-dropdown {
+    background-color: var(--button);
+    border-radius: 4px;
+}
+
+.dk-dropdown .unity-base-popup-field__input {
+    background-color: var(--button);
+    margin: 0;
+    padding: 5px;
+}
+
+.unity-base-popup-field:active:enabled > .unity-base-popup-field__input {
+    background-color: var(--button);
+}
+
+.unity-base-popup-field:hover:enabled > .unity-base-popup-field__input {
+    background-color: var(--button);
+}
+
+.unity-base-popup_field__text {
+    color: var(--text-value);
+}
+
+.unity-base-dropdown__container-inner {
+    background-color: var(--bg-raised)
+}
+
+.unity-base-dropdown__checkmark {
+    -unity-background-image-tint-color: darkgray;
+}
+
+
+/* ==========================================
+    Other
+/* ========================================== */
 
 /*.dk-layout-column {*/
 /*    flex-direction: column;*/
