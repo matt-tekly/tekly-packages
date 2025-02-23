@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
@@ -6,6 +7,8 @@ namespace Tekly.Injectors.Utils
 {
     public static class TypeUtils
     {
+        private static Dictionary<Type, bool> s_injectableTypes = new Dictionary<Type, bool>();
+        
         public static ConstructorInfo Constructor(this Type type)
         {
             var constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
@@ -27,10 +30,18 @@ namespace Tekly.Injectors.Utils
                 return false;
             }
 
-            return IsInjectable(obj.GetType());
+            var type = obj.GetType();
+            
+            if (!s_injectableTypes.TryGetValue(type, out var isInjectable))
+            {
+                isInjectable = IsInjectable(type);
+                s_injectableTypes[type] = isInjectable;
+            }
+
+            return isInjectable;
         }
         
-        public static bool IsInjectable(Type type)
+        private static bool IsInjectable(Type type)
         {
             return Injector.GetInjectableFields(type).Count > 0 || Injector.GetInjectableMethods(type).Count > 0;
         }
