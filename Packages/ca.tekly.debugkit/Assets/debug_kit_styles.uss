@@ -2,7 +2,6 @@
     /* Gruvbox */
     --bg: #282828; /* bg0 */
     --bg-raised: #3c3836; /* bg1 */
-    --bg-raised2: #504945; /* bg2 */
 
     --text: #f9efc5; /*fg0 */
     --text-focused: #82a497;
@@ -18,7 +17,6 @@
 
     --font-size: 12px;
     --line-height: 16px;
-    --line-height-small: 14px;
 }
 
 /* ==========================================
@@ -79,13 +77,7 @@
 
 .raised {
     background-color: var(--bg-raised);
-    border-color: rgba(0, 0, 0, 0.2);
-    border-width: 1px;
-}
-
-.raised .raised {
-    background-color: rgba(0, 0, 0, 0.08);
-    border-width: 1px;
+    border-color: #3c3836;
 }
 
 .p8 { padding: 8px; }
@@ -102,6 +94,7 @@
     align-items: center;
 }
 
+
 /* ==========================================
     BUTTON
 /* ========================================== */
@@ -111,16 +104,17 @@
 }
 
 .unity-button.dk-button {
-    
+
 }
 
 .dk-button {
     background-color: var(--button);
+    /*height: var(--line-height);*/
     height: 20px;
 
     border-radius: 4px;
     border-width: 1px;
-    border-color: rgba(0,0,0, 0.15);
+    border-color: transparent;
     padding: 0px 10px;
     margin: 3px 0px;
 }
@@ -141,13 +135,11 @@
 .button-group .right {
     border-top-left-radius: 0px ;
     border-bottom-left-radius: 0px ;
-    border-left-color: transparent;
 }
 
 .button-group .left {
     border-top-right-radius: 0px ;
     border-bottom-right-radius: 0px ;
-    border-right-color: transparent;
 }
 
 /* ==========================================
@@ -155,7 +147,7 @@
 /* ========================================== */
 .dk-layout-row {
     flex-direction: row;
-    flex-shrink: 1;
+    flex-shrink: 0;
 }
 
 /* ==========================================
@@ -167,7 +159,7 @@ Label, .unity-label {
 }
 
 /* ==========================================
-    TEXT FIELD 
+    TEXT FIELD
 /* ========================================== */
 TextField, .unity-text-field, .unity-base-text-field, .unity-base-field {
     margin: 0px 0px;
@@ -225,8 +217,8 @@ TextInput, .unity-base-text-field__input:hover:focus:enabled {
 
 #unity-dragger {
     height: var(--font-size);
-    margin-bottom: auto;
-    margin-top: auto;
+    margin-bottom: 0;
+    margin-top: 0;
     top: 0;
     position: relative;
     border-radius: 4px;
@@ -255,7 +247,7 @@ TextInput, .unity-base-text-field__input:hover:focus:enabled {
 }
 
 .dk-property-label {
-    
+
 }
 
 .dk-property-value {
@@ -270,8 +262,8 @@ TextInput, .unity-base-text-field__input:hover:focus:enabled {
 }
 
 .unity-toggle__checkmark {
-    height: var(--line-height-small);
-    width: var(--line-height-small);
+    height: var(--line-height);
+    width: var(--line-height);
     background-color: var(--text-input-bg);
     border-radius: 4px;
 }
@@ -312,16 +304,60 @@ Foldout #unity-checkmark {
 }
 
 /* ==========================================
+    ScrollView
+/* ========================================== */
+.unity-scroll-view {
+    flex-shrink: 100;
+}
+
+.unity-scroller--vertical .unity-base-slider__dragger {
+    left: 0px;
+    width: 100%;
+}
+
+/* ==========================================
+    Dropdown
+/* ========================================== */
+.dk-dropdown {
+    background-color: var(--button);
+    border-radius: 4px;
+}
+
+.dk-dropdown .unity-base-popup-field__input {
+    background-color: var(--button);
+    margin: 0;
+    padding: 5px;
+}
+
+.unity-base-popup-field:active:enabled > .unity-base-popup-field__input {
+    background-color: var(--button);
+}
+
+.unity-base-popup-field:hover:enabled > .unity-base-popup-field__input {
+    background-color: var(--button);
+}
+
+.unity-base-popup_field__text {
+    color: var(--text-value);
+}
+
+.unity-base-dropdown__container-inner {
+    background-color: var(--bg-raised)
+}
+
+.unity-base-dropdown__checkmark {
+    -unity-background-image-tint-color: darkgray;
+}
+
+/* ==========================================
     Performance Monitor
 /* ========================================== */
 .dk-performance-monitor {
     position: absolute;
     right: 0;
     left: auto;
-
     background-color: var(--bg);
     min-width: 150px;
     max-width: 225px;
     padding: 0 6px 6px 6px;
 }
-

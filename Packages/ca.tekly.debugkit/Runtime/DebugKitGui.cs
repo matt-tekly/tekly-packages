@@ -12,7 +12,7 @@ namespace Tekly.DebugKit
 			get => m_document.panelSettings.scale;
 			set => m_document.panelSettings.scale = value;
 		}
-		
+
 		private UIDocument m_document;
 		private DebugKit m_debugKit;
 
@@ -33,8 +33,6 @@ namespace Tekly.DebugKit
 					m_document.rootVisualElement.AddClassNames(classNames);
 				}
 			}
-
-			// m_document.rootVisualElement.Add(Root);
 		}
 
 		private void Update()
