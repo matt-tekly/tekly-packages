@@ -1,47 +1,78 @@
 using Tekly.Common.Utils;
+using Tekly.DebugKit.Utils;
 using Tekly.DebugKit.Widgets;
 using UnityEngine;
 
 namespace Tekly.DebugKit
 {
-    public class DebugKit : Singleton<DebugKit>
-    {
-        public bool Visible { get; set; }
-        
-        private DebugKitGui m_debugKitGui;
-        private MenuController m_menuController;
-        
-        public DebugKitSettings Settings;
+	public class DebugKit : Singleton<DebugKit>
+	{
+		public bool Visible { get; set; }
 
-        public void Initialize()
-        {
-            var go = new GameObject("DebugKit");
-            m_debugKitGui = go.AddComponent<DebugKitGui>();
+		private DebugKitGui m_debugKitGui;
+		private MenuController m_menuController;
 
-            m_menuController = new MenuController(m_debugKitGui.Root);
-            Object.DontDestroyOnLoad(go);
-            
-            // Create one if not found
-        }
+		public DebugKitSettings Settings;
+		
+		public float Scale {
+			get => m_debugKitGui.Scale;
+			set => m_debugKitGui.Scale = value;
+		}
 
-        public Menu Menu(string name, string classNames = null)
-        {
-            return m_menuController.Create(name, classNames);
-        }
+		public void Initialize(DebugKitSettings settings = null)
+		{
+			if (settings == null) {
+				Settings = LoadSettings();
+			}
 
-        public void Update()
-        {
-#if ENABLE_INPUT_SYSTEM
-            if (UnityEngine.InputSystem.Keyboard.current[Settings.OpenKey].wasPressedThisFrame) {
-                m_menuController.Toggle();
-            }
+			var go = new GameObject("DebugKit");
+			m_debugKitGui = go.AddComponent<DebugKitGui>();
+			m_debugKitGui.Initialize(this);
+
+			Object.DontDestroyOnLoad(go);
+
+			m_menuController = new MenuController(m_debugKitGui.Root);
+		}
+
+		public Menu Menu(string name, string classNames = null)
+		{
+			return m_menuController.Create(name, classNames);
+		}
+
+		public void Update()
+		{
+			if (WasToggleButtonPressed()) {
+				m_menuController.Toggle();
+			}
+
+			Scale = DebugKitScreen.ViewScale();
+			m_menuController.Update();
+		}
+
+		public DebugKitSettings LoadSettings()
+		{
+			var settings = Resources.LoadAll<DebugKitSettings>("");
+
+			if (settings.Length > 0) {
+				return settings[0];
+			}
+
+#if UNITY_EDITOR
+			Debug.LogError("Failed to find DebugKitSettings. Creating a default one");
+			return DebugKitSettings.CreateDefaultSettings();
 #else
-            if (Input.GetKeyDown(Settings.OpenKey)) {
-                m_menuController.Toggle();
-            }
+			Debug.LogError("Failed to find DebugKitSettings. Please create one in the Resources folder.");
+			return new DebugKitSettings();
 #endif
-            
-            m_menuController.Update();
-        }
-    }
+		}
+
+		private bool WasToggleButtonPressed()
+		{
+#if ENABLE_INPUT_SYSTEM
+			return UnityEngine.InputSystem.Keyboard.current[Settings.OpenKey].wasPressedThisFrame;
+#else
+            return Input.GetKeyDown(Settings.OpenKey);
+#endif
+		}
+	}
 }

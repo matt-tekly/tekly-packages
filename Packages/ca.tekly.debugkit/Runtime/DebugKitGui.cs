@@ -1,35 +1,45 @@
-﻿using UnityEngine;
+﻿using Tekly.DebugKit.Utils;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Tekly.DebugKit
 {
 	public class DebugKitGui : MonoBehaviour
 	{
-		private UIDocument m_document;
 		public VisualElement Root => m_document.rootVisualElement;
+
+		public float Scale {
+			get => m_document.panelSettings.scale;
+			set => m_document.panelSettings.scale = value;
+		}
 		
-		private bool m_buttonEnabled;
-		private int m_intValue;
-		private float m_floatValue;
-		private string m_stringValue;
-		
-		private void Awake()
+		private UIDocument m_document;
+		private DebugKit m_debugKit;
+
+		public void Initialize(DebugKit debugKit)
 		{
-			var settings = Resources.Load<DebugKitSettings>("DebugKit/debug_kit");
+			m_debugKit = debugKit;
 			m_document = gameObject.AddComponent<UIDocument>();
-			m_document.panelSettings = settings.PanelSettings;
-			
-			DebugKit.Instance.Settings = settings;
+			m_document.panelSettings = debugKit.Settings.PanelSettings;
+
+			if (debugKit.Settings.StyleSheets != null) {
+				foreach (var sheet in debugKit.Settings.StyleSheets) {
+					m_document.rootVisualElement.styleSheets.Add(sheet);
+				}
+			}
+
+			if (debugKit.Settings.RootClassNames != null) {
+				foreach (var classNames in debugKit.Settings.RootClassNames) {
+					m_document.rootVisualElement.AddClassNames(classNames);
+				}
+			}
+
+			// m_document.rootVisualElement.Add(Root);
 		}
 
 		private void Update()
 		{
-			DebugKit.Instance.Update();
-		}
-		
-		private void OnDestroy()
-		{
-			Debug.Log("Destroying");
+			m_debugKit.Update();
 		}
 	}
 }

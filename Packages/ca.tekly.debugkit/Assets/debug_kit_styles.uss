@@ -37,6 +37,16 @@
     padding: 0 6px 6px 6px;
 }
 
+.dk-fade {
+    opacity: 0.5;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.dk-fade:hover {
+    opacity: 1;
+    transition: opacity 0.2s ease-in-out;
+}
+
 .unity-base-field:hover:enabled > .unity-base-field__label {
     color: var(--text-focused);
 }

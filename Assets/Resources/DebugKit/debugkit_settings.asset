@@ -10,7 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 226fe4069f2d48ee8b6bfcfc7f18f41b, type: 3}
-  m_Name: debug_kit
+  m_Name: debugkit_settings
   m_EditorClassIdentifier: 
   OpenKey: 95
   PanelSettings: {fileID: 11400000, guid: 6d88bcfe9461f5c4498e4ecb9dd9abe6, type: 2}
+  StyleSheets: []
+  RootClassNames: []
