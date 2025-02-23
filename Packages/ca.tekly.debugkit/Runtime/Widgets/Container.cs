@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Tekly.DebugKit.Utils;
-using UnityEngine.PlayerLoop;
 using UnityEngine.UIElements;
 
 namespace Tekly.DebugKit.Widgets
@@ -10,8 +9,19 @@ namespace Tekly.DebugKit.Widgets
 	{
 		private List<Widget> m_widgets = new List<Widget>();
 
-		public readonly VisualElement Root;
+		public VisualElement Root;
+		private VisualElement oldRoot;
 		private readonly VisualElement m_parent;
+
+		private bool m_enabled;
+
+		public bool Enabled {
+			get => m_enabled;
+			set {
+				m_enabled = value;
+				Root.style.display = m_enabled ? DisplayStyle.Flex : DisplayStyle.None;
+			}
+		}
 
 		public Container(VisualElement root, string classNames = null)
 		{
@@ -80,7 +90,7 @@ namespace Tekly.DebugKit.Widgets
 
 			return this;
 		}
-		
+
 		public Container IntField(string label, Func<int> getValue, Action<int> setValue)
 		{
 			var textField = new IntFieldWidget(this, label, getValue, setValue);
@@ -130,7 +140,7 @@ namespace Tekly.DebugKit.Widgets
 
 			return this;
 		}
-		
+
 		public Container Checkbox(string label, string classNames, Func<bool> getValue, Action<bool> setValue)
 		{
 			var button = new CheckboxWidget(this, label, classNames, getValue, setValue);
@@ -138,7 +148,7 @@ namespace Tekly.DebugKit.Widgets
 
 			return this;
 		}
-		
+
 		public Container Checkbox(string label, Func<bool> getValue, Action<bool> setValue)
 		{
 			return Checkbox(label, null, getValue, setValue);
@@ -176,6 +186,7 @@ namespace Tekly.DebugKit.Widgets
 		{
 			return Column(null, builder);
 		}
+
 		public Container Column(string className, Action<Container> builder)
 		{
 			var container = new Container(Root, "dk-layout-column", className);
@@ -201,7 +212,7 @@ namespace Tekly.DebugKit.Widgets
 		{
 			return Foldout(name, false, builder);
 		}
-		
+
 		public Container Foldout(string name, bool folded, Action<Container> builder)
 		{
 			var foldout = new Foldout();
@@ -210,7 +221,7 @@ namespace Tekly.DebugKit.Widgets
 
 			var container = new Container(foldout);
 			builder.Invoke(container);
-			
+
 			m_widgets.Add(container);
 			Root.Add(foldout);
 
@@ -221,6 +232,40 @@ namespace Tekly.DebugKit.Widgets
 		{
 			m_widgets.Add(new Updater(action, canUpdate));
 			return this;
+		}
+
+		public Container ScrollView(ScrollViewMode scrollViewMode, Action<Container> builder)
+		{
+			var scrollView = new ScrollView(scrollViewMode);
+			var container = new Container(scrollView);
+			builder.Invoke(container);
+
+			m_widgets.Add(container);
+			Root.Add(scrollView);
+
+			return this;
+		}
+
+		public Container Dropdown(List<string> choices, int initialIndex, Action<int> onIndexChanged)
+		{
+			var dropdown = new DropdownField(choices, initialIndex);
+			dropdown.AddToClassList("dk-dropdown");
+			dropdown.RegisterValueChangedCallback(evt => onIndexChanged?.Invoke(choices.IndexOf(evt.newValue)));
+			Root.Add(dropdown);
+			return this;
+		}
+
+		public Container Raw(VisualElement rawElement)
+		{
+			Root.Add(rawElement);
+			return this;
+		}
+
+		public Container ChildContainer(string classNames = null, string extraClassNames = null)
+		{
+			var container = new Container(Root, classNames, extraClassNames);
+			m_widgets.Add(container);
+			return container;
 		}
 	}
 }

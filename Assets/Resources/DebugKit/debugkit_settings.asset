@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: debugkit_settings
   m_EditorClassIdentifier: 
   OpenKey: 95
+  OpenTouchCount: 0
   PanelSettings: {fileID: 11400000, guid: 6d88bcfe9461f5c4498e4ecb9dd9abe6, type: 2}
   StyleSheets: []
   RootClassNames: []

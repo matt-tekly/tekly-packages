@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using Tekly.DebugKit.Utils;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Tekly.DebugKit.Widgets
@@ -6,106 +8,74 @@ namespace Tekly.DebugKit.Widgets
 	public class MenuController
 	{
 		public readonly VisualElement Root;
-		private List<Menu> m_menus = new List<Menu>();
 
 		private int m_currentMenu;
 		private bool m_enabled;
 
+		private readonly List<string> m_menus = new List<string>();
+		private readonly List<Container> m_containers = new List<Container>();
+		private readonly DropdownField m_menuDropdown;
+		private readonly Container m_rootContainer;
+
 		public MenuController(VisualElement root)
 		{
 			Root = root;
+
+			m_rootContainer = new Container(root, "dk-root");
 			Enable(false);
+
+			m_menuDropdown = new DropdownField();
+			m_menuDropdown.AddClassNames("dk-dropdown");
+			m_menuDropdown.RegisterValueChangedCallback(evt => SetMenu(m_menus.IndexOf(evt.newValue)));
+			m_rootContainer
+				.Raw(m_menuDropdown)
+				.Separator();
 		}
 
-		public Menu Create(string name, string classNames)
+		public Container Create(string name, string classNames)
 		{
-			var menu = new Menu(name, this, classNames);
-			m_menus.Add(menu);
+			var childContainer = m_rootContainer.ChildContainer(classNames);
+			m_containers.Add(childContainer);
 
-			return menu;
+			m_menus.Add(name);
+			m_menuDropdown.choices.Add(name);
+
+			if (m_menuDropdown.index == -1) {
+				m_menuDropdown.index = 0;
+			} else {
+				childContainer.Enabled = false;
+			}
+
+			return childContainer;
 		}
 
 		public void Toggle()
 		{
 			Enable(!m_enabled);
 		}
-		
+
 		public void Enable(bool enabled)
 		{
 			m_enabled = enabled;
 			Root.style.display = m_enabled ? DisplayStyle.Flex : DisplayStyle.None;
 
-			if (m_menus.Count > 0) {
-				m_menus[m_currentMenu].Enabled = enabled;
+			if (m_containers.Count > 0) {
+				m_containers[m_currentMenu].Enabled = enabled;
 			}
 		}
-		
+
 		public void Update()
 		{
-			if (m_enabled && m_menus.Count > 0) {
-				m_menus[m_currentMenu].Update();
+			if (m_enabled && m_containers.Count > 0) {
+				m_containers[m_currentMenu].Update();
 			}
 		}
 
-		public void LeftMenu()
+		public void SetMenu(int index)
 		{
-			m_menus[m_currentMenu].Enabled = false;
-			m_currentMenu = WrapIndex(m_menus, m_currentMenu, -1);
-			m_menus[m_currentMenu].Enabled = true;
-		}
-		
-		public void RightMenu()
-		{
-			m_menus[m_currentMenu].Enabled = false;
-			m_currentMenu = WrapIndex(m_menus, m_currentMenu, -1);
-			m_menus[m_currentMenu].Enabled = true;
-		}
-
-		public static int WrapIndex<T>(IList<T> list, int index, int increment)
-		{
-			if (list.Count == 0) {
-				return 0;
-			}
-
-			var newIndex = (index + increment) % list.Count;
-
-			if (newIndex < 0) {
-				newIndex += list.Count;
-			}
-
-			return newIndex;
-		}
-	}
-
-	public class Menu : Container
-	{
-		private bool m_enabled;
-
-		public readonly string Name;
-
-		public bool Enabled {
-			get => m_enabled;
-			set {
-				m_enabled = value;
-				Root.style.display = m_enabled ? DisplayStyle.Flex : DisplayStyle.None;
-			}
-		}
-
-		public Menu(string name, MenuController menuController, string classNames = null) : base(menuController.Root, "dk-root", classNames)
-		{
-			Name = name;
-			
-			Row("spaced items-center", row => {
-				row.Heading(name);
-				row.Row("items-center button-group", left => {
-					left.Button("<", "small left", menuController.LeftMenu);
-					left.Button(">", "small right", menuController.RightMenu);
-				});
-			});
-
-			Separator();
-
-			Enabled = false;
+			m_containers[m_currentMenu].Enabled = false;
+			m_currentMenu = index;
+			m_containers[m_currentMenu].Enabled = true;
 		}
 	}
 }

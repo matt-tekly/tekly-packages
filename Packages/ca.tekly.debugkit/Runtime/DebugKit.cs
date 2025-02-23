@@ -7,13 +7,12 @@ namespace Tekly.DebugKit
 {
 	public class DebugKit : Singleton<DebugKit>
 	{
-		public bool Visible { get; set; }
-
 		private DebugKitGui m_debugKitGui;
 		private MenuController m_menuController;
+		private bool m_inputConsumed;
 
 		public DebugKitSettings Settings;
-		
+
 		public float Scale {
 			get => m_debugKitGui.Scale;
 			set => m_debugKitGui.Scale = value;
@@ -32,9 +31,17 @@ namespace Tekly.DebugKit
 			Object.DontDestroyOnLoad(go);
 
 			m_menuController = new MenuController(m_debugKitGui.Root);
+
+#if ENABLE_INPUT_SYSTEM
+			UnityEngine.InputSystem.EnhancedTouch.EnhancedTouchSupport.Enable();
+#if UNITY_EDITOR
+			UnityEngine.InputSystem.EnhancedTouch.TouchSimulation.Enable();
+#endif
+#endif
+
 		}
 
-		public Menu Menu(string name, string classNames = null)
+		public Container Menu(string name, string classNames = null)
 		{
 			return m_menuController.Create(name, classNames);
 		}
@@ -58,7 +65,7 @@ namespace Tekly.DebugKit
 			}
 
 #if UNITY_EDITOR
-			Debug.LogError("Failed to find DebugKitSettings. Creating a default one");
+			Debug.LogWarning("Failed to find DebugKitSettings. Creating a default one");
 			return DebugKitSettings.CreateDefaultSettings();
 #else
 			Debug.LogError("Failed to find DebugKitSettings. Please create one in the Resources folder.");
@@ -68,11 +75,24 @@ namespace Tekly.DebugKit
 
 		private bool WasToggleButtonPressed()
 		{
+			var toggle =
 #if ENABLE_INPUT_SYSTEM
-			return UnityEngine.InputSystem.Keyboard.current[Settings.OpenKey].wasPressedThisFrame;
+				UnityEngine.InputSystem.Keyboard.current[Settings.OpenKey].wasPressedThisFrame ||
+				(Settings.OpenTouchCount > 0 && UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches.Count == Settings.OpenTouchCount);
+
 #else
-            return Input.GetKeyDown(Settings.OpenKey);
+				Input.GetKeyDown(Settings.OpenKey) ||
+				Input.touchCount == DebugKitSettings.TOUCH_COUNT;
 #endif
+
+			m_inputConsumed &= toggle;
+
+			if (toggle && !m_inputConsumed) {
+				m_inputConsumed = true;
+				return true;
+			}
+
+			return false;
 		}
 	}
 }
