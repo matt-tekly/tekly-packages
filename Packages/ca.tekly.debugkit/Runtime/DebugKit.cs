@@ -1,16 +1,18 @@
+using System;
 using Tekly.Common.Utils;
+using Tekly.DebugKit.Performance;
 using Tekly.DebugKit.Utils;
 using Tekly.DebugKit.Widgets;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Tekly.DebugKit
 {
-	public class DebugKit : Singleton<DebugKit>
+	public class DebugKit : Singleton<DebugKit>, IDisposable
 	{
-		public bool Visible { get; set; }
-
 		private DebugKitGui m_debugKitGui;
 		private MenuController m_menuController;
+		private PerformanceMonitor m_performanceMonitor;
 
 		public DebugKitSettings Settings;
 		
@@ -32,6 +34,7 @@ namespace Tekly.DebugKit
 			Object.DontDestroyOnLoad(go);
 
 			m_menuController = new MenuController(m_debugKitGui.Root);
+			m_performanceMonitor = new PerformanceMonitor(m_debugKitGui.Root, this);
 		}
 
 		public Menu Menu(string name, string classNames = null)
@@ -46,7 +49,9 @@ namespace Tekly.DebugKit
 			}
 
 			Scale = DebugKitScreen.ViewScale();
+			
 			m_menuController.Update();
+			m_performanceMonitor.Update();
 		}
 
 		public DebugKitSettings LoadSettings()
@@ -73,6 +78,11 @@ namespace Tekly.DebugKit
 #else
             return Input.GetKeyDown(Settings.OpenKey);
 #endif
+		}
+
+		public void Dispose()
+		{
+			m_performanceMonitor?.Dispose();
 		}
 	}
 }

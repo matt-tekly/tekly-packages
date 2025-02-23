@@ -13,7 +13,9 @@ namespace Tekly.DebugKit.Widgets
 
 		public MenuController(VisualElement root)
 		{
-			Root = root;
+			Root = new VisualElement();
+			root.Add(Root);
+			
 			Enable(false);
 		}
 
@@ -57,7 +59,7 @@ namespace Tekly.DebugKit.Widgets
 		public void RightMenu()
 		{
 			m_menus[m_currentMenu].Enabled = false;
-			m_currentMenu = WrapIndex(m_menus, m_currentMenu, -1);
+			m_currentMenu = WrapIndex(m_menus, m_currentMenu, 1);
 			m_menus[m_currentMenu].Enabled = true;
 		}
 
@@ -79,17 +81,7 @@ namespace Tekly.DebugKit.Widgets
 
 	public class Menu : Container
 	{
-		private bool m_enabled;
-
 		public readonly string Name;
-
-		public bool Enabled {
-			get => m_enabled;
-			set {
-				m_enabled = value;
-				Root.style.display = m_enabled ? DisplayStyle.Flex : DisplayStyle.None;
-			}
-		}
 
 		public Menu(string name, MenuController menuController, string classNames = null) : base(menuController.Root, "dk-root", classNames)
 		{

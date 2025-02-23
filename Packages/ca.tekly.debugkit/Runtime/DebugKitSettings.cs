@@ -11,7 +11,7 @@ namespace Tekly.DebugKit
 		private const string DIRECTORY = "Assets/Resources/DebugKit/";
 		private const string FILE = "debugkit_settings.asset";
 		
-#if DEBUGKIT_INPUT_SYSTEM
+#if ENABLE_INPUT_SYSTEM
 		public UnityEngine.InputSystem.Key OpenKey = UnityEngine.InputSystem.Key.F2;
 #else
 		public KeyCode OpenKey = KeyCode.F2;

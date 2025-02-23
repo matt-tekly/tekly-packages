@@ -1,25 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using Tekly.DebugKit.Utils;
-using UnityEngine.PlayerLoop;
 using UnityEngine.UIElements;
 
 namespace Tekly.DebugKit.Widgets
 {
 	public class Container : Widget
 	{
-		private List<Widget> m_widgets = new List<Widget>();
+		public bool Enabled {
+			get => m_enabled;
+			set {
+				m_enabled = value;
+				Root.style.display = value ? DisplayStyle.Flex : DisplayStyle.None;
+			}
+		}
 
 		public readonly VisualElement Root;
-		private readonly VisualElement m_parent;
+		private readonly List<Widget> m_widgets = new List<Widget>();
+		private bool m_enabled = true;
 
 		public Container(VisualElement root, string classNames = null)
 		{
 			Root = new VisualElement();
 			Root.AddClassNames(classNames);
 
-			m_parent = root;
-			m_parent.Add(Root);
+			root.Add(Root);
 		}
 
 		public Container(VisualElement root, string classNames, string extraClassNames = null)
@@ -28,12 +33,15 @@ namespace Tekly.DebugKit.Widgets
 			Root.AddClassNames(classNames);
 			Root.AddClassNames(extraClassNames);
 
-			m_parent = root;
-			m_parent.Add(Root);
+			root.Add(Root);
 		}
 
 		public override void Update()
 		{
+			if (!Enabled) {
+				return;
+			}
+			
 			foreach (var widget in m_widgets) {
 				widget.Update();
 			}
@@ -57,9 +65,9 @@ namespace Tekly.DebugKit.Widgets
 			return this;
 		}
 
-		public Container Property(string labelText, Func<object> getValue, string format = "{0}")
+		public Container Property<T>(string labelText, Func<T> getValue, string format = "{0}")
 		{
-			var property = new Property(this, labelText, getValue, format);
+			var property = new Property<T>(this, labelText, getValue, format);
 			m_widgets.Add(property);
 
 			return this;
@@ -172,13 +180,32 @@ namespace Tekly.DebugKit.Widgets
 			return this;
 		}
 
+		public Container Column(string classNames = null)
+		{
+			var container = new Container(Root, "dk-layout-column", classNames);
+			m_widgets.Add(container);
+
+			return container;
+		}
+		
 		public Container Column(Action<Container> builder)
 		{
 			return Column(null, builder);
 		}
+		
 		public Container Column(string className, Action<Container> builder)
 		{
 			var container = new Container(Root, "dk-layout-column", className);
+			m_widgets.Add(container);
+
+			builder(container);
+
+			return this;
+		}
+		
+		public Container CardColumn(Action<Container> builder)
+		{
+			var container = new Container(Root, "dk-layout-column raised p4 r4 mv4");
 			m_widgets.Add(container);
 
 			builder(container);

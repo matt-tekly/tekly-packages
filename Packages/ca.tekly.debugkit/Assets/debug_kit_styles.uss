@@ -2,6 +2,7 @@
     /* Gruvbox */
     --bg: #282828; /* bg0 */
     --bg-raised: #3c3836; /* bg1 */
+    --bg-raised2: #504945; /* bg2 */
 
     --text: #f9efc5; /*fg0 */
     --text-focused: #82a497;
@@ -17,6 +18,7 @@
 
     --font-size: 12px;
     --line-height: 16px;
+    --line-height-small: 14px;
 }
 
 /* ==========================================
@@ -77,7 +79,13 @@
 
 .raised {
     background-color: var(--bg-raised);
-    border-color: #3c3836;
+    border-color: rgba(0, 0, 0, 0.2);
+    border-width: 1px;
+}
+
+.raised .raised {
+    background-color: rgba(0, 0, 0, 0.08);
+    border-width: 1px;
 }
 
 .p8 { padding: 8px; }
@@ -94,7 +102,6 @@
     align-items: center;
 }
 
-
 /* ==========================================
     BUTTON
 /* ========================================== */
@@ -109,12 +116,11 @@
 
 .dk-button {
     background-color: var(--button);
-    /*height: var(--line-height);*/
     height: 20px;
 
     border-radius: 4px;
     border-width: 1px;
-    border-color: transparent;
+    border-color: rgba(0,0,0, 0.15);
     padding: 0px 10px;
     margin: 3px 0px;
 }
@@ -135,11 +141,13 @@
 .button-group .right {
     border-top-left-radius: 0px ;
     border-bottom-left-radius: 0px ;
+    border-left-color: transparent;
 }
 
 .button-group .left {
     border-top-right-radius: 0px ;
     border-bottom-right-radius: 0px ;
+    border-right-color: transparent;
 }
 
 /* ==========================================
@@ -262,8 +270,8 @@ TextInput, .unity-base-text-field__input:hover:focus:enabled {
 }
 
 .unity-toggle__checkmark {
-    height: var(--line-height);
-    width: var(--line-height);
+    height: var(--line-height-small);
+    width: var(--line-height-small);
     background-color: var(--text-input-bg);
     border-radius: 4px;
 }
@@ -303,102 +311,17 @@ Foldout #unity-checkmark {
     margin: 0px;
 }
 
+/* ==========================================
+    Performance Monitor
+/* ========================================== */
+.dk-performance-monitor {
+    position: absolute;
+    right: 0;
+    left: auto;
 
-/*.dk-layout-column {*/
-/*    flex-direction: column;*/
-/*}*/
-
-/*.dk-layout-row {*/
-/*    flex-direction: row;*/
-/*}*/
-
-/*.dk-layout-row.stretch > * {*/
-/*    flex: 1;*/
-/*}*/
-
-/*.dk-layout-stretch {*/
-/*    flex-direction: row;*/
-/*}*/
-
-/*.dk-property {*/
-/*    flex-direction: row;*/
-/*    height: var(--line-height);*/
-/*    justify-content: space-between;*/
-/*    margin: 1px 3px 1px 3px;*/
-/*}*/
-
-/*.dk-property > Label {*/
-/*    font-size: var(--font-size);*/
-/*    margin: 0px;*/
-/*}*/
-
-/*.dk-property-label {*/
-/*    */
-/*}*/
-
-/*.dk-property-value {*/
-/*    color: var(--text-value);*/
-/*}*/
-
-/*.dk-label {*/
-/*    height: var(--line-height);*/
-/*}*/
-
-
-/*.dk-input > TextField {*/
-/*    height: var(--line-height);*/
-/*}*/
-
-/*.dk-input > TextInput {*/
-/*    background-color: var(--text-input-bg);*/
-/*    color: var(--text-input-face);*/
-/*    border-radius: 8px;*/
-/*    */
-/*    height: var(--line-height);*/
-/*    */
-/*    font-size: var(--font-size);*/
-/*    padding: 0px 6px;*/
-/*    border-width: 0px;*/
-/*}*/
-
-/*TextElement {*/
-/*    background-color: var(--text-input-bg);*/
-/*    color: var(--text-input-face);*/
-/*    border-radius: 8px;*/
-/*}*/
-
-/*Label {*/
-/*    font-size: var(--font-size);*/
-/*    margin: 0px;*/
-/*}*/
-
-/*.dk-input > Label, .dk-slider > Label {*/
-/*    font-size: var(--font-size);*/
-/*    margin: 0px;*/
-/*}*/
-
-/*.dk-slider {*/
-/*    height: var(--line-height);*/
-/*    min-height: 0px;*/
-/*}*/
-
-/*.dk-slider > * {*/
-/*    min-height: 0px;*/
-/*}*/
-
-/*#unity-dragger {*/
-/*    height: 16px;*/
-/*    margin-bottom: auto;*/
-/*    margin-top: auto;*/
-/*    top: 0;*/
-/*    position: relative;*/
-/*    border-radius: 4px;*/
-/*}*/
-
-/*#unity-tracker {*/
-/*    background-color: var(--text-input-bg);*/
-/*    border-width: 0px;*/
-/*    border-radius: 4px;*/
-/*}*/
-
+    background-color: var(--bg);
+    min-width: 150px;
+    max-width: 225px;
+    padding: 0 6px 6px 6px;
+}
 

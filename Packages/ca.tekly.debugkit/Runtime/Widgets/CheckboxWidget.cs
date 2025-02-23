@@ -31,7 +31,9 @@ namespace Tekly.DebugKit.Widgets
 			m_toggle.AddToClassList("dk-checkbox");
 			
 			container.Root.Add(m_toggle);
-
+			
+			m_toggle.value = m_getValue();
+			
 			m_toggle.RegisterValueChangedCallback(evt => {
 				m_setValue(evt.newValue);
 			});

@@ -6,13 +6,13 @@ namespace Tekly.DebugKit.Menus
 	{
 		private static string _test;
 		private static bool _bool;
-		
+
 		public static void Register()
 		{
 			DebugKit.Instance.Menu("Time")
 				.Property("Real Time", () => Time.realtimeSinceStartup, "{0:F2}")
 				.Property("Frame Count", () => Time.frameCount)
-				.Column("raised p4 r4 mv4", column => {
+				.CardColumn(column => {
 					column.FloatField("Time Scale", () => Time.timeScale, v => Time.timeScale = v)
 						.SliderFloat(null, 0.00f, 3f, () => Time.timeScale, v => Time.timeScale = v);
 				})

@@ -1,17 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine.UIElements;
 
 namespace Tekly.DebugKit.Widgets
 {
-	public class Property : Widget
+	public class Property<T> : Widget
 	{
-		private readonly Func<object> m_getValue;
+		private static readonly IEqualityComparer<T> s_defaultEqualityComparer = EqualityComparer<T>.Default;
+		
+		private readonly Func<T> m_getValue;
 		private readonly string m_format;
 
-		private object m_lastValue;
+		private T m_lastValue;
 		private readonly Label m_valueLabel;
         
-		public Property(Container container, string labelText, Func<object> getValue, string format = "{0}")
+		public Property(Container container, string labelText, Func<T> getValue, string format = "{0}")
 		{
 			m_getValue = getValue;
 			m_format = format;
@@ -35,11 +38,12 @@ namespace Tekly.DebugKit.Widgets
 		{
 			var value = m_getValue();
             
-			if (m_lastValue != value)
-			{
-				m_lastValue = value;
-				m_valueLabel.text = string.Format(m_format, value);
+			if (s_defaultEqualityComparer.Equals(m_lastValue, value)) {
+				return;
 			}
+			
+			m_lastValue = value;
+			m_valueLabel.text = string.Format(m_format, value);
 		}
 	}
 }
