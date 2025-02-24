@@ -46,14 +46,13 @@ namespace Tekly.DebugKit.Widgets
 				.HorizontalSpace();
 		}
 
-		public Container Create(string name, string classNames = null)
+		public Menu Create(string name, string classNames = null)
 		{
 			var menu = new Menu(name, m_rootContainer, classNames);
 			m_menus.Add(menu);
 
 			m_menuDropdown.choices.Add(name);
 			m_menuDropdown.choices.Sort();
-			m_menus.Sort((x,y) => string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase));
 
 			if (m_activeMenu != null) {
 				m_menuDropdown.SetValueWithoutNotify(m_activeMenu.Name);
@@ -62,6 +61,22 @@ namespace Tekly.DebugKit.Widgets
 			menu.Enabled = false;
 			
 			return menu;
+		}
+
+		public void Remove(Menu menu)
+		{
+			m_menus.Remove(menu);
+			
+			m_menuDropdown.choices.Remove(menu.Name);
+			m_menuDropdown.choices.Sort();
+			
+			if (m_activeMenu != menu) {
+				m_menuDropdown.SetValueWithoutNotify(m_activeMenu.Name);
+			} else {
+				m_menuDropdown.value = m_menus[0].Name;
+			}
+
+			menu.Enabled = false;
 		}
 
 		public void Toggle()

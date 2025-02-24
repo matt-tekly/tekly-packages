@@ -45,12 +45,16 @@ namespace Tekly.DebugKit
 #endif
 			}
 #endif
-			
 		}
 
-		public Container Menu(string name, string classNames = null)
+		public Menu Menu(string name, string classNames = null)
 		{
 			return m_menuController.Create(name, classNames);
+		}
+		
+		public void RemoveMenu(Menu menu)
+		{
+			m_menuController.Remove(menu);
 		}
 
 		public void Update()
