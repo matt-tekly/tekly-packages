@@ -18,6 +18,7 @@ namespace Tekly.DebugKit
 #endif
 
 		public int OpenTouchCount;
+		
 		public PanelSettings PanelSettings;
 		public StyleSheet[] StyleSheets;
 		public string[] RootClassNames;

@@ -38,11 +38,14 @@ namespace Tekly.DebugKit
 			m_performanceMonitor = new PerformanceMonitor(m_debugKitGui.Root, this);
 			
 #if ENABLE_INPUT_SYSTEM
-			UnityEngine.InputSystem.EnhancedTouch.EnhancedTouchSupport.Enable();
+			if (Settings.OpenTouchCount > 0) {	
+				UnityEngine.InputSystem.EnhancedTouch.EnhancedTouchSupport.Enable();
 #if UNITY_EDITOR
-			UnityEngine.InputSystem.EnhancedTouch.TouchSimulation.Enable();
+				UnityEngine.InputSystem.EnhancedTouch.TouchSimulation.Enable();
 #endif
+			}
 #endif
+			
 		}
 
 		public Container Menu(string name, string classNames = null)
@@ -88,7 +91,7 @@ namespace Tekly.DebugKit
 
 #else
 				Input.GetKeyDown(Settings.OpenKey) ||
-				Input.touchCount == DebugKitSettings.TOUCH_COUNT;
+				(Settings.OpenTouchCount > 0 && Input.touchCount == DebugKitSettings.TOUCH_COUNT);
 #endif
 
 			m_inputConsumed &= toggle;

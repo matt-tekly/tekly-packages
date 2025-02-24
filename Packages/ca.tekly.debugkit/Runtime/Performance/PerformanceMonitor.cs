@@ -32,10 +32,11 @@ namespace Tekly.DebugKit.Performance
 			Enabled = m_enabled.Value;
 
 			var menu = debugKit.Menu("Perf Monitor");
-			menu.Row("spaced", row => {
+			menu.Row(row => {
 				row.Checkbox("Enabled", () => Enabled, v => Enabled = v);
-				row.Button("All", () => SetAllEnabled(true));
-				row.Button("None", () => SetAllEnabled(false));
+				row.FlexibleSpace();
+				row.Button("All", "button-group-left", () => SetAllEnabled(true));
+				row.Button("None", "button-group-right", () => SetAllEnabled(false));
 			});
 			
 

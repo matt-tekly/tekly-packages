@@ -73,6 +73,10 @@
     -unity-font-style: bold;
 }
 
+.dk-flexible-space {
+    flex-grow: 1;
+}
+
 /* ==========================================
     UTILITY STYLES
 /* ========================================== */
@@ -137,12 +141,12 @@
     background-color: var(--button-pressed);
 }
 
-.button-group .right {
+.button-group-right {
     border-top-left-radius: 0px ;
     border-bottom-left-radius: 0px ;
 }
 
-.button-group .left {
+.button-group-left {
     border-top-right-radius: 0px ;
     border-bottom-right-radius: 0px ;
 }

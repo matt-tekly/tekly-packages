@@ -290,12 +290,16 @@ namespace Tekly.DebugKit.Widgets
 			Root.Add(rawElement);
 			return this;
 		}
-		
-		public Container ChildContainer(string classNames = null, string extraClassNames = null)
+
+		public Container FlexibleSpace(string classNames = null)
 		{
-			var container = new Container(Root, classNames, extraClassNames);
-			m_widgets.Add(container);
-			return container;
+			var spacer = new VisualElement();
+			spacer.AddClassNames("dk-flexible-space");
+			spacer.AddClassNames(classNames);
+
+			Raw(spacer);
+
+			return this;
 		}
 	}
 }
