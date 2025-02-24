@@ -32,7 +32,12 @@ namespace Tekly.DebugKit.Performance
 			Enabled = m_enabled.Value;
 
 			var menu = debugKit.Menu("Perf Monitor");
-			menu.Checkbox("Enabled", () => Enabled, v => Enabled = v);
+			menu.Row("spaced", row => {
+				row.Checkbox("Enabled", () => Enabled, v => Enabled = v);
+				row.Button("All", () => SetAllEnabled(true));
+				row.Button("None", () => SetAllEnabled(false));
+			});
+			
 
 			m_stats.Add(new FpsStat(m_fpsMonitor, m_container));
 			m_stats.Add(new FpsLowsStat(m_fpsMonitor, m_container));
@@ -67,6 +72,13 @@ namespace Tekly.DebugKit.Performance
 		{
 			foreach (var stat in m_stats) {
 				stat.Dispose();
+			}
+		}
+
+		private void SetAllEnabled(bool enabled)
+		{
+			foreach (var stat in m_stats) {
+				stat.Enabled = enabled;
 			}
 		}
 	}

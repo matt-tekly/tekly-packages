@@ -35,15 +35,14 @@ namespace Tekly.DebugKit
 			Object.DontDestroyOnLoad(go);
 
 			m_menuController = new MenuController(m_debugKitGui.Root);
-
+			m_performanceMonitor = new PerformanceMonitor(m_debugKitGui.Root, this);
+			
 #if ENABLE_INPUT_SYSTEM
 			UnityEngine.InputSystem.EnhancedTouch.EnhancedTouchSupport.Enable();
 #if UNITY_EDITOR
 			UnityEngine.InputSystem.EnhancedTouch.TouchSimulation.Enable();
 #endif
 #endif
-
-			m_performanceMonitor = new PerformanceMonitor(m_debugKitGui.Root, this);
 		}
 
 		public Container Menu(string name, string classNames = null)

@@ -20,7 +20,7 @@ namespace Tekly.DebugKit.Widgets
 		private readonly List<Widget> m_widgets = new List<Widget>();
 		private readonly VisualElement m_parent;
 
-		private bool m_enabled;
+		private bool m_enabled = true;
 		
 		public Container(VisualElement root, string classNames = null)
 		{
@@ -226,6 +226,17 @@ namespace Tekly.DebugKit.Widgets
 
 			return this;
 		}
+		
+		public Container HorizontalSpace(string classNames = null)
+		{
+			VisualElement visualElement = new VisualElement();
+			visualElement.AddToClassList("dk-horizontal-space");
+			visualElement.AddClassNames(classNames);
+
+			Root.Add(visualElement);
+
+			return this;
+		}
 
 		public Container Foldout(string name, Action<Container> builder)
 		{
@@ -279,7 +290,7 @@ namespace Tekly.DebugKit.Widgets
 			Root.Add(rawElement);
 			return this;
 		}
-
+		
 		public Container ChildContainer(string classNames = null, string extraClassNames = null)
 		{
 			var container = new Container(Root, classNames, extraClassNames);

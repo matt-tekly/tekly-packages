@@ -26,4 +26,29 @@ namespace Tekly.DebugKit.Utils
 			m_value = PlayerPrefs.GetInt(key, defaultValue ? 1 : 0) == 1;
 		}
 	}
+	
+	public class StringPref
+	{
+		public string Value
+		{
+			get => m_value;
+			set
+			{
+				if (m_value != value)
+				{
+					m_value = value;
+					PlayerPrefs.SetString(m_key, m_value);
+				}
+			}
+		}
+        
+		private readonly string m_key;
+		private string m_value;
+        
+		public StringPref(string key, string defaultValue)
+		{
+			m_key = key;
+			m_value = PlayerPrefs.GetString(key, defaultValue);
+		}
+	}
 }
