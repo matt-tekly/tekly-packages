@@ -364,6 +364,7 @@ Foldout #unity-checkmark {
 .unity-base-dropdown__checkmark {
     -unity-background-image-tint-color: #427b58;
     height: var(--line-height);
+    margin: 0;
 }
 
 .unity-base-popup-field__arrow {
@@ -381,6 +382,12 @@ Foldout #unity-checkmark {
     background-color: rgba(0,0,0,0.1);
 }
 
+.unity-base-dropdown__item-content {
+    height: var(--line-height);
+    min-height: var(--line-height);
+    max-height: var(--line-height);
+}
+
 .unity-base-dropdown__item > .unity-base-dropdown__checkmark {
     height: var(--line-height);
     min-height: var(--line-height);
@@ -389,6 +396,11 @@ Foldout #unity-checkmark {
     width: var(--line-height);
     min-width: var(--line-height);
     max-width: var(--line-height);
+}
+
+.unity-base-dropdown__item-content > .unity-base-dropdown__label {
+    margin: 0;
+    color: #3c3836;
 }
 
 .unity-base-dropdown__item > .unity-base-dropdown__label {
