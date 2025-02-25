@@ -4,9 +4,9 @@ namespace Tekly.DebugKit.Menus
 {
 	public static class TimeMenu
 	{
-		private static string _test;
-		private static bool _bool;
-
+#if DEBUGKIT_DISABLED
+		[System.Diagnostics.Conditional("__UNDEFINED__")]
+#endif
 		public static void Register()
 		{
 			DebugKit.Instance.Menu("Time")

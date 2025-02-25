@@ -4,6 +4,7 @@ using Tekly.DebugKit.Performance;
 using Tekly.DebugKit.Utils;
 using Tekly.DebugKit.Widgets;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 namespace Tekly.DebugKit
@@ -22,6 +23,9 @@ namespace Tekly.DebugKit
 			set => m_debugKitGui.Scale = value;
 		}
 
+#if DEBUGKIT_DISABLED
+		[System.Diagnostics.Conditional("__UNDEFINED__")]
+#endif
 		public void Initialize(DebugKitSettings settings = null)
 		{
 			if (settings == null) {
@@ -63,7 +67,10 @@ namespace Tekly.DebugKit
 				m_menuController.Toggle();
 			}
 
-			Scale = DebugKitScreen.ViewScale();
+			if (Settings.AutoScaleInEditor) {
+				Scale = DebugKitScreen.ViewScale();	
+			}
+			
 			
 			m_menuController.Update();
 			m_performanceMonitor.Update();

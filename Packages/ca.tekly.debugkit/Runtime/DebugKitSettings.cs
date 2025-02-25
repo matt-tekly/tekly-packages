@@ -22,6 +22,7 @@ namespace Tekly.DebugKit
 		public PanelSettings PanelSettings;
 		public StyleSheet[] StyleSheets;
 		public string[] RootClassNames;
+		public bool AutoScaleInEditor = true;
 
 
 #if UNITY_EDITOR

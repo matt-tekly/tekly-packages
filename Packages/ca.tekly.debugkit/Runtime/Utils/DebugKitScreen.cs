@@ -11,9 +11,6 @@ namespace Tekly.DebugKit.Utils
 	/// </summary>
 	public static class DebugKitScreen
 	{
-		public static int Width => (int) (Screen.width / ViewScale());
-		public static int Height => (int) (Screen.height / ViewScale());
-        
 #if UNITY_EDITOR
 		static DebugKitScreen()
 		{

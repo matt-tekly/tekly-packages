@@ -9,6 +9,9 @@ namespace Tekly.DebugKit.Menus
 		private static string s_selection;
 		private static int s_canvases;
 		
+#if DEBUGKIT_DISABLED
+		[System.Diagnostics.Conditional("__UNDEFINED__")]
+#endif
 		public static void Register()
 		{
 			DebugKit.Instance.Menu("UI")
