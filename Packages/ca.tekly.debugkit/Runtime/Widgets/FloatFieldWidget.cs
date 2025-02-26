@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Tekly.DebugKit.Widgets
@@ -15,23 +14,19 @@ namespace Tekly.DebugKit.Widgets
 		{
 			m_setValue = setValue;
 			m_getValue = getValue;
-
+			
 			m_floatField = new FloatField(labelText);
 			m_floatField.selectAllOnFocus = false;
 			m_floatField.selectAllOnMouseUp = false;
+			m_floatField.isDelayed = true;
 			m_floatField.SetValueWithoutNotify(m_getValue());
 			m_floatField.AddToClassList("dk-input");
 
 			container.Root.Add(m_floatField);
-
-			m_floatField.RegisterCallback<KeyDownEvent>(evt => {
-				if (evt.keyCode == KeyCode.KeypadEnter || evt.keyCode == KeyCode.Return) {
-					m_setValue(m_floatField.value);
-				}
-			});
-
-			m_floatField.RegisterCallback<FocusOutEvent>(_ => {
-				m_floatField.SetValueWithoutNotify(m_getValue());
+			
+			m_floatField.RegisterValueChangedCallback(_ =>
+			{
+				m_setValue(m_floatField.value);
 			});
 		}
 
