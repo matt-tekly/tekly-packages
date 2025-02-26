@@ -124,7 +124,7 @@
     border-radius: 4px;
     border-width: 1px;
     border-color: transparent;
-    padding: 0px 10px;
+    padding: 0px 5px;
     margin: 3px 0px;
 }
 
@@ -149,6 +149,22 @@
 .button-group-left {
     border-top-right-radius: 0px ;
     border-bottom-right-radius: 0px ;
+}
+
+.dk-button.negative, .dk-button.negative:hover:focus, .dk-button.negative:hover:enabled {
+    background-color: #cc241d; /*red*/
+}
+
+.dk-button.negative:active:hover:focus {
+    background-color: #a21c17;
+}
+
+.dk-button.positive, .dk-button.positive:hover:focus, .dk-button.positive:hover:enabled {
+    background-color: #689d6a; /*aqua*/
+}
+
+.dk-button.positive:active:hover:focus {
+    background-color: #527c53;
 }
 
 /* ==========================================

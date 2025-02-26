@@ -35,8 +35,8 @@ namespace Tekly.DebugKit.Performance
 			menu.Row(row => {
 				row.Checkbox("Enabled", () => Enabled, v => Enabled = v);
 				row.FlexibleSpace();
-				row.Button("All", "button-group-left", () => SetAllEnabled(true));
-				row.Button("None", "button-group-right", () => SetAllEnabled(false));
+				row.Button("All", "button-group-left positive", () => SetAllEnabled(true));
+				row.Button("None", "button-group-right negative", () => SetAllEnabled(false));
 			});
 			
 
