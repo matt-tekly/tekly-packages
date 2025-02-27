@@ -359,6 +359,9 @@ Foldout #unity-checkmark {
     border-width: 0;
 }
 
+.unity-base-popup-field__text {
+    margin-right: 40px;
+}
 .unity-base-dropdown__container-inner {
     background-color: #d5c4a1;
     border-width: 2px;
@@ -366,6 +369,11 @@ Foldout #unity-checkmark {
     border-radius: 4px;
     color: black;
 }
+
+.unity-base-dropdown__item {
+    padding: 0;
+}
+
 
 .unity-base-dropdown__container-outer {
     background-color: transparent;
