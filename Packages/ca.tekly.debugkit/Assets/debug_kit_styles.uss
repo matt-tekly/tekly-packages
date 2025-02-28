@@ -352,6 +352,16 @@ Foldout #unity-checkmark {
     min-height: 20px;
 }
 
+.dk-dropdown:hover {
+    border-width: 1px;
+    border-color: var(--text-value);
+}
+
+.dk-dropdown:focus {
+    border-width: 1px;
+    border-color: var(--text-value);
+}
+
 .dk-dropdown .unity-base-popup-field__input {
     background-color: var(--button);
     margin: 0;
@@ -373,7 +383,6 @@ Foldout #unity-checkmark {
 .unity-base-dropdown__item {
     padding: 0;
 }
-
 
 .unity-base-dropdown__container-outer {
     background-color: transparent;

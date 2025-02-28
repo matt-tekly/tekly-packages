@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Tekly.DebugKit.Utils;
 using UnityEngine.UIElements;
@@ -9,15 +8,24 @@ namespace Tekly.DebugKit.Widgets
 	public class Menu : Container
 	{
 		public readonly string Name;
+		private readonly MenuController m_menuController;
 
-		public Menu(string name, Container container, string classNames = null) : base(container.Root, classNames)
+		public Menu(string name, MenuController menuController, string classNames = null) : base(menuController.Root, classNames)
 		{
 			Name = name;
+			m_menuController = menuController;
+		}
+		
+		public void Select()
+		{
+			m_menuController.Select(this);
 		}
 	}
 
 	public class MenuController
 	{
+		public VisualElement Root => m_rootContainer.Root;
+		
 		private int m_currentMenu;
 
 		private bool Enabled {
@@ -31,6 +39,9 @@ namespace Tekly.DebugKit.Widgets
 
 		private Menu m_activeMenu;
 
+
+		private StringPref m_lastSelectedMenu = new StringPref("debugkit.menu.selected", "");
+		
 		public MenuController(VisualElement root)
 		{
 			m_rootContainer = new Container(root, "dk-root");
@@ -48,7 +59,7 @@ namespace Tekly.DebugKit.Widgets
 
 		public Menu Create(string name, string classNames = null)
 		{
-			var menu = new Menu(name, m_rootContainer, classNames);
+			var menu = new Menu(name, this, classNames);
 			m_menus.Add(menu);
 
 			m_menuDropdown.choices.Add(name);
@@ -70,9 +81,7 @@ namespace Tekly.DebugKit.Widgets
 			m_menuDropdown.choices.Remove(menu.Name);
 			m_menuDropdown.choices.Sort();
 			
-			if (m_activeMenu != menu) {
-				m_menuDropdown.SetValueWithoutNotify(m_activeMenu.Name);
-			} else {
+			if (m_activeMenu == menu) {
 				m_menuDropdown.value = m_menus[0].Name;
 			}
 
@@ -88,8 +97,13 @@ namespace Tekly.DebugKit.Widgets
 		{
 			Enabled = enabled;
 			
-			if (enabled && m_activeMenu == null) {
-				m_menuDropdown.value = m_menus[0].Name;
+			if (enabled) {
+				var lastSelectedMenu = m_lastSelectedMenu.Value;
+				if (!string.IsNullOrEmpty(lastSelectedMenu) && Exists(lastSelectedMenu)) {
+					m_menuDropdown.value = lastSelectedMenu;
+				} else {
+					m_menuDropdown.value = m_menus[0].Name;	
+				}
 			}
 		}
 
@@ -106,8 +120,20 @@ namespace Tekly.DebugKit.Widgets
 				m_activeMenu.Enabled = false;	
 			}
 
-			m_activeMenu = m_menus.First(x => x.Name == menu);
+			m_activeMenu = m_menus.FirstOrDefault(x => x.Name == menu);
 			m_activeMenu.Enabled = true;
+
+			m_lastSelectedMenu.Value = menu;
+		}
+		
+		private bool Exists(string menuName)
+		{
+			return m_menus.FirstOrDefault(x => x.Name == menuName) != null; 
+		}
+
+		public void Select(Menu menu)
+		{
+			m_menuDropdown.value = menu.Name;
 		}
 	}
 }
