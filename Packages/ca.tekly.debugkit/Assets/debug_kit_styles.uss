@@ -22,6 +22,11 @@
 /* ==========================================
     GENERAL STYLES
 /* ========================================== */
+
+#DebugKit-container {
+    align-items: flex-start;
+}
+
 * {
     color: var(--text);
     font-size: var(--font-size);
@@ -31,8 +36,7 @@
 
 .dk-root {
     background-color: var(--bg);
-    min-width: 100px;
-    max-width: 225px;
+    min-width: 225px;
     border-bottom-right-radius: 10px;
     padding: 6px 6px 6px 6px;
 }
@@ -186,9 +190,22 @@ Label, .unity-label {
 /* ==========================================
     TEXT FIELD
 /* ========================================== */
-TextField, .unity-text-field, .unity-base-text-field, .unity-base-field {
-    margin: 0px 0px;
+TextField {
+    margin: 0 0;
     align-items: center;
+}
+
+.unity-text-field {
+    margin: 0 0;
+    align-items: center;
+}
+
+.unity-base-text-field {
+    margin: 0 0;
+}
+
+.unity-base-field {
+    margin: 0 0;
 }
 
 .unity-text-element--inner-input-field-component {
@@ -291,6 +308,10 @@ TextInput, .unity-base-text-field__input:hover:focus:enabled {
     width: 14px;
     background-color: var(--text-input-bg);
     border-radius: 4px;
+}
+
+.unity-toggle .unity-label {
+    align-self: center;
 }
 
 /* ==========================================
