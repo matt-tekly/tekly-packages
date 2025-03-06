@@ -22,7 +22,7 @@ namespace Tekly.DebugKit.Widgets
 		}
 	}
 
-	public class MenuController
+	public class MenuController : Widget
 	{
 		public VisualElement Root => m_rootContainer.Root;
 		
@@ -40,11 +40,12 @@ namespace Tekly.DebugKit.Widgets
 		private Menu m_activeMenu;
 
 
-		private StringPref m_lastSelectedMenu = new StringPref("debugkit.menu.selected", "");
+		private readonly StringPref m_lastSelectedMenu;
 		
-		public MenuController(VisualElement root)
+		public MenuController(VisualElement root, string pref, string classNames = null)
 		{
-			m_rootContainer = new Container(root, "dk-root");
+			m_rootContainer = new Container(root, classNames);
+			m_lastSelectedMenu = new StringPref(pref, "");
 
 			Enable(false);
 
@@ -107,7 +108,7 @@ namespace Tekly.DebugKit.Widgets
 			}
 		}
 
-		public void Update()
+		public override void Update()
 		{
 			if (Enabled && m_activeMenu != null) {
 				m_activeMenu.Update();

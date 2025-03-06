@@ -38,7 +38,7 @@ namespace Tekly.DebugKit
 
 			Object.DontDestroyOnLoad(go);
 
-			m_menuController = new MenuController(m_debugKitGui.Root);
+			m_menuController = new MenuController(m_debugKitGui.Root, "debugkit.menu.selected", "dk-root");
 			m_performanceMonitor = new PerformanceMonitor(m_debugKitGui.Root, this);
 			
 #if ENABLE_INPUT_SYSTEM
@@ -70,7 +70,6 @@ namespace Tekly.DebugKit
 			if (Settings.AutoScaleInEditor) {
 				Scale = DebugKitScreen.ViewScale();	
 			}
-			
 			
 			m_menuController.Update();
 			m_performanceMonitor.Update();

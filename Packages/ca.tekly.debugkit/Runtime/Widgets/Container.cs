@@ -301,5 +301,14 @@ namespace Tekly.DebugKit.Widgets
 
 			return this;
 		}
+
+		public void MenuController(string pref, Action<MenuController> action)
+		{
+			var menuController = new MenuController(Root, pref);
+			action.Invoke(menuController);
+			menuController.Enable(true);
+			
+			m_widgets.Add(menuController);
+		}
 	}
 }
