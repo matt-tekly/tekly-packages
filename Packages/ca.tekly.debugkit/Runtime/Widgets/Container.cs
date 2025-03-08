@@ -71,7 +71,7 @@ namespace Tekly.DebugKit.Widgets
 		public Container Property<T>(string labelText, Func<T> getValue, string format = "{0}")
 		{
 			var property = new Property<T>(this, labelText, getValue, format);
-			m_widgets.Add(property);
+			AddWidget(property);
 
 			return this;
 		}
@@ -79,7 +79,7 @@ namespace Tekly.DebugKit.Widgets
 		public Container TextField(string label, Func<string> getValue, Action<string> setValue)
 		{
 			var textField = new TextFieldWidget(this, label, getValue, setValue);
-			m_widgets.Add(textField);
+			AddWidget(textField);
 
 			return this;
 		}
@@ -87,7 +87,7 @@ namespace Tekly.DebugKit.Widgets
 		public Container FloatField(string label, Func<float> getValue, Action<float> setValue)
 		{
 			var textField = new FloatFieldWidget(this, label, getValue, setValue);
-			m_widgets.Add(textField);
+			AddWidget(textField);
 
 			return this;
 		}
@@ -95,7 +95,7 @@ namespace Tekly.DebugKit.Widgets
 		public Container IntField(string label, Func<int> getValue, Action<int> setValue)
 		{
 			var textField = new IntFieldWidget(this, label, getValue, setValue);
-			m_widgets.Add(textField);
+			AddWidget(textField);
 
 			return this;
 		}
@@ -103,7 +103,7 @@ namespace Tekly.DebugKit.Widgets
 		public Container SliderFloat(string label, float min, float max, Func<float> getValue, Action<float> setValue)
 		{
 			var slider = new SliderFloatWidget(this, label, min, max, getValue, setValue);
-			m_widgets.Add(slider);
+			AddWidget(slider);
 
 			return this;
 		}
@@ -116,7 +116,7 @@ namespace Tekly.DebugKit.Widgets
 		public Container SliderInt(string label, int min, int max, Func<int> getValue, Action<int> setValue)
 		{
 			var slider = new SliderIntWidget(this, label, min, max, getValue, setValue);
-			m_widgets.Add(slider);
+			AddWidget(slider);
 
 			return this;
 		}
@@ -129,7 +129,7 @@ namespace Tekly.DebugKit.Widgets
 		public Container Button(string label, Action action, Func<bool> isInteractable = null)
 		{
 			var button = new ButtonWidget(this, label, action, isInteractable);
-			m_widgets.Add(button);
+			AddWidget(button);
 
 			return this;
 		}
@@ -137,7 +137,39 @@ namespace Tekly.DebugKit.Widgets
 		public Container Button(string label, string classNames, Action action, Func<bool> isInteractable = null)
 		{
 			var button = new ButtonWidget(this, label, classNames, action, isInteractable);
-			m_widgets.Add(button);
+			AddWidget(button);
+
+			return this;
+		}
+		
+		public Container ButtonCopy(Action action, Func<bool> isInteractable = null)
+		{
+			var button = new ButtonWidget(this, null, "copy", action, isInteractable);
+			AddWidget(button);
+
+			return this;
+		}
+		
+		public Container ButtonCopy(string classNames, Action action, Func<bool> isInteractable = null)
+		{
+			var button = new ButtonWidget(this, null, "copy" + " " + classNames, action, isInteractable);
+			AddWidget(button);
+
+			return this;
+		}
+		
+		public Container ButtonPaste(Action action, Func<bool> isInteractable = null)
+		{
+			var button = new ButtonWidget(this, null, "paste", action, isInteractable);
+			AddWidget(button);
+
+			return this;
+		}
+		
+		public Container ButtonPaste(string classNames, Action action, Func<bool> isInteractable = null)
+		{
+			var button = new ButtonWidget(this, null, "paste" + " " + classNames, action, isInteractable);
+			AddWidget(button);
 
 			return this;
 		}
@@ -145,7 +177,7 @@ namespace Tekly.DebugKit.Widgets
 		public Container Checkbox(string label, string classNames, Func<bool> getValue, Action<bool> setValue)
 		{
 			var button = new CheckboxWidget(this, label, classNames, getValue, setValue);
-			m_widgets.Add(button);
+			AddWidget(button);
 
 			return this;
 		}
@@ -158,7 +190,7 @@ namespace Tekly.DebugKit.Widgets
 		public Container Row(string classNames = null)
 		{
 			var container = new Container(Root, "dk-layout-row", classNames);
-			m_widgets.Add(container);
+			AddWidget(container);
 
 			return container;
 		}
@@ -166,7 +198,7 @@ namespace Tekly.DebugKit.Widgets
 		public Container Row(string className, Action<Container> builder)
 		{
 			var container = new Container(Root, "dk-layout-row", className);
-			m_widgets.Add(container);
+			AddWidget(container);
 
 			builder(container);
 
@@ -176,7 +208,17 @@ namespace Tekly.DebugKit.Widgets
 		public Container Row(Action<Container> builder)
 		{
 			var container = new Container(Root, "dk-layout-row");
-			m_widgets.Add(container);
+			AddWidget(container);
+
+			builder(container);
+
+			return this;
+		}
+		
+		public Container ButtonRow(Action<Container> builder)
+		{
+			var container = new Container(Root, "dk-layout-row button-group");
+			AddWidget(container);
 
 			builder(container);
 
@@ -186,7 +228,7 @@ namespace Tekly.DebugKit.Widgets
 		public Container Column(string classNames = null)
 		{
 			var container = new Container(Root, "dk-layout-column", classNames);
-			m_widgets.Add(container);
+			AddWidget(container);
 
 			return container;
 		}
@@ -199,7 +241,7 @@ namespace Tekly.DebugKit.Widgets
 		public Container Column(string className, Action<Container> builder)
 		{
 			var container = new Container(Root, "dk-layout-column", className);
-			m_widgets.Add(container);
+			AddWidget(container);
 
 			builder(container);
 
@@ -209,7 +251,7 @@ namespace Tekly.DebugKit.Widgets
 		public Container CardColumn(Action<Container> builder)
 		{
 			var container = new Container(Root, "dk-layout-column raised p4 r4 mv4");
-			m_widgets.Add(container);
+			AddWidget(container);
 
 			builder(container);
 
@@ -252,7 +294,7 @@ namespace Tekly.DebugKit.Widgets
 			var container = new Container(foldout);
 			builder.Invoke(container);
 
-			m_widgets.Add(container);
+			AddWidget(container);
 			Root.Add(foldout);
 
 			return this;
@@ -260,7 +302,7 @@ namespace Tekly.DebugKit.Widgets
 
 		public Container Updater(Action action, Func<bool> canUpdate = null)
 		{
-			m_widgets.Add(new Updater(action, canUpdate));
+			AddWidget(new Updater(action, canUpdate));
 			return this;
 		}
 
@@ -270,7 +312,7 @@ namespace Tekly.DebugKit.Widgets
 			var container = new Container(scrollView);
 			builder.Invoke(container);
 
-			m_widgets.Add(container);
+			AddWidget(container);
 			Root.Add(scrollView);
 
 			return this;
@@ -308,7 +350,21 @@ namespace Tekly.DebugKit.Widgets
 			action.Invoke(menuController);
 			menuController.Enable(true);
 			
-			m_widgets.Add(menuController);
+			AddWidget(menuController);
+		}
+
+		private void AddWidget(Widget widget)
+		{
+			m_widgets.Add(widget);
+		
+			if (m_widgets.Count == 2) {
+				m_widgets[0].AddClass("first");
+				m_widgets[1].AddClass("last");
+			} else if (m_widgets.Count > 2) {
+				m_widgets[^2].RemoveClass("last");
+				m_widgets[^2].AddClass("middle");
+				m_widgets[^1].AddClass("last");
+			}
 		}
 	}
 }

@@ -6,5 +6,15 @@
 		{
 			
 		}
+
+		public virtual void AddClass(string className)
+		{
+			
+		}
+
+		public virtual void RemoveClass(string className)
+		{
+			
+		}
 	}
 }

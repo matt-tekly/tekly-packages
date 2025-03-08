@@ -26,7 +26,7 @@ namespace Tekly.DebugKit.Widgets
 				m_button.SetEnabled(interactable);
 			}
 		}
-
+		
 		public ButtonWidget(Container container, string name, Action onClick, Func<bool> isInteractable = null)
 			: this(container, name, null, onClick, isInteractable)
 		{
@@ -39,6 +39,16 @@ namespace Tekly.DebugKit.Widgets
 				var interactable = m_isInteractable.Invoke();
 				m_button.SetEnabled(interactable);
 			}
+		}
+		
+		public override void AddClass(string className)
+		{
+			m_button.AddToClassList(className);
+		}
+
+		public override void RemoveClass(string className)
+		{
+			m_button.RemoveFromClassList(className);
 		}
 	}
 }

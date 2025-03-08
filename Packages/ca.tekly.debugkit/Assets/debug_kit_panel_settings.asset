@@ -16,7 +16,7 @@ MonoBehaviour:
   m_TargetTexture: {fileID: 0}
   m_ScaleMode: 1
   m_ReferenceSpritePixelsPerUnit: 100
-  m_Scale: 1.7391304
+  m_Scale: 1
   m_ReferenceDpi: 90
   m_FallbackDpi: 90
   m_ReferenceResolution: {x: 1200, y: 800}
@@ -35,4 +35,4 @@ MonoBehaviour:
   m_AtlasBlitShader: {fileID: 9101, guid: 0000000000000000f000000000000000, type: 0}
   m_RuntimeShader: {fileID: 9100, guid: 0000000000000000f000000000000000, type: 0}
   m_RuntimeWorldShader: {fileID: 9102, guid: 0000000000000000f000000000000000, type: 0}
-  textSettings: {fileID: 0}
+  textSettings: {fileID: 11400000, guid: b40d49d6f78f04c4995be56d9363809f, type: 2}

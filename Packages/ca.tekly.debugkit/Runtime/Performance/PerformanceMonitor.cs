@@ -21,8 +21,9 @@ namespace Tekly.DebugKit.Performance
 		private readonly Container m_container;
 		private readonly BoolPref m_enabled = new BoolPref("performance.stats.enabled");
 		private readonly FpsMonitor m_fpsMonitor;
+		private readonly Menu m_menu;
 
-		private List<PerformanceStat> m_stats = new List<PerformanceStat>();
+		private readonly List<PerformanceStat> m_stats = new List<PerformanceStat>();
 
 		public PerformanceMonitor(VisualElement root, DebugKit debugKit)
 		{
@@ -31,36 +32,45 @@ namespace Tekly.DebugKit.Performance
 
 			Enabled = m_enabled.Value;
 
-			var menu = debugKit.Menu("Perf Monitor");
-			menu.Row(row => {
+			m_menu = debugKit.Menu("Perf Monitor");
+			m_menu.Row(row => {
 				row.Checkbox("Enabled", () => Enabled, v => Enabled = v);
 				row.FlexibleSpace();
-				row.Button("All", "button-group-left positive", () => SetAllEnabled(true));
-				row.Button("None", "button-group-right negative", () => SetAllEnabled(false));
+				row.ButtonRow(buttonRow => {
+					buttonRow.Button("All", "positive", () => SetAllEnabled(true));
+					buttonRow.Button("None", "negative", () => SetAllEnabled(false));	
+				});
 			});
-			
 
-			m_stats.Add(new FpsStat(m_fpsMonitor, m_container));
-			m_stats.Add(new FpsLowsStat(m_fpsMonitor, m_container));
-			
-			m_stats.Add(new ProfileRecorderStat("Set Pass", ProfilerCategory.Render, "SetPass Calls Count", m_container));
-			m_stats.Add(new ProfileRecorderStat("Batches", ProfilerCategory.Render, "Batches Count", m_container));
-			m_stats.Add(new ProfileRecorderStat("Draw Calls", ProfilerCategory.Render, "Draw Calls Count", m_container));
-			m_stats.Add(new ProfileRecorderStat("Vertices", ProfilerCategory.Render, "Vertices Count", m_container));
-			m_stats.Add(new ProfileRecorderStat("Triangles", ProfilerCategory.Render, "Triangles Count", m_container));
+			AddStat(new FpsStat(m_fpsMonitor, m_container));
+			AddStat(new FpsLowsStat(m_fpsMonitor, m_container));
+
+			AddProfileRecorderStat("Set Pass", ProfilerCategory.Render, "SetPass Calls Count");
+			AddProfileRecorderStat("Batches", ProfilerCategory.Render, "Batches Count");
+			AddProfileRecorderStat("Draw Calls", ProfilerCategory.Render, "Draw Calls Count");
+			AddProfileRecorderStat("Vertices", ProfilerCategory.Render, "Vertices Count");
+			AddProfileRecorderStat("Triangles", ProfilerCategory.Render, "Triangles Count");
 
 #if UNITY_EDITOR
-			m_stats.Add(new ProfileRecorderStat("Texture #", ProfilerCategory.Memory, "Texture Count", m_container));
-			m_stats.Add(new ProfileRecorderStat("Texture MB", ProfilerCategory.Memory, "Texture Memory", m_container));
-			m_stats.Add(new ProfileRecorderStat("Mesh #", ProfilerCategory.Memory, "Mesh Count", m_container));
-			m_stats.Add(new ProfileRecorderStat("Mesh MB", ProfilerCategory.Memory, "Mesh Memory", m_container));
-			m_stats.Add(new ProfileRecorderStat("Material #", ProfilerCategory.Memory, "Material Count", m_container));
-			m_stats.Add(new ProfileRecorderStat("GameObjects #", ProfilerCategory.Memory, "Game Object Count", m_container));
+			// These only seem to work in the editor
+			AddProfileRecorderStat("Texture #", ProfilerCategory.Memory, "Texture Count");
+			AddProfileRecorderStat("Texture MB", ProfilerCategory.Memory, "Texture Memory");
+			AddProfileRecorderStat("Mesh #", ProfilerCategory.Memory, "Mesh Count");
+			AddProfileRecorderStat("Mesh MB", ProfilerCategory.Memory, "Mesh Memory");
+			AddProfileRecorderStat("Material #", ProfilerCategory.Memory, "Material Count");
+			AddProfileRecorderStat("GameObjects #", ProfilerCategory.Memory, "Game Object Count");
 #endif
-			
-			foreach (var performanceStat in m_stats) {
-				menu.Checkbox(performanceStat.Name, () => performanceStat.Enabled, v => performanceStat.Enabled = v);
-			}
+		}
+
+		private void AddProfileRecorderStat(string name, ProfilerCategory category, string profiler)
+		{
+			AddStat(new ProfileRecorderStat(name, category, profiler, m_container));
+		}
+
+		private void AddStat(PerformanceStat stat)
+		{
+			m_stats.Add(stat);
+			m_menu.Checkbox(stat.Name, () => stat.Enabled, v => stat.Enabled = v);
 		}
 
 		public void Update()

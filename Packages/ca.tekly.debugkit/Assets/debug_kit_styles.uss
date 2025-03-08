@@ -145,14 +145,28 @@
     background-color: var(--button-pressed);
 }
 
+.button-group .first {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.button-group .middle {
+    border-radius: 0;
+}
+
+.button-group .last {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
 .button-group-right {
-    border-top-left-radius: 0px ;
-    border-bottom-left-radius: 0px ;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
 .button-group-left {
-    border-top-right-radius: 0px ;
-    border-bottom-right-radius: 0px ;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
 }
 
 .dk-button.negative, .dk-button.negative:hover:focus, .dk-button.negative:hover:enabled {
@@ -169,6 +183,28 @@
 
 .dk-button.positive:active:hover:focus {
     background-color: #527c53;
+}
+
+.dk-button.copy {
+    background-image: url("Sprites/copy.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    padding: 0;
+    -unity-background-image-tint-color: var(--text);
+    max-width: 22px;
+    min-width: 22px;
+    max-height: 20px;
+}
+
+.dk-button.paste {
+    background-image: url("Sprites/paste.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    padding: 0;
+    -unity-background-image-tint-color: var(--text);
+    max-width: 22px;
+    min-width: 22px;
+    max-height: 20px;
 }
 
 /* ==========================================
