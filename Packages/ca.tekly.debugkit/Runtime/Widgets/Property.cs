@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Tekly.DebugKit.Utils;
 using UnityEngine.UIElements;
 
 namespace Tekly.DebugKit.Widgets
@@ -14,13 +15,14 @@ namespace Tekly.DebugKit.Widgets
 		private T m_lastValue;
 		private readonly Label m_valueLabel;
         
-		public Property(Container container, string labelText, Func<T> getValue, string format = "{0}")
+		public Property(Container container, string labelText, string classNames, Func<T> getValue, string format = "{0}")
 		{
 			m_getValue = getValue;
 			m_format = format;
 			
 			var propertyRoot = new VisualElement();
 			propertyRoot.AddToClassList("dk-property");
+			propertyRoot.AddClassNames(classNames);
 			
 			var label = new Label(labelText);
 			label.AddToClassList("dk-property-label");

@@ -73,7 +73,12 @@ namespace Tekly.DebugKit.Widgets
 
 		public Container Property<T>(string labelText, Func<T> getValue, string format = "{0}")
 		{
-			var property = new Property<T>(this, labelText, getValue, format);
+			return Property(labelText, null, getValue, format);
+		}
+		
+		public Container Property<T>(string labelText, string classNames, Func<T> getValue, string format = "{0}")
+		{
+			var property = new Property<T>(this, labelText, classNames, getValue, format);
 			AddWidget(property);
 
 			return this;
