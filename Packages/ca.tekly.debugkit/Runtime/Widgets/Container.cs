@@ -50,19 +50,22 @@ namespace Tekly.DebugKit.Widgets
 			}
 		}
 
-		public Container Heading(string text)
+		public Container Heading(string text, string classNames = null)
 		{
 			Label label = new Label(text);
 			label.AddToClassList("dk-heading");
-
+			label.AddClassNames(classNames);
+			
 			Root.Add(label);
 			return this;
 		}
 
-		public Container Label(string text)
+		public Container Label(string text, string classNames = null)
 		{
 			Label label = new Label(text);
 			label.AddToClassList("dk-label");
+			label.AddClassNames(classNames);
+			
 			Root.Add(label);
 
 			return this;

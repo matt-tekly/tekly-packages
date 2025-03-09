@@ -100,7 +100,7 @@
     /*height: var(--line-height);*/
     height: 20px;
     min-width: 22px;
-    
+
     border-radius: 4px;
     border-width: 1px;
     border-color: transparent;
@@ -503,7 +503,8 @@ Foldout #unity-checkmark {
     background-color: var(--bg);
     min-width: 150px;
     max-width: 225px;
-    padding: 0 6px 6px 6px;
+    padding: 0 2px 2px 2px;
+    border-bottom-left-radius: 4px;
 }
 
 /* ==========================================
@@ -525,10 +526,16 @@ Foldout #unity-checkmark {
 .r4 { border-radius: 4px; }
 
 .m8 { margin: 8px; }
-.m4 { margin: 4px; }
-.mv4 { margin-top: 4px; margin-bottom: 4px }
+.mv8 { margin-top: 8px; margin-bottom: 8px; }
 
-.m0 { margin: 0 0; }
+.m4 { margin: 4px; }
+.mv4 { margin-top: 4px; margin-bottom: 4px; }
+
+.m1 { margin: 1px; }
+.mv1 { margin-top: 1px; margin-bottom: 1px; }
+
+.m0 { margin: 0; }
+.mv0 { margin-top: 0; margin-bottom: 0; }
 
 .items-center {
     align-items: center;
