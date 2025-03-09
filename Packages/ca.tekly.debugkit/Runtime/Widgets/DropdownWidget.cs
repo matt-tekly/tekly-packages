@@ -15,7 +15,7 @@ namespace Tekly.DebugKit.Widgets
 		{
 			m_getValue = getValue;
 			
-			var index = choices.IndexOf(getValue.Invoke());
+			var index = Math.Max(0, choices.IndexOf(getValue.Invoke()));
 			m_dropdownField = new DropdownField(choices, index);
 			m_dropdownField.AddToClassList("dk-dropdown");
 			m_dropdownField.AddClassNames(classNames);
