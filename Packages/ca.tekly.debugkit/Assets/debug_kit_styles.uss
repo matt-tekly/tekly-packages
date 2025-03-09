@@ -88,37 +88,6 @@
 }
 
 /* ==========================================
-    UTILITY STYLES
-/* ========================================== */
-.spaced {
-    justify-content: space-between;
-}
-
-.raised {
-    background-color: var(--bg-raised);
-    border-color: #3c3836;
-}
-
-.p8 { padding: 8px; }
-.p4 { padding: 4px; }
-
-.r8 { border-radius: 8px; }
-.r4 { border-radius: 4px; }
-
-.m8 { margin: 8px; }
-.m4 { margin: 4px; }
-.mv4 { margin-top: 4px; margin-bottom: 4px }
-.m0 { margin: 0 0; }
-
-.items-center {
-    align-items: center;
-}
-
-.grow {
-    flex-grow: 1;
-}
-
-/* ==========================================
     BUTTON
 /* ========================================== */
 
@@ -535,4 +504,36 @@ Foldout #unity-checkmark {
     min-width: 150px;
     max-width: 225px;
     padding: 0 6px 6px 6px;
+}
+
+/* ==========================================
+    UTILITY STYLES
+/* ========================================== */
+.spaced {
+    justify-content: space-between;
+}
+
+.raised {
+    background-color: var(--bg-raised);
+    border-color: #3c3836;
+}
+
+.p8 { padding: 8px; }
+.p4 { padding: 4px; }
+
+.r8 { border-radius: 8px; }
+.r4 { border-radius: 4px; }
+
+.m8 { margin: 8px; }
+.m4 { margin: 4px; }
+.mv4 { margin-top: 4px; margin-bottom: 4px }
+
+.m0 { margin: 0 0; }
+
+.items-center {
+    align-items: center;
+}
+
+.grow {
+    flex-grow: 1;
 }

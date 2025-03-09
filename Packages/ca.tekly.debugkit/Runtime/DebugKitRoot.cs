@@ -38,7 +38,7 @@ namespace Tekly.DebugKit
 			m_root = new Container(root, "dk-root");
 			
 			m_menuController = new MenuController(m_root.Root, "debugkit.menu.selected", (buttons) => {
-				buttons.ButtonOptions("m0", () => ShowPreferences = !ShowPreferences);
+				buttons.ButtonOptions(() => ShowPreferences = !ShowPreferences);
 				buttons.VerticalSpace();
 			});
 			
