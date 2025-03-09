@@ -244,9 +244,11 @@ namespace Tekly.DebugKit.Widgets
 			return this;
 		}
 		
-		public Container ButtonRow(Action<Container> builder)
+		public Container ButtonRow(Action<Container> builder, string classNames = null)
 		{
 			var container = new Container(Root, "dk-layout-row button-group");
+			container.Root.AddClassNames(classNames);
+			
 			AddWidget(container);
 
 			builder(container);

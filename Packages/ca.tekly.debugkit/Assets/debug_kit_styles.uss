@@ -97,15 +97,14 @@
 
 .dk-button {
     background-color: var(--button);
-    /*height: var(--line-height);*/
-    height: 20px;
+    height: 18px;
     min-width: 22px;
 
     border-radius: 4px;
     border-width: 1px;
     border-color: transparent;
     padding: 0px 5px;
-    margin: 0px 0px;
+    margin: 1px 0;
 }
 
 .dk-button:focus, .dk-button:hover:enabled, .dk-button:focus:enabled {
@@ -539,6 +538,10 @@ Foldout #unity-checkmark {
 
 .items-center {
     align-items: center;
+}
+
+.self-center {
+    align-self: center;
 }
 
 .grow {
