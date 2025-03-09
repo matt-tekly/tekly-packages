@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Tekly.DebugKit.Utils;
 using UnityEngine.UIElements;
@@ -33,16 +34,25 @@ namespace Tekly.DebugKit.Widgets
 			set => m_rootContainer.Enabled = value;
 		}
 
-		private readonly List<Menu> m_menus = new List<Menu>();
-		private readonly DropdownField m_menuDropdown;
-		private readonly Container m_rootContainer;
+		private List<Menu> m_menus = new List<Menu>();
+		private DropdownField m_menuDropdown;
+		private Container m_rootContainer;
 
 		private Menu m_activeMenu;
-
-
-		private readonly StringPref m_lastSelectedMenu;
 		
+		private StringPref m_lastSelectedMenu;
+
+		public MenuController(VisualElement root, string pref, Action<Container> preButtons)
+		{
+			Initialize(root, pref, null, preButtons);
+		}
+
 		public MenuController(VisualElement root, string pref, string classNames = null)
+		{
+			Initialize(root, pref, classNames, null);
+		}
+
+		private void Initialize(VisualElement root, string pref, string classNames, Action<Container> preButtons)
 		{
 			m_rootContainer = new Container(root, classNames);
 			m_lastSelectedMenu = new StringPref(pref, "");
@@ -50,12 +60,14 @@ namespace Tekly.DebugKit.Widgets
 			Enable(false);
 
 			m_menuDropdown = new DropdownField();
-			m_menuDropdown.AddClassNames("dk-dropdown");
+			m_menuDropdown.AddClassNames("dk-dropdown grow");
 			m_menuDropdown.RegisterValueChangedCallback(evt => SetMenu(evt.newValue));
 
 			m_rootContainer
-				.Raw(m_menuDropdown)
-				.HorizontalSpace();
+				.Row("grow", row => {
+					preButtons?.Invoke(row);
+					row.Raw(m_menuDropdown);
+				}).HorizontalSpace();
 		}
 
 		public Menu Create(string name, string classNames = null)
@@ -105,6 +117,8 @@ namespace Tekly.DebugKit.Widgets
 				} else {
 					m_menuDropdown.value = m_menus[0].Name;	
 				}
+				
+				m_menuDropdown.Focus();
 			}
 		}
 

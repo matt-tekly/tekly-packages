@@ -173,6 +173,22 @@ namespace Tekly.DebugKit.Widgets
 
 			return this;
 		}
+		
+		public Container ButtonOptions(Action action, Func<bool> isInteractable = null)
+		{
+			var button = new ButtonWidget(this, null, "options", action, isInteractable);
+			AddWidget(button);
+
+			return this;
+		}
+		
+		public Container ButtonOptions(string classNames, Action action, Func<bool> isInteractable = null)
+		{
+			var button = new ButtonWidget(this, null, "options" + " " + classNames, action, isInteractable);
+			AddWidget(button);
+
+			return this;
+		}
 
 		public Container Checkbox(string label, string classNames, Func<bool> getValue, Action<bool> setValue)
 		{
@@ -185,6 +201,11 @@ namespace Tekly.DebugKit.Widgets
 		public Container Checkbox(string label, Func<bool> getValue, Action<bool> setValue)
 		{
 			return Checkbox(label, null, getValue, setValue);
+		}
+		
+		public Container Checkbox(string label, BoolPref boolPref)
+		{
+			return Checkbox(label, null, () => boolPref.Value, v => boolPref.Value = v);
 		}
 
 		public Container Row(string classNames = null)
@@ -273,6 +294,17 @@ namespace Tekly.DebugKit.Widgets
 		{
 			VisualElement visualElement = new VisualElement();
 			visualElement.AddToClassList("dk-horizontal-space");
+			visualElement.AddClassNames(classNames);
+
+			Root.Add(visualElement);
+
+			return this;
+		}
+		
+		public Container VerticalSpace(string classNames = null)
+		{
+			VisualElement visualElement = new VisualElement();
+			visualElement.AddToClassList("dk-vertical-space");
 			visualElement.AddClassNames(classNames);
 
 			Root.Add(visualElement);

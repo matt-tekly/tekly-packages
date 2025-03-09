@@ -10,9 +10,13 @@ namespace Tekly.DebugKit
 	{
 		private const string DIRECTORY = "Assets/Resources/DebugKit/";
 		private const string FILE = "debugkit_settings.asset";
+		private const string PANEL_SETTINGS_FILE = "Packages/ca.tekly.debugkit/Assets/debug_kit_panel_settings.asset";
 
+		public bool AutoScaleInEditor = true;
+		
 #if ENABLE_INPUT_SYSTEM
 		public UnityEngine.InputSystem.Key OpenKey = UnityEngine.InputSystem.Key.F2;
+		public UnityEngine.InputSystem.InputActionReference OpenAction;
 #else
 		public KeyCode OpenKey = KeyCode.F2;
 #endif
@@ -22,13 +26,11 @@ namespace Tekly.DebugKit
 		public PanelSettings PanelSettings;
 		public StyleSheet[] StyleSheets;
 		public string[] RootClassNames;
-		public bool AutoScaleInEditor = true;
-
 
 #if UNITY_EDITOR
 		public static DebugKitSettings CreateDefaultSettings()
 		{
-			var panelSettings = UnityEditor.AssetDatabase.LoadAssetAtPath<PanelSettings>("Packages/ca.tekly.debugkit/Assets/debug_kit_panel_settings.asset");
+			var panelSettings = UnityEditor.AssetDatabase.LoadAssetAtPath<PanelSettings>(PANEL_SETTINGS_FILE);
 			var instance = CreateInstance<DebugKitSettings>();
 
 			instance.PanelSettings = panelSettings;

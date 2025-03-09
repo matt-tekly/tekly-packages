@@ -70,10 +70,16 @@
     margin: 3px 3px;
 }
 
+.dk-vertical-space {
+    width: 1px;
+    margin: 3px 3px;
+}
+
 .dk-heading, .unity-label.dk-heading {
     font-size: 14px;
     height: auto;
     padding: 2px;
+    margin: 0;
     -unity-font-style: bold;
 }
 
@@ -102,11 +108,15 @@
 .m8 { margin: 8px; }
 .m4 { margin: 4px; }
 .mv4 { margin-top: 4px; margin-bottom: 4px }
+.m0 { margin: 0 0; }
 
 .items-center {
     align-items: center;
 }
 
+.grow {
+    flex-grow: 1;
+}
 
 /* ==========================================
     BUTTON
@@ -116,20 +126,17 @@
     width: 30px;
 }
 
-.unity-button.dk-button {
-
-}
-
 .dk-button {
     background-color: var(--button);
     /*height: var(--line-height);*/
     height: 20px;
-
+    min-width: 22px;
+    
     border-radius: 4px;
     border-width: 1px;
     border-color: transparent;
     padding: 0px 5px;
-    margin: 3px 0px;
+    margin: 0px 0px;
 }
 
 .dk-button:focus, .dk-button:hover:enabled, .dk-button:focus:enabled {
@@ -148,14 +155,18 @@
 .button-group .first {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
+    margin-right: 0px;
 }
 
 .button-group .middle {
     border-radius: 0;
+    margin-left: 0px;
+    margin-right: 0px;
 }
 
 .button-group .last {
     border-top-left-radius: 0;
+    margin-left: 0px;
     border-bottom-left-radius: 0;
 }
 
@@ -192,7 +203,6 @@
     padding: 0;
     -unity-background-image-tint-color: var(--text);
     max-width: 22px;
-    min-width: 22px;
     max-height: 20px;
 }
 
@@ -203,7 +213,16 @@
     padding: 0;
     -unity-background-image-tint-color: var(--text);
     max-width: 22px;
-    min-width: 22px;
+    max-height: 20px;
+}
+
+.dk-button.options {
+    background-image: url("Sprites/options.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    padding: 0;
+    -unity-background-image-tint-color: var(--text);
+    max-width: 22px;
     max-height: 20px;
 }
 
