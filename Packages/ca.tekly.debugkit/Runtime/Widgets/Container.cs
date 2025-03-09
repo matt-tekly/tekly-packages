@@ -350,12 +350,16 @@ namespace Tekly.DebugKit.Widgets
 			return this;
 		}
 
-		public Container Dropdown(List<string> choices, int initialIndex, Action<int> onIndexChanged)
+		public Container Dropdown(List<string> choices, Func<string> getValue, Action<string> setValue)
 		{
-			var dropdown = new DropdownField(choices, initialIndex);
-			dropdown.AddToClassList("dk-dropdown");
-			dropdown.RegisterValueChangedCallback(evt => onIndexChanged?.Invoke(choices.IndexOf(evt.newValue)));
-			Root.Add(dropdown);
+			return Dropdown(choices, null, getValue, setValue);
+		}
+		
+		public Container Dropdown(List<string> choices, string classNames, Func<string> getValue, Action<string> setValue)
+		{
+			var dropdownWidget = new DropdownWidget(this, choices, getValue, setValue, classNames);
+			AddWidget(dropdownWidget);
+			
 			return this;
 		}
 
