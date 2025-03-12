@@ -48,6 +48,12 @@ namespace Tekly.DataModels.Models
             sb.Append($"\"{Value}\"");
         }
 
+        public override void SetOverrideValue(string value)
+        {
+            OverrideValue = true;
+            OverriddenValue = value;
+        }
+
         protected override string OnToDisplayString()
         {
             return Value;
@@ -87,6 +93,14 @@ namespace Tekly.DataModels.Models
 
             return Value.ToString("e2");
         }
+        
+        public override void SetOverrideValue(string value)
+        {
+            OverrideValue = true;
+            if (double.TryParse(value, out var newValue)) {
+                OverriddenValue = newValue;
+            }
+        }
     }
 
     public class BoolValueModel : BasicValueModel<bool>
@@ -101,6 +115,14 @@ namespace Tekly.DataModels.Models
         protected override string OnToDisplayString()
         {
             return Value ? "true" : "false";
+        }
+        
+        public override void SetOverrideValue(string value)
+        {
+            OverrideValue = true;
+            if (bool.TryParse(value, out var newValue)) {
+                OverriddenValue = newValue;
+            }
         }
     }
 }

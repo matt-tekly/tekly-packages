@@ -22,5 +22,11 @@ namespace Tekly.DataModels.Models
 		{
 			return Value.ToString();
 		}
+		
+		public override void SetOverrideValue(string value)
+		{
+			OverrideValue = true;
+			TimeSpan.TryParse(value, out m_value);
+		}
 	}
 }

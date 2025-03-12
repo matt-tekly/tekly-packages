@@ -23,6 +23,11 @@ namespace Tekly.Extensions.Ui
 		{
 			throw new Exception($"Trying to compare [{GetType().Name}] to [{valueModel.GetType().Name}]");
 		}
+		
+		public override void SetOverrideValue(string value)
+		{
+			Debug.LogWarning("Can't override CellSpriteValueModel");
+		}
 	}
 	
 	public class CellImageBinder : Binder

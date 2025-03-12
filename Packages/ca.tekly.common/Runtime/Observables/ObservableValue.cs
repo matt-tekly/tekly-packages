@@ -13,7 +13,7 @@ namespace Tekly.Common.Observables
             get { return m_modified ??= new Triggerable<Unit>(); }
         }
 
-        public T Value
+        public virtual T Value
         {
             get => m_value;
             set {

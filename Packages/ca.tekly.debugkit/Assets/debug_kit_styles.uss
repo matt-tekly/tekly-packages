@@ -215,12 +215,10 @@ Label, .unity-label {
 /* ========================================== */
 TextField {
     margin: 0 0;
-    align-items: center;
 }
 
 .unity-text-field {
     margin: 0 0;
-    align-items: center;
 }
 
 .unity-base-text-field {

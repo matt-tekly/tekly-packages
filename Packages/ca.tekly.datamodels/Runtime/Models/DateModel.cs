@@ -1,3 +1,5 @@
+using System;
+using System.Globalization;
 using System.Text;
 using Tekly.Common.TimeProviders;
 
@@ -21,6 +23,14 @@ namespace Tekly.DataModels.Models
         protected override string OnToDisplayString()
         {
             return Value.ToString();
+        }
+        
+        public override void SetOverrideValue(string value)
+        {
+            OverrideValue = true;
+            if (DateTimeOffset.TryParseExact(value, TkDateTime.FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out var time)) {
+                m_value = time;
+            }
         }
     }
 }

@@ -23,5 +23,10 @@ namespace Tekly.DataModels.Models
         {
             throw new Exception($"Trying to compare [{GetType().Name}] to [{valueModel.GetType().Name}]");
         }
+        
+        public override void SetOverrideValue(string value)
+        {
+            Debug.LogWarning("Can't override SpriteValueModel");
+        }
     }
 }

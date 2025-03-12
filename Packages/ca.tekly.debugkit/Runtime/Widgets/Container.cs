@@ -399,6 +399,12 @@ namespace Tekly.DebugKit.Widgets
 			AddWidget(menuController);
 		}
 
+		public Container Style(Action<IStyle> action)
+		{
+			action(Root.style);
+			return this;
+		}
+
 		private void AddWidget(Widget widget)
 		{
 			m_widgets.Add(widget);

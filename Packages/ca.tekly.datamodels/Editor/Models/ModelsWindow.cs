@@ -62,6 +62,8 @@ namespace Tekly.DataModels.Models
 			if (Application.isPlaying && Time.realtimeSinceStartup >= m_nextRenderTime) {
 				m_nextRenderTime = Time.realtimeSinceStartup + m_timeBetweenRenders;
 				Repaint();	
+			} else if (!Application.isPlaying && !EditorApplication.isPaused) {
+				Repaint();
 			}
 		}
 
@@ -154,8 +156,9 @@ namespace Tekly.DataModels.Models
 		{
 			viewWidth -= 4;
 			
+			var backgroundRect = new Rect(4, row * s_height, viewWidth, s_height);
+			
 			if (Event.current.type == EventType.Repaint) {
-				var backgroundRect = new Rect(4, row * s_height, viewWidth, s_height);
 				var backgroundColor = m_backgroundColors[row % m_backgroundColors.Length];
 
 				if (backgroundRect.Contains(Event.current.mousePosition)) {
@@ -198,6 +201,12 @@ namespace Tekly.DataModels.Models
 				var valueRect = new Rect(Mathf.Max(foldOutRect.xMax - valueWidth, foldOutRect.x + idWidth + 14),
 					row * s_height, valueWidth, s_height);
 				LabelField(valueRect, objectEntry.Value);
+			}
+
+			if (Event.current.type == EventType.MouseDown && Event.current.button == 1) {
+				if (backgroundRect.Contains(Event.current.mousePosition)) {
+					EditorGUIUtility.systemCopyBuffer = objectEntry.FullPath;
+				}
 			}
 		}
 

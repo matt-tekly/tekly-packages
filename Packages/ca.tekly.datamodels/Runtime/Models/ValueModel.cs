@@ -5,11 +5,43 @@ using Tekly.Logging;
 
 namespace Tekly.DataModels.Models
 {
-    public abstract class ValueModel<T> : ObservableValue<T>, IValueModel, IComparable<ValueModel<T>>
+    public interface IOverridableValue : IValueModel
+    {
+        bool OverrideValue { get; set; }    
+        void SetOverrideValue(string value);
+    }
+    
+    public abstract class ValueModel<T> : ObservableValue<T>, IOverridableValue, IComparable<ValueModel<T>>
     {
         private bool m_isDisposed;
+        private bool m_overrideValue;
+        private T m_overriddenValue;
+
+        protected T OverriddenValue {
+            get => m_overriddenValue;
+            set {
+                m_overriddenValue = value;
+                Emit(m_overriddenValue);
+            }
+        }
+        
         private string m_displayString;
         
+        public override T Value
+        {
+            get => OverrideValue ? OverriddenValue : m_value;
+            set {
+                if (s_defaultEqualityComparer.Equals(m_value, value)) {
+                    return;
+                }
+
+                m_value = value;
+                Emit(Value);
+            }
+        }
+        
+        public bool OverrideValue { get; set; }
+
         protected ValueModel(T value) : this()
         {
             m_value = value;
@@ -45,6 +77,8 @@ namespace Tekly.DataModels.Models
         {
             sb.Append("[UNIMPLEMENTED]");
         }
+        
+        public abstract void SetOverrideValue(string value);
 
         public string ToDisplayString()
         {
@@ -73,7 +107,8 @@ namespace Tekly.DataModels.Models
         }
 
         public abstract int CompareTo(IValueModel valueModel);
-
+        
+        
         public int CompareTo(ValueModel<T> other)
         {
             if (ReferenceEquals(this, other)) {
