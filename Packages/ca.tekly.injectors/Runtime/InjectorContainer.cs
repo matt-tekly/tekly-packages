@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Tekly.Common.Utils;
 using Tekly.Logging;
 
 namespace Tekly.Injectors
@@ -35,6 +37,26 @@ namespace Tekly.Injectors
         public void Singleton<TInterface, TImpl>() where TImpl : TInterface
         {
             m_instances.Add(typeof(TInterface), SingletonProvider.Create<TImpl>(this));
+        }
+
+        public void Map<TImpl, TInterface>() where TImpl : TInterface
+        {
+            var instance = m_instances[typeof(TImpl)];
+            m_instances.Add(typeof(TInterface), instance);
+        }
+        
+        public void SingletonWithInterfaces<T>()
+        {
+            var provider = SingletonProvider.Create<T>(this);
+
+            var type = typeof(T);
+            foreach (var interfaceType in type.GetInterfaces()) {
+                if (interfaceType != typeof(IDisposable) && interfaceType != typeof(ITickable)) {
+                    m_instances.Add(interfaceType, provider);
+                }
+            }
+
+            m_instances.Add(type, provider);
         }
         
         public void Factory<T>()

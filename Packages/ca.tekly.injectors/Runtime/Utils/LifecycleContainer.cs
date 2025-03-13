@@ -53,6 +53,17 @@ namespace Tekly.Injectors.Utils
 			m_targets.Add(typeof(TInterface));
 		}
 		
+		public void Map<TImpl, TInterface>() where TImpl : TInterface
+		{
+			Container.Map<TImpl, TInterface>();
+		}
+        
+		public void SingletonWithInterfaces<T>()
+		{
+			m_targets.Add(typeof(T));
+			Container.SingletonWithInterfaces<T>();
+		}
+		
 		public void Initialize()
 		{
 			foreach (var target in m_targets) {
@@ -66,6 +77,16 @@ namespace Tekly.Injectors.Utils
 					m_tickables.Add(tickable);
 				}
 			}
+		}
+		
+		public T Get<T>()
+		{
+			return Container.Get<T>();
+		}
+		
+		public virtual bool TryGet<T>(out T result)
+		{
+			return Container.TryGet(out result);
 		}
 
 		public void Dispose()
