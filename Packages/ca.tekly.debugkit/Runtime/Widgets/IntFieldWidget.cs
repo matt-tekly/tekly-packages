@@ -1,4 +1,5 @@
 ﻿using System;
+using Tekly.DebugKit.Utils;
 using UnityEngine.UIElements;
 
 namespace Tekly.DebugKit.Widgets
@@ -10,7 +11,7 @@ namespace Tekly.DebugKit.Widgets
 
 		private readonly IntegerField m_intField;
 
-		public IntFieldWidget(Container container, string labelText, Func<int> getValue, Action<int> setValue)
+		public IntFieldWidget(Container container, string labelText, string classNames, Func<int> getValue, Action<int> setValue)
 		{
 			m_setValue = setValue;
 			m_getValue = getValue;
@@ -21,6 +22,7 @@ namespace Tekly.DebugKit.Widgets
 			m_intField.isDelayed = true;
 			m_intField.SetValueWithoutNotify(m_getValue());
 			m_intField.AddToClassList("dk-input");
+			m_intField.AddClassNames(classNames);
 
 			container.Root.Add(m_intField);
 			

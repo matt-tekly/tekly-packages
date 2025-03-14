@@ -86,7 +86,12 @@ namespace Tekly.DebugKit.Widgets
 
 		public Container TextField(string label, Func<string> getValue, Action<string> setValue)
 		{
-			var textField = new TextFieldWidget(this, label, getValue, setValue);
+			return TextField(label, null, getValue, setValue);
+		}
+		
+		public Container TextField(string label, string classNames, Func<string> getValue, Action<string> setValue)
+		{
+			var textField = new TextFieldWidget(this, label, classNames, getValue, setValue);
 			AddWidget(textField);
 
 			return this;
@@ -94,7 +99,12 @@ namespace Tekly.DebugKit.Widgets
 
 		public Container FloatField(string label, Func<float> getValue, Action<float> setValue)
 		{
-			var textField = new FloatFieldWidget(this, label, getValue, setValue);
+			return FloatField(label, null, getValue, setValue);
+		}
+		
+		public Container FloatField(string label, string classNames, Func<float> getValue, Action<float> setValue)
+		{
+			var textField = new FloatFieldWidget(this, label, classNames, getValue, setValue);
 			AddWidget(textField);
 
 			return this;
@@ -102,7 +112,12 @@ namespace Tekly.DebugKit.Widgets
 
 		public Container IntField(string label, Func<int> getValue, Action<int> setValue)
 		{
-			var textField = new IntFieldWidget(this, label, getValue, setValue);
+			return IntField(label, null, getValue, setValue);
+		}
+		
+		public Container IntField(string label, string classNames, Func<int> getValue, Action<int> setValue)
+		{
+			var textField = new IntFieldWidget(this, label, classNames, getValue, setValue);
 			AddWidget(textField);
 
 			return this;

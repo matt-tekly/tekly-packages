@@ -1,4 +1,5 @@
 ﻿using System;
+using Tekly.DebugKit.Utils;
 using UnityEngine.UIElements;
 
 namespace Tekly.DebugKit.Widgets
@@ -10,7 +11,7 @@ namespace Tekly.DebugKit.Widgets
 
 		private readonly FloatField m_floatField;
 
-		public FloatFieldWidget(Container container, string labelText, Func<float> getValue, Action<float> setValue)
+		public FloatFieldWidget(Container container, string labelText, string classNames, Func<float> getValue, Action<float> setValue)
 		{
 			m_setValue = setValue;
 			m_getValue = getValue;
@@ -21,6 +22,7 @@ namespace Tekly.DebugKit.Widgets
 			m_floatField.isDelayed = true;
 			m_floatField.SetValueWithoutNotify(m_getValue());
 			m_floatField.AddToClassList("dk-input");
+			m_floatField.AddClassNames(classNames);
 
 			container.Root.Add(m_floatField);
 			
