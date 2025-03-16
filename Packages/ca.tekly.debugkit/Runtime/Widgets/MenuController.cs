@@ -114,7 +114,7 @@ namespace Tekly.DebugKit.Widgets
 				var lastSelectedMenu = m_lastSelectedMenu.Value;
 				if (!string.IsNullOrEmpty(lastSelectedMenu) && Exists(lastSelectedMenu)) {
 					m_menuDropdown.value = lastSelectedMenu;
-				} else {
+				} else if (m_menus.Count > 0) {
 					m_menuDropdown.value = m_menus[0].Name;	
 				}
 				

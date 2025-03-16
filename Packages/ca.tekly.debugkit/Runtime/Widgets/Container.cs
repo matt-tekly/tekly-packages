@@ -413,6 +413,17 @@ namespace Tekly.DebugKit.Widgets
 			
 			AddWidget(menuController);
 		}
+		
+		/// <summary>
+		/// You are responsible for enabling the MenuController this returns
+		/// </summary>
+		public MenuController MenuController(string pref)
+		{
+			var menuController = new MenuController(Root, pref);
+			AddWidget(menuController);
+
+			return menuController;
+		}
 
 		public Container Style(Action<IStyle> action)
 		{
