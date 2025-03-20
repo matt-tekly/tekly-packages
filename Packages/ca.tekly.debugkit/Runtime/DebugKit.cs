@@ -53,6 +53,24 @@ namespace Tekly.DebugKit
 		{
 			return m_debugKitRoot.Menu(name, classNames);	
 		}
+      
+#if DEBUGKIT_DISABLED
+		[System.Diagnostics.Conditional("__UNDEFINED__")]
+#endif
+        public void Menu(string name, string classNames, Action<Menu> builder)
+		{
+			var menu = m_debugKitRoot.Menu(name, classNames);
+			builder(menu);
+		}
+        
+#if DEBUGKIT_DISABLED
+		[System.Diagnostics.Conditional("__UNDEFINED__")]
+#endif
+		public void Menu(string name, Action<Menu> builder)
+		{
+			var menu = m_debugKitRoot.Menu(name);
+			builder(menu);
+		}
 
 		public void RemoveMenu(Menu menu)
 		{
