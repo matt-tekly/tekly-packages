@@ -39,7 +39,6 @@ namespace Tekly.TreeState
 		private void Awake()
 		{
 			m_activities = GetComponentsInChildren<TreeActivity>();
-			TreeStateRegistry.Instance.Register(name, this);
 		}
 		
 		private void Start()
@@ -56,6 +55,8 @@ namespace Tekly.TreeState
 
 		public void Initialize()
 		{
+			TreeStateRegistry.Instance.Register(name, this);
+			
 			m_initialized = true;
 			
 			foreach (var activity in m_activities) {
