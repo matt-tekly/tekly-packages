@@ -32,6 +32,8 @@ namespace Tekly.DataModels.Binders
         private IDisposable[] m_listeners;
 
         private bool m_canFormat;
+        private bool m_hasFormatted;
+        
         private readonly TkLogger m_logger = TkLogger.Get<FormattedStringBinder>();
         
         public override void Bind(BinderContainer container)
@@ -81,8 +83,12 @@ namespace Tekly.DataModels.Binders
             if (m_text != null) {
                 m_text.text = text;    
             }
-            
-            m_onTextSet.Invoke(text);
+
+            if (m_hasFormatted) {
+                m_onTextSet.Invoke(text);    
+            }
+
+            m_hasFormatted = true;
         }
 
         protected override void OnDestroy()
