@@ -378,8 +378,49 @@ Foldout #unity-checkmark {
 }
 
 .unity-scroller--vertical .unity-base-slider__dragger {
-    left: 0px;
-    width: 100%;
+    left: 1px;
+    width: 10px;
+}
+
+.unity-scroller--vertical {
+    width: 12px;
+}
+
+.unity-scroller--vertical #unity-low-button, .unity-scroller--vertical #unity-high-button {
+    display: none;
+}
+
+.unity-scroller--vertical #unity-slider {
+    margin-top: 0;
+    margin-bottom: 0;
+    width: 12px;
+}
+
+.unity-scroller--vertical .unity-base-slider__input {
+    width: 12px;
+}
+
+.unity-scroller--horizontal .unity-base-slider__dragger {
+    top: 1px;
+    height: 10px;
+}
+
+.unity-scroller--horizontal {
+    height: 12px;
+}
+
+.unity-scroller--horizontal #unity-low-button, .unity-scroller--horizontal #unity-high-button {
+    display: none;
+}
+
+.unity-scroller--horizontal #unity-slider {
+    margin-left: 0;
+    margin-right: 0;
+    height: 12px;
+}
+
+.unity-scroller--horizontal .unity-base-slider__input {
+    height: 12px;
 }
 
 /* ==========================================

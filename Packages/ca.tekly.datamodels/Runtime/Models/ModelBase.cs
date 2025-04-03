@@ -12,10 +12,10 @@ namespace Tekly.DataModels.Models
             ModelManager.Instance.AddModel(this);
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             if (m_isDisposed) {
-                TkLogger.Get<ModelBase>().Error("ModelBase being disposed multiple times");
+                TkLogger.Get<ModelBase>().Error("ModelBase being disposed multiple times [{type}]", ("type", GetType().Name));
                 return;
             }
 
