@@ -22,6 +22,7 @@ namespace Tekly.DebugKit
 		}
 		
 		public IObservableValue<bool> Enabled => m_debugKitRoot.EnabledObservable;
+		public IObservableValue<bool> Focused => m_debugKitGui.Focused;
 		
 		private DebugKitGui m_debugKitGui;
 		private PerformanceMonitor m_performanceMonitor;

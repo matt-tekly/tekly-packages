@@ -1,4 +1,5 @@
-﻿using Tekly.DebugKit.Utils;
+﻿using Tekly.Common.Observables;
+using Tekly.DebugKit.Utils;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -7,6 +8,9 @@ namespace Tekly.DebugKit
 	public class DebugKitGui : MonoBehaviour
 	{
 		public VisualElement Root => m_document.rootVisualElement;
+		
+		public IObservableValue<bool> Focused => _focused;
+		private readonly ObservableValue<bool> _focused = new ObservableValue<bool>(true);
 
 		public float Scale {
 			get => m_document.panelSettings.scale;
@@ -38,6 +42,7 @@ namespace Tekly.DebugKit
 		private void Update()
 		{
 			m_debugKit.Update();
+			_focused.Value = m_document.rootVisualElement.panel.focusController.focusedElement != null;
 		}
 	}
 }
