@@ -1,4 +1,5 @@
-﻿using Tekly.DebugKit.Widgets;
+﻿using Tekly.Common.Observables;
+using Tekly.DebugKit.Widgets;
 using UnityEngine.UIElements;
 
 namespace Tekly.DebugKit
@@ -8,7 +9,11 @@ namespace Tekly.DebugKit
 	/// </summary>
 	public class DebugKitRoot
 	{
+		public IObservableValue<bool> EnabledObservable => m_enabled;
+		
+		private readonly ObservableValue<bool> m_enabled = new ObservableValue<bool>();
 		private readonly Container m_root;
+		
 		private MenuController m_menuController;
 		private Container m_preferencesContainer;
 
@@ -17,6 +22,8 @@ namespace Tekly.DebugKit
 		public bool Enabled {
 			get => m_root.Enabled;
 			set {
+				m_enabled.Value = value;
+				
 				m_root.Enabled = value;
 				m_menuController.Enable(!m_showingPreferences && value);
 				m_preferencesContainer.Enabled = m_showingPreferences;

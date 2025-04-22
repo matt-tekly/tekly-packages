@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Tekly.DebugKit.Utils;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Tekly.DebugKit.Widgets
@@ -72,6 +73,10 @@ namespace Tekly.DebugKit.Widgets
 
 		public Menu Create(string name, string classNames = null)
 		{
+			if (Exists(name)) {
+				Debug.LogError($"Trying to create a menu with an existing name [{name}]");
+			}
+			
 			var menu = new Menu(name, this, classNames);
 			m_menus.Add(menu);
 

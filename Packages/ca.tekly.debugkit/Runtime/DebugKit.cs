@@ -1,4 +1,5 @@
 using System;
+using Tekly.Common.Observables;
 using Tekly.Common.Utils;
 using Tekly.DebugKit.Performance;
 using Tekly.DebugKit.Utils;
@@ -19,6 +20,8 @@ namespace Tekly.DebugKit
 			get => m_debugKitGui.Scale;
 			set => m_debugKitGui.Scale = Mathf.Clamp(value, 0.1f, 10f);
 		}
+		
+		public IObservableValue<bool> Enabled => m_debugKitRoot.EnabledObservable;
 		
 		private DebugKitGui m_debugKitGui;
 		private PerformanceMonitor m_performanceMonitor;

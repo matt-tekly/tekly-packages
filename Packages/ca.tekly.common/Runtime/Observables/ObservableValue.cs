@@ -3,15 +3,18 @@ using System.Collections.Generic;
 
 namespace Tekly.Common.Observables
 {
-    public class ObservableValue<T> : ITriggerable<T>
+    public interface IObservableValue<T> : ITriggerable<T>
+    {
+        T Value { get; }    
+    }
+    
+    public class ObservableValue<T> : IObservableValue<T>
     {
         protected static readonly IEqualityComparer<T> s_defaultEqualityComparer = EqualityComparer<T>.Default;
 
         private Triggerable<Unit> m_modified;
         
-        public ITriggerable<Unit> Modified {
-            get { return m_modified ??= new Triggerable<Unit>(); }
-        }
+        public ITriggerable<Unit> Modified => m_modified ??= new Triggerable<Unit>();
 
         public virtual T Value
         {
