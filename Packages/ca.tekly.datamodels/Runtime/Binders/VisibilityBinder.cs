@@ -28,7 +28,7 @@ namespace Tekly.DataModels.Binders
         
         public override void UnBind()
         {
-            m_disposable.Dispose();
+            m_disposable?.Dispose();
         }
 
         private void BindBool(bool value)
@@ -36,12 +36,6 @@ namespace Tekly.DataModels.Binders
             foreach (var target in m_targets) {
                 target.Target.gameObject.SetActive(value ^ target.Invert);
             }
-        }
-        
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            m_disposable?.Dispose();
         }
     }
 }

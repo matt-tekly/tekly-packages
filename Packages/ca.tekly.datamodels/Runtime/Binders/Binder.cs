@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Tekly.DataModels.Binders
 {
@@ -23,6 +24,11 @@ namespace Tekly.DataModels.Binders
         protected virtual void OnDestroy()
         {
             UnBind();
+        }
+
+        protected virtual void OnDisable()
+        {
+            
         }
     }
 }

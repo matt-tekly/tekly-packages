@@ -25,7 +25,14 @@ namespace Tekly.DataModels.Binders.Collections
                 Clear();
             }
         }
-        
+
+        public override void UnBind()
+        {
+            m_disposable?.Dispose();
+            base.UnBind();
+            Clear();
+        }
+
         private bool TryGet(out ObjectModel objectModel)
         {
             var modelKey = ModelKey.Parse(GetKey());
@@ -87,12 +94,6 @@ namespace Tekly.DataModels.Binders.Collections
             }
             
             m_instances.Clear();
-        }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            m_disposable?.Dispose();
         }
     }
 }

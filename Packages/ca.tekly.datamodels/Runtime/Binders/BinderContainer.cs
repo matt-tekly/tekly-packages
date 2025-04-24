@@ -15,6 +15,7 @@ namespace Tekly.DataModels.Binders
         
         [FormerlySerializedAs("Key")][SerializeField] protected ModelRef m_key;
         [FormerlySerializedAs("BindOnEnable")][SerializeField] protected bool m_bindOnEnable;
+        [SerializeField] protected bool m_unbindOnDisable = true;
         [FormerlySerializedAs("Binders")][SerializeField] protected List<Binder> m_binders;
 
         [NonSerialized] protected BinderContainer m_parent;
@@ -38,6 +39,13 @@ namespace Tekly.DataModels.Binders
             
             if (m_bindOnEnable) {
                 Bind();
+            }
+        }
+
+        protected override void OnDisable()
+        {
+            if (m_unbindOnDisable) {
+                UnBind();    
             }
         }
 
