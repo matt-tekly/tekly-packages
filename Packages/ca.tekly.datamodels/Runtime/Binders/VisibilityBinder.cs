@@ -25,6 +25,11 @@ namespace Tekly.DataModels.Binders
                 m_disposable = stringModel.Subscribe(BindBool);
             }
         }
+        
+        public override void UnBind()
+        {
+            m_disposable.Dispose();
+        }
 
         private void BindBool(bool value)
         {
