@@ -1,3 +1,4 @@
+using Tekly.Common.Observables;
 using UnityEngine;
 
 namespace Tekly.Common.Presentables
@@ -10,6 +11,10 @@ namespace Tekly.Common.Presentables
 		Hiding,
 	}
 
+	/// <summary>
+	/// Wraps up showing and hiding a GameObject. This is a base class to reference when you need to generically show
+	/// and hide something. 
+	/// </summary>
 	public class Presentable : MonoBehaviour
 	{
 		public PresentableState State {
@@ -20,16 +25,28 @@ namespace Tekly.Common.Presentables
 				}
 
 				m_state = value;
+				m_stateChanged.Emit(m_state);
 				OnStateChanged();
 			}
 		}
 
 		public bool IsAnimating => State == PresentableState.Showing || State == PresentableState.Hiding;
-
+		
+		public ITriggerable<PresentableState> StateChanged => m_stateChanged;
+		private readonly Triggerable<PresentableState> m_stateChanged = new Triggerable<PresentableState>();
+		
 		private PresentableState m_state;
 
+		/// <summary>
+		/// Shows the presentable. You are responsible for implementing OnShow to play an animation.
+		/// The default OnShow will just call CompleteShow marking the presentable as Shown 
+		/// OnShow is only called if the Presentable isn't already Showing or Shown.
+		/// OnShowAttempt will always be called regardless of the state.
+		/// </summary>
 		public void Show()
 		{
+			OnShowAttempt();
+			
 			if (State == PresentableState.Shown || State == PresentableState.Showing) {
 				return;
 			}
@@ -39,6 +56,9 @@ namespace Tekly.Common.Presentables
 			OnShow();
 		}
 
+		/// <summary>
+		/// Hides the presentable if it isn't Hiding or Hidden.
+		/// </summary>
 		public void Hide()
 		{
 			if (State == PresentableState.Hidden || State == PresentableState.Hiding) {
@@ -49,16 +69,32 @@ namespace Tekly.Common.Presentables
 			OnHide();
 		}
 
+		/// <summary>
+		/// Called when Show is called regardless of the current state
+		/// </summary>
+		protected virtual void OnShowAttempt()
+		{
+			
+		}
+
+		/// <summary>
+		/// Override this to implement your own showing behaviour. You must call CompleteShow when your behaviour
+		/// is done animating.
+		/// </summary>
 		protected virtual void OnShow()
 		{
 			CompleteShow();
 		}
 
+		/// <summary>
+		/// Override this to implement your own hiding behaviour. You must call CompleteShow when your behaviour
+		/// is done animating.
+		/// </summary>
 		protected virtual void OnHide()
 		{
 			CompleteHide();
 		}
-
+		
 		public void CompleteShow()
 		{
 			State = PresentableState.Shown;
