@@ -20,6 +20,7 @@ namespace Tekly.Localizations
         private readonly ArraysPool<object> m_objectArrayPool = new ArraysPool<object>();
         
         private readonly List<LocalizationBank> m_banks = new List<LocalizationBank>();
+        public static char LocToken = '$';
         
         public void Clear()
         {
@@ -104,12 +105,18 @@ namespace Tekly.Localizations
 
         private object GetData(string key, (string, object)[] data)
         {
-            if (key[0] == '$') {
+            if (key[0] == LocToken) {
                 return Localize(key);
             }
             
             foreach (var (dataKey, dataValue) in data) {
                 if (dataKey == key) {
+                    if (dataValue is string dataString)
+                    {
+                        if (dataString[0] == LocToken) {
+                            return Localize(dataString);
+                        }
+                    }
                     return dataValue;
                 }
             }

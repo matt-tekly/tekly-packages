@@ -8,7 +8,7 @@
         void Clear();
         
         string Localize(string id);
-        string Localize(string id, (string, object)[] data);
+        string Localize(string id, params (string, object)[] data);
         
         void LoadBank(string key);
         void UnloadBank(string key);

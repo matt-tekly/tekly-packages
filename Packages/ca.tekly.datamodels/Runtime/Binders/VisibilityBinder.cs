@@ -1,4 +1,5 @@
 using System;
+using Tekly.Common.Presentables;
 using Tekly.DataModels.Models;
 using UnityEngine;
 
@@ -34,7 +35,12 @@ namespace Tekly.DataModels.Binders
         private void BindBool(bool value)
         {
             foreach (var target in m_targets) {
-                target.Target.gameObject.SetActive(value ^ target.Invert);
+                var go = target.Target;
+                if (go.TryGetComponent(out Presentable presentable)) {
+                    presentable.Present(value ^ target.Invert);
+                } else {
+                    go.SetActive(value ^ target.Invert);
+                }
             }
         }
     }

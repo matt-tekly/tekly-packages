@@ -69,6 +69,15 @@ namespace Tekly.Common.Presentables
 			OnHide();
 		}
 
+		public void Present(bool show)
+		{
+			if (show) {
+				Show();
+			} else {
+				Hide();
+			}
+		}
+
 		/// <summary>
 		/// Called when Show is called regardless of the current state
 		/// </summary>
