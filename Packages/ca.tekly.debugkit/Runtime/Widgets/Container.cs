@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Tekly.DebugKit.Utils;
 using UnityEngine.UIElements;
 
@@ -386,6 +387,16 @@ namespace Tekly.DebugKit.Widgets
 			AddWidget(dropdownWidget);
 			
 			return this;
+		}
+		
+		public Container Dropdown<TEnum>(Func<TEnum> getValue, Action<TEnum> setValue)
+		{
+			var names = Enum.GetNames(typeof(TEnum)).ToList();
+			
+			string GetStringValue() => getValue().ToString();
+			void SetStringValue(string v) => setValue((TEnum)Enum.Parse(typeof(TEnum), v));
+
+			return Dropdown(names, null, GetStringValue, SetStringValue);
 		}
 
 		public Container Raw(VisualElement rawElement)
