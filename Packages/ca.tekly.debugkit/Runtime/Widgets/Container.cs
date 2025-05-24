@@ -23,21 +23,25 @@ namespace Tekly.DebugKit.Widgets
 
 		private bool m_enabled = true;
 		
-		public Container(VisualElement root, string classNames = null)
+		public Container(VisualElement parent, string classNames = null)
 		{
 			Root = new VisualElement();
+			Root.userData = this;
+			
 			Root.AddClassNames(classNames);
 
-			root.Add(Root);
+			parent.Add(Root);
 		}
 
-		public Container(VisualElement root, string classNames, string extraClassNames = null)
+		public Container(VisualElement parent, string classNames, string extraClassNames = null)
 		{
 			Root = new VisualElement();
+			Root.userData = this;
+			
 			Root.AddClassNames(classNames);
 			Root.AddClassNames(extraClassNames);
 
-			root.Add(Root);
+			parent.Add(Root);
 		}
 
 		public override void Update()
@@ -484,6 +488,21 @@ namespace Tekly.DebugKit.Widgets
 				m_widgets[^2].RemoveClass("last");
 				m_widgets[^2].AddClass("middle");
 				m_widgets[^1].AddClass("last");
+			}
+		}
+
+		public void Detach()
+		{
+			DetachFromContainer(Root.parent);
+			Root.parent.Remove(Root);
+		}
+
+		private void DetachFromContainer(VisualElement parent)
+		{
+			if (parent.userData is Container container) {
+				container.m_widgets.Remove(this);
+			} else if (parent.parent != null) {
+				DetachFromContainer(parent.parent);
 			}
 		}
 	}
