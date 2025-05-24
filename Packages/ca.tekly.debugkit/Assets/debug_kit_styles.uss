@@ -194,6 +194,39 @@
     max-height: 20px;
 }
 
+.dk-button.return {
+    background-image: url("Sprites/return.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    padding: 0;
+    -unity-background-image-tint-color: var(--text);
+    max-width: 22px;
+    max-height: 20px;
+}
+
+.dk-button.trash {
+    background-image: url("Sprites/trash.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    padding: 0;
+    -unity-background-image-tint-color: var(--text);
+    max-width: 22px;
+    max-height: 20px;
+}
+
+.dk-button.update {
+    background-image: url("Sprites/update.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    padding: 0;
+    -unity-background-image-tint-color: var(--text);
+    max-width: 22px;
+    max-height: 20px;
+}
+
+
+
+
 /* ==========================================
     LAYOUTS
 /* ========================================== */
@@ -585,4 +618,40 @@ Foldout #unity-checkmark {
 
 .grow {
     flex-grow: 1;
+}
+
+.button-red {
+    background-color: #CC241D;
+}
+
+.dk-button:hover:focus.button-red, .dk-button:hover:enabled.button-red {
+    background-color: #CC241D;
+}
+
+.dk-button:active:hover:focus.button-red {
+    background-color: #9C1814;
+}
+
+.button-green {
+    background-color: #689D6A;
+}
+
+.dk-button:hover:focus.button-green, .dk-button:hover:enabled.button-green {
+    background-color: #689D6A;
+}
+
+.dk-button:active:hover:focus.button-green {
+    background-color: #537D54;
+}
+
+.button-blue {
+    background-color: #458588;
+}
+
+.dk-button:hover:focus.button-blue, .dk-button:hover:enabled.button-blue {
+    background-color: #458588;
+}
+
+.dk-button:active:hover:focus.button-blue {
+    background-color: #376B6D;
 }

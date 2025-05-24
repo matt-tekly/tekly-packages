@@ -168,34 +168,65 @@ namespace Tekly.DebugKit.Widgets
 		
 		public Container ButtonCopy(Action action, Func<bool> isInteractable = null)
 		{
-			var button = new ButtonWidget(this, null, "copy", action, isInteractable);
-			AddWidget(button);
-
-			return this;
+			return ButtonNoText("copy", action, isInteractable);
 		}
 		
 		public Container ButtonCopy(string classNames, Action action, Func<bool> isInteractable = null)
 		{
-			var button = new ButtonWidget(this, null, "copy" + " " + classNames, action, isInteractable);
-			AddWidget(button);
-
-			return this;
+			return ButtonNoText("copy", classNames, action, isInteractable);
 		}
 		
 		public Container ButtonPaste(Action action, Func<bool> isInteractable = null)
 		{
-			var button = new ButtonWidget(this, null, "paste", action, isInteractable);
+			return ButtonNoText("paste", action, isInteractable);
+		}
+		
+		public Container ButtonPaste(string classNames, Action action, Func<bool> isInteractable = null)
+		{
+			return ButtonNoText("paste", classNames, action, isInteractable);
+		}
+		
+		public Container ButtonReturn(Action action, Func<bool> isInteractable = null)
+		{
+			return ButtonNoText("return", action, isInteractable);
+		}
+		
+		public Container ButtonReturn(string classNames, Action action, Func<bool> isInteractable = null)
+		{
+			return ButtonNoText("return", classNames, action, isInteractable);
+		}
+		
+		public Container ButtonTrash(Action action, Func<bool> isInteractable = null)
+		{
+			return ButtonNoText("trash", action, isInteractable);
+		}
+		
+		public Container ButtonTrash(string classNames, Action action, Func<bool> isInteractable = null)
+		{
+			return ButtonNoText("trash", classNames, action, isInteractable);
+		}
+		
+		public Container ButtonUpdate(Action action, Func<bool> isInteractable = null)
+		{
+			return ButtonNoText("update", action, isInteractable);
+		}
+		
+		public Container ButtonUpdate(string classNames, Action action, Func<bool> isInteractable = null)
+		{
+			return ButtonNoText("update", classNames, action, isInteractable);
+		}
+		
+		public Container ButtonNoText(string className, Action action, Func<bool> isInteractable = null)
+		{
+			var button = new ButtonWidget(this, null, className, action, isInteractable);
 			AddWidget(button);
 
 			return this;
 		}
 		
-		public Container ButtonPaste(string classNames, Action action, Func<bool> isInteractable = null)
+		public Container ButtonNoText(string className, string classNames, Action action, Func<bool> isInteractable = null)
 		{
-			var button = new ButtonWidget(this, null, "paste" + " " + classNames, action, isInteractable);
-			AddWidget(button);
-
-			return this;
+			return ButtonNoText(className + " " + classNames, action, isInteractable);
 		}
 		
 		public Container ButtonOptions(Action action, Func<bool> isInteractable = null)

@@ -68,6 +68,7 @@ namespace TeklySample.App
 			DebugKit.Instance.Initialize();
 			TimeMenu.Register();
 			UIMenu.Register();
+			TestMenus.Register();
 
 			DataModelsDebugKitMenu.Register();
 
