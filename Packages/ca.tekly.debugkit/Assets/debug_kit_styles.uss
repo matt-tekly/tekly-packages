@@ -289,6 +289,10 @@ TextInput, .unity-base-text-field__input:hover:focus:enabled {
     min-width: 50px;
 }
 
+.dk-field-row {
+    flex-grow: 1;
+}
+
 .dk-field-row > .unity-base-field > .unity-base-field__label {
     min-width: 0px;
     align-self: center;
