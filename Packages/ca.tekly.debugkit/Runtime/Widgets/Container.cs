@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Tekly.DebugKit.Utils;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Tekly.DebugKit.Widgets
@@ -12,7 +13,15 @@ namespace Tekly.DebugKit.Widgets
 			get => m_enabled;
 			set {
 				m_enabled = value;
-				Root.style.display = m_enabled ? DisplayStyle.Flex : DisplayStyle.None;
+				Root.style.display = m_enabled && m_visible ? DisplayStyle.Flex : DisplayStyle.None;
+			}
+		}
+		
+		public bool Visible {
+			get => m_visible;
+			set {
+				m_visible = value;
+				Root.style.display = m_visible ? DisplayStyle.Flex : DisplayStyle.None;
 			}
 		}
 		
@@ -22,6 +31,7 @@ namespace Tekly.DebugKit.Widgets
 		private readonly VisualElement m_parent;
 
 		private bool m_enabled = true;
+		private bool m_visible = true;
 		
 		public Container(VisualElement parent, string classNames = null)
 		{
@@ -123,6 +133,14 @@ namespace Tekly.DebugKit.Widgets
 		public Container IntField(string label, string classNames, Func<int> getValue, Action<int> setValue)
 		{
 			var textField = new IntFieldWidget(this, label, classNames, getValue, setValue);
+			AddWidget(textField);
+
+			return this;
+		}
+		
+		public Container Vector3(string label, Func<Vector3> getValue, Action<Vector3> setValue)
+		{
+			var textField = new Vector3Widget(this, label, getValue, setValue);
 			AddWidget(textField);
 
 			return this;
@@ -474,6 +492,14 @@ namespace Tekly.DebugKit.Widgets
 		public Container Style(Action<IStyle> action)
 		{
 			action(Root.style);
+			return this;
+		}
+
+		public Container Conditionally(Func<bool> condition)
+		{
+			var visibilityWidget = new VisibilityWidget(this, condition);
+			AddWidget(visibilityWidget);
+			
 			return this;
 		}
 

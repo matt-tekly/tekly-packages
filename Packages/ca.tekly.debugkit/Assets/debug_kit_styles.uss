@@ -289,6 +289,15 @@ TextInput, .unity-base-text-field__input:hover:focus:enabled {
     min-width: 50px;
 }
 
+.dk-field-row > .unity-base-field > .unity-base-field__label {
+    min-width: 0px;
+    align-self: center;
+}
+
+.dk-field-row > .dk-input {
+    flex-grow: 1;
+}
+
 /* If a TextField is in a row it should grow by default */
 .dk-layout-row > TextField {
     flex-grow: 1;
