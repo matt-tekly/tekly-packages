@@ -602,6 +602,7 @@ MonoBehaviour:
   m_key:
     Path: 
   m_bindOnEnable: 0
+  m_unbindOnDisable: 1
   m_binders:
   - {fileID: 2990379292871009763}
   - {fileID: 154337208102233932}
@@ -930,6 +931,7 @@ MonoBehaviour:
   m_key:
     Path: 
   m_bindOnEnable: 0
+  m_unbindOnDisable: 1
   m_binders:
   - {fileID: 154337210146752422}
 --- !u!1 &154337209040103935

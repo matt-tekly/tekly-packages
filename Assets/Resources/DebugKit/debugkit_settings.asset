@@ -12,8 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 226fe4069f2d48ee8b6bfcfc7f18f41b, type: 3}
   m_Name: debugkit_settings
   m_EditorClassIdentifier: 
+  AutoScaleInEditor: 1
   OpenKey: 95
+  OpenAction: {fileID: 0}
   OpenTouchCount: 0
   PanelSettings: {fileID: 11400000, guid: 6d88bcfe9461f5c4498e4ecb9dd9abe6, type: 2}
   StyleSheets: []
   RootClassNames: []
+  ToggleFocusesWhenNotFocused: 0

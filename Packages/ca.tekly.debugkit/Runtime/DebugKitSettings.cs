@@ -26,6 +26,7 @@ namespace Tekly.DebugKit
 		public PanelSettings PanelSettings;
 		public StyleSheet[] StyleSheets;
 		public string[] RootClassNames;
+		public bool ToggleFocusesWhenNotFocused;
 
 #if UNITY_EDITOR
 		public static DebugKitSettings CreateDefaultSettings()

@@ -91,6 +91,11 @@ namespace Tekly.DebugKit
 			m_debugKitRoot.Enabled = false;
 		}
 
+		public void Focus()
+		{
+			m_debugKitRoot.Focus();
+		}
+
 		public void Enable(bool enabled)
 		{
 			m_debugKitRoot.Enabled = enabled;
@@ -99,7 +104,16 @@ namespace Tekly.DebugKit
 		public void Update()
 		{
 			if (WasToggleButtonPressed()) {
-				m_debugKitRoot.Toggle();
+				if (Settings.ToggleFocusesWhenNotFocused) {
+					if (m_debugKitGui.Focused.Value) {
+						m_debugKitRoot.Enabled = false;
+					} else {
+						m_debugKitRoot.Focus();	
+						m_debugKitRoot.Enabled = true;
+					}
+				} else {
+					m_debugKitRoot.Toggle();
+				}
 			}
 
 #if UNITY_EDITOR

@@ -43,6 +43,8 @@ namespace Tekly.DebugKit
 		public DebugKitRoot(VisualElement root)
 		{
 			m_root = new Container(root, "dk-root");
+			m_root.Root.name = "DebugKitRoot";
+			m_root.Root.focusable = true;
 			
 			m_menuController = new MenuController(m_root.Root, "debugkit.menu.selected", (buttons) => {
 				buttons.ButtonOptions(() => ShowPreferences = !ShowPreferences);
@@ -91,6 +93,11 @@ namespace Tekly.DebugKit
 		{
 			m_root.Update();
 			m_menuController.Update();
+		}
+
+		public void Focus()
+		{
+			m_root.Root.panel.visualTree.Q("DebugKitRoot").Focus();
 		}
 	}
 }

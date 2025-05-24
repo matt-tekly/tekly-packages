@@ -519,6 +519,8 @@ namespace Tekly.DebugKit.Widgets
 
 		public void Detach()
 		{
+			DebugKit.Instance.Focus();
+			
 			DetachFromContainer(Root.parent);
 			Root.parent.Remove(Root);
 		}
