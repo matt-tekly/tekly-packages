@@ -36,5 +36,12 @@ namespace Tekly.DataModels.Binders
         {
             m_model.Value = value;
         }
+        
+        public override void UnBind()
+        {
+            m_model = null;
+            m_disposable?.Dispose();
+            m_disposable = null;
+        }
     }
 }

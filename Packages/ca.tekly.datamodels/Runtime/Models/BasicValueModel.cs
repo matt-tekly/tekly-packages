@@ -4,6 +4,7 @@
 
 using System;
 using System.Text;
+using Tekly.Common.Observables;
 using Tekly.Localizations;
 
 namespace Tekly.DataModels.Models

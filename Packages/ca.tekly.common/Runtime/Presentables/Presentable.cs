@@ -31,10 +31,12 @@ namespace Tekly.Common.Presentables
 		}
 
 		public bool IsAnimating => State == PresentableState.Showing || State == PresentableState.Hiding;
-		
 		public ITriggerable<PresentableState> StateChanged => m_stateChanged;
-		private readonly Triggerable<PresentableState> m_stateChanged = new Triggerable<PresentableState>();
+
+		[SerializeField] private bool m_completeHideOnDisable;
 		
+		
+		private readonly Triggerable<PresentableState> m_stateChanged = new Triggerable<PresentableState>();
 		private PresentableState m_state;
 
 		/// <summary>
@@ -118,6 +120,13 @@ namespace Tekly.Common.Presentables
 		protected virtual void OnStateChanged()
 		{
 			
+		}
+
+		protected virtual void OnDisable()
+		{
+			if (m_completeHideOnDisable) {
+				State = PresentableState.Hidden;
+			}
 		}
 	}
 }

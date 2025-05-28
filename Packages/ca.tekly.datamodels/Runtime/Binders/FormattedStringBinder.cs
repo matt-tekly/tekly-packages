@@ -1,8 +1,4 @@
-﻿// ============================================================================
-// Copyright 2021 Matt King
-// ============================================================================
-
-using System;
+﻿using System;
 using Tekly.Common.Observables;
 using Tekly.DataModels.Models;
 using Tekly.Localizations;
@@ -17,7 +13,6 @@ namespace Tekly.DataModels.Binders
 {
     public class FormattedStringBinder : Binder
     {
-        
         public TextSetEvent OnTextSet => m_onTextSet;
         
         [FormerlySerializedAs("Keys")] [SerializeField] private ModelRef[] m_keys;
@@ -91,9 +86,8 @@ namespace Tekly.DataModels.Binders
             m_hasFormatted = true;
         }
 
-        protected override void OnDestroy()
+        public override void UnBind()
         {
-            base.OnDestroy();
             Dispose();
         }
 

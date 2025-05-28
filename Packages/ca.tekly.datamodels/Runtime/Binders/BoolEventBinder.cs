@@ -30,11 +30,11 @@ namespace Tekly.DataModels.Binders
                 m_event.Invoke(value ^ m_invert);
             }
         }
-
-        protected override void OnDestroy()
+        
+        public override void UnBind()
         {
-            base.OnDestroy();
             m_disposable?.Dispose();
+            m_disposable = null;
         }
     }
 }

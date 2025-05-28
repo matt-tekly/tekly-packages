@@ -125,6 +125,14 @@ namespace Tekly.DataModels.Models
 
 			return model;
 		}
+		
+		public TriggerModel AddTrigger(string name)
+		{
+			var model = new TriggerModel();
+			Add(name, model);
+
+			return model;
+		}
 
 		public ObjectModel AddObject(string name)
 		{

@@ -36,10 +36,10 @@ namespace Tekly.DataModels.Binders
             m_endTime = DateTime.FromOADate(value);
         }
         
-        protected override void OnDestroy()
+        public override void UnBind()
         {
-            base.OnDestroy();
             m_disposable?.Dispose();
+            m_disposable = null;
         }
         
 #if UNITY_EDITOR

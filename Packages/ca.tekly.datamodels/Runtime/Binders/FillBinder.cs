@@ -28,6 +28,7 @@ namespace Tekly.DataModels.Binders
         public override void UnBind()
         {
             m_disposable?.Dispose();
+            m_disposable = null;
         }
     }
 }

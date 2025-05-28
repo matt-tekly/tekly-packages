@@ -2,9 +2,13 @@
 
 namespace Tekly.Common.Observables
 {
-    public struct Unit
+    public struct Unit : IEquatable<Unit>, IComparable<Unit>
     {
-        public static Unit Default;
+        public static readonly Unit Default = new Unit();
+        public bool Equals(Unit other) => true;
+        public override bool Equals(object obj) => obj is Unit;
+        public override int GetHashCode() => 0;
+        public int CompareTo(Unit other) => 0;
     }
 
     public interface ITriggerable<out T>
