@@ -17,7 +17,9 @@ namespace Tekly.DataModels.Binders.Collections
 	{
 		[SerializeField] private ModelRef m_templateKey;
 		[SerializeField] private NamedTemplate[] m_templates;
+		[SerializeField] private BinderContainer m_default;
 
+		private readonly TkLogger m_logger = TkLogger.Get<BasicItemTemplateProvider>();
 		private void Awake()
 		{
 			for (var index = 0; index < m_templates.Length; index++) {
@@ -35,12 +37,16 @@ namespace Tekly.DataModels.Binders.Collections
 						return template.Value;
 					}
 				}
+
+				if (m_default == null) {
+					m_logger.ErrorContext("Failed to find named template for [{id}] and there is no default", this, ("id", id));
+				}
 				
-				TkLogger.Get<BasicItemTemplateProvider>().Error("Failed to find template for id [{id}]", ("id", id));
+				return m_default;
 			}
 
-			TkLogger.Get<BasicItemTemplateProvider>().Error("Failed to find model [{path}]", ("path", m_templateKey.Path));
-			
+			m_logger.Error("Failed to find model [{path}]", ("path", m_templateKey.Path));
+
 			return null;
 		}
 	}
