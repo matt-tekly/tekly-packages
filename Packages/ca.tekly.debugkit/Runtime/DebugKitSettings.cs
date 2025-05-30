@@ -8,6 +8,7 @@ namespace Tekly.DebugKit
 	[CreateAssetMenu(menuName = "Tekly/Debug Kit/Settings", fileName = "DebugKitSettings", order = 0)]
 	public class DebugKitSettings : ScriptableObject
 	{
+        public const string SETTINGS_FILE = "DebugKit/debugkit_settings";
 		private const string DIRECTORY = "Assets/Resources/DebugKit/";
 		private const string FILE = "debugkit_settings.asset";
 		private const string PANEL_SETTINGS_FILE = "Packages/ca.tekly.debugkit/Assets/debug_kit_panel_settings.asset";

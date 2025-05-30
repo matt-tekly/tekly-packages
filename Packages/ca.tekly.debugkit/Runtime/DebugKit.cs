@@ -133,11 +133,11 @@ namespace Tekly.DebugKit
 
 		private DebugKitSettings LoadSettings()
 		{
-			var settings = Resources.LoadAll<DebugKitSettings>("");
-
-			if (settings.Length > 0) {
-				return settings[0];
-			}
+			var settings = Resources.Load<DebugKitSettings>(DebugKitSettings.SETTINGS_FILE);
+            
+            if (settings != null) {
+                return settings;
+            }
 
 #if UNITY_EDITOR
 			Debug.LogWarning("Failed to find DebugKitSettings. Creating a default one.");
