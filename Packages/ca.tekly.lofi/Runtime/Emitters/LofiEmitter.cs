@@ -65,6 +65,22 @@ namespace Tekly.Lofi.Emitters
 			m_initialized = true;
 		}
 		
+		private void OnDestroy()
+		{
+			if (!m_initialized) {
+				return;
+			}
+
+			for (var index = m_runners.Count - 1; index >= 0; index--)
+			{
+				var runner = m_runners[index];
+				runner.Stop();
+				runner.Dispose();
+			}
+			
+			m_runners.Clear();
+		}
+		
 		public int Play(string id)
 		{
 			if (Lofi.Core.Lofi.Instance.TryGetClip(id, out var clip)) {
