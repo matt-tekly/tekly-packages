@@ -27,6 +27,7 @@ namespace Tekly.DebugKit.Widgets
 	public class MenuController : Widget
 	{
 		public VisualElement Root => m_rootContainer.Root;
+		public int MenuCount => m_menus.Count;
 		
 		private int m_currentMenu;
 
@@ -100,7 +101,11 @@ namespace Tekly.DebugKit.Widgets
 			m_menuDropdown.choices.Sort();
 			
 			if (m_activeMenu == menu) {
-				m_menuDropdown.value = m_menus[0].Name;
+				if (m_menus.Count > 0) {
+					m_menuDropdown.value = m_menus[0].Name;	
+				} else {
+					m_menuDropdown.value = null;
+				}
 			}
 
 			menu.Enabled = false;
@@ -141,8 +146,11 @@ namespace Tekly.DebugKit.Widgets
 			}
 
 			m_activeMenu = m_menus.FirstOrDefault(x => x.Name == menu);
-			m_activeMenu.Enabled = true;
-
+			
+			if (m_activeMenu != null) {
+				m_activeMenu.Enabled = true;	
+			}
+			
 			m_lastSelectedMenu.Value = menu;
 		}
 		

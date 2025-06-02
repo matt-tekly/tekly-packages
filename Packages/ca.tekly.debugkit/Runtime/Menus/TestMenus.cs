@@ -12,7 +12,7 @@ namespace Tekly.DebugKit.Menus
 			Vector3 v = Vector3.zero;;
 			bool isVisible = true;
 			
-			DebugKit.Instance.Menu("Test")
+			var container = DebugKit.Instance.Menu("Test")
 				.CardColumn(card => {
 					card.Checkbox("Visible", () => isVisible, value => isVisible = value);
 				})
@@ -32,6 +32,22 @@ namespace Tekly.DebugKit.Menus
 					card2.Vector3("Position", () => v, value => v = value);
 					card2.Vector3("", () => v, value => v = value);
 				});
+
+
+			var menuController = container.MenuController("asdf");
+			menuController.Enable(true);
+			var menuA = menuController.Create("a");
+			var menuB = menuController.Create("b");
+
+			container.Button("Remove", () => {
+				if (menuA != null) {
+					menuController.Remove(menuA);
+					menuA = null;
+				} else if (menuB != null) {
+					menuController.Remove(menuB);
+					menuB = null;
+				}
+			});
 		}
 	}
 }
