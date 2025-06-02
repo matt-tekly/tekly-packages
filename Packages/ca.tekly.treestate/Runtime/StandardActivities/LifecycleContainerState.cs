@@ -112,8 +112,8 @@ namespace Tekly.TreeState.StandardActivities
 			m_lifecycleContainer?.Dispose();
 			m_lifecycleContainer = null;
 		}
-		
-		protected override void OnApplicationQuit()
+
+		private void OnDestroy()
 		{
 			if (SelfContainer != null) {
 				SelfContainer.Clear();
