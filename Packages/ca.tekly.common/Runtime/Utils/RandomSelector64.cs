@@ -15,8 +15,8 @@ namespace Tekly.Common.Utils
 	/// </summary>
 	public struct RandomSelector64
 	{
-		private readonly int m_size;
-		private readonly RandomSelectMode m_mode;
+		public readonly int Size;
+		public readonly RandomSelectMode Mode;
 		private readonly NumberGenerator m_numberGenerator;
 
 		private ulong m_state;
@@ -29,8 +29,8 @@ namespace Tekly.Common.Utils
 				Assert.IsTrue(size <= 64, "Size must be between 1 and 64.");	
 			}
 			
-			m_size = size;
-			m_mode = mode;
+			Size = size;
+			Mode = mode;
 			m_numberGenerator = numberGenerator;
 			
 			m_state = mode == RandomSelectMode.Exhaustive ? 0UL : ulong.MaxValue;
@@ -40,44 +40,44 @@ namespace Tekly.Common.Utils
 
 		public int Select()
 		{
-			switch (m_mode) {
+			switch (Mode) {
 				case RandomSelectMode.Random: {
-					return m_numberGenerator.Range(0, m_size);
+					return m_numberGenerator.Range(0, Size);
 				}
 				case RandomSelectMode.NonRepeating: {
-					if (m_size == 1) {
+					if (Size == 1) {
 						return 0;
 					}
 					
 					int newIndex;
 					do {
-						newIndex = m_numberGenerator.Range(0, m_size);
+						newIndex = m_numberGenerator.Range(0, Size);
 					} while (newIndex == (int)m_state);
 
 					m_state = (ulong)newIndex;
 					return newIndex;
 				}
 				case RandomSelectMode.Exhaustive: {
-					if (m_size == 64) {
+					if (Size == 64) {
 						if (m_state == ulong.MaxValue) {
 							m_state = 0;
 						}
 					} else {
-						if (m_state == (1UL << m_size) - 1) {
+						if (m_state == (1UL << Size) - 1) {
 							m_state = 0;
 						}
 					}
 					
 					int randomIndex;
 					do {
-						randomIndex = m_numberGenerator.Range(0, m_size);
+						randomIndex = m_numberGenerator.Range(0, Size);
 					} while ((m_state & (1UL << randomIndex)) != 0);
 
 					m_state |= 1UL << randomIndex;
 					return randomIndex;
 				}
 				default:
-					throw new ArgumentOutOfRangeException(nameof(m_mode), "Invalid selection mode.");
+					throw new ArgumentOutOfRangeException(nameof(Mode), "Invalid selection mode.");
 			}
 		}
 	}
