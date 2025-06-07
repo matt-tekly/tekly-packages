@@ -26,7 +26,6 @@ namespace TeklySample.Game.UiDataProviders
         public void Unbind()
         {
             m_rootModel.RemoveModel(m_key);
-            m_gameWorldModel.Dispose();
         }
     }
 }

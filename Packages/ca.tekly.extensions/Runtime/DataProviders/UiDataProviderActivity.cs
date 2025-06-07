@@ -19,6 +19,8 @@ namespace Tekly.Extensions.DataProviders
     {
         [SerializeReference, Polymorphic("Data Providers")] private IUiDataProvider[] m_providers;
         [Inject] private InjectorContainer m_container;
+
+        private bool m_bound;
         
         protected override void LoadingStarted()
         {
@@ -26,14 +28,32 @@ namespace Tekly.Extensions.DataProviders
                 m_container.Inject(provider);
                 provider.Bind();
             }
+
+            m_bound = true;
         }
 
         protected override void UnloadingStarted()
         {
+            Unbind();
+        }
+        
+        private void OnDestroy()
+        {
+            Unbind();
+        }
+
+        private void Unbind()
+        {
+            if (!m_bound) {
+                return;
+            }
+            
             foreach (var provider in m_providers) {
                 provider.Unbind();
                 m_container.Clear(provider);
             }
+
+            m_bound = false;
         }
     }
 }
