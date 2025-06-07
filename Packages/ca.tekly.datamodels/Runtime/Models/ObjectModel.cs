@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using Tekly.Common.Observables;
+using Tekly.Logging;
 using UnityEngine;
 
 namespace Tekly.DataModels.Models
@@ -64,6 +65,15 @@ namespace Tekly.DataModels.Models
 		
 		public T Add<T>(string name, T model, ReferenceType referenceType = ReferenceType.Owner) where T : IModel
 		{
+#if DEBUG
+			// We can't use TryGetModel here as models may override that function
+			foreach (var modelReference in m_models) {
+				if (string.Equals(modelReference.Key, name, StringComparison.Ordinal)) {
+					TkLogger.Get<ObjectModel>().Error("Adding model with name that already exists [{name}]", ("name", name));
+					break;
+				}
+			}
+#endif
 			m_models.Add(new ModelReference(model, referenceType, name, name.GetHashCode()));
 			EmitModified();
 			
@@ -159,8 +169,9 @@ namespace Tekly.DataModels.Models
 		{
 			for (var index = 0; index < m_models.Count; index++) {
 				var modelReference = m_models[index];
-				if (modelReference.Key == name) {
+				if (string.Equals(modelReference.Key, name, StringComparison.Ordinal)) {
 					m_models.RemoveAt(index);
+					break;
 				}
 			}
 
@@ -211,7 +222,7 @@ namespace Tekly.DataModels.Models
 		{
 			for (var index = 0; index < m_models.Count; index++) {
 				var modelReference = m_models[index];
-				if (modelReference.Key == modelKey) {
+				if (string.Equals(modelReference.Key, modelKey, StringComparison.Ordinal)) {
 					model = modelReference.Model;
 					return true;
 				}
