@@ -98,7 +98,7 @@ namespace Tekly.Common.Presentables
 		}
 
 		/// <summary>
-		/// Override this to implement your own hiding behaviour. You must call CompleteShow when your behaviour
+		/// Override this to implement your own hiding behaviour. You must call CompleteHide when your behaviour
 		/// is done animating.
 		/// </summary>
 		protected virtual void OnHide()

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Tekly.Common.LocalFiles;
 using Tekly.Common.Utils;
@@ -7,44 +8,39 @@ using UnityEngine;
 
 namespace TeklySample.App
 {
-	public static class AppProperties
+	public class AppProperties : SingletonFactory<PropertyBag, AppProperties>, IDisposable
 	{
-		public static PropertyBag Instance { get; private set; }
 		private const string FILE = "app_properties.json";
-
-		private static readonly string s_filePath;
+		private IDisposable m_disposable;
 		
-		static AppProperties()
+		protected override PropertyBag Create()
 		{
-			s_filePath = LocalFile.GetPath(FILE);
-			UnityRuntimeEditorUtils.OnEnterPlayMode(Init);
-			UnityRuntimeEditorUtils.OnExitPlayMode(Reset);
-		}
-
-		private static void Init()
-		{
-			if (File.Exists(s_filePath)) {
-				var json = File.ReadAllText(s_filePath);
-				Instance = JsonUtility.FromJson<PropertyBag>(json);
+			PropertyBag propertyBag = null;
+			var filePath = LocalFile.GetPath(FILE);
+			
+			if (File.Exists(filePath)) {
+				var json = File.ReadAllText(filePath);
+				propertyBag = JsonUtility.FromJson<PropertyBag>(json);
 			}
 
-			if (Instance == null) {
-				Instance = new PropertyBag();
+			if (propertyBag == null) {
+				propertyBag = new PropertyBag();
 			}
-
-			Instance.Modified.Subscribe(_ => {
-				var json = JsonUtility.ToJson(Instance);
-				File.WriteAllText(s_filePath, json);
+			
+			m_disposable = propertyBag.Modified.Subscribe(_ => {
+				var json = JsonUtility.ToJson(propertyBag);
+				File.WriteAllText(filePath, json);
 			});
+
+			return propertyBag;
 		}
 
-		private static void Reset()
+		public void Dispose()
 		{
-			Instance = null;
+			m_disposable?.Dispose();
 		}
 	}
 	
-
 	[Route("/app/properties")]
 	public class AppPropertiesRoute
 	{

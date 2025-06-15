@@ -2,7 +2,7 @@
 
 namespace Tekly.Common.Utils
 {
-    public class Singleton<T> where T : Singleton<T>, new()
+    public class Singleton<T> where T : new()
     {
         public static T Instance { get; private set; }
 
@@ -23,7 +23,46 @@ namespace Tekly.Common.Utils
                 disposable.Dispose();
             }
             
-            Instance = null;
+            Instance = default;
+        }
+
+        protected static void ForceInit()
+        {
+            
+        }
+    }
+    
+    public abstract class SingletonFactory<T, TFactory> where TFactory : SingletonFactory<T, TFactory>, new()
+    {
+        public static T Instance { get; private set; }
+        private static SingletonFactory<T, TFactory> s_factory;
+
+        static SingletonFactory()
+        {
+            UnityRuntimeEditorUtils.OnEnterPlayMode(Init);
+            UnityRuntimeEditorUtils.OnExitPlayMode(Reset);
+        }
+
+        protected abstract T Create();
+
+        private static void Init()
+        {
+            s_factory = new TFactory();
+            Instance = s_factory.Create();
+        }
+
+        private static void Reset()
+        {
+            if (Instance is IDisposable disposable) {
+                disposable.Dispose();
+            }
+            
+            if (s_factory is IDisposable factoryDisposable) {
+                factoryDisposable.Dispose();
+            }
+            
+            Instance = default;
+            s_factory = null;
         }
 
         protected static void ForceInit()
