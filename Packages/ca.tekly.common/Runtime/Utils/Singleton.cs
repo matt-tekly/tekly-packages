@@ -35,7 +35,7 @@ namespace Tekly.Common.Utils
     public abstract class SingletonFactory<T, TFactory> where TFactory : SingletonFactory<T, TFactory>, new()
     {
         public static T Instance { get; private set; }
-        private static SingletonFactory<T, TFactory> s_factory;
+        private static TFactory s_factory;
 
         static SingletonFactory()
         {
