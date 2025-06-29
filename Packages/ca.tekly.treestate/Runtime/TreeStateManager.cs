@@ -15,6 +15,7 @@ namespace Tekly.TreeState
 	{
 		[NonSerialized] public TreeState Active;
 		
+		public string Name { get; set; }
 		public TreeStateMachine StateMachine;
 
 		public bool AutoInitialize = true;
@@ -38,6 +39,7 @@ namespace Tekly.TreeState
 		
 		private void Awake()
 		{
+			Name = name;
 			m_activities = GetComponentsInChildren<TreeActivity>();
 		}
 		
@@ -97,6 +99,7 @@ namespace Tekly.TreeState
 			}
 
 			var evt = new TreeActivityModeChangedEvt {
+				Manager = Name,
 				State = treeActivity.Name,
 				ActivityType = treeActivity.TypeName,
 				Mode = treeActivity.Mode,

@@ -236,6 +236,12 @@
         "com.unity.nuget.newtonsoft-json": "0.0.1"
       }
     },
+    "ca.tekly.tracing": {
+      "version": "file:ca.tekly.tracing",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "ca.tekly.treestate": {
       "version": "file:ca.tekly.treestate",
       "depth": 0,

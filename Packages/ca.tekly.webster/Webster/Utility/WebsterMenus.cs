@@ -3,6 +3,7 @@
 //=============================================================================
 
 #if UNITY_EDITOR
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -17,7 +18,8 @@ namespace Tekly.Webster.Utility
 			BuildTargetGroup.PS4,
 			BuildTargetGroup.Standalone,
 			BuildTargetGroup.XboxOne,
-			BuildTargetGroup.Switch
+			BuildTargetGroup.Switch,
+			BuildTargetGroup.WebGL
 		};
 
 		private const string WEBSTER_ENABLE = "WEBSTER_ENABLE";

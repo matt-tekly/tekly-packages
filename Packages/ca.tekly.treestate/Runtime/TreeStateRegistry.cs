@@ -5,6 +5,7 @@ namespace Tekly.TreeState
 {
     public struct TreeActivityModeChangedEvt
     {
+        public string Manager;
         public string State;
         public string ActivityType;
         public ActivityMode Mode;

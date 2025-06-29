@@ -1,0 +1,14 @@
+{
+    "name": "ca.tekly.tracing",
+    "displayName": "Tekly Tracing",
+    "version": "0.0.1",
+    "unity": "2019.4",
+    "dependencies": {
+    },
+    "author": {
+      "name": "Matt King",
+      "email": "matt@tekly.ca"
+    },
+    "hideInEditor": false,
+    "type": "library"
+  }
