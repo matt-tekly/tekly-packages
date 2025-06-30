@@ -58,21 +58,28 @@ namespace Tekly.Tracing
 					Duration = (e.EndTime - e.StartTime) * 1000.0,
 					ProcessId = pid,
 					ThreadId = e.ThreadName ?? $"Thread {e.ThreadId}",
-					Args = e.Args != null ? ArgsToDict(e.Args) : null
+					Args = TraceEventArgs(e)
 				});
 			}
 
 			return events;
 		}
 		
-		private static Dictionary<string, string> ArgsToDict(TraceEventArg[] args)
-		{
-			var dict = new Dictionary<string, string>();
-			foreach (var arg in args)
-			{
-				dict[arg.Name] = arg.Value;
-			}
-			return dict;
-		}
+		private static Dictionary<string, string> TraceEventArgs(TraceEvent traceEvent)
+        {
+            var dict = new Dictionary<string, string>();
+            
+            if (traceEvent.Args != null)
+            {
+                foreach (var arg in traceEvent.Args)
+                {
+                    dict[arg.Name] = arg.Value;
+                }	
+            }
+
+            dict["Frames"] = $"{traceEvent.StartFrame} - {traceEvent.EndFrame}";
+            
+            return dict;
+        }
 	}
 }

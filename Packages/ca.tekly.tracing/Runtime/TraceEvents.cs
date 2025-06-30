@@ -116,6 +116,11 @@ namespace Tekly.Tracing
 			});
 		}
 		
+        public static int BeginWithId(string name, string category, TraceEventArg[] args = null)
+        {
+            return BeginWithId(DEFAULT_PROCESS, name, category, args);
+        }
+        
 		public static int BeginWithId(string process, string name, string category, TraceEventArg[] args = null)
 		{
 #if TEKLY_TRACEEVENTS_ENABLED
