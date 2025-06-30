@@ -51,8 +51,6 @@ namespace TeklySample.App
 
 		public void Update()
 		{
-			TraceEvents.Update();
-			
 			if (Input.GetKeyDown(KeyCode.Escape)) {
 				Application.Quit();
 				return;
@@ -88,29 +86,29 @@ namespace TeklySample.App
 			WebsterServer.AddRouteHandler<AppPropertiesRoute>();
 
 			TraceEvents.Initialize();
-			
+
 			TreeStateRegistry.Instance.ActivityModeChanged.Subscribe(evt => {
 				var type = evt.IsState ? "Tree State" : "Tree Activity";
 				switch (evt.Mode) {
 					case ActivityMode.Inactive:
 						Frameline.EndEvent($"{evt.State} Unloading", type);
-						TraceEvents.End($"{evt.State} Unloading", type);
+						TraceEvents.EndProcess(evt.Manager, $"{evt.State} Unloading", type);
 						break;
 					case ActivityMode.Loading:
 						Frameline.BeginEvent($"{evt.State} Loading", type);
-						TraceEvents.Begin($"{evt.State} Loading", type, "Manager", evt.Manager);
+						TraceEvents.BeginProcess(evt.Manager, $"{evt.State} Loading", type);
 						break;
 					case ActivityMode.ReadyToActivate:
 						Frameline.EndEvent($"{evt.State} Loading", type);
-						TraceEvents.End($"{evt.State} Loading", type);
+						TraceEvents.EndProcess(evt.Manager, $"{evt.State} Loading", type);
 						break;
 					case ActivityMode.Active:
 						Frameline.BeginEvent($"{evt.State} Active", type);
-						TraceEvents.Begin($"{evt.State} Active", type, "Manager", evt.Manager);
+						TraceEvents.BeginProcess(evt.Manager, $"{evt.State} Active", type);
 						break;
 					case ActivityMode.Unloading:
 						Frameline.BeginEvent($"{evt.State} Unloading", type);
-						TraceEvents.Begin($"{evt.State} Unloading", type, "Manager", evt.Manager);
+						TraceEvents.BeginProcess(evt.Manager, $"{evt.State} Unloading", type);
 						break;
 					default:
 						throw new ArgumentOutOfRangeException();

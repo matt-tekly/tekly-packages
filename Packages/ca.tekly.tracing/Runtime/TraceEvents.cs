@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Tekly.Common.LifeCycles;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -21,14 +22,26 @@ namespace Tekly.Tracing
 		private static TraceEvent s_previousTraceEvent;
 
 		private static readonly Stopwatch s_stopwatch = new Stopwatch();
+		private const string DEFAULT_PROCESS = "Main";
 
 		[Conditional("TEKLY_TRACEEVENTS_ENABLED")]
-		public static void Initialize()
+		public static void Initialize(bool selfManaged = true)
 		{
 			s_stopwatch.Start();
 			Debug.Log("TraceEvents initialized");
 
-			s_previousTraceEvent = InstantInternal("__LongFrame", "__LongFrame");
+			s_previousTraceEvent = InstantInternal("__LongFrame", "__LongFrame", "__LongFrame");
+
+			if (selfManaged) {
+				LifeCycle.Instance.Update += Update;
+				LifeCycle.Instance.Quit += Stop;
+			}
+		}
+		
+		public static void Stop()
+		{
+			LifeCycle.Instance.Update -= Update;
+			LifeCycle.Instance.Quit -= Stop;
 		}
 
 		public static void ProcessEvents(Action<List<TraceEvent>> callback)
@@ -42,7 +55,16 @@ namespace Tekly.Tracing
 		[Conditional("TEKLY_TRACEEVENTS_ENABLED")]
 		public static void Instant(string id, string category)
 		{
-			var frameEvent = InstantInternal(id, category);
+			var frameEvent = InstantInternal(DEFAULT_PROCESS, id, category);
+			lock (s_eventsLock) {
+				s_events.Add(frameEvent);
+			}
+		}
+		
+		[Conditional("TEKLY_TRACEEVENTS_ENABLED")]
+		public static void Instant(string process, string id, string category)
+		{
+			var frameEvent = InstantInternal(process, id, category);
 			lock (s_eventsLock) {
 				s_events.Add(frameEvent);
 			}
@@ -51,13 +73,13 @@ namespace Tekly.Tracing
 		[Conditional("TEKLY_TRACEEVENTS_ENABLED")]
 		public static void Begin(string name, string category)
 		{
-			BeginWithId(name, category);
+			BeginWithId(DEFAULT_PROCESS, name, category);
 		}
 		
 		[Conditional("TEKLY_TRACEEVENTS_ENABLED")]
 		public static void Begin<T0>(string name, string category, string arg0, T0 value0)
 		{
-			BeginWithId(name, category, new [] {
+			BeginWithId(DEFAULT_PROCESS, name, category, new [] {
 				TraceEventArg.Create(arg0, value0)
 			});
 		}
@@ -65,13 +87,36 @@ namespace Tekly.Tracing
 		[Conditional("TEKLY_TRACEEVENTS_ENABLED")]
 		public static void Begin<T0, T1>(string name, string category, string arg0, T0 value0, string arg1, T1 value1)
 		{
-			BeginWithId(name, category, new [] {
+			BeginWithId(DEFAULT_PROCESS, name, category, new [] {
 				TraceEventArg.Create(arg0, value0),
 				TraceEventArg.Create(arg1, value1)
 			});
 		}
 		
-		public static int BeginWithId(string name, string category, TraceEventArg[] args = null)
+		[Conditional("TEKLY_TRACEEVENTS_ENABLED")]
+		public static void BeginProcess(string process, string name, string category)
+		{
+			BeginWithId(process, name, category);
+		}
+		
+		[Conditional("TEKLY_TRACEEVENTS_ENABLED")]
+		public static void BeginProcess<T0>(string process, string name, string category, string arg0, T0 value0)
+		{
+			BeginWithId(process, name, category, new [] {
+				TraceEventArg.Create(arg0, value0)
+			});
+		}
+		
+		[Conditional("TEKLY_TRACEEVENTS_ENABLED")]
+		public static void BeginProcess<T0, T1>(string process, string name, string category, string arg0, T0 value0, string arg1, T1 value1)
+		{
+			BeginWithId(process, name, category, new [] {
+				TraceEventArg.Create(arg0, value0),
+				TraceEventArg.Create(arg1, value1)
+			});
+		}
+		
+		public static int BeginWithId(string process, string name, string category, TraceEventArg[] args = null)
 		{
 #if TEKLY_TRACEEVENTS_ENABLED
 			var unixTime = s_stopwatch.Elapsed.TotalMilliseconds;
@@ -84,6 +129,7 @@ namespace Tekly.Tracing
 			frameEvent.EndFrame = s_frame;
 			frameEvent.StartTime = unixTime;
 			frameEvent.EndTime = unixTime;
+			frameEvent.Process = process;
 
 			lock (s_pendingEventsLock) {
 				s_pendingEvents.Add(frameEvent);
@@ -97,8 +143,13 @@ namespace Tekly.Tracing
 
 		public static TraceEventDisposable Scoped(string name, string category)
 		{
+			return ScopedProcess(DEFAULT_PROCESS, name, category);
+		}
+
+		public static TraceEventDisposable ScopedProcess(string process, string name, string category)
+		{
 #if TEKLY_TRACEEVENTS_ENABLED
-			return TraceEventDisposable.BeginEvent(name, category);
+			return TraceEventDisposable.BeginEvent(process, name, category);
 #else
 			return TraceEventDisposable.Unit;
 #endif
@@ -136,10 +187,16 @@ namespace Tekly.Tracing
 		[Conditional("TEKLY_TRACEEVENTS_ENABLED")]
 		public static void End(string id, string type)
 		{
+			EndProcess(DEFAULT_PROCESS, id, type);
+		}
+
+		[Conditional("TEKLY_TRACEEVENTS_ENABLED")]
+		public static void EndProcess(string process, string id, string type)
+		{
 			lock (s_pendingEventsLock) {
 				for (var index = 0; index < s_pendingEvents.Count; index++) {
 					var target = s_pendingEvents[index];
-					if (target.Category == type && target.Name == id) {
+					if (target.Process == process && target.Category == type && target.Name == id) {
 						s_pendingEvents.RemoveAt(index);
 
 						target.EndFrame = s_frame;
@@ -157,11 +214,16 @@ namespace Tekly.Tracing
 			Debug.LogErrorFormat("TraceEvents - End with no Begin ID: {0} - Type: {1}", id, type);
 		}
 
-		[Conditional("TEKLY_TRACEEVENTS_ENABLED")]
 		public static void Update()
 		{
+			UpdateInternal();
+		}
+
+		[Conditional("TEKLY_TRACEEVENTS_ENABLED")]
+		private static void UpdateInternal()
+		{
 			s_frame = Time.frameCount;
-			var frameEvent = InstantInternal("__LongFrame", "__LongFrame");
+			var frameEvent = InstantInternal("__LongFrame", "__LongFrame", "__LongFrame");
 
 			s_previousTraceEvent.EndTime = frameEvent.StartTime;
 
@@ -175,7 +237,7 @@ namespace Tekly.Tracing
 			s_previousTraceEvent = frameEvent;
 		}
 
-		private static TraceEvent InstantInternal(string id, string type)
+		private static TraceEvent InstantInternal(string process, string id, string type)
 		{
 			var unixTime = s_stopwatch.Elapsed.TotalMilliseconds;
 
@@ -186,7 +248,8 @@ namespace Tekly.Tracing
 				EndFrame = s_frame,
 				StartTime = unixTime,
 				EndTime = unixTime,
-				ThreadName = "Long Frames"
+				ThreadName = "Long Frames",
+				Process = process
 			};
 		}
 	}

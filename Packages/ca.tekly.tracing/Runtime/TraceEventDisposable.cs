@@ -6,9 +6,9 @@ namespace Tekly.Tracing
 	{
 		public static TraceEventDisposable Unit = new TraceEventDisposable(-1);
 		
-		public static TraceEventDisposable BeginEvent(string name, string category)
+		public static TraceEventDisposable BeginEvent(string process, string name, string category)
 		{
-			var eventId = TraceEvents.BeginWithId(name, category);
+			var eventId = TraceEvents.BeginWithId(process, name, category);
 			return new TraceEventDisposable(eventId);
 		}
 

@@ -32,11 +32,13 @@ namespace Tekly.Tracing
 		
 		public int Id;
 
+		public string Process;
 		public string ThreadName;
 		public int ThreadId;
 		public TraceEventArg[] Args;
 		
 		private static int s_eventId;
+		
 
 		internal static TraceEvent Create(TraceEventArg[] args = null)
 		{
