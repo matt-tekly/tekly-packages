@@ -154,6 +154,20 @@ namespace Tekly.Lofi.Core
 				}
 			}
 		}
+		
+		public void UnloadBank(LofiClipBankDefinitionRef bankRef)
+		{
+			var bank = m_banks.FirstOrDefault(x => x.BankRef == bankRef);
+
+			if (bank != null) {
+				bank.RemoveRef();
+
+				if (bank.References == 0) {
+					bank.Dispose();
+					m_banks.Remove(bank);
+				}
+			}
+		}
 
 		public void PlayOnTrack(string clipId, string trackId)
 		{
