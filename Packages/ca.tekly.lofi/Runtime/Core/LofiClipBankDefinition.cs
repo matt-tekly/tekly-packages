@@ -1,5 +1,4 @@
-﻿using Tekly.EditorUtils.Assets;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Tekly.Lofi.Core
 {
@@ -12,7 +11,7 @@ namespace Tekly.Lofi.Core
 		[ContextMenu("Update Clips")]
 		public void UpdateClips()
 		{
-			Clips = AssetDatabaseExt.FindAndLoad<LofiClipDefinition>("", this);
+			Clips = EditorUtils.Assets.AssetDatabaseExt.FindAndLoad<LofiClipDefinition>("", this);
 		}
 #endif
 	}
