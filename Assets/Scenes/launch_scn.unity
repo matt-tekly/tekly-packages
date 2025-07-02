@@ -237,6 +237,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f91543ddbf34d64b6546bd793891050, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_completeHideOnDisable: 0
   m_id: frontend_panel
 --- !u!1 &170959557
 GameObject:
@@ -509,6 +510,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58f500e83d9749659ec4e50015d994b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_clipBankRef:
+    m_AssetGUID: 52ba2b28c53812b4c9c06ceb9b8bd3e5
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
 --- !u!114 &547833671
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1593,6 +1599,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f91543ddbf34d64b6546bd793891050, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_completeHideOnDisable: 0
   m_id: loading_panel
 --- !u!1 &1606198007
 GameObject:

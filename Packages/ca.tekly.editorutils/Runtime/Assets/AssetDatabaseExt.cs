@@ -25,9 +25,9 @@ namespace Tekly.EditorUtils.Assets
 				.ToArray();
 		}
 
-		public static Object[] FindAndLoad(Type type, string search, string[] searchInFolders = null)
+		public static Object[] FindAndLoad(Type type, string search, string[] searchDirectories = null)
 		{
-			return AssetDatabase.FindAssets(search, searchInFolders)
+			return AssetDatabase.FindAssets(search, searchDirectories)
 				.SelectMany(guid => AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GUIDToAssetPath(guid)))
 				.Where(x => x != null && type.IsInstanceOfType(x))
 				.Distinct()
@@ -36,7 +36,10 @@ namespace Tekly.EditorUtils.Assets
 
 		public static T[] FindAndLoad<T>(string search, params Object[] searchInObjectDirs) where T : Object
 		{
-			var directories = searchInObjectDirs.Select(AssetDatabase.GetAssetPath).ToArray();
+			var directories = searchInObjectDirs.Select(asset => {
+				var path = AssetDatabase.GetAssetPath(asset);
+				return Path.GetDirectoryName(path);
+			}).ToArray();
 
 			return FindAndLoad<T>(search, directories);
 		}

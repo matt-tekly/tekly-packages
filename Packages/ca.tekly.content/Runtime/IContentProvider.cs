@@ -14,6 +14,7 @@ namespace Tekly.Content
         Task<Result> UpdateRemoteCatalogAsync();
         
         IContentOperation<TObject> LoadAssetAsync<TObject>(string key) where TObject : Object;
+        IContentOperation<TObject> LoadAssetAsync<TObject>(object key) where TObject : Object;
         IContentOperation<TObject> LoadAssetAsync<TObject>(string key, string label) where TObject : Object;
         IContentOperation<IList<TObject>> LoadAssetsAsync<TObject>(string key) where TObject : Object;
 

@@ -26,7 +26,7 @@ namespace Tekly.Common.Utils
             Instance = default;
         }
 
-        protected static void ForceInit()
+        public static void ForceInit()
         {
             
         }
@@ -65,7 +65,7 @@ namespace Tekly.Common.Utils
             s_factory = null;
         }
 
-        protected static void ForceInit()
+        public static void ForceInit()
         {
             
         }
@@ -98,7 +98,7 @@ namespace Tekly.Common.Utils
             Instance = null;
         }
         
-        protected static void ForceInit()
+        public static void ForceInit()
         {
             
         }

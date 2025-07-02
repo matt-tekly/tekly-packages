@@ -17,54 +17,63 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: aaac0a304a215d24887e5112b517ba15
   m_SerializeEntries:
-  - m_GUID: 7e7e6d8cc22e62446aaa402fa553ff74
-    m_Address: fonts
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-  - m_GUID: 6aa60d4200b53fc45b0e1226af6965be
-    m_Address: balance.common
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - balance.common
-  - m_GUID: 422896f7923ed7b40803b6188b6f1e5a
-    m_Address: balance_manifest
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-  - m_GUID: ea70c2f1c77abd0439838ea155c50cc2
-    m_Address: Assets/Bundles/Balance/Home
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - balance.home
-  - m_GUID: bee4d82f563b00a439ed7eede9d0431e
-    m_Address: core_loc
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - english
-  - m_GUID: 6264441469e0be74fa61ecc4dfc98092
-    m_Address: generator_panel
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-  - m_GUID: 2db6965a976910c43ab5cb811aad227b
-    m_Address: main_game_panel
-    m_ReadOnly: 0
-    m_SerializedLabels: []
   - m_GUID: 15835948e4de141ab8a7f55aeceee623
     m_Address: Assets/Bundles/Home/Audio/Clips
     m_ReadOnly: 0
     m_SerializedLabels:
     - home.clips
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2db6965a976910c43ab5cb811aad227b
+    m_Address: main_game_panel
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 422896f7923ed7b40803b6188b6f1e5a
+    m_Address: balance_manifest
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 52ba2b28c53812b4c9c06ceb9b8bd3e5
+    m_Address: Assets/Bundles/Common/Audio/Clips/clips_common.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6264441469e0be74fa61ecc4dfc98092
+    m_Address: generator_panel
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6aa60d4200b53fc45b0e1226af6965be
+    m_Address: balance.common
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - balance.common
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7e7e6d8cc22e62446aaa402fa553ff74
+    m_Address: fonts
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bee4d82f563b00a439ed7eede9d0431e
+    m_Address: core_loc
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - english
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ea70c2f1c77abd0439838ea155c50cc2
+    m_Address: Assets/Bundles/Balance/Home
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - balance.home
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f72456fb4a24b42ab8bb0b92a5c4be8e
     m_Address: lofi_core
     m_ReadOnly: 0
     m_SerializedLabels: []
-  - m_GUID: ea8599481855649349d0f979475adc21
-    m_Address: Assets/Bundles/Common/Audio/Clips
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - common.clips
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 67828c4cfc518be4baa8093e1a839969, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: c0e48df5eb23fc340a7a5699b8a56063, type: 2}
     - {fileID: 11400000, guid: b3a67c86d5d09ba419c555d9d5bac6c5, type: 2}
+    - {fileID: 11400000, guid: c0e48df5eb23fc340a7a5699b8a56063, type: 2}

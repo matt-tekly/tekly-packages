@@ -128,6 +128,18 @@ namespace Tekly.Lofi.Core
 				m_banks.Add(bank);
 			}
 		}
+		
+		public void LoadBank(LofiClipBankDefinitionRef bankRef)
+		{
+			var bank = m_banks.FirstOrDefault(x => x.BankRef == bankRef);
+
+			if (bank != null) {
+				bank.AddRef();
+			} else {
+				bank = new LofiClipBank(bankRef, m_clips);
+				m_banks.Add(bank);
+			}
+		}
 
 		public void UnloadBank(string label)
 		{

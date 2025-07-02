@@ -47,6 +47,12 @@ namespace Tekly.Content
             return new ContentOperation<TObject>(handle);
         }
         
+        public IContentOperation<TObject> LoadAssetAsync<TObject>(object key) where TObject : Object
+        {
+            var handle = Addressables.LoadAssetAsync<TObject>(key);
+            return new ContentOperation<TObject>(handle);
+        }
+        
         public IContentOperation<TObject> LoadAssetAsync<TObject>(string key, string label) where TObject : Object
         {
             IEnumerable<string> keys = new[] { key, label };
