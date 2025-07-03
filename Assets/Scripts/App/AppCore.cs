@@ -38,7 +38,6 @@ namespace TeklySample.App
 			container.Register(new AppData());
 			container.Register(ContentProvider.Instance);
 			container.Register(balanceManager);
-			container.Register(RootModel.Instance);
 			container.Register(ModelManager.Instance);
 			container.Register(localTimeProvider);
 

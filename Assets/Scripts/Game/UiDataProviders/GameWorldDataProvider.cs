@@ -13,19 +13,18 @@ namespace TeklySample.Game.UiDataProviders
         [SerializeField] private string m_key = "gameworld";
         
         [Inject] private GameWorld m_gameWorld;
-        [Inject] private RootModel m_rootModel;
 
         private GameWorldModel m_gameWorldModel;
         
         public void Bind()
         {
             m_gameWorldModel = new GameWorldModel(m_gameWorld);
-            m_rootModel.Add(m_key, m_gameWorldModel);
+            RootModel.Instance.Add(m_key, m_gameWorldModel);
         }
 
         public void Unbind()
         {
-            m_rootModel.RemoveModel(m_key);
+            RootModel.Instance.RemoveModel(m_key);
         }
     }
 }

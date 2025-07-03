@@ -17,7 +17,6 @@ namespace Tekly.Extensions.DataProviders
 	[Serializable]
 	public abstract class RootModelDataProvider : IUiDataProvider
 	{
-		[Inject] private RootModel m_rootModel;
 		[SerializeField] private ModelRef m_addTo;
 
 		private List<ModelWithName> m_models = new List<ModelWithName>();
@@ -26,10 +25,10 @@ namespace Tekly.Extensions.DataProviders
 		public void Bind()
 		{
 			if (string.IsNullOrEmpty(m_addTo.Path)) {
-				m_addToModel = m_rootModel;
+				m_addToModel = RootModel.Instance;
 			} else {
 				var key = ModelKey.Parse(m_addTo.Path);
-				if (!m_rootModel.TryGetModel(key, 0, out m_addToModel)) {
+				if (!RootModel.Instance.TryGetModel(key, 0, out m_addToModel)) {
 					TkLogger.Get<RootModelDataProvider>().Error("Failed to find Model [{key}]", ("key", m_addTo.Path));
 				}
 			}
