@@ -135,7 +135,13 @@ namespace Tekly.Injectors
                 m_parameterValues[index] = container.Get(parameterInfo.ParameterType);
             }
 
-            return Activator.CreateInstance(m_type, m_parameterValues);
+            var instance = Activator.CreateInstance(m_type, m_parameterValues);
+            
+            for (var index = 0; index < m_parameterValues.Length; index++) {
+                m_parameterValues[index] = null;
+            }
+
+            return instance;
         }
     }
     
@@ -165,6 +171,10 @@ namespace Tekly.Injectors
             }
 
             m_methodInfo.Invoke(instance, m_parameterValues);
+
+            for (var index = 0; index < m_parameterValues.Length; index++) {
+                m_parameterValues[index] = null;
+            }
         }
     }
 
