@@ -30,12 +30,19 @@ namespace Tekly.DebugKit
 
 		private DebugKitSettings m_settings;
 		private DebugKitRoot m_debugKitRoot;
+		
+		private bool m_initialized;
 
 #if DEBUGKIT_DISABLED
 		[System.Diagnostics.Conditional("__UNDEFINED__")]
 #endif
 		public void Initialize(DebugKitSettings settings = null)
 		{
+			if (m_initialized) {
+				return;
+			}
+
+			m_initialized = true;
 			m_settings = settings ?? LoadSettings();
 
 			var go = new GameObject("DebugKit");

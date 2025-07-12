@@ -109,6 +109,7 @@ namespace Tekly.DebugKit.Widgets
 			}
 
 			menu.Enabled = false;
+			menu.Detach();
 		}
 
 		public void Toggle()
