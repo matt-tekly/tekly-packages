@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 namespace Tekly.DebugKit.Widgets
 {
-	public class Menu : Container
+	public class Menu : Container, IDisposable
 	{
 		public readonly string Name;
 		private readonly MenuController m_menuController;
@@ -21,6 +21,11 @@ namespace Tekly.DebugKit.Widgets
 		public void Select()
 		{
 			m_menuController.Select(this);
+		}
+
+		public void Dispose()
+		{
+			m_menuController.Remove(this);
 		}
 	}
 

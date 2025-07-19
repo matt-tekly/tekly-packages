@@ -23,7 +23,8 @@ namespace Tekly.TreeState.StandardActivities
         protected override void PostInactive()
         {
             base.PostInactive();
-            m_container.Clear(this);
+            m_container?.Clear(this);
+            m_container = null;
         }
     }
 }
