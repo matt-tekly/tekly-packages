@@ -97,7 +97,7 @@ namespace Tekly.DebugKit
 
 		public void Focus()
 		{
-			m_root.Root.panel.visualTree.Q("DebugKitRoot").Focus();
+			m_root?.Root?.panel?.visualTree?.Q("DebugKitRoot").Focus();
 		}
 	}
 }
