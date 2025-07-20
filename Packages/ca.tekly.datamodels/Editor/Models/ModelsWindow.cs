@@ -81,10 +81,10 @@ namespace Tekly.DataModels.Models
 			if (Event.current.type == EventType.Layout) {
 				if (Application.isPlaying && !EditorApplication.isPaused) {
 					UpdateEntries();
-
-					if (m_updateVisibleEntries) {
-						UpdateVisibleEntries();
-					}
+				}
+				
+				if (m_updateVisibleEntries) {
+					UpdateVisibleEntries();
 				}
 			}
 
