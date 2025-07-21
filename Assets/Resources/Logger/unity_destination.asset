@@ -13,3 +13,7 @@ MonoBehaviour:
   m_Name: unity_destination
   m_EditorClassIdentifier: 
   Prefixes: 0100000000000000
+  TimeFormat: yyyy-MM-dd HH:mm:ss.fff
+  Separator: 
+  UseUtc: 0
+  MessageSeparator: ' '

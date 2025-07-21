@@ -7,10 +7,14 @@ namespace Tekly.Logging.Configurations
 	public class UnityLogDestinationConfig : LogDestinationConfig
 	{
 		public LogPrefixes[] Prefixes;
+		public string TimeFormat = "yyyy-MM-dd HH:mm:ss.fff";
+		public string Separator = "";
+		public bool UseUtc;
+		public string MessageSeparator = " ";
 		
 		public override ILogDestination CreateInstance()
 		{
-			return new UnityLogDestination(name, Prefixes);
+			return new UnityLogDestination(name, this);
 		}
 	}
 }

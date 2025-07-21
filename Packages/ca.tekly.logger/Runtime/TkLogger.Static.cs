@@ -219,7 +219,10 @@ namespace Tekly.Logging
             
             s_logDestinations.Clear();
 
-            var unityLogDestination = new UnityLogDestination("unity", new [] { LogPrefixes.Frame, LogPrefixes.Logger});
+            var config = ScriptableObject.CreateInstance<UnityLogDestinationConfig>();
+            config.Prefixes = new[] { LogPrefixes.Frame, LogPrefixes.Logger };
+            
+            var unityLogDestination = new UnityLogDestination("unity", config);
             s_logDestinations.Add("unity", unityLogDestination);
             
             s_settingsTree.Initialize(TkLogLevel.Debug, unityLogDestination, Array.Empty<LoggerConfig>());

@@ -23,6 +23,7 @@ namespace Tekly.Logging
         Logger,
         Frame,
         Level,
+        Timestamp,
     }
     
     public class LoggerSettings

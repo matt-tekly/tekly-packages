@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Threading;
+using Tekly.Logging.Configurations;
 using UnityEngine;
 using Object = UnityEngine.Object;
 #if UNITY_EDITOR
@@ -12,23 +13,30 @@ namespace Tekly.Logging.LogDestinations
     public class UnityLogDestination : ILogDestination
     {
         public string Name { get; }
-
-        private readonly LogPrefixes[] m_prefixes;
+        
         private int m_currentFrame;
 
+        private readonly UnityLogDestinationConfig m_config;
         private readonly ThreadLocal<StringBuilder> m_stringBuilders = new ThreadLocal<StringBuilder>(() => new StringBuilder(512));
 
 #if UNITY_EDITOR
         private Regex m_linkRegex = new Regex("(.* \\(at )(([^\\/].*):([0-9]+))", RegexOptions.RightToLeft);
 #endif
 
-        public UnityLogDestination(string name, LogPrefixes[] prefixes)
+        public UnityLogDestination(string name, UnityLogDestinationConfig config)
         {
-            m_prefixes = prefixes;
+            m_config = config;
             Name = name;
         }
 
-        public void Dispose() { }
+        public void Dispose()
+        {
+#if UNITY_EDITOR
+            if (!UnityEditor.AssetDatabase.Contains(m_config)) {
+                Object.DestroyImmediate(m_config);
+            }
+#endif
+        }
 
         public void LogMessage(TkLogMessage message, LogSource logSource)
         {
@@ -44,8 +52,8 @@ namespace Tekly.Logging.LogDestinations
             var sb = m_stringBuilders.Value;
             sb.Clear();
 
-            for (var i = 0; i < m_prefixes.Length; i++) {
-                switch (m_prefixes[i]) {
+            for (var i = 0; i < m_config.Prefixes.Length; i++) {
+                switch (m_config.Prefixes[i]) {
                     case LogPrefixes.Logger:
                         sb.Append("[");
                         sb.Append(message.LoggerName);
@@ -59,13 +67,23 @@ namespace Tekly.Logging.LogDestinations
                     case LogPrefixes.Level:
                         sb.Append(TkLoggerUtils.LevelToCharacter(message.Level));
                         break;
+                    case LogPrefixes.Timestamp:
+                        var dateTime = m_config.UseUtc ? DateTime.UtcNow : DateTime.Now;
+                        sb.Append("[");
+                        sb.Append(dateTime.ToString(m_config.TimeFormat));
+                        sb.Append("]");
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-            }
 
-            if (m_prefixes.Length > 0) {
-                sb.Append(" ");
+                if (m_config.Separator.Length > 0 && i < m_config.Prefixes.Length - 1) {
+                    sb.Append(m_config.Separator);
+                }
+            }
+            
+            if (m_config.Prefixes.Length > 0 && m_config.MessageSeparator.Length > 0) {
+                sb.Append(m_config.MessageSeparator);
             }
             
             message.Print(sb);
