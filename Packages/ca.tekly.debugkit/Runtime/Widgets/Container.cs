@@ -521,7 +521,9 @@ namespace Tekly.DebugKit.Widgets
 
 		public void Detach()
 		{
-			DebugKit.Instance.Focus();
+			if (DebugKit.Instance.Focused.Value) {
+				DebugKit.Instance.Focus();	
+			}
 			
 			DetachFromContainer(Root.parent);
 			Root.parent.Remove(Root);
