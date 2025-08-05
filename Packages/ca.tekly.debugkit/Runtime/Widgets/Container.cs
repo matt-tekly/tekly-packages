@@ -238,6 +238,26 @@ namespace Tekly.DebugKit.Widgets
 			return ButtonNoText("update", classNames, action, isInteractable);
 		}
 		
+		public Container ButtonLink(Action action, Func<bool> isInteractable = null)
+		{
+			return ButtonNoText("link", action, isInteractable);
+		}
+		
+		public Container ButtonLink(string classNames, Action action, Func<bool> isInteractable = null)
+		{
+			return ButtonNoText("link", classNames, action, isInteractable);
+		}
+		
+		public Container ButtonDownload(Action action, Func<bool> isInteractable = null)
+		{
+			return ButtonNoText("download", action, isInteractable);
+		}
+		
+		public Container ButtonDownload(string classNames, Action action, Func<bool> isInteractable = null)
+		{
+			return ButtonNoText("download", classNames, action, isInteractable);
+		}
+		
 		public Container ButtonNoText(string className, Action action, Func<bool> isInteractable = null)
 		{
 			var button = new ButtonWidget(this, null, className, action, isInteractable);

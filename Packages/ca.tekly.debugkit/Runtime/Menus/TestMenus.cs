@@ -21,6 +21,8 @@ namespace Tekly.DebugKit.Menus
 					row.ButtonCopy(() => Debug.Log("Copy"))
 						.ButtonPaste(() => Debug.Log("Paste"))
 						.ButtonReturn("button-blue", () => Debug.Log("Return"))
+						.ButtonDownload("button-blue", () => Debug.Log("Return"))
+						.ButtonLink("button-blue", () => Debug.Log("Return"))
 						.ButtonTrash("button-red", () => {
 							Debug.Log("Trash");
 							row.Detach();

@@ -224,7 +224,25 @@
     max-height: 20px;
 }
 
+.dk-button.download {
+    background-image: url("Sprites/download.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    padding: 0;
+    -unity-background-image-tint-color: var(--text);
+    max-width: 22px;
+    max-height: 20px;
+}
 
+.dk-button.link {
+    background-image: url("Sprites/link.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    padding: 0;
+    -unity-background-image-tint-color: var(--text);
+    max-width: 22px;
+    max-height: 20px;
+}
 
 
 /* ==========================================
