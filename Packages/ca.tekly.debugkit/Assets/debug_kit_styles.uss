@@ -299,6 +299,21 @@ TextInput, .unity-base-text-field__input:hover:focus:enabled {
     --unity-cursor-color:#B4B4B4;
 }
 
+.dk-search { }
+
+.dk-search > TextInput {
+    background-image: url("Sprites/search.png");
+    -unity-background-image-tint-color: var(--text-value);
+    background-repeat: no-repeat;
+    background-position-x: left 4px;
+    background-size: 12px 12px;
+    border-radius: 8px;
+}
+
+.dk-search TextElement {
+    padding-left: 16px;
+}
+
 .unity-base-field > .unity-base-field__label {
     min-width: 80px;
 }
@@ -621,22 +636,39 @@ Foldout #unity-checkmark {
     border-color: #3c3836;
 }
 
-.p8 { padding: 8px; }
-.p4 { padding: 4px; }
-
 .r8 { border-radius: 8px; }
 .r4 { border-radius: 4px; }
 
+.p8 { padding: 8px; }
+.ph8 { padding-left: 8px; padding-right: 8px; }
+.pv8 { padding-top: 8px; padding-bottom: 8px; }
+
+.p4 { padding: 4px; }
+.ph4 { padding-left: 4px; padding-right: 4px; }
+.pv4 { padding-top: 4px; padding-bottom: 4px; }
+
+.p1 { padding: 1px; }
+.ph1 { padding-left: 1px; padding-right: 1px; }
+.pv1 { padding-top: 1px; padding-bottom: 1px; }
+
+.p0 { padding: 0; }
+.ph0 { padding-left: 0; padding-right: 0; }
+.pv0 { padding-top: 0; padding-bottom: 0; }
+
 .m8 { margin: 8px; }
+.mh8 { margin-left: 8px; margin-right: 8px; }
 .mv8 { margin-top: 8px; margin-bottom: 8px; }
 
 .m4 { margin: 4px; }
+.mh4 { margin-left: 4px; margin-right: 4px; }
 .mv4 { margin-top: 4px; margin-bottom: 4px; }
 
 .m1 { margin: 1px; }
+.mh1 { margin-left: 1px; margin-right: 1px; }
 .mv1 { margin-top: 1px; margin-bottom: 1px; }
 
 .m0 { margin: 0; }
+.mh0 { margin-left: 0; margin-right: 0; }
 .mv0 { margin-top: 0; margin-bottom: 0; }
 
 .items-center {

@@ -106,7 +106,27 @@ namespace Tekly.DebugKit.Widgets
 		
 		public Container TextField(string label, string classNames, Func<string> getValue, Action<string> setValue)
 		{
-			var textField = new TextFieldWidget(this, label, classNames, getValue, setValue);
+			return TextField(label, InputMode.Delayed, classNames, getValue, setValue);
+		}
+		
+		public Container TextFieldDebounced(string label, Func<string> getValue, Action<string> setValue)
+		{
+			return TextFieldDebounced(label, null, getValue, setValue);
+		}
+		
+		public Container TextFieldDebounced(string label, string classNames, Func<string> getValue, Action<string> setValue)
+		{
+			return TextField(label, InputMode.Debounced, classNames, getValue, setValue);
+		}
+		
+		public Container SearchField(string label, Func<string> getValue, Action<string> setValue)
+		{
+			return TextFieldDebounced(label, "dk-search", getValue, setValue);
+		}
+		
+		public Container TextField(string label, InputMode inputMode, string classNames, Func<string> getValue, Action<string> setValue)
+		{
+			var textField = new TextFieldWidget(this, inputMode, label, classNames, getValue, setValue);
 			AddWidget(textField);
 
 			return this;
@@ -285,6 +305,15 @@ namespace Tekly.DebugKit.Widgets
 			AddWidget(button);
 
 			return this;
+		}
+		
+		public Container OnOffButtons(Action<bool> action)
+		{
+			return ButtonRow(buttons =>
+			{
+				buttons.Button("✓", "positive", () => action(true))
+					.Button("✗", "negative", () => action(false));
+			});
 		}
 
 		public Container Checkbox(string label, string classNames, Func<bool> getValue, Action<bool> setValue)

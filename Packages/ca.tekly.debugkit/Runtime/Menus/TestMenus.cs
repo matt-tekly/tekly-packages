@@ -9,13 +9,12 @@ namespace Tekly.DebugKit.Menus
 #endif
 		public static void Register()
 		{
-			Vector3 v = Vector3.zero;;
+			Vector3 v = Vector3.zero;
+			;
 			bool isVisible = true;
-			
+
 			var container = DebugKit.Instance.Menu("Test")
-				.CardColumn(card => {
-					card.Checkbox("Visible", () => isVisible, value => isVisible = value);
-				})
+				.CardColumn(card => { card.Checkbox("Visible", () => isVisible, value => isVisible = value); })
 				.Row(row => {
 					row.Checkbox("", () => isVisible, value => isVisible = value);
 					row.ButtonCopy(() => Debug.Log("Copy"))
@@ -33,6 +32,13 @@ namespace Tekly.DebugKit.Menus
 					card2.Conditionally(() => isVisible);
 					card2.Vector3("Position", () => v, value => v = value);
 					card2.Vector3("", () => v, value => v = value);
+				})
+				.Column(col => {
+					var text = "Text";
+					col.Property("Search", () => text);
+					col.SearchField("Search Field", () => text, val => text = val);
+					col.SearchField(null, () => text, val => text = val);
+					col.TextField("Text Field", () => text, val => text = val);
 				});
 
 
