@@ -1,39 +1,18 @@
-using System;
-using Tekly.DataModels.Models;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace Tekly.DataModels.Binders
 {
-    /// <summary>
-    /// Generically bind a number model to a UnityEvent
-    /// </summary>
-    public class NumberEventBinder: Binder
-    {
-        [SerializeField] private ModelRef m_key;
-        [SerializeField] private UnityEvent<float> m_event;
-        
-        private IDisposable m_disposable;
+	/// <summary>
+	/// Generically bind a number model to a UnityEvent
+	/// </summary>
+	public class NumberEventBinder : BasicValueBinder<double>
+	{
+		[SerializeField] private UnityEvent<float> m_event;
 
-        public override void Bind(BinderContainer container)
-        {
-            if (container.TryGet(m_key.Path, out NumberValueModel model)) {
-                m_disposable?.Dispose();
-                m_disposable = model.Subscribe(BindValue);
-            }
-        }
-
-        private void BindValue(double value)
-        {
-            if (m_event != null) {
-                m_event.Invoke((float)value);
-            }
-        }
-
-        public override void UnBind()
-        {
-            m_disposable?.Dispose();
-            m_disposable = null;
-        }
-    }
+		protected override void BindValue(double value)
+		{
+			m_event?.Invoke((float)value);
+		}
+	}
 }

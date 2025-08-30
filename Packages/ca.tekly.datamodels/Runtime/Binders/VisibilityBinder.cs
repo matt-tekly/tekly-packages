@@ -1,6 +1,5 @@
 using System;
 using Tekly.Common.Presentables;
-using Tekly.DataModels.Models;
 using UnityEngine;
 
 namespace Tekly.DataModels.Binders
@@ -12,34 +11,20 @@ namespace Tekly.DataModels.Binders
         public bool Invert;
     }
     
-    public class VisibilityBinder : Binder
+    public class VisibilityBinder : BasicValueBinder<bool>
     {
-        [SerializeField] private ModelRef m_key;
         [SerializeField] private VisibilityTarget[] m_targets;
 
-        private IDisposable m_disposable;
-        
-        public override void Bind(BinderContainer container)
-        {
-            if (container.TryGet(m_key.Path, out BoolValueModel stringModel)) {
-                m_disposable?.Dispose();
-                m_disposable = stringModel.Subscribe(BindBool);
-            }
-        }
-        
-        public override void UnBind()
-        {
-            m_disposable?.Dispose();
-        }
-
-        private void BindBool(bool value)
+        protected override void BindValue(bool value)
         {
             foreach (var target in m_targets) {
                 var go = target.Target;
+                var isActive = value ^ target.Invert;
+                
                 if (go.TryGetComponent(out Presentable presentable)) {
-                    presentable.Present(value ^ target.Invert);
+                    presentable.Present(isActive);
                 } else {
-                    go.SetActive(value ^ target.Invert);
+                    go.SetActive(isActive);
                 }
             }
         }

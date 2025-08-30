@@ -1,39 +1,17 @@
-using System;
-using Tekly.DataModels.Models;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace Tekly.DataModels.Binders
 {
 	/// <summary>
 	/// Generically bind a string model to a UnityEvent
 	/// </summary>
-	public class StringEventBinder : Binder
+	public class StringEventBinder : BasicValueBinder<string>
 	{
-		[SerializeField] private ModelRef m_key;
-		[SerializeField] private UnityEvent<string> m_event;
-
-		private IDisposable m_disposable;
-
-		public override void Bind(BinderContainer container)
+		[SerializeField] private TextSetEvent m_event;
+		
+		protected override void BindValue(string value)
 		{
-			if (container.TryGet(m_key.Path, out StringValueModel model)) {
-				m_disposable?.Dispose();
-				m_disposable = model.Subscribe(BindValue);
-			}
-		}
-
-		private void BindValue(string value)
-		{
-			if (m_event != null) {
-				m_event.Invoke(value);
-			}
-		}
-
-		protected override void OnDestroy()
-		{
-			base.OnDestroy();
-			m_disposable?.Dispose();
+			m_event?.Invoke(value);
 		}
 	}
 }

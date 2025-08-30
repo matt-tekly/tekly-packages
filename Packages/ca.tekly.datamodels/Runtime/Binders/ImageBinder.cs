@@ -26,10 +26,9 @@ namespace Tekly.DataModels.Binders
             m_image.sprite = sprite;
             m_image.enabled = sprite != null;
         }
-        
-        protected override void OnDestroy()
+
+        public override void UnBind()
         {
-            base.OnDestroy();
             m_disposable?.Dispose();
         }
         

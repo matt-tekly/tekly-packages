@@ -5,23 +5,18 @@ using UnityEngine;
 
 namespace Tekly.DataModels.Binders
 {
-	public class TimeSpanBinder : Binder
+	public class TimeSpanBinder : BasicBinder<TimeSpanModel>
 	{
-		[SerializeField] private ModelRef m_key;
 		[SerializeField] private TMP_Text m_text;
 		[SerializeField] private string m_format = "mm':'ss";
-        
-		private IDisposable m_disposable;
+		
 		private DateTime m_endTime;
 
 		private double m_lastSeconds = double.MaxValue;
 		
-		public override void Bind(BinderContainer container)
+		protected override IDisposable Subscribe(TimeSpanModel model)
 		{
-			if (container.TryGet(m_key.Path, out TimeSpanModel numberValue)) {
-				m_disposable?.Dispose();
-				m_disposable = numberValue.Subscribe(BindValue);
-			}
+			return model.Subscribe(BindValue);
 		}
 
 		private void BindValue(TimeSpan value)
@@ -30,12 +25,6 @@ namespace Tekly.DataModels.Binders
 				m_lastSeconds = value.TotalSeconds;
 				m_text.text = value.ToString(m_format);	
 			}
-		}
-        
-		public override void UnBind()
-		{
-			base.UnBind();
-			m_disposable?.Dispose();
 		}
 		
 #if UNITY_EDITOR

@@ -6,21 +6,20 @@ using UnityEngine.Events;
 
 namespace Tekly.DataModels.Binders
 {
-	public class TriggerBinder : Binder
+	public class TriggerBinder : BasicBinder<TriggerModel>
 	{
 		public UnityEvent Triggered => m_triggered;
 		
-		[SerializeField] private ModelRef m_key;
 		[SerializeField] private UnityEvent m_triggered;
-        
-		private IDisposable m_disposable;
-
-		public override void Bind(BinderContainer container)
+		[SerializeField] private bool m_activateTriggerOnBind;
+		
+		protected override IDisposable Subscribe(TriggerModel model)
 		{
-			if (container.TryGet(m_key.Path, out TriggerModel model)) {
-				m_disposable?.Dispose();
-				m_disposable = model.Subscribe(BindValue);
+			if (m_activateTriggerOnBind) {
+				model.Emit();
 			}
+			
+			return model.Subscribe(BindValue);
 		}
 
 		private void BindValue(Unit unit)
@@ -29,11 +28,10 @@ namespace Tekly.DataModels.Binders
 				m_triggered.Invoke();
 			}
 		}
-		
-		public override void UnBind()
+
+		public void ActivateTrigger()
 		{
-			m_disposable?.Dispose();
-			m_disposable = null;
+			m_model?.Emit();
 		}
 	}
 }

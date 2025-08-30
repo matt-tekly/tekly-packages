@@ -7,15 +7,11 @@ using UnityEngine.UI;
 
 namespace Tekly.DataModels.Binders
 {
-    public class UnityButtonBinder : Binder
+    public class UnityButtonBinder : BasicBinder<ButtonModel>
     {
-        [FormerlySerializedAs("Key")] [SerializeField] private ModelRef m_key;
         [FormerlySerializedAs("Button")] [SerializeField] private Button m_button;
         [FormerlySerializedAs("Action")] [SerializeField] private ButtonAction m_action;
         
-        private IDisposable m_disposable;
-        private ButtonModel m_buttonModel;
-
         private void Awake()
         {
             if (ReferenceEquals(m_button, null) == false) {
@@ -25,28 +21,19 @@ namespace Tekly.DataModels.Binders
             }
         }
 
-        public override void Bind(BinderContainer container)
+        protected override IDisposable Subscribe(ButtonModel model)
         {
-            if (container.TryGet(m_key.Path, out m_buttonModel)) {
-                m_disposable?.Dispose();
-                m_disposable = m_buttonModel.Interactable.Subscribe(BindBool);
-            }
+            return m_model.Interactable.Subscribe(BindBool);
         }
 
         private void BindBool(bool value)
         {
             m_button.interactable = value;
         }
-
-        public override void UnBind()
-        {
-            m_disposable?.Dispose();
-            m_buttonModel = null;
-        }
-
+        
         private void OnButtonClicked()
         {
-            m_buttonModel.Activate();
+            m_model.Activate();
             
             if (ReferenceEquals(m_action, null) == false) {
                 m_action.Activate();
