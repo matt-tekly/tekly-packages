@@ -18,14 +18,7 @@ namespace Tekly.DataModels.Binders
         protected override void BindValue(bool value)
         {
             foreach (var target in m_targets) {
-                var go = target.Target;
-                var isActive = value ^ target.Invert;
-                
-                if (go.TryGetComponent(out Presentable presentable)) {
-                    presentable.Present(isActive);
-                } else {
-                    go.SetActive(isActive);
-                }
+                Presentable.SetGameObjectActive(target.Target, value ^ target.Invert);
             }
         }
     }

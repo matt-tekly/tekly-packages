@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Tekly.Common.Presentables;
 using Tekly.Common.Utils;
 using Tekly.DataModels.Models;
 using UnityEngine;
@@ -45,6 +46,7 @@ namespace Tekly.DataModels.Binders.Collections
         
         [SerializeField] private BinderContainer m_template;
         [SerializeField] private RectTransform m_container;
+        [SerializeField] private GameObject m_emptyContent;
 
         private IDisposable m_disposable;
         private List<SortedListBinderEntry> m_entries = new List<SortedListBinderEntry>();
@@ -60,41 +62,30 @@ namespace Tekly.DataModels.Binders.Collections
 
         private BinderContainer m_protectedTemplate;
 
+        private void Awake()
+        {
+            if (m_protectedTemplate == null) {
+                m_protectedTemplate = PrefabProtector.Protect(m_template);
+            }
+
+            if (m_emptyContent != null) {
+                m_emptyContent.SetActive(false);
+            }
+        }
+        
         public override void Bind()
         {
             if (string.IsNullOrEmpty(m_sortKey.Path)) {
                 m_logger.ErrorContext("SortedListBinder has empty SortKey", this);    
             }
             
-            if (TryGet(out ObjectModel objectModel)) {
+            if (TryGet(ModelKey.RelativeKey, out ObjectModel objectModel)) {
                 m_disposable?.Dispose();
                 m_disposable = objectModel.Modified.Subscribe(BindObjectModel);
                 BindObjectModel(objectModel);
             } else {
                 Clear();
             }
-        }
-        
-        private bool TryGet(out ObjectModel objectModel)
-        {
-            var modelKey = ModelKey.Parse(GetKey());
-            
-            ObjectModel rootModel = RootModel.Instance;
-
-            if (!modelKey.IsRelative) {
-                var found = rootModel.TryGetModel(modelKey, 0, out objectModel);
-                return found;
-            }
-            
-            if (m_parent != null) {
-                m_parent.TryGet(modelKey, out objectModel);
-                return true;
-            }
-            
-            m_logger.ErrorContext("SortedListBinder [{name}] has relative key but no container", this, ("name", gameObject.name));
-
-            objectModel = null;
-            return false;
         }
 
         [ContextMenu("Sort")]
@@ -135,12 +126,16 @@ namespace Tekly.DataModels.Binders.Collections
             for (var index = 0; index < m_entries.Count; index++) {
                 m_entries[index].SetIndex(index);
             }
+
+            if (m_emptyContent != null) {
+                Presentable.SetGameObjectActive(m_emptyContent, objectModel.Models.Count == 0);    
+            }
             
             for (var index = 0; index < m_entries.Count; index++) {
                 var entry = m_entries[index];
                 entry.Instance.gameObject.SetActive(true);
             }
-
+            
             base.Bind();
         }
 

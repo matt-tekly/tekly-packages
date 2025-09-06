@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Tekly.Common.Presentables;
 using Tekly.Common.Utils;
 using Tekly.DataModels.Models;
 using UnityEngine;
@@ -11,18 +12,27 @@ namespace Tekly.DataModels.Binders.Collections
         [SerializeField] private BinderContainer m_template;
         [SerializeField] private ItemTemplateProvider m_templateProvider;
         [SerializeField] private RectTransform m_container;
-
+        [SerializeField] private GameObject m_emptyContent;
+        
         private IDisposable m_disposable;
         private List<BinderContainer> m_instances = new List<BinderContainer>();
-        
+
+        private void Awake()
+        {
+            if (m_emptyContent != null) {
+                m_emptyContent.SetActive(false);
+            }
+        }
+
         public override void Bind()
         {
-            if (TryGet(out var objectModel)) {
+            if (TryGet(ModelKey.RelativeKey, out ObjectModel objectModel)) {
                 m_disposable?.Dispose();
                 m_disposable = objectModel.Modified.Subscribe(BindObjectModel);
                 BindObjectModel(objectModel);
             } else {
                 Clear();
+                m_logger.ErrorContext("ListBinder failed to find model for key [{key}", this, ("key", m_key));
             }
         }
 
@@ -31,28 +41,6 @@ namespace Tekly.DataModels.Binders.Collections
             m_disposable?.Dispose();
             base.UnBind();
             Clear();
-        }
-
-        private bool TryGet(out ObjectModel objectModel)
-        {
-            var modelKey = ModelKey.Parse(GetKey());
-            
-            ObjectModel rootModel = RootModel.Instance;
-
-            if (!modelKey.IsRelative) {
-                var found = rootModel.TryGetModel(modelKey, 0, out objectModel);
-                return found;
-            }
-            
-            if (m_parent != null) {
-                m_parent.TryGet(modelKey, out objectModel);
-                return true;
-            }
-            
-            m_logger.ErrorContext("ListBinder [{name}] has relative key but no container", this, ("name", gameObject.name));
-
-            objectModel = null;
-            return false;
         }
 
         private void BindObjectModel(ObjectModel objectModel)
@@ -71,6 +59,10 @@ namespace Tekly.DataModels.Binders.Collections
                     var template = m_templateProvider.Get(entryModel);
                     CreateEntry(reference, template);
                 }
+            }
+
+            if (m_emptyContent != null) {
+                Presentable.SetGameObjectActive(m_emptyContent, objectModel.Models.Count == 0);
             }
             
             base.Bind();

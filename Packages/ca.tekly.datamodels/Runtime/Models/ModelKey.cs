@@ -14,6 +14,8 @@ namespace Tekly.DataModels.Models
         public readonly string[] Keys;
         public readonly bool IsRelative;
         
+        public static readonly ModelKey RelativeKey = new ModelKey(Array.Empty<string>(), true);
+        
         private ModelKey(string[] keys, bool isRelative)
         {
             Keys = keys;

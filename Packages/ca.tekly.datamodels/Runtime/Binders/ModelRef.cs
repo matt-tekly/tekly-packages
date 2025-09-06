@@ -13,5 +13,10 @@ namespace Tekly.DataModels.Binders
                 Path = path
             };
         }
+
+        public override string ToString()
+        {
+            return Path;
+        }
     }
 }

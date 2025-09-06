@@ -128,5 +128,14 @@ namespace Tekly.Common.Presentables
 				State = PresentableState.Hidden;
 			}
 		}
+
+		public static void SetGameObjectActive(GameObject gameObject, bool active)
+		{
+			if (gameObject.TryGetComponent(out Presentable presentable)) {
+				presentable.Present(active);
+			} else {
+				gameObject.SetActive(active);
+			}
+		}
 	}
 }

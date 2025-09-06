@@ -29,7 +29,7 @@ namespace Tekly.DataModels.Models
 			ReferenceType = referenceType;
 			Key = key;
 			Hash = hash;
-			
+
 #if UNITY_EDITOR
 			TypeName = model.GetType().Name;
 #else
@@ -47,6 +47,11 @@ namespace Tekly.DataModels.Models
 		private readonly Triggerable<ObjectModel> m_modified = new Triggerable<ObjectModel>();
 
 		private readonly List<ModelReference> m_models = new List<ModelReference>(8);
+		private NumberValueModel m_count;
+		private BoolValueModel m_empty;
+
+		private const string COUNT_KEY = "_count";
+		private const string EMPTY_KEY = "_empty";
 
 		public bool DisableModifiedTrigger { get; set; }
 
@@ -54,32 +59,41 @@ namespace Tekly.DataModels.Models
 		{
 			if (!DisableModifiedTrigger) {
 				m_modified.Emit(this);
+
+				if (m_count != null) {
+					m_count.Value = m_models.Count;
+				}
+
+				if (m_empty != null) {
+					m_empty.Value = m_models.Count == 0;
+				}
 			}
 		}
-		
+
 		public void Add(string name, IModel model, ReferenceType referenceType = ReferenceType.Owner)
 		{
 			m_models.Add(new ModelReference(model, referenceType, name, name.GetHashCode()));
 			EmitModified();
 		}
-		
+
 		public T Add<T>(string name, T model, ReferenceType referenceType = ReferenceType.Owner) where T : IModel
 		{
 #if DEBUG
 			// We can't use TryGetModel here as models may override that function
 			foreach (var modelReference in m_models) {
 				if (string.Equals(modelReference.Key, name, StringComparison.Ordinal)) {
-					TkLogger.Get<ObjectModel>().Error("Adding model with name that already exists [{name}]", ("name", name));
+					TkLogger.Get<ObjectModel>()
+						.Error("Adding model with name that already exists [{name}]", ("name", name));
 					break;
 				}
 			}
 #endif
 			m_models.Add(new ModelReference(model, referenceType, name, name.GetHashCode()));
 			EmitModified();
-			
+
 			return model;
 		}
-		
+
 		public StringValueModel Add(string name, string value, bool needsLocalization = false)
 		{
 			var model = new StringValueModel(value, needsLocalization);
@@ -87,37 +101,37 @@ namespace Tekly.DataModels.Models
 
 			return model;
 		}
-		
+
 		public BoolValueModel Add(string name, bool value)
 		{
 			var model = new BoolValueModel(value);
 			Add(name, model);
 
-			return model;	
+			return model;
 		}
-		
+
 		public NumberValueModel Add(string name, double value)
 		{
 			var model = new NumberValueModel(value);
 			Add(name, model);
 
-			return model;		
+			return model;
 		}
-		
+
 		public NumberValueModel Add(string name, float value)
 		{
 			var model = new NumberValueModel(value);
 			Add(name, model);
 
-			return model;		
+			return model;
 		}
-		
+
 		public NumberValueModel Add(string name, int value)
 		{
 			var model = new NumberValueModel(value);
 			Add(name, model);
 
-			return model;		
+			return model;
 		}
 
 		public SpriteValueModel Add(string name, Sprite value)
@@ -125,7 +139,7 @@ namespace Tekly.DataModels.Models
 			var model = new SpriteValueModel(value);
 			Add(name, model);
 
-			return model;		
+			return model;
 		}
 
 		public ButtonModel AddButton(string name)
@@ -135,7 +149,7 @@ namespace Tekly.DataModels.Models
 
 			return model;
 		}
-		
+
 		public TriggerModel AddTrigger(string name)
 		{
 			var model = new TriggerModel();
@@ -228,6 +242,24 @@ namespace Tekly.DataModels.Models
 				}
 			}
 
+			if (string.Equals(COUNT_KEY, modelKey, StringComparison.Ordinal)) {
+				if (m_count == null) {
+					m_count = new NumberValueModel(m_models.Count);
+				}
+
+				model = m_count;
+				return true;
+			}
+
+			if (string.Equals(EMPTY_KEY, modelKey, StringComparison.Ordinal)) {
+				if (m_empty == null) {
+					m_empty = new BoolValueModel(m_models.Count == 0);
+				}
+
+				model = m_empty;
+				return true;
+			}
+
 			model = null;
 			return false;
 		}
@@ -240,11 +272,11 @@ namespace Tekly.DataModels.Models
 					modelReference.Model.Dispose();
 				}
 			}
-			
+
 			m_models.Clear();
 			EmitModified();
 		}
-		
+
 		protected override void OnDispose()
 		{
 			base.OnDispose();
