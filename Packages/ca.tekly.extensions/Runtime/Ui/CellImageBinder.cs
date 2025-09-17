@@ -9,6 +9,7 @@ namespace Tekly.Extensions.Ui
 {
 	public class CellSpriteValueModel : ValueModel<CellSprite>
 	{
+		public override bool IsTruthy => Value != null;
 		public override void ToJson(StringBuilder sb)
 		{
 			sb.Append(Value != null ? Value.name : "[null]");

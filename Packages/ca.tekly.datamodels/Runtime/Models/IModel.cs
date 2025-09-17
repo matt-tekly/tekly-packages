@@ -14,5 +14,6 @@ namespace Tekly.DataModels.Models
     {
         string ToDisplayString();
         ITriggerable<Unit> Modified { get; }
+        bool IsTruthy { get; }
     }
 }

@@ -6,6 +6,7 @@ namespace Tekly.DataModels.Models
 {
     public class SpriteValueModel : ValueModel<Sprite>
     {
+        public override bool IsTruthy => Value != null;
         public SpriteValueModel(Sprite sprite) : base(sprite) { }
         public SpriteValueModel() { }
             

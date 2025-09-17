@@ -37,6 +37,8 @@ namespace Tekly.DataModels.Models
             }
         }
 
+        public override bool IsTruthy => !string.IsNullOrEmpty(Value);
+        
         private bool m_needsLocalization;
         
         public StringValueModel(string value, bool needsLocalization = false) : base(value)
@@ -75,6 +77,8 @@ namespace Tekly.DataModels.Models
     
     public class NumberValueModel : BasicValueModel<double>
     {
+        public override bool IsTruthy => Value > 0;
+        
         public NumberValueModel(double value) : base(value) { }
         
         public override void ToJson(StringBuilder sb)
@@ -106,6 +110,8 @@ namespace Tekly.DataModels.Models
 
     public class BoolValueModel : BasicValueModel<bool>
     {
+        public override bool IsTruthy => Value;
+        
         public BoolValueModel(bool value) : base(value) { }
         
         public override void ToJson(StringBuilder sb)

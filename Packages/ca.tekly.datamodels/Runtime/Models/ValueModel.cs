@@ -39,6 +39,7 @@ namespace Tekly.DataModels.Models
                 Emit(Value);
             }
         }
+        public abstract bool IsTruthy { get; }
         
         public bool OverrideValue { get; set; }
 

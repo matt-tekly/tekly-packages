@@ -7,6 +7,7 @@ namespace Tekly.DataModels.Models
 {
     public class DateModel : ValueModel<TkDateTime>
     {
+        public override bool IsTruthy => Value != default;
         public DateModel(TkDateTime value) : base(value) {}
 		
         public override int CompareTo(IValueModel valueModel)

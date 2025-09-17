@@ -5,6 +5,7 @@ namespace Tekly.DataModels.Models
 {
 	public class TimeSpanModel : ValueModel<TimeSpan>
 	{
+		public override bool IsTruthy => Value.TotalMilliseconds > 0;
 		public TimeSpanModel(TimeSpan value) : base(value) {}
 		
 		public override int CompareTo(IValueModel valueModel)
