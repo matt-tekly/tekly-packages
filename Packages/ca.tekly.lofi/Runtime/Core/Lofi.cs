@@ -244,6 +244,17 @@ namespace Tekly.Lofi.Core
 
 			return track;
 		}
+		
+		public void SetVolume(string id, double linearValue)
+		{
+			m_coreAssets.Mixer.SetFloat(id, Constants.ToDecibel((float)linearValue));
+		}
+		
+		public float GetVolume(string id)
+		{
+			m_coreAssets.Mixer.GetFloat(id, out var volume);
+			return Constants.ToLinear(volume);
+		}
 
 		private LofiEmitter CreateEmitter(string name)
 		{
@@ -251,11 +262,6 @@ namespace Tekly.Lofi.Core
 			Object.DontDestroyOnLoad(emitter);
 
 			return emitter.AddComponent<LofiEmitter>();
-		}
-
-		private void SetVolume(string id, double linearValue)
-		{
-			m_coreAssets.Mixer.SetFloat(id, Constants.ToDecibel((float)linearValue));
 		}
 
 		private void ApplyProperties()
