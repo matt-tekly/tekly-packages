@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Tekly.Common.Utils;
 using Tekly.DebugKit.Utils;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -117,6 +118,25 @@ namespace Tekly.DebugKit.Widgets
 		public Container TextFieldDebounced(string label, string classNames, Func<string> getValue, Action<string> setValue)
 		{
 			return TextField(label, InputMode.Debounced, classNames, getValue, setValue);
+		}
+		
+		public PrefPropertyString TextFieldPersist(string name, string prefKey)
+		{
+			var pref = new PrefPropertyString(prefKey);
+			TextField(name, pref.Get, pref.Set);
+
+			return pref;
+		}
+		
+		public PrefPropertyString TextFieldPersist(string name, string prefKey, Action<string> setValue)
+		{
+			var pref = new PrefPropertyString(prefKey);
+			TextField(name, pref.Get, value => {
+				pref.Set(value);
+				setValue?.Invoke(value);
+			});
+
+			return pref;
 		}
 		
 		public Container SearchField(string label, Func<string> getValue, Action<string> setValue)

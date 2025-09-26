@@ -34,6 +34,17 @@ namespace Tekly.DebugKit.Widgets
 			
 			propertyRoot.Add(m_valueLabel);
 			container.Root.Add(propertyRoot);
+
+			try
+			{
+				var value = m_getValue();
+				m_valueLabel.text = string.Format(m_format, value);
+				m_lastValue = value;
+			}
+			catch (Exception)
+			{
+				// Do nothing
+			}
 		}
 
 		public override void Update()

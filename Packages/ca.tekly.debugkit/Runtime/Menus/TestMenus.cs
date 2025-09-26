@@ -9,8 +9,7 @@ namespace Tekly.DebugKit.Menus
 #endif
 		public static void Register()
 		{
-			Vector3 v = Vector3.zero;
-			;
+			var v = Vector3.zero;
 			bool isVisible = true;
 
 			var container = DebugKit.Instance.Menu("Test")
@@ -20,8 +19,8 @@ namespace Tekly.DebugKit.Menus
 					row.ButtonCopy(() => Debug.Log("Copy"))
 						.ButtonPaste(() => Debug.Log("Paste"))
 						.ButtonReturn("button-blue", () => Debug.Log("Return"))
-						.ButtonDownload("button-blue", () => Debug.Log("Return"))
-						.ButtonLink("button-blue", () => Debug.Log("Return"))
+						.ButtonDownload("button-blue", () => Debug.Log("Download"))
+						.ButtonLink("button-blue", () => Debug.Log("Link"))
 						.ButtonTrash("button-red", () => {
 							Debug.Log("Trash");
 							row.Detach();

@@ -11,32 +11,44 @@ namespace Tekly.DataModels.Debugging
 #endif
 		public static void Register()
 		{
-			string path = "";
 			string value = "";
 
 			IOverridableValue model = null;
 
-			DebugKit.DebugKit.Instance.Menu("Data Models")
-				.Style(style => style.minWidth = 300)
-				.TextField("Path", () => path, v => {
-					path = v;
+			var menu = DebugKit.DebugKit.Instance.Menu("Data Models");
 
-					var key = ModelKey.Parse(path);
-					RootModel.Instance.TryGetModel(key, 0, out model);
-				})
-				.TextField("Value", () => value, v => {
-					value = v;
-					if (model != null) {
-						model.SetOverrideValue(value);
-					}
-				})
-				.Property("Model", () => {
-					if (model != null) {
-						return model.GetType().Name;
-					}
+			menu.Style(style => style.minWidth = 300);
+			
+			var path = menu.TextFieldPersist("Path", "debugkit.datamodel.path");
 
-					return "No model found";
-				});
+			menu.Updater(() => {
+				var key = ModelKey.Parse(path.Value);
+				if (key != null) {
+					RootModel.Instance.TryGetModel(key, 0, out model);	
+				}
+			});
+			
+			menu.TextField("Value", () => value, v => {
+				value = v;
+				if (model != null) {
+					model.SetOverrideValue(value);
+				}
+			});
+			menu.Property("Model Type", () => {
+				if (model != null) {
+					return model.GetType().Name;
+				}
+
+				return "No model found";
+			});
+			
+			menu.Property("Model value", () => {
+				if (model != null) {
+					return model.ToDisplayString();
+				}
+
+				return "No model found";
+			});
 		}
 	}
 }
