@@ -1,8 +1,5 @@
-// ============================================================================
-// Copyright 2021 Matt King
-// ============================================================================
-
 using System;
+using Tekly.Common.Utils;
 using UnityEngine;
 
 namespace Tekly.TreeState
@@ -29,6 +26,7 @@ namespace Tekly.TreeState
         private string m_typeName;
         private IActivityMonitor m_monitor;
         private ActivityMode m_mode;
+        internal readonly Disposables Disposables = new Disposables();
 
         public void SetMonitor(IActivityMonitor monitor)
         {
@@ -94,6 +92,7 @@ namespace Tekly.TreeState
             Mode = ActivityMode.Inactive;
             InactiveStarted();
             PostInactive();
+            Disposables.Clear();
         }
 
         protected virtual void PreLoad() { }
@@ -124,9 +123,20 @@ namespace Tekly.TreeState
         protected virtual void InactiveStarted() { }
         protected virtual void PostInactive() { }
 
-        protected virtual void OnApplicationQuit()
+        protected virtual void OnApplicationQuit() { }
+
+        protected virtual void OnDestroy()
         {
-            
+            Disposables.Clear();
+        }
+    }
+
+    public static class TreeActivityDisposableExtensions
+    {
+        public static IDisposable AddTo(this IDisposable disposable, TreeActivity treeActivity)
+        {
+            treeActivity.Disposables.Add(disposable);
+            return disposable;
         }
     }
 }

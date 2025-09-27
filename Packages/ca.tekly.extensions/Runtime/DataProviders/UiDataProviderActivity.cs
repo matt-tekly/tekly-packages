@@ -37,8 +37,9 @@ namespace Tekly.Extensions.DataProviders
             Unbind();
         }
         
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
             Unbind();
         }
 
