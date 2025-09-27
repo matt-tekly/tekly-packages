@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using UnityEngine;
 
 namespace Tekly.Common.Observables
 {
@@ -25,8 +26,12 @@ namespace Tekly.Common.Observables
                 m_last = next;
             }
 
-            observer.Changed(currentValue);
-
+            try {
+                observer.Changed(currentValue);
+            } catch (Exception e) {
+                Debug.LogException(e);
+            }
+            
             return next;
         }
 
@@ -35,8 +40,14 @@ namespace Tekly.Common.Observables
             var node = m_root;
 
             while (node != null) {
-                node.Changed(value);
-                node = node.Next;
+                var next = node.Next;
+                try {
+                    node.Changed(value);
+                } catch (Exception e) {
+                    Debug.LogException(e);
+                }
+                
+                node = next;
             }
         }
 
@@ -57,6 +68,9 @@ namespace Tekly.Common.Observables
             if (node.Next != null) {
                 node.Next.Previous = node.Previous;
             }
+            
+            node.Previous = null;
+            node.Next = null;
         }
     }
 
