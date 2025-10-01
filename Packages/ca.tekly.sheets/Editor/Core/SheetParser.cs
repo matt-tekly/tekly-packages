@@ -187,7 +187,7 @@ namespace Tekly.Sheets.Core
                     }
                 } else {
                     for (var index = 0; index < values.Length; index++) {
-                        dynamic[index] = values[index];
+                        dynamic[index] = values[index].Trim();
                     }    
                 }
             } else {
