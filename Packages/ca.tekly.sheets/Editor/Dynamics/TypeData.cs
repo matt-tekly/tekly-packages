@@ -21,7 +21,7 @@ namespace Tekly.Sheets.Dynamics
 			var properties = type.GetProperties(PROPERTY_BINDING_FLAGS);
 			foreach (var field in properties) {
 				if (field.CanWrite) {
-					m_members.Add(new PropertyData(field));	
+					m_members.Add(new PropertyData(field));
 				}
 			}
 		}
@@ -32,7 +32,7 @@ namespace Tekly.Sheets.Dynamics
 				memberData.Set(serializer, obj, value);
 			}
 		}
-		
+
 		private bool TryGetField(string name, out IMemberData memberData)
 		{
 			foreach (var field in m_members) {
@@ -44,6 +44,25 @@ namespace Tekly.Sheets.Dynamics
 
 			memberData = null;
 			return false;
+		}
+
+		public static DateTime DateFromObject(object value)
+		{
+			if (value is double d) {
+				return DateFromDouble(d);
+			}
+
+			if (value is long l) {
+				return DateFromDouble(l);
+			}
+
+			return Convert.ToDateTime(value);
+		}
+
+		public static DateTime DateFromDouble(double days)
+		{
+			var epoch = new DateTime(1899, 12, 30, 0, 0, 0, DateTimeKind.Utc);
+			return epoch.AddDays(days);
 		}
 	}
 
@@ -77,7 +96,7 @@ namespace Tekly.Sheets.Dynamics
 				m_fieldInfo.SetValue(obj, Enum.Parse(m_targetType, value.ToString()));
 				return;
 			}
-			
+
 			switch (m_typeCode) {
 				case TypeCode.Boolean:
 					m_fieldInfo.SetValue(obj, Convert.ToBoolean(value));
@@ -99,10 +118,10 @@ namespace Tekly.Sheets.Dynamics
 					m_fieldInfo.SetValue(obj, Convert.ToSingle(value));
 					break;
 				case TypeCode.String:
-					m_fieldInfo.SetValue(obj, (string) value);
+					m_fieldInfo.SetValue(obj, (string)value);
 					break;
 				case TypeCode.DateTime:
-					m_fieldInfo.SetValue(obj, (DateTime) value);
+					m_fieldInfo.SetValue(obj, TypeData.DateFromObject(value));
 					break;
 				case TypeCode.Byte:
 				case TypeCode.Char:
@@ -135,6 +154,11 @@ namespace Tekly.Sheets.Dynamics
 			m_propertyInfo = propertyInfo;
 			m_targetType = m_propertyInfo.PropertyType;
 
+			var underlyingType = Nullable.GetUnderlyingType(m_targetType);
+			if (underlyingType != null) {
+				m_targetType = underlyingType;
+			}
+
 			m_typeCode = Type.GetTypeCode(m_targetType);
 		}
 
@@ -144,10 +168,10 @@ namespace Tekly.Sheets.Dynamics
 				m_propertyInfo.SetValue(obj, Enum.Parse(m_targetType, value.ToString()));
 				return;
 			}
-			
+
 			switch (m_typeCode) {
 				case TypeCode.Boolean:
-					m_propertyInfo.SetValue(obj, (bool) value);
+					m_propertyInfo.SetValue(obj, Convert.ToBoolean(value));
 					break;
 				case TypeCode.Double:
 					m_propertyInfo.SetValue(obj, Convert.ToDouble(value));
@@ -166,10 +190,10 @@ namespace Tekly.Sheets.Dynamics
 					m_propertyInfo.SetValue(obj, Convert.ToSingle(value));
 					break;
 				case TypeCode.String:
-					m_propertyInfo.SetValue(obj, (string) value);
+					m_propertyInfo.SetValue(obj, (string)value);
 					break;
 				case TypeCode.DateTime:
-					m_propertyInfo.SetValue(obj, (DateTime) value);
+					m_propertyInfo.SetValue(obj, TypeData.DateFromObject(value));
 					break;
 				case TypeCode.Byte:
 				case TypeCode.Char:
