@@ -15,6 +15,10 @@ namespace Tekly.Sheets.Dynamics
 		
 		public override object Convert(DynamicSerializer serializer, Type type, object dyn, object existing)
 		{
+			if (type == typeof(object)) {
+				return dyn;
+			}
+
 			existing ??= serializer.Create(m_type);
 
 			var dynamic = dyn as Dynamic;

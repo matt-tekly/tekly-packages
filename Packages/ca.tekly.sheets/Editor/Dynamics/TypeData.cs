@@ -80,7 +80,7 @@ namespace Tekly.Sheets.Dynamics
 			
 			switch (m_typeCode) {
 				case TypeCode.Boolean:
-					m_fieldInfo.SetValue(obj, (bool) value);
+					m_fieldInfo.SetValue(obj, Convert.ToBoolean(value));
 					break;
 				case TypeCode.Double:
 					m_fieldInfo.SetValue(obj, Convert.ToDouble(value));
