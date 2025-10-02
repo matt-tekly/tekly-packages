@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using UnityEngine;
 
 namespace Tekly.Sheets.Dynamics
 {
@@ -30,6 +31,8 @@ namespace Tekly.Sheets.Dynamics
 		{
 			if (TryGetField(name, out var memberData)) {
 				memberData.Set(serializer, obj, value);
+			} else {
+				Debug.LogError($"Trying to set value but Failed to find member [{name}] of [{obj.GetType()}]");
 			}
 		}
 

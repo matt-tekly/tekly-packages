@@ -90,6 +90,11 @@ namespace Tekly.Sheets.Dynamics
 			value = default;
 			return false;
 		}
+
+		public bool Remove(object key)
+		{
+			return m_entries.Remove(key);
+		}
         
         public IEnumerator<KeyValuePair<object, object>> GetEnumerator()
         {
