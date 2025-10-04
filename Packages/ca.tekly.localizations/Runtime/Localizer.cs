@@ -61,6 +61,10 @@ namespace Tekly.Localizations
 
         public string Localize(LocalizationString locString, (string, object)[] data)
         {
+            if (locString.Keys == null || locString.Keys.Length == 0) {
+                return locString.Format;
+            }
+            
             var formattingData = m_objectArrayPool.Get(locString.Keys.Length);
             ToFormattedArray(formattingData, data, locString.Keys);
             var text = string.Format(locString.Format, formattingData);
