@@ -135,6 +135,14 @@ namespace Tekly.TreeState
 			if (treeStateMachine != null) {
 				AddDefaultStates(treeStateMachine, loadStates);	
 			}
+
+			if (unloadStates.Count == 1 && loadStates.Count > 0) {
+				// If there is only one unload state and it is the next state to load and it isn't unloading then we can
+				// just let it load
+				if (unloadStates[0] == loadStates[0] && unloadStates[0].Mode != ActivityMode.Unloading) {
+					unloadStates.RemoveAt(0);
+				}
+			}
 			
 			StartSequence(unloadStates, loadStates);
 		}
@@ -191,12 +199,13 @@ namespace Tekly.TreeState
 			
 			if (LogActivityChanges) {
 				var fullName = TreeStateUtils.CalculatePath(m_targetState);
-				m_logger.Info($"Transition started to [{fullName}]");	
+				var interrupted = m_sequencer != null;
+				m_logger.Info($"Transition started to [{fullName}] Was Interruption: {interrupted}");	
 			}
 			
 			m_sequenceStartTime = Time.unscaledTime;
 
-			if (unloadStates != null) {
+			if (unloadStates != null && unloadStates.Count > 0) {
 				m_sequencer = new Sequencer(new List<ISequence> {
 					new SequencedDeactivation<TreeState>(unloadStates, this),
 					new SequencedActivation<TreeState>(loadStates, true, this)

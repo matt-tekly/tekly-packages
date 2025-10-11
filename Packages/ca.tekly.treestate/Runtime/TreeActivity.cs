@@ -70,6 +70,11 @@ namespace Tekly.TreeState
 
         public void Load()
         {
+            // If we're loading, active, or ready then we're already loading or loaded and don't need to start loading
+            if (m_mode == ActivityMode.Loading || m_mode == ActivityMode.Active || m_mode == ActivityMode.ReadyToActivate) {
+                return;
+            }
+            
             Mode = ActivityMode.Loading;
             PreLoad();
             LoadingStarted();
@@ -77,12 +82,21 @@ namespace Tekly.TreeState
 
         public void Activate()
         {
+            if (m_mode == ActivityMode.Active) {
+                return;
+            }
+            
             Mode = ActivityMode.Active;
             ActiveStarted();
         }
 
         public void Unload()
         {
+            // If we're unloading or inactive then we're already unloading or unloaded and don't need to start unloading
+            if (m_mode == ActivityMode.Unloading || m_mode == ActivityMode.Inactive) {
+                return;
+            }
+            
             Mode = ActivityMode.Unloading;
             UnloadingStarted();
         }
