@@ -365,7 +365,7 @@ namespace Tekly.Logging
             newParams[logParams.Length] = (LoggerConstants.EXCEPTION_MESSAGE_KEY, exception.Message);
             newParams[logParams.Length + 1] = (LoggerConstants.EXCEPTION_STACKTRACE_KEY, StackTraceUtility.ExtractStringFromException(exception));
 
-            LogMessage(TkLogLevel.Exception, message, logParams);
+            LogMessage(TkLogLevel.Exception, message, newParams);
         }
 
 #if TKLOG_DISABLE_EXCEPTION
@@ -399,7 +399,7 @@ namespace Tekly.Logging
             newParams[logParams.Length] = (LoggerConstants.EXCEPTION_MESSAGE_KEY, exception.Message);
             newParams[logParams.Length + 1] = (LoggerConstants.EXCEPTION_STACKTRACE_KEY, StackTraceUtility.ExtractStringFromException(exception));
 
-            LogMessage(TkLogLevel.Exception, message, context, logParams);
+            LogMessage(TkLogLevel.Exception, message, context, newParams);
         }
 
         public void LogMessage(TkLogLevel level, string message)

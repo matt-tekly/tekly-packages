@@ -23,6 +23,7 @@ namespace Tekly.TreeState
 		public bool SetLoggerParams;
 		
 		public float CurrentTransitionDuration => Time.unscaledTime - m_sequenceStartTime;
+		public TreeState PendingTransition => m_pendingTransition;
 		
 		private TreeActivity[] m_activities;
 		
