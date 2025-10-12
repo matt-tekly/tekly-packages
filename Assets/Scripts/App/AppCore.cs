@@ -106,6 +106,16 @@ namespace TeklySample.App
 						TraceEvents.BeginProcess(evt.Manager, $"{evt.State} Active", type);
 						break;
 					case ActivityMode.Unloading:
+						if (evt.PreviousMode == ActivityMode.Active) {
+							// An activity can go from ReadyToActivate to Unloading without becoming active
+							Frameline.EndEvent($"{evt.State} Active", type);
+							TraceEvents.EndProcess(evt.Manager, $"{evt.State} Active", type);
+						} else if (evt.PreviousMode == ActivityMode.Loading) {
+							// An activity can go from Loading to Unloading without becoming active
+							Frameline.EndEvent($"{evt.State} Loading", type);
+							TraceEvents.EndProcess(evt.Manager, $"{evt.State} Loading", type);
+						}
+
 						Frameline.BeginEvent($"{evt.State} Unloading", type);
 						TraceEvents.BeginProcess(evt.Manager, $"{evt.State} Unloading", type);
 						break;

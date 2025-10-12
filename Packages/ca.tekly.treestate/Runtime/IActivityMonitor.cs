@@ -6,6 +6,6 @@ namespace Tekly.TreeState
 {
 	public interface IActivityMonitor
 	{
-		void ActivityModeChanged(TreeActivity activity);
+		void ActivityModeChanged(TreeActivity activity, ActivityMode previousMode);
 	}
 }

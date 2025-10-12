@@ -18,8 +18,9 @@ namespace Tekly.TreeState
         {
             get => m_mode;
             private set {
+                var previousMode = m_mode;
                 m_mode = value;
-                m_monitor?.ActivityModeChanged(this);
+                m_monitor?.ActivityModeChanged(this, previousMode);
             }
         }
 

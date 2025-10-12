@@ -9,6 +9,7 @@ namespace Tekly.TreeState
         public string State;
         public string ActivityType;
         public ActivityMode Mode;
+        public ActivityMode PreviousMode;
         public bool IsState;
     }
     

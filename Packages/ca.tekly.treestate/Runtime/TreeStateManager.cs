@@ -87,7 +87,7 @@ namespace Tekly.TreeState
 			return true;
 		}
 		
-		public void ActivityModeChanged(TreeActivity treeActivity)
+		public void ActivityModeChanged(TreeActivity treeActivity, ActivityMode previousMode)
 		{
 			if (SetLoggerParams) {
 				TkLogger.SetCommonField("_state", treeActivity.name);
@@ -104,6 +104,7 @@ namespace Tekly.TreeState
 				State = treeActivity.Name,
 				ActivityType = treeActivity.TypeName,
 				Mode = treeActivity.Mode,
+				PreviousMode = previousMode,
 				IsState = treeActivity is TreeState
 			};
 			

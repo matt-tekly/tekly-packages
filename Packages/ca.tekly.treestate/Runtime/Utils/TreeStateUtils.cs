@@ -4,11 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Tekly.Logging;
 
 namespace Tekly.TreeState.Utils
 {
 	public static class TreeStateUtils
 	{
+		private static readonly TkLogger s_logger = TkLogger.Get(typeof(TreeStateUtils));
+		
 		public static TreeState GetCommonAncestor(TreeState targetA, TreeState targetB)
 		{
 			var machine = targetA.Machine;
@@ -80,7 +83,8 @@ namespace Tekly.TreeState.Utils
 
 				start = start.Machine;
 			} while (start != null);
-
+			
+			s_logger.Warning("Didn't find transition [{name}]", ("name", transitionName));
 			return false;
 		}
 		
