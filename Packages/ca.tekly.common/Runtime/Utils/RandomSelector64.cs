@@ -20,26 +20,32 @@ namespace Tekly.Common.Utils
 		private readonly NumberGenerator m_numberGenerator;
 
 		private ulong m_state;
+		private short m_lastIndex;
 
 		public RandomSelector64(int size, RandomSelectMode mode, NumberGenerator numberGenerator)
 		{
 			Assert.IsTrue(size > 0, "Size must be greater than 0.");
-			
+
 			if (mode == RandomSelectMode.Exhaustive) {
-				Assert.IsTrue(size <= 64, "Size must be between 1 and 64.");	
+				Assert.IsTrue(size <= 64, "Size must be between 1 and 64.");
 			}
-			
+
 			Size = size;
 			Mode = mode;
 			m_numberGenerator = numberGenerator;
-			
+
 			m_state = mode == RandomSelectMode.Exhaustive ? 0UL : ulong.MaxValue;
+			m_lastIndex = 0;
 		}
 
 		public RandomSelector64(int size, RandomSelectMode mode) : this(size, mode, NumberGenerator.FromUnity()) { }
 
 		public int Select()
 		{
+			if (Size == 1) {
+				return 0;
+			}
+			
 			switch (Mode) {
 				case RandomSelectMode.Random: {
 					return m_numberGenerator.Range(0, Size);
@@ -48,7 +54,7 @@ namespace Tekly.Common.Utils
 					if (Size == 1) {
 						return 0;
 					}
-					
+
 					int newIndex;
 					do {
 						newIndex = m_numberGenerator.Range(0, Size);
@@ -61,19 +67,22 @@ namespace Tekly.Common.Utils
 					if (Size == 64) {
 						if (m_state == ulong.MaxValue) {
 							m_state = 0;
+							m_state |= 1UL << m_lastIndex;
 						}
 					} else {
 						if (m_state == (1UL << Size) - 1) {
 							m_state = 0;
+							m_state |= 1UL << m_lastIndex;
 						}
 					}
-					
+
 					int randomIndex;
 					do {
 						randomIndex = m_numberGenerator.Range(0, Size);
 					} while ((m_state & (1UL << randomIndex)) != 0);
 
-					m_state |= 1UL << randomIndex;
+					m_lastIndex = (short)randomIndex;
+					m_state |= 1UL << m_lastIndex;
 					return randomIndex;
 				}
 				default:
