@@ -1,4 +1,5 @@
 ﻿#if TEKLY_SMARTFORMAT
+using System;
 using System.Linq;
 using SmartFormat;
 using SmartFormat.Core.Extensions;
@@ -31,6 +32,35 @@ namespace Tekly.Localizations
 			return false;
 		}
 	}
+	
+	public sealed class TuplesSource : ISource
+	{
+		private readonly Localizer m_localizer;
+
+		public TuplesSource(Localizer localizer)
+		{
+			m_localizer = localizer;
+		}
+
+		public bool TryEvaluateSelector(ISelectorInfo selectorInfo)
+		{
+			if (selectorInfo.CurrentValue is ValueTuple<string, object>[] tuples) {
+				foreach (var tuple in tuples) {
+					if (string.Equals(tuple.Item1, selectorInfo.SelectorText, StringComparison.OrdinalIgnoreCase)) {
+						if (selectorInfo.SelectorText[0] == Localizer.LocToken) {
+							selectorInfo.Result = m_localizer.Localize(selectorInfo.SelectorText);
+							return true;
+						}
+						
+						selectorInfo.Result = tuple.Item2;
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
+	} 
 
 	public class LocalizationSmartFormatter : ILocalizationFormatter
 	{
@@ -48,12 +78,11 @@ namespace Tekly.Localizations
 			
 			m_formatter.InsertExtension(0, new LocalizationSource(localizer));
 			m_formatter.InsertExtension(0, new IndefiniteArticleFormatter());
-			m_formatter.AddExtensions(new TuplesSource());
+			m_formatter.AddExtensions(new TuplesSource(localizer));
 		}
 
 		public string Localize(LocalizationString locString, (string, object)[] data)
 		{
-			//var dictionary = data.ToDictionary(x => x.Item1, x => x.Item2);
 			return m_formatter.Format(locString.Format, data);
 		}
 	}
