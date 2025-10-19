@@ -13,8 +13,6 @@ namespace Tekly.SmartFormat
 		{
 			var w = (info.CurrentValue?.ToString() ?? "").Trim();
 			info.Write(NeedsAn(w) ? "an" : "a");
-			info.Write(" ");
-			info.Write(w);
 			return true;
 		}
 
