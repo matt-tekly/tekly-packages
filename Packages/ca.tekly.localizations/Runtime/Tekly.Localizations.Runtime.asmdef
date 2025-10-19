@@ -5,7 +5,8 @@
         "GUID:4bdc187487ea5db4e983b03012d17dcd",
         "GUID:6055be8ebefd69e48b49212b09b47b2f",
         "GUID:b9160372c6c55a741932d482673e3abb",
-        "GUID:fae7801953e84647a0df9a215213ddbf"
+        "GUID:fae7801953e84647a0df9a215213ddbf",
+        "GUID:8bd62fd16f00001449f9d5806d1d1dd4"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -14,10 +15,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false,
-    "dependencies": {
-        "ca.tekly.common": "0.0.7",
-        "ca.tekly.logger": "0.0.7"
-    }
+    "versionDefines": [
+        {
+            "name": "ca.tekly.smartformat",
+            "expression": "0.0.0",
+            "define": "TEKLY_SMARTFORMAT"
+        }
+    ],
+    "noEngineReferences": false
 }

@@ -12,5 +12,11 @@
             Format = format;
             Keys = keys;
         }
+        
+        public LocalizationString(string id, string format)
+        {
+            Id = id;
+            Format = format;
+        }
     }
 }
