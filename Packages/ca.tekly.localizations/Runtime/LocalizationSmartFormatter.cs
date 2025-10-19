@@ -47,8 +47,8 @@ namespace Tekly.Localizations
 			if (selectorInfo.CurrentValue is ValueTuple<string, object>[] tuples) {
 				foreach (var tuple in tuples) {
 					if (string.Equals(tuple.Item1, selectorInfo.SelectorText, StringComparison.OrdinalIgnoreCase)) {
-						if (selectorInfo.SelectorText[0] == Localizer.LocToken) {
-							selectorInfo.Result = m_localizer.Localize(selectorInfo.SelectorText);
+						if (tuple.Item2 is string dataString && dataString[0] == Localizer.LocToken) {
+							selectorInfo.Result = m_localizer.Localize(dataString);
 							return true;
 						}
 						
