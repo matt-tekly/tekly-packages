@@ -211,6 +211,12 @@
         "com.unity.mathematics": "1.1.0"
       }
     },
+    "ca.tekly.smartformat": {
+      "version": "file:ca.tekly.smartformat",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "ca.tekly.statusbar": {
       "version": "file:ca.tekly.statusbar",
       "depth": 0,
