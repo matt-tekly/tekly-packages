@@ -224,6 +224,24 @@ namespace Tekly.Tracing
 			UpdateInternal();
 		}
 
+		public static string GetTypeName(object obj)
+		{
+#if TEKLY_TRACEEVENTS_ENABLED
+			return obj?.GetType().Name ?? "null";
+#else
+			return "";
+#endif
+		}
+		
+		public static string GetTypeName(Type type)
+		{
+#if TEKLY_TRACEEVENTS_ENABLED
+			return type.Name;
+#else
+			return "";
+#endif
+		}
+
 		[Conditional("TEKLY_TRACEEVENTS_ENABLED")]
 		private static void UpdateInternal()
 		{
