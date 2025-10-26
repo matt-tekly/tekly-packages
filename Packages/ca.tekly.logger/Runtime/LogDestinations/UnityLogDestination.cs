@@ -14,6 +14,22 @@ namespace Tekly.Logging.LogDestinations
     {
         public string Name { get; }
         
+        [ThreadStatic] public static bool Suppress;
+
+        public static IDisposable SuppressScope()
+        {
+            var prev = Suppress;
+            Suppress = true;
+            return new Scope(prev);
+        }
+
+        private readonly struct Scope : IDisposable
+        {
+            private readonly bool _prev;
+            public Scope(bool prev) { _prev = prev; }
+            public void Dispose() { Suppress = _prev; }
+        }
+        
         private int m_currentFrame;
 
         private readonly UnityLogDestinationConfig m_config;
@@ -113,10 +129,9 @@ namespace Tekly.Logging.LogDestinations
                 sb.Append(message.StackTrace);
 #endif
             }
-
-            sb.Append(LoggerConstants.UNITY_LOG_MARKER);
-
+            
             try {
+                using var _ = SuppressScope();
                 var logType = LevelToType(message.Level);
 #if UNITY_EDITOR
                 if (context == null) {

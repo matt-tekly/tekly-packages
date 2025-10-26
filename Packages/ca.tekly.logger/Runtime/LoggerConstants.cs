@@ -7,7 +7,5 @@
         public const string TIME_FORMAT_LOCAL = "yyyy-MM-ddTHH:mm:sszzzz";
         public const string EXCEPTION_MESSAGE_KEY = "ExMessage";
         public const string EXCEPTION_STACKTRACE_KEY = "ExStackTrace";
-
-        public const char UNITY_LOG_MARKER = '\u2004';
     }
 }

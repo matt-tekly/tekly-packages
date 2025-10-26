@@ -180,14 +180,13 @@ namespace Tekly.Logging
         
         private static void HandleUnityLog(string message, string stacktrace, LogType type)
         {
-            if (!string.IsNullOrEmpty(message) && message[message.Length - 1] == LoggerConstants.UNITY_LOG_MARKER) {
+            if (string.IsNullOrEmpty(message) || UnityLogDestination.Suppress) {
                 return;
             }
 
             var level = UnityLogDestination.TypeToLevel(type);
             var loggerName = LoggerConstants.UNITY_LOG_NAME;
             var logMessage = new TkLogMessage(level, loggerName, loggerName, message, stacktrace);
-
             
             foreach (var logDestination in Destinations) {
                 logDestination.LogMessage(logMessage, LogSource.Unity);
