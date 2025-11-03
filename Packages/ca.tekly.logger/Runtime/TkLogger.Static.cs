@@ -22,6 +22,16 @@ namespace Tekly.Logging
         public static readonly TkLoggerStats Stats = new TkLoggerStats();
         public static event Action<TkLogMessage> MessageLogged;
 
+        public static TkLogLevel DefaultLevel {
+            get => s_settingsTree.DefaultLevel;
+            set {
+                s_settingsTree.DefaultLevel = value;
+                foreach (var logger in s_loggers) {
+                    logger.Value.LoggerSettings = s_settingsTree.GetSettings(logger.Key.FullName);
+                }
+            }
+        }
+
         public static readonly ConcurrentDictionary<string, string> CommonFields = new ConcurrentDictionary<string, string>();
 
         private static readonly Dictionary<string, ILogDestination> s_logDestinations = new Dictionary<string, ILogDestination>();

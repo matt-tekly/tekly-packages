@@ -13,6 +13,11 @@ namespace Tekly.Logging
 			public LoggerSettings Settings;
 		}
 
+		public TkLogLevel DefaultLevel {
+			get => m_rootNode.Settings.Level;
+			set => m_rootNode.Settings.Level = value;
+		}
+
 		private LevelNode m_rootNode = new LevelNode();
 
 		public void Initialize(TkLogLevel defaultLevel, LogDestinationConfig defaultDestination, LoggerConfig[] configs)
