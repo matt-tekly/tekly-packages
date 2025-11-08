@@ -17,6 +17,8 @@ namespace Tekly.Logging
 			get => m_rootNode.Settings.Level;
 			set => m_rootNode.Settings.Level = value;
 		}
+		
+		public ILogDestination DefaultDestination => m_rootNode.Settings.Destination;
 
 		private LevelNode m_rootNode = new LevelNode();
 

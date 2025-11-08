@@ -198,9 +198,7 @@ namespace Tekly.Logging
             var loggerName = LoggerConstants.UNITY_LOG_NAME;
             var logMessage = new TkLogMessage(level, loggerName, loggerName, message, stacktrace);
             
-            foreach (var logDestination in Destinations) {
-                logDestination.LogMessage(logMessage, LogSource.Unity);
-            }
+            s_settingsTree.DefaultDestination.LogMessage(logMessage, LogSource.Unity);
             
             Stats.Track(logMessage);
             MessageLogged?.Invoke(logMessage);
