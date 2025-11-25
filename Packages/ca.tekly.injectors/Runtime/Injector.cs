@@ -112,12 +112,14 @@ namespace Tekly.Injectors
 
     public class InjectableConstructor
     {
+        private readonly ConstructorInfo m_constructorInfo;
         private readonly object[] m_parameterValues;
         private readonly ParameterInfo[] m_parameterInfos;
         private readonly Type m_type;
         
         public InjectableConstructor(ConstructorInfo constructorInfo)
         {
+            m_constructorInfo = constructorInfo;
             m_type = constructorInfo.DeclaringType;
             
             m_parameterInfos = constructorInfo.GetParameters();
@@ -135,12 +137,9 @@ namespace Tekly.Injectors
                 m_parameterValues[index] = container.Get(parameterInfo.ParameterType);
             }
 
-            var instance = Activator.CreateInstance(m_type, m_parameterValues);
+            var instance = m_constructorInfo.Invoke(m_parameterValues);
             
-            for (var index = 0; index < m_parameterValues.Length; index++) {
-                m_parameterValues[index] = null;
-            }
-
+            Array.Clear(m_parameterValues, 0, m_parameterValues.Length);
             return instance;
         }
     }
@@ -195,12 +194,18 @@ namespace Tekly.Injectors
         
         public void Inject(object instance, InjectorContainer container)
         {
-            if (m_injectAttribute.Id == null) {
-                var data = container.Get(m_fieldType);
-                m_fieldInfo.SetValue(instance, data);    
+            if (m_injectAttribute.IsOptional == IsOptional.Optional) {
+                if (container.TryGet(m_fieldType, out var data)) {
+                    m_fieldInfo.SetValue(instance, data);
+                }
             } else {
-                var data = container.Get(m_fieldType, m_injectAttribute.Id);
-                m_fieldInfo.SetValue(instance, data);
+                if (m_injectAttribute.Id == null) {
+                    var data = container.Get(m_fieldType);
+                    m_fieldInfo.SetValue(instance, data);    
+                } else {
+                    var data = container.Get(m_fieldType, m_injectAttribute.Id);
+                    m_fieldInfo.SetValue(instance, data);
+                }
             }
         }
         

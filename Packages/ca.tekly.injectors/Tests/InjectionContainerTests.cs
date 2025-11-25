@@ -14,10 +14,12 @@ namespace Tekly.Injectors.Tests
         
         [Inject] public ITestInterface TestInterface;
         [Inject] public TestClass TestClass;
+        [Inject(IsOptional.Optional)] public TestClassOptional TestClassOptional;
     }
     
     public interface ITestInterface { }
     public class TestClass : ITestInterface { }
+    public class TestClassOptional : ITestInterface { }
 
     [Preserve]
     public class SingletonClass

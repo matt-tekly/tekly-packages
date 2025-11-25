@@ -7,16 +7,28 @@ using UnityEngine.Scripting;
 
 namespace Tekly.Injectors
 {
+	public enum IsOptional
+	{
+		Required,
+		Optional
+	}
+	
 	[MeansImplicitUse(ImplicitUseKindFlags.Assign)]
 	public class InjectAttribute : PreserveAttribute
 	{
 		public readonly string Id;
+		public readonly IsOptional IsOptional;
 
 		public InjectAttribute() { }
 		
 		public InjectAttribute(string id = null)
 		{
 			Id = id;
+		}
+		
+		public InjectAttribute(IsOptional optional)
+		{
+			IsOptional = optional;
 		}
 	}
 }
