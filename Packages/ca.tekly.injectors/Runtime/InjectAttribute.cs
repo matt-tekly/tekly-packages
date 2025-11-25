@@ -31,4 +31,13 @@ namespace Tekly.Injectors
 			IsOptional = optional;
 		}
 	}
+	
+	[MeansImplicitUse(ImplicitUseKindFlags.Assign)]
+	public class InjectOptionalAttribute : InjectAttribute
+	{
+		public InjectOptionalAttribute() : base(IsOptional.Optional)
+		{
+			
+		}
+	}
 }

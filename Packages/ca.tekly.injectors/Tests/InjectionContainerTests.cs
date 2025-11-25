@@ -14,7 +14,7 @@ namespace Tekly.Injectors.Tests
         
         [Inject] public ITestInterface TestInterface;
         [Inject] public TestClass TestClass;
-        [Inject(IsOptional.Optional)] public TestClassOptional TestClassOptional;
+        [InjectOptional] public TestClassOptional TestClassOptional;
     }
     
     public interface ITestInterface { }
