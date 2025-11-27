@@ -43,13 +43,7 @@ namespace Tekly.DebugKit.Utils
 				s_gameViewWindow = UnityEditor.EditorWindow.GetWindow(s_gameViewType);
 			}
             
-			if (s_gameViewWindow == null)
-			{
-				return Vector2.one;
-			}
-            
-			var rect = (Rect) s_targetInView.GetValue(s_gameViewWindow, null);
-			return rect.size;
+			return s_gameViewWindow == null ? Vector2.one : s_gameViewWindow.position.size;
 		}
 #else
         public static float ViewScale()
