@@ -511,6 +511,14 @@ namespace Tekly.DebugKit.Widgets
 			return this;
 		}
 		
+		public Container DropdownSearch(List<string> choices, string classNames, Func<string> getValue, Action<string> setValue)
+		{
+			var dropdownWidget = new DropdownSearchableWidget(this, choices, getValue, setValue, classNames);
+			AddWidget(dropdownWidget);
+			
+			return this;
+		}
+		
 		public Container Dropdown<TEnum>(Func<TEnum> getValue, Action<TEnum> setValue)
 		{
 			var names = Enum.GetNames(typeof(TEnum)).ToList();
@@ -519,6 +527,16 @@ namespace Tekly.DebugKit.Widgets
 			void SetStringValue(string v) => setValue((TEnum)Enum.Parse(typeof(TEnum), v));
 
 			return Dropdown(names, null, GetStringValue, SetStringValue);
+		}
+		
+		public Container DropdownSearch<TEnum>(Func<TEnum> getValue, Action<TEnum> setValue)
+		{
+			var names = Enum.GetNames(typeof(TEnum)).ToList();
+			
+			string GetStringValue() => getValue().ToString();
+			void SetStringValue(string v) => setValue((TEnum)Enum.Parse(typeof(TEnum), v));
+
+			return DropdownSearch(names, null, GetStringValue, SetStringValue);
 		}
 
 		public Container Raw(VisualElement rawElement)
