@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using UnityEngine;
-using Screen = UnityEngine.Device.Screen;
 
 namespace Tekly.DebugKit.Utils
 {
@@ -26,13 +25,15 @@ namespace Tekly.DebugKit.Utils
 		public static float ViewScale()
 		{
 			UnityEditor.PlayModeWindow.GetRenderingResolution(out var width, out var height);
+			
+			var size = ViewAreaSize() * UnityEditor.EditorGUIUtility.pixelsPerPoint;
 			if (width > height)
 			{
-				var x = ViewAreaSize().x;
+				var x = size.x;
 				return Mathf.Max(1f, width / x);    
 			}
             
-			var y = ViewAreaSize().y;
+			var y = size.y;
 			return Mathf.Max(height / y, 1);
 		}
 
@@ -43,7 +44,13 @@ namespace Tekly.DebugKit.Utils
 				s_gameViewWindow = UnityEditor.EditorWindow.GetWindow(s_gameViewType);
 			}
             
-			return s_gameViewWindow == null ? Vector2.one : s_gameViewWindow.position.size;
+			if (s_gameViewWindow == null)
+			{
+				return Vector2.one;
+			}
+            
+			var rect = (Rect) s_targetInView.GetValue(s_gameViewWindow, null);
+			return rect.size;
 		}
 #else
         public static float ViewScale()
