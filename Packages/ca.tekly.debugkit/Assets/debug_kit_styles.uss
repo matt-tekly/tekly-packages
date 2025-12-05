@@ -650,13 +650,11 @@ Foldout #unity-checkmark {
 }
 
 .dk-searchable-dropdown__selected {
-    unity-text-align: middle-left;
     flex-grow: 1;
 }
 
 .dk-searchable-dropdown__arrow {
     margin-left: 4px;
-    unity-text-align: middle-right;
 }
 
 .dk-searchable-dropdown__popup {

@@ -162,12 +162,11 @@ namespace Tekly.DebugKit
 				Settings.OpenAction.action.performed += _ => m_debugKitRoot.Toggle();
 			}
 
-			if (Settings.OpenTouchCount > 0) {
-				UnityEngine.InputSystem.EnhancedTouch.EnhancedTouchSupport.Enable();
 #if UNITY_EDITOR
+			if (Settings.OpenTouchCount > 0) {
 				UnityEngine.InputSystem.EnhancedTouch.TouchSimulation.Enable();
-#endif
 			}
+#endif
 #endif
 		}
 
@@ -178,8 +177,21 @@ namespace Tekly.DebugKit
 				return false;
 			}
 			
-			var toggle = UnityEngine.InputSystem.Keyboard.current[Settings.OpenKey].wasPressedThisFrame ||
-			             (Settings.OpenTouchCount > 0 && UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches.Count == Settings.OpenTouchCount);
+			var toggle = UnityEngine.InputSystem.Keyboard.current[Settings.OpenKey].wasPressedThisFrame;
+				
+			if (Settings.OpenTouchCount > 0 && UnityEngine.InputSystem.Touchscreen.current != null)
+			{
+				var touchCount = 0;
+				foreach (var touch in UnityEngine.InputSystem.Touchscreen.current.touches)
+				{
+					if (touch.isInProgress)
+					{
+						touchCount++;
+					}
+				}
+				
+				toggle = toggle || touchCount == Settings.OpenTouchCount;	
+			}
 #else
 			var toggle = Input.GetKeyDown(Settings.OpenKey) ||
 			             (Settings.OpenTouchCount > 0 && Input.touchCount == DebugKitSettings.TOUCH_COUNT);
