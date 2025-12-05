@@ -163,7 +163,7 @@ namespace Tekly.DebugKit
 			}
 
 #if UNITY_EDITOR
-			if (Settings.OpenTouchCount > 0) {
+			if (Settings.UseTouchSimulationInEditor) {
 				UnityEngine.InputSystem.EnhancedTouch.TouchSimulation.Enable();
 			}
 #endif

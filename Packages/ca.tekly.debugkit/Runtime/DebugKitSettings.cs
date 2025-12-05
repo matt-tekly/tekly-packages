@@ -23,6 +23,7 @@ namespace Tekly.DebugKit
 #endif
 
 		public int OpenTouchCount;
+		public bool UseTouchSimulationInEditor = true;
 		
 		public PanelSettings PanelSettings;
 		public StyleSheet[] StyleSheets;

@@ -15,7 +15,8 @@ MonoBehaviour:
   AutoScaleInEditor: 1
   OpenKey: 95
   OpenAction: {fileID: 0}
-  OpenTouchCount: 0
+  OpenTouchCount: 3
+  UseTouchSimulationInEditor: 1
   PanelSettings: {fileID: 11400000, guid: 6d88bcfe9461f5c4498e4ecb9dd9abe6, type: 2}
   StyleSheets: []
   RootClassNames: []
