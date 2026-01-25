@@ -19,8 +19,7 @@ namespace Tekly.Common.Metrics
 		public long Count;
 		public double Amount;
 	}
-
-
+	
 	public interface IMetricNode
 	{
 		MetricKey Key { get; }
@@ -226,15 +225,12 @@ namespace Tekly.Common.Metrics
 		private sealed class MetricNode : IMetricNode
 		{
 			public MetricKey Key => m_key;
-
 			public long Count { get; private set; }
 			public double Amount { get; private set; }
-
+			
 			public Dictionary<string, MetricNode> Children;
 			public bool HasChildren => Children != null && Children.Count > 0;
-
-			private readonly string m_name;
-			private readonly string m_fullPath;
+			
 			private readonly MetricKey m_key;
 
 			private long m_startCount;
@@ -243,10 +239,8 @@ namespace Tekly.Common.Metrics
 
 			private Triggerable<MetricUpdate> m_changed;
 
-			private MetricNode(string name, string fullPath, MetricKey key)
+			private MetricNode(MetricKey key)
 			{
-				m_name = name;
-				m_fullPath = fullPath;
 				m_key = key;
 
 				Count = 0;
@@ -260,7 +254,7 @@ namespace Tekly.Common.Metrics
 
 			public static MetricNode CreateRoot()
 			{
-				return new MetricNode(null, null, default);
+				return new MetricNode(default);
 			}
 
 			public bool TryGetChild(string segment, out MetricNode child)
@@ -280,11 +274,8 @@ namespace Tekly.Common.Metrics
 				} else if (Children.TryGetValue(segment, out var existing)) {
 					return existing;
 				}
-
-				var fullPath = string.IsNullOrEmpty(m_fullPath) ? segment : $"{m_fullPath}.{segment}";
-
-				var key = new MetricKey(fullPath);
-				var child = new MetricNode(segment, fullPath, key);
+				
+				var child = new MetricNode(Key.Append(segment));
 				Children.Add(segment, child);
 				return child;
 			}
@@ -343,11 +334,11 @@ namespace Tekly.Common.Metrics
 			
 			public override string ToString()
 			{
-				if (m_fullPath == null) {
+				if (m_key.Path == null) {
 					return $"<Root> count={Count} amount={Amount}";
 				}
 
-				return $"{m_fullPath} count={Count} amount={Amount}" +
+				return $"{m_key.Path} count={Count} amount={Amount}" +
 				       (m_dirty ? " [DIRTY]" : "") +
 				       (HasChildren ? $" children={Children.Count}" : "");
 			}
