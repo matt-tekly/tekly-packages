@@ -1,10 +1,11 @@
+using System;
 using JetBrains.Annotations;
-using UnityEditor;
 using UnityEngine;
 
 namespace Tekly.Favorites
 {
 	[UsedImplicitly]
+	[Serializable]
 	public class SayHelloWorld : IFavoriteActionScript
 	{
 		public void Activate()

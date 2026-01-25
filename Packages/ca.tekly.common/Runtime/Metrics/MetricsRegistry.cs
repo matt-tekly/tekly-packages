@@ -78,7 +78,7 @@ namespace Tekly.Common.Metrics
 				var count = entry.Count;
 				var amount = entry.Amount;
 
-				if (count == 0 && amount == 0.0) {
+				if (count == 0) {
 					continue;
 				}
 
@@ -161,6 +161,10 @@ namespace Tekly.Common.Metrics
 		{
 			var snapshot = new MetricsRegistrySave();
 
+			if (!m_root.HasChildren) {
+				return snapshot;
+			}
+			
 			var stack = new Stack<MetricNode>();
 			stack.Push(m_root);
 
@@ -218,13 +222,7 @@ namespace Tekly.Common.Metrics
 
 			return true;
 		}
-
-		private enum DirtyState : byte
-		{
-			None = 0,
-			Enqueued = 1,
-		}
-
+		
 		private sealed class MetricNode : IMetricNode
 		{
 			public MetricKey Key => m_key;
@@ -241,7 +239,7 @@ namespace Tekly.Common.Metrics
 
 			private long m_startCount;
 			private double m_startAmount;
-			private DirtyState m_dirtyState;
+			private bool m_dirty;
 
 			private Triggerable<MetricUpdate> m_changed;
 
@@ -256,14 +254,13 @@ namespace Tekly.Common.Metrics
 
 				m_startCount = 0;
 				m_startAmount = 0.0;
-				m_dirtyState = DirtyState.None;
 
 				m_changed = null;
 			}
 
 			public static MetricNode CreateRoot()
 			{
-				return new MetricNode("", "", default);
+				return new MetricNode(null, null, default);
 			}
 
 			public bool TryGetChild(string segment, out MetricNode child)
@@ -308,10 +305,10 @@ namespace Tekly.Common.Metrics
 
 			public void ApplyRecord(double amountDelta, List<MetricNode> dirtyList)
 			{
-				if (m_dirtyState == DirtyState.None) {
+				if (!m_dirty) {
 					m_startCount = Count;
 					m_startAmount = Amount;
-					m_dirtyState = DirtyState.Enqueued;
+					m_dirty = true;
 					dirtyList.Add(this);
 				}
 
@@ -322,11 +319,11 @@ namespace Tekly.Common.Metrics
 
 			public void EmitIfDirty()
 			{
-				if (m_dirtyState == DirtyState.None) {
+				if (!m_dirty) {
 					return;
 				}
 
-				m_dirtyState = DirtyState.None;
+				m_dirty = false;
 
 				if (m_changed == null) {
 					return;
@@ -342,6 +339,17 @@ namespace Tekly.Common.Metrics
 			{
 				Count += count;
 				Amount += amount;
+			}
+			
+			public override string ToString()
+			{
+				if (m_fullPath == null) {
+					return $"<Root> count={Count} amount={Amount}";
+				}
+
+				return $"{m_fullPath} count={Count} amount={Amount}" +
+				       (m_dirty ? " [DIRTY]" : "") +
+				       (HasChildren ? $" children={Children.Count}" : "");
 			}
 		}
 	}
