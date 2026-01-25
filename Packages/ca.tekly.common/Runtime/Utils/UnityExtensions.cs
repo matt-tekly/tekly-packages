@@ -43,7 +43,7 @@ namespace Tekly.Common.Utils
         {
 #if UNITY_EDITOR
             var sceneObjects = new List<T>();
-            var allObjects = Object.FindObjectsOfType<T>(true);
+            var allObjects = Object.FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID);
 
             for (var index = 0; index < allObjects.Length; index++) {
                 var obj = allObjects[index];
@@ -62,7 +62,7 @@ namespace Tekly.Common.Utils
 
             return sceneObjects.ToArray();
 #else
-			return Object.FindObjectsOfType<T>(true);
+			return Object.FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID)
 #endif
         }
         

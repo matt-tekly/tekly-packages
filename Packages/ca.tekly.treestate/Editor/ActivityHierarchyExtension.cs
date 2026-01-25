@@ -21,7 +21,7 @@ namespace Tekly.TreeState
 
 		private static void OnDrawHierarchyItem(int instanceId, Rect selectionRect)
 		{
-			var go = EditorUtility.InstanceIDToObject(instanceId) as GameObject;
+			var go = EditorUtility.EntityIdToObject(instanceId) as GameObject;
 
 			if (go == null) {
 				return;

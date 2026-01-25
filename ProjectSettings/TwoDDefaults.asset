@@ -18,6 +18,10 @@ MonoBehaviour:
     m_filterMode: 0
     m_pixelsPerUnit: 100
     m_pivot: {x: 0.5, y: 0}
+    m_pixelDataSettings:
+      Generate: 1
+      AlphaFilter: 0.01
+      ValueFilter: 0.15
   Tiles:
     m_textureFormat: 4
     m_textureCompressionQuality: 100

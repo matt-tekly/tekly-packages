@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEditor;
@@ -7,6 +8,7 @@ using UnityEngine.UI;
 namespace Tekly.Favorites
 {
 	[UsedImplicitly]
+	[Serializable]
 	public class FavoriteActionDisableRaycastTarget : IFavoriteActionScript
 	{
 		public void Activate()

@@ -505,6 +505,7 @@ Foldout #unity-checkmark {
 /* ==========================================
     Dropdown
 /* ========================================== */
+
 .dk-dropdown {
     background-color: var(--button);
     border-radius: 8px;
@@ -574,31 +575,31 @@ Foldout #unity-checkmark {
     height: 8px;
 }
 
-.unity-base-dropdown__item {
-    height: var(--line-height);
-    min-height: var(--line-height);
-    max-height: var(--line-height);
-}
+
+/*.unity-base-dropdown__item {*/
+/*    height: var(--line-height);*/
+/*    min-height: var(--line-height);*/
+/*    max-height: var(--line-height);*/
+/*}*/
+
 
 .unity-base-dropdown__item:checked {
     background-color: rgba(0,0,0,0.1);
 }
 
 .unity-base-dropdown__item-content {
-    height: var(--line-height);
-    min-height: var(--line-height);
-    max-height: var(--line-height);
+    align-items: center;
 }
 
-.unity-base-dropdown__item > .unity-base-dropdown__checkmark {
-    height: var(--line-height);
-    min-height: var(--line-height);
-    max-height: var(--line-height);
+/*.unity-base-dropdown__item > .unity-base-dropdown__checkmark {*/
+/*    height: var(--line-height);*/
+/*    min-height: var(--line-height);*/
+/*    max-height: var(--line-height);*/
 
-    width: var(--line-height);
-    min-width: var(--line-height);
-    max-width: var(--line-height);
-}
+/*    width: var(--line-height);*/
+/*    min-width: var(--line-height);*/
+/*    max-width: var(--line-height);*/
+/*}*/
 
 .unity-base-dropdown__item-content > .unity-base-dropdown__label {
     margin: 0;

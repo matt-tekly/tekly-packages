@@ -6,20 +6,22 @@
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEngine;
 
 namespace Tekly.Webster.Utility
 {
 	public static class WebsterMenus
 	{
-		private static readonly BuildTargetGroup[] s_buildTargetGroups = {
-			BuildTargetGroup.Android,
-			BuildTargetGroup.iOS,
-			BuildTargetGroup.PS4,
-			BuildTargetGroup.Standalone,
-			BuildTargetGroup.XboxOne,
-			BuildTargetGroup.Switch,
-			BuildTargetGroup.WebGL
+		private static readonly NamedBuildTarget[] s_buildTargets = {
+			NamedBuildTarget.Android,
+			NamedBuildTarget.iOS,
+			NamedBuildTarget.PS4,
+			NamedBuildTarget.Standalone,
+			NamedBuildTarget.XboxOne,
+			NamedBuildTarget.NintendoSwitch,
+			NamedBuildTarget.NintendoSwitch2,
+			NamedBuildTarget.WebGL
 		};
 
 		private const string WEBSTER_ENABLE = "WEBSTER_ENABLE";
@@ -82,22 +84,22 @@ namespace Tekly.Webster.Utility
 
 		public static void EnableDefine(string define)
 		{
-			foreach (var buildTargetGroup in s_buildTargetGroups) {
-				var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
+			foreach (var buildTarget in s_buildTargets) {
+				var defines = PlayerSettings.GetScriptingDefineSymbols(buildTarget);
 
 				defines = AddDefine(defines, define);
 
-				PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, defines);
+				PlayerSettings.SetScriptingDefineSymbols(buildTarget, defines);
 			}
 		}
 
 		public static void DisableDefine(string define)
 		{
-			foreach (var buildTargetGroup in s_buildTargetGroups) {
-				var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
+			foreach (var buildTarget in s_buildTargets) {
+				var defines = PlayerSettings.GetScriptingDefineSymbols(buildTarget);
 				defines = RemoveDefine(defines, define);
 
-				PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, defines);
+				PlayerSettings.SetScriptingDefineSymbols(buildTarget, defines);
 			}
 		}
 

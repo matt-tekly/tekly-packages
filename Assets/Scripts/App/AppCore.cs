@@ -20,6 +20,7 @@ using Tekly.Tracing;
 using Tekly.TreeState;
 using Tekly.Webster;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace TeklySample.App
 {
@@ -50,7 +51,7 @@ namespace TeklySample.App
 
 		public void Update()
 		{
-			if (Input.GetKeyDown(KeyCode.Escape)) {
+			if (Keyboard.current.escapeKey.wasPressedThisFrame) {
 				Application.Quit();
 				return;
 			}
