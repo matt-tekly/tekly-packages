@@ -14,9 +14,11 @@ namespace Tekly.Injectors.Utils
 	
 	public class HierarchyInjector : MonoBehaviour
 	{
+		
 		[SerializeField] protected bool m_injectOnAwake;
 		[SerializeField] protected bool m_injectOnEnable;
-		
+		[SerializeField] protected HierarchyInjector m_parent;
+			
 		[SerializeField] protected List<MonoBehaviour> m_behaviours = new List<MonoBehaviour>();
 		[SerializeField] protected List<HierarchyInjector> m_childInjectors = new List<HierarchyInjector>();
 
@@ -28,7 +30,7 @@ namespace Tekly.Injectors.Utils
 		private void Awake()
 		{
 			if (m_injectOnAwake) {
-				Inject(null);
+				InjectSelf();
 			}	
 		}
 
@@ -39,10 +41,15 @@ namespace Tekly.Injectors.Utils
 			}
 
 			if (m_hasBeenEnabled || !m_injectOnAwake) {
-				Inject(null);
+				InjectSelf();
 			}
 
 			m_hasBeenEnabled = true;
+		}
+
+		private void InjectSelf()
+		{
+			Inject(m_parent != null ? m_parent.m_container : null);
 		}
 
 		public void Inject(InjectorContainer container)
@@ -99,13 +106,16 @@ namespace Tekly.Injectors.Utils
 				var child = transform.GetChild(index);
 				var childInjector = child.GetComponent<HierarchyInjector>();
                 
-				if (childInjector != null && !childInjector.m_injectOnAwake) {
-					injectors.Add(childInjector);
+				if (childInjector != null) {
+					if (!childInjector.m_injectOnAwake && !childInjector.m_injectOnEnable)
+					{
+						injectors.Add(childInjector);
+					}
+
 					continue;
 				}
                 
 				GetInjectables(behaviours, scratch, child);
-
 				GetChildren(child.gameObject, behaviours, injectors, scratch);
 			}
 		}
