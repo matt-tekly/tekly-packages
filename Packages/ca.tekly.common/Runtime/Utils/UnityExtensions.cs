@@ -62,7 +62,7 @@ namespace Tekly.Common.Utils
 
             return sceneObjects.ToArray();
 #else
-			return Object.FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID)
+			return Object.FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID);
 #endif
         }
         
