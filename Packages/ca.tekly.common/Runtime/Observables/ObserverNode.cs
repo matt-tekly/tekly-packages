@@ -14,7 +14,7 @@ namespace Tekly.Common.Observables
         private ObserverNode<T> m_root;
         private ObserverNode<T> m_last;
 
-        public IDisposable Subscribe(IValueObserver<T> observer, T currentValue)
+        public IDisposable Subscribe(IValueObserver<T> observer, T currentValue, bool changesOnly = false)
         {
             var next = new ObserverNode<T>(this, observer);
 
@@ -27,7 +27,10 @@ namespace Tekly.Common.Observables
             }
 
             try {
-                observer.Changed(currentValue);
+                if (!changesOnly)
+                {
+                    observer.Changed(currentValue);    
+                }
             } catch (Exception e) {
                 Debug.LogException(e);
             }
