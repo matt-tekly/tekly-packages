@@ -39,16 +39,11 @@ namespace Tekly.Common.Tweenimation
 
         private void Awake()
         {
-            Initialize();
-        }
-
-        private void Initialize()
-        {
             foreach (var tween in m_tweens) {
                 tween.Initialize(this);
             }
         }
-
+        
         private void OnEnable()
         {
             if (m_playOnEnable) {
@@ -150,6 +145,17 @@ namespace Tekly.Common.Tweenimation
             if (m_completed == null) {
                 m_completed = new UnityEvent();
             }
+        }
+
+        public void Complete()
+        {
+            if (!IsPlaying) {
+                return;
+            }
+            
+            Evaluate(AnimationDuration);
+            m_completed?.Invoke();
+            Kill();
         }
     }
 }

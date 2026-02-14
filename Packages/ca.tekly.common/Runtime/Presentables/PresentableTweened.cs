@@ -7,6 +7,9 @@ namespace Tekly.Common.Presentables
 	{
 		[SerializeField] private Tweenimator m_showTween;
 		[SerializeField] private Tweenimator m_hideTween;
+		
+		[Tooltip("Complete the hide tween when the presentable is disabled")]
+		[SerializeField] private bool m_completeHideTweenOnDisable;
         
 		protected override void OnShow()
 		{
@@ -27,6 +30,14 @@ namespace Tekly.Common.Presentables
             
 			if (m_hideTween != null) {
 				m_hideTween.Play();
+			}
+		}
+
+		protected override void OnDisable()
+		{
+			base.OnDisable();
+			if (m_hideTween != null && m_completeHideTweenOnDisable) {
+				m_hideTween.Complete();
 			}
 		}
 

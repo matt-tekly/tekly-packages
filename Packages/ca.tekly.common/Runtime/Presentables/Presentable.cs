@@ -33,6 +33,7 @@ namespace Tekly.Common.Presentables
 		public bool IsAnimating => State == PresentableState.Showing || State == PresentableState.Hiding;
 		public ITriggerable<PresentableState> StateChanged => m_stateChanged;
 
+		[Tooltip("Set the State to Hidden when the Presentable is disabled.")]
 		[SerializeField] private bool m_completeHideOnDisable;
 		
 		

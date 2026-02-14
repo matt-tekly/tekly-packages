@@ -63,16 +63,17 @@ namespace Tekly.Common.Ui
             if (!m_animating) {
                 return;
             }
-
-            var ratio = Mathf.InverseLerp(m_startTime, m_startTime + m_animationTime, Time.time);
-            var animatedRatio = m_ease.Evaluate(ratio);
-
-            m_currentValue = MathUtils.Lerp(m_startValue, m_destinationValue, animatedRatio);
-            m_text.text = m_currentValue.ToString(m_format);
-
+            
             if (Time.time > m_startTime + m_animationTime) {
                 m_animating = false;    
+                m_currentValue = m_destinationValue;
+            } else {
+                var ratio = Mathf.InverseLerp(m_startTime, m_startTime + m_animationTime, Time.time);
+                var animatedRatio = m_ease.Evaluate(ratio);
+                m_currentValue = MathUtils.Lerp(m_startValue, m_destinationValue, animatedRatio);
             }
+
+            m_text.text = m_currentValue.ToString(m_format);
         }
         
         private void OnDestroy()
