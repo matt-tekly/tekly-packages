@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace Tekly.Common.Utils
 {
@@ -34,8 +35,11 @@ namespace Tekly.Common.Utils
         /// </summary>
         public static void GetComponentsInDescendents<T>(this Component component, List<T> items) where T : Component
         {
-            for (var index = 0; index < component.transform.childCount; ++index) {
-                component.transform.GetChild(index).GetComponentsInChildren(items);
+            using (ListPool<T>.Get(out var list)) {
+                for (var index = 0; index < component.transform.childCount; ++index) {
+                    component.transform.GetChild(index).GetComponentsInChildren(list);
+                    items.AddRange(list);  
+                } 
             }
         }
         
@@ -77,5 +81,24 @@ namespace Tekly.Common.Utils
             return resources.FirstOrDefault(resource => resource.name == name);
         }
         
+        /// <summary>
+        /// If the passed in component is null then this will fill it by using GetComponent
+        /// </summary>
+        public static void TryFillComponent<T>(this Component target, ref T component) where T : Component
+        {
+            if (component == null) {
+                component = target.GetComponent<T>();
+            }
+        }
+        
+        /// <summary>
+        /// If the passed in component is null then this will fill it by using GetComponentInChildren
+        /// </summary>
+        public static void TryFillComponentInChildren<T>(this Component target, ref T component, bool includeInactive = false) where T : Component
+        {
+            if (component == null) {
+                component = target.GetComponentInChildren<T>(includeInactive);
+            }
+        }
     }
 }

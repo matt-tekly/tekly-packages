@@ -232,6 +232,16 @@
         "com.unity.mathematics": "1.1.0"
       }
     },
+    "ca.tekly.thunk": {
+      "version": "file:ca.tekly.thunk",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "ca.tekly.logger": "0.0.7",
+        "ca.tekly.common": "0.0.1",
+        "ca.tekly.content": "0.0.1"
+      }
+    },
     "ca.tekly.tinker": {
       "version": "file:ca.tekly.tinker",
       "depth": 0,

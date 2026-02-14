@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f6bf0dc227644e592d3028e5976fd3d, type: 3}
+  m_Name: thunk_sound
+  m_EditorClassIdentifier: Tekly.Vonix::Tekly.Vonix.Core.VonixClip
+  m_uniqueId: 10685183595126848427
+  RandomMode: 3
+  Clips:
+  - {fileID: 8300000, guid: f281445048afb354e9a3e4d2f06ba9dd, type: 3}
+  - {fileID: 8300000, guid: 27ccf7285c382c24bac53b24de5dce7e, type: 3}
+  - {fileID: 8300000, guid: 3bb15a547ee6e68469a9e7a1f2dcf353, type: 3}
+  - {fileID: 8300000, guid: 3e8df81f1b001b846b825c2d0f52009c, type: 3}
+  MixerGroup: {fileID: -8309867485381092383, guid: 3c48cc700afde4c7b82d128591b8a8d0, type: 2}
+  Volume:
+    Min: 1
+    Max: 1
+  Pitch:
+    Min: 1
+    Max: 1
+  Loop: 0
+  MinimumTimeBetweenPlays: 0
+  InstanceCapacity: 1
+  CapacityBehaviour: 1

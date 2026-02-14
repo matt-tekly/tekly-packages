@@ -8,6 +8,7 @@ namespace Tekly.Common.Utils
 		Random,
 		NonRepeating,
 		Exhaustive,
+		Sequential
 	}
 
 	/// <summary>
@@ -34,7 +35,12 @@ namespace Tekly.Common.Utils
 			Mode = mode;
 			m_numberGenerator = numberGenerator;
 
-			m_state = mode == RandomSelectMode.Exhaustive ? 0UL : ulong.MaxValue;
+			if (mode == RandomSelectMode.Exhaustive || mode == RandomSelectMode.Sequential) {
+				m_state = 0UL;
+			} else {
+				m_state = ulong.MaxValue;
+			}
+			
 			m_lastIndex = 0;
 		}
 
@@ -84,6 +90,22 @@ namespace Tekly.Common.Utils
 					m_lastIndex = (short)randomIndex;
 					m_state |= 1UL << m_lastIndex;
 					return randomIndex;
+				}
+				case RandomSelectMode.Sequential: {
+					var index = (int)m_state;
+					if ((uint)index >= (uint)Size) {
+						index = 0;
+					}
+
+					m_lastIndex = (short)index;
+
+					var next = index + 1;
+					if (next >= Size) {
+						next = 0;
+					}
+
+					m_state = (ulong)next;
+					return index;
 				}
 				default:
 					throw new ArgumentOutOfRangeException(nameof(Mode), "Invalid selection mode.");

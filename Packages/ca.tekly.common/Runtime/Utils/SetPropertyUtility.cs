@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Tekly.WebSockets
+namespace Tekly.Common.Utils
 {
 	public static class SetPropertyUtility
 	{
