@@ -417,6 +417,11 @@ TextInput, .unity-base-text-field__input:hover:focus:enabled {
 /* ==========================================
     Foldout
 /* ========================================== */
+
+.unity-foldout .unity-toggle:focus:enabled .unity-toggle__text {
+    color: var(--text-focused);
+}
+
 Foldout #unity-checkmark.unity-toggle__checkmark {
     -unity-background-image-tint-color: var(--text);
 }

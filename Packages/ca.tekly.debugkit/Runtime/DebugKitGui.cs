@@ -25,7 +25,7 @@ namespace Tekly.DebugKit
 		{
 			m_debugKit = debugKit;
 			m_document = gameObject.AddComponent<UIDocument>();
-			m_document.panelSettings = debugKit.Settings.PanelSettings;
+			m_document.panelSettings = Instantiate(debugKit.Settings.PanelSettings);
 
 			if (debugKit.Settings.StyleSheets != null) {
 				foreach (var sheet in debugKit.Settings.StyleSheets) {
