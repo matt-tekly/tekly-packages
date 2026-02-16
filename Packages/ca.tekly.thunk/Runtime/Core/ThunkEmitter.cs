@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Tekly.Thunk.Core
@@ -90,6 +91,28 @@ namespace Tekly.Thunk.Core
 				}
 			}
 		}
+		
+		public void SetPaused(int instanceId, bool paused)
+		{
+			if (TryGetInstance(instanceId, out var instance)) {
+				instance.AudioSource.Paused = paused;
+			}
+		}
+
+		public bool TryGetInstance(int instanceId, out ThunkClipInstance instance)
+		{
+			for (var index = 0; index < m_instances.Count; index++) {
+				var target = m_instances[index];
+				
+				if (target.Id == instanceId) {
+					instance = target;
+					return true;
+				}
+			}
+			
+			instance = null;
+			return false;
+		}
 
 		public void ClipInstanceDisposed(ThunkClipInstance thunkClipInstance)
 		{
@@ -156,5 +179,7 @@ namespace Tekly.Thunk.Core
 				audioSource.Free();
 			}
 		}
+
+	
 	}
 }

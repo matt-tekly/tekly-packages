@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: thunk_sound
   m_EditorClassIdentifier: Tekly.Vonix::Tekly.Vonix.Core.VonixClip
   m_uniqueId: 10685183595126848427
-  RandomMode: 3
+  RandomMode: 0
   Clips:
   - {fileID: 8300000, guid: f281445048afb354e9a3e4d2f06ba9dd, type: 3}
   - {fileID: 8300000, guid: 27ccf7285c382c24bac53b24de5dce7e, type: 3}
@@ -27,6 +27,6 @@ MonoBehaviour:
     Min: 1
     Max: 1
   Loop: 0
-  MinimumTimeBetweenPlays: 0
-  InstanceCapacity: 1
-  CapacityBehaviour: 1
+  MinimumTimeBetweenPlays: 0.2
+  InstanceCapacity: 2
+  CapacityBehaviour: 2

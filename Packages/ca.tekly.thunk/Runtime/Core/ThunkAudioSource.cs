@@ -4,12 +4,27 @@ namespace Tekly.Thunk.Core
 {
 	public class ThunkAudioSource
 	{
-		public bool IsPlaying => m_playing && (m_audioSource.isPlaying || Thunk.Instance.Paused);
+		public bool IsPlaying => m_playing && (m_audioSource.isPlaying || m_paused || Thunk.Instance.Paused);
 		public float TimeRemaining => m_audioSource.clip.length - m_audioSource.time;
 		
 		public bool Loop {
 			get => m_audioSource.loop;
 			set => m_audioSource.loop = value;
+		}
+
+		public bool Paused {
+			get => m_paused;
+			set {
+				if (m_paused == value) {
+					return;
+				}
+				m_paused = value;
+				if (m_paused) {
+					m_audioSource.Pause();
+				} else {
+					m_audioSource.UnPause();
+				}
+			}
 		}
 		
 		public float Volume {
@@ -45,6 +60,7 @@ namespace Tekly.Thunk.Core
 		private float m_volume = 1f;
 		private float m_pitch = 1f;
 		private bool m_playing;
+		private bool m_paused;
 		
 		public ThunkAudioSource(ThunkEmitter emitter)
 		{
@@ -60,16 +76,16 @@ namespace Tekly.Thunk.Core
 			if (request.Pitch != null) {
 				Pitch = request.Pitch.Value;
 			} else {
-				Pitch = request.Source.Pitch;
+				Pitch = request.Source.GeneratePitch;
 			}
 			
 			if (request.Volume != null) {
 				Volume = request.Volume.Value;
 			} else {
-				Volume = request.Source.Volume;
+				Volume = request.Source.GenerateVolume;
 			}
 
-			Loop = request.Source.Loop;
+			Loop = request.Source.IsLooping;
 			m_audioSource.outputAudioMixerGroup = request.Source.MixerGroup;
 			
 			m_playing = true;

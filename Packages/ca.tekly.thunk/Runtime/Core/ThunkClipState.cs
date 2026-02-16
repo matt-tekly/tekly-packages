@@ -1,33 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
-using Tekly.Common.LifeCycles;
+using System.Diagnostics;
 using Tekly.Common.Utils;
 using UnityEngine;
 using UnityEngine.Audio;
 
 namespace Tekly.Thunk.Core
 {
+	/// <summary>
+	/// Manages the shared state for a ThunkClip. This is what controls random clip selection and maximum playing
+	/// instances of the clip.
+	/// </summary>
+	[DebuggerDisplay("{DebuggerDisplay,nq}")]
 	public class ThunkClipState
 	{
-		public float Pitch => m_clip.Pitch.Get();
-		public float Volume => m_clip.Volume.Get();
-		public bool Loop => m_clip.Loop;
-		public AudioMixerGroup MixerGroup => m_clip.MixerGroup;
-
-		private readonly ThunkClip m_clip;
-		private readonly List<ThunkClipInstance> m_instances = new List<ThunkClipInstance>();
+		public float GeneratePitch => m_clip.Pitch.Get();
+		public float GenerateVolume => m_clip.Volume.Get();
+		public bool IsLooping => m_clip.Loop;
 		
-		protected int m_nextId;
+		public AudioMixerGroup MixerGroup => m_clip.MixerGroup;
+		public ThunkClip Clip => m_clip;
+		public string Name => m_clip != null ? m_clip.name : "<null>";
+
+		private string DebuggerDisplay => Name;
+
+		protected readonly ThunkClip m_clip;
+		protected readonly List<ThunkClipInstance> m_instances = new List<ThunkClipInstance>();
+		
 		protected float m_nextPlayTime;
 		protected RandomSelector64 m_randomSelector;
 		
 		public ThunkClipState(ThunkClip clip)
 		{
 			m_clip = clip;
-			m_randomSelector = new RandomSelector64(clip.Clips.Length, clip.RandomMode);
+			Reset();
 		}
 
-		public virtual ThunkClipInstance Play(ThunkEmitter emitter)
+		public virtual ThunkClipInstance Play(ThunkEmitter emitter, float? pitch = null, float? volume = null, float? delay = null)
 		{
 			if (Time.time < m_nextPlayTime) {
 				return null;
@@ -48,8 +57,27 @@ namespace Tekly.Thunk.Core
 						throw new ArgumentOutOfRangeException();
 				}
 			}
+
+			var request = new ThunkClipRequest {
+				Source = this,
+				Pitch = pitch,
+				Volume = volume,
+				Delay = delay
+			};
 			
-			return CreateInstance(emitter);
+			return CreateInstance(emitter, request);
+		}
+
+		public ThunkClipInstance GetInstance(int id)
+		{
+			for (var index = 0; index < m_instances.Count; index++) {
+				var instance = m_instances[index];
+				if (instance.Id == id) {
+					return instance;
+				}
+			}
+
+			return null;
 		}
 
 		public virtual AudioClip GetClip()
@@ -61,63 +89,27 @@ namespace Tekly.Thunk.Core
 		{
 			for (var index = m_instances.Count - 1; index >= 0; index--) {
 				var instance = m_instances[index];
+				instance.Tick();
+				
 				if (!instance.IsPlaying) {
 					m_instances.RemoveAt(index);
 					instance.Dispose();
 				}
 			}
 		}
-		
-		protected virtual ThunkClipInstance CreateInstance(ThunkEmitter emitter)
+
+		public void Reset()
 		{
-			m_nextPlayTime += m_clip.MinimumTimeBetweenPlays;
-			var instance = new ThunkClipInstance(m_nextId++, emitter, new ThunkClipRequest {
-				Source = this
-			});
+			m_randomSelector = new RandomSelector64(m_clip.Clips.Length, m_clip.RandomMode);
+		}
+		
+		protected virtual ThunkClipInstance CreateInstance(ThunkEmitter emitter, ThunkClipRequest request)
+		{
+			m_nextPlayTime = Time.time + m_clip.MinimumTimeBetweenPlays;
+			var instance = new ThunkClipInstance(emitter, request);
 			
 			m_instances.Add(instance);
 			return instance;
-		}
-	}
-	
-	public class ThunkClipStateManager
-	{
-		private readonly Dictionary<ulong, ThunkClipState> m_states = new Dictionary<ulong, ThunkClipState>();
-
-		public void Tick()
-		{
-			foreach (var thunkClipState in m_states) {
-				thunkClipState.Value.Tick();
-			}
-		}
-		
-		public ThunkClipState GetOrCreate(ThunkClip clip)
-		{
-			if (clip == null) {
-				return null;
-			}
-
-			if (!m_states.TryGetValue(clip.UniqueId, out var state) || state == null) {
-				state = clip.CreateState();
-				m_states[clip.UniqueId] = state;
-			}
-
-			return state;
-		}
-
-		public bool TryGet(ThunkClip clip, out ThunkClipState state)
-		{
-			return m_states.TryGetValue(clip.UniqueId, out state);
-		}
-
-		public void Unregister(ThunkClip clip)
-		{
-			m_states.Remove(clip.UniqueId);
-		}
-
-		public void Dispose()
-		{
-			m_states.Clear();
 		}
 	}
 }

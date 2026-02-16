@@ -69,6 +69,17 @@ namespace Tekly.Thunk.Core
 			InstanceCapacity = 0;
 			CapacityBehaviour = ThunkClipCapacityBehaviour.Unbound;
 		}
+
+		protected override void OnValidate()
+		{
+			base.OnValidate();
+
+			if (Application.isPlaying) {
+				if (Thunk.Instance.ClipStateManager.TryGet(this, out var clipState)) {
+					clipState.Reset();
+				}
+			}
+		}
 #endif
 	}
 }

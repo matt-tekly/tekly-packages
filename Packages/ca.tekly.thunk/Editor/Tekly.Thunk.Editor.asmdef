@@ -1,6 +1,6 @@
 {
     "name": "Tekly.Thunk.Editor",
-    "rootNamespace": "",
+    "rootNamespace": "Tekly.Thunk",
     "references": [
         "GUID:44ca852543c584c4a8a88e686f4688b3"
     ],

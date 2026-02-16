@@ -19,16 +19,19 @@ namespace Tekly.Common.Utils
 
 		private void TryAssignId()
 		{
-			if (m_uniqueId != 0UL) {
-				return;
-			}
-
 			var guid = UnityEditor.AssetDatabase.AssetPathToGUID(UnityEditor.AssetDatabase.GetAssetPath(this));
+				
 			if (string.IsNullOrEmpty(guid)) {
 				return;
 			}
+			
+			var newHash = HashGuidToUlong(guid);
+			
+			if (m_uniqueId == newHash) {
+				return;
+			}
 
-			m_uniqueId = HashGuidToUlong(guid);
+			m_uniqueId = newHash;
 			UnityEditor.EditorUtility.SetDirty(this);
 		}
 

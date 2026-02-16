@@ -17,8 +17,7 @@ namespace Tekly.Thunk.Utils
 		{
 			Play();
 		}
-
-		[ContextMenu(nameof(Play))]
+		
 		public void Play()
 		{
 			if (m_stopOnPlay) {
@@ -28,7 +27,6 @@ namespace Tekly.Thunk.Utils
 			m_instanceId = m_emitter.Play(m_clip);
 		}
 		
-		[ContextMenu(nameof(Stop))]
 		public void Stop()
 		{
 			if (m_instanceId != Core.Thunk.INVALID_ID) {

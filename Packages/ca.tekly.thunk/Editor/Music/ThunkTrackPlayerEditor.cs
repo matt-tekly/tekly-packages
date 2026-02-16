@@ -2,11 +2,11 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Tekly.Thunk.Utils
+namespace Tekly.Thunk.Music
 {
-	[CustomEditor(typeof(ThunkPlayer))]
+	[CustomEditor(typeof(ThunkTrackPlayer))]
 	[CanEditMultipleObjects]
-	public sealed class ThunkPlayerInspector : Editor
+	public sealed class ThunkTrackPlayerEditor : Editor
 	{
 		public override void OnInspectorGUI()
 		{
@@ -16,20 +16,18 @@ namespace Tekly.Thunk.Utils
 				return;
 			}
 
-			EditorGUILayout.Space();
-
 			using (new EditorGUILayout.HorizontalScope()) {
 				if (GUILayout.Button("Play")) {
 					foreach (var t in targets) {
-						var player = (ThunkPlayer)t;
+						var player = (ThunkTrackPlayer)t;
 						player.Play();
 					}
 				}
 
-				if (GUILayout.Button("Stop")) {
+				if (GUILayout.Button("Pop")) {
 					foreach (var t in targets) {
-						var player = (ThunkPlayer)t;
-						player.Stop();
+						var player = (ThunkTrackPlayer)t;
+						player.Pop();
 					}
 				}
 			}
