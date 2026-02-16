@@ -15,6 +15,17 @@ namespace Tekly.Injectors.Tests
         [Inject] public ITestInterface TestInterface;
         [Inject] public TestClass TestClass;
         [InjectOptional] public TestClassOptional TestClassOptional;
+
+        public SampleInjectClass(TestClassOptional testClassOptional = null)
+        {
+            
+        }
+        
+        [Inject]
+        public void Initialize(TestClassOptional testClassOptional = null)
+        {
+            
+        }
     }
     
     public interface ITestInterface { }

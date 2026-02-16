@@ -134,7 +134,12 @@ namespace Tekly.Injectors
         {
             for (var index = 0; index < m_parameterInfos.Length; index++) {
                 var parameterInfo = m_parameterInfos[index];
-                m_parameterValues[index] = container.Get(parameterInfo.ParameterType);
+                if (parameterInfo.IsOptional) {
+                    container.TryGet(parameterInfo.ParameterType, out var data);
+                    m_parameterValues[index] = data;
+                } else {
+                    m_parameterValues[index] = container.Get(parameterInfo.ParameterType);    
+                }
             }
 
             var instance = m_constructorInfo.Invoke(m_parameterValues);
@@ -166,7 +171,13 @@ namespace Tekly.Injectors
         {
             for (var index = 0; index < m_parameterInfos.Length; index++) {
                 var parameterInfo = m_parameterInfos[index];
-                m_parameterValues[index] = container.Get(parameterInfo.ParameterType);
+                
+                if (parameterInfo.IsOptional) {
+                    container.TryGet(parameterInfo.ParameterType, out var data);
+                    m_parameterValues[index] = data;
+                } else {
+                    m_parameterValues[index] = container.Get(parameterInfo.ParameterType);    
+                }
             }
 
             m_methodInfo.Invoke(instance, m_parameterValues);
