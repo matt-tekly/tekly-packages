@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Tekly.Lofi.Core;
+using Tekly.Logging;
 using UnityEngine;
 
 namespace Tekly.Lofi.Emitters
@@ -27,7 +28,10 @@ namespace Tekly.Lofi.Emitters
 		}
 
 		[SerializeField] private AudioSource m_audioSourceTemplate;
-		private List<LofiClipRunner> m_runners = new List<LofiClipRunner>();
+
+		private readonly TkLogger m_logger = TkLogger.Get<LofiEmitter>();
+		private readonly List<LofiClipRunner> m_runners = new List<LofiClipRunner>();
+		
 		private AudioSourcePool m_audioSourcePool;
 		
 		private bool m_initialized;
@@ -172,7 +176,7 @@ namespace Tekly.Lofi.Emitters
 			var runner = m_runners.FirstOrDefault(x => x.Id == id);
 
 			if (runner == null) {
-				Debug.LogWarning($"Failed to find runner with id: [{id}]");
+				m_logger.Warning("Failed to find runner with id: [{id}]", ("id", id));
 			}
 
 			return runner;
