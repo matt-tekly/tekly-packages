@@ -68,6 +68,11 @@ namespace Tekly.TreeState
 			Manager.HandleTransition(transitionName);
 		}
 		
+		public bool TryHandleTransition(string transitionName)
+		{
+			return Manager.TryHandleTransition(transitionName);
+		}
+		
 		public bool TryGetTransition(string transitionName, out TreeState transition)
 		{
 			transition = null;

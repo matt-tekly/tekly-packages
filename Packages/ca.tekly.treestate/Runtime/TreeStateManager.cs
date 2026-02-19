@@ -78,6 +78,16 @@ namespace Tekly.TreeState
 
 		public bool HandleTransition(string transitionName)
 		{
+			if (!TryHandleTransition(transitionName)) {
+				m_logger.Error("Didn't find transition [{name}]", ("name", transitionName));
+				return false;
+			}
+
+			return true;
+		}
+		
+		public bool TryHandleTransition(string transitionName)
+		{
 			if (!TreeStateUtils.TryGetStateForTransition(transitionName, Active, out var target)) {
 				return false;
 			}

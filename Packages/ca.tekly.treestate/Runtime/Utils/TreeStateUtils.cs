@@ -84,7 +84,6 @@ namespace Tekly.TreeState.Utils
 				start = start.Machine;
 			} while (start != null);
 			
-			s_logger.Warning("Didn't find transition [{name}]", ("name", transitionName));
 			return false;
 		}
 		
