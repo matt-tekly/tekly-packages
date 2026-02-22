@@ -128,6 +128,17 @@ namespace Tekly.Thunk.Music
 				}
 			}
 		}
+		
+		public void Stop(int instanceId)
+		{
+			if (RemoveFromStack(instanceId)) {
+				if (m_emitter.TryGetInstance(instanceId, out var instance)) {
+					instance.Dispose();
+				} else {
+					m_emitter.Stop(instanceId);
+				}
+			}
+		}
 
 		private bool TryPeek(out int instanceId)
 		{

@@ -1,4 +1,5 @@
-﻿using Tekly.Thunk.Core;
+﻿using System;
+using Tekly.Thunk.Core;
 using UnityEngine;
 
 namespace Tekly.Thunk.Music
@@ -34,6 +35,11 @@ namespace Tekly.Thunk.Music
 			if (m_instanceId != Core.Thunk.INVALID_ID) {
 				m_track.PopCrossFade(m_instanceId, m_fadeInDuration);	
 			}
+		}
+
+		private void OnDisable()
+		{
+			m_track.Stop(m_instanceId);
 		}
 	}
 }
