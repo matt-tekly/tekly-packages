@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Tekly.Thunk.Core
@@ -9,11 +8,34 @@ namespace Tekly.Thunk.Core
 	/// </summary>
 	public class ThunkEmitter : MonoBehaviour
 	{
-		// TODO: This only works at the time a clip is starting
-		public float Volume { get; set; } = 1f;
+		public float Volume {
+			get => m_volume;
+			set {
+				if (!Mathf.Approximately(m_volume, value)) {
+					m_volume = value;
+					UpdatePitchAndVolume();
+				}
+			}
+		}
 		
-		// TODO: This only works at the time a clip is starting
-		public float Pitch { get; set; } = 1f;
+		public float Pitch {
+			get => m_pitch;
+			set {
+				if (!Mathf.Approximately(m_pitch, value)) {
+					m_pitch = value;
+					UpdatePitchAndVolume();
+				}
+			}
+		}
+
+		public bool UseUnscaledDeltaTime {
+			get => m_unscaledDeltaTime;
+			set => m_unscaledDeltaTime = value;
+		}
+		
+		public bool IgnoreListenerPause { get; set; }
+		
+		public IReadOnlyList<ThunkClipInstance> Instances => m_instances;
 		
 		[SerializeField] private AudioSource m_audioSourceTemplate;
 		
@@ -21,6 +43,20 @@ namespace Tekly.Thunk.Core
 		private AudioSourcePool m_audioSourcePool;
 		
 		private bool m_initialized;
+		
+		[Tooltip("All AudioSources associated with this Emitter will have their Volume multiplied by this")]
+		[Range(0f,1f)]
+		[SerializeField] private float m_volume = 1f;
+		
+		[Tooltip("All AudioSources associated with this Emitter will have their Pitch multiplied by this")]
+		[Range(0f,3f)]
+		[SerializeField] private float m_pitch = 1f;
+		
+		[Tooltip("Allows AudioSource to play even though AudioListener.pause is set to true. This is useful for the menu element sounds or background music in pause menus.")]
+		[SerializeField] private bool m_ignoreListenerPause;
+		
+		[Tooltip("Clips associated with this Emitter used unscaled delta time for fading.")]
+		[SerializeField] private bool m_unscaledDeltaTime;
 
 		public ThunkAudioSource GetAudioSource()
 		{
@@ -35,6 +71,8 @@ namespace Tekly.Thunk.Core
 			if (m_audioSourceTemplate != null) {
 				CopyProperties(m_audioSourceTemplate, instance);
 			}
+			
+			instance.ignoreListenerPause = m_ignoreListenerPause;
 			
 			return instance;
 		}
@@ -99,6 +137,13 @@ namespace Tekly.Thunk.Core
 			}
 		}
 
+		public void SetVolume(int instanceId, float volume)
+		{
+			if (TryGetInstance(instanceId, out var instance)) {
+				instance.SetVolume(volume);
+			}
+		}
+
 		public bool TryGetInstance(int instanceId, out ThunkClipInstance instance)
 		{
 			for (var index = 0; index < m_instances.Count; index++) {
@@ -114,7 +159,7 @@ namespace Tekly.Thunk.Core
 			return false;
 		}
 
-		public void ClipInstanceDisposed(ThunkClipInstance thunkClipInstance)
+		internal void ClipInstanceDisposed(ThunkClipInstance thunkClipInstance)
 		{
 			for (var index = 0; index < m_instances.Count; index++) {
 				var instance = m_instances[index];
@@ -124,6 +169,15 @@ namespace Tekly.Thunk.Core
 					m_audioSourcePool.Return(instance.AudioSource);
 					return;
 				}
+			}
+		}
+		
+		public void UpdatePitchAndVolume()
+		{
+			for (var index = 0; index < m_instances.Count; index++) {
+				var instance = m_instances[index];
+
+				instance.UpdatePitchAndVolume();
 			}
 		}
 		
@@ -179,7 +233,5 @@ namespace Tekly.Thunk.Core
 				audioSource.Free();
 			}
 		}
-
-	
 	}
 }

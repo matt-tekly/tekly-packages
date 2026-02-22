@@ -4,8 +4,13 @@ namespace Tekly.Thunk.Core
 {
 	public class ThunkAudioSource
 	{
-		public bool IsPlaying => m_playing && (m_audioSource.isPlaying || m_paused || Thunk.Instance.Paused);
+		public bool IsPlaying => m_playing && (m_audioSource.isPlaying || m_paused || Thunk.Instance.Paused || AudioListener.pause);
 		public float TimeRemaining => m_audioSource.clip.length - m_audioSource.time;
+
+		public float Time {
+			get => m_audioSource.time;
+			set => m_audioSource.time = value;
+		}
 		
 		public bool Loop {
 			get => m_audioSource.loop;
@@ -52,6 +57,8 @@ namespace Tekly.Thunk.Core
 			get => m_audioSource.clip;
 			set => m_audioSource.clip = value;
 		}
+
+		public bool UseUnscaledDeltaTime => m_emitter.UseUnscaledDeltaTime; 
 		
 		private readonly ThunkEmitter m_emitter;
 		private readonly AudioSource m_audioSource;
@@ -83,6 +90,12 @@ namespace Tekly.Thunk.Core
 				Volume = request.Volume.Value;
 			} else {
 				Volume = request.Source.GenerateVolume;
+			}
+
+			if (request.StartTime != null) {
+				m_audioSource.time = request.StartTime.Value;
+			} else if (request.Source.Clip.RandomizeStartTime) {
+				m_audioSource.time = Random.Range(0, Clip.length);
 			}
 
 			Loop = request.Source.IsLooping;
@@ -125,6 +138,12 @@ namespace Tekly.Thunk.Core
 		{
 			m_audioSource.Stop();
 			m_playing = false;
+		}
+
+		public void UpdatePitchAndVolume()
+		{
+			m_audioSource.volume = m_volume * m_emitter.Volume;
+			m_audioSource.pitch = m_pitch * m_emitter.Pitch;
 		}
 	}
 }

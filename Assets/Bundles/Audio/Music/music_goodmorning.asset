@@ -23,6 +23,7 @@ MonoBehaviour:
   Pitch:
     Min: 1
     Max: 1
+  RandomizeStartTime: 1
   Loop: 1
   MinimumTimeBetweenPlays: 0
   InstanceCapacity: 0

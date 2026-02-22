@@ -7,10 +7,10 @@ namespace Tekly.Thunk.Core
 	{
 		private readonly Dictionary<ulong, ThunkClipState> m_states = new Dictionary<ulong, ThunkClipState>();
 
-		public void Tick()
+		public void Tick(float deltaTime, float unscaledDeltaTime)
 		{
 			foreach (var thunkClipState in m_states) {
-				thunkClipState.Value.Tick();
+				thunkClipState.Value.Tick(deltaTime, unscaledDeltaTime);
 			}
 		}
 		

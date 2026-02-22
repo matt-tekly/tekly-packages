@@ -2,6 +2,7 @@ using System;
 using Tekly.Common.LifeCycles;
 using Tekly.Common.Utils;
 using Tekly.Thunk.Music;
+using UnityEngine;
 
 namespace Tekly.Thunk.Core
 {
@@ -18,7 +19,7 @@ namespace Tekly.Thunk.Core
 
         public ThunkTrackManager TrackManager => m_trackManager ??= new ThunkTrackManager();
 
-        internal int NextId;
+        internal int NextClipStateId;
         
         private ThunkTrackManager m_trackManager;
         
@@ -27,7 +28,7 @@ namespace Tekly.Thunk.Core
             LifeCycle.Instance.Pause += OnPause;
             
             LifeCycle.Instance.Update += () => {
-                ClipStateManager.Tick();
+                ClipStateManager.Tick(Time.deltaTime, Time.unscaledDeltaTime);
             };
         }
         

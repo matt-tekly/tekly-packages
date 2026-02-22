@@ -24,6 +24,8 @@ namespace Tekly.Thunk.Core
 		
 		[RangeLimits(0f, 3f)]
 		public FloatRange Pitch;
+
+		public bool RandomizeStartTime;
 		
 		public bool Loop;
 		public float MinimumTimeBetweenPlays;

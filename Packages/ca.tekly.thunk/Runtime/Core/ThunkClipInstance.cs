@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using Tekly.Common.Utils;
 using UnityEngine;
 
 namespace Tekly.Thunk.Core
@@ -10,6 +11,7 @@ namespace Tekly.Thunk.Core
 		public float? Pitch;
 		public float? Volume;
 		public float? Delay;
+		public float? StartTime;
 	}
 
 	public enum ThunkClipInstanceState
@@ -30,11 +32,19 @@ namespace Tekly.Thunk.Core
 		public readonly int Id;
 		public bool IsPlaying => !m_disposed && m_audioSource.IsPlaying;
 		public bool IsDisposed => m_disposed;
+
+		public float Time {
+			get => m_audioSource.Time;
+			set => m_audioSource.Time = value;
+		}
 		
 		public ThunkAudioSource AudioSource => m_audioSource;
 		
-		private string DebuggerDisplay => $"{m_clip.Name} {(AudioSource.Clip != null ? AudioSource.Clip.name : "<null>")}";
-		
+		public string DebuggerDisplay => $"{m_clip.Name} -> {AudioSource.Clip.GetNameSafe()}";
+		public AudioClip PlayingAudioClip => AudioSource.Clip;
+		public ThunkClip PlayingThunkClip => m_clip.Clip;
+		public ThunkClipInstanceState State => m_state;
+
 		private readonly ThunkEmitter m_emitter;
 		private readonly ThunkAudioSource m_audioSource;
 		private readonly ThunkClipState m_clip;
@@ -50,7 +60,7 @@ namespace Tekly.Thunk.Core
 
 		public ThunkClipInstance(ThunkEmitter emitter, ThunkClipRequest request)
 		{
-			Id = Thunk.Instance.NextId++;
+			Id = Thunk.Instance.NextClipStateId++;
 			m_emitter = emitter;
 			m_clip = request.Source;
 
@@ -78,6 +88,11 @@ namespace Tekly.Thunk.Core
 
 			m_disposed = true;
 			m_state = ThunkClipInstanceState.Disposed;
+		}
+
+		public void SetVolume(float volume)
+		{
+			FadeToDuration(volume, 0, ThunkClipInstanceState.Normal);
 		}
 
 		public void FadeIn(float duration)
@@ -113,23 +128,23 @@ namespace Tekly.Thunk.Core
 			FadeToDuration(volume, distance / speed, state);
 		}
 
-		public void Tick()
+		public void Tick(float deltaTime, float unscaledDeltaTime)
 		{
 			switch (m_state) {
 				case ThunkClipInstanceState.FadeOutStop:
-					if (UpdateFade()) {
+					if (UpdateFade(deltaTime, unscaledDeltaTime)) {
 						m_state = ThunkClipInstanceState.Normal;
 						Dispose();
 					}
 					break;
 				case ThunkClipInstanceState.FadeOutPause:
-					if (UpdateFade()) {
+					if (UpdateFade(deltaTime, unscaledDeltaTime)) {
 						m_state = ThunkClipInstanceState.Normal;
 						m_audioSource.Paused = true;
 					}
 					break;
 				case ThunkClipInstanceState.FadeTo:
-					if (UpdateFade()) {
+					if (UpdateFade(deltaTime, unscaledDeltaTime)) {
 						m_state = ThunkClipInstanceState.Normal;
 					}
 					break;
@@ -140,15 +155,20 @@ namespace Tekly.Thunk.Core
 					throw new ArgumentOutOfRangeException();
 			}
 		}
+		
+		public void UpdatePitchAndVolume()
+		{
+			m_audioSource.UpdatePitchAndVolume();
+		}
 
-		private bool UpdateFade()
+		private bool UpdateFade(float deltaTime, float unscaledDeltaTime)
 		{
 			if (m_fadeDuration <= 0) {
 				m_audioSource.Volume = m_fadeVolumeEnd;
 				return true;
 			}
 
-			m_fadeTime += Time.deltaTime;
+			m_fadeTime += m_audioSource.UseUnscaledDeltaTime ? unscaledDeltaTime : deltaTime;
 			
 			var progress = Mathf.Clamp01(m_fadeTime / m_fadeDuration);
 			m_audioSource.Volume = Mathf.Lerp(m_fadeVolumeStart, m_fadeVolumeEnd, progress);

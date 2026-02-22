@@ -20,7 +20,7 @@ namespace Tekly.Thunk.Core
 		
 		public AudioMixerGroup MixerGroup => m_clip.MixerGroup;
 		public ThunkClip Clip => m_clip;
-		public string Name => m_clip != null ? m_clip.name : "<null>";
+		public string Name => m_clip.GetNameSafe();
 
 		private string DebuggerDisplay => Name;
 
@@ -36,7 +36,7 @@ namespace Tekly.Thunk.Core
 			Reset();
 		}
 
-		public virtual ThunkClipInstance Play(ThunkEmitter emitter, float? pitch = null, float? volume = null, float? delay = null)
+		public virtual ThunkClipInstance Play(ThunkEmitter emitter, float? pitch = null, float? volume = null, float? delay = null, float? startTime = null)
 		{
 			if (Time.time < m_nextPlayTime) {
 				return null;
@@ -62,7 +62,8 @@ namespace Tekly.Thunk.Core
 				Source = this,
 				Pitch = pitch,
 				Volume = volume,
-				Delay = delay
+				Delay = delay,
+				StartTime = startTime
 			};
 			
 			return CreateInstance(emitter, request);
@@ -85,11 +86,11 @@ namespace Tekly.Thunk.Core
 			return m_clip.Clips[m_randomSelector.Select()];
 		}
 
-		public void Tick()
+		public void Tick(float deltaTime, float unscaledDeltaTime)
 		{
 			for (var index = m_instances.Count - 1; index >= 0; index--) {
 				var instance = m_instances[index];
-				instance.Tick();
+				instance.Tick(deltaTime, unscaledDeltaTime);
 				
 				if (!instance.IsPlaying) {
 					m_instances.RemoveAt(index);

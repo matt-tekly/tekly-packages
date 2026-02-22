@@ -100,5 +100,13 @@ namespace Tekly.Common.Utils
                 component = target.GetComponentInChildren<T>(includeInactive);
             }
         }
+
+        /// <summary>
+        /// Return the name of an UnityEngine Object or null if it is null
+        /// </summary>
+        public static string GetNameSafe(this Object obj)
+        {
+            return obj ? obj.name : "<null>";
+        }
     }
 }
