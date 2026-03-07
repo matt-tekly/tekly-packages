@@ -227,12 +227,6 @@
         "ca.tekly.editorutils": "0.0.1"
       }
     },
-    "ca.tekly.statusbar": {
-      "version": "file:ca.tekly.statusbar",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {}
-    },
     "ca.tekly.superserial": {
       "version": "file:ca.tekly.superserial",
       "depth": 0,
