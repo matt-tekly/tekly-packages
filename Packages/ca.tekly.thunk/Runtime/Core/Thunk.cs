@@ -3,6 +3,7 @@ using Tekly.Common.LifeCycles;
 using Tekly.Common.Utils;
 using Tekly.Thunk.Music;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Tekly.Thunk.Core
 {
@@ -18,10 +19,12 @@ namespace Tekly.Thunk.Core
         public ThunkClipStateManager ClipStateManager { get; } = new ThunkClipStateManager();
 
         public ThunkTrackManager TrackManager => m_trackManager ??= new ThunkTrackManager();
-
+        public ThunkEmitter OneShot => m_oneShotEmitter ??= CreateEmitter("[Thunk] OneShot");
+        
         internal int NextClipStateId;
         
         private ThunkTrackManager m_trackManager;
+        private ThunkEmitter m_oneShotEmitter;
         
         public Thunk()
         {
@@ -40,6 +43,18 @@ namespace Tekly.Thunk.Core
         public void Dispose()
         {
             ClipStateManager.Dispose();
+        }
+
+        private ThunkEmitter CreateEmitter(string name)
+        {
+            if (m_oneShotEmitter == null) {
+                var go = new GameObject(name);
+                Object.DontDestroyOnLoad(go);
+                
+                m_oneShotEmitter = go.AddComponent<ThunkEmitter>();
+            }
+
+            return m_oneShotEmitter;
         }
     }
 }

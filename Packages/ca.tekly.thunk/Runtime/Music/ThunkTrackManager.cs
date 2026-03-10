@@ -12,7 +12,7 @@ namespace Tekly.Thunk.Music
 		
 		public ThunkTrackManager()
 		{
-			var go = new GameObject("[Thunk] Track Manager");
+			var go = new GameObject("[Thunk] TrackManager");
 			Object.DontDestroyOnLoad(go);
 			
 			m_emitter = go.AddComponent<ThunkEmitter>();
