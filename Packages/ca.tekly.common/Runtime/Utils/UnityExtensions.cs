@@ -10,10 +10,10 @@ namespace Tekly.Common.Utils
         /// <summary>
         /// Like GetComponentInParent but doesn't include itself
         /// </summary>
-        public static T GetComponentInAncestor<T>(this Transform transform) where T : class
+        public static T GetComponentInAncestor<T>(this Transform transform, bool includeInactive = true) where T : class
         {
             var parent = transform.parent;
-            return parent != null ? parent.GetComponentInParent<T>() : null;
+            return parent != null ? parent.GetComponentInParent<T>(includeInactive) : null;
         }
         
         public static T GetComponentInDirectParent<T>(this MonoBehaviour component) where T : Component
@@ -25,19 +25,19 @@ namespace Tekly.Common.Utils
         /// <summary>
         /// Like GetComponentInParent but doesn't include itself
         /// </summary>
-        public static T GetComponentInAncestor<T>(this MonoBehaviour component) where T : Component
+        public static T GetComponentInAncestor<T>(this MonoBehaviour component, bool includeInactive = true) where T : Component
         {
-            return component.transform.GetComponentInAncestor<T>();
+            return component.transform.GetComponentInAncestor<T>(includeInactive);
         }
         
         /// <summary>
         /// Like GetComponentsInChildren but doesn't include itself
         /// </summary>
-        public static void GetComponentsInDescendents<T>(this Component component, List<T> items) where T : Component
+        public static void GetComponentsInDescendents<T>(this Component component, List<T> items, bool includeInactive = true) where T : Component
         {
             using (ListPool<T>.Get(out var list)) {
                 for (var index = 0; index < component.transform.childCount; ++index) {
-                    component.transform.GetChild(index).GetComponentsInChildren(list);
+                    component.transform.GetChild(index).GetComponentsInChildren(includeInactive, list);
                     items.AddRange(list);  
                 } 
             }

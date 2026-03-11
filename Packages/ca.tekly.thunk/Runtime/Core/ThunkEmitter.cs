@@ -102,11 +102,11 @@ namespace Tekly.Thunk.Core
 			m_instances.Clear();
 		}
 		
-		public int Play(ThunkClip clip)
+		public int Play(ThunkClip clip, float? pitch = null, float? volume = null, float? delay = null, float? startTime = null)
 		{
 			Init();
 
-			var instance = clip.State.Play(this);
+			var instance = clip.State.Play(this, pitch, volume, delay, startTime);
 
 			if (instance == null) {
 				return Thunk.INVALID_ID;
