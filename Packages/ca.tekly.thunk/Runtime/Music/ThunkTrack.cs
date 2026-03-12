@@ -5,6 +5,8 @@ namespace Tekly.Thunk.Music
 {
 	public class ThunkTrack
 	{
+		public ThunkEmitter Emitter => m_emitter;
+		
 		private readonly ThunkEmitter m_emitter;
 		private readonly List<int> m_musicStack = new List<int>();
 
@@ -16,7 +18,7 @@ namespace Tekly.Thunk.Music
 		/// <summary>
 		/// Immediately plays the clip, stopping the active clip
 		/// </summary>
-		public void Play(ThunkClip clip)
+		public int Play(ThunkClip clip)
 		{
 			if (TryPop(out var instanceId)) {
 				m_emitter.Stop(instanceId);
@@ -26,6 +28,8 @@ namespace Tekly.Thunk.Music
 			if (newInstanceId != Core.Thunk.INVALID_ID) {
 				m_musicStack.Add(newInstanceId);
 			}
+
+			return newInstanceId;
 		}
 
 		/// <summary>
