@@ -55,10 +55,34 @@ namespace Tekly.Common.LocalFiles
             return File.ReadAllText(filePath);
         }
         
+        public static bool TryReadAllText(string relativeFile, out string text)
+        {
+            var filePath = GetPath(relativeFile);
+            if (File.Exists(filePath)) {
+                text = File.ReadAllText(filePath);
+                return true;
+            }
+            
+            text = null;
+            return false;
+        }
+        
         public static byte[] ReadAllBytes(string relativeFile)
         {
             var filePath = GetPath(relativeFile);
             return File.ReadAllBytes(filePath);
+        }
+        
+        public static bool TryReadAllBytes(string relativeFile, out byte[] bytes)
+        {
+            var filePath = GetPath(relativeFile);
+            if (File.Exists(filePath)) {
+                bytes = File.ReadAllBytes(filePath);
+                return true;
+            }
+            
+            bytes = null;
+            return false;
         }
         
         public static void WriteAllText(string relativeFile, string text)
