@@ -34,7 +34,7 @@ namespace Tekly.Common.Presentables
 		public ITriggerable<PresentableState> StateChanged => m_stateChanged;
 
 		[Tooltip("Set the State to Hidden when the Presentable is disabled.")]
-		[SerializeField] private bool m_completeHideOnDisable;
+		[SerializeField] protected bool m_completeHideOnDisable;
 		
 		
 		private readonly Triggerable<PresentableState> m_stateChanged = new Triggerable<PresentableState>();
