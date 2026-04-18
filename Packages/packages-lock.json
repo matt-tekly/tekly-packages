@@ -112,6 +112,15 @@
         "ca.tekly.nsubstitute": "0.0.1"
       }
     },
+    "ca.tekly.leaf": {
+      "version": "file:ca.tekly.leaf",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "ca.tekly.logger": "0.0.7",
+        "ca.tekly.common": "0.0.1"
+      }
+    },
     "ca.tekly.liquid": {
       "version": "file:ca.tekly.liquid",
       "depth": 0,
@@ -217,16 +226,6 @@
       "source": "embedded",
       "dependencies": {}
     },
-    "ca.tekly.stagecraft": {
-      "version": "file:ca.tekly.stagecraft",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {
-        "ca.tekly.logger": "0.0.7",
-        "ca.tekly.common": "0.0.7",
-        "ca.tekly.editorutils": "0.0.1"
-      }
-    },
     "ca.tekly.superserial": {
       "version": "file:ca.tekly.superserial",
       "depth": 0,
@@ -325,7 +324,7 @@
       "dependencies": {}
     },
     "com.unity.addressables": {
-      "version": "2.8.0",
+      "version": "2.9.0",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -335,13 +334,13 @@
         "com.unity.modules.jsonserialize": "1.0.0",
         "com.unity.modules.imageconversion": "1.0.0",
         "com.unity.modules.unitywebrequest": "1.0.0",
-        "com.unity.scriptablebuildpipeline": "2.5.1",
+        "com.unity.scriptablebuildpipeline": "2.6.0",
         "com.unity.modules.unitywebrequestassetbundle": "1.0.0"
       },
       "url": "https://packages.unity.com"
     },
     "com.unity.ai.navigation": {
-      "version": "2.0.9",
+      "version": "2.0.10",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -350,7 +349,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.burst": {
-      "version": "1.8.27",
+      "version": "1.8.28",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -375,7 +374,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.inputsystem": {
-      "version": "1.17.0",
+      "version": "1.18.0",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -391,7 +390,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.mobile.notifications": {
-      "version": "2.4.2",
+      "version": "2.4.3",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -414,7 +413,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.scriptablebuildpipeline": {
-      "version": "2.5.1",
+      "version": "2.6.0",
       "depth": 2,
       "source": "registry",
       "dependencies": {
