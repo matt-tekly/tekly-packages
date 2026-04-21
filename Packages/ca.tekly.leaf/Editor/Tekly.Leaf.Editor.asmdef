@@ -1,0 +1,16 @@
+{
+    "name": "Tekly.Leaf.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:92e9d0c25e5487c4aaa6f9d67a9b913f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
