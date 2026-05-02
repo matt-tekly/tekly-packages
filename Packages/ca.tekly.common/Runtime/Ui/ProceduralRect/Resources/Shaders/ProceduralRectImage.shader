@@ -67,7 +67,7 @@
             {
                 float4 positionOS : POSITION;
                 float4 color      : COLOR;
-                float2 uv0        : TEXCOORD0;
+                float4 uv0        : TEXCOORD0;
                 float2 rectSize   : TEXCOORD1;
                 float2 packedData : TEXCOORD2;
                 float2 shapeData  : TEXCOORD3;
@@ -80,7 +80,7 @@
                 fixed4 color         : COLOR;
                 float4 localPosition : TEXCOORD0;
                 float4 cornerRadii   : TEXCOORD1;
-                float2 uv            : TEXCOORD2;
+                float4 uv            : TEXCOORD2;
                 float2 rectSize      : TEXCOORD3;
                 float  lineWeight    : TEXCOORD4;
                 float  aaScale       : TEXCOORD5;
@@ -146,7 +146,10 @@
 
                 OUT.localPosition = IN.positionOS;
                 OUT.positionCS = UnityObjectToClipPos(IN.positionOS);
-                OUT.uv = TRANSFORM_TEX(IN.uv0, _MainTex);
+                
+                OUT.uv.xy = TRANSFORM_TEX(IN.uv0.xy, _MainTex);
+                OUT.uv.zw = TRANSFORM_TEX(IN.uv0.zw, _MainTex); 
+                
                 OUT.rectSize = IN.rectSize;
 
                 float minSide = min(IN.rectSize.x, IN.rectSize.y);
@@ -174,7 +177,7 @@
 
             fixed4 frag(Varyings IN) : SV_Target
             {
-                half4 color = (tex2D(_MainTex, IN.uv) + _TextureSampleAdd) * IN.color;
+                half4 color = (tex2D(_MainTex, IN.uv.xy) + _TextureSampleAdd) * IN.color;
 
                 #ifdef UNITY_UI_CLIP_RECT
                 half2 maskFactor = saturate((_ClipRect.zw - _ClipRect.xy - abs(IN.mask.xy)) * IN.mask.zw);
@@ -185,7 +188,7 @@
                 clip(color.a - 0.001);
                 #endif
 
-                half insideDistance = RoundedRectInsideDistance(IN.uv * IN.rectSize, IN.cornerRadii, IN.rectSize);
+                half insideDistance = RoundedRectInsideDistance(IN.uv.zw * IN.rectSize, IN.cornerRadii, IN.rectSize);
                 color.a *= ComputeCoverage(insideDistance, IN.lineWeight, IN.aaScale, IN.falloffPower);
 
                 if (color.a <= 0)

@@ -19,23 +19,25 @@ namespace Tekly.Common.Ui.ProceduralRect
 		Left,
 		Right
 	}
-	
+
 	[AddComponentMenu("UI/Procedural Rect")]
 	public class ProceduralRectImage : Image
 	{
 		public const AdditionalCanvasShaderChannels NEEDED_SHADER_CHANNELS = AdditionalCanvasShaderChannels.TexCoord1 |
 		                                                                     AdditionalCanvasShaderChannels.TexCoord2 |
 		                                                                     AdditionalCanvasShaderChannels.TexCoord3;
-		
+
 		[SerializeField] private float m_borderWidth;
 		[SerializeField] private float m_falloffDistance = 1;
 		[SerializeField] private float m_falloffPower = 1;
-		
+
 		[SerializeField] private ModifierType m_modifierType = ModifierType.Uniform;
 		[SerializeField] private float m_radius = 20;
 		[SerializeField] private Vector4 m_freeRadius;
 		[SerializeField] private ProceduralRectEdge m_edge;
-		
+		[SerializeField] private bool m_tiled = true;
+		[SerializeField] private Vector2 m_tileFactor = new Vector2(1, 1);
+
 		private static Material s_materialInstance;
 
 		private static Material DefaultMaterial {
@@ -47,7 +49,7 @@ namespace Tekly.Common.Ui.ProceduralRect
 				return s_materialInstance;
 			}
 		}
-		
+
 		public float BorderWidth {
 			get => m_borderWidth;
 			set {
@@ -71,7 +73,7 @@ namespace Tekly.Common.Ui.ProceduralRect
 				SetVerticesDirty();
 			}
 		}
-		
+
 		public override Material material {
 			get => m_Material == null ? DefaultMaterial : base.material;
 			set => base.material = value;
@@ -85,8 +87,10 @@ namespace Tekly.Common.Ui.ProceduralRect
 			base.OnEnable();
 			FixTexCoordsInCanvas();
 			preserveAspect = false;
-			
-			sprite = EmptySprite.Get();
+
+			if (sprite == null) {
+				sprite = EmptySprite.Get();
+			}
 		}
 
 		private void FixTexCoordsInCanvas()
@@ -105,8 +109,12 @@ namespace Tekly.Common.Ui.ProceduralRect
 		{
 			var r = rectTransform.rect;
 			vec = new Vector4(Mathf.Max(vec.x, 0), Mathf.Max(vec.y, 0), Mathf.Max(vec.z, 0), Mathf.Max(vec.w, 0));
-			
-			var scaleFactor = Mathf.Min(Mathf.Min(Mathf.Min(Mathf.Min(r.width / (vec.x + vec.y), r.width / (vec.z + vec.w)), r.height / (vec.x + vec.w)), r.height / (vec.z + vec.y)), 1f);
+
+			var scaleFactor =
+				Mathf.Min(
+					Mathf.Min(
+						Mathf.Min(Mathf.Min(r.width / (vec.x + vec.y), r.width / (vec.z + vec.w)),
+							r.height / (vec.x + vec.w)), r.height / (vec.z + vec.y)), 1f);
 			return vec * scaleFactor;
 		}
 
@@ -176,21 +184,31 @@ namespace Tekly.Common.Ui.ProceduralRect
 			var vert = new UIVertex();
 
 			// Vertex channel layout:
+			// uv0 = uv possibly modified, uv default
 			// uv1 = rect width, rect height
 			// uv2 = packed corner radii: (TL, TR) and (BR, BL)
 			// uv3.x = packed shape mode/line weight and falloff power
 			// uv3.y = edge falloff scale
 			var uv1 = new Vector2(info.Width, info.Height);
-			var uv2 = new Vector2(EncodeFloats_0_1_16_16(info.Radius.x, info.Radius.y), EncodeFloats_0_1_16_16(info.Radius.z, info.Radius.w));
+			var uv2 = new Vector2(EncodeFloats_0_1_16_16(info.Radius.x, info.Radius.y),
+				EncodeFloats_0_1_16_16(info.Radius.z, info.Radius.w));
 
 			var shapeMode = info.BorderWidth == 0 ? 1f : Mathf.Clamp01(info.BorderWidth);
 			var normalizedFalloffPower = Mathf.InverseLerp(0.25f, 4f, info.FalloffPower);
 			var uv3 = new Vector2(EncodeFloats_0_1_16_16(shapeMode, normalizedFalloffPower), info.AAScale);
 
+			var rect = rectTransform.rect;
+			var spriteRect = sprite.rect;
+
+			var tileX = m_tiled ? rect.width / spriteRect.width * m_tileFactor.x : 1;
+			var tileY = m_tiled ? rect.height / spriteRect.height * m_tileFactor.y : 1;
+
 			for (var i = 0; i < vh.currentVertCount; i++) {
 				vh.PopulateUIVertex(ref vert, i);
 
-				vert.position += ((Vector3) vert.uv0 - new Vector3(0.5f, 0.5f)) * info.FallOffDistance;
+				var uv0 = vert.uv0;
+				vert.position += ((Vector3)uv0 - new Vector3(0.5f, 0.5f)) * info.FallOffDistance;
+				vert.uv0 = new Vector4(uv0.x * tileX, uv0.y * tileY, uv0.x, uv0.y);
 				vert.uv1 = uv1;
 				vert.uv2 = uv2;
 				vert.uv3 = uv3;
@@ -208,7 +226,7 @@ namespace Tekly.Common.Ui.ProceduralRect
 			return Vector2.Dot(new Vector2(Mathf.Floor(a * 65534) / 65535f, Mathf.Floor(b * 65534) / 65535f),
 				kDecodeDot);
 		}
-		
+
 #if UNITY_EDITOR
 		protected override void Reset()
 		{
@@ -218,19 +236,22 @@ namespace Tekly.Common.Ui.ProceduralRect
 			FixTexCoordsInCanvas();
 			SetAllDirty();
 		}
-		
+
 		protected override void OnValidate()
 		{
 			base.OnValidate();
-			
-			sprite = EmptySprite.Get();
+
+			if (sprite == null) {
+				sprite = EmptySprite.Get();
+			}
+
 			m_falloffDistance = Mathf.Max(0, m_falloffDistance);
 			m_borderWidth = Mathf.Max(0, m_borderWidth);
 			m_falloffPower = Mathf.Clamp(m_falloffPower, 0.25f, 4f);
 		}
 #endif
 	}
-	
+
 	public struct ProceduralRectInfo
 	{
 		public float Width;

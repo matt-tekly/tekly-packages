@@ -73,6 +73,11 @@ namespace Tekly.EditorUtils.Gui
             return new GuiLayoutTracker(horizontal, GUI.backgroundColor, EditorGuiStyles.Instance.SmallContainer);
         }
         
+        public static LabelWidthScope LabelWidth(float width)
+        {
+            return new LabelWidthScope(width);
+        }
+        
         public static bool PositiveButton(string text, params GUILayoutOption[] options)
         {
             return ColorButton(text, Color.green, options);

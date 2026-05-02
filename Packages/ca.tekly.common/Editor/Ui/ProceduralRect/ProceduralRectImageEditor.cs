@@ -19,7 +19,7 @@ namespace Tekly.Common.Ui.ProceduralRect
 		}
 		
 		private SerializedProperty m_borderWidth;
-		private SerializedProperty m_falloffDist;
+		private SerializedProperty m_falloffDistance;
 		private SerializedProperty m_falloffPower;
 
 		private SerializedProperty m_modifierType;
@@ -33,6 +33,8 @@ namespace Tekly.Common.Ui.ProceduralRect
 		private SerializedProperty m_fillClockwise;
 		private SerializedProperty m_type;
 		private SerializedProperty m_sprite;
+		private SerializedProperty m_tiled;
+		private SerializedProperty m_tileFactor;
 
 		private AnimBool m_showFilled;
 
@@ -51,15 +53,16 @@ namespace Tekly.Common.Ui.ProceduralRect
 			m_fillClockwise = serializedObject.FindProperty("m_FillClockwise");
 			m_fillAmount = serializedObject.FindProperty("m_FillAmount");
 			m_sprite = serializedObject.FindProperty("m_Sprite");
-			m_sprite = serializedObject.FindProperty("m_Sprite");
-
+			m_tiled = serializedObject.FindProperty("m_tiled");
+			m_tileFactor = serializedObject.FindProperty("m_tileFactor");
+			
 			var typeEnum = (Image.Type) m_type.enumValueIndex;
 
 			m_showFilled = new AnimBool(!m_type.hasMultipleDifferentValues && typeEnum == Image.Type.Filled);
 			m_showFilled.valueChanged.AddListener(Repaint);
 
 			m_borderWidth = serializedObject.FindProperty("m_borderWidth");
-			m_falloffDist = serializedObject.FindProperty("m_falloffDistance");
+			m_falloffDistance = serializedObject.FindProperty("m_falloffDistance");
 			m_falloffPower = serializedObject.FindProperty("m_falloffPower");
 			
 			m_modifierType = serializedObject.FindProperty("m_modifierType");
@@ -74,6 +77,7 @@ namespace Tekly.Common.Ui.ProceduralRect
 		{
 			serializedObject.Update();
 			
+			EditorGUILayout.PropertyField(m_sprite);
 			EditorGUILayout.PropertyField(m_Color);
 
 			RaycastControlsGUI();
@@ -121,9 +125,25 @@ namespace Tekly.Common.Ui.ProceduralRect
 			EditorGUILayout.Space();
 			
 			EditorGUILayout.PropertyField(m_borderWidth);
-			EditorGUILayout.PropertyField(m_falloffDist);
-			EditorGUILayout.PropertyField(m_falloffPower);
 			
+			using (EditorGuiExt.Horizontal()) {
+				EditorGUILayout.PrefixLabel("Falloff");
+
+				using var _ = EditorGuiExt.LabelWidth(60);
+				EditorGUILayout.PropertyField(m_falloffDistance, new GUIContent("Distance"));
+				EditorGUILayout.PropertyField(m_falloffPower, new GUIContent("Power"));
+			}
+
+			using (EditorGuiExt.Horizontal()) {
+				EditorGUILayout.PrefixLabel("Tiled");
+				EditorGUILayout.PropertyField(m_tiled, GUIContent.none, GUILayout.Width(16));
+				using (EditorGuiExt.EnabledBlock(m_tiled.boolValue)){
+					using var _ = EditorGuiExt.LabelWidth(18);
+					EditorGUILayout.PropertyField(m_tileFactor.FindPropertyRelative("x"), new GUIContent("\u2194"));
+					EditorGUILayout.PropertyField(m_tileFactor.FindPropertyRelative("y"), new GUIContent("\u2195"));
+				}
+			}
+
 			serializedObject.ApplyModifiedProperties();
 		}
 		
