@@ -40,6 +40,7 @@ namespace Tekly.Leaf.Elements
 
 		public override void OnMove(AxisEventData eventData)
 		{
+			// TODO: Handle slider alignment axis
 			switch (eventData.moveDir) {
 				case MoveDirection.Left:
 				case MoveDirection.Right:
@@ -48,15 +49,11 @@ namespace Tekly.Leaf.Elements
 
 				case MoveDirection.Up:
 				case MoveDirection.Down:
-					if (m_leaf != null && m_leaf.TryNavigate(eventData)) {
-						return;
+					if (m_leaf != null) {
+						m_leaf.TryNavigate(eventData);	
 					}
-
-					base.OnMove(eventData);
 					return;
 			}
-
-			// base.OnMove(eventData);
 		}
 	}
 }

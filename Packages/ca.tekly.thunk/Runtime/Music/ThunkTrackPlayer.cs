@@ -1,5 +1,4 @@
-﻿using System;
-using Tekly.Thunk.Core;
+﻿using Tekly.Thunk.Core;
 using UnityEngine;
 
 namespace Tekly.Thunk.Music
@@ -10,6 +9,7 @@ namespace Tekly.Thunk.Music
 		[SerializeField] private string m_trackId;
 		[SerializeField] private bool m_push;
 		[SerializeField] private float m_fadeInDuration;
+		[SerializeField] private bool m_autoPlay;
 		
 		private int m_instanceId;
 		private ThunkTrack m_track;
@@ -18,7 +18,14 @@ namespace Tekly.Thunk.Music
 		{
 			m_track = Core.Thunk.Instance.TrackManager.GetTrack(m_trackId);
 		}
-		
+
+		private void OnEnable()
+		{
+			if (m_autoPlay) {
+				Play();
+			}
+		}
+
 		[ContextMenu(nameof(Play))]
 		public void Play()
 		{

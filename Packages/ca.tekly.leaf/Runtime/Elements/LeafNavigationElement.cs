@@ -3,6 +3,9 @@ using UnityEngine.UI;
 
 namespace Tekly.Leaf.Elements
 {
+	/// <summary>
+	/// Represents an object that can be navigated to and selected
+	/// </summary>
 	public class LeafNavigationElement : UIBehaviour
 	{
 		public LeafNavigationScope Scope => m_scope;
@@ -48,8 +51,7 @@ namespace Tekly.Leaf.Elements
 		{
 			return m_selectable != null &&
 			       m_selectable.gameObject.activeInHierarchy &&
-			       m_selectable.IsInteractable() &&
-			       m_selectable.navigation.mode != Navigation.Mode.None;
+			       m_selectable.IsInteractable();
 		}
 
 		public bool TryNavigate(AxisEventData eventData)

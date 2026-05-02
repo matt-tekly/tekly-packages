@@ -1,17 +1,31 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 namespace Tekly.Leaf.Elements
 {
 	public class LeafNavigationScope : MonoBehaviour
 	{
+		public LeafElementSelectedEvent OnSelected
+		{
+			get => m_onSelected;
+			set => m_onSelected = value;
+		}
+		
+		[Serializable]
+		public class LeafElementSelectedEvent : UnityEvent<GameObject> {}
+
+		[SerializeField] private LeafElementSelectedEvent m_onSelected = new();
 		[SerializeField] private bool m_wrapHorizontal = true;
 		[SerializeField] private bool m_wrapVertical = true;
 
 		private readonly HashSet<LeafNavigationElement> m_selectables = new();
 
-		private GameObject m_lastSelected;
+		private GameObject m_lastValidSelection;
+		private GameObject m_lastSelection;
+		private GameObject m_lastEventSystemSelection;
 
 		private void OnEnable()
 		{
@@ -20,8 +34,8 @@ namespace Tekly.Leaf.Elements
 
 		public void SelectGameObject()
 		{
-			if (m_lastSelected != null) {
-				EventSystem.current.SetSelectedGameObject(m_lastSelected);
+			if (m_lastValidSelection != null) {
+				EventSystem.current.SetSelectedGameObject(m_lastValidSelection);
 			}
 		}
 
@@ -33,7 +47,10 @@ namespace Tekly.Leaf.Elements
 
 			m_selectables.Add(navigationElement);
 
-			m_lastSelected = navigationElement.gameObject;
+			if (m_lastValidSelection == null) {
+				m_lastValidSelection = navigationElement.gameObject;	
+			}
+			
 			if (EventSystem.current.currentSelectedGameObject == null) {
 				SelectGameObject();
 			}
@@ -46,6 +63,11 @@ namespace Tekly.Leaf.Elements
 			}
 
 			m_selectables.Remove(navigationElement);
+
+			if (m_lastValidSelection == navigationElement.gameObject) {
+				m_lastValidSelection = null;
+				// TODO: Should we try to find a next valid selection?
+			}
 		}
 
 		public virtual LeafNavigationElement FindNext(LeafNavigationElement current, MoveDirection direction)
@@ -150,11 +172,7 @@ namespace Tekly.Leaf.Elements
 				return false;
 			}
 
-			if (!navigationElement.gameObject.activeInHierarchy) {
-				return false;
-			}
-
-			return true;
+			return navigationElement.IsNavigationCandidate();
 		}
 
 		private void Update()
@@ -165,8 +183,25 @@ namespace Tekly.Leaf.Elements
 			}
 
 			var currentGo = eventSystem.currentSelectedGameObject;
-			if (currentGo != null && currentGo != m_lastSelected && currentGo.transform.IsChildOf(transform)) {
-				m_lastSelected =  currentGo;
+
+			if (m_lastEventSystemSelection == currentGo) {
+				return;
+			}
+			m_lastEventSystemSelection = currentGo;
+			EventSystemSelectionChanged(m_lastEventSystemSelection);
+		}
+
+		private void EventSystemSelectionChanged(GameObject newSelection)
+		{
+			var isChild = newSelection != null && newSelection.transform.IsChildOf(transform);
+
+			if (isChild) {
+				m_lastValidSelection = newSelection;
+			}
+
+			if (m_lastSelection != newSelection) {
+				m_lastSelection = isChild ? newSelection : null;
+				m_onSelected?.Invoke(m_lastSelection);
 			}
 		}
 

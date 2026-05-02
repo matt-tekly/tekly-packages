@@ -4,9 +4,11 @@ using UnityEngine.EventSystems;
 
 namespace Tekly.Leaf.Elements.Radios
 {
+	// TODO: This needs a way to not be selectable, or I need to make something like tabs
 	public class LeafRadioGroup : LeafSelectable
 	{
 		[SerializeField] private LeafRadioOption[] m_options;
+		[SerializeField] private bool m_selectOnOptionClicked = true;
 
 		private LeafRadioOption m_currentOption;
 
@@ -56,8 +58,10 @@ namespace Tekly.Leaf.Elements.Radios
 
 		public void OnOptionClicked(LeafRadioOption option)
 		{
-			Select();
-
+			if (m_selectOnOptionClicked) {
+				Select();	
+			}
+			
 			TurnOffCurrentOption();
 
 			m_currentOption = option;

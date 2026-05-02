@@ -3,6 +3,8 @@ using Tekly.Common.LifeCycles;
 using Tekly.Common.Utils;
 using Tekly.Thunk.Music;
 using UnityEngine;
+using UnityEngine.AdaptivePerformance;
+using UnityEngine.Audio;
 using Object = UnityEngine.Object;
 
 namespace Tekly.Thunk.Core
@@ -44,7 +46,18 @@ namespace Tekly.Thunk.Core
         {
             ClipStateManager.Dispose();
         }
-
+        
+        public static void SetVolume(AudioMixer mixer, string id, double linearValue)
+        {
+            mixer.SetFloat(id, ToDecibel((float)linearValue));
+        }
+		
+        public static float GetVolume(AudioMixer mixer, string id)
+        {
+            mixer.GetFloat(id, out var volume);
+            return ToLinear(volume);
+        }
+        
         private ThunkEmitter CreateEmitter(string name)
         {
             if (m_oneShotEmitter == null) {
@@ -55,6 +68,16 @@ namespace Tekly.Thunk.Core
             }
 
             return m_oneShotEmitter;
+        }
+        
+        public static float ToDecibel(float linear)
+        {
+            return linear > 0 ? 20.0f * Mathf.Log10(linear) : -144.0f;
+        }
+
+        public static float ToLinear(float decibel)
+        {
+            return Mathf.Pow(10.0f, decibel / 20.0f);
         }
     }
 }

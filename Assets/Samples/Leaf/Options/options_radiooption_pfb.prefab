@@ -103,6 +103,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_group: {fileID: 0}
+  m_onValueChanged:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &942433489991522120
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -124,7 +127,7 @@ MonoBehaviour:
       m_SelectedColor: {r: 0.57254905, g: 0.5137255, b: 0.454902, a: 1}
       m_DisabledColor: {r: 0.285, g: 0.2600625, b: 0.2458125, a: 1}
       m_ColorMultiplier: 1
-      m_FadeDuration: 0.05
+      m_FadeDuration: 0.1
     m_requiredToBeOn: 1
   - m_target: {fileID: 4290264171243184117}
     m_colors:
@@ -134,7 +137,7 @@ MonoBehaviour:
       m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
       m_DisabledColor: {r: 0.92156863, g: 0.85882354, b: 0.69803923, a: 0.5019608}
       m_ColorMultiplier: 1
-      m_FadeDuration: 0.05
+      m_FadeDuration: 0.1
     m_requiredToBeOn: 0
 --- !u!1 &1417932230543685513
 GameObject:
@@ -153,7 +156,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2082766549314760511
 RectTransform:
   m_ObjectHideFlags: 0

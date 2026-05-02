@@ -1,51 +1,73 @@
 ﻿using System;
-using Tekly.Leaf.Elements.Animators;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 namespace Tekly.Leaf.Elements
 {
-	public class LeafButton : Button
-	{
-		[SerializeField] private LeafAnimator m_animator;
-		
-		private LeafNavigationElement m_leaf;
+	public class LeafButton : LeafSelectable, IPointerClickHandler, ISubmitHandler
+    {
+        [Serializable]
+        public class ButtonClickedEvent : UnityEvent {}
 
-		protected override void Awake()
-		{
-			base.Awake();
-			m_leaf = GetComponent<LeafNavigationElement>();
-		}
+        [SerializeField] private ButtonClickedEvent m_onClick = new();
+        
+        public ButtonClickedEvent OnClick
+        {
+            get => m_onClick;
+            set => m_onClick = value;
+        }
 
-		public override void OnMove(AxisEventData eventData)
-		{
-			if (m_leaf != null && m_leaf.TryNavigate(eventData)) {
-				return;
-			}
+        protected virtual void Press()
+        {
+	        if (!IsActive() || !IsInteractable()) {
+		        return;
+	        }
+	        
+            UISystemProfilerApi.AddMarker("Button.OnPress", this);
+            OnPress();
+        }
+        
+        protected virtual void OnPress()
+        {
+	        m_onClick.Invoke();
+        }
+        
+        public virtual void OnPointerClick(PointerEventData eventData)
+        {
+            if (eventData.button != PointerEventData.InputButton.Left) {
+	            return;
+            }
 
-			// base.OnMove(eventData);
-		}
+            Press();
+        }
+        public virtual void OnSubmit(BaseEventData eventData)
+        {
+            Press();
 
-		protected override void DoStateTransition(SelectionState state, bool instant)
-		{
-			if (m_animator == null) {
-				base.DoStateTransition(state, instant);	
-			} else {
-				m_animator.HandleMode(Convert(state), false, instant);
-			}
-		}
+            // if we get set disabled during the press
+            // don't run the coroutine.
+            if (!IsActive() || !IsInteractable()) {
+	            return;
+            }
 
-		private static LeafElementMode Convert(SelectionState state)
-		{
-			return state switch {
-				SelectionState.Normal => LeafElementMode.Normal,
-				SelectionState.Highlighted => LeafElementMode.Highlighted,
-				SelectionState.Pressed => LeafElementMode.Pressed,
-				SelectionState.Selected => LeafElementMode.Selected,
-				SelectionState.Disabled => LeafElementMode.Disabled,
-				_ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
-			};
-		}
+            DoStateTransition(SelectionState.Pressed, false);
+            StartCoroutine(OnFinishSubmit());
+        }
+
+        private IEnumerator OnFinishSubmit()
+        {
+            var fadeTime = colors.fadeDuration;
+            var elapsedTime = 0f;
+
+            while (elapsedTime < fadeTime)
+            {
+                elapsedTime += Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            DoStateTransition(currentSelectionState, false);
+        }
 	}
 }

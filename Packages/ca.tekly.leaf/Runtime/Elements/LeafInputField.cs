@@ -19,11 +19,9 @@ namespace Tekly.Leaf.Elements
 				return;
 			}
 			
-			if (m_leaf != null && m_leaf.TryNavigate(eventData)) {
-				return;
+			if (m_leaf != null) {
+				m_leaf.TryNavigate(eventData);	
 			}
-				
-			// base.OnMove(eventData);
 		}
 	}
 }

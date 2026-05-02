@@ -55,10 +55,10 @@ namespace Tekly.Leaf.Elements
 		private bool m_groupsAllowInteraction = true;
 
 		private static readonly List<CanvasGroup> s_canvasGroupCache = new();
-
-
+		
 		protected override void OnEnable()
 		{
+			m_groupsAllowInteraction = ParentGroupAllowsInteraction();
 			UpdateAnimatorMode(CurrentMode, true);
 		}
 
@@ -148,14 +148,7 @@ namespace Tekly.Leaf.Elements
 		{
 			m_clicked.Invoke();
 		}
-
-		private void SetDeselectOnBackgroundClick(bool value)
-		{
-			if (EventSystem.current.currentInputModule is InputSystemUIInputModule module) {
-				module.deselectOnBackgroundClick = value;
-			}
-		}
-
+		
 		protected virtual void UpdateAnimatorMode(LeafElementMode mode, bool instant)
 		{
 			if (m_animator != null) {
@@ -167,8 +160,15 @@ namespace Tekly.Leaf.Elements
 		{
 			UpdateAnimatorMode(CurrentMode, false);
 		}
+		
+		private static void SetDeselectOnBackgroundClick(bool value)
+		{
+			if (EventSystem.current.currentInputModule is InputSystemUIInputModule module) {
+				module.deselectOnBackgroundClick = value;
+			}
+		}
 
-		private bool GetDeselectOnBackgroundClick()
+		private static bool GetDeselectOnBackgroundClick()
 		{
 			if (EventSystem.current.currentInputModule is InputSystemUIInputModule module) {
 				return module.deselectOnBackgroundClick;

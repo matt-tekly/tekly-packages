@@ -8,7 +8,7 @@ namespace Tekly.Leaf.Elements.Animators
 	public class LeafAnimatorColorTarget
 	{
 		[SerializeField] private Graphic m_target;
-		[SerializeField] private ColorBlock m_colors;
+		[SerializeField] private ColorBlock m_colors = ColorBlock.defaultColorBlock;
 		[SerializeField] private bool m_requiredToBeOn;
 
 		public void HandleMode(LeafElementMode mode, bool on, bool instant)
@@ -38,10 +38,10 @@ namespace Tekly.Leaf.Elements.Animators
 	{
 		[SerializeField] private LeafAnimatorColorTarget[] m_targets;
 
-		public override void HandleMode(LeafElementMode mode, bool on, bool instant)
+		protected override void OnHandleMode(LeafElementMode current, LeafElementMode previous, bool on, bool instant)
 		{
 			foreach (var target in m_targets) {
-				target.HandleMode(mode, on, instant);
+				target.HandleMode(current, on, instant);
 			}
 		}
 	}
