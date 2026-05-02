@@ -133,6 +133,22 @@ namespace Tekly.DataModels.Models
 
 			return model;
 		}
+		
+		public RangeModel AddRange(string name, float value, float min, float max)
+		{
+			var model = new RangeModel(value, min, max);
+			Add(name, model);
+
+			return model;
+		}
+		
+		public RangeModel AddRange(string name, double value, double min, double max)
+		{
+			var model = new RangeModel(value, min, max);
+			Add(name, model);
+
+			return model;
+		}
 
 		public SpriteValueModel Add(string name, Sprite value)
 		{

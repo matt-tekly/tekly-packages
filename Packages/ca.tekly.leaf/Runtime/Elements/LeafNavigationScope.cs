@@ -20,15 +20,17 @@ namespace Tekly.Leaf.Elements
 		[SerializeField] private LeafElementSelectedEvent m_onSelected = new();
 		[SerializeField] private bool m_wrapHorizontal = true;
 		[SerializeField] private bool m_wrapVertical = true;
+		[SerializeField] private GameObject m_firstSelection;
 
 		private readonly HashSet<LeafNavigationElement> m_selectables = new();
 
-		private GameObject m_lastValidSelection;
-		private GameObject m_lastSelection;
-		private GameObject m_lastEventSystemSelection;
+		[NonSerialized] private GameObject m_lastValidSelection;
+		[NonSerialized] private GameObject m_lastSelection;
+		[NonSerialized] private GameObject m_lastEventSystemSelection;
 
 		private void OnEnable()
 		{
+			m_lastValidSelection = m_firstSelection;
 			SelectGameObject();
 		}
 
@@ -36,6 +38,8 @@ namespace Tekly.Leaf.Elements
 		{
 			if (m_lastValidSelection != null) {
 				EventSystem.current.SetSelectedGameObject(m_lastValidSelection);
+			} else if (m_firstSelection != null) {
+				EventSystem.current.SetSelectedGameObject(m_firstSelection);
 			}
 		}
 

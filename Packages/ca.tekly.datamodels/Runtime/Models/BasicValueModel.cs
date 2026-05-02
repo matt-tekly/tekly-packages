@@ -85,6 +85,11 @@ namespace Tekly.DataModels.Models
         {
             sb.Append(Value.ToString());
         }
+        
+        public IDisposable SubscribeFloat(Action<float> observer)
+        {
+            return Subscribe(value => observer.Invoke((float)value));
+        }
 
         protected override string OnToDisplayString()
         {

@@ -1,3 +1,4 @@
+using Tekly.Common.Maths;
 using Tekly.Common.Utils;
 using Tekly.DataModels.Models;
 using Tekly.Thunk.Core;
@@ -21,9 +22,12 @@ namespace TeklySample.Samples.Leaf
         public VolumeOptionModel(AudioMixer mixer, GameSettingsVolume volumeSetting)
         {
             Add("name", volumeSetting.Name);
-            var value = Add("value", Thunk.GetVolume(mixer, volumeSetting.Parameter));
-            value.Subscribe(volume => {
-                Thunk.SetVolume(mixer, volumeSetting.Parameter, volume);
+            
+            var startingVolume = Thunk.GetVolume(mixer, volumeSetting.Parameter);
+            var value = AddRange("value", MathUtils.Lerp(0, 100, startingVolume), 0, 100);
+            
+            value.Subscribe(_ => {
+                Thunk.SetVolume(mixer, volumeSetting.Parameter, value.CurrentRatio);
             }).AddTo(m_disposables);
         }
     }

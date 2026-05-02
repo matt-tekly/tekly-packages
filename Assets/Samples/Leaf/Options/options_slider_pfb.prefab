@@ -1,5 +1,162 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &365723666982962113
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7333346977151155041}
+  - component: {fileID: 5527781560890283350}
+  - component: {fileID: 223702772127547149}
+  - component: {fileID: 9146077326035711613}
+  m_Layer: 5
+  m_Name: Label
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &7333346977151155041
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 365723666982962113}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1185676249432793682}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 150, y: 40}
+  m_Pivot: {x: 0.5, y: 0}
+--- !u!222 &5527781560890283350
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 365723666982962113}
+  m_CullTransparentMesh: 1
+--- !u!114 &223702772127547149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 365723666982962113}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: 5
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: 802d1797ecd8f8840aece81a4031fcdb, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 46d731c98e1a7aa448cab9f4d1f9acd0, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 32
+  m_fontSizeBase: 32
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 0
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 256
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_characterHorizontalScale: 1
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &9146077326035711613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 365723666982962113}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cce83774eba3425bb0ec02f379233de3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Tekly.DataModels.Runtime::Tekly.DataModels.Binders.FormattedStringBinder
+  m_keys:
+  - Path: '*.value'
+  m_format: '{0:N0}'
+  m_text: {fileID: 223702772127547149}
+  m_onTextSet:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &2546767938804846093
 GameObject:
   m_ObjectHideFlags: 0
@@ -31,6 +188,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4603148036554471109}
+  - {fileID: 7333346977151155041}
   m_Father: {fileID: 7238187808643596127}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -83,6 +241,8 @@ MonoBehaviour:
   m_radius: 20
   m_freeRadius: {x: 0, y: 0, z: 0, w: 0}
   m_edge: 0
+  m_tiled: 1
+  m_tileFactor: {x: 1, y: 1}
 --- !u!1 &2859573490821852566
 GameObject:
   m_ObjectHideFlags: 0
@@ -183,7 +343,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 512
+  m_VerticalAlignment: 4096
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -303,6 +463,8 @@ MonoBehaviour:
   m_radius: 20
   m_freeRadius: {x: 0, y: 0, z: 0, w: 0}
   m_edge: 0
+  m_tiled: 1
+  m_tileFactor: {x: 1, y: 1}
 --- !u!114 &4509838171457423460
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -437,7 +599,7 @@ GameObject:
   - component: {fileID: 2198948597690358418}
   - component: {fileID: 8272529634056141273}
   m_Layer: 5
-  m_Name: Handle_01
+  m_Name: HandleCircle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -507,6 +669,8 @@ MonoBehaviour:
   m_radius: 20
   m_freeRadius: {x: 0, y: 0, z: 0, w: 0}
   m_edge: 0
+  m_tiled: 1
+  m_tileFactor: {x: 1, y: 1}
 --- !u!114 &8272529634056141273
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -639,6 +803,8 @@ MonoBehaviour:
   m_radius: 20
   m_freeRadius: {x: 0, y: 0, z: 0, w: 0}
   m_edge: 0
+  m_tiled: 1
+  m_tileFactor: {x: 1, y: 1}
 --- !u!1 &8382644092390578977
 GameObject:
   m_ObjectHideFlags: 0
@@ -727,6 +893,8 @@ GameObject:
   - component: {fileID: 6078433514825324741}
   - component: {fileID: 3297472803799479645}
   - component: {fileID: 6150767992020596920}
+  - component: {fileID: 7717353906157592660}
+  - component: {fileID: 1202536471646142729}
   m_Layer: 5
   m_Name: options_slider_pfb
   m_TagString: Untagged
@@ -862,6 +1030,50 @@ MonoBehaviour:
       m_ColorMultiplier: 1
       m_FadeDuration: 0.1
     m_requiredToBeOn: 0
+  - m_target: {fileID: 223702772127547149}
+    m_colors:
+      m_NormalColor: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 0}
+      m_HighlightedColor: {r: 0.447, g: 0.4078875, b: 0.3855375, a: 0}
+      m_PressedColor: {r: 1, g: 1, b: 1, a: 1}
+      m_SelectedColor: {r: 1, g: 1, b: 1, a: 0}
+      m_DisabledColor: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 0}
+      m_ColorMultiplier: 1
+      m_FadeDuration: 0.3
+    m_requiredToBeOn: 0
+--- !u!114 &7717353906157592660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8772472958176704726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2b69f62b4648aaa74977b139fdbc17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Tekly.DataModels.Runtime::Tekly.DataModels.Binders.BinderContainer
+  m_key:
+    Path: 
+  m_bindOnEnable: 0
+  m_unbindOnDisable: 1
+  m_binders:
+  - {fileID: 1202536471646142729}
+  - {fileID: 9146077326035711613}
+--- !u!114 &1202536471646142729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8772472958176704726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e855971088a954489f189f0b90501b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TeklySample.Samples.Leaf.LeafSliderBinder
+  m_slider: {fileID: 3297472803799479645}
+  m_key:
+    Path: '*'
 --- !u!1 &8852981345472643074
 GameObject:
   m_ObjectHideFlags: 0

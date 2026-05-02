@@ -16,6 +16,16 @@ namespace Tekly.Common.Maths
         {
             return a + (b - a) * Mathf.Clamp01(t);
         }
+        
+        public static double Lerp(double a, double b, double t)
+        {
+            return a + (b - a) * Math.Clamp(0, 1, t);
+        }
+        
+        public static double InverseLerp(double a, double b, double value)
+        {
+            return IsApproximately(a, b) ? 0 : Mathf.Clamp01((float)((value - a) / (b - a)));
+        }
 
         public static Vector3 Vector3(this float value)
         {
