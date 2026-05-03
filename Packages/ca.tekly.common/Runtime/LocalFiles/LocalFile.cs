@@ -164,5 +164,12 @@ namespace Tekly.Common.LocalFiles
             
             File.Move(sourceFilePath, destinationFilePath);
         }
+
+        public static long GetSize(string filePath)
+        {
+            var localFilePath = GetPath(filePath);
+            var info = new FileInfo(localFilePath);
+            return info.Exists ? info.Length : 0;
+        }
     }
 }
