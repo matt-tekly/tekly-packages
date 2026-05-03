@@ -5,7 +5,7 @@ using Tekly.Leaf.Elements;
 using Tekly.Logging;
 using UnityEngine;
 
-namespace TeklySample.Samples.Leaf
+namespace Tekly.Leaf.Binders
 {
 	public class LeafButtonBinder : BasicBinder<ButtonModel>
 	{
@@ -47,7 +47,6 @@ namespace TeklySample.Samples.Leaf
 
 		private void Activate()
 		{
-			Debug.Log(name + ": Activate");
 			if (m_model != null) {
 				m_model.Activate();
 			} else {

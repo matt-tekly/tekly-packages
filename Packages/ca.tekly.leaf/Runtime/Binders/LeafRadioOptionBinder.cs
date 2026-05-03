@@ -3,7 +3,7 @@ using Tekly.Leaf.Elements.Radios;
 using Tekly.Logging;
 using UnityEngine;
 
-namespace TeklySample.Samples.Leaf
+namespace Tekly.Leaf.Binders
 {
 	public class LeafRadioOptionBinder : BasicValueBinder<bool>
 	{

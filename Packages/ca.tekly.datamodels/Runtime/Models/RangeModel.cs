@@ -10,7 +10,7 @@ namespace Tekly.DataModels.Models
 			get => MathUtils.InverseLerp(m_min.Value, m_max.Value, m_current.Value);
 			set => m_current.Value = MathUtils.Lerp(m_min.Value, m_max.Value, value);
 		}
-		
+
 		public double Value => m_current.Value;
 
 		public NumberValueModel Current => m_current;
@@ -32,9 +32,15 @@ namespace Tekly.DataModels.Models
 		{
 			return m_current.Subscribe(observer);
 		}
+
 		public IDisposable Subscribe(Action<double> observer)
 		{
 			return m_current.Subscribe(observer);
+		}
+
+		public IDisposable SubscribeChanges(Action<double> observer)
+		{
+			return m_current.SubscribeChanges(observer);
 		}
 	}
 }

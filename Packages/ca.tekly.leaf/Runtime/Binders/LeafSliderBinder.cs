@@ -4,7 +4,7 @@ using Tekly.DataModels.Models;
 using Tekly.Leaf.Elements;
 using UnityEngine;
 
-namespace TeklySample.Samples.Leaf
+namespace Tekly.Leaf.Binders
 {
 	public class LeafSliderBinder : Binder
 	{

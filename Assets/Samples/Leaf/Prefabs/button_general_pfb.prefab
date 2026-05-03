@@ -156,6 +156,8 @@ MonoBehaviour:
   m_radius: 16
   m_freeRadius: {x: 0, y: 0, z: 0, w: 0}
   m_edge: 3
+  m_tiled: 1
+  m_tileFactor: {x: 1, y: 1}
 --- !u!1 &4493653442169285976
 GameObject:
   m_ObjectHideFlags: 0
@@ -238,6 +240,8 @@ MonoBehaviour:
   m_radius: 16
   m_freeRadius: {x: 0, y: 0, z: 0, w: 0}
   m_edge: 0
+  m_tiled: 1
+  m_tileFactor: {x: 1, y: 1}
 --- !u!1 &5058956244527855441
 GameObject:
   m_ObjectHideFlags: 0
@@ -514,10 +518,14 @@ MonoBehaviour:
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 5332378326613552775}
-  m_OnClick:
+  m_onSelected:
     m_PersistentCalls:
       m_Calls: []
   m_animator: {fileID: 3968466219137490111}
+  m_pressDelay: 0.1
+  m_onClick:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &3968466219137490111
 MonoBehaviour:
   m_ObjectHideFlags: 0

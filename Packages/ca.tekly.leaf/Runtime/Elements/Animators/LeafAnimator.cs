@@ -17,6 +17,7 @@ namespace Tekly.Leaf.Elements.Animators
 		
 		public void HandleMode(LeafElementMode mode, bool on, bool instant)
 		{
+			Debug.Log($"HandleMode [{mode}] [{on}] [{instant}]");
 			OnHandleMode(mode, m_previousMode, on, instant);
 			m_previousMode = mode;
 		}

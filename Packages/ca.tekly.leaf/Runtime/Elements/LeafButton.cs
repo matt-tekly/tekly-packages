@@ -7,67 +7,71 @@ using UnityEngine.EventSystems;
 namespace Tekly.Leaf.Elements
 {
 	public class LeafButton : LeafSelectable, IPointerClickHandler, ISubmitHandler
-    {
-        [Serializable]
-        public class ButtonClickedEvent : UnityEvent {}
+	{
+		[Tooltip("Add delay to when the press or submit is processed")]
+		[SerializeField] private float m_pressDelay;
+		
+		[Serializable]
+		public class ButtonClickedEvent : UnityEvent { }
 
-        [SerializeField] private ButtonClickedEvent m_onClick = new();
-        
-        public ButtonClickedEvent OnClick
-        {
-            get => m_onClick;
-            set => m_onClick = value;
-        }
+		[SerializeField] private ButtonClickedEvent m_onClick = new();
 
-        protected virtual void Press()
-        {
-	        if (!IsActive() || !IsInteractable()) {
-		        return;
-	        }
-	        
-            UISystemProfilerApi.AddMarker("Button.OnPress", this);
-            OnPress();
-        }
-        
-        protected virtual void OnPress()
-        {
-	        m_onClick.Invoke();
-        }
-        
-        public virtual void OnPointerClick(PointerEventData eventData)
-        {
-            if (eventData.button != PointerEventData.InputButton.Left) {
-	            return;
-            }
+		public ButtonClickedEvent OnClick {
+			get => m_onClick;
+			set => m_onClick = value;
+		}
 
-            Press();
-        }
-        public virtual void OnSubmit(BaseEventData eventData)
-        {
-            Press();
+		protected virtual void Press()
+		{
+			if (!IsActive() || !IsInteractable()) {
+				return;
+			}
 
-            // if we get set disabled during the press
-            // don't run the coroutine.
-            if (!IsActive() || !IsInteractable()) {
-	            return;
-            }
+			UISystemProfilerApi.AddMarker("Button.OnPress", this);
+			OnPress();
+		}
 
-            DoStateTransition(SelectionState.Pressed, false);
-            StartCoroutine(OnFinishSubmit());
-        }
+		protected virtual void OnPress()
+		{
+			m_onClick.Invoke();
+		}
 
-        private IEnumerator OnFinishSubmit()
-        {
-            var fadeTime = colors.fadeDuration;
-            var elapsedTime = 0f;
+		public virtual void OnPointerClick(PointerEventData eventData)
+		{
+			if (eventData.button != PointerEventData.InputButton.Left) {
+				return;
+			}
 
-            while (elapsedTime < fadeTime)
-            {
-                elapsedTime += Time.unscaledDeltaTime;
-                yield return null;
-            }
+			if (m_pressDelay > 0) {
+				StartCoroutine(PressDelayCoroutine(m_pressDelay));
+			} else {
+				Press();	
+			}
+		}
 
-            DoStateTransition(currentSelectionState, false);
-        }
+		public virtual void OnSubmit(BaseEventData eventData)
+		{
+			DoStateTransition(SelectionState.Pressed, false);
+			StartCoroutine(PressDelayCoroutine(3f));
+		}
+
+		private IEnumerator PressDelayCoroutine(float delay)
+		{
+			yield return null;
+			
+			using (LeafCore.Instance.DisableEventSystemScope(this)) {
+				var fadeTime = delay;
+				var elapsedTime = 0f;
+
+				while (elapsedTime < fadeTime) {
+					elapsedTime += Time.unscaledDeltaTime;
+					yield return null;
+				}
+			}
+			
+			DoStateTransition(currentSelectionState, false);
+			
+			Press();
+		}
 	}
 }

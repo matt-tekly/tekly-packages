@@ -6,6 +6,7 @@ namespace Tekly.Common.Observables
 	public interface IObservableValue<T> : ITriggerable<T>
 	{
 		T Value { get; }
+		IDisposable SubscribeChanges(Action<T> observer);
 	}
 
 	public class ObservableValue<T> : IObservableValue<T>
