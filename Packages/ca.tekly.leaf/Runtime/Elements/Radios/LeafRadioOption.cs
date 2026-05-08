@@ -21,15 +21,18 @@ namespace Tekly.Leaf.Elements.Radios
 		}
 		
 		public RadioEvent OnValueChanged => m_onValueChanged;
-		
-		[SerializeField] private LeafRadioGroup m_group;
 		[SerializeField] private RadioEvent m_onValueChanged = new RadioEvent();
 		
 		private bool m_isOn;
 		
 		protected override void OnClick()
 		{
-			m_group.OnOptionClicked(this);
+			var group = GetComponentInParent<ILeafRadioGroup>();
+			
+			if (group != null) {
+				group.OnOptionPressed(this);	
+			}
+			
 			base.OnClick();
 		}
 		

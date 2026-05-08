@@ -52,7 +52,7 @@ namespace Tekly.Leaf.Elements
 		public virtual void OnSubmit(BaseEventData eventData)
 		{
 			DoStateTransition(SelectionState.Pressed, false);
-			StartCoroutine(PressDelayCoroutine(3f));
+			StartCoroutine(PressDelayCoroutine(0.1f));
 		}
 
 		private IEnumerator PressDelayCoroutine(float delay)
