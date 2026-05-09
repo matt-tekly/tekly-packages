@@ -158,6 +158,8 @@ MonoBehaviour:
   m_edge: 3
   m_tiled: 1
   m_tileFactor: {x: 1, y: 1}
+  m_edgeBulge: {x: 0, y: 0}
+  m_subdivisionsPerEdge: 32
 --- !u!1 &4493653442169285976
 GameObject:
   m_ObjectHideFlags: 0
@@ -242,6 +244,8 @@ MonoBehaviour:
   m_edge: 0
   m_tiled: 1
   m_tileFactor: {x: 1, y: 1}
+  m_edgeBulge: {x: 0, y: 0}
+  m_subdivisionsPerEdge: 16
 --- !u!1 &5058956244527855441
 GameObject:
   m_ObjectHideFlags: 0

@@ -151,7 +151,7 @@ namespace Tekly.Common.Ui.ProceduralRect
 			}
 
 			EditorGUILayout.PropertyField(m_edgeBulge);
-			using (EditorGuiExt.EnabledBlock(m_edgeBulge.floatValue > 0)) {
+			using (EditorGuiExt.EnabledBlock(m_edgeBulge.vector2Value.magnitude > 0)) {
 				EditorGUILayout.PropertyField(m_subdivisionsPerEdge);
 			}
 

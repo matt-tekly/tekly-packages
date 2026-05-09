@@ -415,6 +415,8 @@ MonoBehaviour:
   m_edge: 0
   m_tiled: 1
   m_tileFactor: {x: 1, y: 1}
+  m_edgeBulge: {x: 0, y: 0}
+  m_subdivisionsPerEdge: 16
 --- !u!114 &224772322
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -813,6 +815,8 @@ MonoBehaviour:
   m_edge: 1
   m_tiled: 1
   m_tileFactor: {x: 1, y: 1}
+  m_edgeBulge: {x: 0, y: 0}
+  m_subdivisionsPerEdge: 16
 --- !u!222 &541776673
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1063,6 +1067,8 @@ MonoBehaviour:
   m_edge: 1
   m_tiled: 1
   m_tileFactor: {x: 1, y: 1}
+  m_edgeBulge: {x: 0, y: 0}
+  m_subdivisionsPerEdge: 16
 --- !u!222 &592957702
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1593,6 +1599,8 @@ MonoBehaviour:
   m_edge: 0
   m_tiled: 1
   m_tileFactor: {x: 1, y: 1}
+  m_edgeBulge: {x: 0, y: 0}
+  m_subdivisionsPerEdge: 16
 --- !u!114 &788100576
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1697,6 +1705,8 @@ MonoBehaviour:
   m_edge: 1
   m_tiled: 1
   m_tileFactor: {x: 1, y: 1}
+  m_edgeBulge: {x: 0, y: 0}
+  m_subdivisionsPerEdge: 16
 --- !u!222 &790152185
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2288,6 +2298,8 @@ MonoBehaviour:
   m_edge: 0
   m_tiled: 1
   m_tileFactor: {x: 1, y: 1}
+  m_edgeBulge: {x: 0, y: 0}
+  m_subdivisionsPerEdge: 16
 --- !u!114 &958607116
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2632,11 +2644,13 @@ MonoBehaviour:
   m_falloffDistance: 1
   m_falloffPower: 1
   m_modifierType: 1
-  m_radius: 20
+  m_radius: 25.9
   m_freeRadius: {x: 0, y: 0, z: 0, w: 0}
   m_edge: 0
   m_tiled: 1
   m_tileFactor: {x: 1, y: 1}
+  m_edgeBulge: {x: 0, y: 0}
+  m_subdivisionsPerEdge: 2
 --- !u!114 &1102674302
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3263,6 +3277,8 @@ MonoBehaviour:
   m_edge: 0
   m_tiled: 1
   m_tileFactor: {x: 1, y: 1}
+  m_edgeBulge: {x: 0, y: 0}
+  m_subdivisionsPerEdge: 16
 --- !u!114 &1478825851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3951,7 +3967,7 @@ GameObject:
   - component: {fileID: 1736202741}
   - component: {fileID: 1736202739}
   m_Layer: 5
-  m_Name: Quality_01
+  m_Name: UnselectableQuality_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4262,6 +4278,8 @@ MonoBehaviour:
   m_edge: 1
   m_tiled: 1
   m_tileFactor: {x: 1, y: 1}
+  m_edgeBulge: {x: 0, y: 0}
+  m_subdivisionsPerEdge: 16
 --- !u!222 &1795867335
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4346,6 +4364,8 @@ MonoBehaviour:
   m_edge: 1
   m_tiled: 1
   m_tileFactor: {x: 1, y: 1}
+  m_edgeBulge: {x: 0, y: 0}
+  m_subdivisionsPerEdge: 16
 --- !u!222 &1821309108
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6193,6 +6213,8 @@ MonoBehaviour:
   m_edge: 0
   m_tiled: 1
   m_tileFactor: {x: 1, y: 1}
+  m_edgeBulge: {x: 0, y: 0}
+  m_subdivisionsPerEdge: 16
 --- !u!1001 &4725981923059939246
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6316,6 +6338,10 @@ PrefabInstance:
     - target: {fileID: 408977937606059240, guid: 2f60ed8e1c7313e478d62846e0607201, type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 408977937606059240, guid: 2f60ed8e1c7313e478d62846e0607201, type: 3}
+      propertyPath: m_gradient.m_ColorSpace
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 4894884474247366375, guid: 2f60ed8e1c7313e478d62846e0607201, type: 3}
       propertyPath: m_Enabled
@@ -6498,6 +6524,8 @@ MonoBehaviour:
   m_edge: 3
   m_tiled: 1
   m_tileFactor: {x: 1, y: 1}
+  m_edgeBulge: {x: 0, y: 0}
+  m_subdivisionsPerEdge: 16
 --- !u!222 &5346902183188724291
 CanvasRenderer:
   m_ObjectHideFlags: 0

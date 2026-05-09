@@ -37,8 +37,8 @@ namespace Tekly.Common.Ui.ProceduralRect
 		[SerializeField] private ProceduralRectEdge m_edge;
 		[SerializeField] private bool m_tiled;
 		[SerializeField] private Vector2 m_tileFactor = new Vector2(1, 1);
-
-		[SerializeField] private float m_edgeBulge = 0f;
+		
+		[SerializeField] private Vector2 m_edgeBulge;
 		[SerializeField, Range(2, 64)] private int m_subdivisionsPerEdge = 16;
 
 		private static Material s_materialInstance;
@@ -77,7 +77,7 @@ namespace Tekly.Common.Ui.ProceduralRect
 			}
 		}
 
-		public float EdgeBulge {
+		public Vector2 EdgeBulge {
 			get => m_edgeBulge;
 			set {
 				m_edgeBulge = value;
@@ -133,10 +133,10 @@ namespace Tekly.Common.Ui.ProceduralRect
 
 		protected override void OnPopulateMesh(VertexHelper toFill)
 		{
-			if (m_edgeBulge == 0f) {
-				base.OnPopulateMesh(toFill);
-			} else {
+			if (m_edgeBulge.magnitude > 0f) {
 				GenerateBulgedQuad(toFill);
+			} else {
+				base.OnPopulateMesh(toFill);
 			}
 
 			EncodeAllInfoIntoVertices(toFill, CalculateInfo());
@@ -156,14 +156,14 @@ namespace Tekly.Common.Ui.ProceduralRect
 
 			var uv0 = new Vector4(0.5f, 0.5f, 0, 0);
 			Vector3 pos;
-
+			
 			// Center vertex (uses the initial 0.5, 0.5)
 			vh.AddVert(new Vector3(rect.center.x, rect.center.y, 0f), vertexColor, uv0);
 
 			// top edge: top-left -> top-right
 			for (var i = 0; i < subdivisionsPerEdge; i++) {
 				var edgeRatio = (float)i / subdivisionsPerEdge;
-				var push = m_edgeBulge * Mathf.Sin(Mathf.PI * edgeRatio);
+				var push = m_edgeBulge.y * Mathf.Sin(Mathf.PI * edgeRatio);
 
 				uv0.x = edgeRatio;
 				uv0.y = 1f;
@@ -174,7 +174,7 @@ namespace Tekly.Common.Ui.ProceduralRect
 			// right edge: top-right -> bottom-right
 			for (var i = 0; i < subdivisionsPerEdge; i++) {
 				var edgeRatio = (float)i / subdivisionsPerEdge;
-				var push = m_edgeBulge * Mathf.Sin(Mathf.PI * edgeRatio);
+				var push = m_edgeBulge.x * Mathf.Sin(Mathf.PI * edgeRatio);
 
 				uv0.x = 1f;
 				uv0.y = 1f - edgeRatio;
@@ -185,7 +185,7 @@ namespace Tekly.Common.Ui.ProceduralRect
 			// bottom edge: bottom-right -> bottom-left
 			for (var i = 0; i < subdivisionsPerEdge; i++) {
 				var edgeRatio = (float)i / subdivisionsPerEdge;
-				var push = m_edgeBulge * Mathf.Sin(Mathf.PI * edgeRatio);
+				var push = m_edgeBulge.y * Mathf.Sin(Mathf.PI * edgeRatio);
 
 				uv0.x = 1f - edgeRatio;
 				uv0.y = 0f;
@@ -196,7 +196,7 @@ namespace Tekly.Common.Ui.ProceduralRect
 			// left edge: bottom-left -> top-left
 			for (var i = 0; i < subdivisionsPerEdge; i++) {
 				var edgeRatio = (float)i / subdivisionsPerEdge;
-				var push = m_edgeBulge * Mathf.Sin(Mathf.PI * edgeRatio);
+				var push = m_edgeBulge.x * Mathf.Sin(Mathf.PI * edgeRatio);
 
 				uv0.x = 0f;
 				uv0.y = edgeRatio;
