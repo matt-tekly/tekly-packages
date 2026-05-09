@@ -43,6 +43,7 @@ namespace Tekly.Leaf.Elements
 			}
 
 			if (m_pressDelay > 0) {
+				DoStateTransition(SelectionState.Pressed, false);
 				StartCoroutine(PressDelayCoroutine(m_pressDelay));
 			} else {
 				Press();	
@@ -57,8 +58,6 @@ namespace Tekly.Leaf.Elements
 
 		private IEnumerator PressDelayCoroutine(float delay)
 		{
-			yield return null;
-			
 			using (LeafCore.Instance.DisableEventSystemScope(this)) {
 				var fadeTime = delay;
 				var elapsedTime = 0f;
