@@ -22,7 +22,7 @@ namespace Tekly.Logging
 
         public bool IsLevelEnabled(TkLogLevel level)
         {
-            return level >= MinLogLevel;
+	        return level >= MinLogLevel;
         }
 
         // *** BEGIN codegen ***
@@ -352,7 +352,7 @@ namespace Tekly.Logging
 #endif
         public void Exception(Exception exception, string message, params (string, object)[] logParams)
         {
-            if (TkLogLevel.Exception < MinLogLevel) {
+	        if (!IsLevelEnabled(TkLogLevel.Exception)) {
                 return;
             }
 
@@ -373,7 +373,7 @@ namespace Tekly.Logging
 #endif
         public void ExceptionContext(Exception exception, string message, Object context)
         {
-            if (TkLogLevel.Exception < MinLogLevel) {
+            if (!IsLevelEnabled(TkLogLevel.Exception)) {
                 return;
             }
 
@@ -386,7 +386,7 @@ namespace Tekly.Logging
 #endif
         public void ExceptionContext(Exception exception, string message, Object context, params (string, object)[] logParams)
         {
-            if (TkLogLevel.Exception < MinLogLevel) {
+            if (!IsLevelEnabled(TkLogLevel.Exception)) {
                 return;
             }
 
@@ -404,7 +404,7 @@ namespace Tekly.Logging
 
         public void LogMessage(TkLogLevel level, string message)
         {
-            if (level < MinLogLevel) {
+            if (!IsLevelEnabled(level)) {
                 return;
             }
 
@@ -413,7 +413,7 @@ namespace Tekly.Logging
 
         public void LogMessageStackTrace(TkLogLevel level, string message, string stackTrace)
         {
-            if (level < MinLogLevel) {
+	        if (!IsLevelEnabled(level)) {
                 return;
             }
 
@@ -422,7 +422,7 @@ namespace Tekly.Logging
 
         public void LogMessage(TkLogLevel level, string message, params (string, object)[] logParams)
         {
-            if (level < MinLogLevel) {
+            if (!IsLevelEnabled(level)) {
                 return;
             }
 
@@ -431,7 +431,7 @@ namespace Tekly.Logging
 
         public void LogMessage<T>(TkLogLevel level, string message, (string, T) logParam1)
         {
-            if (level < MinLogLevel) {
+            if (!IsLevelEnabled(level)) {
                 return;
             }
 
@@ -440,7 +440,7 @@ namespace Tekly.Logging
 
         public void LogMessage<T, U>(TkLogLevel level, string message, (string, T) logParam1, (string, U) logParam2)
         {
-            if (level < MinLogLevel) {
+            if (!IsLevelEnabled(level)) {
                 return;
             }
 
@@ -449,7 +449,7 @@ namespace Tekly.Logging
 
         public void LogMessage<T, U, V>(TkLogLevel level, string message, (string, T) logParam1, (string, U) logParam2, (string, V) logParam3)
         {
-            if (level < MinLogLevel) {
+            if (!IsLevelEnabled(level)) {
                 return;
             }
 
@@ -458,7 +458,7 @@ namespace Tekly.Logging
 
         public void LogMessageStackTrace(TkLogLevel level, string message, string stacktrace, params (string, object)[] logParams)
         {
-            if (level < MinLogLevel) {
+            if (!IsLevelEnabled(level)) {
                 return;
             }
 
@@ -467,7 +467,7 @@ namespace Tekly.Logging
 
         public void LogMessage(TkLogLevel level, string message, Object context)
         {
-            if (level < MinLogLevel) {
+            if (!IsLevelEnabled(level)) {
                 return;
             }
 
@@ -476,7 +476,7 @@ namespace Tekly.Logging
 
         public void LogMessage(TkLogLevel level, string message, Object context, params (string, object)[] logParams)
         {
-            if (level < MinLogLevel) {
+            if (!IsLevelEnabled(level)) {
                 return;
             }
 
