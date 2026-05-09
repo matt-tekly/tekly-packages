@@ -35,8 +35,11 @@ namespace Tekly.Common.Ui.ProceduralRect
 		[SerializeField] private float m_radius = 20;
 		[SerializeField] private Vector4 m_freeRadius;
 		[SerializeField] private ProceduralRectEdge m_edge;
-		[SerializeField] private bool m_tiled = true;
+		[SerializeField] private bool m_tiled;
 		[SerializeField] private Vector2 m_tileFactor = new Vector2(1, 1);
+
+		[SerializeField] private float m_edgeBulge = 0f;
+		[SerializeField, Range(2, 64)] private int m_subdivisionsPerEdge = 16;
 
 		private static Material s_materialInstance;
 
@@ -74,13 +77,28 @@ namespace Tekly.Common.Ui.ProceduralRect
 			}
 		}
 
+		public float EdgeBulge {
+			get => m_edgeBulge;
+			set {
+				m_edgeBulge = value;
+				SetVerticesDirty();
+			}
+		}
+
+		public int SubdivisionsPerEdge {
+			get => m_subdivisionsPerEdge;
+			set {
+				m_subdivisionsPerEdge = Mathf.Max(2, value);
+				SetVerticesDirty();
+			}
+		}
+
 		public override Material material {
 			get => m_Material == null ? DefaultMaterial : base.material;
 			set => base.material = value;
 		}
 
 		public override Material defaultMaterial => DefaultMaterial;
-
 
 		protected override void OnEnable()
 		{
@@ -100,11 +118,6 @@ namespace Tekly.Common.Ui.ProceduralRect
 			}
 		}
 
-		/// <summary>
-		/// Prevents radius to get bigger than rect size
-		/// </summary>
-		/// <returns>The fixed radius.</returns>
-		/// <param name="vec">border-radius as Vector4 (starting upper-left, clockwise)</param>
 		private Vector4 FixRadius(Vector4 vec)
 		{
 			var r = rectTransform.rect;
@@ -120,8 +133,83 @@ namespace Tekly.Common.Ui.ProceduralRect
 
 		protected override void OnPopulateMesh(VertexHelper toFill)
 		{
-			base.OnPopulateMesh(toFill);
+			if (m_edgeBulge == 0f) {
+				base.OnPopulateMesh(toFill);
+			} else {
+				GenerateBulgedQuad(toFill);
+			}
+
 			EncodeAllInfoIntoVertices(toFill, CalculateInfo());
+		}
+
+
+		/// <summary>
+		/// Generates fan triangulation where there is a center vertex and bulging vertices around the edges
+		/// </summary>
+		private void GenerateBulgedQuad(VertexHelper vh)
+		{
+			vh.Clear();
+
+			var rect = GetPixelAdjustedRect();
+			var vertexColor = (Color32)color;
+			var subdivisionsPerEdge = Mathf.Max(2, m_subdivisionsPerEdge);
+
+			var uv0 = new Vector4(0.5f, 0.5f, 0, 0);
+			Vector3 pos;
+
+			// Center vertex (uses the initial 0.5, 0.5)
+			vh.AddVert(new Vector3(rect.center.x, rect.center.y, 0f), vertexColor, uv0);
+
+			// top edge: top-left -> top-right
+			for (var i = 0; i < subdivisionsPerEdge; i++) {
+				var edgeRatio = (float)i / subdivisionsPerEdge;
+				var push = m_edgeBulge * Mathf.Sin(Mathf.PI * edgeRatio);
+
+				uv0.x = edgeRatio;
+				uv0.y = 1f;
+				pos = new Vector3(rect.xMin + edgeRatio * rect.width, rect.yMax + push, 0f);
+				vh.AddVert(pos, vertexColor, uv0);
+			}
+
+			// right edge: top-right -> bottom-right
+			for (var i = 0; i < subdivisionsPerEdge; i++) {
+				var edgeRatio = (float)i / subdivisionsPerEdge;
+				var push = m_edgeBulge * Mathf.Sin(Mathf.PI * edgeRatio);
+
+				uv0.x = 1f;
+				uv0.y = 1f - edgeRatio;
+				pos = new Vector3(rect.xMax + push, rect.yMax - edgeRatio * rect.height, 0f);
+				vh.AddVert(pos, vertexColor, uv0);
+			}
+
+			// bottom edge: bottom-right -> bottom-left
+			for (var i = 0; i < subdivisionsPerEdge; i++) {
+				var edgeRatio = (float)i / subdivisionsPerEdge;
+				var push = m_edgeBulge * Mathf.Sin(Mathf.PI * edgeRatio);
+
+				uv0.x = 1f - edgeRatio;
+				uv0.y = 0f;
+				pos = new Vector3(rect.xMax - edgeRatio * rect.width, rect.yMin - push, 0f);
+				vh.AddVert(pos, vertexColor, uv0);
+			}
+
+			// left edge: bottom-left -> top-left
+			for (var i = 0; i < subdivisionsPerEdge; i++) {
+				var edgeRatio = (float)i / subdivisionsPerEdge;
+				var push = m_edgeBulge * Mathf.Sin(Mathf.PI * edgeRatio);
+
+				uv0.x = 0f;
+				uv0.y = edgeRatio;
+				pos = new Vector3(rect.xMin - push, rect.yMin + edgeRatio * rect.height, 0f);
+				vh.AddVert(pos, vertexColor, uv0);
+			}
+
+			// Fan triangulation from center
+			var total = 4 * subdivisionsPerEdge;
+			for (var i = 0; i < total; i++) {
+				var next = (i + 1) % total;
+				vh.AddTriangle(0, i + 1, next + 1);
+			}
 		}
 
 		protected override void OnTransformParentChanged()
@@ -160,18 +248,13 @@ namespace Tekly.Common.Ui.ProceduralRect
 				case ModifierType.Uniform:
 					return new Vector4(m_radius, m_radius, m_radius, m_radius);
 				case ModifierType.OneEdge:
-					switch (m_edge) {
-						case ProceduralRectEdge.Top:
-							return new Vector4(m_radius, m_radius, 0, 0);
-						case ProceduralRectEdge.Right:
-							return new Vector4(0, m_radius, m_radius, 0);
-						case ProceduralRectEdge.Bottom:
-							return new Vector4(0, 0, m_radius, m_radius);
-						case ProceduralRectEdge.Left:
-							return new Vector4(m_radius, 0, 0, m_radius);
-						default:
-							return new Vector4(0, 0, 0, 0);
-					}
+					return m_edge switch {
+						ProceduralRectEdge.Top => new Vector4(m_radius, m_radius, 0, 0),
+						ProceduralRectEdge.Right => new Vector4(0, m_radius, m_radius, 0),
+						ProceduralRectEdge.Bottom => new Vector4(0, 0, m_radius, m_radius),
+						ProceduralRectEdge.Left => new Vector4(m_radius, 0, 0, m_radius),
+						_ => new Vector4(0, 0, 0, 0)
+					};
 				case ModifierType.Free:
 					return m_freeRadius;
 				default:
@@ -217,9 +300,6 @@ namespace Tekly.Common.Ui.ProceduralRect
 			}
 		}
 
-		/// <summary>
-		/// Encode two values between [0,1] into a single float. Each using 16 bits.
-		/// </summary>
 		private static float EncodeFloats_0_1_16_16(float a, float b)
 		{
 			var kDecodeDot = new Vector2(1.0f, 1f / 65535.0f);
@@ -248,6 +328,7 @@ namespace Tekly.Common.Ui.ProceduralRect
 			m_falloffDistance = Mathf.Max(0, m_falloffDistance);
 			m_borderWidth = Mathf.Max(0, m_borderWidth);
 			m_falloffPower = Mathf.Clamp(m_falloffPower, 0.25f, 4f);
+			m_subdivisionsPerEdge = Mathf.Max(2, m_subdivisionsPerEdge);
 		}
 #endif
 	}

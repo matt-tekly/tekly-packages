@@ -35,6 +35,9 @@ namespace Tekly.Common.Ui.ProceduralRect
 		private SerializedProperty m_sprite;
 		private SerializedProperty m_tiled;
 		private SerializedProperty m_tileFactor;
+		
+		private SerializedProperty m_edgeBulge;
+		private SerializedProperty m_subdivisionsPerEdge;
 
 		private AnimBool m_showFilled;
 
@@ -69,6 +72,9 @@ namespace Tekly.Common.Ui.ProceduralRect
 			m_radius = serializedObject.FindProperty("m_radius");
 			m_freeRadius = serializedObject.FindProperty("m_freeRadius");
 			m_edge = serializedObject.FindProperty("m_edge");
+			
+			m_edgeBulge = serializedObject.FindProperty("m_edgeBulge");
+			m_subdivisionsPerEdge = serializedObject.FindProperty("m_subdivisionsPerEdge");
 			
 			CheckForShaderChannels();
 		}
@@ -142,6 +148,11 @@ namespace Tekly.Common.Ui.ProceduralRect
 					EditorGUILayout.PropertyField(m_tileFactor.FindPropertyRelative("x"), new GUIContent("\u2194"));
 					EditorGUILayout.PropertyField(m_tileFactor.FindPropertyRelative("y"), new GUIContent("\u2195"));
 				}
+			}
+
+			EditorGUILayout.PropertyField(m_edgeBulge);
+			using (EditorGuiExt.EnabledBlock(m_edgeBulge.floatValue > 0)) {
+				EditorGUILayout.PropertyField(m_subdivisionsPerEdge);
 			}
 
 			serializedObject.ApplyModifiedProperties();
