@@ -174,7 +174,7 @@ namespace Tekly.TreeState
 
 		private void Update()
 		{
-			if (m_initialized == false) {
+			if (m_initialized == false || !TreeStateRegistry.Instance.Update) {
 				return;
 			}
 

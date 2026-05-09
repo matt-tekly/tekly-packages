@@ -15,6 +15,11 @@ namespace Tekly.TreeState
     
     public class TreeStateRegistry : SingletonRegistry<TreeStateManager, TreeStateRegistry>
     {
+	    /// <summary>
+	    /// Should TreeStateManagers update
+	    /// </summary>
+	    public bool Update { get; set; } = true;
+	    
         public readonly Triggerable<TreeActivityModeChangedEvt> ActivityModeChanged = new Triggerable<TreeActivityModeChangedEvt>();
     }
 }
