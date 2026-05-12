@@ -9,15 +9,7 @@ namespace Tekly.Leaf.Elements
 {
 	public class LeafSelectable : Selectable
 	{
-		[Serializable]
-		public class SelectableSelectedEvent : UnityEvent<bool> {}
-
-		public SelectableSelectedEvent OnSelected
-		{
-			get => m_onSelected;
-			set => m_onSelected = value;
-		}
-		
+		public SelectableSelectedEvent OnSelected => m_onSelected;
 		[SerializeField] private SelectableSelectedEvent m_onSelected = new();
 		[SerializeField] private LeafAnimator m_animator;
 

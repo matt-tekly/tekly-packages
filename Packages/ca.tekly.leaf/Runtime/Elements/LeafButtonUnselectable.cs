@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using Tekly.Leaf.Elements.Animators;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 
@@ -14,7 +14,8 @@ namespace Tekly.Leaf.Elements
 		IPointerDownHandler,
 		IPointerUpHandler,
 		IPointerEnterHandler,
-		IPointerExitHandler
+		IPointerExitHandler,
+		ILeafButton
 	{
 		public LeafElementMode CurrentMode {
 			get {
@@ -34,6 +35,11 @@ namespace Tekly.Leaf.Elements
 			}
 		}
 
+		public bool interactable {
+			get => Interactable;
+			set => Interactable = value;
+		}
+		
 		public bool Interactable {
 			get => m_interactable;
 			set {
@@ -44,15 +50,23 @@ namespace Tekly.Leaf.Elements
 			}
 		}
 
+		public SelectableSelectedEvent OnSelected => m_onSelected;
+		public ButtonClickedEvent OnClicked => m_clicked;
+
 		[SerializeField] private bool m_interactable = true;
 		[SerializeField] protected LeafAnimator m_animator;
-		[SerializeField] private UnityEvent m_clicked;
+		
+		[Tooltip("Add delay to when the press or submit is processed")]
+		[SerializeField] private float m_pressDelay;
+		[SerializeField] private ButtonClickedEvent m_clicked;
 
 		private bool m_isPointerInside;
 		private bool m_isPointerDown;
 
 		private bool m_wasDeselectOnBackgroundClick;
 		private bool m_groupsAllowInteraction = true;
+		
+		private SelectableSelectedEvent m_onSelected = new();
 
 		private static readonly List<CanvasGroup> s_canvasGroupCache = new();
 		
@@ -107,10 +121,15 @@ namespace Tekly.Leaf.Elements
 
 			m_isPointerDown = false;
 			if (shouldClick) {
-				OnClick();
+				if (m_pressDelay <= 0) {
+					OnClick();	
+				} else {
+					StartCoroutine(PressDelayCoroutine(m_pressDelay));
+				}
+				
+			} else {
+				UpdateAnimatorMode();	
 			}
-
-			UpdateAnimatorMode();
 		}
 
 		protected override void OnCanvasGroupChanged()
@@ -146,6 +165,10 @@ namespace Tekly.Leaf.Elements
 
 		protected virtual void OnClick()
 		{
+			if (!IsActive() || !IsInteractable()) {
+				return;
+			}
+			
 			m_clicked.Invoke();
 		}
 		
@@ -175,6 +198,23 @@ namespace Tekly.Leaf.Elements
 			}
 
 			return false;
+		}
+		
+		private IEnumerator PressDelayCoroutine(float delay)
+		{
+			using (LeafCore.Instance.DisableEventSystemScope(this)) {
+				var fadeTime = delay;
+				var elapsedTime = 0f;
+
+				while (elapsedTime < fadeTime) {
+					elapsedTime += Time.unscaledDeltaTime;
+					yield return null;
+				}
+			}
+
+			UpdateAnimatorMode();
+			
+			OnClick();
 		}
 	}
 }

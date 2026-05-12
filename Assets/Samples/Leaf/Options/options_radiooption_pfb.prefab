@@ -99,10 +99,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Tekly.Leaf::Tekly.Leaf.LeafButtonUnselectable
   m_interactable: 1
   m_animator: {fileID: 942433489991522120}
+  m_pressDelay: 0
   m_clicked:
     m_PersistentCalls:
       m_Calls: []
-  m_group: {fileID: 0}
   m_onValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -221,6 +221,10 @@ MonoBehaviour:
   m_radius: 16
   m_freeRadius: {x: 0, y: 0, z: 0, w: 0}
   m_edge: 3
+  m_tiled: 0
+  m_tileFactor: {x: 1, y: 1}
+  m_edgeBulge: {x: 0, y: 0}
+  m_subdivisionsPerEdge: 16
 --- !u!1 &7107495167217554114
 GameObject:
   m_ObjectHideFlags: 0
@@ -440,6 +444,10 @@ MonoBehaviour:
   m_radius: 16
   m_freeRadius: {x: 0, y: 0, z: 0, w: 0}
   m_edge: 0
+  m_tiled: 0
+  m_tileFactor: {x: 1, y: 1}
+  m_edgeBulge: {x: 0, y: 0}
+  m_subdivisionsPerEdge: 16
 --- !u!1 &8473037141179904008
 GameObject:
   m_ObjectHideFlags: 0
@@ -522,6 +530,10 @@ MonoBehaviour:
   m_radius: 16
   m_freeRadius: {x: 0, y: 0, z: 0, w: 0}
   m_edge: 3
+  m_tiled: 0
+  m_tileFactor: {x: 1, y: 1}
+  m_edgeBulge: {x: 0, y: 0}
+  m_subdivisionsPerEdge: 16
 --- !u!1 &8808703230370553208
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,29 +9,29 @@ namespace Tekly.Leaf.Binders
 {
 	public class LeafButtonBinder : BasicBinder<ButtonModel>
 	{
-		[SerializeField] private LeafButton m_button;
-		
 		[Tooltip("If true activate will be called when clicked")]
 		[SerializeField] private bool m_activateOnClick = true;
 		[Tooltip("If true activate will be called when selected")]
 		[SerializeField] private bool m_activateOnSelect;
 
+		private ILeafButton m_button;
+		
 		private void Awake()
 		{
-			if (m_button != null) {
+			if (TryGetComponent(out m_button)) {
 				m_button.OnSelected.AddListener(selected => {
 					if (selected && m_activateOnSelect) {
 						Activate();
 					}
 				});
 
-				m_button.OnClick.AddListener(() => {
+				m_button.OnClicked.AddListener(() => {
 					if (m_activateOnClick) {
 						Activate();
 					}
 				});
 			} else {
-				TkLogger.Get<UnityButtonBinder>().ErrorContext("LeafButtonBinder has a null button", this);
+				TkLogger.Get<LeafButtonBinder>().ErrorContext("LeafButtonBinder has a null button", this);
 			}
 		}
 
@@ -50,7 +50,7 @@ namespace Tekly.Leaf.Binders
 			if (m_model != null) {
 				m_model.Activate();
 			} else {
-				TkLogger.Get<UnityButtonBinder>().ErrorContext("LeafButtonBinder activated without a model", this);
+				TkLogger.Get<LeafButtonBinder>().ErrorContext("LeafButtonBinder activated without a model", this);
 			}
 		}
 

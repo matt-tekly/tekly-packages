@@ -1,22 +1,17 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 namespace Tekly.Leaf.Elements
 {
-	public class LeafButton : LeafSelectable, IPointerClickHandler, ISubmitHandler
+	public class LeafButton : LeafSelectable, IPointerClickHandler, ISubmitHandler, ILeafButton
 	{
 		[Tooltip("Add delay to when the press or submit is processed")]
 		[SerializeField] private float m_pressDelay;
 		
-		[Serializable]
-		public class ButtonClickedEvent : UnityEvent { }
-
 		[SerializeField] private ButtonClickedEvent m_onClick = new();
 
-		public ButtonClickedEvent OnClick {
+		public ButtonClickedEvent OnClicked {
 			get => m_onClick;
 			set => m_onClick = value;
 		}
