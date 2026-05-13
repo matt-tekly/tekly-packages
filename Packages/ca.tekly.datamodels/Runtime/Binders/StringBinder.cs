@@ -29,7 +29,7 @@ namespace Tekly.DataModels.Binders
 		{
 			string text;
 			
-			if (m_stringValueModel.NeedsLocalization) {
+			if (!string.IsNullOrEmpty(value) && m_stringValueModel.NeedsLocalization) {
 				text = Localizer.Instance.Localize(value);	
 			} else {
 				text = value;

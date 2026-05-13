@@ -26,6 +26,10 @@ namespace Tekly.Leaf.Elements.Radios
 
 		public void OnOptionPressed(LeafRadioOption option)
 		{
+			if (option == m_currentOption) {
+				return;
+			}
+			        
 			TurnOffCurrentOption();
 
 			m_currentOption = option;
