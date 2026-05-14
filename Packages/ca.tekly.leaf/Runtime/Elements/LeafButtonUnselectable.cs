@@ -39,7 +39,7 @@ namespace Tekly.Leaf.Elements
 			get => Interactable;
 			set => Interactable = value;
 		}
-		
+
 		public bool Interactable {
 			get => m_interactable;
 			set {
@@ -55,9 +55,10 @@ namespace Tekly.Leaf.Elements
 
 		[SerializeField] private bool m_interactable = true;
 		[SerializeField] protected LeafAnimator m_animator;
-		
-		[Tooltip("Add delay to when the press or submit is processed")]
-		[SerializeField] private float m_pressDelay;
+
+		[Tooltip("Add delay to when the press or submit is processed")] [SerializeField]
+		private float m_pressDelay;
+
 		[SerializeField] private ButtonClickedEvent m_clicked;
 
 		private bool m_isPointerInside;
@@ -65,11 +66,11 @@ namespace Tekly.Leaf.Elements
 
 		private bool m_wasDeselectOnBackgroundClick;
 		private bool m_groupsAllowInteraction = true;
-		
+
 		private SelectableSelectedEvent m_onSelected = new();
 
 		private static readonly List<CanvasGroup> s_canvasGroupCache = new();
-		
+
 		protected override void OnEnable()
 		{
 			m_groupsAllowInteraction = ParentGroupAllowsInteraction();
@@ -122,13 +123,13 @@ namespace Tekly.Leaf.Elements
 			m_isPointerDown = false;
 			if (shouldClick) {
 				if (m_pressDelay <= 0) {
-					OnClick();	
+					OnClick();
+					UpdateAnimatorMode();
 				} else {
 					StartCoroutine(PressDelayCoroutine(m_pressDelay));
 				}
-				
 			} else {
-				UpdateAnimatorMode();	
+				UpdateAnimatorMode();
 			}
 		}
 
@@ -168,10 +169,10 @@ namespace Tekly.Leaf.Elements
 			if (!IsActive() || !IsInteractable()) {
 				return;
 			}
-			
+
 			m_clicked.Invoke();
 		}
-		
+
 		protected virtual void UpdateAnimatorMode(LeafElementMode mode, bool instant)
 		{
 			if (m_animator != null) {
@@ -183,7 +184,7 @@ namespace Tekly.Leaf.Elements
 		{
 			UpdateAnimatorMode(CurrentMode, false);
 		}
-		
+
 		private static void SetDeselectOnBackgroundClick(bool value)
 		{
 			if (EventSystem.current.currentInputModule is InputSystemUIInputModule module) {
@@ -199,7 +200,7 @@ namespace Tekly.Leaf.Elements
 
 			return false;
 		}
-		
+
 		private IEnumerator PressDelayCoroutine(float delay)
 		{
 			using (LeafCore.Instance.DisableEventSystemScope(this)) {
@@ -213,7 +214,7 @@ namespace Tekly.Leaf.Elements
 			}
 
 			UpdateAnimatorMode();
-			
+
 			OnClick();
 		}
 	}
