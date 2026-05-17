@@ -133,6 +133,12 @@ namespace Tekly.Leaf.Elements
 			}
 		}
 
+		public void SimulatePress()
+		{
+			UpdateAnimatorMode(LeafElementMode.Pressed, false);
+			StartCoroutine(PressDelayCoroutine(m_pressDelay));
+		}
+
 		protected override void OnCanvasGroupChanged()
 		{
 			var parentGroupAllowsInteraction = ParentGroupAllowsInteraction();
@@ -203,7 +209,7 @@ namespace Tekly.Leaf.Elements
 
 		private IEnumerator PressDelayCoroutine(float delay)
 		{
-			using (LeafCore.Instance.DisableEventSystemScope(this)) {
+			using (LeafCore.Instance.DisableInputScope(this)) {
 				var fadeTime = delay;
 				var elapsedTime = 0f;
 

@@ -38,8 +38,7 @@ namespace Tekly.Leaf.Elements
 			}
 
 			if (m_pressDelay > 0) {
-				DoStateTransition(SelectionState.Pressed, false);
-				StartCoroutine(PressDelayCoroutine(m_pressDelay));
+				SimulatePress();
 			} else {
 				Press();	
 			}
@@ -47,13 +46,18 @@ namespace Tekly.Leaf.Elements
 
 		public virtual void OnSubmit(BaseEventData eventData)
 		{
+			SimulatePress();
+		}
+
+		public void SimulatePress()
+		{
 			DoStateTransition(SelectionState.Pressed, false);
-			StartCoroutine(PressDelayCoroutine(0.1f));
+			StartCoroutine(PressDelayCoroutine(m_pressDelay));
 		}
 
 		private IEnumerator PressDelayCoroutine(float delay)
 		{
-			using (LeafCore.Instance.DisableEventSystemScope(this)) {
+			using (LeafCore.Instance.DisableInputScope(this)) {
 				var fadeTime = delay;
 				var elapsedTime = 0f;
 
@@ -64,7 +68,6 @@ namespace Tekly.Leaf.Elements
 			}
 			
 			DoStateTransition(currentSelectionState, false);
-			
 			Press();
 		}
 	}

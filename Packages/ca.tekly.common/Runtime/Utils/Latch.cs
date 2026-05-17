@@ -5,57 +5,90 @@ using UnityEngine.Assertions;
 
 namespace Tekly.Common.Utils
 {
-	public class Latch<T> where T : class
+	public class Latch : IDisposable
 	{
 		public IObservableValue<bool> IsHeld => m_isHeld;
-		
-		private readonly ObservableValue<bool> m_isHeld = new ObservableValue<bool>();
-		private readonly List<T> m_holders = new List<T>();
 
-		public IDisposable HoldScope(T holder)
+		private readonly ObservableValue<bool> m_isHeld = new();
+		private readonly List<object> m_holders = new();
+		private readonly IDisposable m_parentSubscription;
+		private readonly object m_parentHolder;
+		private bool m_isHoldingParent;
+
+		public Latch() { }
+
+		public Latch(Latch parent)
 		{
-			Assert.IsNotNull(holder);
-			
-			m_holders.Add(holder);
-			m_isHeld.Value = true;
+			Assert.IsNotNull(parent);
+
+			m_parentHolder = new object();
+
+			m_parentSubscription = parent.IsHeld.Subscribe(isHeld => {
+				if (isHeld == m_isHoldingParent) {
+					return;
+				}
+
+				m_isHoldingParent = isHeld;
+
+				if (isHeld) {
+					Hold(m_parentHolder);
+				} else {
+					Release(m_parentHolder);
+				}
+			});
+		}
+
+		public IDisposable HoldScope(object holder)
+		{
+			Hold(holder);
 			return new Token(this, holder);
 		}
-		
-		public void Hold(T holder)
+
+		public void Hold(object holder)
 		{
 			Assert.IsNotNull(holder);
-			
+
 			m_holders.Add(holder);
 			m_isHeld.Value = true;
 		}
 
-		public void Release(T holder)
+		public void Release(object holder)
 		{
-			m_holders.Remove(holder);
+			Assert.IsTrue(m_holders.Remove(holder));
 			m_isHeld.Value = m_holders.Count > 0;
 		}
-		
+
+		public void Dispose()
+		{
+			m_parentSubscription?.Dispose();
+
+			if (m_isHoldingParent) {
+				m_isHoldingParent = false;
+				Release(m_parentHolder);
+			}
+		}
+
 		private sealed class Token : IDisposable
 		{
-			private Latch<T> m_latch;
-			private T m_holder;
+			private Latch m_latch;
+			private object m_holder;
 
-			public Token(Latch<T> latch, T holder) {
+			public Token(Latch latch, object holder)
+			{
 				m_latch = latch;
 				m_holder = holder;
 			}
 
-			public void Dispose() {
+			public void Dispose()
+			{
 				if (m_latch == null) {
 					return;
 				}
-				
+
 				m_latch.Release(m_holder);
 				m_latch = null;
-				m_holder = default;
+				m_holder = null;
 			}
 		}
 	}
-
-	public class Latch : Latch<object> { }
 }
