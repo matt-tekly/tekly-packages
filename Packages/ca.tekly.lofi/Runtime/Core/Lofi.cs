@@ -59,25 +59,20 @@ namespace Tekly.Lofi.Core
 
 		private LofiEmitter m_trackEmitter;
 		private LofiEmitter m_oneShot;
-
-		private bool m_initialized;
+		
 		private IContentOperation<LofiCoreAssets> m_coreAssetsHandle;
 
 		private PropertyBag m_propertyBag;
 		private IDisposable m_propertyListener;
-
+		private bool m_initialized;
+		
 		private readonly List<NumberProperty> m_volumeProperties = new List<NumberProperty>();
 
 		private readonly TkLogger m_logger = TkLogger.Get<Lofi>();
 
+		
 		private const string LOFI_CORE_KEY = "lofi_core";
-
-		public Lofi()
-		{
-			Initialize();
-			LifeCycle.Instance.Pause += OnPause;
-			LifeCycle.Instance.Update += OnTick;
-		}
+		
 
 		private void OnTick()
 		{
@@ -101,8 +96,15 @@ namespace Tekly.Lofi.Core
 			}
 		}
 
-		private void Initialize()
+		public void Initialize()
 		{
+			if (m_initialized) {
+				return;
+			}
+			
+			LifeCycle.Instance.Pause += OnPause;
+			LifeCycle.Instance.Update += OnTick;
+			
 			m_coreAssetsHandle = ContentProvider.Instance.LoadAssetAsync<LofiCoreAssets>(LOFI_CORE_KEY);
 			m_coreAssetsHandle.Completed += CoreAssetsLoaded;
 		}
