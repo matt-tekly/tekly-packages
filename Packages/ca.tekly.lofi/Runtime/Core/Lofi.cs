@@ -48,7 +48,7 @@ namespace Tekly.Lofi.Core
 
 	public class Lofi : Singleton<Lofi>
 	{
-		public bool IsLoading => !m_coreAssetsHandle.IsDone || m_banks.Any(x => x.IsLoading);
+		public bool IsLoading => m_coreAssetsHandle == null || !m_coreAssetsHandle.IsDone || m_banks.Any(x => x.IsLoading);
 		public bool Paused { get; private set; }
 
 		private readonly List<LofiClipBank> m_banks = new List<LofiClipBank>();

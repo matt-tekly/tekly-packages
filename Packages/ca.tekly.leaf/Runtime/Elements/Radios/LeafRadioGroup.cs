@@ -28,7 +28,7 @@ namespace Tekly.Leaf.Elements.Radios
 			TurnOffCurrentOption();
 			
 			m_currentOption = childOption;
-			m_currentOption.IsOn = true;
+			m_currentOption.SetValueFromGroup(true);
 		}
 
 		private void TrySelectNextOption(int modify)
@@ -87,13 +87,6 @@ namespace Tekly.Leaf.Elements.Radios
 			}
 		
 		}
-		
-		private void TurnOffCurrentOption()
-		{
-			if (m_currentOption != null) {
-				m_currentOption.IsOn = false;
-			}
-		}
 
 		public void OnOptionPressed(LeafRadioOption option)
 		{
@@ -108,7 +101,24 @@ namespace Tekly.Leaf.Elements.Radios
 			TurnOffCurrentOption();
 
 			m_currentOption = option;
-			m_currentOption.IsOn = true;
+			m_currentOption.SetValueFromGroup(true);
+		}
+
+		public void OnOptionSetOn(LeafRadioOption option)
+		{
+			if (option == m_currentOption) {
+				return;
+			}
+			
+			TurnOffCurrentOption();
+			m_currentOption = option;
+		}
+		
+		private void TurnOffCurrentOption()
+		{
+			if (m_currentOption != null) {
+				m_currentOption.SetValueFromGroup(false);
+			}
 		}
 	}
 }

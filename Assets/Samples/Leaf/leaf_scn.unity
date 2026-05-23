@@ -4009,10 +4009,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62d5b81e52bc468eb46152b97c15ba79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Tekly.Leaf::Tekly.Leaf.Radios.LeafRadioGroup
-  m_options:
-  - {fileID: 2047115453}
-  - {fileID: 2044580377}
-  - {fileID: 1619631969}
+  _allowNoOption: 1
+  m_optionSelected:
+    m_PersistentCalls:
+      m_Calls: []
+  m_hasOptionSelected:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &1736202741
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5165,17 +5168,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2707552317613124449, guid: 07e78b7123485df41950b20bb9590611, type: 3}
   m_PrefabInstance: {fileID: 2059066299}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2059066302 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7707137717386853890, guid: 07e78b7123485df41950b20bb9590611, type: 3}
-  m_PrefabInstance: {fileID: 2059066299}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 808704057}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 80bf6ed9a3aa45b99ddaafc014c43c3e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Tekly.Leaf::Tekly.Leaf.LeafButton
 --- !u!114 &2059066307
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5190,7 +5182,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TeklySample.Samples.Leaf.LeafButtonBinder
   m_key:
     Path: 
-  m_button: {fileID: 2059066302}
   m_activateOnClick: 1
   m_activateOnSelect: 0
 --- !u!1 &2068099630
@@ -6704,6 +6695,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Tekly.Leaf::Tekly.Leaf.LeafUnselectableButton
   m_interactable: 0
   m_animator: {fileID: 0}
+  m_pressDelay: 0
   m_clicked:
     m_PersistentCalls:
       m_Calls: []

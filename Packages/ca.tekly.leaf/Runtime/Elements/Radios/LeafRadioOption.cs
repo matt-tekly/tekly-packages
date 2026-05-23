@@ -13,10 +13,20 @@ namespace Tekly.Leaf.Elements.Radios
 		public bool IsOn {
 			get => m_isOn;
 			set {
-				m_isOn = value;
-				UpdateAnimatorMode();
-				
-				m_onValueChanged.Invoke(m_isOn);
+				if (m_isOn != value) {
+					m_isOn = value;
+					UpdateAnimatorMode();
+					
+					if (m_isOn) {
+						var group = GetComponentInParent<ILeafRadioGroup>();
+			
+						if (group != null) {
+							group.OnOptionSetOn(this);	
+						}	
+					}
+					
+					m_onValueChanged.Invoke(m_isOn);
+				}
 			}
 		}
 		
@@ -24,6 +34,14 @@ namespace Tekly.Leaf.Elements.Radios
 		[SerializeField] private RadioEvent m_onValueChanged = new RadioEvent();
 		
 		private bool m_isOn;
+
+		public void SetValueFromGroup(bool isOn)
+		{
+			m_isOn = isOn;
+			UpdateAnimatorMode();
+				
+			m_onValueChanged.Invoke(m_isOn);
+		}
 		
 		protected override void OnClick()
 		{
@@ -39,7 +57,7 @@ namespace Tekly.Leaf.Elements.Radios
 		protected override void UpdateAnimatorMode(LeafElementMode mode, bool instant)
 		{
 			if (m_animator != null) {
-				m_animator.HandleMode(mode, IsOn, instant);
+				m_animator.HandleMode(mode, m_isOn, instant);
 			}
 		}
 	}

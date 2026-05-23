@@ -61,6 +61,7 @@ namespace TeklySample.App
 		private static void Initialize()
 		{
 			TkLogger.Initialize();
+			Lofi.Instance.Initialize();
 		}
 
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
