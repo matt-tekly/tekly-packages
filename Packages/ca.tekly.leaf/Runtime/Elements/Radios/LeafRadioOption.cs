@@ -18,7 +18,7 @@ namespace Tekly.Leaf.Elements.Radios
 					UpdateAnimatorMode();
 					
 					if (m_isOn) {
-						var group = GetComponentInParent<ILeafRadioGroup>();
+						var group = GetComponentInParent<ILeafRadioGroup>(true);
 			
 						if (group != null) {
 							group.OnOptionSetOn(this);	
