@@ -15,9 +15,15 @@ namespace Tekly.Leaf.Binders
 		[SerializeField] private bool m_activateOnSelect;
 
 		private ILeafButton m_button;
+
+		private bool m_initialized;
 		
-		private void Awake()
+		private void Initialize()
 		{
+			if (m_initialized) {
+				return;
+			}
+			
 			if (TryGetComponent(out m_button)) {
 				m_button.OnSelected.AddListener(selected => {
 					if (selected && m_activateOnSelect) {
@@ -33,6 +39,8 @@ namespace Tekly.Leaf.Binders
 			} else {
 				TkLogger.Get<LeafButtonBinder>().ErrorContext("LeafButtonBinder has a null button", this);
 			}
+
+			m_initialized = true;
 		}
 
 		protected override IDisposable Subscribe(ButtonModel model)
@@ -42,6 +50,7 @@ namespace Tekly.Leaf.Binders
 
 		private void BindBool(bool value)
 		{
+			Initialize();
 			m_button.interactable = value;
 		}
 
@@ -53,14 +62,5 @@ namespace Tekly.Leaf.Binders
 				TkLogger.Get<LeafButtonBinder>().ErrorContext("LeafButtonBinder activated without a model", this);
 			}
 		}
-
-#if UNITY_EDITOR
-		private void OnValidate()
-		{
-			if (m_button == null) {
-				m_button = GetComponent<LeafButton>();
-			}
-		}
-#endif
 	}
 }
