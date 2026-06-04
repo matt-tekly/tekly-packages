@@ -15,6 +15,7 @@ namespace Tekly.Leaf.Elements
 		IPointerUpHandler,
 		IPointerEnterHandler,
 		IPointerExitHandler,
+        IPointerClickHandler,
 		ILeafButton
 	{
 		public LeafElementMode CurrentMode {
@@ -118,20 +119,19 @@ namespace Tekly.Leaf.Elements
 
 		public void OnPointerUp(PointerEventData eventData)
 		{
-			var shouldClick = IsInteractable() && m_isPointerDown && m_isPointerInside;
-
 			m_isPointerDown = false;
-			if (shouldClick) {
-				if (m_pressDelay <= 0) {
-					OnClick();
-					UpdateAnimatorMode();
-				} else {
-					StartCoroutine(PressDelayCoroutine(m_pressDelay));
-				}
-			} else {
-				UpdateAnimatorMode();
-			}
+            UpdateAnimatorMode();
 		}
+        
+        public virtual void OnPointerClick(PointerEventData eventData)
+        {
+            if (m_pressDelay <= 0) {
+                OnClick();
+                UpdateAnimatorMode();
+            } else {
+                StartCoroutine(PressDelayCoroutine(m_pressDelay));
+            }
+        }
 
 		public void SimulatePress()
 		{
