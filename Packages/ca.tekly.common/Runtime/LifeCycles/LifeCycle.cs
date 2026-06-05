@@ -29,6 +29,10 @@ namespace Tekly.Common.LifeCycles
 			add => m_pauseDelegates.AddLast(value);
 			remove => m_pauseDelegates.Remove(value);
 		}
+		
+		public bool IsQuitting { get; private set; }
+		public bool IsFocused { get; private set; }
+		public bool IsPaused { get; private set; }
 
 		private static LifeCycleListener s_listener;
 
@@ -65,6 +69,8 @@ namespace Tekly.Common.LifeCycles
 
 		public void OnApplicationQuit()
 		{
+			IsQuitting = true;
+			
 			var node = m_quitDelegates.First;
 
 			while (node != null) {
@@ -88,6 +94,7 @@ namespace Tekly.Common.LifeCycles
 
 		public void OnApplicationPause(bool paused)
 		{
+			IsPaused = paused;
 			var node = m_pauseDelegates.First;
 
 			while (node != null) {
@@ -103,6 +110,7 @@ namespace Tekly.Common.LifeCycles
 
 		public void OnApplicationFocus(bool hasFocus)
 		{
+			IsFocused = hasFocus;
 			var node = m_focusDelegates.First;
 
 			while (node != null) {
