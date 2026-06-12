@@ -54,7 +54,9 @@ namespace Tekly.Common.Utils
 
 		public void Release(object holder)
 		{
-			Assert.IsTrue(m_holders.Remove(holder));
+			Assert.IsNotNull(holder);
+			
+			m_holders.Remove(holder);
 			m_isHeld.Value = m_holders.Count > 0;
 		}
 
