@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Tekly.Logging;
+using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
@@ -15,7 +16,38 @@ namespace Tekly.Leaf.Elements.Radios
 		[SerializeField] private UnityEvent<bool> m_hasOptionSelected;
 		
 		private LeafRadioOption m_currentOption;
+        private TkLogger _logger = TkLogger.Get<LeafRadioGroupUnselectable>();
 
+        public void ClearCurrentOption()
+        {
+            if (!_allowNoOption) {
+                _logger.Error("Trying to clear current option for Radio Group that doesn't allow no current option");
+                return;
+            }
+
+            ClearOption();
+        }
+        
+        public void SelectOption(LeafRadioOption option)
+        {
+            if (option == m_currentOption) {
+                return;
+            }
+
+            if (option == null && !_allowNoOption) {
+                _logger.Error("Trying to set option to null for Radio Group that doesn't allow no option");
+                return;
+            }
+			        
+            TurnOffCurrentOption();
+
+            m_currentOption = option;
+            m_currentOption.SetValueFromGroup(true);
+			
+            OptionSelected?.Invoke(option);
+            HasOptionSelected?.Invoke(true);
+        }
+        
 		protected override void OnEnable()
 		{
 			if (m_currentOption == null && !_allowNoOption) {
@@ -32,13 +64,9 @@ namespace Tekly.Leaf.Elements.Radios
 		{
 			if (option == m_currentOption) {
 				if (_allowNoOption) {
-					m_currentOption.SetValueFromGroup(false);
-					m_currentOption = null;
-					
-					OptionSelected?.Invoke(null);
-					HasOptionSelected?.Invoke(false);
-				}
-				
+                    ClearOption();
+                }
+                
 				return;
 			}
 			        
@@ -70,5 +98,14 @@ namespace Tekly.Leaf.Elements.Radios
 				m_currentOption.SetValueFromGroup(false);
 			}
 		}
+
+        private void ClearOption()
+        {
+            m_currentOption.SetValueFromGroup(false);
+            m_currentOption = null;
+					
+            OptionSelected?.Invoke(null);
+            HasOptionSelected?.Invoke(false);
+        }
 	}
 }
