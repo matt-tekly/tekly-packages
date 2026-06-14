@@ -101,7 +101,7 @@ namespace Tekly.Leaf.Elements.Radios
 
         private void ClearOption()
         {
-            m_currentOption.SetValueFromGroup(false);
+	        TurnOffCurrentOption();
             m_currentOption = null;
 					
             OptionSelected?.Invoke(null);
