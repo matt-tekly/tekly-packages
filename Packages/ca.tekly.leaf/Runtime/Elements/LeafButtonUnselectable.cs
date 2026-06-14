@@ -132,6 +132,12 @@ namespace Tekly.Leaf.Elements
                 StartCoroutine(PressDelayCoroutine(m_pressDelay));
             }
         }
+        
+        public void SimulatePress()
+        {
+	        UpdateAnimatorMode(LeafElementMode.Pressed, false);
+	        StartCoroutine(PressDelayCoroutine(m_pressDelay));
+        }
 
 		protected override void OnCanvasGroupChanged()
 		{
