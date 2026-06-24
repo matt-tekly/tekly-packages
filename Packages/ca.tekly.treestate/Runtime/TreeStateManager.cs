@@ -1,7 +1,3 @@
-// ============================================================================
-// Copyright 2021 Matt King
-// ============================================================================
-
 using System;
 using System.Collections.Generic;
 using Tekly.Logging;
@@ -54,6 +50,14 @@ namespace Tekly.TreeState
 		private void OnDestroy()
 		{
 			TreeStateRegistry.Instance.Remove(name);
+
+			Active = null;
+			
+			m_activities = null;
+			m_sequencer = null;
+			m_targetState = null;
+			m_sequencer = null;
+			m_pendingTransition = null;
 		}
 
 		public void Initialize()
@@ -109,16 +113,18 @@ namespace Tekly.TreeState
 				m_logger.Info($"[{treeActivity.Name}] -> [{treeActivity.Mode}]");	
 			}
 
-			var evt = new TreeActivityModeChangedEvt {
-				Manager = Name,
-				State = treeActivity.Name,
-				ActivityType = treeActivity.TypeName,
-				Mode = treeActivity.Mode,
-				PreviousMode = previousMode,
-				IsState = treeActivity is TreeState
-			};
+			if (TreeStateRegistry.Instance.ActivityModeChanged.HasObserver) {
+				var evt = new TreeActivityModeChangedEvt {
+					Manager = Name,
+					State = treeActivity.Name,
+					ActivityType = treeActivity.TypeName,
+					Mode = treeActivity.Mode,
+					PreviousMode = previousMode,
+					IsState = treeActivity is TreeState
+				};
 			
-			TreeStateRegistry.Instance.ActivityModeChanged.Emit(evt);
+				TreeStateRegistry.Instance.ActivityModeChanged.Emit(evt);
+			}
 
 #if UNITY_EDITOR
 			UnityEditor.EditorApplication.RepaintHierarchyWindow();

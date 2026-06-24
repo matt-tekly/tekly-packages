@@ -1,6 +1,3 @@
-// ============================================================================
-// Copyright 2021 Matt King
-// ============================================================================
 using Tekly.TreeState.Utils;
 
 namespace Tekly.TreeState
@@ -13,16 +10,23 @@ namespace Tekly.TreeState
 	/// </summary>
 	public class TreeStateActivity : TreeActivity
 	{
-		public override string Name => $"{name} [{GetType().Name}]";
+		public override string Name => m_name ??= $"{name} [{GetType().Name}]";
 		public override string FullName => m_fullName ??= TreeStateUtils.CalculatePath(TreeState);
-
+		
+		private string m_name;
 		private string m_fullName;
-		
+
 		protected TreeState TreeState;
-		
+    
 		protected virtual void Awake()
 		{
 			TreeState = GetComponent<TreeState>();
+		}
+
+		protected override void OnDestroy()
+		{
+			base.OnDestroy();
+			TreeState = null;
 		}
 	}
 }

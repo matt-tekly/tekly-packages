@@ -19,6 +19,8 @@ namespace Tekly.Common.Observables
 
 	public class Triggerable<T> : ITriggerable<T>, IObserverLinkedList<T>, IDisposable
 	{
+		public bool HasObserver => m_root != null;
+		
 		private ObserverNode<T> m_root;
 		private ObserverNode<T> m_last;
 
