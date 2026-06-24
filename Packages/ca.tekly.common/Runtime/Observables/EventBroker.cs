@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Tekly.Common.Observables
 {
-    public class EventBroker
+    public class EventBroker : IDisposable
     {
         private readonly Dictionary<Type, object> m_triggerables = new Dictionary<Type, object>();
         
@@ -32,6 +32,14 @@ namespace Tekly.Common.Observables
             }
 
             return observable as Triggerable<T>;
+        }
+        
+        public void Dispose()
+        {
+	        foreach (var triggerable in m_triggerables.Values) {
+		        (triggerable as IDisposable)?.Dispose();
+	        }
+	        m_triggerables.Clear();
         }
     }
 }

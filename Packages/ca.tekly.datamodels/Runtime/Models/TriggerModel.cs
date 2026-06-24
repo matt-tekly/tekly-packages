@@ -9,8 +9,6 @@ namespace Tekly.DataModels.Models
 		{
 			Emit(Unit.Default);
 		}
-		
-		public void Dispose() { }
 
 		public void Tick() { }
 
