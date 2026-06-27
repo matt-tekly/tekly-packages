@@ -41,7 +41,6 @@ namespace Tekly.Extensions.DataProviders
 		public void Unbind()
 		{
 			foreach (var modelWithName in m_models) {
-				modelWithName.Model.Dispose();
 				m_addToModel.RemoveModel(modelWithName.Name);
 			}
 			

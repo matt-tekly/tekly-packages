@@ -70,10 +70,12 @@ namespace Tekly.DataModels.Models
 			}
 		}
 
-		public void Add(string name, IModel model, ReferenceType referenceType = ReferenceType.Owner)
+		public IModel Add(string name, IModel model, ReferenceType referenceType = ReferenceType.Owner)
 		{
 			m_models.Add(new ModelReference(model, referenceType, name, name.GetHashCode()));
 			EmitModified();
+
+			return model;
 		}
 
 		public T Add<T>(string name, T model, ReferenceType referenceType = ReferenceType.Owner) where T : IModel
@@ -182,9 +184,9 @@ namespace Tekly.DataModels.Models
 			return model;
 		}
 
-		public void Add(int name, IModel model)
+		public IModel Add(int name, IModel model)
 		{
-			Add(name.ToString(), model);
+			return Add(name.ToString(), model);
 		}
 
 		public void BulkModify(Action action)
@@ -195,17 +197,28 @@ namespace Tekly.DataModels.Models
 			EmitModified();
 		}
 
-		public void RemoveModel(string name)
+		/// <summary>
+		/// Removes and a disposes the model with given name
+		/// </summary>
+		public IModel RemoveModel(string name, bool preventDisposal = false)
 		{
+			IModel foundModel = null;
 			for (var index = 0; index < m_models.Count; index++) {
 				var modelReference = m_models[index];
 				if (string.Equals(modelReference.Key, name, StringComparison.Ordinal)) {
 					m_models.RemoveAt(index);
+
+					foundModel = modelReference.Model;
+
+					if (!preventDisposal) {
+						foundModel.Dispose();
+					}
 					break;
 				}
 			}
 
 			EmitModified();
+			return foundModel;
 		}
 
 		public bool TryGetModel<T>(ModelKey modelKey, int index, out T targetModel) where T : class, IModel

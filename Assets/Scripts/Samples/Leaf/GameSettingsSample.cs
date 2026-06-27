@@ -28,7 +28,6 @@ namespace TeklySample.Samples.Leaf
 		private void OnDestroy()
 		{
 			RootModel.Instance.RemoveModel("settings");
-			m_gameSettingsModel.Dispose();
 		}
 	}
 }
