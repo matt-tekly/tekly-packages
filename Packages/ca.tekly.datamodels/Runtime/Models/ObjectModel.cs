@@ -200,7 +200,7 @@ namespace Tekly.DataModels.Models
 		/// <summary>
 		/// Removes and a disposes the model with given name
 		/// </summary>
-		public IModel RemoveModel(string name, bool preventDisposal = false)
+		public IModel RemoveModel(string name)
 		{
 			IModel foundModel = null;
 			for (var index = 0; index < m_models.Count; index++) {
@@ -210,7 +210,7 @@ namespace Tekly.DataModels.Models
 
 					foundModel = modelReference.Model;
 
-					if (!preventDisposal) {
+					if (modelReference.ReferenceType == ReferenceType.Owner) {
 						foundModel.Dispose();
 					}
 					break;
