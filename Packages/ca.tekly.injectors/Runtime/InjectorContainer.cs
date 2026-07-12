@@ -6,7 +6,7 @@ using Tekly.Logging;
 
 namespace Tekly.Injectors
 {
-    public class InjectorContainer
+    public class InjectorContainer : IServiceProvider
     {
         private readonly Dictionary<Type, IInstanceProvider> m_instances = new Dictionary<Type, IInstanceProvider>();
         private readonly Dictionary<InstanceId, IInstanceProvider> m_instanceIds = new Dictionary<InstanceId, IInstanceProvider>();
@@ -251,6 +251,12 @@ namespace Tekly.Injectors
 
             result = default;
             return false;
+        }
+
+        public object GetService(Type serviceType)
+        {
+	        TryGet(serviceType, out var result);
+	        return result;
         }
     }
 }

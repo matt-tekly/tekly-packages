@@ -9,7 +9,7 @@ namespace Tekly.Injectors.Utils
 		void Provide(LifecycleContainer lifecycle);
 	}
 	
-	public class LifecycleContainer
+	public class LifecycleContainer : IServiceProvider
 	{
 		public readonly InjectorContainer Container;
 
@@ -109,6 +109,11 @@ namespace Tekly.Injectors.Utils
 
 			m_disposables.Clear();
 			m_tickables.Clear();
+		}
+
+		public object GetService(Type serviceType)
+		{
+			return Container.GetService(serviceType);
 		}
 	}
 }
