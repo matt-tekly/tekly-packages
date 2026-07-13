@@ -42,6 +42,7 @@ namespace Tekly.EditorUtils.Attributes
         private readonly string m_title;
         private readonly PolymorphicDropdown m_dropdown;
         private readonly SerializedProperty m_serializedProperty;
+        private readonly Dictionary<AdvancedDropdownItem, int> m_itemIndices = new Dictionary<AdvancedDropdownItem, int>();
 
         public PolymorphicTypeDropdown(string title, PolymorphicDropdown dropdown, SerializedProperty serializedProperty)
             : base(new AdvancedDropdownState())
@@ -56,10 +57,13 @@ namespace Tekly.EditorUtils.Attributes
         protected override AdvancedDropdownItem BuildRoot()
         {
             var root = new AdvancedDropdownItem(m_title);
+            m_itemIndices.Clear();
 
             for (var index = 0; index < m_dropdown.TypeNames.Length; index++) {
                 var typeName = m_dropdown.TypeNames[index];
-                root.AddChild(new AdvancedDropdownItem(typeName.text) {id = index});
+                var dropdownItem = new AdvancedDropdownItem(typeName.text);
+                m_itemIndices[dropdownItem] = index;
+                root.AddChild(dropdownItem);
             }
 
             return root;
@@ -67,8 +71,12 @@ namespace Tekly.EditorUtils.Attributes
 
         protected override void ItemSelected(AdvancedDropdownItem item)
         {
+            if (!m_itemIndices.TryGetValue(item, out var index)) {
+                return;
+            }
+
             m_serializedProperty.serializedObject.UpdateIfRequiredOrScript();
-            m_dropdown.Apply(item.id, m_serializedProperty);
+            m_dropdown.Apply(index, m_serializedProperty);
             m_serializedProperty.serializedObject.ApplyModifiedProperties();
         }
     }

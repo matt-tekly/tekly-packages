@@ -183,8 +183,8 @@ namespace Tekly.DataModels.Models
 
 			return model;
 		}
-
-		public IModel Add(int name, IModel model)
+		
+		public T Add<T>(int name, T model, ReferenceType referenceType = ReferenceType.Owner) where T : IModel
 		{
 			return Add(name.ToString(), model);
 		}
