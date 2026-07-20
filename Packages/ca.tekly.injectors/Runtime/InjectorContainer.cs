@@ -220,7 +220,7 @@ namespace Tekly.Injectors
             injectionTypeData.Inject(instance, this);
         }
         
-        public void Clear(object instance)
+        public static void Clear(object instance)
         {
             var injectionTypeData = GetInjectionTypeData(instance.GetType());
             injectionTypeData.Clear(instance);

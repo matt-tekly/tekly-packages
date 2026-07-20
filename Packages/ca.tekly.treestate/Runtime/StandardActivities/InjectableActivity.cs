@@ -23,8 +23,17 @@ namespace Tekly.TreeState.StandardActivities
         protected override void PostInactive()
         {
             base.PostInactive();
-            m_container?.Clear(this);
             m_container = null;
+            
+            InjectorContainer.Clear(this);
+        }
+        
+        protected override void OnDestroy()
+        {
+	        base.OnDestroy();
+	        m_injectorContainerState = null;
+	        m_container = null;
+	        InjectorContainer.Clear(this);
         }
     }
 }

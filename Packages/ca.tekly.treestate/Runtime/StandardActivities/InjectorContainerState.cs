@@ -80,7 +80,7 @@ namespace Tekly.TreeState.StandardActivities
 		{
 			if (m_instances != null) {
 				foreach (var scriptableInjector in m_instances) {
-					Container.Clear(scriptableInjector);
+					InjectorContainer.Clear(scriptableInjector);
 				}
 			}
 

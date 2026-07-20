@@ -99,7 +99,7 @@ namespace Tekly.TreeState.StandardActivities
 		{
 			if (m_instances != null) {
 				foreach (var scriptableInjector in m_instances) {
-					Container.Clear(scriptableInjector);
+					InjectorContainer.Clear(scriptableInjector);
 				}
 			}
 
@@ -117,12 +117,21 @@ namespace Tekly.TreeState.StandardActivities
 		{
 			base.OnDestroy();
 			
+			if (m_instances != null) {
+				foreach (var scriptableInjector in m_instances) {
+					InjectorContainer.Clear(scriptableInjector);
+				}
+			}
+			
 			if (SelfContainer != null) {
 				SelfContainer.Clear();
 			}
 			
 			m_lifecycleContainer?.Dispose();
 			m_lifecycleContainer = null;
+
+			m_parentContainer = null;
+			Container = null;
 		}
 	}
 }

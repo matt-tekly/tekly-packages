@@ -148,5 +148,16 @@ namespace Tekly.TreeState
 				activity.Activate();
 			}
 		}
+		
+		protected override void OnDestroy()
+		{
+			base.OnDestroy();
+			Disposables.Clear();
+			
+			m_loadingSequence = null;
+			m_unloadingSequence = null;
+			
+			Manager = null;
+		}
 	}
 }

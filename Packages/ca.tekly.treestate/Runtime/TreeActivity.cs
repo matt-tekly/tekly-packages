@@ -143,6 +143,7 @@ namespace Tekly.TreeState
         protected virtual void OnDestroy()
         {
             Disposables.Clear();
+            m_monitor = null;
         }
     }
 

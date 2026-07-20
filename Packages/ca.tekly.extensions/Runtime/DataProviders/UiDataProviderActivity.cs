@@ -51,7 +51,7 @@ namespace Tekly.Extensions.DataProviders
             
             foreach (var provider in m_providers) {
                 provider.Unbind();
-                m_container.Clear(provider);
+                InjectorContainer.Clear(provider);
             }
 
             m_bound = false;
