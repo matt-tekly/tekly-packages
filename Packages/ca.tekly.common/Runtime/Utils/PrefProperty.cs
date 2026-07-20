@@ -15,7 +15,7 @@ namespace Tekly.Common.Utils
 
 		public readonly string Key;
 
-		public PrefProperty(string key, T defaultValue = default)
+		protected PrefProperty(string key, T defaultValue = default)
 		{
 			Key = key;
 
@@ -23,10 +23,17 @@ namespace Tekly.Common.Utils
 				Set(defaultValue);
 			}
 		}
+		
+		public override string ToString()
+		{
+			return Get().ToString();
+		}
 	}
 
 	public class PrefPropertyString : PrefProperty<string>
 	{
+		public PrefPropertyString(string key, string defaultValue = null) : base(key, defaultValue) { }
+		
 		public override string Get()
 		{
 			return PlayerPrefs.GetString(Key);
@@ -36,8 +43,6 @@ namespace Tekly.Common.Utils
 		{
 			PlayerPrefs.SetString(Key, value);
 		}
-
-		public PrefPropertyString(string key, string defaultValue = null) : base(key, defaultValue) { }
 
 		public static implicit operator string(PrefPropertyString pref)
 		{

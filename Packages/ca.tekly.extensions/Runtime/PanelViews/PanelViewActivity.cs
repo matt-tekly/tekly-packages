@@ -42,17 +42,17 @@ namespace Tekly.Extensions.PanelViews
         {
             return !m_showOnLoad || m_panelView.State == PresentableState.Shown;
         }
-		
-        protected override void UnloadingStarted()
+
+		protected override void UnloadingStarted()
         {
-            if (m_hideOnLeave) {
-                m_panelView.Hide();	
+            if (m_hideOnLeave && m_panelView != null) {
+				m_panelView.Hide();	
             }
         }
 		
         protected override bool IsDoneUnloading()
         {
-            return !m_hideOnLeave || m_panelView.State == PresentableState.Hidden;
+            return !m_hideOnLeave || m_panelView == null || m_panelView.State == PresentableState.Hidden;
         }
     }
 }
