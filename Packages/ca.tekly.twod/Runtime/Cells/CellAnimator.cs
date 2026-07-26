@@ -50,6 +50,7 @@ namespace Tekly.TwoD.Cells
 		}
 
 		public int Frame => m_frame;
+		public string AnimName => m_animName;
 
 		public abstract bool Visible { get; set; }
 		public abstract Color Color { get; set; }
@@ -67,14 +68,26 @@ namespace Tekly.TwoD.Cells
 			PlayAnimation(animName);
 		}
 
+		public void TryPlayAnimation(string animName)
+		{
+			if (m_animName != animName) {
+				PlayAnimation(animName);
+			}
+		}
+
+		public void SetPlaying(bool playing)
+		{
+			m_isPlaying = playing;
+		}
+
 		public void Play()
 		{
-			m_isPlaying = true;
+			SetPlaying(true);
 		}
 		
 		public void Pause()
 		{
-			m_isPlaying = false;
+			SetPlaying(false);
 		}
 
 		public void RandomizeTime()
