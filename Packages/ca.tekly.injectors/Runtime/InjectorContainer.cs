@@ -6,17 +6,19 @@ using Tekly.Logging;
 
 namespace Tekly.Injectors
 {
-    public class InjectorContainer : IServiceProvider
+    public class InjectorContainer : IServiceProvider, IDisposable
     {
-        private readonly Dictionary<Type, IInstanceProvider> m_instances = new Dictionary<Type, IInstanceProvider>();
-        private readonly Dictionary<InstanceId, IInstanceProvider> m_instanceIds = new Dictionary<InstanceId, IInstanceProvider>();
-
-        private readonly InjectorContainer m_parent;
+	    public readonly string Name;
+	    
+        private readonly Dictionary<Type, IInstanceProvider> m_instances = new();
+        private readonly Dictionary<InstanceId, IInstanceProvider> m_instanceIds = new();
+        
         private readonly TkLogger m_logger = TkLogger.Get<InjectorContainer>();
 
+        private InjectorContainer m_parent;
         private List<ITypeInstanceProvider> m_typeProviders;
-
-        public readonly string Name;
+        
+        private bool m_disposed;
         
         public InjectorContainer(string name = null)
         {
@@ -27,6 +29,17 @@ namespace Tekly.Injectors
         public InjectorContainer(InjectorContainer parent, string name = null) : this(name)
         {
             m_parent = parent;
+        }
+
+        public void Dispose()
+        {
+	        m_instances.Clear();
+	        m_instanceIds.Clear();
+	        m_typeProviders?.Clear();
+
+	        m_parent = null;
+
+	        m_disposed = true;
         }
         
         public void Singleton<T>()

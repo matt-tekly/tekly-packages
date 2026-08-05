@@ -100,8 +100,13 @@ namespace Tekly.Injectors.Utils
 				tickable.Tick();
 			}
 		}
+		
+		public object GetService(Type serviceType)
+		{
+			return Container.GetService(serviceType);
+		}
 
-		public void Clear()
+		private void Clear()
 		{
 			foreach (var disposable in m_disposables) {
 				disposable.Dispose();
@@ -109,11 +114,8 @@ namespace Tekly.Injectors.Utils
 
 			m_disposables.Clear();
 			m_tickables.Clear();
-		}
-
-		public object GetService(Type serviceType)
-		{
-			return Container.GetService(serviceType);
+			
+			Container.Dispose();
 		}
 	}
 }
