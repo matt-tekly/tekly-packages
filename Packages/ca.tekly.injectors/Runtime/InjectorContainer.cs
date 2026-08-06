@@ -18,7 +18,9 @@ namespace Tekly.Injectors
         private InjectorContainer m_parent;
         private List<ITypeInstanceProvider> m_typeProviders;
         
+#pragma warning disable CS0414 // Field is assigned but its value is never used
         private bool m_disposed;
+#pragma warning restore CS0414 // Field is assigned but its value is never used
         
         public InjectorContainer(string name = null)
         {

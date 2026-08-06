@@ -11,10 +11,14 @@ namespace Tekly.Common.Utils
 
         public bool Failure => !Success;
 
-        protected Result(string error = null, int errorCode = 0)
+        protected Result(string error, int errorCode)
         {
-            Error = error;
+            Error = error ?? "Unknown error";
             ErrorCode = errorCode;
+        }
+        
+        protected Result()
+        {
         }
 
         public override string ToString()
@@ -64,6 +68,7 @@ namespace Tekly.Common.Utils
 
         public Result(string error = null, int errorCode = 0) : base(error, errorCode)
         {
+	        
         }
     }
 }
