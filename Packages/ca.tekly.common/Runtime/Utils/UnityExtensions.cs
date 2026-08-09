@@ -72,7 +72,14 @@ namespace Tekly.Common.Utils
         
         public static T FindResource<T>(int instanceId) where T : Object
         {
-            return Resources.FindObjectsOfTypeAll<T>().FirstOrDefault(resource => resource.GetInstanceID() == instanceId);
+            return Resources.FindObjectsOfTypeAll<T>().FirstOrDefault(resource => {
+#if UNITY_6000_5_OR_NEWER
+	            return resource.GetEntityId().GetHashCode() == instanceId;
+#else
+	            return resource.GetInstanceID() == instanceId;
+#endif
+	            
+            });
         }
 		
         public static T FindResource<T>(string name) where T : Object

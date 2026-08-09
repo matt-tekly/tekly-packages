@@ -16,10 +16,19 @@ namespace Tekly.TreeState
 		
 		static ActivityHierarchyExtension()
 		{
+#if UNITY_6000_5_OR_NEWER
+			EditorApplication.hierarchyWindowItemByEntityIdOnGUI += OnDrawHierarchyItem;
+#else
 			EditorApplication.hierarchyWindowItemOnGUI += OnDrawHierarchyItem;
+#endif
+			
 		}
 
+#if UNITY_6000_5_OR_NEWER
+		private static void OnDrawHierarchyItem(EntityId instanceId, Rect selectionRect)
+#else
 		private static void OnDrawHierarchyItem(int instanceId, Rect selectionRect)
+#endif
 		{
 			var go = EditorUtility.EntityIdToObject(instanceId) as GameObject;
 
