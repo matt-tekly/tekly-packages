@@ -19,6 +19,7 @@ namespace Tekly.DataModels.Binders
         [FormerlySerializedAs("Binders")][SerializeField] protected List<Binder> m_binders;
 
         [NonSerialized] protected BinderContainer m_parent;
+        [NonSerialized] protected ObjectModel m_modelOverride;
         [NonSerialized] protected string m_keyOverride;
         [NonSerialized] protected bool m_hasBound;
         [NonSerialized] private bool m_started;
@@ -52,6 +53,15 @@ namespace Tekly.DataModels.Binders
         public void OverrideKey(string key)
         {
             m_keyOverride = key;
+            
+            if (m_hasBound) {
+                Bind();    
+            }
+        }
+        
+        public void OverrideModel(ObjectModel model)
+        {
+            m_modelOverride = model;
             
             if (m_hasBound) {
                 Bind();    
@@ -150,6 +160,11 @@ namespace Tekly.DataModels.Binders
 
             if (!modelKey.IsRelative) {
                 return rootModel.TryGetModel(modelKey, 0, out model);
+            }
+
+            if (m_modelOverride != null)
+            {
+                return m_modelOverride.TryGetModel(modelKey, 0, out model);
             }
             
             var selfKey = ModelKey.Parse(GetKey());
