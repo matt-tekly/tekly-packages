@@ -76,14 +76,30 @@ namespace Tekly.Localizations
 			
 			m_formatter = Smart.CreateDefaultSmartFormat(settings);
 			
-			m_formatter.InsertExtension(0, new LocalizationSource(localizer));
-			m_formatter.InsertExtension(0, new IndefiniteArticleFormatter());
-			m_formatter.AddExtensions(new TuplesSource(localizer));
+			InsertExtension(0, new LocalizationSource(localizer));
+			InsertExtension(0, new IndefiniteArticleFormatter());
+			InsertExtension(0, new OrdinalFormatter());
+			AddExtensions(new TuplesSource(localizer));
 		}
 
 		public string Localize(LocalizationString locString, (string, object)[] data)
 		{
 			return m_formatter.Format(locString.Format, data);
+		}
+
+		public void AddExtensions(params ISource[] sourceExtensions)
+		{
+			m_formatter.AddExtensions(sourceExtensions);
+		}
+
+		public void InsertExtension(int position, ISource sourceExtension)
+		{
+			m_formatter.InsertExtension(position, sourceExtension);
+		}
+		
+		public void InsertExtension(int position, IFormatter formatterExtension)
+		{
+			m_formatter.InsertExtension(position, formatterExtension);
 		}
 	}
 }
