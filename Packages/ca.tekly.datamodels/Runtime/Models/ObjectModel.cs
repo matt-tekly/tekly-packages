@@ -186,7 +186,7 @@ namespace Tekly.DataModels.Models
 		
 		public T Add<T>(int name, T model, ReferenceType referenceType = ReferenceType.Owner) where T : IModel
 		{
-			return Add(name.ToString(), model);
+			return Add(name.ToString(), model, referenceType);
 		}
 
 		public void BulkModify(Action action)
