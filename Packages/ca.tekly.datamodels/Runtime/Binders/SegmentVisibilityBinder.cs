@@ -11,11 +11,13 @@ namespace Tekly.DataModels.Binders
 		{
 			var enabledCount = (int) Math.Floor(value);
 
-			for (var i = 0; i < enabledCount; i++) {
+			for (var i = 0; i < enabledCount && i < m_targets.Length; i++)
+			{
 				m_targets[i].SetActive(true);
 			}
 
-			for (var i = enabledCount; i < m_targets.Length; i++) {
+			for (var i = enabledCount; i < m_targets.Length; i++)
+			{
 				m_targets[i].SetActive(false);
 			}
 		}
