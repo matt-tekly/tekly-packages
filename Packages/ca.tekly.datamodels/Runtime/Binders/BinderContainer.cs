@@ -55,6 +55,7 @@ namespace Tekly.DataModels.Binders
             m_keyOverride = key;
             
             if (m_hasBound) {
+	            UnBind();
                 Bind();    
             }
         }
@@ -64,6 +65,7 @@ namespace Tekly.DataModels.Binders
             m_modelOverride = model;
             
             if (m_hasBound) {
+	            UnBind();
                 Bind();    
             }
         }

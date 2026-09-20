@@ -87,6 +87,13 @@ namespace Tekly.DataModels.Binders.Collections
                 Clear();
             }
         }
+        
+        public override void UnBind()
+        {
+	        m_disposable?.Dispose();
+	        base.UnBind();
+	        Clear();
+        }
 
         [ContextMenu("Sort")]
         public void Sort()
