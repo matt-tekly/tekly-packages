@@ -1,0 +1,8 @@
+# Third-party / vendored code: exempt from Tekly style rules.
+# root = true stops the Tekly rules in parent folders from applying here,
+# and generated_code = true tells Roslyn and Rider not to report style issues.
+
+root = true
+
+[*]
+generated_code = true
