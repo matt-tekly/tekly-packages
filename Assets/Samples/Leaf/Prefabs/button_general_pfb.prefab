@@ -543,23 +543,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Tekly.Leaf::Tekly.Leaf.Animators.LeafAnimatorColors
   m_targets:
-  - m_target: {fileID: 5332378326613552775}
-    m_colors:
-      m_NormalColor: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
-      m_HighlightedColor: {r: 0.40000004, g: 0.36078432, b: 0.32941177, a: 1}
-      m_PressedColor: {r: 0.23529413, g: 0.21960786, b: 0.21176472, a: 1}
-      m_SelectedColor: {r: 0.57254905, g: 0.5137255, b: 0.454902, a: 1}
-      m_DisabledColor: {r: 0.285, g: 0.2600625, b: 0.2458125, a: 1}
-      m_ColorMultiplier: 1
-      m_FadeDuration: 0.05
-    m_requiredToBeOn: 0
   - m_target: {fileID: 356202304398930466}
     m_colors:
-      m_NormalColor: {r: 0.92156863, g: 0.85882354, b: 0.69803923, a: 1}
-      m_HighlightedColor: {r: 0.92156863, g: 0.85882354, b: 0.69803923, a: 1}
-      m_PressedColor: {r: 0.9215687, g: 0.8588236, b: 0.69803923, a: 1}
-      m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
-      m_DisabledColor: {r: 0.92156863, g: 0.85882354, b: 0.69803923, a: 0.5019608}
-      m_ColorMultiplier: 1
-      m_FadeDuration: 0.05
-    m_requiredToBeOn: 0
+      Normal: {r: 0.9215687, g: 0.8588236, b: 0.69803923, a: 1}
+      Highlighted: {r: 0.9843138, g: 0.9450981, b: 0.7803922, a: 1}
+      Pressed: {r: 0.8352942, g: 0.7686275, b: 0.6313726, a: 1}
+    m_layers:
+    - m_flags: 4
+      m_blend: 0
+      m_colors:
+        Normal: {r: 0.9215687, g: 0.8588236, b: 0.69803923, a: 1}
+        Highlighted: {r: 0.9843138, g: 0.9450981, b: 0.7803922, a: 1}
+        Pressed: {r: 0.8352942, g: 0.7686275, b: 0.6313726, a: 1}
+    m_fadeDuration: 0.1
+  - m_target: {fileID: 5332378326613552775}
+    m_colors:
+      Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
+      Highlighted: {r: 0.40000004, g: 0.36078432, b: 0.32941177, a: 1}
+      Pressed: {r: 0.23529413, g: 0.21960786, b: 0.21176472, a: 1}
+    m_layers:
+    - m_flags: 1
+      m_blend: 0
+      m_colors:
+        Normal: {r: 0.40000004, g: 0.36078432, b: 0.32941177, a: 1}
+        Highlighted: {r: 0.48627454, g: 0.43529415, b: 0.3921569, a: 1}
+        Pressed: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
+    m_fadeDuration: 0.1
+  m_activeTargets: []

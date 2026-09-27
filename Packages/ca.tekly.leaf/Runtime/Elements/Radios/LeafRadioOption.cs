@@ -1,5 +1,4 @@
 ﻿using System;
-using Tekly.Leaf.Elements.Animators;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -15,7 +14,7 @@ namespace Tekly.Leaf.Elements.Radios
 			set {
 				if (m_isOn != value) {
 					m_isOn = value;
-					UpdateAnimatorMode();
+					UpdateAnimatorState();
 					
 					if (m_isOn) {
 						var group = GetComponentInParent<ILeafRadioGroup>(true);
@@ -38,7 +37,7 @@ namespace Tekly.Leaf.Elements.Radios
 		public void SetValueFromGroup(bool isOn)
 		{
 			m_isOn = isOn;
-			UpdateAnimatorMode();
+			UpdateAnimatorState();
 				
 			m_onValueChanged.Invoke(m_isOn);
 		}
@@ -54,11 +53,6 @@ namespace Tekly.Leaf.Elements.Radios
 			base.OnClick();
 		}
 		
-		protected override void UpdateAnimatorMode(LeafElementMode mode, bool instant)
-		{
-			if (m_animator != null) {
-				m_animator.HandleMode(mode, m_isOn, instant);
-			}
-		}
+		protected override bool IsOnState => m_isOn;
 	}
 }

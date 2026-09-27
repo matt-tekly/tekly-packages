@@ -51,7 +51,7 @@ namespace Tekly.Leaf.Elements
 
 		public void SimulatePress()
 		{
-			DoStateTransition(SelectionState.Pressed, false);
+			SetPressSimulated(true);
 			StartCoroutine(PressDelayCoroutine(m_pressDelay));
 		}
 
@@ -67,7 +67,7 @@ namespace Tekly.Leaf.Elements
 				}
 			}
 			
-			DoStateTransition(currentSelectionState, false);
+			SetPressSimulated(false);
 			Press();
 		}
 	}

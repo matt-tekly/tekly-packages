@@ -15,26 +15,13 @@ namespace Tekly.Leaf.Elements
 		IPointerUpHandler,
 		IPointerEnterHandler,
 		IPointerExitHandler,
-        IPointerClickHandler,
+		IPointerClickHandler,
 		ILeafButton
 	{
-		public LeafElementMode CurrentMode {
-			get {
-				if (!IsInteractable()) {
-					return LeafElementMode.Disabled;
-				}
-
-				if (m_isPointerDown) {
-					return LeafElementMode.Pressed;
-				}
-
-				if (m_isPointerInside) {
-					return LeafElementMode.Highlighted;
-				}
-
-				return LeafElementMode.Normal;
-			}
-		}
+		/// <summary>
+		/// This element can't be selected so IsSelected is always false.
+		/// </summary>
+		public LeafElementState CurrentState => m_tracker.GetState(IsInteractable(), IsOnState);
 
 		public bool interactable {
 			get => Interactable;
@@ -46,7 +33,7 @@ namespace Tekly.Leaf.Elements
 			set {
 				if (m_interactable != value) {
 					m_interactable = value;
-					UpdateAnimatorMode();
+					UpdateAnimatorState();
 				}
 			}
 		}
@@ -62,28 +49,28 @@ namespace Tekly.Leaf.Elements
 
 		[SerializeField] private ButtonClickedEvent m_clicked;
 
-		private bool m_isPointerInside;
-		private bool m_isPointerDown;
-
+		private readonly LeafStateTracker m_tracker = new();
+		private readonly SelectableSelectedEvent m_onSelected = new();
+		
 		private bool m_wasDeselectOnBackgroundClick;
 		private bool m_groupsAllowInteraction = true;
 
-		private SelectableSelectedEvent m_onSelected = new();
-
 		private static readonly List<CanvasGroup> s_canvasGroupCache = new();
+
+		protected virtual bool IsOnState => false;
 
 		protected override void OnEnable()
 		{
+			m_tracker.IsPressSimulated = false;
 			m_groupsAllowInteraction = ParentGroupAllowsInteraction();
-			UpdateAnimatorMode(CurrentMode, true);
+			UpdateAnimatorState(CurrentState, true);
 		}
 
 		protected override void OnDisable()
 		{
-			m_isPointerInside = false;
-			m_isPointerDown = false;
+			m_tracker.Clear();
 
-			UpdateAnimatorMode(LeafElementMode.Normal, true);
+			UpdateAnimatorState(LeafElementState.Default.WithFlags(LeafElementFlags.On, IsOnState), true);
 		}
 
 		public bool IsInteractable()
@@ -93,51 +80,52 @@ namespace Tekly.Leaf.Elements
 
 		public void OnPointerEnter(PointerEventData eventData)
 		{
-			m_isPointerInside = true;
+			m_tracker.IsPointerInside = true;
 
 			// While the pointer is inside this button we disable deselect on clicking on background elements.
 			// This object isn't selectable so it would be considered a background element.
 			m_wasDeselectOnBackgroundClick = GetDeselectOnBackgroundClick();
 			SetDeselectOnBackgroundClick(false);
 
-			UpdateAnimatorMode();
+			UpdateAnimatorState();
 		}
 
 		public void OnPointerExit(PointerEventData eventData)
 		{
-			m_isPointerInside = false;
+			m_tracker.IsPointerInside = false;
 
 			SetDeselectOnBackgroundClick(m_wasDeselectOnBackgroundClick);
-			UpdateAnimatorMode();
+			UpdateAnimatorState();
 		}
 
 		public void OnPointerDown(PointerEventData eventData)
 		{
-			m_isPointerDown = true;
-			UpdateAnimatorMode();
+			m_tracker.IsPointerDown = true;
+			UpdateAnimatorState();
 		}
 
 		public void OnPointerUp(PointerEventData eventData)
 		{
-			m_isPointerDown = false;
-            UpdateAnimatorMode();
+			m_tracker.IsPointerDown = false;
+			UpdateAnimatorState();
 		}
-        
-        public virtual void OnPointerClick(PointerEventData eventData)
-        {
-            if (m_pressDelay <= 0) {
-                OnClick();
-                UpdateAnimatorMode();
-            } else {
-                StartCoroutine(PressDelayCoroutine(m_pressDelay));
-            }
-        }
-        
-        public void SimulatePress()
-        {
-	        UpdateAnimatorMode(LeafElementMode.Pressed, false);
-	        StartCoroutine(PressDelayCoroutine(m_pressDelay));
-        }
+
+		public virtual void OnPointerClick(PointerEventData eventData)
+		{
+			if (m_pressDelay <= 0) {
+				OnClick();
+				UpdateAnimatorState();
+			} else {
+				StartCoroutine(PressDelayCoroutine(m_pressDelay));
+			}
+		}
+
+		public void SimulatePress()
+		{
+			m_tracker.IsPressSimulated = true;
+			UpdateAnimatorState();
+			StartCoroutine(PressDelayCoroutine(m_pressDelay));
+		}
 
 		protected override void OnCanvasGroupChanged()
 		{
@@ -145,7 +133,7 @@ namespace Tekly.Leaf.Elements
 
 			if (parentGroupAllowsInteraction != m_groupsAllowInteraction) {
 				m_groupsAllowInteraction = parentGroupAllowsInteraction;
-				UpdateAnimatorMode();
+				UpdateAnimatorState();
 			}
 		}
 
@@ -179,16 +167,16 @@ namespace Tekly.Leaf.Elements
 			m_clicked.Invoke();
 		}
 
-		protected virtual void UpdateAnimatorMode(LeafElementMode mode, bool instant)
+		protected virtual void UpdateAnimatorState(LeafElementState state, bool instant)
 		{
 			if (m_animator != null) {
-				m_animator.HandleMode(mode, false, instant);
+				m_animator.HandleState(state, instant);
 			}
 		}
 
-		protected virtual void UpdateAnimatorMode()
+		protected void UpdateAnimatorState()
 		{
-			UpdateAnimatorMode(CurrentMode, false);
+			UpdateAnimatorState(CurrentState, false);
 		}
 
 		private static void SetDeselectOnBackgroundClick(bool value)
@@ -219,7 +207,8 @@ namespace Tekly.Leaf.Elements
 				}
 			}
 
-			UpdateAnimatorMode();
+			m_tracker.IsPressSimulated = false;
+			UpdateAnimatorState();
 
 			OnClick();
 		}
