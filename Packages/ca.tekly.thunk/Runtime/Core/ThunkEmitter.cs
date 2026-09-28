@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Tekly.Thunk.Core
@@ -36,6 +37,12 @@ namespace Tekly.Thunk.Core
 		public bool IgnoreListenerPause { get; set; }
 		
 		public IReadOnlyList<ThunkClipInstance> Instances => m_instances;
+
+		/// <summary>
+		/// Raised when an instance on this emitter is disposed for any reason: it finished, was stopped, faded out,
+		/// was replaced due to capacity, or its clip was unloaded. Not raised when the emitter itself is destroyed.
+		/// </summary>
+		public event Action<ThunkClipInstance> InstanceDisposed;
 		
 		[SerializeField] private AudioSource m_audioSourceTemplate;
 		
@@ -104,6 +111,11 @@ namespace Tekly.Thunk.Core
 		
 		public int Play(ThunkClip clip, float? pitch = null, float? volume = null, float? delay = null, float? startTime = null)
 		{
+			if (clip == null) {
+				Debug.LogWarning("[Thunk] ThunkEmitter.Play called with a null ThunkClip", this);
+				return Thunk.INVALID_ID;
+			}
+			
 			Init();
 
 			var instance = clip.State.Play(this, pitch, volume, delay, startTime);
@@ -161,6 +173,7 @@ namespace Tekly.Thunk.Core
 				if (instance.Id == thunkClipInstance.Id) {
 					m_instances.RemoveAt(index);
 					m_audioSourcePool.Return(instance.AudioSource);
+					InstanceDisposed?.Invoke(instance);
 					return;
 				}
 			}

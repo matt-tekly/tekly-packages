@@ -8,6 +8,11 @@ namespace Tekly.Thunk.Core
 	public struct ThunkClipRequest
 	{
 		public ThunkClipState Source;
+		
+		/// <summary>
+		/// The AudioClip selected by the ThunkClipState. If null the source selects one when played.
+		/// </summary>
+		public AudioClip AudioClip;
 		public float? Pitch;
 		public float? Volume;
 		public float? Delay;

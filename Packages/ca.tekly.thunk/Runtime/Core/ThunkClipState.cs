@@ -36,6 +36,8 @@ namespace Tekly.Thunk.Core
 		
 		protected float m_nextPlayTime;
 		protected RandomSelector64 m_randomSelector;
+
+		private bool m_warnedNoAudioClip;
 		
 		public ThunkClipState(ThunkClip clip)
 		{
@@ -49,8 +51,23 @@ namespace Tekly.Thunk.Core
 			if (Time.time < m_nextPlayTime) {
 				return null;
 			}
+
+			// A capacity of 0 or less means no limit
+			var atCapacity = m_clip.InstanceCapacity > 0 && m_instances.Count >= m_clip.InstanceCapacity;
 			
-			if (m_instances.Count >= m_clip.InstanceCapacity) {
+			if (atCapacity && m_clip.CapacityBehaviour == ThunkClipCapacityBehaviour.IgnoreNew) {
+				return null;
+			}
+
+			// Selected before evicting so a clip with no AudioClips doesn't stop what's already playing
+			var audioClip = GetClip();
+			
+			if (audioClip == null) {
+				WarnNoAudioClip();
+				return null;
+			}
+			
+			if (atCapacity) {
 				switch (m_clip.CapacityBehaviour) {
 					case ThunkClipCapacityBehaviour.Unbound:
 						break;
@@ -58,8 +75,6 @@ namespace Tekly.Thunk.Core
 						// Dispose removes the instance from m_instances
 						m_instances[0].Dispose();
 						break;
-					case ThunkClipCapacityBehaviour.IgnoreNew:
-						return null;
 					default:
 						throw new ArgumentOutOfRangeException();
 				}
@@ -67,6 +82,7 @@ namespace Tekly.Thunk.Core
 
 			var request = new ThunkClipRequest {
 				Source = this,
+				AudioClip = audioClip,
 				Pitch = pitch,
 				Volume = volume,
 				Delay = delay,
@@ -88,8 +104,16 @@ namespace Tekly.Thunk.Core
 			return null;
 		}
 
+		/// <summary>
+		/// Selects the next AudioClip to play. Returns null if the ThunkClip has no AudioClips.
+		/// An empty slot in the Clips array also returns null.
+		/// </summary>
 		public virtual AudioClip GetClip()
 		{
+			if (m_randomSelector.Size == 0 || m_randomSelector.Size != ClipCount) {
+				return null;
+			}
+			
 			return m_clip.Clips[m_randomSelector.Select()];
 		}
 
@@ -153,7 +177,7 @@ namespace Tekly.Thunk.Core
 				m_clip = m_clips[0];
 
 				// Copies should match, but a bundle built at a different time could have a different clip list
-				if (m_randomSelector.Size != m_clip.Clips.Length) {
+				if (m_randomSelector.Size != ClipCount) {
 					Reset();
 				}
 			}
@@ -185,7 +209,23 @@ namespace Tekly.Thunk.Core
 
 		public void Reset()
 		{
-			m_randomSelector = new RandomSelector64(m_clip.Clips.Length, m_clip.RandomMode);
+			m_warnedNoAudioClip = false;
+			
+			// RandomSelector64 requires at least one entry; GetClip returns null while it is empty
+			var count = ClipCount;
+			m_randomSelector = count > 0 ? new RandomSelector64(count, m_clip.RandomMode) : default;
+		}
+
+		private int ClipCount => m_clip.Clips?.Length ?? 0;
+
+		private void WarnNoAudioClip()
+		{
+			if (m_warnedNoAudioClip) {
+				return;
+			}
+			
+			m_warnedNoAudioClip = true;
+			UnityEngine.Debug.LogWarning($"[Thunk] ThunkClip [{Name}] has no AudioClip to play (Clips is empty or has an empty slot)", m_clip);
 		}
 		
 		protected virtual ThunkClipInstance CreateInstance(ThunkEmitter emitter, ThunkClipRequest request)

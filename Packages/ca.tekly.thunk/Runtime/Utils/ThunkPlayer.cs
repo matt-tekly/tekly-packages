@@ -11,7 +11,7 @@ namespace Tekly.Thunk.Utils
 		[SerializeField] private ThunkClip m_clip;
 		[SerializeField] private bool m_stopOnPlay;
 
-		private int m_instanceId;
+		private int m_instanceId = Core.Thunk.INVALID_ID;
 		
 		private void OnEnable()
 		{
@@ -30,7 +30,8 @@ namespace Tekly.Thunk.Utils
 		public void Stop()
 		{
 			if (m_instanceId != Core.Thunk.INVALID_ID) {
-				m_emitter.Stop(m_instanceId);	
+				m_emitter.Stop(m_instanceId);
+				m_instanceId = Core.Thunk.INVALID_ID;
 			}
 		}
 

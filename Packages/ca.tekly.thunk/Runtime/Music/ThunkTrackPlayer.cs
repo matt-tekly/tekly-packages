@@ -11,7 +11,7 @@ namespace Tekly.Thunk.Music
 		[SerializeField] private float m_fadeInDuration;
 		[SerializeField] private bool m_autoPlay;
 		
-		private int m_instanceId;
+		private int m_instanceId = Core.Thunk.INVALID_ID;
 		private ThunkTrack m_track;
 		
 		private void Awake()
@@ -40,13 +40,18 @@ namespace Tekly.Thunk.Music
 		public void Pop()
 		{
 			if (m_instanceId != Core.Thunk.INVALID_ID) {
-				m_track.PopCrossFade(m_instanceId, m_fadeInDuration);	
+				m_track.PopCrossFade(m_instanceId, m_fadeInDuration);
+				m_instanceId = Core.Thunk.INVALID_ID;
 			}
 		}
 
 		private void OnDisable()
 		{
-			m_track.Stop(m_instanceId);
+			if (m_instanceId != Core.Thunk.INVALID_ID) {
+				// Resumes whatever was underneath if this was on top
+				m_track.Stop(m_instanceId, m_fadeInDuration);
+				m_instanceId = Core.Thunk.INVALID_ID;
+			}
 		}
 	}
 }

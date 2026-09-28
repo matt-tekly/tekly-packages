@@ -78,7 +78,7 @@ namespace Tekly.Thunk.Core
 
 		public void Play(ThunkClipRequest request)
 		{
-			Clip = request.Source.GetClip();
+			Clip = request.AudioClip != null ? request.AudioClip : request.Source.GetClip();
 			
 			if (request.Pitch != null) {
 				Pitch = request.Pitch.Value;
@@ -94,8 +94,9 @@ namespace Tekly.Thunk.Core
 
 			if (request.StartTime != null) {
 				m_audioSource.time = request.StartTime.Value;
-			} else if (request.Source.Clip.RandomizeStartTime) {
-				m_audioSource.time = Random.Range(0, Clip.length);
+			} else if (request.Source.Clip.RandomizeStartTime && Clip != null) {
+				// Seeking by samples: the int Range excludes the max, so this never seeks to the very end
+				m_audioSource.timeSamples = Random.Range(0, Clip.samples);
 			}
 
 			Loop = request.Source.IsLooping;
