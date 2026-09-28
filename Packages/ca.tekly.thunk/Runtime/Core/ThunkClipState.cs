@@ -47,9 +47,8 @@ namespace Tekly.Thunk.Core
 					case ThunkClipCapacityBehaviour.Unbound:
 						break;
 					case ThunkClipCapacityBehaviour.ReplaceOldest:
-						var instance = m_instances[0];
-						instance.Dispose();
-						m_instances.RemoveAt(0);
+						// Dispose removes the instance from m_instances
+						m_instances[0].Dispose();
 						break;
 					case ThunkClipCapacityBehaviour.IgnoreNew:
 						return null;
@@ -88,15 +87,27 @@ namespace Tekly.Thunk.Core
 
 		public void Tick(float deltaTime, float unscaledDeltaTime)
 		{
+			// Iterating backwards so instances can remove themselves (via Dispose) while ticking
 			for (var index = m_instances.Count - 1; index >= 0; index--) {
+				if (index >= m_instances.Count) {
+					continue;
+				}
+
 				var instance = m_instances[index];
 				instance.Tick(deltaTime, unscaledDeltaTime);
 				
-				if (!instance.IsPlaying) {
-					m_instances.RemoveAt(index);
+				if (!instance.IsDisposed && !instance.IsPlaying) {
 					instance.Dispose();
 				}
 			}
+		}
+
+		/// <summary>
+		/// Called by ThunkClipInstance.Dispose so the instance stops counting towards capacity immediately
+		/// </summary>
+		internal void InstanceDisposed(ThunkClipInstance instance)
+		{
+			m_instances.Remove(instance);
 		}
 
 		public void Reset()

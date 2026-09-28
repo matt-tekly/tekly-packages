@@ -35,7 +35,11 @@ namespace Tekly.Thunk.Core
 
 		public float Time {
 			get => m_audioSource.Time;
-			set => m_audioSource.Time = value;
+			set {
+				if (!m_disposed) {
+					m_audioSource.Time = value;
+				}
+			}
 		}
 		
 		public ThunkAudioSource AudioSource => m_audioSource;
@@ -52,7 +56,10 @@ namespace Tekly.Thunk.Core
 		private bool m_disposed;
 		private ThunkClipInstanceState m_state;
 
-		private readonly float m_initialVolume;
+		/// <summary>
+		/// The volume FadeIn returns to. Starts as the requested volume and is updated by SetVolume.
+		/// </summary>
+		private float m_baseVolume;
 		private float m_fadeVolumeStart;
 		private float m_fadeVolumeEnd;
 		private float m_fadeTime;
@@ -67,38 +74,74 @@ namespace Tekly.Thunk.Core
 			m_audioSource = emitter.GetAudioSource();
 			m_audioSource.Play(request);
 
-			m_initialVolume = m_audioSource.Volume;
+			m_baseVolume = m_audioSource.Volume;
 		}
 
+		/// <summary>
+		/// Called when the owning emitter is destroyed. Its AudioSources are destroyed with it, so they are not
+		/// returned to the pool, but the instance is still removed from its ThunkClipState.
+		/// </summary>
 		public void OnEmitterStopped()
 		{
-			// When the emitter is stopped or destroyed no cleanup is needed
-			m_disposed = true;
+			Dispose(false);
 		}
 
+		/// <summary>
+		/// Stops the instance, removes it from its ThunkClipState and emitter, and returns its AudioSource to the pool.
+		/// This is the only way an instance should be stopped.
+		/// </summary>
 		public void Dispose()
+		{
+			Dispose(true);
+		}
+
+		private void Dispose(bool returnToEmitter)
 		{
 			if (m_disposed) {
 				return;
 			}
 
-			if (m_emitter != null) {
-				m_emitter.ClipInstanceDisposed(this);
-			}
-
 			m_disposed = true;
 			m_state = ThunkClipInstanceState.Disposed;
+
+			m_clip.InstanceDisposed(this);
+
+			if (returnToEmitter && m_emitter != null) {
+				m_emitter.ClipInstanceDisposed(this);
+			}
 		}
 
+		/// <summary>
+		/// Sets the volume this instance plays at, which is also the volume FadeIn returns to.
+		/// - Normal: applied immediately.
+		/// - FadeTo (including FadeIn): the fade is cancelled and the volume applied immediately.
+		/// - FadeOutStop / FadeOutPause: the fade out continues; the volume is only stored, so a paused
+		///   instance resumes at it when faded back in.
+		/// </summary>
 		public void SetVolume(float volume)
 		{
-			FadeToDuration(volume, 0, ThunkClipInstanceState.Normal);
+			if (m_disposed) {
+				return;
+			}
+
+			m_baseVolume = volume;
+
+			if (m_state == ThunkClipInstanceState.FadeOutStop || m_state == ThunkClipInstanceState.FadeOutPause) {
+				return;
+			}
+
+			m_state = ThunkClipInstanceState.Normal;
+			m_audioSource.Volume = volume;
 		}
 
 		public void FadeIn(float duration)
 		{
+			if (m_disposed) {
+				return;
+			}
+
 			m_audioSource.Volume = 0;
-			FadeToDuration(m_initialVolume, duration);
+			FadeToDuration(m_baseVolume, duration);
 		}
 
 		public void FadeOutStop(float duration)
@@ -113,6 +156,10 @@ namespace Tekly.Thunk.Core
 
 		public void FadeToDuration(float volume, float duration, ThunkClipInstanceState state = ThunkClipInstanceState.FadeTo)
 		{
+			if (m_disposed) {
+				return;
+			}
+
 			m_audioSource.Paused = false;
 			
 			m_fadeTime = 0;
@@ -124,16 +171,24 @@ namespace Tekly.Thunk.Core
 
 		public void FadeToSpeed(float volume, float speed, ThunkClipInstanceState state = ThunkClipInstanceState.FadeTo)
 		{
+			if (m_disposed) {
+				return;
+			}
+
 			var distance = Math.Abs(m_audioSource.Volume - volume);
 			FadeToDuration(volume, distance / speed, state);
 		}
 
 		public void Tick(float deltaTime, float unscaledDeltaTime)
 		{
+			// A disposed instance's AudioSource may already belong to another instance, or be destroyed
+			if (m_disposed) {
+				return;
+			}
+
 			switch (m_state) {
 				case ThunkClipInstanceState.FadeOutStop:
 					if (UpdateFade(deltaTime, unscaledDeltaTime)) {
-						m_state = ThunkClipInstanceState.Normal;
 						Dispose();
 					}
 					break;
@@ -158,6 +213,10 @@ namespace Tekly.Thunk.Core
 		
 		public void UpdatePitchAndVolume()
 		{
+			if (m_disposed) {
+				return;
+			}
+
 			m_audioSource.UpdatePitchAndVolume();
 		}
 

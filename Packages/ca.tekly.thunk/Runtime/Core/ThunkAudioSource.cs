@@ -130,6 +130,7 @@ namespace Tekly.Thunk.Core
 			m_audioSource.pitch = 1;
 			
 			m_playing = false;
+			m_paused = false;
 			
 			m_audioSource.outputAudioMixerGroup = null;
 		}
@@ -138,6 +139,7 @@ namespace Tekly.Thunk.Core
 		{
 			m_audioSource.Stop();
 			m_playing = false;
+			m_paused = false;
 		}
 
 		public void UpdatePitchAndVolume()

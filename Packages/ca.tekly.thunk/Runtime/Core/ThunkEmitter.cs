@@ -93,10 +93,10 @@ namespace Tekly.Thunk.Core
 				return;
 			}
 
-			for (var index = m_instances.Count - 1; index >= 0; index--)
-			{
-				var runner = m_instances[index];
-				runner.OnEmitterStopped();
+			// The AudioSources are destroyed with this GameObject so they aren't returned to the pool,
+			// but the instances still need to be removed from their ThunkClipStates
+			for (var index = m_instances.Count - 1; index >= 0; index--) {
+				m_instances[index].OnEmitterStopped();
 			}
 			
 			m_instances.Clear();
@@ -118,15 +118,9 @@ namespace Tekly.Thunk.Core
 		
 		public void Stop(int instanceId)
 		{
-			for (var index = 0; index < m_instances.Count; index++) {
-				var instance = m_instances[index];
-				
-				if (instance.Id == instanceId) {
-					instance.OnEmitterStopped();
-					m_instances.RemoveAt(index);
-					m_audioSourcePool.Return(instance.AudioSource);
-					return;
-				}
+			// Dispose removes the instance from its ThunkClipState and calls back into ClipInstanceDisposed
+			if (TryGetInstance(instanceId, out var instance)) {
+				instance.Dispose();
 			}
 		}
 		
