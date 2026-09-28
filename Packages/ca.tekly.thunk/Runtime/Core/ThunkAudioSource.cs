@@ -4,7 +4,14 @@ namespace Tekly.Thunk.Core
 {
 	public class ThunkAudioSource
 	{
-		public bool IsPlaying => m_playing && (m_audioSource.isPlaying || m_paused || Thunk.Instance.Paused || AudioListener.pause);
+		/// <summary>
+		/// isPlaying is false while audio is paused by the application or AudioListener, so those count as playing.
+		/// A source that ignores the listener pause keeps playing through it, so it can finish during one.
+		/// </summary>
+		public bool IsPlaying => m_playing && (m_audioSource.isPlaying || m_paused || Thunk.Instance.Paused || IsListenerPaused);
+
+		private bool IsListenerPaused => AudioListener.pause && !m_audioSource.ignoreListenerPause;
+		
 		public float TimeRemaining => m_audioSource.clip.length - m_audioSource.time;
 
 		public float Time {

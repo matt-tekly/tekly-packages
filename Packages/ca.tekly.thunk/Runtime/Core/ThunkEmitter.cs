@@ -34,7 +34,21 @@ namespace Tekly.Thunk.Core
 			set => m_unscaledDeltaTime = value;
 		}
 		
-		public bool IgnoreListenerPause { get; set; }
+		/// <summary>
+		/// Lets this emitter's AudioSources keep playing while AudioListener.pause is true.
+		/// Applies to AudioSources already created as well as new ones.
+		/// </summary>
+		public bool IgnoreListenerPause {
+			get => m_ignoreListenerPause;
+			set {
+				if (m_ignoreListenerPause == value) {
+					return;
+				}
+				
+				m_ignoreListenerPause = value;
+				ApplyIgnoreListenerPause();
+			}
+		}
 		
 		public IReadOnlyList<ThunkClipInstance> Instances => m_instances;
 
@@ -48,6 +62,11 @@ namespace Tekly.Thunk.Core
 		
 		private readonly List<ThunkClipInstance> m_instances = new List<ThunkClipInstance>();
 		private AudioSourcePool m_audioSourcePool;
+		
+		/// <summary>
+		/// Every AudioSource this emitter created, in use or pooled
+		/// </summary>
+		private readonly List<AudioSource> m_audioSources = new List<AudioSource>();
 		
 		private bool m_initialized;
 		
@@ -80,9 +99,25 @@ namespace Tekly.Thunk.Core
 			}
 			
 			instance.ignoreListenerPause = m_ignoreListenerPause;
+			m_audioSources.Add(instance);
 			
 			return instance;
 		}
+
+		private void ApplyIgnoreListenerPause()
+		{
+			for (var index = 0; index < m_audioSources.Count; index++) {
+				m_audioSources[index].ignoreListenerPause = m_ignoreListenerPause;
+			}
+		}
+
+#if UNITY_EDITOR
+		private void OnValidate()
+		{
+			// The inspector changes the serialized field directly, bypassing the property
+			ApplyIgnoreListenerPause();
+		}
+#endif
 		
 		private void Init()
 		{
