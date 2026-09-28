@@ -48,7 +48,8 @@ namespace Tekly.Thunk.Core
 
 		public virtual ThunkClipInstance Play(ThunkEmitter emitter, float? pitch = null, float? volume = null, float? delay = null, float? startTime = null)
 		{
-			if (Time.time < m_nextPlayTime) {
+			// Unscaled: rate limiting is about audible repetition, and must keep working while timeScale is 0
+			if (Time.unscaledTime < m_nextPlayTime) {
 				return null;
 			}
 
@@ -230,7 +231,7 @@ namespace Tekly.Thunk.Core
 		
 		protected virtual ThunkClipInstance CreateInstance(ThunkEmitter emitter, ThunkClipRequest request)
 		{
-			m_nextPlayTime = Time.time + m_clip.MinimumTimeBetweenPlays;
+			m_nextPlayTime = Time.unscaledTime + m_clip.MinimumTimeBetweenPlays;
 			var instance = new ThunkClipInstance(emitter, request);
 			
 			m_instances.Add(instance);

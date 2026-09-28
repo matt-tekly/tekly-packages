@@ -11,6 +11,7 @@ namespace Tekly.Thunk.Core
 		private SerializedProperty m_volumeProp;
 		private SerializedProperty m_pitchProp;
 		private SerializedProperty m_ignoreListenerPause;
+		private SerializedProperty m_unscaledDeltaTime;
 
 		private bool m_requiresRepaint;
 
@@ -26,6 +27,7 @@ namespace Tekly.Thunk.Core
 			m_volumeProp = serializedObject.FindProperty("m_volume");
 			m_pitchProp = serializedObject.FindProperty("m_pitch");
 			m_ignoreListenerPause = serializedObject.FindProperty("m_ignoreListenerPause");
+			m_unscaledDeltaTime = serializedObject.FindProperty("m_unscaledDeltaTime");
 		}
 
 		public override void OnInspectorGUI()
@@ -39,6 +41,7 @@ namespace Tekly.Thunk.Core
 			EditorGUILayout.PropertyField(m_volumeProp);
 			EditorGUILayout.PropertyField(m_pitchProp);
 			EditorGUILayout.PropertyField(m_ignoreListenerPause);
+			EditorGUILayout.PropertyField(m_unscaledDeltaTime);
 
 			var pitchOrVolumeChanged = EditorGUI.EndChangeCheck();
 

@@ -20,12 +20,23 @@ namespace Tekly.Thunk.Core
         public ThunkClipStateManager ClipStateManager { get; } = new ThunkClipStateManager();
 
         public ThunkTrackManager TrackManager => m_trackManager ??= new ThunkTrackManager();
-        public ThunkEmitter OneShot => m_oneShotEmitter ??= CreateEmitter("[Thunk] OneShot");
+        
+        /// <summary>
+        /// Emitter for one-shot gameplay sounds. These pause with AudioListener.pause.
+        /// </summary>
+        public ThunkEmitter OneShot => GetOrCreateEmitter(ref m_oneShotEmitter, "[Thunk] OneShot", false);
+        
+        /// <summary>
+        /// Emitter for UI sounds. These play through AudioListener.pause and fade on unscaled time,
+        /// so they work in pause menus.
+        /// </summary>
+        public ThunkEmitter UiSounds => GetOrCreateEmitter(ref m_uiSoundsEmitter, "[Thunk] UI Sounds", true);
         
         internal int NextClipStateId;
         
         private ThunkTrackManager m_trackManager;
         private ThunkEmitter m_oneShotEmitter;
+        private ThunkEmitter m_uiSoundsEmitter;
         
         public Thunk()
         {
@@ -57,16 +68,19 @@ namespace Tekly.Thunk.Core
             return ToLinear(volume);
         }
         
-        private ThunkEmitter CreateEmitter(string name)
+        private static ThunkEmitter GetOrCreateEmitter(ref ThunkEmitter emitter, string name, bool playsWhilePaused)
         {
-            if (m_oneShotEmitter == null) {
+            // Unity null check, so a destroyed emitter is recreated
+            if (emitter == null) {
                 var go = new GameObject(name);
                 Object.DontDestroyOnLoad(go);
                 
-                m_oneShotEmitter = go.AddComponent<ThunkEmitter>();
+                emitter = go.AddComponent<ThunkEmitter>();
+                emitter.IgnoreListenerPause = playsWhilePaused;
+                emitter.UseUnscaledDeltaTime = playsWhilePaused;
             }
 
-            return m_oneShotEmitter;
+            return emitter;
         }
         
         public static float ToDecibel(float linear)
