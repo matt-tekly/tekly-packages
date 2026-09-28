@@ -1,4 +1,4 @@
-﻿Shader "UI/Procedural Rect Image"
+Shader "UI/Procedural Rect Image"
 {
     Properties
     {
@@ -47,13 +47,14 @@
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #pragma target 2.0
+            // 3.0 for fwidth (screen-space anti-aliasing). Fine for WebGL2 / GLES3 and up.
+            #pragma target 3.0
 
             #include "UnityCG.cginc"
             #include "UnityUI.cginc"
 
-            #pragma multi_compile __ UNITY_UI_CLIP_RECT
-            #pragma multi_compile __ UNITY_UI_ALPHACLIP
+            #pragma multi_compile_local _ UNITY_UI_CLIP_RECT
+            #pragma multi_compile_local _ UNITY_UI_ALPHACLIP
 
             sampler2D _MainTex;
             fixed4 _Color;
@@ -67,7 +68,7 @@
             {
                 float4 positionOS : POSITION;
                 float4 color      : COLOR;
-                float4 uv0        : TEXCOORD0;
+                float4 uv0        : TEXCOORD0; // xy = texture uv, zw = normalized shape coordinate
                 float2 rectSize   : TEXCOORD1;
                 float2 packedData : TEXCOORD2;
                 float2 shapeData  : TEXCOORD3;
@@ -76,65 +77,47 @@
 
             struct Varyings
             {
-                float4 positionCS    : SV_POSITION;
-                fixed4 color         : COLOR;
-                float4 localPosition : TEXCOORD0;
-                float4 cornerRadii   : TEXCOORD1;
-                float4 uv            : TEXCOORD2;
-                float2 rectSize      : TEXCOORD3;
-                float  lineWeight    : TEXCOORD4;
-                float  aaScale       : TEXCOORD5;
-                float  falloffPower  : TEXCOORD6;
-                float4 mask          : TEXCOORD7;
+                float4 positionCS  : SV_POSITION;
+                fixed4 color       : COLOR;
+                float4 uv          : TEXCOORD0;
+                float4 cornerRadii : TEXCOORD1;
+                float2 rectSize    : TEXCOORD2;
+                float3 shapeParams : TEXCOORD3; // x = line weight, y = falloff ramp width, z = falloff power
+                float4 mask        : TEXCOORD4;
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
-            float2 DecodePacked01x2(float packedValue)
+            // Inverse of ProceduralRectImage.Pack: two 12-bit values stored as an integer below 2^24.
+            float2 UnpackTwo12(float packedValue)
             {
-                const float2 decodeMul = float2(1.0, 65535.0);
-                const float decodeBit = 1.0 / 65535.0;
-
-                float2 unpacked = frac(decodeMul * packedValue);
-                unpacked.x -= unpacked.y * decodeBit;
-                return unpacked;
+                float n = round(packedValue * 16777216.0);
+                float high = floor(n / 4096.0);
+                float low = n - high * 4096.0;
+                return float2(high, low) / 4095.0;
             }
 
-            half RoundedRectInsideDistance(float2 pixelPos, float4 cornerRadii, float2 rectSize)
+            // Distance from the shape edge, positive inside. Radii are TL, TR, BR, BL.
+            // Kept in full float: values are in pixels and exceed half precision on large rects.
+            float RoundedRectInsideDistance(float2 pixelPos, float4 cornerRadii, float2 rectSize)
             {
-                half4 edgeDistances = half4(
-                    pixelPos.x,
-                    pixelPos.y,
-                    rectSize.x - pixelPos.x,
-                    rectSize.y - pixelPos.y
-                );
+                // Distance to each edge: left, bottom, right, top.
+                float4 edges = float4(pixelPos.x, pixelPos.y, rectSize.x - pixelPos.x, rectSize.y - pixelPos.y);
+                float straight = min(min(edges.x, edges.y), min(edges.z, edges.w));
 
-                bool4 inCornerRegion = bool4(
-                    all(edgeDistances.xw < cornerRadii.x),
-                    all(edgeDistances.zw < cornerRadii.y),
-                    all(edgeDistances.zy < cornerRadii.z),
-                    all(edgeDistances.xy < cornerRadii.w)
-                );
+                // Per corner (TL, TR, BR, BL): offset from the corner circle's center.
+                float4 offsetX = cornerRadii - float4(edges.x, edges.z, edges.z, edges.x);
+                float4 offsetY = cornerRadii - float4(edges.w, edges.w, edges.y, edges.y);
+                float4 inCorner = step(0.0, offsetX) * step(0.0, offsetY);
+                float4 arc = cornerRadii - sqrt(offsetX * offsetX + offsetY * offsetY);
 
-                half nearestStraightEdge = min(min(edgeDistances.x, edgeDistances.y), min(edgeDistances.z, edgeDistances.w));
-
-                half4 cornerDistances = cornerRadii - half4(
-                    length(edgeDistances.xw - cornerRadii.x),
-                    length(edgeDistances.zw - cornerRadii.y),
-                    length(edgeDistances.zy - cornerRadii.z),
-                    length(edgeDistances.xy - cornerRadii.w)
-                );
-
-                half4 distanceByCorner = min(inCornerRegion * max(cornerDistances, 0.0), nearestStraightEdge)
-                    + (1 - inCornerRegion) * nearestStraightEdge;
-
-                half nearestCornerDistance = min(min(distanceByCorner.x, distanceByCorner.y), min(distanceByCorner.z, distanceByCorner.w));
-                return any(inCornerRegion) ? nearestCornerDistance : nearestStraightEdge;
+                float4 perCorner = lerp(straight.xxxx, min(arc, straight.xxxx), inCorner);
+                return min(min(perCorner.x, perCorner.y), min(perCorner.z, perCorner.w));
             }
 
-            float ComputeCoverage(float insideDistance, float lineWeight, float aaScale, float falloffPower)
+            float ComputeCoverage(float insideDistance, float lineWeight, float rampWidth, float falloffPower)
             {
-                float rampCenter = (lineWeight + 1.0 / aaScale) * 0.5;
-                float coverage = saturate((rampCenter - abs(insideDistance - rampCenter)) * aaScale);
+                float rampCenter = (lineWeight + rampWidth) * 0.5;
+                float coverage = saturate((rampCenter - abs(insideDistance - rampCenter)) / rampWidth);
                 return pow(coverage, falloffPower);
             }
 
@@ -144,23 +127,24 @@
                 UNITY_SETUP_INSTANCE_ID(IN);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
 
-                OUT.localPosition = IN.positionOS;
                 OUT.positionCS = UnityObjectToClipPos(IN.positionOS);
-                
+
                 OUT.uv.xy = TRANSFORM_TEX(IN.uv0.xy, _MainTex);
-                OUT.uv.zw = TRANSFORM_TEX(IN.uv0.zw, _MainTex); 
-                
+                OUT.uv.zw = IN.uv0.zw;
+
                 OUT.rectSize = IN.rectSize;
 
                 float minSide = min(IN.rectSize.x, IN.rectSize.y);
-                float2 topPair = DecodePacked01x2(IN.packedData.x);
-                float2 bottomPair = DecodePacked01x2(IN.packedData.y);
-                float2 shapeParams = DecodePacked01x2(IN.shapeData.x);
+                float2 topPair = UnpackTwo12(IN.packedData.x);
+                float2 bottomPair = UnpackTwo12(IN.packedData.y);
+                float2 shapeParams = UnpackTwo12(IN.shapeData.x);
 
                 OUT.cornerRadii = float4(topPair.x, topPair.y, bottomPair.x, bottomPair.y) * minSide;
-                OUT.lineWeight = shapeParams.x * minSide * 0.5;
-                OUT.aaScale = clamp(IN.shapeData.y, 1.0 / 2048.0, 2048.0);
-                OUT.falloffPower = lerp(0.25, 4.0, shapeParams.y);
+                OUT.shapeParams = float3(
+                    shapeParams.x * minSide * 0.5,
+                    1.0 / clamp(IN.shapeData.y, 1.0 / 2048.0, 2048.0),
+                    lerp(0.25, 4.0, shapeParams.y)
+                );
                 OUT.color = IN.color * _Color;
 
                 float2 pixelSize = OUT.positionCS.w;
@@ -179,22 +163,24 @@
             {
                 half4 color = (tex2D(_MainTex, IN.uv.xy) + _TextureSampleAdd) * IN.color;
 
+                float2 pixelPos = IN.uv.zw * IN.rectSize;
+
+                // Never let the edge ramp get narrower than one screen pixel, whatever the canvas scale.
+                float screenPixelInLocal = length(fwidth(pixelPos)) * 0.70710678;
+                float rampWidth = max(IN.shapeParams.y, screenPixelInLocal);
+
+                float insideDistance = RoundedRectInsideDistance(pixelPos, IN.cornerRadii, IN.rectSize);
+                color.a *= ComputeCoverage(insideDistance, IN.shapeParams.x, rampWidth, IN.shapeParams.z);
+
                 #ifdef UNITY_UI_CLIP_RECT
                 half2 maskFactor = saturate((_ClipRect.zw - _ClipRect.xy - abs(IN.mask.xy)) * IN.mask.zw);
                 color.a *= maskFactor.x * maskFactor.y;
                 #endif
 
+                // Mask's stencil material enables this keyword, so the rounded shape still clips children.
                 #ifdef UNITY_UI_ALPHACLIP
                 clip(color.a - 0.001);
                 #endif
-
-                half insideDistance = RoundedRectInsideDistance(IN.uv.zw * IN.rectSize, IN.cornerRadii, IN.rectSize);
-                color.a *= ComputeCoverage(insideDistance, IN.lineWeight, IN.aaScale, IN.falloffPower);
-
-                if (color.a <= 0)
-                {
-                    discard;
-                }
 
                 return color;
             }
