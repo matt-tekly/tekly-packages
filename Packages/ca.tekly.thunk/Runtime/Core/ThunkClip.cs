@@ -40,6 +40,24 @@ namespace Tekly.Thunk.Core
 			return new ThunkClipState(this);
 		}
 		
+		private void OnEnable()
+		{
+#if UNITY_EDITOR
+			if (!Application.isPlaying) {
+				return;
+			}
+#endif
+			// Clips created at runtime (CreateInstance) have no id and their fields aren't set yet;
+			// they register lazily on first play instead
+			if (UniqueId == 0) {
+				return;
+			}
+
+			// Register every loaded copy so the shared state outlives any single copy (e.g. a clip in multiple
+			// AssetBundles). The State getter also registers, for clips already loaded before play mode.
+			Thunk.Instance?.ClipStateManager.GetOrCreate(this);
+		}
+
 		private void OnDisable()
 		{
 			Unregister();
@@ -57,7 +75,7 @@ namespace Tekly.Thunk.Core
 				return;
 			}
 #endif
-			Thunk.Instance.ClipStateManager.Unregister(this);
+			Thunk.Instance?.ClipStateManager.Unregister(this);
 		}
 
 		
