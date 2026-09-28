@@ -1,5 +1,5 @@
 // Fancy Rect: a UI shape from one signed distance field, drawn as a stack of layers.
-// FancyRect emits one quad per layer (shadows, fill, inner shadows, outlines), so every layer
+// FancyRect emits one quad per layer (shadows, fill, inner shadows, bevel, gloss, outlines), so every layer
 // is a single cheap pass over its own quad and the whole element still batches with one material.
 //
 // Vertex layout (all packed values are integers below 2^24, which float32 stores exactly):
@@ -10,15 +10,17 @@
 //   uv1.z   bulge top | bottom     (12-bit signed, 0.25 px steps)
 //   uv1.w   bulge right | left
 //   uv2.x   band start | end       (12-bit signed; start code 0 = no inner edge)
+//           or, for solid layers (flag bit 23), texture scroll x | y (12-bit signed, 1/256 texture units/s)
 //   uv2.y   softness | gradient angle
 //   uv2.z   offset x | y           (12-bit signed)
 //   uv2.w   flags: layer type (2 bits) | gradient type (3 bits) | corner types (4 x 2 bits) | textured (1 bit)
 //           | channel check (1 bit, always set; draws magenta if the canvas drops the data)
-//           | gradient bias (8 bits, 0-255 = -1 to 1)
+//           | gradient bias (8 bits, 0-255 = -1 to 1) | solid (1 bit: band is the whole shape, uv2.x is scroll)
 //   uv3.x   gradient color 2 RGB (8 bits each)
 //   uv3.y   gradient color 2 alpha | range start | range end   (8 bits each)
 //   uv3.z   shape half size x | y   (12-bit each, 0.5 unit steps)
-//   uv3.w   texture scroll x | y   (12-bit signed, texture units per second in 1/256 steps)
+//   uv3.w   reveal: method (2 bits) | origin (2 bits) | clockwise / from-far-side (1 bit)
+//           | value (16 bits: radial amount, or linear cut position in 1/16 units from -2048) | offset space (1 bit)
 Shader "UI/Fancy Rect"
 {
     Properties
@@ -78,7 +80,8 @@ Shader "UI/Fancy Rect"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #pragma target 3.0
+            // 3.5 for fwidth and the extra interpolator. WebGL2 / GLES3 and up.
+            #pragma target 3.5
 
             #include "UnityCG.cginc"
             #include "UnityUI.cginc"
@@ -90,6 +93,12 @@ Shader "UI/Fancy Rect"
 
             #define LAYER_BAND 0
             #define LAYER_INNER_SHADOW 1
+            #define LAYER_BEVEL 2
+
+            #define REVEAL_NONE 0
+            #define REVEAL_HORIZONTAL 1
+            #define REVEAL_VERTICAL 2
+            #define REVEAL_RADIAL 3
 
             #define GRADIENT_NONE 0
             #define GRADIENT_LINEAR 1
@@ -131,10 +140,12 @@ Shader "UI/Fancy Rect"
                 float4 radii      : TEXCOORD1; // TL, TR, BR, BL
                 float4 bulge      : TEXCOORD2; // top, right, bottom, left
                 float4 band       : TEXCOORD3; // start, end, softness, gradient angle (radians)
-                float4 offset     : TEXCOORD4; // xy = offset, z = flags, w = channel check ok
+                // Packed integers must reach the fragment exactly; interpolation error at ~2^23 could flip low bits.
+                nointerpolation float4 offset : TEXCOORD4; // xy = offset, z = flags, w = channel check ok
                 float4 color2     : TEXCOORD5;
                 float4 mask       : TEXCOORD6;
                 float4 halfSize   : TEXCOORD7; // xy = half size, zw = gradient range start, end
+                nointerpolation float4 extra : TEXCOORD8; // x = packed reveal
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
@@ -208,12 +219,19 @@ Shader "UI/Fancy Rect"
             {
                 p = ApplyBulge(p, halfSize, bulge);
 
-                bool right = p.x >= 0.0;
-                bool top = p.y >= 0.0;
+                // Pick the corner by splitting between neighbouring corners at the midpoint of their circle centers
+                // rather than at the center line, so unequal corners larger than half a side still meet cleanly.
+                float splitY = p.x >= 0.0 ? (radii.z - radii.y) * 0.5 : (radii.w - radii.x) * 0.5;
+                bool top = p.y >= splitY;
+                float splitX = top ? (radii.x - radii.y) * 0.5 : (radii.w - radii.z) * 0.5;
+                bool right = p.x >= splitX;
+
                 float radius = top ? (right ? radii.y : radii.x) : (right ? radii.z : radii.w);
                 float cornerType = top ? (right ? cornerTypes.y : cornerTypes.x) : (right ? cornerTypes.z : cornerTypes.w);
 
-                return CornerDistance(abs(p) - halfSize, radius, cornerType);
+                // Mirror into the chosen corner (not abs(p)): near a shifted split the point can be on the other side.
+                float2 mirrored = float2(right ? p.x : -p.x, top ? p.y : -p.y);
+                return CornerDistance(mirrored - halfSize, radius, cornerType);
             }
 
             // 0-1 ramp across `width`, centered on the edge. Wider (soft) ramps are eased.
@@ -258,6 +276,43 @@ Shader "UI/Fancy Rect"
                 return pow(t, log(0.5) / log(midpoint));
             }
 
+            // How much of the element the Reveal setting shows at point c, 0-1 with a one-pixel anti-aliased edge.
+            // Linear reveals arrive as a cut position already baked on the CPU (1/16 unit steps); radial reveals sweep
+            // a pie around the center using two half-planes, intersected up to 180 degrees and unioned beyond.
+            float RevealCoverage(float2 c, float packed, float pixel)
+            {
+                float method = Bits(packed, 0, 2);
+                if (method == REVEAL_NONE) {
+                    return 1.0;
+                }
+
+                float origin = Bits(packed, 2, 2);
+                float flip = Bits(packed, 4, 1); // linear: reveal from the far side; radial: clockwise
+                float value = Bits(packed, 5, 16);
+                float s;
+
+                if (method == REVEAL_HORIZONTAL || method == REVEAL_VERTICAL) {
+                    float cut = value / 16.0 - 2048.0;
+                    float coord = method == REVEAL_HORIZONTAL ? c.x : c.y;
+                    s = flip > 0.5 ? coord - cut : cut - coord;
+                } else {
+                    // Origin: 0 top, 1 right, 2 bottom, 3 left.
+                    float startAngle = origin < 0.5 ? 1.5707963 : (origin < 1.5 ? 0.0 : (origin < 2.5 ? 4.712389 : 3.1415927));
+                    float sweep = value / 65535.0 * 6.2831853;
+                    float endAngle = flip > 0.5 ? startAngle - sweep : startAngle + sweep;
+
+                    float2 d0 = float2(cos(startAngle), sin(startAngle));
+                    float2 d1 = float2(cos(endAngle), sin(endAngle));
+
+                    // Signed distances to the start and end rays' lines, positive on the revealed side.
+                    float s0 = flip > 0.5 ? c.x * d0.y - c.y * d0.x : d0.x * c.y - d0.y * c.x;
+                    float s1 = flip > 0.5 ? d1.x * c.y - d1.y * c.x : c.x * d1.y - c.y * d1.x;
+                    s = sweep <= 3.1415927 ? min(s0, s1) : max(s0, s1);
+                }
+
+                return saturate(s / pixel + 0.5);
+            }
+
             Varyings vert(Attributes IN)
             {
                 Varyings OUT;
@@ -265,10 +320,15 @@ Shader "UI/Fancy Rect"
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
 
                 OUT.positionCS = UnityObjectToClipPos(IN.positionOS);
-                // Scroll in the vertex shader: per-element speed from the vertex data, no mesh rebuilds.
+                float flags = round(IN.uv2.w);
+                bool solid = Bits(flags, 23, 1) > 0.5;
+
+                // Solid layers (fill, gloss, zero-spread shadows) cover the whole shape, so their band slot carries
+                // the texture scroll instead. Scrolling runs here in the vertex shader: no mesh rebuilds.
                 // frac() keeps the offset small; the jump by a whole tile is invisible on a repeating texture.
-                float2 scroll = (Unpack12(IN.uv3.w) - 2048.0) / 256.0;
+                float2 scroll = solid ? (Unpack12(IN.uv2.x) - 2048.0) / 256.0 : float2(0, 0);
                 OUT.local = float4(IN.uv0.xy, IN.uv0.zw + frac(_Time.y * scroll));
+                OUT.extra = float4(round(IN.uv3.w), 0, 0, 0);
                 float gradientBits = round(IN.uv3.y);
                 OUT.halfSize = float4(Unpack12(IN.uv3.z) * 0.5, Bits(gradientBits, 8, 8) / 255.0, Bits(gradientBits, 16, 8) / 255.0);
 
@@ -278,11 +338,10 @@ Shader "UI/Fancy Rect"
                 float2 bulgeRightLeft = UnpackSigned(IN.uv1.w);
                 OUT.bulge = float4(bulgeTopBottom.x, bulgeRightLeft.x, bulgeTopBottom.y, bulgeRightLeft.y);
 
-                float2 bandRange = UnpackSigned(IN.uv2.x);
+                float2 bandRange = solid ? float2(-512.0, 0.0) : UnpackSigned(IN.uv2.x);
                 float2 softAngle = Unpack12(IN.uv2.y);
                 OUT.band = float4(bandRange, softAngle.x * 0.25, softAngle.y / 4095.0 * 6.2831853);
 
-                float flags = round(IN.uv2.w);
                 OUT.offset = float4(UnpackSigned(IN.uv2.z), flags, Bits(flags, 14, 1));
 
                 float3 color2 = float3(Bits(round(IN.uv3.x), 16, 8), Bits(round(IN.uv3.x), 8, 8), Bits(round(IN.uv3.x), 0, 8)) / 255.0;
@@ -322,7 +381,7 @@ Shader "UI/Fancy Rect"
                 float2 p = IN.local.xy;
                 float2 halfSize = IN.halfSize.xy;
 
-                float flags = IN.offset.z;
+                float flags = round(IN.offset.z);
                 float layerType = Bits(flags, 0, 2);
                 float gradientType = Bits(flags, 2, 3);
                 float4 cornerTypes = float4(Bits(flags, 5, 2), Bits(flags, 7, 2), Bits(flags, 9, 2), Bits(flags, 11, 2));
@@ -340,18 +399,43 @@ Shader "UI/Fancy Rect"
                 float sd = ShapeDistance(q, halfSize, IN.radii, IN.bulge, cornerTypes);
 
                 float coverage;
-                if (layerType == LAYER_INNER_SHADOW) {
-                    // Inside the real shape, shadowed where the offset shape (shrunk by the spread) is not.
-                    float insideShape = 1.0 - Ramp(ShapeDistance(p, halfSize, IN.radii, IN.bulge, cornerTypes), pixel, pixel);
-                    coverage = insideShape * Ramp(sd + bandEnd, width, pixel);
+                float t;
+
+                if (layerType == LAYER_BEVEL) {
+                    // Lit edge: the shape's outward normal (from the distance field's slope) against the light
+                    // direction picks the highlight color (facing the light) or the shadow color (facing away).
+                    float e = 0.5;
+                    float2 slope = float2(
+                        ShapeDistance(q + float2(e, 0), halfSize, IN.radii, IN.bulge, cornerTypes) - ShapeDistance(q - float2(e, 0), halfSize, IN.radii, IN.bulge, cornerTypes),
+                        ShapeDistance(q + float2(0, e), halfSize, IN.radii, IN.bulge, cornerTypes) - ShapeDistance(q - float2(0, e), halfSize, IN.radii, IN.bulge, cornerTypes));
+                    float2 normal = slope / max(length(slope), 1e-5);
+                    float facing = dot(normal, float2(cos(IN.band.w), sin(IN.band.w)));
+
+                    float insideShape = 1.0 - Ramp(sd, pixel, pixel);
+                    float band = Ramp(sd - bandStart, width, pixel);
+                    coverage = insideShape * band * saturate(abs(facing) * 1.4142136);
+                    t = facing >= 0.0 ? 0.0 : 1.0;
                 } else {
-                    float outer = 1.0 - Ramp(sd - bandEnd, width, pixel);
-                    float inner = bandStart <= NO_INNER_EDGE ? 1.0 : Ramp(sd - bandStart, width, pixel);
-                    coverage = outer * inner;
+                    if (layerType == LAYER_INNER_SHADOW) {
+                        // Inside the real shape, shadowed where the offset shape (shrunk by the spread) is not.
+                        float insideShape = 1.0 - Ramp(ShapeDistance(p, halfSize, IN.radii, IN.bulge, cornerTypes), pixel, pixel);
+                        coverage = insideShape * Ramp(sd + bandEnd, width, pixel);
+                    } else {
+                        float outer = 1.0 - Ramp(sd - bandEnd, width, pixel);
+                        float inner = bandStart <= NO_INNER_EDGE ? 1.0 : Ramp(sd - bandStart, width, pixel);
+                        coverage = outer * inner;
+                    }
+
+                    t = GradientT(gradientType, q, halfSize, IN.band.w, sd, bandStart, bandEnd);
+                    t = ShapeGradient(t, IN.halfSize.z, IN.halfSize.w, Bits(flags, 15, 8) / 255.0 * 2.0 - 1.0);
                 }
 
-                float t = GradientT(gradientType, q, halfSize, IN.band.w, sd, bandStart, bandEnd);
-                t = ShapeGradient(t, IN.halfSize.z, IN.halfSize.w, Bits(flags, 15, 8) / 255.0 * 2.0 - 1.0);
+                // Drop shadows are revealed in their own (offset) space so they stay the shadow of the revealed shape;
+                // every other layer, including the inset gloss, uses the element's own space.
+                float reveal = round(IN.extra.x);
+                float2 revealPoint = Bits(reveal, 21, 1) > 0.5 ? q : p;
+                coverage *= RevealCoverage(revealPoint, reveal, pixel);
+
                 half4 color = lerp(IN.color, IN.color2, t);
 
                 // Sampled for every layer and blended out when unused: the flag is constant per quad, and an

@@ -21,6 +21,19 @@ namespace Tekly.Common.Ui.Fancy
 		private SerializedProperty m_cornerTypes;
 		private SerializedProperty m_bulge;
 		private SerializedProperty m_containBulge;
+		private SerializedProperty m_bevel;
+		private SerializedProperty m_gloss;
+		private SerializedProperty m_revealMethod;
+		private SerializedProperty m_revealOrigin;
+		private SerializedProperty m_revealAmount;
+		private SerializedProperty m_revealClockwise;
+
+		private static readonly GUIContent[] s_horizontalOrigins = { new GUIContent("Left"), new GUIContent("Right") };
+		private static readonly RevealOrigin[] s_horizontalOriginValues = { RevealOrigin.Left, RevealOrigin.Right };
+		private static readonly GUIContent[] s_verticalOrigins = { new GUIContent("Bottom"), new GUIContent("Top") };
+		private static readonly RevealOrigin[] s_verticalOriginValues = { RevealOrigin.Bottom, RevealOrigin.Top };
+		private static readonly GUIContent[] s_radialOrigins = { new GUIContent("Top"), new GUIContent("Right"), new GUIContent("Bottom"), new GUIContent("Left") };
+		private static readonly RevealOrigin[] s_radialOriginValues = { RevealOrigin.Top, RevealOrigin.Right, RevealOrigin.Bottom, RevealOrigin.Left };
 		private SerializedProperty m_fillEnabled;
 		private SerializedProperty m_fill;
 		private SerializedProperty m_outlines;
@@ -46,6 +59,12 @@ namespace Tekly.Common.Ui.Fancy
 			m_cornerTypes = serializedObject.FindProperty("m_cornerTypes");
 			m_bulge = serializedObject.FindProperty("m_bulge");
 			m_containBulge = serializedObject.FindProperty("m_containBulge");
+			m_bevel = serializedObject.FindProperty("m_bevel");
+			m_gloss = serializedObject.FindProperty("m_gloss");
+			m_revealMethod = serializedObject.FindProperty("m_revealMethod");
+			m_revealOrigin = serializedObject.FindProperty("m_revealOrigin");
+			m_revealAmount = serializedObject.FindProperty("m_revealAmount");
+			m_revealClockwise = serializedObject.FindProperty("m_revealClockwise");
 			m_fillEnabled = serializedObject.FindProperty("m_fillEnabled");
 			m_fill = serializedObject.FindProperty("m_fill");
 			m_outlines = serializedObject.FindProperty("m_outlines");
@@ -93,10 +112,19 @@ namespace Tekly.Common.Ui.Fancy
 			}
 
 			EditorGUILayout.Space();
+			BevelGUI();
+
+			EditorGUILayout.Space();
+			GlossGUI();
+
+			EditorGUILayout.Space();
 			LayerListGUI(m_outlines, "Outlines", "Outline", DrawOutline, InitOutline);
 
 			EditorGUILayout.Space();
 			LayerListGUI(m_shadows, "Shadows", "Shadow", DrawShadow, InitShadow);
+
+			EditorGUILayout.Space();
+			RevealGUI();
 
 			serializedObject.ApplyModifiedProperties();
 		}
@@ -296,6 +324,135 @@ namespace Tekly.Common.Ui.Fancy
 			paint.FindPropertyRelative(nameof(ShapePaint.Gradient)).enumValueIndex = (int)defaults.Gradient;
 			paint.FindPropertyRelative(nameof(ShapePaint.Color2)).colorValue = defaults.Color2;
 			paint.FindPropertyRelative(nameof(ShapePaint.Angle)).floatValue = defaults.Angle;
+		}
+
+		/// <summary>
+		/// Header with an Enabled toggle. Turning a never-configured effect on fills in sensible defaults, since a
+		/// zeroed struct (the state of existing data) would otherwise be invisible.
+		/// </summary>
+		private static bool EffectHeaderGUI(string title, SerializedProperty effect, bool isUnconfigured, System.Action<SerializedProperty> applyDefaults)
+		{
+			var enabled = effect.FindPropertyRelative("Enabled");
+
+			using (EditorGuiExt.Horizontal()) {
+				EditorGUI.BeginChangeCheck();
+				EditorGUILayout.PropertyField(enabled, GUIContent.none, GUILayout.Width(16));
+				if (EditorGUI.EndChangeCheck() && enabled.boolValue && isUnconfigured) {
+					applyDefaults(effect);
+				}
+
+				EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
+			}
+
+			return enabled.hasMultipleDifferentValues || enabled.boolValue;
+		}
+
+		private void BevelGUI()
+		{
+			var width = m_bevel.FindPropertyRelative(nameof(ShapeBevel.Width));
+			var show = EffectHeaderGUI("Bevel", m_bevel, !width.hasMultipleDifferentValues && width.floatValue <= 0f, ApplyBevelDefaults);
+
+			if (!show) {
+				return;
+			}
+
+			using (new EditorGUI.IndentLevelScope()) {
+				EditorGUILayout.PropertyField(width);
+				EditorGUILayout.PropertyField(m_bevel.FindPropertyRelative(nameof(ShapeBevel.Softness)));
+				EditorGUILayout.PropertyField(m_bevel.FindPropertyRelative(nameof(ShapeBevel.LightAngle)));
+				EditorGUILayout.PropertyField(m_bevel.FindPropertyRelative(nameof(ShapeBevel.Highlight)));
+				EditorGUILayout.PropertyField(m_bevel.FindPropertyRelative(nameof(ShapeBevel.Shadow)));
+			}
+		}
+
+		private static void ApplyBevelDefaults(SerializedProperty bevel)
+		{
+			var defaults = ShapeBevel.Default;
+			bevel.FindPropertyRelative(nameof(ShapeBevel.Width)).floatValue = defaults.Width;
+			bevel.FindPropertyRelative(nameof(ShapeBevel.Softness)).floatValue = defaults.Softness;
+			bevel.FindPropertyRelative(nameof(ShapeBevel.LightAngle)).floatValue = defaults.LightAngle;
+			bevel.FindPropertyRelative(nameof(ShapeBevel.Highlight)).colorValue = defaults.Highlight;
+			bevel.FindPropertyRelative(nameof(ShapeBevel.Shadow)).colorValue = defaults.Shadow;
+		}
+
+		private void GlossGUI()
+		{
+			var height = m_gloss.FindPropertyRelative(nameof(ShapeGloss.Height));
+			var show = EffectHeaderGUI("Gloss", m_gloss, !height.hasMultipleDifferentValues && height.floatValue <= 0f, ApplyGlossDefaults);
+
+			if (!show) {
+				return;
+			}
+
+			using (new EditorGUI.IndentLevelScope()) {
+				EditorGUILayout.PropertyField(m_gloss.FindPropertyRelative(nameof(ShapeGloss.Color)));
+				EditorGUILayout.PropertyField(m_gloss.FindPropertyRelative(nameof(ShapeGloss.Inset)));
+				EditorGUILayout.PropertyField(height);
+				EditorGUILayout.PropertyField(m_gloss.FindPropertyRelative(nameof(ShapeGloss.Fade)));
+				EditorGUILayout.PropertyField(m_gloss.FindPropertyRelative(nameof(ShapeGloss.Softness)));
+			}
+		}
+
+		private static void ApplyGlossDefaults(SerializedProperty gloss)
+		{
+			var defaults = ShapeGloss.Default;
+			gloss.FindPropertyRelative(nameof(ShapeGloss.Color)).colorValue = defaults.Color;
+			gloss.FindPropertyRelative(nameof(ShapeGloss.Inset)).floatValue = defaults.Inset;
+			gloss.FindPropertyRelative(nameof(ShapeGloss.Height)).floatValue = defaults.Height;
+			gloss.FindPropertyRelative(nameof(ShapeGloss.Fade)).floatValue = defaults.Fade;
+			gloss.FindPropertyRelative(nameof(ShapeGloss.Softness)).floatValue = defaults.Softness;
+		}
+
+		private void RevealGUI()
+		{
+			EditorGUILayout.LabelField("Reveal", EditorStyles.boldLabel);
+			EditorGUILayout.PropertyField(m_revealMethod, new GUIContent("Method", m_revealMethod.tooltip));
+
+			if (m_revealMethod.hasMultipleDifferentValues) {
+				return;
+			}
+
+			var method = (RevealMethod)m_revealMethod.intValue;
+			if (method == RevealMethod.None) {
+				return;
+			}
+
+			using (new EditorGUI.IndentLevelScope()) {
+				switch (method) {
+					case RevealMethod.Horizontal:
+						OriginPopupGUI(s_horizontalOrigins, s_horizontalOriginValues);
+						break;
+					case RevealMethod.Vertical:
+						OriginPopupGUI(s_verticalOrigins, s_verticalOriginValues);
+						break;
+					default:
+						OriginPopupGUI(s_radialOrigins, s_radialOriginValues);
+						EditorGUILayout.PropertyField(m_revealClockwise, new GUIContent("Clockwise"));
+						break;
+				}
+
+				EditorGUILayout.PropertyField(m_revealAmount, new GUIContent("Amount"));
+			}
+		}
+
+		/// <summary>Origin popup limited to the choices that apply to the current method; snaps invalid values.</summary>
+		private void OriginPopupGUI(GUIContent[] labels, RevealOrigin[] values)
+		{
+			var current = System.Array.IndexOf(values, (RevealOrigin)m_revealOrigin.intValue);
+
+			if (current < 0 && !m_revealOrigin.hasMultipleDifferentValues) {
+				current = 0;
+				m_revealOrigin.intValue = (int)values[0];
+			}
+
+			EditorGUI.showMixedValue = m_revealOrigin.hasMultipleDifferentValues;
+			EditorGUI.BeginChangeCheck();
+			var selected = EditorGUILayout.Popup(new GUIContent("Origin"), current < 0 ? 0 : current, labels);
+			if (EditorGUI.EndChangeCheck()) {
+				m_revealOrigin.intValue = (int)values[selected];
+			}
+
+			EditorGUI.showMixedValue = false;
 		}
 
 		private void TextureGUI()

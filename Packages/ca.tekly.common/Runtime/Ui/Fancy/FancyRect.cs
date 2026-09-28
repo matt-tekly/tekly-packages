@@ -31,9 +31,17 @@ namespace Tekly.Common.Ui.Fancy
 		private const float EDGE_PADDING = 4f;
 		private const int LAYER_BAND = 0;
 		private const int LAYER_INNER_SHADOW = 1;
+		private const int LAYER_BEVEL = 2;
 		private const int NO_INNER_EDGE_CODE = 0;
 		private const int FLAG_TEXTURED = 1 << 13;
 		private const int FLAG_CHANNEL_CHECK = 1 << 14;
+
+		// Solid layers cover the whole shape (band from the center to the edge), so their band slot holds scroll.
+		private const int FLAG_SOLID = 1 << 23;
+
+		private const int REVEAL_CLOCKWISE_BIT = 1 << 4;
+		private const int REVEAL_VALUE_SHIFT = 5;
+		private const int REVEAL_OFFSET_SPACE_BIT = 1 << 21;
 
 		// Textured layers sample slightly past the texture's edge so anti-aliased fringes pick up its color.
 		private const float TEXTURE_EDGE_MARGIN = 1.5f;
@@ -76,6 +84,15 @@ namespace Tekly.Common.Ui.Fancy
 		[Tooltip("How the element combines with what is behind it. Ignored when a custom Material is assigned.")]
 		[SerializeField] private ShapeBlendMode m_blendMode = ShapeBlendMode.Normal;
 
+		[SerializeField] private ShapeBevel m_bevel;
+		[SerializeField] private ShapeGloss m_gloss;
+
+		[Tooltip("Shows only part of the element, like Image's Filled type but with anti-aliased edges.")]
+		[SerializeField] private RevealMethod m_revealMethod = RevealMethod.None;
+		[SerializeField] private RevealOrigin m_revealOrigin = RevealOrigin.Left;
+		[SerializeField, Range(0, 1)] private float m_revealAmount = 1;
+		[SerializeField] private bool m_revealClockwise = true;
+
 		[Tooltip("Ignore raycasts outside the shape instead of using the full rect.")]
 		[SerializeField] private bool m_raycastUsesShape = true;
 
@@ -115,6 +132,29 @@ namespace Tekly.Common.Ui.Fancy
 
 			return material;
 		}
+
+#if UNITY_EDITOR
+		/// <summary>
+		/// A domain reload (script recompile, entering Play Mode) clears the static cache but not the native materials,
+		/// and HideAndDontSave keeps Unity from unloading them, so without this each reload would orphan them.
+		/// Destroying them first is safe: every FancyRect is re-enabled after the reload and rebuilds its material.
+		/// </summary>
+		[UnityEditor.InitializeOnLoadMethod]
+		private static void RegisterMaterialCleanup()
+		{
+			UnityEditor.AssemblyReloadEvents.beforeAssemblyReload += DestroyBlendMaterials;
+		}
+
+		private static void DestroyBlendMaterials()
+		{
+			for (var i = 0; i < s_blendMaterials.Length; i++) {
+				if (s_blendMaterials[i] != null) {
+					DestroyImmediate(s_blendMaterials[i]);
+					s_blendMaterials[i] = null;
+				}
+			}
+		}
+#endif
 
 		/// <summary>
 		/// Writes a blend mode's GPU state into a material using the Fancy Rect shader.
@@ -303,6 +343,65 @@ namespace Tekly.Common.Ui.Fancy
 			}
 		}
 
+		/// <summary>Lit inner edge. Set Enabled to show it.</summary>
+		public ShapeBevel Bevel {
+			get => m_bevel;
+			set {
+				m_bevel = value;
+				SetVerticesDirty();
+			}
+		}
+
+		/// <summary>Glossy highlight across the top. Set Enabled to show it.</summary>
+		public ShapeGloss Gloss {
+			get => m_gloss;
+			set {
+				m_gloss = value;
+				SetVerticesDirty();
+			}
+		}
+
+		/// <summary>How the element is partially revealed (health bars, timers). None shows all of it.</summary>
+		public RevealMethod RevealMethod {
+			get => m_revealMethod;
+			set {
+				m_revealMethod = value;
+				SetVerticesDirty();
+			}
+		}
+
+		/// <summary>Where the reveal starts: Left/Right for horizontal, Bottom/Top for vertical, any for radial.</summary>
+		public RevealOrigin RevealOrigin {
+			get => m_revealOrigin;
+			set {
+				m_revealOrigin = value;
+				SetVerticesDirty();
+			}
+		}
+
+		/// <summary>0 hides the element, 1 shows all of it.</summary>
+		public float RevealAmount {
+			get => m_revealAmount;
+			set {
+				var clamped = Mathf.Clamp01(value);
+				if (Mathf.Approximately(clamped, m_revealAmount)) {
+					return;
+				}
+
+				m_revealAmount = clamped;
+				SetVerticesDirty();
+			}
+		}
+
+		/// <summary>Radial reveals only: sweep clockwise from the origin.</summary>
+		public bool RevealClockwise {
+			get => m_revealClockwise;
+			set {
+				m_revealClockwise = value;
+				SetVerticesDirty();
+			}
+		}
+
 		public bool RaycastUsesShape {
 			get => m_raycastUsesShape;
 			set => m_raycastUsesShape = value;
@@ -416,6 +515,12 @@ namespace Tekly.Common.Ui.Fancy
 			public float TextureSin;
 			public float PackedScroll;
 
+			// Reveal: header bits (method, origin, clockwise/reverse) and the 16-bit value (amount or cut position).
+			public RevealMethod RevealMethod;
+			public int RevealHeader;
+			public int RevealValue;
+			public float RevealCut;
+
 			/// <summary>Where the texture actually is, in the texture's own (rotated) frame around TextureCenter.</summary>
 			public Vector2 TextureRegionMin;
 			public Vector2 TextureRegionMax;
@@ -429,6 +534,11 @@ namespace Tekly.Common.Ui.Fancy
 				return;
 			}
 
+			// A zero reveal shows nothing at all.
+			if (m_revealMethod != RevealMethod.None && m_revealAmount <= 0f) {
+				return;
+			}
+
 			var shape = BuildShapeData(center, halfSize, bulge);
 
 			foreach (var shadow in m_shadows) {
@@ -437,11 +547,14 @@ namespace Tekly.Common.Ui.Fancy
 
 					var edges = shadow.Tuck ? -CalculateTuck(shadow.Offset, spread, shadow.Softness) : Vector4.zero;
 
+					// Drop shadows are revealed in their own offset space, so they stay the shadow of the revealed shape.
 					if (edges == Vector4.zero) {
-						AddLayer(vh, shape, LAYER_BAND, NO_INNER_EDGE_CODE, spread, shadow.Softness, shadow.Offset, shadow.Paint, shadow.UseTexture);
+						AddLayer(vh, shape, LAYER_BAND, NO_INNER_EDGE_CODE, spread, shadow.Softness, shadow.Offset, shadow.Paint, shadow.UseTexture,
+							true, Vector2.zero);
 					} else {
 						var shadowShape = WithEdgeOffsets(shape, edges, out var edgeShift);
-						AddLayer(vh, shadowShape, LAYER_BAND, NO_INNER_EDGE_CODE, spread, shadow.Softness, shadow.Offset + edgeShift, shadow.Paint, shadow.UseTexture);
+						AddLayer(vh, shadowShape, LAYER_BAND, NO_INNER_EDGE_CODE, spread, shadow.Softness, shadow.Offset + edgeShift, shadow.Paint, shadow.UseTexture,
+							true, edgeShift);
 					}
 				}
 			}
@@ -457,6 +570,14 @@ namespace Tekly.Common.Ui.Fancy
 				}
 			}
 
+			if (m_bevel.Enabled && m_bevel.Width > 0f) {
+				AddBevel(vh, shape);
+			}
+
+			if (m_gloss.Enabled && m_gloss.Color.a > 0f) {
+				AddGloss(vh, shape);
+			}
+
 			foreach (var outline in m_outlines) {
 				if (outline.Enabled && outline.Width > 0) {
 					var band = outline.GetBand();
@@ -464,6 +585,55 @@ namespace Tekly.Common.Ui.Fancy
 					AddLayer(vh, shape, LAYER_BAND, startCode, band.y, 0, Vector2.zero, outline.Paint, outline.UseTexture);
 				}
 			}
+		}
+
+		private void AddBevel(VertexHelper vh, in ShapeData shape)
+		{
+			var width = Mathf.Clamp(m_bevel.Width, 0f, MAX_DISTANCE);
+
+			// Highlight and shadow travel as the two gradient colors; the shader picks one from the edge's facing.
+			var paint = new ShapePaint {
+				Color = m_bevel.Highlight,
+				Color2 = m_bevel.Shadow,
+				Gradient = GradientType.Linear,
+				Angle = m_bevel.LightAngle
+			};
+
+			AddLayer(vh, shape, LAYER_BEVEL, Signed12(-width), 0f, m_bevel.Softness, Vector2.zero, paint, false);
+		}
+
+		/// <summary>
+		/// The gloss is a copy of the shape inset from the top and sides and cut off partway down, with concentric
+		/// corners, drawn as a solid layer with a vertical gradient that fades toward its bottom.
+		/// </summary>
+		private void AddGloss(VertexHelper vh, in ShapeData shape)
+		{
+			var inset = Mathf.Max(0f, m_gloss.Inset);
+			var size = shape.HalfSize * 2f;
+			var glossHeight = Mathf.Max(0f, size.y - inset * 2f) * Mathf.Clamp01(m_gloss.Height);
+
+			if (glossHeight < 0.5f || size.x - inset * 2f < 0.5f) {
+				return;
+			}
+
+			var edges = new Vector4(-inset, -inset, -(size.y - inset - glossHeight), -inset);
+
+			// Top corners are concentric with the shape's (radius minus inset). The bottom corners sit mid-shape, so
+			// they mirror the top ones and give way when the gloss is too short for both; that keeps the top concentric
+			// instead of letting the radius fitting shrink all four corners evenly.
+			var topLeft = Mathf.Min(Mathf.Max(shape.Radii.x - inset, 0f), glossHeight);
+			var topRight = Mathf.Min(Mathf.Max(shape.Radii.y - inset, 0f), glossHeight);
+			var bottomRight = Mathf.Clamp(glossHeight - topRight, 0f, topRight);
+			var bottomLeft = Mathf.Clamp(glossHeight - topLeft, 0f, topLeft);
+			var radii = new Vector4(topLeft, topRight, bottomRight, bottomLeft);
+
+			var glossShape = WithEdgeOffsets(shape, edges, out var shift, radii);
+
+			var faded = m_gloss.Color;
+			faded.a *= 1f - Mathf.Clamp01(m_gloss.Fade);
+
+			var paint = ShapePaint.TwoColor(faded, m_gloss.Color, GradientType.Linear, 90f);
+			AddLayer(vh, glossShape, LAYER_BAND, NO_INNER_EDGE_CODE, 0f, m_gloss.Softness, shift, paint, false);
 		}
 
 		/// <summary>
@@ -536,7 +706,7 @@ namespace Tekly.Common.Ui.Fancy
 		/// tuck a drop shadow. Returned as a resized shape plus a shift of its center, which the caller adds to the offset.
 		/// Corner radii stay the same (refitted if the shadow got smaller); the texture mapping is unchanged.
 		/// </summary>
-		private static ShapeData WithEdgeOffsets(in ShapeData shape, Vector4 edges, out Vector2 shift)
+		private static ShapeData WithEdgeOffsets(in ShapeData shape, Vector4 edges, out Vector2 shift, Vector4? radii = null)
 		{
 			shift = new Vector2((edges.y - edges.w) * 0.5f, (edges.x - edges.z) * 0.5f);
 
@@ -546,7 +716,7 @@ namespace Tekly.Common.Ui.Fancy
 			var result = shape;
 			result.HalfSize = halfSize;
 			result.PackedHalfSize = Pack(HalfSize12(halfSize.x), HalfSize12(halfSize.y));
-			result.Radii = FitRadii(shape.Radii, halfSize * 2f);
+			result.Radii = FitRadii(radii ?? shape.Radii, halfSize * 2f);
 			result.Bulge = ClampBulge(shape.Bulge, halfSize);
 			result.Uv1 = PackShapeUv1(result.Radii, result.Bulge);
 
@@ -574,6 +744,7 @@ namespace Tekly.Common.Ui.Fancy
 			};
 
 			SetupTextureMapping(ref shape);
+			SetupReveal(ref shape);
 			return shape;
 		}
 
@@ -628,6 +799,97 @@ namespace Tekly.Common.Ui.Fancy
 			var regionB = Vector2.Scale(new Vector2(0.5f, 0.5f) - shape.TextureOffset, shape.TextureDivisor);
 			shape.TextureRegionMin = Vector2.Min(regionA, regionB) - Vector2.one * TEXTURE_EDGE_MARGIN;
 			shape.TextureRegionMax = Vector2.Max(regionA, regionB) + Vector2.one * TEXTURE_EDGE_MARGIN;
+		}
+
+		/// <summary>
+		/// Precomputes the reveal. Linear reveals are baked into a cut position in the element's own space, so layers
+		/// drawn with a resized copy of the shape (gloss, tucked shadows) still cut in the same place.
+		/// </summary>
+		private void SetupReveal(ref ShapeData shape)
+		{
+			shape.RevealMethod = m_revealAmount >= 1f ? RevealMethod.None : m_revealMethod;
+
+			if (shape.RevealMethod == RevealMethod.None) {
+				return;
+			}
+
+			var amount = Mathf.Clamp01(m_revealAmount);
+			var outward = Vector4.Max(shape.Bulge, Vector4.zero); // top, right, bottom, left
+			var origin = m_revealOrigin;
+
+			switch (shape.RevealMethod) {
+				case RevealMethod.Horizontal: {
+					var min = -shape.HalfSize.x - outward.w;
+					var max = shape.HalfSize.x + outward.y;
+					var fromRight = origin == RevealOrigin.Right;
+					shape.RevealCut = fromRight ? Mathf.Lerp(max, min, amount) : Mathf.Lerp(min, max, amount);
+					shape.RevealHeader = (int)RevealMethod.Horizontal | (fromRight ? REVEAL_CLOCKWISE_BIT : 0);
+					shape.RevealValue = CutCode(shape.RevealCut);
+					break;
+				}
+				case RevealMethod.Vertical: {
+					var min = -shape.HalfSize.y - outward.z;
+					var max = shape.HalfSize.y + outward.x;
+					var fromTop = origin == RevealOrigin.Top;
+					shape.RevealCut = fromTop ? Mathf.Lerp(max, min, amount) : Mathf.Lerp(min, max, amount);
+					shape.RevealHeader = (int)RevealMethod.Vertical | (fromTop ? REVEAL_CLOCKWISE_BIT : 0);
+					shape.RevealValue = CutCode(shape.RevealCut);
+					break;
+				}
+				default:
+					shape.RevealHeader = (int)RevealMethod.Radial | ((int)origin << 2) | (m_revealClockwise ? REVEAL_CLOCKWISE_BIT : 0);
+					shape.RevealValue = Mathf.Clamp(Mathf.RoundToInt(amount * 65535f), 0, 65535);
+					break;
+			}
+		}
+
+		/// <summary>A cut position (-2048 to 2048 local units) in 1/16 unit steps.</summary>
+		private static int CutCode(float cut)
+		{
+			return Mathf.Clamp(Mathf.RoundToInt((cut + 2048f) * 16f), 0, 65535);
+		}
+
+		/// <param name="offsetSpace">Reveal in the layer's offset space (drop shadows).</param>
+		/// <param name="shapeShift">How far this layer's shape was moved on top of its offset (tuck); undone for linear cuts.</param>
+		private static float PackReveal(in ShapeData shape, bool offsetSpace, Vector2 shapeShift)
+		{
+			if (shape.RevealMethod == RevealMethod.None) {
+				return 0f;
+			}
+
+			var value = shape.RevealValue;
+
+			if (offsetSpace && shape.RevealMethod == RevealMethod.Horizontal) {
+				value = CutCode(shape.RevealCut - shapeShift.x);
+			} else if (offsetSpace && shape.RevealMethod == RevealMethod.Vertical) {
+				value = CutCode(shape.RevealCut - shapeShift.y);
+			}
+
+			return shape.RevealHeader | (value << REVEAL_VALUE_SHIFT) | (offsetSpace ? REVEAL_OFFSET_SPACE_BIT : 0);
+		}
+
+		/// <summary>Whether a point relative to the shape center is inside the revealed part. Matches the shader.</summary>
+		private bool IsRevealed(Vector2 p, in ShapeData shape)
+		{
+			switch (shape.RevealMethod) {
+				case RevealMethod.None:
+					return true;
+				case RevealMethod.Horizontal:
+					return m_revealOrigin == RevealOrigin.Right ? p.x >= shape.RevealCut : p.x <= shape.RevealCut;
+				case RevealMethod.Vertical:
+					return m_revealOrigin == RevealOrigin.Top ? p.y >= shape.RevealCut : p.y <= shape.RevealCut;
+			}
+
+			var startAngle = m_revealOrigin switch {
+				RevealOrigin.Top => 90f,
+				RevealOrigin.Right => 0f,
+				RevealOrigin.Bottom => 270f,
+				_ => 180f
+			};
+
+			var angle = Mathf.Atan2(p.y, p.x) * Mathf.Rad2Deg;
+			var swept = Mathf.Repeat(m_revealClockwise ? startAngle - angle : angle - startAngle, 360f);
+			return swept <= Mathf.Clamp01(m_revealAmount) * 360f;
 		}
 
 		/// <summary>
@@ -692,13 +954,14 @@ namespace Tekly.Common.Ui.Fancy
 		/// <param name="startCode">Encoded inner edge of the band; NO_INNER_EDGE_CODE for a solid layer.</param>
 		/// <param name="end">Outer edge of the band (distance from the shape edge), or the spread for inner shadows.</param>
 		private void AddLayer(VertexHelper vh, in ShapeData shape, int layerType, int startCode, float end, float softness,
-			Vector2 offset, ShapePaint paint, bool textured)
+			Vector2 offset, ShapePaint paint, bool textured, bool revealInOffsetSpace = false, Vector2 revealShapeShift = default)
 		{
 			softness = Mathf.Clamp(softness, 0, MAX_DISTANCE * 2f);
 			offset = new Vector2(Mathf.Clamp(offset.x, -MAX_DISTANCE, MAX_DISTANCE), Mathf.Clamp(offset.y, -MAX_DISTANCE, MAX_DISTANCE));
 
-			// How far past the shape edge this layer can draw. Inner shadows never leave the shape.
-			var reach = layerType == LAYER_INNER_SHADOW ? EDGE_PADDING : Mathf.Max(end, 0) + softness * 0.5f + EDGE_PADDING;
+			// How far past the shape edge this layer can draw. Inner shadows and bevels never leave the shape.
+			var insideOnly = layerType == LAYER_INNER_SHADOW || layerType == LAYER_BEVEL;
+			var reach = insideOnly ? EDGE_PADDING : Mathf.Max(end, 0) + softness * 0.5f + EDGE_PADDING;
 			var quadOffset = layerType == LAYER_INNER_SHADOW ? Vector2.zero : offset;
 
 			var h = shape.HalfSize;
@@ -719,11 +982,14 @@ namespace Tekly.Common.Ui.Fancy
 			var gradientEndCode = Mathf.RoundToInt(Mathf.Max(rangeStart, rangeEnd) * 255f);
 			var gradientBiasCode = Mathf.RoundToInt((Mathf.Clamp(paint.Bias, -1f, 1f) * 0.5f + 0.5f) * 255f);
 
-			var flags = layerType | ((int)paint.Gradient << 2) | (shape.CornerBits << 5) | FLAG_CHANNEL_CHECK | (gradientBiasCode << 15);
+			var solid = layerType == LAYER_BAND && startCode == NO_INNER_EDGE_CODE && Signed12(end) == 2048;
+
+			var flags = layerType | ((int)paint.Gradient << 2) | (shape.CornerBits << 5) | FLAG_CHANNEL_CHECK | (gradientBiasCode << 15)
+			            | (solid ? FLAG_SOLID : 0);
 			var angleCode = Mathf.Clamp(Mathf.RoundToInt(Mathf.Repeat(paint.Angle, 360f) / 360f * 4095f), 0, 4095);
 
 			var plainUv2 = new Vector4(
-				Pack(startCode, Signed12(end)),
+				solid ? shape.PackedScroll : Pack(startCode, Signed12(end)),
 				Pack(Unsigned12(softness), angleCode),
 				Pack(Signed12(offset.x), Signed12(offset.y)),
 				flags);
@@ -733,7 +999,7 @@ namespace Tekly.Common.Ui.Fancy
 				(color2.r << 16) | (color2.g << 8) | color2.b,
 				color2.a | (gradientStartCode << 8) | (gradientEndCode << 16),
 				shape.PackedHalfSize,
-				shape.PackedScroll);
+				PackReveal(shape, revealInOffsetSpace, revealShapeShift));
 
 			var layer = new LayerVertexData {
 				// A textured drop shadow carries its texture along with its offset; inner shadows stay with the fill.
@@ -931,7 +1197,15 @@ namespace Tekly.Common.Ui.Fancy
 				return false;
 			}
 
-			return SignedDistance(localPoint) <= 0f;
+			if (SignedDistance(localPoint) > 0f) {
+				return false;
+			}
+
+			if (m_revealMethod == RevealMethod.None || !TryResolveShapeBounds(out var center, out var halfSize, out var bulge)) {
+				return true;
+			}
+
+			return IsRevealed(localPoint - center, BuildShapeData(center, halfSize, bulge));
 		}
 
 		/// <summary>
@@ -992,15 +1266,18 @@ namespace Tekly.Common.Ui.Fancy
 		{
 			p = ApplyBulge(p, halfSize, bulge);
 
-			var right = p.x >= 0f;
-			var top = p.y >= 0f;
+			// Same corner split as the shader: midpoint between neighbouring corners' circle centers.
+			var splitY = p.x >= 0f ? (radii.z - radii.y) * 0.5f : (radii.w - radii.x) * 0.5f;
+			var top = p.y >= splitY;
+			var splitX = top ? (radii.x - radii.y) * 0.5f : (radii.w - radii.z) * 0.5f;
+			var right = p.x >= splitX;
 
 			var radius = top ? (right ? radii.y : radii.x) : (right ? radii.z : radii.w);
 			var cornerType = top
 				? (right ? cornerTypes.TopRight : cornerTypes.TopLeft)
 				: (right ? cornerTypes.BottomRight : cornerTypes.BottomLeft);
 
-			var a = new Vector2(Mathf.Abs(p.x) - halfSize.x, Mathf.Abs(p.y) - halfSize.y);
+			var a = new Vector2((right ? p.x : -p.x) - halfSize.x, (top ? p.y : -p.y) - halfSize.y);
 			return CornerDistance(a, radius, cornerType);
 		}
 

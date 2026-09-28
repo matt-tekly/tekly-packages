@@ -58,6 +58,27 @@ namespace Tekly.Common.Ui.Fancy
 		Tile = 1
 	}
 
+	/// <summary>How the Reveal setting cuts the element (like Image's Filled type, but anti-aliased).</summary>
+	public enum RevealMethod
+	{
+		None = 0,
+		Horizontal = 1,
+		Vertical = 2,
+		Radial = 3
+	}
+
+	/// <summary>
+	/// Where a reveal starts. Horizontal uses Left/Right, vertical uses Bottom/Top, radial uses all four.
+	/// Values are what the shader decodes; the inspector only offers the ones that apply.
+	/// </summary>
+	public enum RevealOrigin
+	{
+		Top = 0,
+		Right = 1,
+		Bottom = 2,
+		Left = 3
+	}
+
 	public enum OutlineAlignment
 	{
 		Inside,
@@ -213,6 +234,71 @@ namespace Tekly.Common.Ui.Fancy
 			Spread = 0,
 			Softness = 6,
 			Paint = ShapePaint.Solid(new Color(0, 0, 0, 0.3f))
+		};
+	}
+
+	/// <summary>
+	/// A lit edge just inside the shape: brighter where the edge faces the light, darker where it faces away.
+	/// Follows corners, bulges and chamfers automatically.
+	/// </summary>
+	[Serializable]
+	public struct ShapeBevel
+	{
+		public bool Enabled;
+
+		[Tooltip("How far into the shape the bevel reaches.")]
+		public float Width;
+
+		[Tooltip("Blur of the bevel's inner edge. 0 gives a crisp band.")]
+		public float Softness;
+
+		[Tooltip("Direction the light comes from, in degrees. 90 is straight above, 135 is top-left.")]
+		[Range(0, 360)]
+		public float LightAngle;
+
+		public Color Highlight;
+		public Color Shadow;
+
+		public static ShapeBevel Default => new ShapeBevel {
+			Enabled = true,
+			Width = 6,
+			Softness = 4,
+			LightAngle = 135,
+			Highlight = new Color(1, 1, 1, 0.5f),
+			Shadow = new Color(0, 0, 0, 0.3f)
+		};
+	}
+
+	/// <summary>
+	/// A glossy highlight across the top of the shape: an inset copy of the shape that fades out downward.
+	/// </summary>
+	[Serializable]
+	public struct ShapeGloss
+	{
+		public bool Enabled;
+		public Color Color;
+
+		[Tooltip("Gap between the gloss and the shape's top and side edges.")]
+		public float Inset;
+
+		[Tooltip("How far down the gloss reaches, as a fraction of the shape's (inset) height.")]
+		[Range(0, 1)]
+		public float Height;
+
+		[Tooltip("How much the gloss fades toward its bottom edge. 0 is solid, 1 fades fully to transparent.")]
+		[Range(0, 1)]
+		public float Fade;
+
+		[Tooltip("Blur of the gloss edges.")]
+		public float Softness;
+
+		public static ShapeGloss Default => new ShapeGloss {
+			Enabled = true,
+			Color = new Color(1, 1, 1, 0.45f),
+			Inset = 4,
+			Height = 0.5f,
+			Fade = 1,
+			Softness = 1
 		};
 	}
 }
