@@ -21,6 +21,8 @@ namespace Tekly.Common.Ui.Fancy
 		private SerializedProperty m_cornerTypes;
 		private SerializedProperty m_bulge;
 		private SerializedProperty m_containBulge;
+		private SerializedProperty m_backgroundEnabled;
+		private SerializedProperty m_background;
 		private SerializedProperty m_bevel;
 		private SerializedProperty m_gloss;
 		private SerializedProperty m_revealMethod;
@@ -59,6 +61,8 @@ namespace Tekly.Common.Ui.Fancy
 			m_cornerTypes = serializedObject.FindProperty("m_cornerTypes");
 			m_bulge = serializedObject.FindProperty("m_bulge");
 			m_containBulge = serializedObject.FindProperty("m_containBulge");
+			m_backgroundEnabled = serializedObject.FindProperty("m_backgroundEnabled");
+			m_background = serializedObject.FindProperty("m_background");
 			m_bevel = serializedObject.FindProperty("m_bevel");
 			m_gloss = serializedObject.FindProperty("m_gloss");
 			m_revealMethod = serializedObject.FindProperty("m_revealMethod");
@@ -109,6 +113,18 @@ namespace Tekly.Common.Ui.Fancy
 			EditorGUILayout.PropertyField(m_fillEnabled, new GUIContent("Enabled"));
 			using (EditorGuiExt.EnabledBlock(m_fillEnabled.boolValue || m_fillEnabled.hasMultipleDifferentValues)) {
 				EditorGUILayout.PropertyField(m_fill, new GUIContent("Paint"));
+			}
+
+			EditorGUILayout.Space();
+			using (EditorGuiExt.Horizontal()) {
+				EditorGUILayout.PropertyField(m_backgroundEnabled, GUIContent.none, GUILayout.Width(16));
+				EditorGUILayout.LabelField(new GUIContent("Background", m_backgroundEnabled.tooltip), EditorStyles.boldLabel);
+			}
+
+			if (m_backgroundEnabled.boolValue || m_backgroundEnabled.hasMultipleDifferentValues) {
+				using (new EditorGUI.IndentLevelScope()) {
+					EditorGUILayout.PropertyField(m_background, new GUIContent("Paint"));
+				}
 			}
 
 			EditorGUILayout.Space();

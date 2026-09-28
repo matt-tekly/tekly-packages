@@ -13,9 +13,10 @@ namespace Tekly.Common.Ui.Fancy
 	/// Every layer is emitted as its own quad and evaluated against one shared signed distance field in
 	/// the shader, so the whole element batches with one material. An optional sprite multiplies the fill,
 	/// and any outline or shadow that opts in with UseTexture.
-	/// Layer order, back to front: outer shadows, fill, inner shadows, outlines.
+	/// Layer order, back to front: outer shadows, background, fill, inner shadows, bevel, gloss, outlines.
 	/// </summary>
 	[AddComponentMenu("UI/Fancy Rect")]
+	[RequireComponent(typeof(CanvasRenderer))] // Like Image: Graphic only adds one lazily, too late for a fresh component.
 	public class FancyRect : MaskableGraphic, ICanvasRaycastFilter
 	{
 		public const AdditionalCanvasShaderChannels NEEDED_SHADER_CHANNELS = AdditionalCanvasShaderChannels.TexCoord1 |
@@ -78,6 +79,10 @@ namespace Tekly.Common.Ui.Fancy
 
 		[SerializeField] private bool m_fillEnabled = true;
 		[SerializeField] private ShapePaint m_fill = ShapePaint.Solid(Color.white);
+
+		[Tooltip("An untextured layer under the fill, so transparent parts of the texture show a color instead of what's behind.")]
+		[SerializeField] private bool m_backgroundEnabled;
+		[SerializeField] private ShapePaint m_background = ShapePaint.Solid(new Color(0.2f, 0.2f, 0.2f, 1f));
 		[SerializeField] private List<ShapeOutline> m_outlines = new List<ShapeOutline>();
 		[SerializeField] private List<ShapeShadow> m_shadows = new List<ShapeShadow>();
 
@@ -402,6 +407,23 @@ namespace Tekly.Common.Ui.Fancy
 			}
 		}
 
+		/// <summary>Draw the untextured background layer under the fill.</summary>
+		public bool BackgroundEnabled {
+			get => m_backgroundEnabled;
+			set {
+				m_backgroundEnabled = value;
+				SetVerticesDirty();
+			}
+		}
+
+		public ShapePaint Background {
+			get => m_background;
+			set {
+				m_background = value;
+				SetVerticesDirty();
+			}
+		}
+
 		public bool RaycastUsesShape {
 			get => m_raycastUsesShape;
 			set => m_raycastUsesShape = value;
@@ -557,6 +579,10 @@ namespace Tekly.Common.Ui.Fancy
 							true, edgeShift);
 					}
 				}
+			}
+
+			if (m_backgroundEnabled) {
+				AddLayer(vh, shape, LAYER_BAND, NO_INNER_EDGE_CODE, 0, 0, Vector2.zero, m_background, false);
 			}
 
 			if (m_fillEnabled) {
