@@ -1,0 +1,370 @@
+using System.Collections;
+using System.Collections.Generic;
+using Tekly.Common.Utils;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.Pool;
+using UnityEngine.UI;
+
+namespace Tekly.Trellis
+{
+	/// <summary>
+	/// Anything a Trellis layout sizes and places. Replaces Unity's LayoutElement.
+	///
+	/// A plain LayoutItem is a leaf: its content size comes from the other layout elements on the same
+	/// object (Text, Image, ...). Layouts such as FlowLayout inherit from it, so a nested layout is an item
+	/// of its parent with no extra component. Unset overrides fall back to the content size.
+	///
+	/// Rules: min wins over max, preferred is kept between min and max. Margins add to the parent's
+	/// spacing and padding; they don't collapse. Max and margins are only understood by Trellis layouts.
+	/// </summary>
+	[ExecuteAlways]
+	[DisallowMultipleComponent]
+	[RequireComponent(typeof(RectTransform))]
+	[AddComponentMenu("Layout/Trellis/Layout Item")]
+	public class LayoutItem : UIBehaviour, ILayoutElement, ILayoutIgnorer
+	{
+		private enum SizeKind
+		{
+			Min,
+			Preferred,
+			Flexible
+		}
+
+		[SerializeField] private bool m_ignoreLayout;
+
+		[SerializeField] private OptionalFloat m_minWidth;
+		[SerializeField] private OptionalFloat m_minHeight;
+		[SerializeField] private OptionalFloat m_preferredWidth;
+		[SerializeField] private OptionalFloat m_preferredHeight;
+		[SerializeField] private OptionalFloat m_flexibleWidth;
+		[SerializeField] private OptionalFloat m_flexibleHeight;
+		[SerializeField] private OptionalFloat m_maxWidth;
+		[SerializeField] private OptionalFloat m_maxHeight;
+
+		[SerializeField] private Edges m_margin;
+
+		[Tooltip("Higher priority wins when several layout elements on this object set the same size")]
+		[SerializeField] private int m_layoutPriority = 1;
+
+		private RectTransform m_rectTransform;
+		private bool m_measuring;
+		private bool m_dirtyPending;
+
+		public bool IgnoreLayout {
+			get => m_ignoreLayout;
+			set {
+				if (SetPropertyUtility.SetStruct(ref m_ignoreLayout, value)) {
+					SetDirty();
+				}
+			}
+		}
+
+		public OptionalFloat MinWidth {
+			get => m_minWidth;
+			set {
+				if (SetPropertyUtility.SetStruct(ref m_minWidth, value)) {
+					SetDirty();
+				}
+			}
+		}
+
+		public OptionalFloat MinHeight {
+			get => m_minHeight;
+			set {
+				if (SetPropertyUtility.SetStruct(ref m_minHeight, value)) {
+					SetDirty();
+				}
+			}
+		}
+
+		public OptionalFloat PreferredWidth {
+			get => m_preferredWidth;
+			set {
+				if (SetPropertyUtility.SetStruct(ref m_preferredWidth, value)) {
+					SetDirty();
+				}
+			}
+		}
+
+		public OptionalFloat PreferredHeight {
+			get => m_preferredHeight;
+			set {
+				if (SetPropertyUtility.SetStruct(ref m_preferredHeight, value)) {
+					SetDirty();
+				}
+			}
+		}
+
+		public OptionalFloat FlexibleWidth {
+			get => m_flexibleWidth;
+			set {
+				if (SetPropertyUtility.SetStruct(ref m_flexibleWidth, value)) {
+					SetDirty();
+				}
+			}
+		}
+
+		public OptionalFloat FlexibleHeight {
+			get => m_flexibleHeight;
+			set {
+				if (SetPropertyUtility.SetStruct(ref m_flexibleHeight, value)) {
+					SetDirty();
+				}
+			}
+		}
+
+		public OptionalFloat MaxWidth {
+			get => m_maxWidth;
+			set {
+				if (SetPropertyUtility.SetStruct(ref m_maxWidth, value)) {
+					SetDirty();
+				}
+			}
+		}
+
+		public OptionalFloat MaxHeight {
+			get => m_maxHeight;
+			set {
+				if (SetPropertyUtility.SetStruct(ref m_maxHeight, value)) {
+					SetDirty();
+				}
+			}
+		}
+
+		public Edges Margin {
+			get => m_margin;
+			set {
+				if (SetPropertyUtility.SetStruct(ref m_margin, value)) {
+					SetDirty();
+				}
+			}
+		}
+
+		public int LayoutPriority {
+			get => m_layoutPriority;
+			set {
+				if (SetPropertyUtility.SetStruct(ref m_layoutPriority, value)) {
+					SetDirty();
+				}
+			}
+		}
+
+		protected RectTransform OwnRect {
+			get {
+				if (m_rectTransform == null) {
+					m_rectTransform = (RectTransform) transform;
+				}
+
+				return m_rectTransform;
+			}
+		}
+
+		/// <summary>
+		/// Resolved size along an axis (0 = width, 1 = height): content size with this item's overrides,
+		/// max and margins applied. Parents call this while measuring, after this object's own layout
+		/// components have run.
+		/// </summary>
+		public LayoutMeasure Measure(int axis)
+		{
+			var content = default(LayoutMeasure);
+
+			// A sibling element that queries LayoutUtility on this object would call back into us
+			if (!m_measuring) {
+				m_measuring = true;
+
+				try {
+					content = MeasureContent(axis);
+				} finally {
+					m_measuring = false;
+				}
+			}
+
+			var horizontal = axis == 0;
+
+			var min = Pick(horizontal ? m_minWidth : m_minHeight, content.Min);
+			var preferred = Pick(horizontal ? m_preferredWidth : m_preferredHeight, content.Preferred);
+			var flexible = Pick(horizontal ? m_flexibleWidth : m_flexibleHeight, content.Flexible);
+
+			return LayoutMeasure.Create(min, preferred, flexible, GetMaxSize(axis),
+				m_margin.Start(axis), m_margin.End(axis));
+		}
+
+		/// <summary>
+		/// Max size along an axis (0 = width, 1 = height), or infinity when unset.
+		/// </summary>
+		public float GetMaxSize(int axis)
+		{
+			var max = axis == 0 ? m_maxWidth : m_maxHeight;
+			return max.IsSet ? Mathf.Max(0f, max.Value) : float.PositiveInfinity;
+		}
+
+		/// <summary>
+		/// Request a layout rebuild. Safe to call during a rebuild: it is deferred a frame, once.
+		/// </summary>
+		public void SetDirty()
+		{
+			if (!IsActive()) {
+				return;
+			}
+
+			if (!CanvasUpdateRegistry.IsRebuildingLayout()) {
+				LayoutRebuilder.MarkLayoutForRebuild(OwnRect);
+				return;
+			}
+
+			if (!m_dirtyPending) {
+				m_dirtyPending = true;
+				StartCoroutine(DelayedSetDirty());
+			}
+		}
+
+		/// <summary>
+		/// Size of what this item holds, before overrides. Leaves ask the other layout elements on this
+		/// object; layouts return what they calculated from their children.
+		/// </summary>
+		protected virtual LayoutMeasure MeasureContent(int axis)
+		{
+			using (ListPool<Component>.Get(out var components)) {
+				GetComponents(typeof(ILayoutElement), components);
+
+				var min = ReadSiblings(components, axis, SizeKind.Min);
+				var preferred = ReadSiblings(components, axis, SizeKind.Preferred);
+				var flexible = ReadSiblings(components, axis, SizeKind.Flexible);
+
+				return LayoutMeasure.Create(min, Mathf.Max(min, preferred), flexible);
+			}
+		}
+
+		/// <summary>
+		/// Called for this object's measuring passes: 0 = horizontal, 1 = vertical.
+		/// </summary>
+		protected virtual void OnCalculateLayout(int axis)
+		{
+		}
+
+		protected override void OnEnable()
+		{
+			base.OnEnable();
+			SetDirty();
+		}
+
+		protected override void OnDisable()
+		{
+			// Coroutines stop when disabled, and IsActive is already false here
+			m_dirtyPending = false;
+			LayoutRebuilder.MarkLayoutForRebuild(OwnRect);
+			base.OnDisable();
+		}
+
+		protected override void OnTransformParentChanged()
+		{
+			base.OnTransformParentChanged();
+			SetDirty();
+		}
+
+		protected override void OnBeforeTransformParentChanged()
+		{
+			base.OnBeforeTransformParentChanged();
+
+			// Rebuild the layout we're leaving
+			SetDirty();
+		}
+
+		protected override void OnDidApplyAnimationProperties()
+		{
+			base.OnDidApplyAnimationProperties();
+			SetDirty();
+		}
+
+#if UNITY_EDITOR
+		protected override void OnValidate()
+		{
+			base.OnValidate();
+			SetDirty();
+		}
+#endif
+
+		// Same selection rule as LayoutUtility: highest priority wins, ties take the largest value,
+		// negative means "not set". Skips this component so leaves don't measure themselves.
+		private float ReadSiblings(List<Component> components, int axis, SizeKind kind)
+		{
+			var best = 0f;
+			var bestPriority = int.MinValue;
+
+			foreach (var component in components) {
+				if (component == this) {
+					continue;
+				}
+
+				if (component is Behaviour behaviour && !behaviour.isActiveAndEnabled) {
+					continue;
+				}
+
+				var element = (ILayoutElement) component;
+				var value = Read(element, axis, kind);
+
+				if (value < 0f) {
+					continue;
+				}
+
+				var priority = element.layoutPriority;
+
+				if (priority > bestPriority) {
+					best = value;
+					bestPriority = priority;
+				} else if (priority == bestPriority && value > best) {
+					best = value;
+				}
+			}
+
+			return best;
+		}
+
+		private static float Read(ILayoutElement element, int axis, SizeKind kind)
+		{
+			switch (kind) {
+				case SizeKind.Min:
+					return axis == 0 ? element.minWidth : element.minHeight;
+				case SizeKind.Preferred:
+					return axis == 0 ? element.preferredWidth : element.preferredHeight;
+				default:
+					return axis == 0 ? element.flexibleWidth : element.flexibleHeight;
+			}
+		}
+
+		private static float Pick(OptionalFloat value, float fallback)
+		{
+			return value.IsSet ? value.Value : fallback;
+		}
+
+		private IEnumerator DelayedSetDirty()
+		{
+			yield return null;
+
+			m_dirtyPending = false;
+			LayoutRebuilder.MarkLayoutForRebuild(OwnRect);
+		}
+
+		// ILayoutElement / ILayoutIgnorer, implemented explicitly so the lowercase names stay off the
+		// public API. Unity's layout groups and ContentSizeFitter see the resolved sizes (no max or margins).
+		bool ILayoutIgnorer.ignoreLayout => m_ignoreLayout;
+		float ILayoutElement.minWidth => Measure(0).Min;
+		float ILayoutElement.preferredWidth => Measure(0).Preferred;
+		float ILayoutElement.flexibleWidth => Measure(0).Flexible;
+		float ILayoutElement.minHeight => Measure(1).Min;
+		float ILayoutElement.preferredHeight => Measure(1).Preferred;
+		float ILayoutElement.flexibleHeight => Measure(1).Flexible;
+		int ILayoutElement.layoutPriority => m_layoutPriority;
+
+		void ILayoutElement.CalculateLayoutInputHorizontal()
+		{
+			OnCalculateLayout(0);
+		}
+
+		void ILayoutElement.CalculateLayoutInputVertical()
+		{
+			OnCalculateLayout(1);
+		}
+	}
+}

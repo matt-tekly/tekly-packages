@@ -1,0 +1,17 @@
+{
+  "name": "ca.tekly.trellis",
+  "displayName": "Tekly Trellis",
+  "version": "0.0.1",
+  "unity": "2019.4",
+  "description": "uGUI layouts: FlowLayout (one axis, optional wrap) and LayoutItem, with a Unity-free solver",
+  "dependencies": {
+    "ca.tekly.common": "0.0.1",
+    "com.unity.ugui": "2.0.0"
+  },
+  "author": {
+    "name": "Matt King",
+    "email": "matt@tekly.ca"
+  },
+  "hideInEditor": false,
+  "type": "library"
+}

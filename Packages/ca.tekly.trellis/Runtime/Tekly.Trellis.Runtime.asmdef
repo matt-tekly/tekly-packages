@@ -1,0 +1,17 @@
+{
+    "name": "Tekly.Trellis.Runtime",
+    "rootNamespace": "Tekly.Trellis",
+    "references": [
+        "Tekly.Common.Runtime",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

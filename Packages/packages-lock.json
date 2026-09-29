@@ -275,6 +275,15 @@
         "ca.tekly.editorutils": "0.0.1"
       }
     },
+    "ca.tekly.trellis": {
+      "version": "file:ca.tekly.trellis",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "ca.tekly.common": "0.0.1",
+        "com.unity.ugui": "2.0.0"
+      }
+    },
     "ca.tekly.twod": {
       "version": "file:ca.tekly.twod",
       "depth": 0,
