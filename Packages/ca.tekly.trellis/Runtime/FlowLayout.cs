@@ -24,7 +24,8 @@ namespace Tekly.Trellis
 		[SerializeField] private Edges m_padding;
 		[SerializeField] private float m_spacing;
 
-		[Tooltip("Where children sit along the axis when there is spare room nobody flexible can take")]
+		[Tooltip("Where children sit along the axis when there is spare room nobody flexible can take. " +
+			"Space Between and Space Evenly share it between the gaps, on top of Spacing")]
 		[SerializeField] private LayoutAlignment m_alignment = LayoutAlignment.Start;
 
 		[Tooltip("How children are sized and placed across the axis, within their line")]
@@ -213,8 +214,6 @@ namespace Tekly.Trellis
 			LineSolver.EnsureCount(m_sizes, main.Count);
 			LineSolver.EnsureCount(m_positions, main.Count);
 
-			var alignFactor = m_alignment.Factor();
-
 			for (var l = 0; l < m_lines.Count; l++) {
 				var line = m_lines[l];
 
@@ -222,9 +221,9 @@ namespace Tekly.Trellis
 				if (UsesColumns && l > 0 && l == m_lines.Count - 1) {
 					var reference = m_lines[0];
 					m_solver.SolveShortLine(main, line.Start, line.Count, reference.Start, reference.Count, length,
-						m_spacing, alignFactor, m_sizes, m_positions);
+						m_spacing, m_alignment, m_sizes, m_positions);
 				} else {
-					m_solver.Solve(main, line.Start, line.Count, length, m_spacing, alignFactor, m_sizes, m_positions);
+					m_solver.Solve(main, line.Start, line.Count, length, m_spacing, m_alignment, m_sizes, m_positions);
 				}
 			}
 
@@ -276,7 +275,7 @@ namespace Tekly.Trellis
 			}
 
 			m_solver.Solve(m_lineSolveMeasures, 0, m_lineSolveMeasures.Count, length, m_lineSpacing,
-				m_lineAlignment.Factor(), m_lineSizes, m_linePositions);
+				m_lineAlignment.ToLayoutAlignment(), m_lineSizes, m_linePositions);
 		}
 
 		private void FillMeasures(int axis)

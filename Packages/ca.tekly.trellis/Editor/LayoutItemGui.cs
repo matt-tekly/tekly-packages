@@ -46,6 +46,10 @@ namespace Tekly.Trellis
 			"The parent layout doesn't place or size this object, but it still arranges its own children. " +
 			"Use it for overlays and badges that sit on top of the parent's flow");
 
+		private static readonly GUIContent s_widthGroupLabel = new GUIContent("Width Group",
+			"Items with the same name under the same WidthGroup share the widest width, like a form's label column. " +
+			"Empty = no group");
+
 		private static readonly GUIContent s_overrideTooltip = new GUIContent("", "Override this size");
 
 		private static readonly GUIContent s_sizeLabel = new GUIContent("Size",
@@ -81,6 +85,7 @@ namespace Tekly.Trellis
 					DrawSizeTable(serializedObject, item);
 					EditorGUILayout.Space(SECTION_GAP);
 					EditorGUILayout.PropertyField(serializedObject.FindProperty("m_margin"));
+					DrawWidthGroup(serializedObject, item);
 				}
 			}
 
@@ -98,6 +103,22 @@ namespace Tekly.Trellis
 
 			if (item != null && !ignored) {
 				DrawParentNote(item);
+			}
+		}
+
+		private static void DrawWidthGroup(SerializedObject serializedObject, LayoutItem item)
+		{
+			EditorGUILayout.PropertyField(serializedObject.FindProperty("m_widthGroup"), s_widthGroupLabel);
+
+			if (item == null || string.IsNullOrEmpty(item.WidthGroupName)) {
+				return;
+			}
+
+			if (item.JoinedWidthGroup == null) {
+				EditorGUILayout.HelpBox("No enabled WidthGroup above this object, so Width Group has no effect.",
+					MessageType.Info);
+			} else {
+				EditorGUILayout.LabelField(" ", $"Shared through {item.JoinedWidthGroup.name}", EditorStyles.miniLabel);
 			}
 		}
 

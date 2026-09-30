@@ -10,7 +10,8 @@ namespace Tekly.Trellis
 	///    Below the total min, items stay at min and overflow the end.
 	/// 2. Spare room: flexible items share it by weight, each capped at its max. Space a capped item
 	///    can't take is shared again between the rest.
-	/// 3. Space still left over becomes an alignment offset before the first item.
+	/// 3. Space still left over is placed by the alignment: before the first item (Start, Center, End)
+	///    or shared between the gaps (Space Between, Space Evenly), on top of the spacing.
 	///
 	/// Keep one instance per layout; it reuses scratch lists so solving doesn't allocate.
 	/// </summary>
@@ -83,7 +84,7 @@ namespace Tekly.Trellis
 		/// to the item's own edge, after its start margin. Both lists must already hold start + count entries.
 		/// </summary>
 		public void Solve(IReadOnlyList<LayoutMeasure> items, int start, int count, float length, float spacing,
-			float alignFactor, List<float> sizes, List<float> positions)
+			LayoutAlignment alignment, List<float> sizes, List<float> positions)
 		{
 			var end = start + count;
 
@@ -105,26 +106,48 @@ namespace Tekly.Trellis
 			var spare = SolverMath.Max(0f, inner - totalPreferred);
 			spare = DistributeFlexible(items, start, end, spare, sizes);
 
-			var position = spare * alignFactor;
+			Distribute(spare, count, alignment, out var position, out var extraGap);
 
 			for (var i = start; i < end; i++) {
 				position += items[i].MarginStart;
 				positions[i] = position;
-				position += sizes[i] + items[i].MarginEnd + spacing;
+				position += sizes[i] + items[i].MarginEnd + spacing + extraGap;
+			}
+		}
+
+		/// <summary>
+		/// Splits leftover space into a lead before the first item and an extra amount added to every gap.
+		/// </summary>
+		private static void Distribute(float spare, int count, LayoutAlignment alignment, out float lead, out float extraGap)
+		{
+			switch (alignment) {
+				case LayoutAlignment.SpaceBetween:
+					lead = 0f;
+					extraGap = count > 1 ? spare / (count - 1) : 0f;
+					return;
+				case LayoutAlignment.SpaceEvenly:
+					extraGap = spare / (count + 1);
+					lead = extraGap;
+					return;
+				default:
+					lead = spare * alignment.Factor();
+					extraGap = 0f;
+					return;
 			}
 		}
 
 		/// <summary>
 		/// Solves a line holding fewer items than a full one, sizing its items as if the line were full so
 		/// they match the columns above. The missing slots borrow the measures of the reference line's items
-		/// in the same columns. Then the items are placed by alignFactor within the line.
+		/// in the same columns. Then the items are placed by the alignment within the line; the spread
+		/// alignments use Start so the items stay under the columns above.
 		/// Falls back to Solve when the line isn't short.
 		/// </summary>
 		public void SolveShortLine(IReadOnlyList<LayoutMeasure> items, int start, int count, int referenceStart,
-			int slots, float length, float spacing, float alignFactor, List<float> sizes, List<float> positions)
+			int slots, float length, float spacing, LayoutAlignment alignment, List<float> sizes, List<float> positions)
 		{
 			if (count >= slots) {
-				Solve(items, start, count, length, spacing, alignFactor, sizes, positions);
+				Solve(items, start, count, length, spacing, alignment, sizes, positions);
 				return;
 			}
 
@@ -136,7 +159,7 @@ namespace Tekly.Trellis
 
 			EnsureCount(m_slotSizes, slots);
 			EnsureCount(m_slotPositions, slots);
-			Solve(m_slots, 0, slots, length, spacing, 0f, m_slotSizes, m_slotPositions);
+			Solve(m_slots, 0, slots, length, spacing, LayoutAlignment.Start, m_slotSizes, m_slotPositions);
 
 			var span = SpacingTotal(count, spacing);
 
@@ -145,6 +168,7 @@ namespace Tekly.Trellis
 				span += m_slotSizes[i] + items[start + i].Margins;
 			}
 
+			var alignFactor = alignment.IsSpread() ? 0f : alignment.Factor();
 			var position = SolverMath.Max(0f, length - span) * alignFactor;
 
 			for (var i = start; i < start + count; i++) {

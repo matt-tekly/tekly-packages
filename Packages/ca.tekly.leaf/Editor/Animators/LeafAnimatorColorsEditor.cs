@@ -19,7 +19,7 @@ namespace Tekly.Leaf.Elements.Animators
 		};
 		private static readonly string[] s_colorFields = { "Normal", "Highlighted", "Pressed" };
 		private static readonly LeafElementFlags[] s_flagOrder = {
-			LeafElementFlags.Selected, LeafElementFlags.On, LeafElementFlags.Disabled
+			LeafElementFlags.Selected, LeafElementFlags.On, LeafElementFlags.Focused, LeafElementFlags.Disabled
 		};
 
 		private static readonly Color s_rowTint = new Color(0.98f, 0.74f, 0.18f, 0.14f);
@@ -408,7 +408,7 @@ namespace Tekly.Leaf.Elements.Animators
 				return "Always";
 			}
 
-			var parts = new List<string>(3);
+			var parts = new List<string>(s_flagOrder.Length);
 			for (var i = 0; i < s_flagOrder.Length; i++) {
 				if ((flags & s_flagOrder[i]) != 0) {
 					parts.Add(s_flagOrder[i].ToString());
@@ -463,6 +463,7 @@ namespace Tekly.Leaf.Elements.Animators
 			Preset("Selected", LeafElementFlags.Selected);
 			Preset("On", LeafElementFlags.On);
 			Preset("Selected + On", LeafElementFlags.Selected | LeafElementFlags.On);
+			Preset("Focused", LeafElementFlags.Focused);
 			menu.AddSeparator(string.Empty);
 			Preset("Disabled", LeafElementFlags.Disabled);
 			Preset("Disabled + On", LeafElementFlags.Disabled | LeafElementFlags.On);

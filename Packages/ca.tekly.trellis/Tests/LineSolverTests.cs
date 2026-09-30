@@ -25,7 +25,7 @@ namespace Tekly.Trellis
 		{
 			LineSolver.EnsureCount(m_sizes, items.Count);
 			LineSolver.EnsureCount(m_positions, items.Count);
-			m_solver.Solve(items, 0, items.Count, length, spacing, alignment.Factor(), m_sizes, m_positions);
+			m_solver.Solve(items, 0, items.Count, length, spacing, alignment, m_sizes, m_positions);
 		}
 
 		private void AssertSizes(params float[] expected)
@@ -251,7 +251,7 @@ namespace Tekly.Trellis
 			LineSolver.EnsureCount(m_positions, 3);
 			m_sizes[0] = -1;
 
-			m_solver.Solve(items, 1, 2, 50, 0, 0, m_sizes, m_positions);
+			m_solver.Solve(items, 1, 2, 50, 0, LayoutAlignment.Start, m_sizes, m_positions);
 
 			Assert.AreEqual(-1, m_sizes[0]);
 			Assert.AreEqual(25, m_sizes[1], TOLERANCE);
@@ -284,7 +284,7 @@ namespace Tekly.Trellis
 			LineSolver.EnsureCount(m_sizes, items.Count);
 			LineSolver.EnsureCount(m_positions, items.Count);
 
-			m_solver.SolveShortLine(items, 3, 2, 0, 3, 120, 0, alignment.Factor(), m_sizes, m_positions);
+			m_solver.SolveShortLine(items, 3, 2, 0, 3, 120, 0, alignment, m_sizes, m_positions);
 
 			Assert.AreEqual(40, m_sizes[3], TOLERANCE);
 			Assert.AreEqual(40, m_sizes[4], TOLERANCE);
@@ -306,7 +306,7 @@ namespace Tekly.Trellis
 			LineSolver.EnsureCount(m_sizes, items.Count);
 			LineSolver.EnsureCount(m_positions, items.Count);
 
-			m_solver.SolveShortLine(items, 3, 1, 0, 3, 100, 5, 0, m_sizes, m_positions);
+			m_solver.SolveShortLine(items, 3, 1, 0, 3, 100, 5, LayoutAlignment.Start, m_sizes, m_positions);
 
 			Assert.AreEqual(30, m_sizes[3], TOLERANCE);
 			Assert.AreEqual(0, m_positions[3], TOLERANCE);
@@ -323,10 +323,127 @@ namespace Tekly.Trellis
 			LineSolver.EnsureCount(m_sizes, items.Count);
 			LineSolver.EnsureCount(m_positions, items.Count);
 
-			m_solver.SolveShortLine(items, 0, 2, 0, 2, 100, 0, 0, m_sizes, m_positions);
+			m_solver.SolveShortLine(items, 0, 2, 0, 2, 100, 0, LayoutAlignment.Start, m_sizes, m_positions);
 
 			AssertSizes(50, 50);
 			AssertPositions(0, 50);
+		}
+
+		[Test]
+		public void SpaceBetweenPutsEndsAtEdges()
+		{
+			var items = new List<LayoutMeasure> {
+				LayoutMeasure.Create(0, 20),
+				LayoutMeasure.Create(0, 20),
+				LayoutMeasure.Create(0, 20)
+			};
+
+			// 40 spare over 2 gaps
+			Solve(items, 100, 0, LayoutAlignment.SpaceBetween);
+
+			AssertSizes(20, 20, 20);
+			AssertPositions(0, 40, 80);
+		}
+
+		[Test]
+		public void SpaceBetweenAddsToSpacing()
+		{
+			var items = new List<LayoutMeasure> {
+				LayoutMeasure.Create(0, 20),
+				LayoutMeasure.Create(0, 20),
+				LayoutMeasure.Create(0, 20)
+			};
+
+			// 100 - 60 - 10 spacing = 30 spare, 15 extra per gap on top of 5 spacing
+			Solve(items, 100, 5, LayoutAlignment.SpaceBetween);
+
+			AssertPositions(0, 40, 80);
+		}
+
+		[Test]
+		public void SpaceBetweenSingleItemSitsAtStart()
+		{
+			var items = new List<LayoutMeasure> {
+				LayoutMeasure.Create(0, 20)
+			};
+
+			Solve(items, 100, 0, LayoutAlignment.SpaceBetween);
+
+			AssertPositions(0);
+		}
+
+		[Test]
+		public void SpaceEvenlyGivesEqualGaps()
+		{
+			var items = new List<LayoutMeasure> {
+				LayoutMeasure.Create(0, 20),
+				LayoutMeasure.Create(0, 20),
+				LayoutMeasure.Create(0, 20)
+			};
+
+			// 40 spare over 4 gaps: 10 each
+			Solve(items, 100, 0, LayoutAlignment.SpaceEvenly);
+
+			AssertPositions(10, 40, 70);
+		}
+
+		[Test]
+		public void SpaceEvenlySingleItemIsCentered()
+		{
+			var items = new List<LayoutMeasure> {
+				LayoutMeasure.Create(0, 20)
+			};
+
+			Solve(items, 100, 0, LayoutAlignment.SpaceEvenly);
+
+			AssertPositions(40);
+		}
+
+		[Test]
+		public void SpreadDoesNothingWhenFlexibleTakesTheRoom()
+		{
+			var items = new List<LayoutMeasure> {
+				LayoutMeasure.Create(0, 20),
+				LayoutMeasure.Create(0, 20, 1)
+			};
+
+			Solve(items, 100, 0, LayoutAlignment.SpaceBetween);
+
+			AssertSizes(20, 80);
+			AssertPositions(0, 20);
+		}
+
+		[Test]
+		public void SpreadKeepsMarginsAndSpacing()
+		{
+			var items = new List<LayoutMeasure> {
+				LayoutMeasure.Create(0, 20, 0, float.PositiveInfinity, 5, 5),
+				LayoutMeasure.Create(0, 20, 0, float.PositiveInfinity, 5, 5)
+			};
+
+			// Outer 30 + 30 + 4 spacing = 64, 36 spare to the one gap
+			Solve(items, 100, 4, LayoutAlignment.SpaceBetween);
+
+			AssertPositions(5, 75);
+		}
+
+		[TestCase(LayoutAlignment.SpaceBetween)]
+		[TestCase(LayoutAlignment.SpaceEvenly)]
+		public void ShortLineUsesStartForSpread(LayoutAlignment alignment)
+		{
+			var items = new List<LayoutMeasure> {
+				LayoutMeasure.Create(0, 20),
+				LayoutMeasure.Create(0, 20),
+				LayoutMeasure.Create(0, 20),
+				LayoutMeasure.Create(0, 20)
+			};
+
+			LineSolver.EnsureCount(m_sizes, items.Count);
+			LineSolver.EnsureCount(m_positions, items.Count);
+
+			m_solver.SolveShortLine(items, 3, 1, 0, 3, 100, 0, alignment, m_sizes, m_positions);
+
+			Assert.AreEqual(0, m_positions[3], TOLERANCE);
 		}
 
 		[Test]

@@ -30,6 +30,8 @@ namespace Tekly.Leaf.Elements.Animators
 		Disabled = 1 << 1,
 		/// The element is toggled on (toggles, radio options).
 		On = 1 << 2,
+		/// The element is capturing text input (an input field that's being edited).
+		Focused = 1 << 3,
 	}
 
 	/// <summary>
@@ -54,6 +56,7 @@ namespace Tekly.Leaf.Elements.Animators
 		public bool IsSelected => (Flags & LeafElementFlags.Selected) != 0;
 		public bool IsDisabled => (Flags & LeafElementFlags.Disabled) != 0;
 		public bool IsOn => (Flags & LeafElementFlags.On) != 0;
+		public bool IsFocused => (Flags & LeafElementFlags.Focused) != 0;
 
 		/// <summary>
 		/// True if every flag in <paramref name="flags"/> is set. <see cref="LeafElementFlags.None"/> always matches.

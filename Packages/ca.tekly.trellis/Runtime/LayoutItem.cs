@@ -47,7 +47,12 @@ namespace Tekly.Trellis
 		[Tooltip("Higher priority wins when several layout elements on this object set the same size")]
 		[SerializeField] private int m_layoutPriority = 1;
 
+		[Tooltip("Items with the same name under the same WidthGroup share the widest width. Empty = no group")]
+		[SerializeField] private string m_widthGroup = "";
+
 		private RectTransform m_rectTransform;
+		private WidthGroup m_joinedGroup;
+		private string m_joinedKey;
 		private bool m_measuring;
 		private bool m_dirtyPending;
 
@@ -150,6 +155,28 @@ namespace Tekly.Trellis
 			}
 		}
 
+		/// <summary>
+		/// Name of the width group this item shares its width with, under the nearest WidthGroup above it.
+		/// Empty means no group.
+		/// </summary>
+		public string WidthGroupName {
+			get => m_widthGroup;
+			set {
+				value = value ?? "";
+
+				if (m_widthGroup != value) {
+					m_widthGroup = value;
+					RefreshWidthGroup();
+					SetDirty();
+				}
+			}
+		}
+
+		/// <summary>
+		/// The WidthGroup this item currently shares its width through, if any.
+		/// </summary>
+		public WidthGroup JoinedWidthGroup => m_joinedGroup;
+
 		protected RectTransform OwnRect {
 			get {
 				if (m_rectTransform == null) {
@@ -162,10 +189,26 @@ namespace Tekly.Trellis
 
 		/// <summary>
 		/// Resolved size along an axis (0 = width, 1 = height): content size with this item's overrides,
-		/// max and margins applied. Parents call this while measuring, after this object's own layout
-		/// components have run.
+		/// max and margins applied, and the width shared with its width group. Parents call this while
+		/// measuring, after this object's own layout components have run.
 		/// </summary>
 		public LayoutMeasure Measure(int axis)
+		{
+			var own = MeasureOwn(axis);
+
+			if (axis != 0 || m_joinedGroup == null) {
+				return own;
+			}
+
+			m_joinedGroup.Share(m_joinedKey, own, out var min, out var preferred);
+
+			return LayoutMeasure.Create(min, preferred, own.Flexible, own.Max, own.MarginStart, own.MarginEnd);
+		}
+
+		/// <summary>
+		/// Measure without the width group: what this item would be on its own.
+		/// </summary>
+		internal LayoutMeasure MeasureOwn(int axis)
 		{
 			var content = default(LayoutMeasure);
 
@@ -243,14 +286,42 @@ namespace Tekly.Trellis
 		{
 		}
 
+		/// <summary>
+		/// Join the nearest enabled WidthGroup above this item, or leave the current one.
+		/// Called automatically on enable, reparenting and when a WidthGroup turns on or off.
+		/// </summary>
+		public void RefreshWidthGroup()
+		{
+			var group = isActiveAndEnabled && !string.IsNullOrEmpty(m_widthGroup) ? FindWidthGroup() : null;
+			var key = group != null ? m_widthGroup : null;
+
+			if (group == m_joinedGroup && key == m_joinedKey) {
+				return;
+			}
+
+			if (m_joinedGroup != null) {
+				m_joinedGroup.Remove(this, m_joinedKey);
+			}
+
+			m_joinedGroup = group;
+			m_joinedKey = key;
+
+			if (m_joinedGroup != null) {
+				m_joinedGroup.Add(this, m_joinedKey);
+			}
+		}
+
 		protected override void OnEnable()
 		{
 			base.OnEnable();
+			RefreshWidthGroup();
 			SetDirty();
 		}
 
 		protected override void OnDisable()
 		{
+			RefreshWidthGroup();
+
 			// Coroutines stop when disabled, and IsActive is already false here
 			m_dirtyPending = false;
 			LayoutRebuilder.MarkLayoutForRebuild(OwnRect);
@@ -260,6 +331,7 @@ namespace Tekly.Trellis
 		protected override void OnTransformParentChanged()
 		{
 			base.OnTransformParentChanged();
+			RefreshWidthGroup();
 			SetDirty();
 		}
 
@@ -281,9 +353,29 @@ namespace Tekly.Trellis
 		protected override void OnValidate()
 		{
 			base.OnValidate();
+
+			m_widthGroup = m_widthGroup ?? "";
+			RefreshWidthGroup();
 			SetDirty();
 		}
 #endif
+
+		/// <summary>
+		/// Nearest enabled WidthGroup on an ancestor. A group on this object's own GameObject is for its
+		/// descendants, not for this item.
+		/// </summary>
+		private WidthGroup FindWidthGroup()
+		{
+			for (var current = transform.parent; current != null; current = current.parent) {
+				var group = current.GetComponent<WidthGroup>();
+
+				if (group != null && group.isActiveAndEnabled) {
+					return group;
+				}
+			}
+
+			return null;
+		}
 
 		// Same selection rule as LayoutUtility: highest priority wins, ties take the largest value,
 		// negative means "not set". Skips this component so leaves don't measure themselves.
