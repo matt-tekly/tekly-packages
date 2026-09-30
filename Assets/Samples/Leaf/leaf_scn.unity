@@ -7116,21 +7116,30 @@ MonoBehaviour:
     BottomLeft: 0
   m_bulge: {x: 0, y: 0, z: 0, w: 0}
   m_containBulge: 0
-  m_sprite: {fileID: 7244844918667145266, guid: b2dd538f8c40d47ed9d3ba6776221efc, type: 3}
-  m_textureMode: 2
+  m_sprite: {fileID: 4597626947685715594, guid: 9f1a2035acc114b848bf6e79a92ce8af, type: 3}
+  m_textureMode: 0
   m_textureScale: {x: 1, y: 1}
   m_textureOffset: {x: 0, y: 0}
   m_textureRotation: 0
   m_textureScroll: {x: 1, y: 1}
   m_fillEnabled: 1
   m_fill:
-    Color: {r: 1, g: 1, b: 1, a: 1}
+    Color: {r: 1, g: 1, b: 1, a: 0.34901962}
     Gradient: 0
     Color2: {r: 1, g: 1, b: 1, a: 1}
     Angle: 90
     RangeStart: 0
     RangeEndInset: 0.7301587
     Bias: 1
+  m_backgroundEnabled: 1
+  m_background:
+    Color: {r: 1, g: 1, b: 1, a: 1}
+    Gradient: 0
+    Color2: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+    Angle: 90
+    RangeStart: 0
+    RangeEndInset: 0
+    Bias: 0
   m_outlines:
   - Enabled: 0
     Width: 1

@@ -68,6 +68,14 @@
         "ca.tekly.common": "0.0.1"
       }
     },
+    "ca.tekly.devboard": {
+      "version": "file:ca.tekly.devboard",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "ca.tekly.common": "0.0.1"
+      }
+    },
     "ca.tekly.editorutils": {
       "version": "file:ca.tekly.editorutils",
       "depth": 0,

@@ -218,6 +218,7 @@ MonoBehaviour:
   m_trackId: music
   m_push: 0
   m_fadeInDuration: 1
+  m_autoPlay: 0
 --- !u!4 &1457542438
 Transform:
   m_ObjectHideFlags: 0
@@ -249,6 +250,7 @@ MonoBehaviour:
   m_trackId: music
   m_push: 1
   m_fadeInDuration: 2
+  m_autoPlay: 0
 --- !u!1 &1715604765
 GameObject:
   m_ObjectHideFlags: 0

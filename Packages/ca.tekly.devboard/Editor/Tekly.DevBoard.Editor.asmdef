@@ -1,0 +1,16 @@
+{
+    "name": "Tekly.DevBoard.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:ddc00dd6ba7be9d489842d055df28ffd"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
