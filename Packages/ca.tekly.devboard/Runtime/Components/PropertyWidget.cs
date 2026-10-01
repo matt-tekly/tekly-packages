@@ -15,15 +15,37 @@ namespace Tekly.DevBoard.Components
 		
 		private Property m_property;
 		
-		public void Initialize<T>(string label, Func<T> getValue, string format)
+		/// <summary>
+		/// Shows the value of getValue, reformatting only when it changes. isSame decides whether a new value
+		/// counts as a change from the last one shown; null uses the default equality for T.
+		/// </summary>
+		public void Initialize<T>(string label, Func<T> getValue, string format, Func<T, T, bool> isSame = null)
 		{
 			m_label.TextComponent.text = label;
-			m_property = new Property<T>(this, getValue, format);
+			m_property = new Property<T>(this, getValue, format, isSame);
+		}
+
+		/// <summary>
+		/// Shows a float, skipping the reformat while it stays within epsilon of the last value shown.
+		/// </summary>
+		public void Initialize(string label, Func<float> getValue, float epsilon, string format)
+		{
+			Initialize(label, getValue, format, (last, value) => IsWithin(last, value, epsilon));
 		}
 
 		protected override void Tick()
 		{
 			m_property?.Tick();
+		}
+
+		private static bool IsWithin(float last, float value, float epsilon)
+		{
+			// The == also covers equal infinities, whose difference is NaN
+			if (last == value || (float.IsNaN(last) && float.IsNaN(value))) {
+				return true;
+			}
+
+			return Mathf.Abs(value - last) <= epsilon;
 		}
 
 		private abstract class Property
@@ -38,24 +60,22 @@ namespace Tekly.DevBoard.Components
 			private readonly PropertyWidget m_widget;
 			private readonly Func<T> m_getValue;
 			private readonly string m_format;
+			private readonly Func<T, T, bool> m_isSame;
 			
 			private T m_lastValue;
+			private bool m_hasValue;
 
-			public Property(PropertyWidget widget, Func<T> getValue, string format)
+			public Property(PropertyWidget widget, Func<T> getValue, string format, Func<T, T, bool> isSame)
 			{
 				m_widget = widget;
 				m_getValue = getValue;
 				m_format = format;
+				m_isSame = isSame ?? s_defaultEqualityComparer.Equals;
 				
-				try
-				{
-					var value = m_getValue();
-					m_widget.m_value.Text = string.Format(m_format, value);
-					m_lastValue = value;
-				}
-				catch (Exception)
-				{
-					// Do nothing
+				try {
+					Show(m_getValue());
+				} catch (Exception) {
+					// Do nothing, Tick retries
 				}
 			}
 
@@ -63,12 +83,19 @@ namespace Tekly.DevBoard.Components
 			{
 				var value = m_getValue();
             
-				if (s_defaultEqualityComparer.Equals(m_lastValue, value)) {
+				// Compares against the last value shown, not last frame's, so slow drift still adds up to a change
+				if (m_hasValue && m_isSame(m_lastValue, value)) {
 					return;
 				}
 			
-				m_lastValue = value;
+				Show(value);
+			}
+
+			private void Show(T value)
+			{
 				m_widget.m_value.Text = string.Format(m_format, value);
+				m_lastValue = value;
+				m_hasValue = true;
 			}
 		}
 		

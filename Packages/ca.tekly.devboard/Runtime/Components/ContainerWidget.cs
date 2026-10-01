@@ -52,6 +52,23 @@ namespace Tekly.DevBoard.Components
 			return instance;
 		}
 		
+		public PropertyWidget Property(string label, Func<float> getValue, float epsilon, string format = "{0}")
+		{
+			var instance = Instantiate(DevBoard.Instance.GetProperty("property"), m_content, false);
+			
+			instance.Initialize(label, getValue, epsilon, format);
+			
+			return instance;
+		}
+		
+		public PropertyWidget PropertyMonospaced(string label, Func<float> getValue, float epsilon, string format = "{0}")
+		{
+			var instance = Property(label, getValue, epsilon, format);
+			instance.Value.Monospaced = true;
+			
+			return instance;
+		}
+		
 		public ContainerWidget Card()
 		{
 			var instance = Instantiate(DevBoard.Instance.GetContainer("container"), m_content, false);
