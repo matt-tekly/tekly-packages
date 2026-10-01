@@ -135,7 +135,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f5364af43fd48f29bb5d27049242711, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Tekly.DevBoard::Tekly.DevBoard.Components.Property
-  m_name: {fileID: 6697549717840540568}
+  m_label: {fileID: 6697549717840540568}
   m_value: {fileID: 2764565903059498970}
 --- !u!1001 &2002680224441732856
 PrefabInstance:
@@ -163,7 +163,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 739148740425387378, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
       propertyPath: m_Name
-      value: devboard_label
+      value: Value
       objectReference: {fileID: 0}
     - target: {fileID: 8565924366944132770, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
       propertyPath: m_Pivot.x
@@ -276,7 +276,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 739148740425387378, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
       propertyPath: m_Name
-      value: devboard_label
+      value: Label
       objectReference: {fileID: 0}
     - target: {fileID: 6480074719822502468, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
       propertyPath: m_widthGroup

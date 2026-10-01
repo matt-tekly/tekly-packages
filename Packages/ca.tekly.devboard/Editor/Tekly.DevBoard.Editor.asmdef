@@ -2,7 +2,8 @@
     "name": "Tekly.DevBoard.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:ddc00dd6ba7be9d489842d055df28ffd"
+        "GUID:ddc00dd6ba7be9d489842d055df28ffd",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

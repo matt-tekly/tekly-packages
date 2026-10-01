@@ -27,7 +27,8 @@ namespace Tekly.DevBoard
 	    {
 		    if (!m_initialized) {
 			    m_devBoard = new GameObject("DevBoard");
-			    Object.DontDestroyOnLoad(m_devBoard);    
+			    Object.DontDestroyOnLoad(m_devBoard);
+			    m_initialized = true;
 		    }
 	    }
 
@@ -95,6 +96,8 @@ namespace Tekly.DevBoard
 		    AddAssets(assets.IntInputs, m_intInputs);
 		    AddAssets(assets.FloatInputs, m_floatInputs);
 		    AddAssets(assets.Toggles, m_toggles);
+
+		    DevBoardFonts.Register(assets);
 	    }
 	    
 	    public Board Board(string name)

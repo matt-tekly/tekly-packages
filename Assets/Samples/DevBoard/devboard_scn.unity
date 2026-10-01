@@ -200,6 +200,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!114 &25724995
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -941,6 +942,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
   m_fitWidth: 2
   m_fitHeight: 2
   m_axis: 0
@@ -1573,6 +1575,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!222 &300247026
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1739,6 +1742,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!222 &352344406
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2210,6 +2214,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
   m_fitWidth: 0
   m_fitHeight: 0
   m_axis: 0
@@ -2562,6 +2567,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
   m_fitWidth: 0
   m_fitHeight: 2
   m_axis: 0
@@ -2938,6 +2944,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Tekly.DevBoard::Tekly.DevBoard.Board
   m_content: {fileID: 686258473}
+  m_layout: {fileID: 0}
 --- !u!1 &639397198
 GameObject:
   m_ObjectHideFlags: 0
@@ -3096,6 +3103,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!222 &639397202
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3878,6 +3886,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!222 &819602101
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4044,6 +4053,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!222 &834958600
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4444,6 +4454,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!222 &872502479
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4732,6 +4743,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!222 &896223861
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4898,6 +4910,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!222 &944362496
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5064,6 +5077,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!222 &1012230699
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5163,6 +5177,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a13696c140a44ab084da9b70b9e44681, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Tekly.DevBoard::Tekly.DevBoard.Components.ScrollArea
+  m_content: {fileID: 0}
+  m_layout: {fileID: 0}
 --- !u!1 &1178688747
 GameObject:
   m_ObjectHideFlags: 0
@@ -5869,6 +5885,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!1 &1298156615
 GameObject:
   m_ObjectHideFlags: 0
@@ -6027,6 +6044,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!222 &1298156619
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6193,6 +6211,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!222 &1325702856
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6481,6 +6500,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!222 &1380770760
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6570,6 +6590,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
   m_fitWidth: 0
   m_fitHeight: 0
   m_axis: 1
@@ -7078,6 +7099,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!222 &1475747732
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -7366,6 +7388,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!222 &1556008382
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -7532,6 +7555,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!222 &1557585222
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -7621,6 +7645,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
   m_fitWidth: 2
   m_fitHeight: 2
   m_axis: 0
@@ -7718,6 +7743,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!114 &1616802816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8177,6 +8203,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!222 &1701406348
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -8307,6 +8334,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
   m_fitWidth: 2
   m_fitHeight: 2
   m_source: {fileID: 491969750}
@@ -8569,6 +8597,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
   m_fitWidth: 2
   m_fitHeight: 2
   m_source: {fileID: 473606570}
@@ -8770,6 +8799,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!222 &1820724226
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -8859,6 +8889,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!114 &1851744965
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9177,6 +9208,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!222 &1928998566
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -9266,6 +9298,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!114 &2005101680
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9462,6 +9495,7 @@ MonoBehaviour:
     Top: 0
     Bottom: 0
   m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!222 &2035953513
 CanvasRenderer:
   m_ObjectHideFlags: 0

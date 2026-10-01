@@ -1,6 +1,4 @@
-﻿using Tekly.DevBoard.Components;
-
-namespace Tekly.DevBoard
+﻿namespace Tekly.DevBoard.Components
 {
 	public class Board : ContainerWidget
 	{

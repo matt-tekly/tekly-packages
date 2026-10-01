@@ -1,9 +1,10 @@
-﻿using Tekly.DevBoard.Components.Inputs;
+﻿using Tekly.DevBoard;
+using Tekly.DevBoard.Components.Inputs;
 using UnityEngine;
 
-namespace Tekly.DevBoard
+namespace TeklySample.Samples.DevBoardSample
 {
-	public class DevBoardTest : MonoBehaviour
+	public class DevBoardSample : MonoBehaviour
 	{
 		private void Start()
 		{
@@ -15,15 +16,21 @@ namespace Tekly.DevBoard
 			float floatValue = 0;
 			
 			var card = board.Card().Form();
-			card.Property("Bingus", () => Time.realtimeSinceStartup, "{0:N2}");
-			card.Property("Test Value", () => testValue);
+			var timeProperty = card.Property("Bingus", () => Time.realtimeSinceStartup, "{0:N2}");
+			card.Toggle("Monospaced", () => timeProperty.Value.Monospaced, value => timeProperty.Value.Monospaced = value);
+			card.PropertyMonospaced("Bingus Mono", () => Time.realtimeSinceStartup, "{0:N2}");
+			
 			card.Divider();
+			card.Property("Test Value", () => testValue);
+			card.Property("Test Value", () => testValue);
 			card.TextInput("Debounced", "Placeholder", () => testValue, value => testValue = value, InputMode.Debounced);
 			card.TextInput("Delayed", "Placeholder", () => testValue, value => testValue = value, InputMode.Delayed);
 			card.TextInput("Immediate", "Placeholder", () => testValue, value => testValue = value, InputMode.Immediate);
 			card.Toggle("Togglo", () => toggleValue, value => toggleValue = value);
 			card.IntInput("Int", () => intValue, value => intValue = value);
 			card.FloatInput("Float", () => floatValue, value => floatValue = value);
+			
+			
 
 			// var row = board.Row().WithSpacing(0);
 			// row.Button("Poop", () => Debug.Log("Poop"));

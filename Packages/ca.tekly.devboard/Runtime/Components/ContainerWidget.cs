@@ -42,6 +42,16 @@ namespace Tekly.DevBoard.Components
 			return instance;
 		}
 		
+		public PropertyWidget PropertyMonospaced<T>(string label, Func<T> getValue, string format = "{0}")
+		{
+			var instance = Instantiate(DevBoard.Instance.GetProperty("property"), m_content, false);
+			
+			instance.Initialize(label, getValue, format);
+			instance.Value.Monospaced = true;
+			
+			return instance;
+		}
+		
 		public ContainerWidget Card()
 		{
 			var instance = Instantiate(DevBoard.Instance.GetContainer("container"), m_content, false);

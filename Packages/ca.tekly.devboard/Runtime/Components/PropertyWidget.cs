@@ -1,19 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Tekly.DevBoard.Components
 {
 	public class PropertyWidget : Widget
 	{
-		[SerializeField] private LabelWidget m_name;
+		public LabelWidget Label => m_label;
+		public LabelWidget Value => m_value;
+		
+		[SerializeField] private LabelWidget m_label;
 		[SerializeField] private LabelWidget m_value;
 		
 		private Property m_property;
 		
-		public void Initialize<T>(string name, Func<T> getValue, string format)
+		public void Initialize<T>(string label, Func<T> getValue, string format)
 		{
-			m_name.TextComponent.text = name;
+			m_label.TextComponent.text = label;
 			m_property = new Property<T>(this, getValue, format);
 		}
 

@@ -1,4 +1,4 @@
-﻿namespace Tekly.DevBoard
+﻿namespace Tekly.DevBoard.Components
 {
 	public class Widget : DevBoardBehaviour
 	{

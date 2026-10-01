@@ -1,5 +1,6 @@
 ﻿using Tekly.DevBoard.Components;
 using Tekly.DevBoard.Components.Inputs;
+using TMPro;
 using UnityEngine;
 
 namespace Tekly.DevBoard
@@ -16,5 +17,7 @@ namespace Tekly.DevBoard
 		public IntInputWidget[] IntInputs;
 		public FloatInputWidget[] FloatInputs;
 		public ToggleWidget[] Toggles;
+		public TMP_FontAsset[] Fonts;
+		public Material[] FontMaterials;
 	}
 }

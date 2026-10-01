@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab2114bdc8544297b417dfefe9f1e410, type: 3}
+  m_Name: devboard_stylesheet
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TMP_StyleSheet
+  m_StyleList:
+  - m_Name: Normal
+    m_HashCode: -1183493901
+    m_OpeningDefinition: 
+    m_ClosingDefinition: 
+    m_OpeningTagArray: 
+    m_ClosingTagArray: 
+  - m_Name: monospace
+    m_HashCode: 304477799
+    m_OpeningDefinition: <font="RobotoMono">
+    m_ClosingDefinition: </font>
+    m_OpeningTagArray: 3c000000660000006f0000006e000000740000003d00000022000000520000006f000000620000006f000000740000006f0000004d0000006f0000006e0000006f000000220000003e000000
+    m_ClosingTagArray: 3c0000002f000000660000006f0000006e000000740000003e000000
