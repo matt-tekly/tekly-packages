@@ -30,5 +30,9 @@ MonoBehaviour:
   TextInputs:
   - {fileID: 6942456697618048646, guid: 9e2400166c4f51c44bceb4ce25a5efa1, type: 3}
   - {fileID: 2903900746879978701, guid: e3c37a6ace7f20644bfc06b9dffccb5e, type: 3}
+  IntInputs:
+  - {fileID: 5555911072812987431, guid: 449fa45f265a5fd448b4291fbb170658, type: 3}
+  FloatInputs:
+  - {fileID: -9118408024169011908, guid: fe4f4fcc751936a49835b48dc6cdc364, type: 3}
   Toggles:
   - {fileID: 7965425448300300528, guid: 6af83fa7423d94c418208230c9b4f93a, type: 3}

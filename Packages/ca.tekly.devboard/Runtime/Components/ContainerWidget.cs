@@ -1,4 +1,5 @@
 ﻿using System;
+using Tekly.DevBoard.Components.Inputs;
 using Tekly.Trellis;
 using UnityEngine;
 
@@ -96,6 +97,32 @@ namespace Tekly.DevBoard.Components
 		public TextInputWidget TextInput(Func<string> getValue, Action<string> setValue, InputMode inputMode = InputMode.Delayed)
 		{
 			return TextInput(null, null, getValue, setValue, inputMode);
+		}
+		
+		public IntInputWidget IntInput(string variant, string label, string placeholder, Func<int> getValue, Action<int> setValue, InputMode inputMode = InputMode.Delayed)
+		{
+			var instance = Instantiate(DevBoard.Instance.GetIntInput(variant), m_content, false);
+			instance.Initialize(label, placeholder, getValue, setValue, inputMode);
+			
+			return instance;
+		}
+		
+		public IntInputWidget IntInput(string label, Func<int> getValue, Action<int> setValue, InputMode inputMode = InputMode.Delayed)
+		{
+			return IntInput("intinput", label, null, getValue, setValue, inputMode);
+		}
+		
+		public FloatInputWidget FloatInput(string variant, string label, string placeholder, Func<float> getValue, Action<float> setValue, InputMode inputMode = InputMode.Delayed)
+		{
+			var instance = Instantiate(DevBoard.Instance.GetFloatInput(variant), m_content, false);
+			instance.Initialize(label, placeholder, getValue, setValue, inputMode);
+			
+			return instance;
+		}
+		
+		public FloatInputWidget FloatInput(string label, Func<float> getValue, Action<float> setValue, InputMode inputMode = InputMode.Delayed)
+		{
+			return FloatInput("floatinput", label, null, getValue, setValue, inputMode);
 		}
 		
 		public DividerWidget Divider()

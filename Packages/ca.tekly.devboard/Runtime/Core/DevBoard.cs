@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Tekly.Common.Utils;
 using Tekly.DevBoard.Components;
+using Tekly.DevBoard.Components.Inputs;
 using UnityEngine;
 
 namespace Tekly.DevBoard
@@ -18,6 +19,8 @@ namespace Tekly.DevBoard
 	    private readonly Dictionary<string, FoldoutWidget> m_foldouts = new();
 	    private readonly Dictionary<string, DividerWidget> m_dividers = new();
 	    private readonly Dictionary<string, TextInputWidget> m_textInputs = new();
+	    private readonly Dictionary<string, IntInputWidget> m_intInputs = new();
+	    private readonly Dictionary<string, FloatInputWidget> m_floatInputs = new();
 	    private readonly Dictionary<string, ToggleWidget> m_toggles = new();
 	    
 	    public void Initialize()
@@ -62,6 +65,17 @@ namespace Tekly.DevBoard
 	    {
 		    return Get(name, m_textInputs);
 	    }
+	    
+	    public IntInputWidget GetIntInput(string name)
+	    {
+		    return Get(name, m_intInputs);
+	    }
+	    
+	    public FloatInputWidget GetFloatInput(string name)
+	    {
+		    return Get(name, m_floatInputs);
+	    }
+	    
 	    public ToggleWidget GetToggle(string name)
 	    {
 		    return Get(name, m_toggles);
@@ -78,6 +92,8 @@ namespace Tekly.DevBoard
 		    AddAssets(assets.Foldouts, m_foldouts);
 		    AddAssets(assets.Dividers, m_dividers);
 		    AddAssets(assets.TextInputs, m_textInputs);
+		    AddAssets(assets.IntInputs, m_intInputs);
+		    AddAssets(assets.FloatInputs, m_floatInputs);
 		    AddAssets(assets.Toggles, m_toggles);
 	    }
 	    

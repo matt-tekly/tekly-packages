@@ -1,4 +1,4 @@
-﻿using Tekly.DevBoard.Components;
+﻿using Tekly.DevBoard.Components.Inputs;
 using UnityEngine;
 
 namespace Tekly.DevBoard
@@ -11,6 +11,8 @@ namespace Tekly.DevBoard
 
 			string testValue = "Starting Value";
 			bool toggleValue = false;
+			int intValue = 0;
+			float floatValue = 0;
 			
 			var card = board.Card().Form();
 			card.Property("Bingus", () => Time.realtimeSinceStartup, "{0:N2}");
@@ -20,6 +22,8 @@ namespace Tekly.DevBoard
 			card.TextInput("Delayed", "Placeholder", () => testValue, value => testValue = value, InputMode.Delayed);
 			card.TextInput("Immediate", "Placeholder", () => testValue, value => testValue = value, InputMode.Immediate);
 			card.Toggle("Togglo", () => toggleValue, value => toggleValue = value);
+			card.IntInput("Int", () => intValue, value => intValue = value);
+			card.FloatInput("Float", () => floatValue, value => floatValue = value);
 
 			// var row = board.Row().WithSpacing(0);
 			// row.Button("Poop", () => Debug.Log("Poop"));
