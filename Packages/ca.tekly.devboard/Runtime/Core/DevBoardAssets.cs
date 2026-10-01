@@ -12,5 +12,6 @@ namespace Tekly.DevBoard
 		public FoldoutWidget[] Foldouts;
 		public DividerWidget[] Dividers;
 		public TextInputWidget[] TextInputs;
+		public ToggleWidget[] Toggles;
 	}
 }

@@ -15,6 +15,7 @@ namespace Tekly.Trellis
 			serializedObject.Update();
 
 			using (TrellisSection.Begin()) {
+				EditorGUILayout.PropertyField(serializedObject.FindProperty("m_minWidth"));
 				EditorGUILayout.PropertyField(serializedObject.FindProperty("m_maxWidth"));
 			}
 

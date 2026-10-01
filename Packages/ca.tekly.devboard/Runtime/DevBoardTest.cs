@@ -10,14 +10,16 @@ namespace Tekly.DevBoard
 			var board = DevBoard.Instance.Board("Test Board");
 
 			string testValue = "Starting Value";
+			bool toggleValue = false;
 			
 			var card = board.Card().Form();
 			card.Property("Bingus", () => Time.realtimeSinceStartup, "{0:N2}");
 			card.Property("Test Value", () => testValue);
 			card.Divider();
-			card.TextInput("Debounced", "yo", () => testValue, value => testValue = value, InputMode.Debounced);
-			card.TextInput("Delayed", "yo", () => testValue, value => testValue = value, InputMode.Delayed);
-			card.TextInput("Immediate", "yo", () => testValue, value => testValue = value, InputMode.Immediate);
+			card.TextInput("Debounced", "Placeholder", () => testValue, value => testValue = value, InputMode.Debounced);
+			card.TextInput("Delayed", "Placeholder", () => testValue, value => testValue = value, InputMode.Delayed);
+			card.TextInput("Immediate", "Placeholder", () => testValue, value => testValue = value, InputMode.Immediate);
+			card.Toggle("Togglo", () => toggleValue, value => toggleValue = value);
 
 			// var row = board.Row().WithSpacing(0);
 			// row.Button("Poop", () => Debug.Log("Poop"));

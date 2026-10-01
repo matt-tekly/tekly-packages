@@ -104,5 +104,14 @@ namespace Tekly.DevBoard.Components
 			var instance = Instantiate(prefab, m_content, false);
 			return instance;
 		}
+
+		public ToggleWidget Toggle(string label, Func<bool> getValue, Action<bool> setValue)
+		{
+			var prefab = DevBoard.Instance.GetToggle("toggle");
+			var instance = Instantiate(prefab, m_content, false);
+			
+			instance.Initialize(label, getValue, setValue);
+			return instance;
+		}
 	}
 }

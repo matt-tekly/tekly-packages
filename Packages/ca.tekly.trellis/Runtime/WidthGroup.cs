@@ -13,7 +13,8 @@ namespace Tekly.Trellis
 	/// - Scope: only items under this object join; the nearest enabled WidthGroup above an item wins.
 	/// - Several names can live under one group, e.g. "label" and "unit" columns.
 	/// - Inactive, disabled and ignored items don't count, so hiding a row can shrink the column.
-	/// - Max Width caps the shared width; an item's own min still wins.
+	/// - Min Width is a floor for the shared width, Max Width a cap. Min wins if they conflict,
+	///   and an item's own min always wins.
 	/// - Widths only. Flexible and heights stay each item's own.
 	/// </summary>
 	[ExecuteAlways]
@@ -22,10 +23,22 @@ namespace Tekly.Trellis
 	[AddComponentMenu("Layout/Trellis/Width Group")]
 	public class WidthGroup : UIBehaviour
 	{
+		[Tooltip("Floor for the shared width, so short labels still get a tidy column")]
+		[SerializeField] private OptionalFloat m_minWidth;
+
 		[Tooltip("Cap on the shared width, so one long label can't push every input over")]
 		[SerializeField] private OptionalFloat m_maxWidth;
 
 		private readonly Dictionary<string, List<LayoutItem>> m_members = new Dictionary<string, List<LayoutItem>>();
+
+		public OptionalFloat MinWidth {
+			get => m_minWidth;
+			set {
+				if (SetPropertyUtility.SetStruct(ref m_minWidth, value)) {
+					MarkAllDirty();
+				}
+			}
+		}
 
 		public OptionalFloat MaxWidth {
 			get => m_maxWidth;
@@ -43,7 +56,7 @@ namespace Tekly.Trellis
 
 		/// <summary>
 		/// The shared width for a name: the widest min and preferred among its counted members, combined
-		/// with the asking item's own measure and capped by Max Width.
+		/// with the asking item's own measure, raised to Min Width and capped by Max Width.
 		/// </summary>
 		public void Share(string key, LayoutMeasure own, out float min, out float preferred)
 		{
@@ -62,8 +75,9 @@ namespace Tekly.Trellis
 				}
 			}
 
+			var floor = m_minWidth.IsSet ? Mathf.Max(0f, m_minWidth.Value) : 0f;
 			var cap = m_maxWidth.IsSet ? Mathf.Max(0f, m_maxWidth.Value) : float.PositiveInfinity;
-			SharedSize.Combine(own.Min, groupMin, groupPreferred, cap, out min, out preferred);
+			SharedSize.Combine(own.Min, groupMin, groupPreferred, floor, cap, out min, out preferred);
 		}
 
 		internal void Add(LayoutItem item, string key)
