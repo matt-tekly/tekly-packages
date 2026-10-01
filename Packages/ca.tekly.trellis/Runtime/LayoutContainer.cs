@@ -152,6 +152,8 @@ namespace Tekly.Trellis
 
 		protected sealed override void OnCalculateLayout(int axis)
 		{
+			using var marker = MeasurePass.CalculateMarker.Auto();
+
 			// The horizontal measuring pass is always the first call of a rebuild
 			if (axis == 0) {
 				m_tracker.Clear();
@@ -252,12 +254,16 @@ namespace Tekly.Trellis
 
 		void ILayoutController.SetLayoutHorizontal()
 		{
+			using var marker = MeasurePass.ArrangeMarker.Auto();
+
 			ApplyFit(0);
 			Arrange(0);
 		}
 
 		void ILayoutController.SetLayoutVertical()
 		{
+			using var marker = MeasurePass.ArrangeMarker.Auto();
+
 			ApplyFit(1);
 			Arrange(1);
 		}

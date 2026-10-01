@@ -51,6 +51,14 @@ namespace Tekly.Trellis
 		[SerializeField] private string m_widthGroup = "";
 
 		private RectTransform m_rectTransform;
+
+		// Measures reused within a pass. Cleared when this item's settings change and when Unity starts
+		// measuring this object in a rebuild, so they're never older than the content they describe.
+		private LayoutMeasure m_cachedWidth;
+		private LayoutMeasure m_cachedHeight;
+		private int m_cachedWidthPass = -1;
+		private int m_cachedHeightPass = -1;
+
 		private WidthGroup m_joinedGroup;
 		private string m_joinedKey;
 		private bool m_measuring;
@@ -206,10 +214,52 @@ namespace Tekly.Trellis
 		}
 
 		/// <summary>
-		/// Measure without the width group: what this item would be on its own.
+		/// Measure without the width group: what this item would be on its own. Cached for the current pass.
 		/// </summary>
 		internal LayoutMeasure MeasureOwn(int axis)
 		{
+			var pass = MeasurePass.Current;
+
+			if (axis == 0) {
+				if (m_cachedWidthPass != pass) {
+					m_cachedWidth = ComputeOwn(0);
+					m_cachedWidthPass = pass;
+				}
+
+				return m_cachedWidth;
+			}
+
+			if (m_cachedHeightPass != pass) {
+				m_cachedHeight = ComputeOwn(1);
+				m_cachedHeightPass = pass;
+			}
+
+			return m_cachedHeight;
+		}
+
+		/// <summary>
+		/// Forget cached measures so the next Measure reads the content again. Use after changing something
+		/// that affects this item's size without going through its own properties.
+		/// </summary>
+		public void InvalidateMeasure()
+		{
+			m_cachedWidthPass = -1;
+			m_cachedHeightPass = -1;
+		}
+
+		private void InvalidateMeasure(int axis)
+		{
+			if (axis == 0) {
+				m_cachedWidthPass = -1;
+			} else {
+				m_cachedHeightPass = -1;
+			}
+		}
+
+		private LayoutMeasure ComputeOwn(int axis)
+		{
+			using var marker = MeasurePass.MeasureMarker.Auto();
+
 			var content = default(LayoutMeasure);
 
 			// A sibling element that queries LayoutUtility on this object would call back into us
@@ -247,6 +297,8 @@ namespace Tekly.Trellis
 		/// </summary>
 		public void SetDirty()
 		{
+			InvalidateMeasure();
+
 			if (!IsActive()) {
 				return;
 			}
@@ -314,6 +366,7 @@ namespace Tekly.Trellis
 		protected override void OnEnable()
 		{
 			base.OnEnable();
+			MeasurePass.EnsureHooked();
 			RefreshWidthGroup();
 			SetDirty();
 		}
@@ -449,13 +502,17 @@ namespace Tekly.Trellis
 		float ILayoutElement.flexibleHeight => Measure(1).Flexible;
 		int ILayoutElement.layoutPriority => m_layoutPriority;
 
+		// Unity starts measuring this object: anything cached for the axis may describe old content.
+		// Heights in particular depend on the width set since the last pass.
 		void ILayoutElement.CalculateLayoutInputHorizontal()
 		{
+			InvalidateMeasure(0);
 			OnCalculateLayout(0);
 		}
 
 		void ILayoutElement.CalculateLayoutInputVertical()
 		{
+			InvalidateMeasure(1);
 			OnCalculateLayout(1);
 		}
 	}
