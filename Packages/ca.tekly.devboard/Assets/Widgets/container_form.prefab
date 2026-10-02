@@ -133,6 +133,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39eee64041b1d1c48be879b2c3d74aa4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Tekly.Trellis.Runtime::Tekly.Trellis.WidthGroup
+  m_minWidth:
+    IsSet: 1
+    Value: 40
   m_maxWidth:
     IsSet: 0
     Value: 0

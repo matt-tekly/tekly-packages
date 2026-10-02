@@ -1,4 +1,5 @@
 ﻿using System;
+using Tekly.Common.Utils;
 using Tekly.DevBoard.Components.Inputs;
 using Tekly.Trellis;
 using UnityEngine;
@@ -25,6 +26,12 @@ namespace Tekly.DevBoard.Components
 		public ContainerWidget WithSpacing(int spacing)
 		{
 			m_layout.Spacing = spacing;
+			return this;
+		}
+
+		public ContainerWidget WithMaxHeight(float maxHeight)
+		{
+			m_layout.MaxHeight = maxHeight;
 			return this;
 		}
 		
@@ -84,6 +91,12 @@ namespace Tekly.DevBoard.Components
 		public ContainerWidget Row()
 		{
 			var instance = Instantiate(DevBoard.Instance.GetContainer("container_row"), m_content, false);
+			return instance;
+		}
+		
+		public ScrollViewWidget ScrollView()
+		{
+			var instance = Instantiate(DevBoard.Instance.GetScrollView("scrollview"), m_content, false);
 			return instance;
 		}
 		

@@ -15,6 +15,7 @@ namespace Tekly.DevBoard
 	    private readonly Dictionary<string, Board> m_boardPrefabs = new();
 	    private readonly Dictionary<string, ButtonWidget> m_buttons = new();
 	    private readonly Dictionary<string, ContainerWidget> m_containers = new();
+	    private readonly Dictionary<string, ScrollViewWidget> m_scrollViews = new();
 	    private readonly Dictionary<string, PropertyWidget> m_properties = new();
 	    private readonly Dictionary<string, FoldoutWidget> m_foldouts = new();
 	    private readonly Dictionary<string, DividerWidget> m_dividers = new();
@@ -45,6 +46,11 @@ namespace Tekly.DevBoard
 	    public ContainerWidget GetContainer(string name)
 	    {
 		    return Get(name, m_containers);
+	    }
+	    
+	    public ScrollViewWidget GetScrollView(string name)
+	    {
+		    return Get(name, m_scrollViews);
 	    }
 	    
 	    public PropertyWidget GetProperty(string name)
@@ -88,6 +94,7 @@ namespace Tekly.DevBoard
 			
 		    AddAssets(assets.Boards, m_boardPrefabs);
 		    AddAssets(assets.Containers, m_containers);
+		    AddAssets(assets.ScrollViews, m_scrollViews);
 		    AddAssets(assets.Buttons, m_buttons);
 		    AddAssets(assets.Properties, m_properties);
 		    AddAssets(assets.Foldouts, m_foldouts);

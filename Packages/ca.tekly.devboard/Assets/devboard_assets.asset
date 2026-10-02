@@ -18,7 +18,8 @@ MonoBehaviour:
   - {fileID: 6335293740955276969, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
   - {fileID: 6335293740955276969, guid: 85092541fc483294092692cb4ea81951, type: 3}
   - {fileID: 6335293740955276969, guid: c559c14610b06fc45a4b94d9d8c961af, type: 3}
-  - {fileID: 1550444915172625726, guid: 32a3089d371b61a48aa4fd9b7fd194ab, type: 3}
+  ScrollViews:
+  - {fileID: 4931483809385231298, guid: 7c4ee1cc6b6a21840a62ca4219d855de, type: 3}
   Buttons:
   - {fileID: 5919477755552245529, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
   Properties:

@@ -1055,6 +1055,19 @@ MonoBehaviour:
         Highlighted: {r: 0.48627454, g: 0.43529415, b: 0.3921569, a: 1}
         Pressed: {r: 0.48627454, g: 0.43529415, b: 0.3921569, a: 1}
     m_fadeDuration: 0.1
+  - m_target: {fileID: 1149634169742105766}
+    m_colors:
+      Normal: {r: 0.8352942, g: 0.7686275, b: 0.6313726, a: 1}
+      Highlighted: {r: 0.9843138, g: 0.9450981, b: 0.7803922, a: 1}
+      Pressed: {r: 0.7411765, g: 0.68235296, b: 0.5764706, a: 1}
+    m_layers:
+    - m_flags: 2
+      m_blend: 0
+      m_colors:
+        Normal: {r: 0.48627454, g: 0.43529415, b: 0.3921569, a: 1}
+        Highlighted: {r: 0.48627454, g: 0.43529415, b: 0.3921569, a: 1}
+        Pressed: {r: 0.48627454, g: 0.43529415, b: 0.3921569, a: 1}
+    m_fadeDuration: 0.1
   m_activeTargets: []
 --- !u!114 &6942456697618048646
 MonoBehaviour:
@@ -1136,19 +1149,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 601371542662589404, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
       propertyPath: m_fontColor.b
-      value: 0.7803922
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 601371542662589404, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
       propertyPath: m_fontColor.g
-      value: 0.9450981
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 601371542662589404, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
       propertyPath: m_fontColor.r
-      value: 0.9843138
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 601371542662589404, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
       propertyPath: m_fontColor32.rgba
-      value: 4291293691
+      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: 739148740425387378, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
       propertyPath: m_Name
@@ -1247,6 +1260,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
+--- !u!114 &1149634169742105766 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 601371542662589404, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
+  m_PrefabInstance: {fileID: 553047841615886202}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!114 &4196113589943635544 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4438091854474918178, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}

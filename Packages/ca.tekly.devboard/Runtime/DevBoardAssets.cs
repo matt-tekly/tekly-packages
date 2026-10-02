@@ -9,6 +9,7 @@ namespace Tekly.DevBoard
 	{
 		public Board[] Boards;
 		public ContainerWidget[] Containers;
+		public ScrollViewWidget[] ScrollViews;
 		public ButtonWidget[] Buttons;
 		public PropertyWidget[] Properties;
 		public FoldoutWidget[] Foldouts;

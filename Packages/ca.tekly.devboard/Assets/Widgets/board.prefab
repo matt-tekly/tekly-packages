@@ -323,7 +323,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Tekly.DevBoard::Tekly.DevBoard.Board
   m_content: {fileID: 6087547556536912297}
-  m_layout: {fileID: 0}
+  m_layout: {fileID: 3578167461836807989}
 --- !u!114 &5315107490739735
 MonoBehaviour:
   m_ObjectHideFlags: 0

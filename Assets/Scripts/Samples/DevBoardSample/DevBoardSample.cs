@@ -8,8 +8,11 @@ namespace TeklySample.Samples.DevBoardSample
 	{
 		private void Start()
 		{
-			var board = DevBoard.Instance.Board("Test Board");
-
+			var board = DevBoard.Instance.Board("Test Board")
+				.WithMaxHeight(250)
+				.ScrollView()
+				;
+			
 			string testValue = "Starting Value";
 			bool toggleValue = false;
 			int intValue = 0;
@@ -46,7 +49,7 @@ namespace TeklySample.Samples.DevBoardSample
 		}
 		
 		
-		#warning Text Field, Number Field, Scrolling Area, Dropdown Search Thingy - maybe this is full screen?
+		#warning Scrolling Area, Dropdown Search Thingy - maybe this is full screen?
 		// Text Field - maybe a text area?
 		// Number Field
 		// Scroll View
