@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Tekly.Leaf.Elements.Animators;
 using UnityEngine;
@@ -53,7 +54,10 @@ namespace Tekly.Leaf.Elements
 		private readonly SelectableSelectedEvent m_onSelected = new();
 		
 		private bool m_wasDeselectOnBackgroundClick;
+		private bool m_isOverridingBackgroundClick;
 		private bool m_groupsAllowInteraction = true;
+		private bool m_isPressPending;
+		private IDisposable m_disableInputScope;
 
 		private static readonly List<CanvasGroup> s_canvasGroupCache = new();
 
@@ -68,6 +72,13 @@ namespace Tekly.Leaf.Elements
 
 		protected override void OnDisable()
 		{
+			// Pointer exit never arrives once disabled, e.g. when clicking this closes its panel
+			RestoreDeselectOnBackgroundClick();
+
+			// Disabling stops the press coroutine without running the rest of it, so release here
+			m_isPressPending = false;
+			ReleaseInput();
+
 			m_tracker.Clear();
 
 			UpdateAnimatorState(LeafElementState.Default.WithFlags(LeafElementFlags.On, IsOnState), true);
@@ -84,8 +95,11 @@ namespace Tekly.Leaf.Elements
 
 			// While the pointer is inside this button we disable deselect on clicking on background elements.
 			// This object isn't selectable so it would be considered a background element.
-			m_wasDeselectOnBackgroundClick = GetDeselectOnBackgroundClick();
-			SetDeselectOnBackgroundClick(false);
+			if (!m_isOverridingBackgroundClick) {
+				m_wasDeselectOnBackgroundClick = GetDeselectOnBackgroundClick();
+				m_isOverridingBackgroundClick = true;
+				SetDeselectOnBackgroundClick(false);
+			}
 
 			UpdateAnimatorState();
 		}
@@ -94,37 +108,50 @@ namespace Tekly.Leaf.Elements
 		{
 			m_tracker.IsPointerInside = false;
 
-			SetDeselectOnBackgroundClick(m_wasDeselectOnBackgroundClick);
+			RestoreDeselectOnBackgroundClick();
 			UpdateAnimatorState();
 		}
 
 		public void OnPointerDown(PointerEventData eventData)
 		{
+			if (eventData.button != PointerEventData.InputButton.Left) {
+				return;
+			}
+
 			m_tracker.IsPointerDown = true;
 			UpdateAnimatorState();
 		}
 
 		public void OnPointerUp(PointerEventData eventData)
 		{
+			if (eventData.button != PointerEventData.InputButton.Left) {
+				return;
+			}
+
 			m_tracker.IsPointerDown = false;
 			UpdateAnimatorState();
 		}
 
 		public virtual void OnPointerClick(PointerEventData eventData)
 		{
+			if (eventData.button != PointerEventData.InputButton.Left) {
+				return;
+			}
+
 			if (m_pressDelay <= 0) {
 				OnClick();
 				UpdateAnimatorState();
 			} else {
-				StartCoroutine(PressDelayCoroutine(m_pressDelay));
+				StartPress(false);
 			}
 		}
 
+		/// <summary>
+		/// Shows the pressed state, then clicks after the press delay. Ignored while a press is already pending.
+		/// </summary>
 		public void SimulatePress()
 		{
-			m_tracker.IsPressSimulated = true;
-			UpdateAnimatorState();
-			StartCoroutine(PressDelayCoroutine(m_pressDelay));
+			StartPress(true);
 		}
 
 		protected override void OnCanvasGroupChanged()
@@ -179,38 +206,72 @@ namespace Tekly.Leaf.Elements
 			UpdateAnimatorState(CurrentState, false);
 		}
 
+		private void RestoreDeselectOnBackgroundClick()
+		{
+			if (!m_isOverridingBackgroundClick) {
+				return;
+			}
+
+			m_isOverridingBackgroundClick = false;
+			SetDeselectOnBackgroundClick(m_wasDeselectOnBackgroundClick);
+		}
+
 		private static void SetDeselectOnBackgroundClick(bool value)
 		{
-			if (EventSystem.current.currentInputModule is InputSystemUIInputModule module) {
+			// The EventSystem can already be gone when this is disabled during a scene unload
+			if (EventSystem.current != null && EventSystem.current.currentInputModule is InputSystemUIInputModule module) {
 				module.deselectOnBackgroundClick = value;
 			}
 		}
 
 		private static bool GetDeselectOnBackgroundClick()
 		{
-			if (EventSystem.current.currentInputModule is InputSystemUIInputModule module) {
+			if (EventSystem.current != null && EventSystem.current.currentInputModule is InputSystemUIInputModule module) {
 				return module.deselectOnBackgroundClick;
 			}
 
 			return false;
 		}
 
+		private void StartPress(bool showPressed)
+		{
+			if (!IsActive() || !IsInteractable() || m_isPressPending) {
+				return;
+			}
+
+			m_isPressPending = true;
+
+			if (showPressed) {
+				m_tracker.IsPressSimulated = true;
+				UpdateAnimatorState();
+			}
+
+			StartCoroutine(PressDelayCoroutine(m_pressDelay));
+		}
+
 		private IEnumerator PressDelayCoroutine(float delay)
 		{
-			using (LeafCore.Instance.DisableInputScope(this)) {
-				var fadeTime = delay;
-				var elapsedTime = 0f;
+			m_disableInputScope = LeafCore.Instance.DisableInputScope(this);
 
-				while (elapsedTime < fadeTime) {
-					elapsedTime += Time.unscaledDeltaTime;
-					yield return null;
-				}
+			var elapsedTime = 0f;
+			while (elapsedTime < delay) {
+				elapsedTime += Time.unscaledDeltaTime;
+				yield return null;
 			}
+
+			m_isPressPending = false;
+			ReleaseInput();
 
 			m_tracker.IsPressSimulated = false;
 			UpdateAnimatorState();
 
 			OnClick();
+		}
+
+		private void ReleaseInput()
+		{
+			m_disableInputScope?.Dispose();
+			m_disableInputScope = null;
 		}
 	}
 }

@@ -25,6 +25,11 @@ namespace Tekly.Leaf.Elements.Radios
 
 		private void SetActiveOption(LeafRadioOption childOption)
 		{
+			// Already on: turning it off and back on would send the binders a false then a true
+			if (childOption == m_currentOption) {
+				return;
+			}
+
 			TurnOffCurrentOption();
 			
 			m_currentOption = childOption;
@@ -90,18 +95,14 @@ namespace Tekly.Leaf.Elements.Radios
 
 		public void OnOptionPressed(LeafRadioOption option)
 		{
-			if (TryGetComponent(out LeafRadioGroup _)) {
-				if (EventSystem.current == null || EventSystem.current.alreadySelecting) {
-					return;
-				}
-
-				EventSystem.current.SetSelectedGameObject(gameObject);
+			// Select the group so arrow keys work on it after a click. Only that step depends on the
+			// EventSystem, the press itself always changes the option
+			var eventSystem = EventSystem.current;
+			if (eventSystem != null && !eventSystem.alreadySelecting) {
+				eventSystem.SetSelectedGameObject(gameObject);
 			}
-			
-			TurnOffCurrentOption();
 
-			m_currentOption = option;
-			m_currentOption.SetValueFromGroup(true);
+			SetActiveOption(option);
 		}
 
 		public void OnOptionSetOn(LeafRadioOption option)
@@ -114,6 +115,13 @@ namespace Tekly.Leaf.Elements.Radios
 			m_currentOption = option;
 		}
 		
+		public void OnOptionSetOff(LeafRadioOption option)
+		{
+			if (option == m_currentOption) {
+				m_currentOption = null;
+			}
+		}
+
 		private void TurnOffCurrentOption()
 		{
 			if (m_currentOption != null) {
@@ -121,4 +129,4 @@ namespace Tekly.Leaf.Elements.Radios
 			}
 		}
 	}
-}
+}

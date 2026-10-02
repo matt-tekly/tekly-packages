@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -8,13 +9,16 @@ namespace Tekly.Leaf.Elements
 	{
 		[Tooltip("Add delay to when the press or submit is processed")]
 		[SerializeField] private float m_pressDelay;
-		
+
 		[SerializeField] private ButtonClickedEvent m_onClick = new();
 
 		public ButtonClickedEvent OnClicked {
 			get => m_onClick;
 			set => m_onClick = value;
 		}
+
+		private bool m_isPressPending;
+		private IDisposable m_disableInputScope;
 
 		protected virtual void Press()
 		{
@@ -40,7 +44,7 @@ namespace Tekly.Leaf.Elements
 			if (m_pressDelay > 0) {
 				SimulatePress();
 			} else {
-				Press();	
+				Press();
 			}
 		}
 
@@ -49,26 +53,51 @@ namespace Tekly.Leaf.Elements
 			SimulatePress();
 		}
 
+		/// <summary>
+		/// Shows the pressed state, then presses after the press delay. Ignored while a press is already pending.
+		/// </summary>
 		public void SimulatePress()
 		{
+			// Also keeps a quick double submit from pressing twice
+			if (!IsActive() || !IsInteractable() || m_isPressPending) {
+				return;
+			}
+
+			m_isPressPending = true;
 			SetPressSimulated(true);
 			StartCoroutine(PressDelayCoroutine(m_pressDelay));
 		}
 
+		protected override void OnDisable()
+		{
+			// Disabling stops the coroutine without running the rest of it, so release here
+			m_isPressPending = false;
+			ReleaseInput();
+
+			base.OnDisable();
+		}
+
 		private IEnumerator PressDelayCoroutine(float delay)
 		{
-			using (LeafCore.Instance.DisableInputScope(this)) {
-				var fadeTime = delay;
-				var elapsedTime = 0f;
+			m_disableInputScope = LeafCore.Instance.DisableInputScope(this);
 
-				while (elapsedTime < fadeTime) {
-					elapsedTime += Time.unscaledDeltaTime;
-					yield return null;
-				}
+			var elapsedTime = 0f;
+			while (elapsedTime < delay) {
+				elapsedTime += Time.unscaledDeltaTime;
+				yield return null;
 			}
-			
+
+			m_isPressPending = false;
+			ReleaseInput();
+
 			SetPressSimulated(false);
 			Press();
+		}
+
+		private void ReleaseInput()
+		{
+			m_disableInputScope?.Dispose();
+			m_disableInputScope = null;
 		}
 	}
 }

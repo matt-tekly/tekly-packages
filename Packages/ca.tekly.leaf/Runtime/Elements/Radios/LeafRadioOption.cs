@@ -16,12 +16,14 @@ namespace Tekly.Leaf.Elements.Radios
 					m_isOn = value;
 					UpdateAnimatorState();
 					
-					if (m_isOn) {
-						var group = GetComponentInParent<ILeafRadioGroup>(true);
-			
-						if (group != null) {
-							group.OnOptionSetOn(this);	
-						}	
+					// Tell the group either way, so it doesn't keep an option that was turned off as its current one
+					var group = GetComponentInParent<ILeafRadioGroup>(true);
+					if (group != null) {
+						if (m_isOn) {
+							group.OnOptionSetOn(this);
+						} else {
+							group.OnOptionSetOff(this);
+						}
 					}
 					
 					m_onValueChanged.Invoke(m_isOn);
@@ -55,4 +57,4 @@ namespace Tekly.Leaf.Elements.Radios
 		
 		protected override bool IsOnState => m_isOn;
 	}
-}
+}

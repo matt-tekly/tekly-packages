@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
 namespace Tekly.Leaf.Elements.Radios
 {
@@ -10,73 +11,54 @@ namespace Tekly.Leaf.Elements.Radios
 		public UnityEvent<LeafRadioOption> OptionSelected => m_optionSelected;
 		public UnityEvent<bool> HasOptionSelected => m_hasOptionSelected;
 		public bool IsOptionSelected => m_currentOption != null;
-		
-		[SerializeField] private bool _allowNoOption;
+
+		[FormerlySerializedAs("_allowNoOption")]
+		[SerializeField] private bool m_allowNoOption;
 		[SerializeField] private UnityEvent<LeafRadioOption> m_optionSelected;
 		[SerializeField] private UnityEvent<bool> m_hasOptionSelected;
-		
+
 		private LeafRadioOption m_currentOption;
-        private TkLogger _logger = TkLogger.Get<LeafRadioGroupUnselectable>();
 
-        public void ClearCurrentOption()
-        {
-            if (!_allowNoOption) {
-                _logger.Error("Trying to clear current option for Radio Group that doesn't allow no current option");
-                return;
-            }
+		private static readonly TkLogger s_logger = TkLogger.Get<LeafRadioGroupUnselectable>();
 
-            ClearOption();
-        }
-        
-        public void SelectOption(LeafRadioOption option)
-        {
-            if (option == m_currentOption) {
-                return;
-            }
-
-            if (option == null && !_allowNoOption) {
-                _logger.Error("Trying to set option to null for Radio Group that doesn't allow no option");
-                return;
-            }
-			        
-            TurnOffCurrentOption();
-
-            m_currentOption = option;
-            m_currentOption.SetValueFromGroup(true);
-			
-            OptionSelected?.Invoke(option);
-            HasOptionSelected?.Invoke(true);
-        }
-        
-		protected override void OnEnable()
+		public void ClearCurrentOption()
 		{
-			if (m_currentOption == null && !_allowNoOption) {
-				var childOption = GetComponentInChildren<LeafRadioOption>();
-				if (childOption != null) {
-					OnOptionPressed(childOption);	
-				}
+			if (!m_allowNoOption) {
+				s_logger.Error("Trying to clear current option for Radio Group that doesn't allow no current option");
+				return;
 			}
 
-			base.OnEnable();
+			ClearOption();
+		}
+
+		/// <summary>
+		/// Turns option on and the current one off. Null clears the option, if the group allows no option.
+		/// </summary>
+		public void SelectOption(LeafRadioOption option)
+		{
+			if (option == m_currentOption) {
+				return;
+			}
+
+			if (option == null) {
+				ClearCurrentOption();
+				return;
+			}
+
+			SetCurrentOption(option);
 		}
 
 		public void OnOptionPressed(LeafRadioOption option)
 		{
 			if (option == m_currentOption) {
-				if (_allowNoOption) {
-                    ClearOption();
-                }
-                
+				if (m_allowNoOption) {
+					ClearOption();
+				}
+
 				return;
 			}
-			        
-			TurnOffCurrentOption();
 
-			m_currentOption = option;
-			m_currentOption.SetValueFromGroup(true);
-			
-			OptionSelected?.Invoke(option);
-			HasOptionSelected?.Invoke(true);
+			SetCurrentOption(option);
 		}
 
 		public void OnOptionSetOn(LeafRadioOption option)
@@ -84,12 +66,46 @@ namespace Tekly.Leaf.Elements.Radios
 			if (option == m_currentOption) {
 				return;
 			}
-			
+
 			TurnOffCurrentOption();
 
 			m_currentOption = option;
-			OptionSelected?.Invoke(option);
-			HasOptionSelected?.Invoke(true);
+			m_optionSelected?.Invoke(option);
+			m_hasOptionSelected?.Invoke(true);
+		}
+
+		public void OnOptionSetOff(LeafRadioOption option)
+		{
+			if (option != m_currentOption) {
+				return;
+			}
+
+			m_currentOption = null;
+			m_optionSelected?.Invoke(null);
+			m_hasOptionSelected?.Invoke(false);
+		}
+
+		protected override void OnEnable()
+		{
+			if (m_currentOption == null && !m_allowNoOption) {
+				var childOption = GetComponentInChildren<LeafRadioOption>();
+				if (childOption != null) {
+					SetCurrentOption(childOption);
+				}
+			}
+
+			base.OnEnable();
+		}
+
+		private void SetCurrentOption(LeafRadioOption option)
+		{
+			TurnOffCurrentOption();
+
+			m_currentOption = option;
+			m_currentOption.SetValueFromGroup(true);
+
+			m_optionSelected?.Invoke(option);
+			m_hasOptionSelected?.Invoke(true);
 		}
 
 		private void TurnOffCurrentOption()
@@ -99,13 +115,13 @@ namespace Tekly.Leaf.Elements.Radios
 			}
 		}
 
-        private void ClearOption()
-        {
-	        TurnOffCurrentOption();
-            m_currentOption = null;
-					
-            OptionSelected?.Invoke(null);
-            HasOptionSelected?.Invoke(false);
-        }
+		private void ClearOption()
+		{
+			TurnOffCurrentOption();
+			m_currentOption = null;
+
+			m_optionSelected?.Invoke(null);
+			m_hasOptionSelected?.Invoke(false);
+		}
 	}
 }

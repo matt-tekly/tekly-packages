@@ -26,7 +26,8 @@ namespace Tekly.Leaf.Binders
 			if (m_ignoreModelUpdates && m_hasBoundValue) {
 				return;
 			}
-			
+
+			m_hasBoundValue = true;
 			m_radioOption.IsOn = value;
 		}
 
@@ -49,4 +50,4 @@ namespace Tekly.Leaf.Binders
 #endif
 		
 	}
-}
+}
