@@ -20,13 +20,23 @@ namespace Tekly.Leaf.Elements
 			set => m_tabNavigates = value;
 		}
 
+		public bool EnterMovesNext {
+			get => m_enterMovesNext;
+			set => m_enterMovesNext = value;
+		}
+
 		[SerializeField] private LeafAnimator m_animator;
 
 		[Tooltip("Tab moves to the next element instead of typing a tab character. Only matters for multi-line fields: single-line fields never take tabs.")]
 		[SerializeField] private bool m_tabNavigates = true;
 
+		[Tooltip("Enter ends the edit and selects the next element in tab order, like Tab. Leave it off on a form's last field and use On Submit instead. Ignored when Enter types a new line.")]
+		[SerializeField] private bool m_enterMovesNext;
+
 		private readonly LeafStateTracker m_tracker = new();
 		private bool m_wasFocused;
+		private bool m_isMoveNextPending;
+		private int m_moveNextFrame;
 
 		protected override void OnEnable()
 		{
@@ -34,8 +44,20 @@ namespace Tekly.Leaf.Elements
 			m_tracker.IsPressSimulated = false;
 			m_tracker.IsSelected = EventSystem.current && EventSystem.current.currentSelectedGameObject == gameObject;
 			m_wasFocused = false;
+			m_isMoveNextPending = false;
+
+			// Hooked here rather than Awake: Awake isn't called again after a domain reload in the editor
+			onSubmit.AddListener(OnSubmitted);
 
 			base.OnEnable();
+		}
+
+		protected override void OnDisable()
+		{
+			onSubmit.RemoveListener(OnSubmitted);
+			m_isMoveNextPending = false;
+
+			base.OnDisable();
 		}
 
 		protected override void InstantClearState()
@@ -98,6 +120,17 @@ namespace Tekly.Leaf.Elements
 			LeafNavigationScope.TryNavigateFrom(this, eventData);
 		}
 
+		public override void OnSubmit(BaseEventData eventData)
+		{
+			// The Enter that ended the edit can also arrive as a Submit event, which would start editing again
+			if (m_isMoveNextPending) {
+				eventData?.Use();
+				return;
+			}
+
+			base.OnSubmit(eventData);
+		}
+
 		public void OnTab(LeafTabEventData eventData)
 		{
 			// A multi-line field that types tabs keeps Tab while editing
@@ -123,6 +156,17 @@ namespace Tekly.Leaf.Elements
 			// OnSelect, and Enter/Escape/clicking outside deactivate while the field stays selected.
 			base.LateUpdate();
 			UpdateFocus();
+
+			// Moving a frame after Enter, so the same key press can't also submit the next element,
+			// e.g. press a button that follows the field
+			if (m_isMoveNextPending && Time.frameCount > m_moveNextFrame) {
+				m_isMoveNextPending = false;
+
+				var eventSystem = EventSystem.current;
+				if (eventSystem != null && eventSystem.currentSelectedGameObject == gameObject) {
+					LeafNavigationScope.TrySelectNextFrom(this, false);
+				}
+			}
 		}
 
 		protected override void DoStateTransition(SelectionState state, bool instant)
@@ -133,6 +177,17 @@ namespace Tekly.Leaf.Elements
 			} else {
 				m_animator.HandleState(CurrentState, instant);
 			}
+		}
+
+		private void OnSubmitted(string text)
+		{
+			// Only when Enter ends an edit: Submit on a field that isn't being edited starts editing instead
+			if (!m_enterMovesNext || !isFocused || lineType == LineType.MultiLineNewline) {
+				return;
+			}
+
+			m_isMoveNextPending = true;
+			m_moveNextFrame = Time.frameCount;
 		}
 
 		private void UpdateFocus()

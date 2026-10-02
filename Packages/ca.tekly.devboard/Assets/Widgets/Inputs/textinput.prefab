@@ -992,6 +992,7 @@ MonoBehaviour:
   m_ShouldActivateOnSelect: 1
   m_animator: {fileID: 2566011914822296642}
   m_tabNavigates: 1
+  m_enterMovesNext: 1
 --- !u!114 &2566011914822296642
 MonoBehaviour:
   m_ObjectHideFlags: 0

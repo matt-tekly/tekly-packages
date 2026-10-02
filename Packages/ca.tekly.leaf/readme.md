@@ -15,6 +15,8 @@
 - The selected object gets `ILeafTabHandler.OnTab` first; calling `Use()` on the event data stops the scope's navigation
 - `LeafInputField` hands Tab back to the scope while editing, so tabbing out ends the edit like clicking away. `TabNavigates` off lets a multi-line field type tabs instead
 - If the selection was cleared (e.g. by clicking the background), Tab reselects in the scope that was used last
+- `LeafInputField.EnterMovesNext` makes Enter end the edit and select the next element in tab order (e.g. username to password). Leave it off on a form's last field and wire `onSubmit` to the form's action. The move happens a frame later so the same Enter can't also press the next element
+- `LeafNavigationScope.TrySelectNextFrom` selects the next element in tab order from code
 
 ### Element State
 - `LeafElementMode` is only the interaction: `Normal`, `Highlighted`, `Pressed`

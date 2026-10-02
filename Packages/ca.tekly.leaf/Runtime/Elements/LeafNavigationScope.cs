@@ -92,6 +92,35 @@ namespace Tekly.Leaf.Elements
 		}
 
 		/// <summary>
+		/// Selects the Selectable after current in tab order within the nearest scope above it, as if Tab
+		/// were pressed. Returns false when there's no scope or nothing else to select.
+		/// </summary>
+		public static bool TrySelectNextFrom(Selectable current, bool isReverse)
+		{
+			var scope = current.GetComponentInParent<LeafNavigationScope>();
+			return scope != null && scope.isActiveAndEnabled && scope.TrySelectNextInTabOrder(current, isReverse);
+		}
+
+		/// <summary>
+		/// Selects the Selectable after current in tab order. Returns false when there's nothing else to select.
+		/// </summary>
+		public bool TrySelectNextInTabOrder(Selectable current, bool isReverse, BaseEventData eventData = null)
+		{
+			var eventSystem = EventSystem.current;
+			if (eventSystem == null) {
+				return false;
+			}
+
+			var next = FindNextInTabOrder(current, isReverse);
+			if (next == null) {
+				return false;
+			}
+
+			eventSystem.SetSelectedGameObject(next.gameObject, eventData);
+			return true;
+		}
+
+		/// <summary>
 		/// Moves the selection from current in the event's direction. Returns false when there's nowhere to go.
 		/// </summary>
 		public bool TryNavigate(Selectable current, AxisEventData eventData)
@@ -327,10 +356,7 @@ namespace Tekly.Leaf.Elements
 
 			selected.TryGetComponent(out Selectable current);
 
-			var next = FindNextInTabOrder(current, isReverse);
-			if (next != null) {
-				eventSystem.SetSelectedGameObject(next.gameObject, eventData);
-			}
+			TrySelectNextInTabOrder(current, isReverse, eventData);
 		}
 
 		private static void CollectChildren(Transform parent, List<Selectable> output)
