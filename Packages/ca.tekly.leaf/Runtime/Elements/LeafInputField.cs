@@ -26,14 +26,7 @@ namespace Tekly.Leaf.Elements
 		[SerializeField] private bool m_tabNavigates = true;
 
 		private readonly LeafStateTracker m_tracker = new();
-		private LeafNavigationElement m_leaf;
 		private bool m_wasFocused;
-
-		protected override void Awake()
-		{
-			base.Awake();
-			m_leaf = GetComponent<LeafNavigationElement>();
-		}
 
 		protected override void OnEnable()
 		{
@@ -102,9 +95,7 @@ namespace Tekly.Leaf.Elements
 				return;
 			}
 
-			if (m_leaf != null) {
-				m_leaf.TryNavigate(eventData);
-			}
+			LeafNavigationScope.TryNavigateFrom(this, eventData);
 		}
 
 		public void OnTab(LeafTabEventData eventData)

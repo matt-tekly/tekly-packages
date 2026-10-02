@@ -3,9 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Tekly.Leaf.Elements
 {
+	/// <summary>
+	/// Keeps keyboard and gamepad navigation inside part of the hierarchy. Every active, interactable Selectable
+	/// below the scope takes part, except those inside a nested scope and those whose Navigation mode is None.
+	/// Arrow keys move spatially (<see cref="FindNext"/>); Tab and Shift+Tab follow hierarchy order
+	/// (<see cref="FindNextInTabOrder"/>).
+	/// </summary>
 	public class LeafNavigationScope : MonoBehaviour
 	{
 		public LeafElementSelectedEvent OnSelected
@@ -13,7 +20,7 @@ namespace Tekly.Leaf.Elements
 			get => m_onSelected;
 			set => m_onSelected = value;
 		}
-		
+
 		[Serializable]
 		public class LeafElementSelectedEvent : UnityEvent<GameObject> {}
 
@@ -22,19 +29,18 @@ namespace Tekly.Leaf.Elements
 		[SerializeField] private bool m_wrapVertical = true;
 		[SerializeField] private GameObject m_firstSelection;
 
-		private readonly HashSet<LeafNavigationElement> m_selectables = new();
-
 		[NonSerialized] private GameObject m_lastValidSelection;
 		[NonSerialized] private GameObject m_lastSelection;
 		[NonSerialized] private GameObject m_lastEventSystemSelection;
+		[NonSerialized] private bool m_needsInitialSelection;
 
-		private static readonly List<LeafNavigationElement> s_tabOrder = new();
+		private static readonly List<Selectable> s_selectables = new();
 		private static LeafNavigationScope s_lastActiveScope;
 
 		private void OnEnable()
 		{
 			m_lastValidSelection = m_firstSelection;
-			SelectGameObject();
+			m_needsInitialSelection = !SelectGameObject();
 		}
 
 		private void OnDisable()
@@ -44,47 +50,62 @@ namespace Tekly.Leaf.Elements
 			}
 		}
 
-		public void SelectGameObject()
+		/// <summary>
+		/// Selects the last selection made in this scope, then the first selection, then the first Selectable in
+		/// tab order. Returns false when there was nothing to select.
+		/// </summary>
+		public bool SelectGameObject()
 		{
-			if (m_lastValidSelection != null) {
-				EventSystem.current.SetSelectedGameObject(m_lastValidSelection);
-			} else if (m_firstSelection != null) {
-				EventSystem.current.SetSelectedGameObject(m_firstSelection);
+			var eventSystem = EventSystem.current;
+			if (eventSystem == null) {
+				return false;
 			}
+
+			GameObject target = null;
+
+			if (m_lastValidSelection != null && m_lastValidSelection.activeInHierarchy) {
+				target = m_lastValidSelection;
+			} else if (m_firstSelection != null && m_firstSelection.activeInHierarchy) {
+				target = m_firstSelection;
+			} else {
+				var first = FindNextInTabOrder(null, false);
+				if (first != null) {
+					target = first.gameObject;
+				}
+			}
+
+			if (target == null) {
+				return false;
+			}
+
+			eventSystem.SetSelectedGameObject(target);
+			return true;
 		}
 
-		public void Register(LeafNavigationElement navigationElement)
+		/// <summary>
+		/// For a Selectable's OnMove: navigates within the nearest scope above it, if there is one.
+		/// </summary>
+		public static bool TryNavigateFrom(Selectable current, AxisEventData eventData)
 		{
-			if (navigationElement == null) {
-				return;
-			}
-
-			m_selectables.Add(navigationElement);
-
-			if (m_lastValidSelection == null) {
-				m_lastValidSelection = navigationElement.gameObject;	
-			}
-			
-			if (EventSystem.current.currentSelectedGameObject == null) {
-				SelectGameObject();
-			}
+			var scope = current.GetComponentInParent<LeafNavigationScope>();
+			return scope != null && scope.isActiveAndEnabled && scope.TryNavigate(current, eventData);
 		}
 
-		public void Unregister(LeafNavigationElement navigationElement)
+		/// <summary>
+		/// Moves the selection from current in the event's direction. Returns false when there's nowhere to go.
+		/// </summary>
+		public bool TryNavigate(Selectable current, AxisEventData eventData)
 		{
-			if (navigationElement == null) {
-				return;
+			var next = FindNext(current, eventData.moveDir);
+			if (next == null) {
+				return false;
 			}
 
-			m_selectables.Remove(navigationElement);
-
-			if (m_lastValidSelection == navigationElement.gameObject) {
-				m_lastValidSelection = null;
-				// TODO: Should we try to find a next valid selection?
-			}
+			EventSystem.current.SetSelectedGameObject(next.gameObject, eventData);
+			return true;
 		}
 
-		public virtual LeafNavigationElement FindNext(LeafNavigationElement current, MoveDirection direction)
+		public virtual Selectable FindNext(Selectable current, MoveDirection direction)
 		{
 			var dir = direction switch {
 				MoveDirection.Left => Vector3.left,
@@ -106,63 +127,75 @@ namespace Tekly.Leaf.Elements
 		}
 
 		/// <summary>
-		/// Finds the element after current in tab order, wrapping at the ends. Elements are in hierarchy order,
-		/// except that each <see cref="LeafNavigationGroup"/> is one block sorted by its own order.
-		/// A null current gives the first element, or the last when reversed.
+		/// Finds the Selectable after current in hierarchy order, wrapping at the ends. A null current, or one that
+		/// isn't navigable, gives the first Selectable, or the last when reversed.
 		/// </summary>
-		public virtual LeafNavigationElement FindNextInTabOrder(LeafNavigationElement current, bool isReverse)
+		public virtual Selectable FindNextInTabOrder(Selectable current, bool isReverse)
 		{
-			LeafTabOrderBuilder.Build(this, s_tabOrder);
+			CollectSelectables(s_selectables);
 
-			var count = s_tabOrder.Count;
+			var count = s_selectables.Count;
 			var step = isReverse ? -1 : 1;
-			var index = current != null ? s_tabOrder.IndexOf(current) : -1;
+			var index = current != null ? s_selectables.IndexOf(current) : -1;
 
 			if (index < 0) {
 				index = isReverse ? count : -1;
 			}
 
-			LeafNavigationElement next = null;
+			Selectable next = null;
 
 			for (var i = 1; i <= count; i++) {
-				var candidate = s_tabOrder[((index + step * i) % count + count) % count];
+				var candidate = s_selectables[((index + step * i) % count + count) % count];
 
-				if (candidate != current && candidate.IsTabCandidate()) {
+				if (candidate != current) {
 					next = candidate;
 					break;
 				}
 			}
 
-			s_tabOrder.Clear();
+			s_selectables.Clear();
 			return next;
 		}
 
-		protected virtual LeafNavigationElement FindBest(LeafNavigationElement current, Vector3 direction, bool allowWrap)
+		/// <summary>
+		/// Fills output with the Selectables that take part in this scope's navigation, in hierarchy order.
+		/// </summary>
+		protected virtual void CollectSelectables(List<Selectable> output)
+		{
+			output.Clear();
+			CollectChildren(transform, output);
+		}
+
+		protected virtual Selectable FindBest(Selectable current, Vector3 direction, bool allowWrap)
 		{
 			var rectTransform = current.transform as RectTransform;
 			var localDir = Quaternion.Inverse(current.transform.rotation) * direction;
 			var origin = current.transform.TransformPoint(GetPointOnRectEdge(rectTransform, localDir));
 
-			LeafNavigationElement bestForward = null;
+			Selectable bestForward = null;
 			var bestForwardPrimary = float.PositiveInfinity;
 			var bestForwardSecondary = float.PositiveInfinity;
 			var hasForwardCandidate = false;
 
-			LeafNavigationElement bestWrap = null;
+			Selectable bestWrap = null;
 			var bestWrapSecondary = float.PositiveInfinity;
 			var bestWrapPrimary = float.NegativeInfinity;
 
-			foreach (var selectable in m_selectables) {
-				if (!ShouldIncludeInNavigation(current, selectable)) {
+			CollectSelectables(s_selectables);
+
+			for (var i = 0; i < s_selectables.Count; i++) {
+				var candidate = s_selectables[i];
+
+				if (!ShouldIncludeInNavigation(current, candidate)) {
 					continue;
 				}
 
-				var selectableRect = selectable.transform as RectTransform;
-				var selectableCenter = selectableRect != null
-					? (Vector3) selectableRect.rect.center
+				var candidateRect = candidate.transform as RectTransform;
+				var candidateCenter = candidateRect != null
+					? (Vector3) candidateRect.rect.center
 					: Vector3.zero;
 
-				var vector = selectable.transform.TransformPoint(selectableCenter) - origin;
+				var vector = candidate.transform.TransformPoint(candidateCenter) - origin;
 				if (vector.sqrMagnitude <= 0.0001f) {
 					continue;
 				}
@@ -176,7 +209,7 @@ namespace Tekly.Leaf.Elements
 
 					if (primary < bestForwardPrimary - 0.0001f ||
 						(Mathf.Abs(primary - bestForwardPrimary) <= 0.0001f && secondary < bestForwardSecondary)) {
-						bestForward = selectable;
+						bestForward = candidate;
 						bestForwardPrimary = primary;
 						bestForwardSecondary = secondary;
 					}
@@ -195,11 +228,13 @@ namespace Tekly.Leaf.Elements
 
 				if (secondary < bestWrapSecondary - 0.0001f ||
 					(Mathf.Abs(secondary - bestWrapSecondary) <= 0.0001f && wrapPrimary > bestWrapPrimary)) {
-					bestWrap = selectable;
+					bestWrap = candidate;
 					bestWrapSecondary = secondary;
 					bestWrapPrimary = wrapPrimary;
 				}
 			}
+
+			s_selectables.Clear();
 
 			if (bestForward != null) {
 				return bestForward;
@@ -212,13 +247,9 @@ namespace Tekly.Leaf.Elements
 			return null;
 		}
 
-		protected virtual bool ShouldIncludeInNavigation(LeafNavigationElement current, LeafNavigationElement navigationElement)
+		protected virtual bool ShouldIncludeInNavigation(Selectable current, Selectable candidate)
 		{
-			if (navigationElement == null || navigationElement == current) {
-				return false;
-			}
-
-			return navigationElement.IsNavigationCandidate();
+			return candidate != null && candidate != current;
 		}
 
 		private void Update()
@@ -226,6 +257,11 @@ namespace Tekly.Leaf.Elements
 			var eventSystem = EventSystem.current;
 			if (eventSystem == null) {
 				return;
+			}
+
+			if (m_needsInitialSelection) {
+				// Widgets are often added after the scope is enabled, so keep trying until something is selected
+				m_needsInitialSelection = eventSystem.currentSelectedGameObject == null && !SelectGameObject();
 			}
 
 			HandleTab(eventSystem);
@@ -289,13 +325,41 @@ namespace Tekly.Leaf.Elements
 				return;
 			}
 
-			// A selected object without a LeafNavigationElement isn't in the tab order, so Tab starts from the top
-			selected.TryGetComponent(out LeafNavigationElement current);
+			selected.TryGetComponent(out Selectable current);
 
 			var next = FindNextInTabOrder(current, isReverse);
-			if (next != null && next.Selectable != null) {
-				eventSystem.SetSelectedGameObject(next.Selectable.gameObject, eventData);
+			if (next != null) {
+				eventSystem.SetSelectedGameObject(next.gameObject, eventData);
 			}
+		}
+
+		private static void CollectChildren(Transform parent, List<Selectable> output)
+		{
+			for (var i = 0; i < parent.childCount; i++) {
+				var child = parent.GetChild(i);
+
+				if (!child.gameObject.activeInHierarchy) {
+					continue;
+				}
+
+				// A nested scope keeps its Selectables to itself
+				if (child.TryGetComponent(out LeafNavigationScope _)) {
+					continue;
+				}
+
+				if (child.TryGetComponent(out Selectable selectable) && IsNavigable(selectable)) {
+					output.Add(selectable);
+				}
+
+				CollectChildren(child, output);
+			}
+		}
+
+		private static bool IsNavigable(Selectable selectable)
+		{
+			return selectable.IsActive() &&
+			       selectable.IsInteractable() &&
+			       selectable.navigation.mode != Navigation.Mode.None;
 		}
 
 		private static Vector3 GetPointOnRectEdge(RectTransform rect, Vector2 dir)

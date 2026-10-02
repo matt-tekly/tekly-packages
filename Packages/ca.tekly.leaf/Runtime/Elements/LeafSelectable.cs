@@ -14,15 +14,8 @@ namespace Tekly.Leaf.Elements
 		[SerializeField] private LeafAnimator m_animator;
 
 		private readonly LeafStateTracker m_tracker = new();
-		private LeafNavigationElement m_leaf;
 
 		protected virtual bool IsOnState => false;
-
-		protected override void Awake()
-		{
-			base.Awake();
-			m_leaf = GetComponent<LeafNavigationElement>();
-		}
 
 		protected override void OnEnable()
 		{
@@ -90,9 +83,7 @@ namespace Tekly.Leaf.Elements
 
 		public override void OnMove(AxisEventData eventData)
 		{
-			if (m_leaf != null) {
-				m_leaf.TryNavigate(eventData);
-			}
+			LeafNavigationScope.TryNavigateFrom(this, eventData);
 		}
 
 		/// <summary>

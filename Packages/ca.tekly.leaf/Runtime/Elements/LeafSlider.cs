@@ -12,13 +12,6 @@ namespace Tekly.Leaf.Elements
 		[SerializeField] private LeafAnimator m_animator;
 
 		private readonly LeafStateTracker m_tracker = new();
-		private LeafNavigationElement m_leaf;
-
-		protected override void Awake()
-		{
-			base.Awake();
-			m_leaf = GetComponent<LeafNavigationElement>();
-		}
 
 		protected override void OnEnable()
 		{
@@ -98,9 +91,7 @@ namespace Tekly.Leaf.Elements
 
 				case MoveDirection.Up:
 				case MoveDirection.Down:
-					if (m_leaf != null) {
-						m_leaf.TryNavigate(eventData);
-					}
+					LeafNavigationScope.TryNavigateFrom(this, eventData);
 					return;
 			}
 		}

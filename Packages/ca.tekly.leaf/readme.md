@@ -2,14 +2,16 @@
 
 ### Navigation Scope
 - Keeps the navigation within a part of the hierarchy
+- Every active, interactable Selectable below the scope takes part, with no extra component. Selectables inside a nested scope belong to that scope, and a Navigation mode of None leaves one out (e.g. a ScrollRect's scrollbars)
+- Leaf elements call `LeafNavigationScope.TryNavigateFrom` in `OnMove`, which uses the nearest scope above them
+- Arrow keys move spatially (`FindNext`). The Selectables are collected from the hierarchy on each key press rather than registered
+- When enabled, the scope selects `m_firstSelection`, or the first Selectable in tab order. If there's nothing to select yet, it keeps trying until something is selected, since widgets are often added after the scope
 - TODO:
 	- Navigation Scopes could navigate to other scopes when navigating in a direction that doesn't find a next Selectable
 
 ### Tab Navigation
 - The UI input modules never send Tab, so the scope that owns the current selection polls Tab/Shift+Tab (`LeafTabInput`)
-- Arrow keys stay spatial (`FindNext`). Tab follows a fixed order instead (`FindNextInTabOrder`) and wraps at the ends of the scope
-- Tab order is hierarchy order by default. Elements need a `LeafNavigationElement` to be in it, and `IsTabStop` can leave one out
-- `LeafNavigationGroup` makes its elements one block of the order: Tab goes through the whole group before moving on, entering at its first element (last with Shift+Tab). Its `Order` sorts the block by hierarchy, `LeftToRight` or `TopToBottom`, with a nested group placed by its own rect. Put one on the scope to set the order of the top level
+- Tab follows hierarchy order, depth first (`FindNextInTabOrder`), and wraps at the ends of the scope. If the order looks wrong, reorder the children to match the screen
 - The selected object gets `ILeafTabHandler.OnTab` first; calling `Use()` on the event data stops the scope's navigation
 - `LeafInputField` hands Tab back to the scope while editing, so tabbing out ends the edit like clicking away. `TabNavigates` off lets a multi-line field type tabs instead
 - If the selection was cleared (e.g. by clicking the background), Tab reselects in the scope that was used last
