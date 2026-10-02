@@ -8,11 +8,13 @@ namespace Tekly.Leaf.Elements
 	public class LeafInputFieldEditor : TMP_InputFieldEditor
 	{
 		private SerializedProperty m_animatorProperty;
+		private SerializedProperty m_tabNavigatesProperty;
 
 		protected override void OnEnable()
 		{
 			base.OnEnable();
 			m_animatorProperty = serializedObject.FindProperty("m_animator");
+			m_tabNavigatesProperty = serializedObject.FindProperty("m_tabNavigates");
 		}
 
 		public override void OnInspectorGUI()
@@ -22,6 +24,7 @@ namespace Tekly.Leaf.Elements
 
 			serializedObject.Update();
 			EditorGUILayout.PropertyField(m_animatorProperty);
+			EditorGUILayout.PropertyField(m_tabNavigatesProperty);
 			serializedObject.ApplyModifiedProperties();
 		}
 	}

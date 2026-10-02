@@ -1,3 +1,4 @@
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -10,7 +11,15 @@ namespace Tekly.Leaf.Elements
 	{
 		public LeafNavigationScope Scope => m_scope;
 		public Selectable Selectable => m_selectable;
-		
+
+		public bool IsTabStop {
+			get => m_isTabStop;
+			set => m_isTabStop = value;
+		}
+
+		[Tooltip("Include this element in the Tab order. When off, Tab skips it but arrow keys can still select it.")]
+		[SerializeField] private bool m_isTabStop = true;
+
 		private LeafNavigationScope m_scope;
 		private Selectable m_selectable;
 
@@ -52,6 +61,11 @@ namespace Tekly.Leaf.Elements
 			return m_selectable != null &&
 			       m_selectable.gameObject.activeInHierarchy &&
 			       m_selectable.IsInteractable();
+		}
+
+		public bool IsTabCandidate()
+		{
+			return m_isTabStop && IsNavigationCandidate();
 		}
 
 		public bool TryNavigate(AxisEventData eventData)

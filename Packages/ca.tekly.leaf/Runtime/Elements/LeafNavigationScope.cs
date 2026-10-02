@@ -28,10 +28,20 @@ namespace Tekly.Leaf.Elements
 		[NonSerialized] private GameObject m_lastSelection;
 		[NonSerialized] private GameObject m_lastEventSystemSelection;
 
+		private static readonly List<LeafNavigationElement> s_tabOrder = new();
+		private static LeafNavigationScope s_lastActiveScope;
+
 		private void OnEnable()
 		{
 			m_lastValidSelection = m_firstSelection;
 			SelectGameObject();
+		}
+
+		private void OnDisable()
+		{
+			if (s_lastActiveScope == this) {
+				s_lastActiveScope = null;
+			}
 		}
 
 		public void SelectGameObject()
@@ -93,6 +103,38 @@ namespace Tekly.Leaf.Elements
 				: m_wrapVertical;
 
 			return FindBest(current, dir, allowWrap);
+		}
+
+		/// <summary>
+		/// Finds the element after current in tab order, wrapping at the ends. Elements are in hierarchy order,
+		/// except that each <see cref="LeafNavigationGroup"/> is one block sorted by its own order.
+		/// A null current gives the first element, or the last when reversed.
+		/// </summary>
+		public virtual LeafNavigationElement FindNextInTabOrder(LeafNavigationElement current, bool isReverse)
+		{
+			LeafTabOrderBuilder.Build(this, s_tabOrder);
+
+			var count = s_tabOrder.Count;
+			var step = isReverse ? -1 : 1;
+			var index = current != null ? s_tabOrder.IndexOf(current) : -1;
+
+			if (index < 0) {
+				index = isReverse ? count : -1;
+			}
+
+			LeafNavigationElement next = null;
+
+			for (var i = 1; i <= count; i++) {
+				var candidate = s_tabOrder[((index + step * i) % count + count) % count];
+
+				if (candidate != current && candidate.IsTabCandidate()) {
+					next = candidate;
+					break;
+				}
+			}
+
+			s_tabOrder.Clear();
+			return next;
 		}
 
 		protected virtual LeafNavigationElement FindBest(LeafNavigationElement current, Vector3 direction, bool allowWrap)
@@ -186,6 +228,8 @@ namespace Tekly.Leaf.Elements
 				return;
 			}
 
+			HandleTab(eventSystem);
+
 			var currentGo = eventSystem.currentSelectedGameObject;
 
 			if (m_lastEventSystemSelection == currentGo) {
@@ -201,11 +245,56 @@ namespace Tekly.Leaf.Elements
 
 			if (isChild) {
 				m_lastValidSelection = newSelection;
+
+				if (newSelection.GetComponentInParent<LeafNavigationScope>() == this) {
+					s_lastActiveScope = this;
+				}
 			}
 
 			if (m_lastSelection != newSelection) {
 				m_lastSelection = isChild ? newSelection : null;
 				m_onSelected?.Invoke(m_lastSelection);
+			}
+		}
+
+		private void HandleTab(EventSystem eventSystem)
+		{
+			if (!LeafTabInput.WasPressedThisFrame(out var isReverse) || LeafCore.Instance.DisableInput.IsHeld.Value) {
+				return;
+			}
+
+			var selected = eventSystem.currentSelectedGameObject;
+
+			if (selected == null) {
+				// Clicking the background clears the selection, Tab picks up again in the scope used last
+				if (s_lastActiveScope == this) {
+					SelectGameObject();
+				}
+
+				return;
+			}
+
+			// Only the nearest scope handles Tab, so nested and sibling scopes don't all move the selection
+			if (selected.GetComponentInParent<LeafNavigationScope>() != this) {
+				return;
+			}
+
+			var eventData = new LeafTabEventData(eventSystem) {
+				IsReverse = isReverse
+			};
+
+			ExecuteEvents.Execute(selected, eventData, LeafExecuteEvents.TabHandler);
+
+			if (eventData.used) {
+				return;
+			}
+
+			// A selected object without a LeafNavigationElement isn't in the tab order, so Tab starts from the top
+			selected.TryGetComponent(out LeafNavigationElement current);
+
+			var next = FindNextInTabOrder(current, isReverse);
+			if (next != null && next.Selectable != null) {
+				eventSystem.SetSelectedGameObject(next.Selectable.gameObject, eventData);
 			}
 		}
 

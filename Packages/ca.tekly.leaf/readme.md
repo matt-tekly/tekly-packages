@@ -5,6 +5,15 @@
 - TODO:
 	- Navigation Scopes could navigate to other scopes when navigating in a direction that doesn't find a next Selectable
 
+### Tab Navigation
+- The UI input modules never send Tab, so the scope that owns the current selection polls Tab/Shift+Tab (`LeafTabInput`)
+- Arrow keys stay spatial (`FindNext`). Tab follows a fixed order instead (`FindNextInTabOrder`) and wraps at the ends of the scope
+- Tab order is hierarchy order by default. Elements need a `LeafNavigationElement` to be in it, and `IsTabStop` can leave one out
+- `LeafNavigationGroup` makes its elements one block of the order: Tab goes through the whole group before moving on, entering at its first element (last with Shift+Tab). Its `Order` sorts the block by hierarchy, `LeftToRight` or `TopToBottom`, with a nested group placed by its own rect. Put one on the scope to set the order of the top level
+- The selected object gets `ILeafTabHandler.OnTab` first; calling `Use()` on the event data stops the scope's navigation
+- `LeafInputField` hands Tab back to the scope while editing, so tabbing out ends the edit like clicking away. `TabNavigates` off lets a multi-line field type tabs instead
+- If the selection was cleared (e.g. by clicking the background), Tab reselects in the scope that was used last
+
 ### Element State
 - `LeafElementMode` is only the interaction: `Normal`, `Highlighted`, `Pressed`
 - `LeafElementState` combines the mode with `LeafElementFlags` (`Selected`, `Disabled`, `On`), so a selected element can still be highlighted or pressed (Unity's `SelectionState` can't express that)

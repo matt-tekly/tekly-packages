@@ -10,12 +10,20 @@ namespace Tekly.Leaf.Elements
 	/// has <see cref="LeafElementFlags.Focused"/> set, which replaces TMP's own "stay Selected while
 	/// focused" transition.
 	/// </summary>
-	public class LeafInputField : TMP_InputField
+	public class LeafInputField : TMP_InputField, ILeafTabHandler
 	{
 		public LeafElementState CurrentState => m_tracker.GetState(IsInteractable(), false)
 			.WithFlags(LeafElementFlags.Focused, isFocused);
 
+		public bool TabNavigates {
+			get => m_tabNavigates;
+			set => m_tabNavigates = value;
+		}
+
 		[SerializeField] private LeafAnimator m_animator;
+
+		[Tooltip("Tab moves to the next element instead of typing a tab character. Only matters for multi-line fields: single-line fields never take tabs.")]
+		[SerializeField] private bool m_tabNavigates = true;
 
 		private readonly LeafStateTracker m_tracker = new();
 		private LeafNavigationElement m_leaf;
@@ -97,6 +105,25 @@ namespace Tekly.Leaf.Elements
 			if (m_leaf != null) {
 				m_leaf.TryNavigate(eventData);
 			}
+		}
+
+		public void OnTab(LeafTabEventData eventData)
+		{
+			// A multi-line field that types tabs keeps Tab while editing
+			if (isFocused && multiLine && !m_tabNavigates) {
+				eventData.Use();
+			}
+		}
+
+		protected override void Append(char input)
+		{
+			// TMP can read the key before the scope moves the selection away this frame, so a typed tab is
+			// dropped here as well. Checking the key keeps tabs in pasted text.
+			if (input == '\t' && m_tabNavigates && LeafTabInput.WasPressedThisFrame(out _)) {
+				return;
+			}
+
+			base.Append(input);
 		}
 
 		protected override void LateUpdate()

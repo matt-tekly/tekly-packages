@@ -32,8 +32,18 @@ namespace TeklySample.Samples.DevBoardSample
 			card.Toggle("Togglo", () => toggleValue, value => toggleValue = value);
 			card.IntInput("Int", () => intValue, value => intValue = value);
 			card.FloatInput("Float", () => floatValue, value => floatValue = value);
+
+			var row = card.Row();
+			row.Button("a", () => Debug.Log("a"));
+			row.Button("b", () => Debug.Log("b"));
+			row.Button("c", () => Debug.Log("c"));
 			
-			
+			var row2 = card.Row();
+			row2.Button("a", () => Debug.Log("a"));
+			row2.Button("b", () => Debug.Log("b"));
+			row2.Button("c", () => Debug.Log("c"));
+
+			card.FloatInput("Float", () => floatValue, value => floatValue = value);
 
 			// var row = board.Row().WithSpacing(0);
 			// row.Button("Poop", () => Debug.Log("Poop"));

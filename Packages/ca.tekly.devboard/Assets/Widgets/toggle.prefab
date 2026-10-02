@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1675673965205743631}
   - component: {fileID: 3085000853695865643}
   - component: {fileID: 7965425448300300528}
+  - component: {fileID: 7875391886896971291}
   m_Layer: 5
   m_Name: toggle
   m_TagString: Untagged
@@ -228,6 +229,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Tekly.DevBoard::Tekly.DevBoard.Components.ToggleWidget
   m_toggle: {fileID: 8678898496919341821}
   m_label: {fileID: 3953519970021186024}
+--- !u!114 &7875391886896971291
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2202201488617982554}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea70a79b505dd3f4bb374c08bd957af6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Tekly.Leaf::Tekly.Leaf.Elements.LeafNavigationElement
+  m_isTabStop: 1
 --- !u!1 &2477879789520380492
 GameObject:
   m_ObjectHideFlags: 0
