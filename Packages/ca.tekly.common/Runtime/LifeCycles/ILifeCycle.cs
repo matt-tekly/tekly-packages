@@ -11,6 +11,7 @@ namespace Tekly.Common.LifeCycles
 	public interface ILifeCycle
 	{
 		event UpdateDelegate Update;
+		event UpdateDelegate LateUpdate;
 		event QuitDelegate Quit;
 		event FocusDelegate Focus;
 		event PauseDelegate Pause;
@@ -21,4 +22,4 @@ namespace Tekly.Common.LifeCycles
 
 		Coroutine StartCoroutine(IEnumerator enumerator);
 	}
-}
+}

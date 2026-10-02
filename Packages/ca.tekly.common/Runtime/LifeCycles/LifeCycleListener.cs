@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace Tekly.Common.LifeCycles
 {
+	[DefaultExecutionOrder(-9000)]
     public class LifeCycleListener : MonoBehaviour
     {
         public LifeCycle LifeCycle { get; set; }
@@ -27,6 +28,11 @@ namespace Tekly.Common.LifeCycles
             LifeCycle.Updated();
         }
 
+        private void LateUpdate()
+        {
+            LifeCycle.LateUpdated();
+        }
+
         private void OnApplicationFocus(bool hasFocus)
         {
             LifeCycle.OnApplicationFocus(hasFocus);
@@ -38,4 +44,4 @@ namespace Tekly.Common.LifeCycles
             return StartCoroutine(enumerator);
         }
     }
-}
+}

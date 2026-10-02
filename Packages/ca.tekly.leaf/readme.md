@@ -4,13 +4,24 @@
 - Keeps the navigation within a part of the hierarchy
 - Every active, interactable Selectable below the scope takes part, with no extra component. Selectables inside a nested scope belong to that scope, and a Navigation mode of None leaves one out (e.g. a ScrollRect's scrollbars)
 - Leaf elements call `LeafNavigationScope.TryNavigateFrom` in `OnMove`, which uses the nearest scope above them
-- Arrow keys move spatially (`FindNext`). The Selectables are collected from the hierarchy on each key press rather than registered
+- Arrow keys move spatially (`FindNext`), based on Android's FocusFinder. Whole rects are compared in the scope's space: a candidate has to be past the current element in that direction, ones that line up with it beat ones that don't (sideways, staying in the row always wins), and the rest are scored by edge gap weighted well above sideways offset
+- With wrapping on, a direction with nothing left wraps to the far side, e.g. Right at the end of a row goes to the start of that row
+- The Selectables are collected from the hierarchy on each key press rather than registered
 - When enabled, the scope selects `m_firstSelection`, or the first Selectable in tab order. If there's nothing to select yet, it keeps trying until something is selected, since widgets are often added after the scope
 - TODO:
 	- Navigation Scopes could navigate to other scopes when navigating in a direction that doesn't find a next Selectable
 
+### Selection
+- `LeafCore.Instance.Selection.Current` is the EventSystem's selected GameObject as an observable. Unity doesn't tell parents when a child is selected, so subscribe here instead of polling `currentSelectedGameObject`
+- Refreshed every LateUpdate (via `LifeCycle.LateUpdate`), after the EventSystem has processed input. Call `Refresh()` after changing the selection to notify right away
+
+### Scroll To Selection
+- `LeafScrollToSelection` on a ScrollRect scrolls the least distance that shows a newly selected object inside its content, plus `m_padding`. Nothing moves if it's already fully visible
+- Forces a canvas update before measuring, so a widget added and selected in the same frame is measured after layout
+- Clamps to the ends of the content afterwards, so Elastic scroll views don't spring back
+
 ### Tab Navigation
-- The UI input modules never send Tab, so the scope that owns the current selection polls Tab/Shift+Tab (`LeafTabInput`)
+- The UI input modules never send Tab, so `LeafCore` reads Tab/Shift+Tab every LateUpdate (`LeafTabInput`) and passes it to the nearest scope above the selection
 - Tab follows hierarchy order, depth first (`FindNextInTabOrder`), and wraps at the ends of the scope. If the order looks wrong, reorder the children to match the screen
 - The selected object gets `ILeafTabHandler.OnTab` first; calling `Use()` on the event data stops the scope's navigation
 - `LeafInputField` hands Tab back to the scope while editing, so tabbing out ends the edit like clicking away. `TabNavigates` off lets a multi-line field type tabs instead

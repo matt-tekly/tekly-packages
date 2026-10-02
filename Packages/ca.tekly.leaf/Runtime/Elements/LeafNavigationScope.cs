@@ -31,20 +31,26 @@ namespace Tekly.Leaf.Elements
 
 		[NonSerialized] private GameObject m_lastValidSelection;
 		[NonSerialized] private GameObject m_lastSelection;
-		[NonSerialized] private GameObject m_lastEventSystemSelection;
 		[NonSerialized] private bool m_needsInitialSelection;
 
+		private IDisposable m_selectionSubscription;
+
 		private static readonly List<Selectable> s_selectables = new();
+		private static readonly Vector3[] s_corners = new Vector3[4];
 		private static LeafNavigationScope s_lastActiveScope;
 
 		private void OnEnable()
 		{
 			m_lastValidSelection = m_firstSelection;
+			m_selectionSubscription = LeafCore.Instance.Selection.Current.Subscribe(OnSelectionChanged);
 			m_needsInitialSelection = !SelectGameObject();
 		}
 
 		private void OnDisable()
 		{
+			m_selectionSubscription?.Dispose();
+			m_selectionSubscription = null;
+
 			if (s_lastActiveScope == this) {
 				s_lastActiveScope = null;
 			}
@@ -134,17 +140,13 @@ namespace Tekly.Leaf.Elements
 			return true;
 		}
 
+		/// <summary>
+		/// Finds the Selectable to move to from current in a direction, wrapping around the scope when nothing
+		/// is that way and wrapping is on for that axis.
+		/// </summary>
 		public virtual Selectable FindNext(Selectable current, MoveDirection direction)
 		{
-			var dir = direction switch {
-				MoveDirection.Left => Vector3.left,
-				MoveDirection.Right => Vector3.right,
-				MoveDirection.Up => Vector3.up,
-				MoveDirection.Down => Vector3.down,
-				_ => Vector3.zero
-			};
-
-			if (dir == Vector3.zero) {
+			if (direction == MoveDirection.None) {
 				return null;
 			}
 
@@ -152,7 +154,7 @@ namespace Tekly.Leaf.Elements
 				? m_wrapHorizontal
 				: m_wrapVertical;
 
-			return FindBest(current, dir, allowWrap);
+			return FindBest(current, direction, allowWrap);
 		}
 
 		/// <summary>
@@ -195,85 +197,34 @@ namespace Tekly.Leaf.Elements
 			CollectChildren(transform, output);
 		}
 
-		protected virtual Selectable FindBest(Selectable current, Vector3 direction, bool allowWrap)
+		/// <summary>
+		/// Spatial search based on Android's FocusFinder, comparing whole rects in the scope's space. A candidate
+		/// has to be past current in the direction, not just have a center a little further along, so a
+		/// neighbour in the same row never counts as "below". Candidates that line up with current (overlap it
+		/// across the direction) beat ones that don't, and the rest are scored by edge gap, weighted well above
+		/// the sideways offset.
+		/// </summary>
+		protected virtual Selectable FindBest(Selectable current, MoveDirection direction, bool allowWrap)
 		{
-			var rectTransform = current.transform as RectTransform;
-			var localDir = Quaternion.Inverse(current.transform.rotation) * direction;
-			var origin = current.transform.TransformPoint(GetPointOnRectEdge(rectTransform, localDir));
-
-			Selectable bestForward = null;
-			var bestForwardPrimary = float.PositiveInfinity;
-			var bestForwardSecondary = float.PositiveInfinity;
-			var hasForwardCandidate = false;
-
-			Selectable bestWrap = null;
-			var bestWrapSecondary = float.PositiveInfinity;
-			var bestWrapPrimary = float.NegativeInfinity;
-
 			CollectSelectables(s_selectables);
 
-			for (var i = 0; i < s_selectables.Count; i++) {
-				var candidate = s_selectables[i];
+			var source = GetNavRect(current.transform, direction);
+			var best = FindBestFrom(current, source, direction);
 
-				if (!ShouldIncludeInNavigation(current, candidate)) {
-					continue;
+			if (best == null && allowWrap) {
+				// Search again as if current sat just before everything else, e.g. Right from the end of a row
+				// finds the start of that row
+				var start = source.Near;
+
+				for (var i = 0; i < s_selectables.Count; i++) {
+					start = Mathf.Min(start, GetNavRect(s_selectables[i].transform, direction).Near);
 				}
 
-				var candidateRect = candidate.transform as RectTransform;
-				var candidateCenter = candidateRect != null
-					? (Vector3) candidateRect.rect.center
-					: Vector3.zero;
-
-				var vector = candidate.transform.TransformPoint(candidateCenter) - origin;
-				if (vector.sqrMagnitude <= 0.0001f) {
-					continue;
-				}
-
-				var primary = Vector3.Dot(direction, vector);
-				var projected = direction * primary;
-				var secondary = (vector - projected).sqrMagnitude;
-
-				if (primary > 0.001f) {
-					hasForwardCandidate = true;
-
-					if (primary < bestForwardPrimary - 0.0001f ||
-						(Mathf.Abs(primary - bestForwardPrimary) <= 0.0001f && secondary < bestForwardSecondary)) {
-						bestForward = candidate;
-						bestForwardPrimary = primary;
-						bestForwardSecondary = secondary;
-					}
-
-					continue;
-				}
-
-				if (!allowWrap) {
-					continue;
-				}
-
-				var wrapPrimary = -primary;
-				if (wrapPrimary <= 0.001f) {
-					continue;
-				}
-
-				if (secondary < bestWrapSecondary - 0.0001f ||
-					(Mathf.Abs(secondary - bestWrapSecondary) <= 0.0001f && wrapPrimary > bestWrapPrimary)) {
-					bestWrap = candidate;
-					bestWrapSecondary = secondary;
-					bestWrapPrimary = wrapPrimary;
-				}
+				best = FindBestFrom(current, source.MovedBefore(start), direction);
 			}
 
 			s_selectables.Clear();
-
-			if (bestForward != null) {
-				return bestForward;
-			}
-
-			if (allowWrap && hasForwardCandidate) {
-				return bestWrap;
-			}
-
-			return null;
+			return best;
 		}
 
 		protected virtual bool ShouldIncludeInNavigation(Selectable current, Selectable candidate)
@@ -283,28 +234,20 @@ namespace Tekly.Leaf.Elements
 
 		private void Update()
 		{
+			if (!m_needsInitialSelection) {
+				return;
+			}
+
 			var eventSystem = EventSystem.current;
 			if (eventSystem == null) {
 				return;
 			}
 
-			if (m_needsInitialSelection) {
-				// Widgets are often added after the scope is enabled, so keep trying until something is selected
-				m_needsInitialSelection = eventSystem.currentSelectedGameObject == null && !SelectGameObject();
-			}
-
-			HandleTab(eventSystem);
-
-			var currentGo = eventSystem.currentSelectedGameObject;
-
-			if (m_lastEventSystemSelection == currentGo) {
-				return;
-			}
-			m_lastEventSystemSelection = currentGo;
-			EventSystemSelectionChanged(m_lastEventSystemSelection);
+			// Widgets are often added after the scope is enabled, so keep trying until something is selected
+			m_needsInitialSelection = eventSystem.currentSelectedGameObject == null && !SelectGameObject();
 		}
 
-		private void EventSystemSelectionChanged(GameObject newSelection)
+		private void OnSelectionChanged(GameObject newSelection)
 		{
 			var isChild = newSelection != null && newSelection.transform.IsChildOf(transform);
 
@@ -322,9 +265,18 @@ namespace Tekly.Leaf.Elements
 			}
 		}
 
-		private void HandleTab(EventSystem eventSystem)
+		/// <summary>
+		/// Reads Tab and passes it to the nearest scope above the selection. Called by <see cref="LeafCore"/>
+		/// every LateUpdate, since the UI input modules never send Tab.
+		/// </summary>
+		internal static void ProcessTab()
 		{
 			if (!LeafTabInput.WasPressedThisFrame(out var isReverse) || LeafCore.Instance.DisableInput.IsHeld.Value) {
+				return;
+			}
+
+			var eventSystem = EventSystem.current;
+			if (eventSystem == null) {
 				return;
 			}
 
@@ -332,18 +284,21 @@ namespace Tekly.Leaf.Elements
 
 			if (selected == null) {
 				// Clicking the background clears the selection, Tab picks up again in the scope used last
-				if (s_lastActiveScope == this) {
-					SelectGameObject();
+				if (s_lastActiveScope != null) {
+					s_lastActiveScope.SelectGameObject();
 				}
 
 				return;
 			}
 
-			// Only the nearest scope handles Tab, so nested and sibling scopes don't all move the selection
-			if (selected.GetComponentInParent<LeafNavigationScope>() != this) {
-				return;
+			var scope = selected.GetComponentInParent<LeafNavigationScope>();
+			if (scope != null && scope.isActiveAndEnabled) {
+				scope.HandleTab(eventSystem, selected, isReverse);
 			}
+		}
 
+		protected virtual void HandleTab(EventSystem eventSystem, GameObject selected, bool isReverse)
+		{
 			var eventData = new LeafTabEventData(eventSystem) {
 				IsReverse = isReverse
 			};
@@ -355,7 +310,6 @@ namespace Tekly.Leaf.Elements
 			}
 
 			selected.TryGetComponent(out Selectable current);
-
 			TrySelectNextInTabOrder(current, isReverse, eventData);
 		}
 
@@ -388,18 +342,163 @@ namespace Tekly.Leaf.Elements
 			       selectable.navigation.mode != Navigation.Mode.None;
 		}
 
-		private static Vector3 GetPointOnRectEdge(RectTransform rect, Vector2 dir)
+		private Selectable FindBestFrom(Selectable current, NavRect source, MoveDirection direction)
 		{
-			if (rect == null) {
-				return Vector3.zero;
+			Selectable best = null;
+			var bestRect = default(NavRect);
+
+			for (var i = 0; i < s_selectables.Count; i++) {
+				var candidate = s_selectables[i];
+
+				if (!ShouldIncludeInNavigation(current, candidate)) {
+					continue;
+				}
+
+				var rect = GetNavRect(candidate.transform, direction);
+
+				if (!source.IsCandidate(rect)) {
+					continue;
+				}
+
+				if (best == null || IsBetter(source, rect, bestRect, direction)) {
+					best = candidate;
+					bestRect = rect;
+				}
 			}
 
-			if (dir != Vector2.zero) {
-				dir /= Mathf.Max(Mathf.Abs(dir.x), Mathf.Abs(dir.y));
+			return best;
+		}
+
+		/// <summary>
+		/// The target's bounds in this scope's space, rotated so the direction always points along +Major.
+		/// </summary>
+		private NavRect GetNavRect(Transform target, MoveDirection direction)
+		{
+			float xMin, xMax, yMin, yMax;
+
+			if (target is RectTransform rectTransform) {
+				rectTransform.GetWorldCorners(s_corners);
+
+				xMin = yMin = float.PositiveInfinity;
+				xMax = yMax = float.NegativeInfinity;
+
+				for (var i = 0; i < s_corners.Length; i++) {
+					var point = transform.InverseTransformPoint(s_corners[i]);
+					xMin = Mathf.Min(xMin, point.x);
+					xMax = Mathf.Max(xMax, point.x);
+					yMin = Mathf.Min(yMin, point.y);
+					yMax = Mathf.Max(yMax, point.y);
+				}
+			} else {
+				var point = transform.InverseTransformPoint(target.position);
+				xMin = xMax = point.x;
+				yMin = yMax = point.y;
 			}
 
-			dir = rect.rect.center + Vector2.Scale(rect.rect.size, dir * 0.5f);
-			return dir;
+			return direction switch {
+				MoveDirection.Right => new NavRect(xMin, xMax, yMin, yMax),
+				MoveDirection.Left => new NavRect(-xMax, -xMin, yMin, yMax),
+				MoveDirection.Up => new NavRect(yMin, yMax, xMin, xMax),
+				_ => new NavRect(-yMax, -yMin, xMin, xMax)
+			};
+		}
+
+		private static bool IsBetter(NavRect source, NavRect rect, NavRect best, MoveDirection direction)
+		{
+			if (BeamBeats(source, rect, best, direction)) {
+				return true;
+			}
+
+			if (BeamBeats(source, best, rect, direction)) {
+				return false;
+			}
+
+			return source.WeightedDistance(rect) < source.WeightedDistance(best);
+		}
+
+		/// <summary>
+		/// Whether a, which lines up with source, beats b, which doesn't.
+		/// </summary>
+		private static bool BeamBeats(NavRect source, NavRect a, NavRect b, MoveDirection direction)
+		{
+			if (!source.BeamOverlaps(a) || source.BeamOverlaps(b)) {
+				return false;
+			}
+
+			// b overlaps source along the direction, so it's barely that way at all
+			if (!source.IsFullyBefore(b)) {
+				return true;
+			}
+
+			// Sideways, staying in the row always wins. Up and down, an out of line element that's much
+			// closer can still win, e.g. a short row of buttons directly under a wide panel
+			if (direction is MoveDirection.Left or MoveDirection.Right) {
+				return true;
+			}
+
+			return source.Gap(a) < source.GapToFarEdge(b);
+		}
+
+		/// <summary>
+		/// A rect seen from the direction of travel: Near/Far run along it, Min/Max across it.
+		/// </summary>
+		private readonly struct NavRect
+		{
+			private const float GAP_WEIGHT = 13f;
+
+			public readonly float Near;
+			public readonly float Far;
+			public readonly float Min;
+			public readonly float Max;
+
+			public NavRect(float near, float far, float min, float max)
+			{
+				Near = near;
+				Far = far;
+				Min = min;
+				Max = max;
+			}
+
+			public NavRect MovedBefore(float position)
+			{
+				var shift = position - 1f - Far;
+				return new NavRect(Near + shift, Far + shift, Min, Max);
+			}
+
+			/// <summary>
+			/// Further along than this rect: starts after it (or ends past it while starting past its start).
+			/// </summary>
+			public bool IsCandidate(NavRect other)
+			{
+				return (Near < other.Near || Far <= other.Near) && Far < other.Far;
+			}
+
+			public bool BeamOverlaps(NavRect other)
+			{
+				return Min < other.Max && other.Min < Max;
+			}
+
+			public bool IsFullyBefore(NavRect other)
+			{
+				return Far <= other.Near;
+			}
+
+			public float Gap(NavRect other)
+			{
+				return Mathf.Max(0f, other.Near - Far);
+			}
+
+			public float GapToFarEdge(NavRect other)
+			{
+				return Mathf.Max(1f, other.Far - Far);
+			}
+
+			public float WeightedDistance(NavRect other)
+			{
+				var gap = Gap(other);
+				var offset = (Min + Max) * 0.5f - (other.Min + other.Max) * 0.5f;
+				return GAP_WEIGHT * gap * gap + offset * offset;
+			}
 		}
 	}
 }

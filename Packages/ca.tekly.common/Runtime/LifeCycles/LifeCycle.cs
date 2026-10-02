@@ -15,6 +15,11 @@ namespace Tekly.Common.LifeCycles
 			remove => m_updatesDelegates.Remove(value);
 		}
 
+		public event UpdateDelegate LateUpdate {
+			add => m_lateUpdateDelegates.AddLast(value);
+			remove => m_lateUpdateDelegates.Remove(value);
+		}
+
 		public event QuitDelegate Quit {
 			add => m_quitDelegates.AddLast(value);
 			remove => m_quitDelegates.Remove(value);
@@ -41,6 +46,7 @@ namespace Tekly.Common.LifeCycles
 		private readonly LinkedList<PauseDelegate> m_pauseDelegates = new LinkedList<PauseDelegate>();
 
 		private readonly LinkedList<UpdateDelegate> m_updatesDelegates = new LinkedList<UpdateDelegate>();
+		private readonly LinkedList<UpdateDelegate> m_lateUpdateDelegates = new LinkedList<UpdateDelegate>();
 
 		[RuntimeInitializeOnLoadMethod]
 		private static void Initialize()
@@ -55,6 +61,21 @@ namespace Tekly.Common.LifeCycles
 		public void Updated()
 		{
 			var node = m_updatesDelegates.First;
+
+			while (node != null) {
+				try {
+					var value = node.Value;
+					node = node.Next;
+					value.Invoke();
+				} catch (Exception e) {
+					Debug.LogException(e);
+				}
+			}
+		}
+
+		public void LateUpdated()
+		{
+			var node = m_lateUpdateDelegates.First;
 
 			while (node != null) {
 				try {
@@ -90,6 +111,7 @@ namespace Tekly.Common.LifeCycles
 			m_pauseDelegates.Clear();
 
 			m_updatesDelegates.Clear();
+			m_lateUpdateDelegates.Clear();
 		}
 
 		public void OnApplicationPause(bool paused)
@@ -129,4 +151,4 @@ namespace Tekly.Common.LifeCycles
 			return s_listener.StartCoroutine(enumerator);
 		}
 	}
-}
+}

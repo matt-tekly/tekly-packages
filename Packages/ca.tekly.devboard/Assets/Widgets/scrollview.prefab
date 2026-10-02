@@ -109,6 +109,7 @@ GameObject:
   - component: {fileID: 501785114920986494}
   - component: {fileID: 2209533948762178540}
   - component: {fileID: 4931483809385231298}
+  - component: {fileID: 2328176498840479678}
   m_Layer: 5
   m_Name: scrollview
   m_TagString: Untagged
@@ -239,6 +240,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Tekly.DevBoard::Tekly.DevBoard.Components.ScrollViewWidget
   m_content: {fileID: 1853186824319880763}
   m_layout: {fileID: 3086875175669366769}
+--- !u!114 &2328176498840479678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2187868769674775231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b18afd3fd187428591de763a59f6362b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Tekly.Leaf::Tekly.Leaf.Scrolling.LeafScrollToSelection
+  m_padding: 8
 --- !u!1 &2541974832914373445
 GameObject:
   m_ObjectHideFlags: 0
@@ -544,7 +558,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Scrollbar
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -807,7 +821,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Scrollbar
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
