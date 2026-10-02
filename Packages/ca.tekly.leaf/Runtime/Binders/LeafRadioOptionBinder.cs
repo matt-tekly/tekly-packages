@@ -2,28 +2,37 @@
 using Tekly.Leaf.Elements.Radios;
 using Tekly.Logging;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Tekly.Leaf.Binders
 {
+	/// <summary>
+	/// Binds a bool model to a radio option of either kind (<see cref="LeafRadioOption"/> or <see cref="LeafRadioOptionUnselectable"/>).
+	/// </summary>
 	public class LeafRadioOptionBinder : BasicValueBinder<bool>
 	{
-		[SerializeField] private LeafRadioOption m_radioOption;
+		[Tooltip("A LeafRadioOption or LeafRadioOptionUnselectable")]
+		[FormerlySerializedAs("m_radioOption")]
+		[SerializeField] private MonoBehaviour m_option;
 		[SerializeField] private bool m_ignoreModelUpdates;
 
+		private ILeafRadioOption m_radioOption;
 		private bool m_hasBoundValue;
-		
+
 		private void Awake()
 		{
+			m_radioOption = m_option as ILeafRadioOption;
+
 			if (m_radioOption != null) {
 				m_radioOption.OnValueChanged.AddListener(OnValueChanged);
 			} else {
-				TkLogger.Get<LeafRadioOptionBinder>().ErrorContext("Has a null LeafRadioOption", this);
+				TkLogger.Get<LeafRadioOptionBinder>().ErrorContext("Needs a LeafRadioOption or LeafRadioOptionUnselectable", this);
 			}
 		}
 
 		protected override void BindValue(bool value)
 		{
-			if (m_ignoreModelUpdates && m_hasBoundValue) {
+			if (m_radioOption == null || (m_ignoreModelUpdates && m_hasBoundValue)) {
 				return;
 			}
 
@@ -43,11 +52,10 @@ namespace Tekly.Leaf.Binders
 #if UNITY_EDITOR
 		private void OnValidate()
 		{
-			if (m_radioOption == null) {
-				m_radioOption = GetComponent<LeafRadioOption>();
+			if (m_option == null || m_option is not ILeafRadioOption) {
+				m_option = GetComponent<ILeafRadioOption>() as MonoBehaviour;
 			}
 		}
 #endif
-		
 	}
-}
+}

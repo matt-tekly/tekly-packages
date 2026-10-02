@@ -1,14 +1,15 @@
 ﻿using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace Tekly.Leaf.Elements.Radios
 {
 	/// <summary>
-	/// A radio option that takes keyboard focus like any Selectable, for choices in a form. Click or Submit asks its
-	/// <see cref="LeafRadioGroup"/> to turn it on; the group's settings decide how arrow keys and Tab behave.
-	/// Without a group it toggles on and off by itself.
+	/// A radio option that never takes keyboard focus, e.g. tabs that switch pages while focus stays in the content.
+	/// Clicking asks its <see cref="LeafRadioGroup"/> to turn it on; reach these from the keyboard through
+	/// <see cref="LeafRadioGroup.SelectNext"/>. Without a group it toggles on and off by itself.
+	/// Needs the Input System UI module, and no Selectable above it in the hierarchy (see
+	/// <see cref="LeafButtonUnselectable"/>).
 	/// </summary>
-	public class LeafRadioOption : LeafSelectable, IPointerClickHandler, ISubmitHandler, ILeafRadioOption
+	public class LeafRadioOptionUnselectable : LeafButtonUnselectable, ILeafRadioOption
 	{
 		public LeafRadioGroup Group => m_membership.Group;
 		public LeafRadioValueEvent OnValueChanged => m_onValueChanged;
@@ -31,47 +32,27 @@ namespace Tekly.Leaf.Elements.Radios
 
 		public void RefreshState(bool notify)
 		{
-			DoStateTransition(currentSelectionState, false);
+			UpdateAnimatorState();
 
 			if (m_membership.ConsumeChange() && notify) {
 				m_onValueChanged.Invoke(IsOn);
 			}
 		}
 
-		public virtual void OnPointerClick(PointerEventData eventData)
-		{
-			if (eventData.button != PointerEventData.InputButton.Left || !IsActive() || !IsInteractable()) {
-				return;
-			}
-
-			m_membership.Press();
-		}
-
-		public virtual void OnSubmit(BaseEventData eventData)
+		protected override void OnClick()
 		{
 			if (!IsActive() || !IsInteractable()) {
 				return;
 			}
 
 			m_membership.Press();
-		}
-
-		public override void OnMove(AxisEventData eventData)
-		{
-			var group = m_membership.Group;
-			if (group != null && group.TryMove(this, eventData.moveDir)) {
-				return;
-			}
-
-			base.OnMove(eventData);
+			base.OnClick();
 		}
 
 		protected override void OnEnable()
 		{
-			base.OnEnable();
-
 			m_membership.Enable(this, this);
-			DoStateTransition(currentSelectionState, true);
+			base.OnEnable();
 		}
 
 		protected override void OnDisable()

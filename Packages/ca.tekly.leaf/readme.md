@@ -29,6 +29,20 @@
 - `LeafInputField.EnterMovesNext` makes Enter end the edit and select the next element in tab order (e.g. username to password). Leave it off on a form's last field and wire `onSubmit` to the form's action. The move happens a frame later so the same Enter can't also press the next element
 - `LeafNavigationScope.TrySelectNextFrom` selects the next element in tab order from code
 
+### Radio Groups
+- `LeafRadioGroup` keeps one of the options below it on. It's never selectable itself, and it owns which option is on: options only show it, so nothing can get out of sync
+- Two kinds of option, mixed as needed:
+	- `LeafRadioOption` takes keyboard focus like any Selectable, for choices in a form
+	- `LeafRadioOptionUnselectable` never takes focus (built on `LeafButtonUnselectable`), for tabs that switch pages while focus stays in the content. Reach them from the keyboard with `SelectNext`, e.g. from shoulder buttons. Needs the Input System UI module and no Selectable above it
+- Keyboard, for `LeafRadioOption`s: arrows along the group's layout axis move between its options (wrapping if `m_wrap`), other arrows and Tab leave it, and arrowing or tabbing into the group lands on the current option
+- `SelectionFollowsFocus`: arrow moves inside the group also turn the option on. Implies `SingleTabStop`, where Tab only lands on the current option, so tabbing past can't change the choice
+- `Select`/`SelectIndex` fire `OnChanged` (index, -1 for none) and the options' `OnValueChanged`; `SetWithoutNotify`/`SetIndexWithoutNotify` don't, for pushing in model values
+- `AllowNone` lets clicking the current option turn it off. Without it, the first option to be enabled becomes current (without events), and disabling the current option moves to the next available one, unless the whole group is being hidden
+- `Interactable` on the group disables all of its options
+- The group's own `LeafAnimator` gets the Selected flag while one of its options has focus (like CSS `:focus-within`), and Disabled when it isn't interactable, e.g. to show an outline around the whole group
+- An option without a group toggles on and off by itself
+- `LeafRadioOptionBinder` binds a bool model to either kind of option
+
 ### Element State
 - `LeafElementMode` is only the interaction: `Normal`, `Highlighted`, `Pressed`
 - `LeafElementState` combines the mode with `LeafElementFlags` (`Selected`, `Disabled`, `On`), so a selected element can still be highlighted or pressed (Unity's `SelectionState` can't express that)

@@ -84,7 +84,7 @@ namespace Tekly.Leaf.Elements
 			UpdateAnimatorState(LeafElementState.Default.WithFlags(LeafElementFlags.On, IsOnState), true);
 		}
 
-		public bool IsInteractable()
+		public virtual bool IsInteractable()
 		{
 			return m_groupsAllowInteraction && m_interactable;
 		}

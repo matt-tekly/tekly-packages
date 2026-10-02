@@ -397,7 +397,6 @@ GameObject:
   - component: {fileID: 6078992645917580975}
   - component: {fileID: 8611678011768456950}
   - component: {fileID: 8414030798990192708}
-  - component: {fileID: 7814444234465128494}
   - component: {fileID: 7707137717386853890}
   - component: {fileID: 3968466219137490111}
   m_Layer: 5
@@ -471,18 +470,6 @@ MonoBehaviour:
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &7814444234465128494
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8524911265355281132}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea70a79b505dd3f4bb374c08bd957af6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Tekly.Leaf::Tekly.Leaf.LeafSelectable
 --- !u!114 &7707137717386853890
 MonoBehaviour:
   m_ObjectHideFlags: 0

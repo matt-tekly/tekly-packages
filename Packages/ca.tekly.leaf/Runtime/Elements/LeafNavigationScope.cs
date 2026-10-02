@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Tekly.Leaf.Elements.Radios;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -164,6 +165,7 @@ namespace Tekly.Leaf.Elements
 		public virtual Selectable FindNextInTabOrder(Selectable current, bool isReverse)
 		{
 			CollectSelectables(s_selectables);
+			RemoveSkippedTabStops(current, s_selectables);
 
 			var count = s_selectables.Count;
 			var step = isReverse ? -1 : 1;
@@ -224,7 +226,7 @@ namespace Tekly.Leaf.Elements
 			}
 
 			s_selectables.Clear();
-			return best;
+			return RedirectIntoRadioGroup(current, best);
 		}
 
 		protected virtual bool ShouldIncludeInNavigation(Selectable current, Selectable candidate)
@@ -313,6 +315,53 @@ namespace Tekly.Leaf.Elements
 			TrySelectNextInTabOrder(current, isReverse, eventData);
 		}
 
+		/// <summary>
+		/// Moving into a radio group from outside lands on its current option, not just the nearest one.
+		/// </summary>
+		private static Selectable RedirectIntoRadioGroup(Selectable current, Selectable target)
+		{
+			if (target == null || !target.TryGetComponent(out ILeafRadioOption option) || option.Group == null) {
+				return target;
+			}
+
+			if (current != null && current.TryGetComponent(out ILeafRadioOption currentOption) && currentOption.Group == option.Group) {
+				return target;
+			}
+
+			var entry = option.Group.GetEntrySelectable();
+			return entry != null ? entry : target;
+		}
+
+		/// <summary>
+		/// A radio group that's a single tab stop keeps only its entry option in the tab order, and none of its
+		/// options while focus is already inside it, so Tab leaves the group. current always stays, so stepping
+		/// from it still works.
+		/// </summary>
+		private static void RemoveSkippedTabStops(Selectable current, List<Selectable> selectables)
+		{
+			LeafRadioGroup currentGroup = null;
+			if (current != null && current.TryGetComponent(out ILeafRadioOption currentOption)) {
+				currentGroup = currentOption.Group;
+			}
+
+			for (var i = selectables.Count - 1; i >= 0; i--) {
+				var selectable = selectables[i];
+
+				if (selectable == current || !selectable.TryGetComponent(out ILeafRadioOption option)) {
+					continue;
+				}
+
+				var group = option.Group;
+				if (group == null || !group.SingleTabStop) {
+					continue;
+				}
+
+				if (group == currentGroup || selectable != group.GetEntrySelectable()) {
+					selectables.RemoveAt(i);
+				}
+			}
+		}
+
 		private static void CollectChildren(Transform parent, List<Selectable> output)
 		{
 			for (var i = 0; i < parent.childCount; i++) {
@@ -335,7 +384,7 @@ namespace Tekly.Leaf.Elements
 			}
 		}
 
-		private static bool IsNavigable(Selectable selectable)
+		internal static bool IsNavigable(Selectable selectable)
 		{
 			return selectable.IsActive() &&
 			       selectable.IsInteractable() &&
