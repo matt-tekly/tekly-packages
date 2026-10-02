@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 5701430540405708884}
   - component: {fileID: 8444279872512922209}
   - component: {fileID: 6545712543590975830}
-  - component: {fileID: 5157891205502803504}
   - component: {fileID: 942433489991522120}
   - component: {fileID: 777116152817396934}
+  - component: {fileID: 957610494083062381}
   m_Layer: 5
   m_Name: options_radiooption_pfb
   m_TagString: Untagged
@@ -65,26 +65,6 @@ MonoBehaviour:
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &5157891205502803504
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 167165164049946300}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
-  m_IgnoreLayout: 0
-  m_MinWidth: -1
-  m_MinHeight: 48
-  m_PreferredWidth: 160
-  m_PreferredHeight: 48
-  m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
-  m_LayoutPriority: 1
 --- !u!114 &942433489991522120
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -98,7 +78,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Tekly.Leaf::Tekly.Leaf.Animators.LeafAnimatorColors
   m_targets:
-  - m_target: {fileID: 7910438153746390534}
+  - m_target: {fileID: 5324898936153195977}
     m_colors:
       Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
       Highlighted: {r: 0.40000004, g: 0.36078432, b: 0.32941177, a: 1}
@@ -169,6 +149,50 @@ MonoBehaviour:
   m_onValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &957610494083062381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 167165164049946300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58eb01027bd76444986d9f05e1ced67f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Tekly.Trellis.Runtime::Tekly.Trellis.LayoutItem
+  m_ignoreLayout: 0
+  m_minWidth:
+    IsSet: 0
+    Value: 0
+  m_minHeight:
+    IsSet: 0
+    Value: 0
+  m_preferredWidth:
+    IsSet: 1
+    Value: 160
+  m_preferredHeight:
+    IsSet: 1
+    Value: 40
+  m_flexibleWidth:
+    IsSet: 0
+    Value: 0
+  m_flexibleHeight:
+    IsSet: 0
+    Value: 0
+  m_maxWidth:
+    IsSet: 0
+    Value: 0
+  m_maxHeight:
+    IsSet: 0
+    Value: 0
+  m_margin:
+    Left: 0
+    Right: 0
+    Top: 0
+    Bottom: 0
+  m_layoutPriority: 1
+  m_widthGroup: 
 --- !u!1 &1417932230543685513
 GameObject:
   m_ObjectHideFlags: 0
@@ -179,7 +203,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2082766549314760511}
   - component: {fileID: 4513747639913610162}
-  - component: {fileID: 7910438153746390534}
+  - component: {fileID: 5324898936153195977}
   m_Layer: 5
   m_Name: Face
   m_TagString: Untagged
@@ -214,7 +238,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1417932230543685513}
   m_CullTransparentMesh: 1
---- !u!114 &7910438153746390534
+--- !u!114 &5324898936153195977
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -223,39 +247,74 @@ MonoBehaviour:
   m_GameObject: {fileID: 1417932230543685513}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66ae025fc0ac593438d7d224f0804925, type: 3}
+  m_Script: {fileID: 11500000, guid: 0726bdc3d2691034cba5eb683bf2f33e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Tekly.Common.Runtime::Tekly.Common.Ui.ProceduralRect.ProceduralRectImage
+  m_EditorClassIdentifier: Tekly.Common.Runtime::Tekly.Common.Ui.Fancy.FancyRect
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
-  m_borderWidth: 0
-  m_falloffDistance: 1
-  m_falloffPower: 1
-  m_modifierType: 1
-  m_radius: 16
-  m_freeRadius: {x: 0, y: 0, z: 0, w: 0}
-  m_edge: 3
-  m_tiled: 0
-  m_tileFactor: {x: 1, y: 1}
-  m_edgeBulge: {x: 0, y: 0}
-  m_subdivisionsPerEdge: 16
-  m_raycastUsesShape: 0
+  m_radiusMode: 0
+  m_radius: 20
+  m_cornerRadii: {x: 16, y: 16, z: 16, w: 16}
+  m_cornerType: 2
+  m_cornerTypes:
+    TopLeft: 0
+    TopRight: 0
+    BottomRight: 0
+    BottomLeft: 0
+  m_bulge: {x: 0, y: 0, z: 0, w: 0}
+  m_containBulge: 0
+  m_sprite: {fileID: 0}
+  m_textureMode: 0
+  m_textureScale: {x: 1, y: 1}
+  m_textureOffset: {x: 0, y: 0}
+  m_textureRotation: 0
+  m_textureScroll: {x: 0, y: 0}
+  m_fillEnabled: 1
+  m_fill:
+    Color: {r: 1, g: 1, b: 1, a: 1}
+    Gradient: 0
+    Color2: {r: 1, g: 1, b: 1, a: 1}
+    Angle: 90
+    RangeStart: 0
+    RangeEndInset: 0
+    Bias: 0
+  m_backgroundEnabled: 0
+  m_background:
+    Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+    Gradient: 0
+    Color2: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+    Angle: 90
+    RangeStart: 0
+    RangeEndInset: 0
+    Bias: 0
+  m_outlines: []
+  m_shadows: []
+  m_blendMode: 0
+  m_bevel:
+    Enabled: 0
+    Width: 0
+    Softness: 0
+    LightAngle: 0
+    Highlight: {r: 0, g: 0, b: 0, a: 0}
+    Shadow: {r: 0, g: 0, b: 0, a: 0}
+  m_gloss:
+    Enabled: 0
+    Color: {r: 0, g: 0, b: 0, a: 0}
+    Inset: 0
+    Height: 0
+    Fade: 0
+    Softness: 0
+  m_revealMethod: 0
+  m_revealOrigin: 3
+  m_revealAmount: 1
+  m_revealClockwise: 1
+  m_raycastUsesShape: 1
 --- !u!1 &7107495167217554114
 GameObject:
   m_ObjectHideFlags: 0
@@ -291,7 +350,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -20, y: -20}
+  m_SizeDelta: {x: -16, y: -16}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5670905465803999663
 CanvasRenderer:
@@ -348,12 +407,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 32
+  m_fontSize: 19.2
   m_fontSizeBase: 32
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 32
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512

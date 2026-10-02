@@ -2,14 +2,20 @@
 
 ### Navigation Scope
 - Keeps the navigation within a part of the hierarchy
-- Every active, interactable Selectable below the scope takes part, with no extra component. Selectables inside a nested scope belong to that scope, and a Navigation mode of None leaves one out (e.g. a ScrollRect's scrollbars)
-- Leaf elements call `LeafNavigationScope.TryNavigateFrom` in `OnMove`, which uses the nearest scope above them
+- Every active, interactable Selectable below the scope takes part, with no extra component. A Navigation mode of None leaves one out (e.g. a ScrollRect's scrollbars)
+- `ContainNavigation` (on by default) makes the scope a boundary: arrows and Tab stay inside it, and scopes above don't see its Selectables
+- With it off, the scope only decides where focus lands. Navigation is handled by the nearest containing scope above, which moves in and out of it freely, e.g. tab panels or side by side columns inside a board. If no containing scope is above, it navigates itself
+- `Entry` decides where focus lands when the scope is enabled, or when navigation enters it from outside:
+	- `First`: `m_firstSelection`, or the first Selectable in tab order
+	- `Remembered`: the Selectable last focused in the scope if it's still there, otherwise like First
+	- `Nearest`: arrows land wherever the spatial search picks, e.g. the same row of a column beside this one. When enabled, like First
+- Tab only follows Entry into a scope with a remembered selection; otherwise it enters at the first Selectable in order (the last with Shift+Tab)
+- Leaf elements call `LeafNavigationScope.TryNavigateFrom` in `OnMove`, which uses `FindNavigationScope`: the nearest containing scope above them
 - Arrow keys move spatially (`FindNext`), based on Android's FocusFinder. Whole rects are compared in the scope's space: a candidate has to be past the current element in that direction, ones that line up with it beat ones that don't (sideways, staying in the row always wins), and the rest are scored by edge gap weighted well above sideways offset
 - With wrapping on, a direction with nothing left wraps to the far side, e.g. Right at the end of a row goes to the start of that row
 - The Selectables are collected from the hierarchy on each key press rather than registered
-- When enabled, the scope selects `m_firstSelection`, or the first Selectable in tab order. If there's nothing to select yet, it keeps trying until something is selected, since widgets are often added after the scope
-- TODO:
-	- Navigation Scopes could navigate to other scopes when navigating in a direction that doesn't find a next Selectable
+- A containing scope selects its entry whenever it's enabled. A non-containing one only does when nothing visible is focused in the scope that navigates it, so switching tab panels moves focus into the new panel, but a column shown along with its board doesn't take focus from it
+- If there's nothing to select yet, it keeps trying until something is selected, since widgets are often added after the scope. A selection on a hidden object (e.g. in the tab panel just switched away from) counts as none
 
 ### Selection
 - `LeafCore.Instance.Selection.Current` is the EventSystem's selected GameObject as an observable. Unity doesn't tell parents when a child is selected, so subscribe here instead of polling `currentSelectedGameObject`
@@ -21,11 +27,11 @@
 - Clamps to the ends of the content afterwards, so Elastic scroll views don't spring back
 
 ### Tab Navigation
-- The UI input modules never send Tab, so `LeafCore` reads Tab/Shift+Tab every LateUpdate (`LeafTabInput`) and passes it to the nearest scope above the selection
+- The UI input modules never send Tab, so `LeafCore` reads Tab/Shift+Tab every LateUpdate (`LeafTabInput`) and passes it to the scope that navigates the selection
 - Tab follows hierarchy order, depth first (`FindNextInTabOrder`), and wraps at the ends of the scope. If the order looks wrong, reorder the children to match the screen
 - The selected object gets `ILeafTabHandler.OnTab` first; calling `Use()` on the event data stops the scope's navigation
 - `LeafInputField` hands Tab back to the scope while editing, so tabbing out ends the edit like clicking away. `TabNavigates` off lets a multi-line field type tabs instead
-- If the selection was cleared (e.g. by clicking the background), Tab reselects in the scope that was used last
+- If the selection was cleared (e.g. by clicking the background) or is on a hidden object, Tab reselects where it was in the scope that was used last
 - `LeafInputField.EnterMovesNext` makes Enter end the edit and select the next element in tab order (e.g. username to password). Leave it off on a form's last field and wire `onSubmit` to the form's action. The move happens a frame later so the same Enter can't also press the next element
 - `LeafNavigationScope.TrySelectNextFrom` selects the next element in tab order from code
 
