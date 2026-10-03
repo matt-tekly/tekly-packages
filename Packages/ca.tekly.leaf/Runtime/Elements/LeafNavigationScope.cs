@@ -49,7 +49,11 @@ namespace Tekly.Leaf.Elements
 		/// When false, the nearest containing scope above handles navigation and this scope only decides where
 		/// focus lands.
 		/// </summary>
-		public bool ContainNavigation => m_containNavigation;
+		public bool ContainNavigation {
+			get => m_containNavigation;
+			set => m_containNavigation = value;
+		}
+		
 		public LeafScopeEntry Entry => m_entry;
 
 		[SerializeField] private LeafElementSelectedEvent m_onSelected = new();

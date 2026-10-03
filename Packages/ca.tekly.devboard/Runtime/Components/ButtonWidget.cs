@@ -6,8 +6,12 @@ namespace Tekly.DevBoard.Components
 	public class ButtonWidget : Widget
 	{
 		public string Label {
-			get => m_label.Text;
-			set => m_label.Text = value;
+			get => m_label != null ? m_label.Text : null;
+			set {
+				if (m_label != null) {
+					m_label.Text = value;
+				}
+			}
 		}
 		
 		[SerializeField] private LabelWidget m_label;
@@ -23,6 +27,15 @@ namespace Tekly.DevBoard.Components
 			}
 		}
 		
+		/// <summary>
+		/// Sets what the button does, keeping its label. For buttons that are part of a prefab.
+		/// </summary>
+		public ButtonWidget WithAction(Action onActivate)
+		{
+			m_onActivate = onActivate;
+			return this;
+		}
+
 		public void Activate()
 		{
 			m_onActivate?.Invoke();

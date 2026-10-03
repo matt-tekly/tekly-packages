@@ -1,65 +1,78 @@
 ﻿using Tekly.DevBoard;
 using Tekly.DevBoard.Components.Inputs;
+using Tekly.DevBoard.Pages;
 using UnityEngine;
 
 namespace TeklySample.Samples.DevBoardSample
 {
 	public class DevBoardSample : MonoBehaviour
 	{
-		private void Start()
+		// State lives here, not in the builders: builders can run several times (once per panel showing the page)
+		private string m_testValue = "Starting Value";
+		private bool m_toggleValue;
+		private int m_intValue;
+		private float m_floatValue;
+		private int m_coins;
+
+		private void DoPage(PageContext page)
 		{
-			var board = DevBoard.Instance.Board("Test Board")
-				.WithMaxHeight(250)
-				.ScrollView()
-				;
-			
-			string testValue = "Starting Value";
-			bool toggleValue = false;
-			int intValue = 0;
-			float floatValue = 0;
-			
-			var card = board.Card().Form();
+			var card = page.Root.Form();
 			var timeProperty = card.Property("Bingus", () => Time.realtimeSinceStartup, "{0:N2}");
 			card.Toggle("Monospaced", () => timeProperty.Value.Monospaced, value => timeProperty.Value.Monospaced = value);
 			card.PropertyMonospaced("Bingus Mono", () => Time.realtimeSinceStartup, "{0:N2}");
-			
+
 			card.Divider();
-			card.Property("Test Value", () => testValue);
-			card.Property("Test Value", () => testValue);
-			card.TextInput("Debounced", "Placeholder", () => testValue, value => testValue = value, InputMode.Debounced);
-			card.TextInput("Delayed", "Placeholder", () => testValue, value => testValue = value, InputMode.Delayed);
-			card.TextInput("Immediate", "Placeholder", () => testValue, value => testValue = value, InputMode.Immediate);
-			card.Toggle("Togglo", () => toggleValue, value => toggleValue = value);
-			card.IntInput("Int", () => intValue, value => intValue = value);
-			card.FloatInput("Float", () => floatValue, value => floatValue = value);
+			card.Property("Test Value", () => m_testValue);
+			card.TextInput("Debounced", "Placeholder", () => m_testValue, value => m_testValue = value, InputMode.Debounced);
+			card.TextInput("Delayed", "Placeholder", () => m_testValue, value => m_testValue = value, InputMode.Delayed);
+			card.TextInput("Immediate", "Placeholder", () => m_testValue, value => m_testValue = value, InputMode.Immediate);
+			card.Toggle("Togglo", () => m_toggleValue, value => m_toggleValue = value);
+			card.IntInput("Int", () => m_intValue, value => m_intValue = value);
+			card.FloatInput("Float", () => m_floatValue, value => m_floatValue = value);
 
 			var row = card.Row();
 			row.Button("a", () => Debug.Log("a"));
 			row.Button("b", () => Debug.Log("b"));
 			row.Button("c", () => Debug.Log("c"));
-			
-			var row2 = card.Row();
-			row2.Button("a", () => Debug.Log("a"));
-			row2.Button("b", () => Debug.Log("b"));
-			row2.Button("c", () => Debug.Log("c"));
 
-			card.FloatInput("Float", () => floatValue, value => floatValue = value);
-
-			// var row = board.Row().WithSpacing(0);
-			// row.Button("Poop", () => Debug.Log("Poop"));
-			// row.Button("Poop 2", () => Debug.Log("Poop"));
-			//
-			//
-			// var foldout = card.Foldout("Test Foldout");
-			// foldout.InfoContainer.Property("Time", () => Time.realtimeSinceStartup, "{0:N2}");
-			// foldout.Property("Real Time", () => Time.realtimeSinceStartup, "{0:N2}");
-			// foldout.Divider();
-			// foldout.Button("Poop", () => Debug.Log("Poop"));
-			// foldout.Button("Poop 2", () => Debug.Log("Poop"));
+			var foldout = card.Foldout("Test Foldout");
+			foldout.Property("Real Time", () => Time.realtimeSinceStartup, "{0:N2}");
+			foldout.Button("Log", () => Debug.Log("Foldout button"));
 		}
 		
-		
-		#warning Scrolling Area, Dropdown Search Thingy - maybe this is full screen?
+		private void Start()
+		{
+			var devBoard = DevBoard.Instance;
+
+			devBoard.Page("Sample/Widgets/Smoop", page => {
+				var card = page.Root.Form();
+				card.Property("Bingus", () => Time.realtimeSinceStartup, "{0:N2}");
+			});
+			
+			// Each segment is removed when this GameObject is destroyed
+			devBoard.Page("Sample/Widgets", DoPage).BindTo(gameObject);
+			devBoard.Page("Sample/Widgets", DoPage).BindTo(gameObject);
+
+			// Two segments on the same page, as if registered by two different systems
+			devBoard.Page("Sample/Cheats", page => {
+				page.Root.Property("Coins", () => m_coins);
+				page.Root.Button("Add 100 coins", () => m_coins += 100);
+			}, "Economy").BindTo(gameObject);
+
+			devBoard.Page("Sample/Cheats", page => {
+				page.Root.Button("Reset test value", () => m_testValue = "Starting Value");
+				page.Root.Property("Reset test value", () => m_testValue);
+			}, "Misc", order: 10).BindTo(gameObject);
+
+			// A small page meant for an overlay: open it, then press Pop
+			devBoard.Page("Sample/Stats", page => {
+				page.Root.PropertyMonospaced("Time", () => Time.realtimeSinceStartup, 0.05f, "{0:N1}");
+				page.Root.PropertyMonospaced("Frame", () => Time.frameCount);
+			}).BindTo(gameObject);
+		}
+
+
+		#warning Dropdown Search Thingy - maybe this is full screen?
 		// Text Field - maybe a text area?
 		// Number Field
 		// Scroll View

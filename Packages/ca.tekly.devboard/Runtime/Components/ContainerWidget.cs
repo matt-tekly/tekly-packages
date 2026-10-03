@@ -1,5 +1,5 @@
 ﻿using System;
-using Tekly.Common.Utils;
+using System.Collections.Generic;
 using Tekly.DevBoard.Components.Inputs;
 using Tekly.Trellis;
 using UnityEngine;
@@ -14,8 +14,46 @@ namespace Tekly.DevBoard.Components
 		/// </summary>
 		public virtual string StateScope { get; set; }
 
+		/// <summary>
+		/// Where child widgets go.
+		/// </summary>
+		public RectTransform Content => m_content;
+
 		[SerializeField] protected RectTransform m_content;
 		[SerializeField] private FlowLayout m_layout;
+
+		/// <summary>
+		/// A container with no prefab: a bare vertical layout with no background, for grouping widgets.
+		/// </summary>
+		internal static ContainerWidget CreatePlain(Transform parent, string name, int spacing = 4)
+		{
+			var gameObject = new GameObject(name, typeof(RectTransform));
+			var rectTransform = (RectTransform) gameObject.transform;
+			rectTransform.SetParent(parent, false);
+
+			var layout = gameObject.AddComponent<FlowLayout>();
+			layout.Axis = Common.Utils.LayoutAxis.Vertical;
+			layout.Spacing = spacing;
+			layout.CrossAlignment = CrossAlignment.Stretch;
+
+			var container = gameObject.AddComponent<ContainerWidget>();
+			container.m_content = rectTransform;
+			container.m_layout = layout;
+
+			return container;
+		}
+
+		/// <summary>
+		/// Destroys every widget in this container.
+		/// </summary>
+		public void Clear()
+		{
+			for (var i = m_content.childCount - 1; i >= 0; i--) {
+				var child = m_content.GetChild(i).gameObject;
+
+				DestroyWidget(child);
+			}
+		}
 
 		public ContainerWidget WithPadding(int left, int top, int right, int bottom)
 		{
@@ -40,6 +78,30 @@ namespace Tekly.DevBoard.Components
 			m_layout.MaxHeight = maxHeight;
 			return this;
 		}
+		
+		public ContainerWidget WithCrossAlignment(CrossAlignment crossAlignment)
+		{
+			m_layout.CrossAlignment = crossAlignment;
+			return this;
+		}
+
+		/// <summary>
+		/// How much of a parent layout's spare width this container takes. 1 fills it.
+		/// </summary>
+		public ContainerWidget WithFlexibleWidth(float flexible = 1f)
+		{
+			m_layout.FlexibleWidth = flexible;
+			return this;
+		}
+
+		/// <summary>
+		/// How much of a parent layout's spare height this container takes. 1 fills it.
+		/// </summary>
+		public ContainerWidget WithFlexibleHeight(float flexible = 1f)
+		{
+			m_layout.FlexibleHeight = flexible;
+			return this;
+		}
 
 		public void Add(Widget widget)
 		{
@@ -53,6 +115,37 @@ namespace Tekly.DevBoard.Components
 		public T Create<T>(string variant) where T : Widget
 		{
 			return Instantiate(DevBoard.Instance.Get<T>(variant), m_content, false);
+		}
+
+		/// <summary>
+		/// Destroys a widget straight away as far as layout and ticking are concerned: it's deactivated and
+		/// unparented now, and the GameObject itself is destroyed at the end of the frame.
+		/// </summary>
+		internal static void DestroyWidget(GameObject widget)
+		{
+			if (widget == null) {
+				return;
+			}
+
+			widget.SetActive(false);
+			widget.transform.SetParent(null, false);
+			Destroy(widget);
+		}
+
+		public LabelWidget Label(string text, string variant = "label")
+		{
+			var instance = Create<LabelWidget>(variant);
+			instance.Text = text;
+
+			return instance;
+		}
+
+		public BreadcrumbWidget Breadcrumb(IReadOnlyList<Crumb> crumbs, Action<string> onSelect, string variant = "breadcrumb")
+		{
+			var instance = Create<BreadcrumbWidget>(variant);
+			instance.Set(crumbs, onSelect);
+
+			return instance;
 		}
 
 		public PropertyWidget Property<T>(string label, Func<T> getValue, string format = "{0}", string variant = "property")

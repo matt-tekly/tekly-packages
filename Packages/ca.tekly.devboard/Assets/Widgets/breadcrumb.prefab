@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 6704665191352276921}
   - component: {fileID: 601371542662589404}
   - component: {fileID: 6480074719822502468}
-  - component: {fileID: 4438091854474918178}
+  - component: {fileID: 1531008273230663160}
   m_Layer: 5
-  m_Name: label
+  m_Name: breadcrumb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -70,14 +70,14 @@ MonoBehaviour:
   m_text: Label
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8096619a8053df240b901c57a8928de4, type: 2}
-  m_sharedMaterial: {fileID: 4354566054355158826, guid: 8096619a8053df240b901c57a8928de4, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 50fc01dad1554bb4b90c2a5dee774e8f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4289911787
+  m_fontColor: {r: 0.92156863, g: 0.85882354, b: 0.69803923, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -94,8 +94,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 13
-  m_fontSizeBase: 13
+  m_fontSize: 12
+  m_fontSizeBase: 12
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -183,7 +183,7 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
---- !u!114 &4438091854474918178
+--- !u!114 &1531008273230663160
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -192,7 +192,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 739148740425387378}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b272c050ef624c70af9a4e40469fb222, type: 3}
+  m_Script: {fileID: 11500000, guid: 4a13ba880d65d594e91dc7486fa90c8a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Tekly.DevBoard::Tekly.DevBoard.Components.Text
-  m_textComponent: {fileID: 601371542662589404}
+  m_EditorClassIdentifier: Tekly.DevBoard::Tekly.DevBoard.Components.BreadcrumbWidget
+  m_text: {fileID: 601371542662589404}
+  m_separator: /
+  m_linkColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
+  m_hoverColor: {r: 1, g: 1, b: 1, a: 1}

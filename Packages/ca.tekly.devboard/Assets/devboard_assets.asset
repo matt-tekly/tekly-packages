@@ -29,6 +29,9 @@ MonoBehaviour:
   - {fileID: -9118408024169011908, guid: fe4f4fcc751936a49835b48dc6cdc364, type: 3}
   - {fileID: 7965425448300300528, guid: 6af83fa7423d94c418208230c9b4f93a, type: 3}
   - {fileID: 4438091854474918178, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
+  - {fileID: 1531008273230663160, guid: 886070bc71513924aabf088f476aa7e6, type: 3}
+  - {fileID: 2744805454382699224, guid: f04f59ba5c9271f4f96a7d4a68fb43b7, type: 3}
+  - {fileID: 2056309467435892577, guid: 4f881ceea937cee4392a6884f5a6bfd8, type: 3}
   Fonts:
   - {fileID: 11400000, guid: 8096619a8053df240b901c57a8928de4, type: 2}
   - {fileID: 11400000, guid: 02ee2563343ffb84b87ca0f4d35e1c45, type: 2}

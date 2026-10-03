@@ -192,7 +192,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_radiusMode: 0
-  m_radius: 16
+  m_radius: 10
   m_cornerRadii: {x: 16, y: 16, z: 16, w: 16}
   m_cornerType: 2
   m_cornerTypes:
@@ -439,6 +439,34 @@ PrefabInstance:
     - target: {fileID: 601371542662589404, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
       propertyPath: m_text
       value: Button
+      objectReference: {fileID: 0}
+    - target: {fileID: 601371542662589404, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
+      propertyPath: m_fontSize
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 601371542662589404, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
+      propertyPath: m_fontColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 601371542662589404, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
+      propertyPath: m_fontColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 601371542662589404, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
+      propertyPath: m_fontColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 601371542662589404, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 601371542662589404, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 4354566054355158826, guid: 8096619a8053df240b901c57a8928de4, type: 2}
+    - target: {fileID: 601371542662589404, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: 739148740425387378, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
       propertyPath: m_Name

@@ -22,7 +22,9 @@ namespace Tekly.DevBoard.Components
 
 		private void Awake()
 		{
-			m_button.Initialize(Toggle, "Toggle");
+			// Awake can run after Initialize when the foldout is created inside an inactive container,
+			// so keep whatever label is already set
+			m_button.Initialize(Toggle, m_button.Label);
 		}
 
 		public void Initialize(string label)

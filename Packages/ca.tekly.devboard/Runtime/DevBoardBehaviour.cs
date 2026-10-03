@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Tekly.DevBoard.Components;
 using UnityEngine;
 
 namespace Tekly.DevBoard
 {
 	/// <summary>
-	/// Base for everything in a DevBoard. Behaviours that override Tick are ticked by the Board they live in,
-	/// at that board's tick rate, and only while enabled, so hidden pages cost nothing. Behaviours outside a
-	/// Board are ticked every frame by DevBoard.
+	/// Base for everything in a DevBoard. Behaviours that override Tick are ticked by the Board or panel they
+	/// live in, at its tick rate, and only while enabled, so hidden pages cost nothing. Behaviours outside a
+	/// Board or panel are ticked every frame by DevBoard.
 	///
 	/// A Tick that throws is logged once and the behaviour is marked faulted. Widget getters often reach into
 	/// game objects that can be destroyed or unloaded, so a faulted behaviour keeps retrying at a slower rate
@@ -123,12 +122,12 @@ namespace Tekly.DevBoard
 
 		private TickGroup FindTickGroup()
 		{
-			// Start from the parent so a Board never registers with itself
+			// Start from the parent so a host never registers with itself
 			var parent = transform.parent;
-			var board = parent != null ? parent.GetComponentInParent<Board>() : null;
+			var host = parent != null ? parent.GetComponentInParent<ITickHost>() : null;
 
-			if (board != null) {
-				return board.TickGroup;
+			if (host != null) {
+				return host.TickGroup;
 			}
 
 			// Null outside of play mode

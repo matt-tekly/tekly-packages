@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using Tekly.DevBoard.Components;
+using Tekly.DevBoard.Panels;
 using UnityEngine;
 
 namespace Tekly.DevBoard
@@ -10,7 +11,7 @@ namespace Tekly.DevBoard
 	/// where a scroll view was scrolled to. Kept in memory for the play session.
 	///
 	/// Keys come from <see cref="KeyFor"/>: a path of the StateScope of each container above the widget, up to
-	/// and including its Board, e.g. "Test Board/Economy/Cheats". Rebuilding the same widgets in the same place
+	/// and including its Board or panel, e.g. "main/Game/Economy/Cheats". Rebuilding the same widgets in the same place
 	/// produces the same keys.
 	/// </summary>
 	public class DevBoardState
@@ -51,6 +52,12 @@ namespace Tekly.DevBoard
 			var builder = new StringBuilder(localKey);
 
 			for (var parent = widget.transform.parent; parent != null; parent = parent.parent) {
+				// A panel scopes everything in it by its id, and is as far up as keys go
+				if (parent.TryGetComponent(out DevBoardPanel panel)) {
+					builder.Insert(0, '/').Insert(0, panel.Id);
+					break;
+				}
+
 				if (!parent.TryGetComponent(out ContainerWidget container)) {
 					continue;
 				}

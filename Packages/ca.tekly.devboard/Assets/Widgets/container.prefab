@@ -106,7 +106,7 @@ MonoBehaviour:
   - Enabled: 1
     Width: 1
     Offset: 0
-    Alignment: 2
+    Alignment: 0
     Paint:
       Color: {r: 0.23529413, g: 0.21960786, b: 0.21176472, a: 1}
       Gradient: 0

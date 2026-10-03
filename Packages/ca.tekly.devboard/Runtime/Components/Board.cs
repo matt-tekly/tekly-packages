@@ -6,7 +6,7 @@ namespace Tekly.DevBoard.Components
 	/// A top-level container. Ticks every enabled widget inside it, every frame by default or at a lower
 	/// rate set with WithTickRate (handy for overlays that only show a few numbers).
 	/// </summary>
-	public class Board : ContainerWidget
+	public class Board : ContainerWidget, ITickHost
 	{
 		/// <summary>
 		/// Board names scope the saved view state (foldouts, scroll positions) of everything inside them.
@@ -16,7 +16,9 @@ namespace Tekly.DevBoard.Components
 			set => base.StateScope = value;
 		}
 
-		internal TickGroup TickGroup { get; } = new();
+		TickGroup ITickHost.TickGroup => m_tickGroup;
+
+		private readonly TickGroup m_tickGroup = new();
 
 		private float m_tickInterval;
 		private float m_nextTickTime;
@@ -40,7 +42,7 @@ namespace Tekly.DevBoard.Components
 			}
 
 			m_nextTickTime = now + m_tickInterval;
-			TickGroup.Tick();
+			m_tickGroup.Tick();
 		}
 	}
 }

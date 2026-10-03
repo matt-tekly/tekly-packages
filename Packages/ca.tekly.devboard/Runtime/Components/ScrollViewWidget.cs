@@ -17,6 +17,7 @@ namespace Tekly.DevBoard.Components
 		[SerializeField] private ScrollRect m_scrollRect;
 
 		private string m_stateKey;
+		private bool m_saveState = true;
 		private bool m_restorePending;
 		private ScrollState m_pendingState;
 		private float m_restoreDeadline;
@@ -30,6 +31,43 @@ namespace Tekly.DevBoard.Components
 			return this;
 		}
 
+		/// <summary>
+		/// Turns off saving the position in DevBoard.State, for scroll views whose owner tracks the position itself.
+		/// </summary>
+		public ScrollViewWidget WithoutSavedState()
+		{
+			m_saveState = false;
+			return this;
+		}
+
+		/// <summary>
+		/// The current position, to hand back to RestorePosition later.
+		/// </summary>
+		internal ScrollState CapturePosition()
+		{
+			if (m_restorePending) {
+				return m_pendingState;
+			}
+
+			var content = m_scrollRect.content;
+
+			return new ScrollState {
+				Position = content.anchoredPosition,
+				ContentSize = content.rect.size
+			};
+		}
+
+		/// <summary>
+		/// Scrolls to a captured position once the content has been laid out at its captured size.
+		/// The default ScrollState scrolls to the start straight away.
+		/// </summary>
+		internal void RestorePosition(ScrollState state)
+		{
+			m_pendingState = state;
+			m_restorePending = true;
+			m_restoreDeadline = Time.realtimeSinceStartup + RESTORE_TIMEOUT;
+		}
+
 		private void Awake()
 		{
 			if (m_scrollRect == null) {
@@ -39,6 +77,10 @@ namespace Tekly.DevBoard.Components
 
 		private void Start()
 		{
+			if (!m_saveState) {
+				return;
+			}
+
 			// Start runs after the code building the board, so the key reflects where the scroll view ended up
 			m_stateKey ??= DevBoardState.KeyFor(this, DEFAULT_STATE_KEY);
 
@@ -77,7 +119,7 @@ namespace Tekly.DevBoard.Components
 			base.OnDisable();
 
 			// If the restore never happened, keep the earlier saved position rather than saving the unrestored one
-			if (!m_restorePending) {
+			if (m_saveState && !m_restorePending) {
 				Save();
 			}
 		}
@@ -109,7 +151,7 @@ namespace Tekly.DevBoard.Components
 			});
 		}
 
-		private struct ScrollState
+		internal struct ScrollState
 		{
 			public Vector2 Position;
 			public Vector2 ContentSize;

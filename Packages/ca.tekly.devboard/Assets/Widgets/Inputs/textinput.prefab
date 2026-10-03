@@ -1008,9 +1008,9 @@ MonoBehaviour:
   m_targets:
   - m_target: {fileID: 2965398001024498118}
     m_colors:
-      Normal: {r: 0.19607845, g: 0.18823531, b: 0.18431373, a: 1}
-      Highlighted: {r: 0.23529413, g: 0.21960786, b: 0.21176472, a: 1}
-      Pressed: {r: 0.19607845, g: 0.18823531, b: 0.18431373, a: 1}
+      Normal: {r: 0.1137255, g: 0.1254902, b: 0.12941177, a: 1}
+      Highlighted: {r: 0.1137255, g: 0.1254902, b: 0.12941177, a: 1}
+      Pressed: {r: 0.1137255, g: 0.1254902, b: 0.12941177, a: 1}
     m_layers:
     - m_flags: 1
       m_blend: 0
@@ -1028,15 +1028,15 @@ MonoBehaviour:
   - m_target: {fileID: 6796311827544425624}
     m_colors:
       Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
-      Highlighted: {r: 0.40000004, g: 0.36078432, b: 0.32941177, a: 1}
+      Highlighted: {r: 0.48627454, g: 0.43529415, b: 0.3921569, a: 1}
       Pressed: {r: 0.40000004, g: 0.36078432, b: 0.32941177, a: 1}
     m_layers:
     - m_flags: 1
       m_blend: 0
       m_colors:
-        Normal: {r: 0.8431373, g: 0.6, b: 0.12941177, a: 1}
-        Highlighted: {r: 0.9803922, g: 0.7411765, b: 0.18431373, a: 1}
-        Pressed: {r: 0.8431373, g: 0.6, b: 0.12941177, a: 1}
+        Normal: {r: 0.35686275, g: 0.62352943, b: 0.8000001, a: 1}
+        Highlighted: {r: 0.49803925, g: 0.7411765, b: 0.90196085, a: 1}
+        Pressed: {r: 0.35686275, g: 0.62352943, b: 0.8000001, a: 1}
     - m_flags: 2
       m_blend: 0
       m_colors:
@@ -1059,7 +1059,7 @@ MonoBehaviour:
     m_fadeDuration: 0.1
   - m_target: {fileID: 1149634169742105766}
     m_colors:
-      Normal: {r: 0.8352942, g: 0.7686275, b: 0.6313726, a: 1}
+      Normal: {r: 0.7411765, g: 0.6745098, b: 0.56078434, a: 1}
       Highlighted: {r: 0.9843138, g: 0.9450981, b: 0.7803922, a: 1}
       Pressed: {r: 0.7411765, g: 0.68235296, b: 0.5764706, a: 1}
     m_layers:
@@ -1148,18 +1148,6 @@ PrefabInstance:
     - target: {fileID: 601371542662589404, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
       propertyPath: m_text
       value: Label
-      objectReference: {fileID: 0}
-    - target: {fileID: 601371542662589404, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
-      propertyPath: m_fontColor.b
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 601371542662589404, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
-      propertyPath: m_fontColor.g
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 601371542662589404, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
-      propertyPath: m_fontColor.r
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 601371542662589404, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
       propertyPath: m_fontColor32.rgba
