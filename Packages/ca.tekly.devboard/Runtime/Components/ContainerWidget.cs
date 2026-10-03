@@ -79,6 +79,15 @@ namespace Tekly.DevBoard.Components
 			return this;
 		}
 		
+		/// <summary>
+		/// Which way children are laid out: Vertical stacks them, Horizontal puts them in a row.
+		/// </summary>
+		public ContainerWidget WithAxis(Common.Utils.LayoutAxis axis)
+		{
+			m_layout.Axis = axis;
+			return this;
+		}
+
 		public ContainerWidget WithCrossAlignment(CrossAlignment crossAlignment)
 		{
 			m_layout.CrossAlignment = crossAlignment;
@@ -100,6 +109,24 @@ namespace Tekly.DevBoard.Components
 		public ContainerWidget WithFlexibleHeight(float flexible = 1f)
 		{
 			m_layout.FlexibleHeight = flexible;
+			return this;
+		}
+
+		/// <summary>
+		/// The width this container asks a parent layout for, instead of the width of its content.
+		/// </summary>
+		public ContainerWidget WithPreferredWidth(float width)
+		{
+			m_layout.PreferredWidth = width;
+			return this;
+		}
+
+		/// <summary>
+		/// The height this container asks a parent layout for, instead of the height of its content.
+		/// </summary>
+		public ContainerWidget WithPreferredHeight(float height)
+		{
+			m_layout.PreferredHeight = height;
 			return this;
 		}
 

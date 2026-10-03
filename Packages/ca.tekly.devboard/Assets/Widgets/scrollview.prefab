@@ -82,7 +82,7 @@ MonoBehaviour:
   m_widthGroup: 
   m_fitWidth: 0
   m_fitHeight: 2
-  m_axis: 0
+  m_axis: 1
   m_reverse: 0
   m_padding:
     Left: 0
