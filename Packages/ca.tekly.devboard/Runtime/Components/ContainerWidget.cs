@@ -255,7 +255,11 @@ namespace Tekly.DevBoard.Components
 		{
 			return TextInput("textinput", label, placeholder, getValue, setValue, inputMode);
 		}
-
+		
+		public TextInputWidget SearchInput(string label, string placeholder, Func<string> getValue, Action<string> setValue, InputMode inputMode = InputMode.Delayed)
+		{
+			return TextInput("textinput_search", label, placeholder, getValue, setValue, inputMode);
+		}
 		public TextInputWidget TextInput(string label, Func<string> getValue, Action<string> setValue, InputMode inputMode = InputMode.Delayed)
 		{
 			return TextInput(label, null, getValue, setValue, inputMode);

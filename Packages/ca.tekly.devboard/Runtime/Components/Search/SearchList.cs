@@ -63,7 +63,7 @@ namespace Tekly.DevBoard.Components
 
 			UseStateKey(DEFAULT_STATE_KEY);
 
-			Input = root.TextInput(null, placeholder, () => m_query, SetQuery, InputMode.Debounced);
+			Input = root.SearchInput(null, placeholder, () => m_query, SetQuery, InputMode.Debounced);
 			Results = ContainerWidget.CreatePlain(root.Content, "Results", DEFAULT_RESULT_SPACING);
 
 			RunSearch();
