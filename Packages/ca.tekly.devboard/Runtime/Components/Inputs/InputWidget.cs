@@ -63,7 +63,12 @@ namespace Tekly.DevBoard.Components.Inputs
 			}
 
 			Invalidate();
-			RefreshFromSource();
+
+			try {
+				RefreshFromSource();
+			} catch (Exception) {
+				// Don't break the code building the board. Tick retries, and logs and shows the error if it keeps throwing
+			}
 		}
 
 		/// <summary>
@@ -107,6 +112,12 @@ namespace Tekly.DevBoard.Components.Inputs
 			if (!m_input.isFocused && m_nextUpdate == null) {
 				RefreshFromSource();
 			}
+		}
+
+		protected override void OnFaulted(Exception exception)
+		{
+			// Rewrite the text once the getter works again, even if the value matches the one shown before
+			Invalidate();
 		}
 
 		private void OnValueChanged(string text)

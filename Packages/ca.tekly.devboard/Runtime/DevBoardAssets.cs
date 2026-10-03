@@ -1,5 +1,4 @@
 ﻿using Tekly.DevBoard.Components;
-using Tekly.DevBoard.Components.Inputs;
 using TMPro;
 using UnityEngine;
 
@@ -7,17 +6,10 @@ namespace Tekly.DevBoard
 {
 	public class DevBoardAssets : ScriptableObject
 	{
-		public Board[] Boards;
-		public ContainerWidget[] Containers;
-		public ScrollViewWidget[] ScrollViews;
-		public ButtonWidget[] Buttons;
-		public PropertyWidget[] Properties;
-		public FoldoutWidget[] Foldouts;
-		public DividerWidget[] Dividers;
-		public TextInputWidget[] TextInputs;
-		public IntInputWidget[] IntInputs;
-		public FloatInputWidget[] FloatInputs;
-		public ToggleWidget[] Toggles;
+		/// <summary>
+		/// Widget prefabs, looked up by prefab name. The first prefab of each widget type is that type's default.
+		/// </summary>
+		public Widget[] Widgets;
 		public TMP_FontAsset[] Fonts;
 		public Material[] FontMaterials;
 	}

@@ -24,7 +24,8 @@ namespace Tekly.DevBoard.Components
 
 		private void OnValueChanged(bool isOn)
 		{
-			m_setValue(isOn);
+			// Only user clicks get here: refreshes use SetIsOnWithoutNotify
+			m_setValue?.Invoke(isOn);
 		}
 
 		public void Initialize(string label, Func<bool> getValue, Action<bool> setValue)
@@ -32,13 +33,26 @@ namespace Tekly.DevBoard.Components
 			m_label.Text = label;
 			m_getValue = getValue;
 			m_setValue = setValue;
-			
-			m_toggle.SetIsOnWithoutNotify(getValue());
+
+			try {
+				m_toggle.SetIsOnWithoutNotify(getValue());
+			} catch (Exception) {
+				// Don't break the code building the board. Tick retries, and logs the error if it keeps throwing
+			}
 		}
 
 		protected override void Tick()
 		{
-			m_toggle.isOn = m_getValue();
+			if (m_getValue == null) {
+				return;
+			}
+
+			var value = m_getValue();
+
+			// Without notify, so a change made by the game isn't pushed back through the setter
+			if (m_toggle.isOn != value) {
+				m_toggle.SetIsOnWithoutNotify(value);
+			}
 		}
 	}
 }

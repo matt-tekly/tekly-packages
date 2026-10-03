@@ -13,7 +13,9 @@ namespace Tekly.DevBoard.Components
 		[SerializeField] private LabelWidget m_value;
 		
 		private Property m_property;
-		
+
+		private const string ERROR_TEXT = "<color=#E5534B>error</color>";
+
 		/// <summary>
 		/// Shows the value of getValue, reformatting only when it changes. isSame decides whether a new value
 		/// counts as a change from the last one shown; null uses the default equality for T.
@@ -37,6 +39,14 @@ namespace Tekly.DevBoard.Components
 			m_property?.Tick();
 		}
 
+		protected override void OnFaulted(Exception exception)
+		{
+			m_value.Text = ERROR_TEXT;
+
+			// Force the next successful Tick to show its value, even if it matches the one shown before the fault
+			m_property?.Invalidate();
+		}
+
 		private static bool IsWithin(float last, float value, float epsilon)
 		{
 			// The == also covers equal infinities, whose difference is NaN
@@ -50,6 +60,7 @@ namespace Tekly.DevBoard.Components
 		private abstract class Property
 		{
 			public abstract void Tick();
+			public abstract void Invalidate();
 		}
 		
 		private class Property<T> : Property
@@ -74,7 +85,7 @@ namespace Tekly.DevBoard.Components
 				try {
 					Show(m_getValue());
 				} catch (Exception) {
-					// Do nothing, Tick retries
+					// Tick retries, and logs and shows the error if it keeps throwing
 				}
 			}
 
@@ -88,6 +99,11 @@ namespace Tekly.DevBoard.Components
 				}
 			
 				Show(value);
+			}
+
+			public override void Invalidate()
+			{
+				m_hasValue = false;
 			}
 
 			private void Show(T value)

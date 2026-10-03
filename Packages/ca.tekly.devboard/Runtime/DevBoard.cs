@@ -1,135 +1,121 @@
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using Tekly.Common.Utils;
 using Tekly.DevBoard.Components;
-using Tekly.DevBoard.Components.Inputs;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Tekly.DevBoard
 {
-    public class DevBoard : Singleton<DevBoard>
-    {
-	    private GameObject m_devBoard;
-	    private bool m_initialized;
+	public class DevBoard : Singleton<DevBoard>
+	{
+		private GameObject m_root;
 
-	    private readonly Dictionary<string, Board> m_boardPrefabs = new();
-	    private readonly Dictionary<string, ButtonWidget> m_buttons = new();
-	    private readonly Dictionary<string, ContainerWidget> m_containers = new();
-	    private readonly Dictionary<string, ScrollViewWidget> m_scrollViews = new();
-	    private readonly Dictionary<string, PropertyWidget> m_properties = new();
-	    private readonly Dictionary<string, FoldoutWidget> m_foldouts = new();
-	    private readonly Dictionary<string, DividerWidget> m_dividers = new();
-	    private readonly Dictionary<string, TextInputWidget> m_textInputs = new();
-	    private readonly Dictionary<string, IntInputWidget> m_intInputs = new();
-	    private readonly Dictionary<string, FloatInputWidget> m_floatInputs = new();
-	    private readonly Dictionary<string, ToggleWidget> m_toggles = new();
-	    
-	    public void Initialize()
-	    {
-		    if (!m_initialized) {
-			    m_devBoard = new GameObject("DevBoard");
-			    Object.DontDestroyOnLoad(m_devBoard);
-			    m_initialized = true;
-		    }
-	    }
+		// Widget prefabs by name (the variant), and the first prefab of each exact type as that type's fallback
+		private readonly Dictionary<string, Widget> m_widgets = new();
+		private readonly Dictionary<Type, Widget> m_defaults = new();
+		private readonly HashSet<string> m_warnings = new();
 
-	    public Board GetBoard(string name)
-	    {
-		    return Get(name, m_boardPrefabs);
-	    }
-	    
-	    public ButtonWidget GetButton(string name)
-	    {
-		    return Get(name, m_buttons);
-	    }
-	    
-	    public ContainerWidget GetContainer(string name)
-	    {
-		    return Get(name, m_containers);
-	    }
-	    
-	    public ScrollViewWidget GetScrollView(string name)
-	    {
-		    return Get(name, m_scrollViews);
-	    }
-	    
-	    public PropertyWidget GetProperty(string name)
-	    {
-		    return Get(name, m_properties);
-	    }
-	    
-	    public FoldoutWidget GetFoldout(string name)
-	    {
-		    return Get(name, m_foldouts);
-	    }
-	    
-	    public DividerWidget GetDivider(string name)
-	    {
-		    return Get(name, m_dividers);
-	    }
-	    
-	    public TextInputWidget GetTextInput(string name)
-	    {
-		    return Get(name, m_textInputs);
-	    }
-	    
-	    public IntInputWidget GetIntInput(string name)
-	    {
-		    return Get(name, m_intInputs);
-	    }
-	    
-	    public FloatInputWidget GetFloatInput(string name)
-	    {
-		    return Get(name, m_floatInputs);
-	    }
-	    
-	    public ToggleWidget GetToggle(string name)
-	    {
-		    return Get(name, m_toggles);
-	    }
+		/// <summary>
+		/// Creates the root object boards live under. Safe to call any number of times.
+		/// </summary>
+		public void Initialize()
+		{
+			// Unity null check, so a destroyed root is recreated
+			if (m_root == null) {
+				m_root = new GameObject("DevBoard");
+				Object.DontDestroyOnLoad(m_root);
+			}
+		}
 
-	    public void AddAssets(DevBoardAssets assets)
-	    {
-		    Initialize();
-			
-		    AddAssets(assets.Boards, m_boardPrefabs);
-		    AddAssets(assets.Containers, m_containers);
-		    AddAssets(assets.ScrollViews, m_scrollViews);
-		    AddAssets(assets.Buttons, m_buttons);
-		    AddAssets(assets.Properties, m_properties);
-		    AddAssets(assets.Foldouts, m_foldouts);
-		    AddAssets(assets.Dividers, m_dividers);
-		    AddAssets(assets.TextInputs, m_textInputs);
-		    AddAssets(assets.IntInputs, m_intInputs);
-		    AddAssets(assets.FloatInputs, m_floatInputs);
-		    AddAssets(assets.Toggles, m_toggles);
+		/// <summary>
+		/// Registers the widgets and fonts in assets. Safe to call more than once: adding the same assets again
+		/// does nothing, and a widget with the same name as an existing one replaces it, so a game can add its
+		/// own assets to restyle the built-in widgets.
+		/// </summary>
+		public void AddAssets(DevBoardAssets assets)
+		{
+			if (assets == null) {
+				return;
+			}
 
-		    DevBoardFonts.Register(assets);
-	    }
-	    
-	    public Board Board(string name)
-	    {
-		    var boardPrefab = m_boardPrefabs.Values.First();
-		    var board = Object.Instantiate(boardPrefab, m_devBoard.transform);
-		    board.name = name;
+			Initialize();
 
-		    return board;
-	    }
+			if (assets.Widgets != null) {
+				foreach (var widget in assets.Widgets) {
+					if (widget != null) {
+						AddWidget(widget);
+					}
+				}
+			}
 
-	    private static void AddAssets<T>(T[] assets, Dictionary<string, T> dictionary) where T : Widget
-	    {
-		    foreach (var asset in assets) {
-			    dictionary.Add(asset.name, asset);
-		    }
-	    }
-	    
-	    private static T Get<T>(string name, Dictionary<string, T> dictionary)
-	    {
-		    if (!dictionary.TryGetValue(name, out var value)) {
-			    value = dictionary.Values.First();
-		    }
+			DevBoardFonts.Register(assets);
+		}
 
-		    return value;
-	    }
-    }
+		/// <summary>
+		/// Gets the widget prefab for a variant. Falls back to the default prefab of type T, with a warning,
+		/// if the variant doesn't exist or isn't a T.
+		/// </summary>
+		public T Get<T>(string variant) where T : Widget
+		{
+			if (variant != null && m_widgets.TryGetValue(variant, out var widget)) {
+				if (widget is T typed) {
+					return typed;
+				}
+
+				WarnOnce($"[DevBoard] Widget variant '{variant}' is a {widget.GetType().Name}, not a {typeof(T).Name}. Using the default {typeof(T).Name}.");
+			} else {
+				WarnOnce($"[DevBoard] No widget variant named '{variant}'. Using the default {typeof(T).Name}.");
+			}
+
+			if (m_defaults.TryGetValue(typeof(T), out var fallback)) {
+				return (T) fallback;
+			}
+
+			throw new InvalidOperationException(
+				$"[DevBoard] No {typeof(T).Name} widgets are registered. Has a DevBoardAssets been added with AddAssets?");
+		}
+
+		public Board Board(string name, string variant = "board")
+		{
+			Initialize();
+
+			var board = Object.Instantiate(Get<Board>(variant), m_root.transform);
+			board.name = name;
+
+			return board;
+		}
+
+		private void AddWidget(Widget widget)
+		{
+			var type = widget.GetType();
+
+			if (m_widgets.TryGetValue(widget.name, out var existing)) {
+				if (existing == widget) {
+					return;
+				}
+
+				// A replacement of the same type also takes over as that type's default
+				var existingType = existing.GetType();
+
+				if (m_defaults.TryGetValue(existingType, out var existingDefault) && existingDefault == existing) {
+					if (existingType == type) {
+						m_defaults[type] = widget;
+					} else {
+						m_defaults.Remove(existingType);
+					}
+				}
+			}
+
+			m_widgets[widget.name] = widget;
+			m_defaults.TryAdd(type, widget);
+		}
+
+		private void WarnOnce(string message)
+		{
+			if (m_warnings.Add(message)) {
+				Debug.LogWarning(message);
+			}
+		}
+	}
 }

@@ -66,7 +66,7 @@ namespace Tekly.DevBoard
 		}
 
 		/// <summary>
-		/// Keeps existing entries in their current order (the first entry is the default widget),
+		/// Keeps existing entries in their current order (the first widget of each type is that type's default),
 		/// drops missing references and appends anything newly found.
 		/// </summary>
 		private static List<Object> Merge(Array existing, List<Object> found)
@@ -93,8 +93,8 @@ namespace Tekly.DevBoard
 		}
 
 		/// <summary>
-		/// Finds prefabs whose root has a component of exactly this type.
-		/// Exact matching keeps Board and FoldoutWidget prefabs out of the ContainerWidget list.
+		/// Finds prefabs whose root has a component of this type or a subclass of it, e.g. every widget prefab
+		/// for the Widget array. Only the root is checked, so widgets nested inside other widgets aren't collected.
 		/// </summary>
 		private static List<Object> FindPrefabComponents(Type componentType, string folder)
 		{
@@ -108,7 +108,7 @@ namespace Tekly.DevBoard
 				}
 
 				var component = prefab.GetComponents<Component>()
-					.FirstOrDefault(c => c != null && c.GetType() == componentType);
+					.FirstOrDefault(c => c != null && componentType.IsInstanceOfType(c));
 
 				if (component != null) {
 					results.Add(component);

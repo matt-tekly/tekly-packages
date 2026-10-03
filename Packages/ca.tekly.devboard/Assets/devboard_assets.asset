@@ -12,32 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6b046cbdae449ac865520da2a8eb36b, type: 3}
   m_Name: devboard_assets
   m_EditorClassIdentifier: Tekly.DevBoard::Tekly.DevBoard.DevBoardAssets
-  Boards:
+  Widgets:
   - {fileID: 1066301136830059813, guid: 690003a033f546b4a9c16a5a95dc29f5, type: 3}
-  Containers:
   - {fileID: 6335293740955276969, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
   - {fileID: 6335293740955276969, guid: 85092541fc483294092692cb4ea81951, type: 3}
   - {fileID: 6335293740955276969, guid: c559c14610b06fc45a4b94d9d8c961af, type: 3}
-  ScrollViews:
   - {fileID: 4931483809385231298, guid: 7c4ee1cc6b6a21840a62ca4219d855de, type: 3}
-  Buttons:
   - {fileID: 5919477755552245529, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
-  Properties:
   - {fileID: 6972893514870723820, guid: 32a3089d371b61a48aa4fd9b7fd194ab, type: 3}
-  Foldouts:
   - {fileID: 2441663034153046568, guid: 98ae9185e74df18458e16ea144ef6e4f, type: 3}
-  Dividers:
   - {fileID: 1770162333396550872, guid: 867ba3cf12bcd7f4fa4977115879ac6f, type: 3}
   - {fileID: 2789152990284225608, guid: 7026b8deb7ace0343b84b6e82643fdeb, type: 3}
-  TextInputs:
   - {fileID: 6942456697618048646, guid: 9e2400166c4f51c44bceb4ce25a5efa1, type: 3}
   - {fileID: 2903900746879978701, guid: e3c37a6ace7f20644bfc06b9dffccb5e, type: 3}
-  IntInputs:
   - {fileID: 5555911072812987431, guid: 449fa45f265a5fd448b4291fbb170658, type: 3}
-  FloatInputs:
   - {fileID: -9118408024169011908, guid: fe4f4fcc751936a49835b48dc6cdc364, type: 3}
-  Toggles:
   - {fileID: 7965425448300300528, guid: 6af83fa7423d94c418208230c9b4f93a, type: 3}
+  - {fileID: 4438091854474918178, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
   Fonts:
   - {fileID: 11400000, guid: 8096619a8053df240b901c57a8928de4, type: 2}
   - {fileID: 11400000, guid: 02ee2563343ffb84b87ca0f4d35e1c45, type: 2}
