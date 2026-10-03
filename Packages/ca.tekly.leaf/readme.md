@@ -37,6 +37,11 @@
 - `LeafInputField.EnterMovesNext` makes Enter end the edit and select the next element in tab order (e.g. username to password). Leave it off on a form's last field and wire `onSubmit` to the form's action. The move happens a frame later so the same Enter can't also press the next element
 - `LeafNavigationScope.TrySelectNextFrom` selects the next element in tab order from code
 
+### Pressing From Code
+- `LeafCore.Instance.Click(target)` clicks a GameObject through the EventSystem as a left click would, e.g. for a tutorial step. Works for any element that handles clicks, Unity's own included. It sends a click rather than Submit because unselectable elements don't handle Submit
+- Returns false when there's no EventSystem, or the target is inactive or doesn't handle clicks, but true for a non-interactable element (its handler runs and does nothing)
+- To make sure a radio option ends up on, set `IsOn` instead, since a click on the current option turns it off when its group allows none
+
 ### Radio Groups
 - `LeafRadioGroup` keeps one of the options below it on. It's never selectable itself, and it owns which option is on: options only show it, so nothing can get out of sync
 - Two kinds of option, mixed as needed:

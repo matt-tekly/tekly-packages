@@ -1184,6 +1184,50 @@ MonoBehaviour:
   m_revealAmount: 1
   m_revealClockwise: 1
   m_raycastUsesShape: 1
+--- !u!1 &517403962
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 517403964}
+  - component: {fileID: 517403963}
+  m_Layer: 0
+  m_Name: DevBoardSample
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &517403963
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517403962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0eeba51d3af2467c881b99cf2e1e1c0f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TeklySample.Samples.DevBoardSample.DevBoardSample
+--- !u!4 &517403964
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517403962}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 664.5, y: -56.78171, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &603543785
 GameObject:
   m_ObjectHideFlags: 0
@@ -3938,3 +3982,4 @@ SceneRoots:
   - {fileID: 5626867439061588286}
   - {fileID: 615854729}
   - {fileID: 1658998804}
+  - {fileID: 517403964}

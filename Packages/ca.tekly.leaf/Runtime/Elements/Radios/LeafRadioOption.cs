@@ -40,14 +40,19 @@ namespace Tekly.Leaf.Elements.Radios
 
 		public virtual void OnPointerClick(PointerEventData eventData)
 		{
-			if (eventData.button != PointerEventData.InputButton.Left || !IsActive() || !IsInteractable()) {
+			if (eventData.button != PointerEventData.InputButton.Left) {
 				return;
 			}
 
-			m_membership.Press();
+			Press();
 		}
 
 		public virtual void OnSubmit(BaseEventData eventData)
+		{
+			Press();
+		}
+
+		private void Press()
 		{
 			if (!IsActive() || !IsInteractable()) {
 				return;
