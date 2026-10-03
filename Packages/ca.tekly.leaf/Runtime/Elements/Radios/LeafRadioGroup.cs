@@ -19,6 +19,10 @@ namespace Tekly.Leaf.Elements.Radios
 	/// Keyboard, for focusable options: arrows along <see cref="m_layoutAxis"/> move between the options, other
 	/// arrows and Tab leave the group, and arrowing or tabbing into the group lands on the current option.
 	/// The group's animator gets the Selected flag while one of its options has focus, e.g. for an outline.
+	///
+	/// Which option starts on is authored on the group (<see cref="InitialOption"/>), never on the options, so it
+	/// can't be inconsistent. Without one, the first option in hierarchy order starts on, unless the group allows
+	/// none. Options run in edit mode, so changing it in the editor shows straight away.
 	/// </summary>
 	[DisallowMultipleComponent]
 	public class LeafRadioGroup : MonoBehaviour
@@ -31,11 +35,23 @@ namespace Tekly.Leaf.Elements.Radios
 		public UnityEvent<int> OnChanged => m_onChanged;
 
 		/// <summary>
+		/// Raised whenever <see cref="Current"/> changes, including the first option becoming current and
+		/// <see cref="SetWithoutNotify"/>, e.g. for showing the panel of the current tab. <see cref="OnChanged"/>
+		/// only fires for changes that notify.
+		/// </summary>
+		public event Action<ILeafRadioOption> CurrentChanged;
+
+		/// <summary>
 		/// True while one of this group's options has keyboard focus.
 		/// </summary>
 		public bool HasFocus => m_hasFocus;
 
 		public bool AllowNone => m_allowNone;
+
+		/// <summary>
+		/// The option that's on when the group starts, as authored. Doesn't follow <see cref="Current"/>.
+		/// </summary>
+		public ILeafRadioOption InitialOption => m_initialOption as ILeafRadioOption;
 		public bool SelectionFollowsFocus => m_selectionFollowsFocus;
 
 		/// <summary>
@@ -62,6 +78,9 @@ namespace Tekly.Leaf.Elements.Radios
 		[FormerlySerializedAs("_allowNoOption")]
 		[SerializeField] private bool m_allowNone;
 
+		[Tooltip("The option that's on when the group starts. Empty: the first option in hierarchy order, or none if the group allows none")]
+		[SerializeField] private MonoBehaviour m_initialOption;
+
 		[SerializeField] private bool m_interactable = true;
 
 		[Tooltip("The direction the options are laid out in. Arrows along it move between the options")]
@@ -83,6 +102,7 @@ namespace Tekly.Leaf.Elements.Radios
 		[SerializeField] private LeafAnimator m_animator;
 
 		private ILeafRadioOption m_current;
+		private bool m_hasResolvedInitial;
 		private IDisposable m_selectionSubscription;
 		private bool m_hasFocus;
 
@@ -117,6 +137,15 @@ namespace Tekly.Leaf.Elements.Radios
 		public void SetIndexWithoutNotify(int index)
 		{
 			SetWithoutNotify(GetOption(index));
+		}
+
+		/// <summary>
+		/// Goes back to the option the group starts with (see <see cref="InitialOption"/>), without events.
+		/// </summary>
+		public void ResetToInitial()
+		{
+			m_hasResolvedInitial = true;
+			Apply(ResolveInitial(), false);
 		}
 
 		/// <summary>
@@ -175,10 +204,25 @@ namespace Tekly.Leaf.Elements.Radios
 
 		internal void OnOptionEnabled(ILeafRadioOption option)
 		{
-			// The first option to show up becomes current when one is required. No event: binders read the value
-			if (Current == null && !m_allowNone) {
-				Apply(option, false);
+			if (Current != null) {
+				return;
 			}
+
+			// Enable order isn't hierarchy order (siblings are often enabled bottom up), so rather than the first
+			// option to show up, pick for every option at once, counting ones that haven't been enabled yet.
+			// No event: binders read the value
+			if (m_allowNone) {
+				// Only at the start: after that, none being on is a choice
+				if (!m_hasResolvedInitial) {
+					m_hasResolvedInitial = true;
+					Apply(ResolveInitial(), false);
+				}
+
+				return;
+			}
+
+			m_hasResolvedInitial = true;
+			Apply(ResolveInitial() ?? option, false);
 		}
 
 		internal void OnOptionDisabled(ILeafRadioOption option)
@@ -270,9 +314,48 @@ namespace Tekly.Leaf.Elements.Radios
 			previous?.RefreshState(notify);
 			option?.RefreshState(notify);
 
+			CurrentChanged?.Invoke(option);
+
 			if (notify) {
 				m_onChanged.Invoke(IndexOf(option));
 			}
+		}
+
+		/// <summary>
+		/// The authored initial option if it can be on, otherwise the first option in hierarchy order, or none
+		/// when the group allows none. Includes options that haven't been enabled yet, whose Group isn't set.
+		/// </summary>
+		private ILeafRadioOption ResolveInitial()
+		{
+			if (m_initialOption is ILeafRadioOption initial && CanStartOn(m_initialOption)) {
+				return initial;
+			}
+
+			if (m_allowNone) {
+				return null;
+			}
+
+			GetComponentsInChildren(false, s_options);
+
+			ILeafRadioOption first = null;
+			for (var i = 0; i < s_options.Count; i++) {
+				if (s_options[i] is MonoBehaviour behaviour && CanStartOn(behaviour)) {
+					first = s_options[i];
+					break;
+				}
+			}
+
+			s_options.Clear();
+			return first;
+		}
+
+		/// <summary>
+		/// Whether an option of this group can be on, judged without its OnEnable having run.
+		/// </summary>
+		private bool CanStartOn(MonoBehaviour option)
+		{
+			return option != null && option.enabled && option.gameObject.activeInHierarchy &&
+			       option.GetComponentInParent<LeafRadioGroup>() == this;
 		}
 
 		private ILeafRadioOption FindAvailable(ILeafRadioOption from, int step, bool focusableOnly)
@@ -386,5 +469,27 @@ namespace Tekly.Leaf.Elements.Radios
 			m_selectionSubscription = null;
 			m_hasFocus = false;
 		}
+
+#if UNITY_EDITOR
+		private void OnValidate()
+		{
+			if (m_initialOption != null && m_initialOption is not ILeafRadioOption) {
+				m_initialOption = m_initialOption.GetComponent<ILeafRadioOption>() as MonoBehaviour;
+			}
+
+			// Prefab assets aren't running, so there's nothing to show
+			if (Application.isPlaying || !gameObject.scene.IsValid()) {
+				return;
+			}
+
+			// Options run in edit mode, so show the initial option on them. Delayed: an option's animator can show
+			// or hide objects, which Unity doesn't allow during OnValidate
+			UnityEditor.EditorApplication.delayCall += () => {
+				if (this != null && !Application.isPlaying) {
+					ResetToInitial();
+				}
+			};
+		}
+#endif
 	}
 }

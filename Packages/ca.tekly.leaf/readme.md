@@ -11,11 +11,13 @@
 	- `Nearest`: arrows land wherever the spatial search picks, e.g. the same row of a column beside this one. When enabled, like First
 - Tab only follows Entry into a scope with a remembered selection; otherwise it enters at the first Selectable in order (the last with Shift+Tab)
 - Leaf elements call `LeafNavigationScope.TryNavigateFrom` in `OnMove`, which uses `FindNavigationScope`: the nearest containing scope above them
-- Arrow keys move spatially (`FindNext`), based on Android's FocusFinder. Whole rects are compared in the scope's space: a candidate has to be past the current element in that direction, ones that line up with it beat ones that don't (sideways, staying in the row always wins), and the rest are scored by edge gap weighted well above sideways offset
-- With wrapping on, a direction with nothing left wraps to the far side, e.g. Right at the end of a row goes to the start of that row
+- Arrow keys move spatially (`FindNext`), based on Android's FocusFinder. Whole rects are compared in the scope's space: a candidate has to be past the current element in that direction, ones that line up with it beat ones that don't, and the rest are scored by edge gap weighted well above sideways offset
+- `SidewaysStaysInRow` (on by default): Left and Right only move to Selectables in the same row (overlapping vertically). Off, they can move diagonally to the nearest Selectable when the row has nothing that way, e.g. for staggered grids
+- With wrapping on, a direction with nothing left wraps to the far side, e.g. Right at the end of a row goes to the start of that row. Sideways wrapping always stays in the row
 - The Selectables are collected from the hierarchy on each key press rather than registered
 - A containing scope selects its entry whenever it's enabled. A non-containing one only does when nothing visible is focused in the scope that navigates it, so switching tab panels moves focus into the new panel, but a column shown along with its board doesn't take focus from it
 - If there's nothing to select yet, it keeps trying until something is selected, since widgets are often added after the scope. A selection on a hidden object (e.g. in the tab panel just switched away from) counts as none
+- `SelectOnEnable` off stops the scope selecting anything when it's enabled, for when something else decides, e.g. `LeafTabPanels`. `TakeFocus()` selects the entry now, or keeps trying until something selectable shows up, stopping if something visible gets focus first
 
 ### Selection
 - `LeafCore.Instance.Selection.Current` is the EventSystem's selected GameObject as an observable. Unity doesn't tell parents when a child is selected, so subscribe here instead of polling `currentSelectedGameObject`
@@ -43,11 +45,25 @@
 - Keyboard, for `LeafRadioOption`s: arrows along the group's layout axis move between its options (wrapping if `m_wrap`), other arrows and Tab leave it, and arrowing or tabbing into the group lands on the current option
 - `SelectionFollowsFocus`: arrow moves inside the group also turn the option on. Implies `SingleTabStop`, where Tab only lands on the current option, so tabbing past can't change the choice
 - `Select`/`SelectIndex` fire `OnChanged` (index, -1 for none) and the options' `OnValueChanged`; `SetWithoutNotify`/`SetIndexWithoutNotify` don't, for pushing in model values
-- `AllowNone` lets clicking the current option turn it off. Without it, the first option to be enabled becomes current (without events), and disabling the current option moves to the next available one, unless the whole group is being hidden
+- `CurrentChanged` (C# event) is raised on every change of `Current`, including the first option becoming current and `SetWithoutNotify`, for anything that has to mirror the group, e.g. `LeafTabPanels`
+- Which option starts on is authored on the group (`InitialOption`), never on the options, so two options can't both claim to be on. Pick it from the group's Initial Option list, or tick On in an option's inspector (which sets the group's Initial Option). Options run in edit mode, so the change shows straight away
+- Without an Initial Option (or if it's hidden or disabled), the first option in hierarchy order starts on, or none with `AllowNone`. This is decided once for all options, counting ones that haven't been enabled yet, since Unity doesn't enable siblings in hierarchy order. No events fire, as binders read the value
+- `ResetToInitial()` goes back to the initial option without events. `InitialOption` doesn't follow `Current`; in play mode the group's inspector also shows Current, and changing it selects through the group
+- `AllowNone` lets clicking the current option turn it off. Without it, disabling the current option moves to the next available one, unless the whole group is being hidden
 - `Interactable` on the group disables all of its options
 - The group's own `LeafAnimator` gets the Selected flag while one of its options has focus (like CSS `:focus-within`), and Disabled when it isn't interactable, e.g. to show an outline around the whole group
 - An option without a group toggles on and off by itself
 - `LeafRadioOptionBinder` binds a bool model to either kind of option
+
+### Tab Panels
+- Add `LeafTab` beside an option (usually a `LeafRadioOptionUnselectable`) and set its Panel. Several tabs can share a panel, and an option without `LeafTab` just doesn't drive one
+- `LeafTabPanels` references a `LeafRadioGroup` (filled from its own GameObject or parents when empty), shows the current option's panel and hides the panels of the group's other tabs, hidden tabs included
+- Follows `CurrentChanged`, so the starting tab and model-driven changes (`SetWithoutNotify`) show the right panel too. With `AllowNone` and nothing on, every panel is hidden. It can sit anywhere, e.g. on the panels' container, but only follows the group while it's enabled, so keep it somewhere that stays active while the tabs can change
+- Kept separate from the options' animators: styling a tab never decides which panel is visible
+- Panels aren't switched in edit mode; show or hide them by hand while laying them out, and `LeafTabPanels` syncs them when enabled
+- The old panel hides before the new one shows. On a swap (any change after the first panel is shown since `LeafTabPanels` was enabled), a `LeafNavigationScope` on the new panel's root gets `TakeFocus()`, waiting for something selectable if the panel is still being filled. The starting panel doesn't take focus
+- Typical setup: tabs are `LeafRadioOptionUnselectable`s with a `LeafTab` under the group, each panel has a `LeafNavigationScope` with `ContainNavigation` off, `SelectOnEnable` off and `Entry` set to `Remembered` (back to where you were in that tab) or `First`, all under the screen's containing scope
+- Switch tabs from a gamepad or keyboard with `LeafRadioGroup.SelectNext`, e.g. from shoulder buttons
 
 ### Element State
 - `LeafElementMode` is only the interaction: `Normal`, `Highlighted`, `Pressed`

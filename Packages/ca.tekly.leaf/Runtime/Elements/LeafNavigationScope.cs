@@ -60,6 +60,12 @@ namespace Tekly.Leaf.Elements
 		[Tooltip("Where focus lands when this scope is enabled, or when navigation enters it from outside")]
 		[SerializeField] private LeafScopeEntry m_entry = LeafScopeEntry.First;
 
+		[Tooltip("Select the entry when this scope is enabled. Turn off when something else decides when it takes focus, e.g. LeafTabPanels")]
+		[SerializeField] private bool m_selectOnEnable = true;
+
+		[Tooltip("On: Left and Right only move to Selectables in the same row (overlapping vertically), wrapping within that row. Off: when the row has nothing that way, they can move diagonally to the nearest Selectable")]
+		[SerializeField] private bool m_sidewaysStaysInRow = true;
+
 		[SerializeField] private bool m_wrapHorizontal = true;
 		[SerializeField] private bool m_wrapVertical = true;
 		[SerializeField] private GameObject m_firstSelection;
@@ -81,7 +87,7 @@ namespace Tekly.Leaf.Elements
 			}
 
 			m_selectionSubscription = LeafCore.Instance.Selection.Current.Subscribe(OnSelectionChanged);
-			m_needsInitialSelection = ShouldSelectOnEnable() && !SelectGameObject();
+			m_needsInitialSelection = m_selectOnEnable && ShouldSelectOnEnable() && !SelectGameObject();
 		}
 
 		private void OnDisable()
@@ -101,6 +107,20 @@ namespace Tekly.Leaf.Elements
 		public bool SelectGameObject()
 		{
 			return SelectGameObject(false);
+		}
+
+		/// <summary>
+		/// Selects where focus lands in this scope now, or once something selectable shows up, e.g. a tab panel
+		/// that was just swapped to. Stops waiting if something visible gets focus first. Does nothing while the
+		/// scope is disabled.
+		/// </summary>
+		public void TakeFocus()
+		{
+			if (!isActiveAndEnabled) {
+				return;
+			}
+
+			m_needsInitialSelection = !SelectGameObject();
 		}
 
 		/// <summary>
@@ -265,19 +285,21 @@ namespace Tekly.Leaf.Elements
 		{
 			CollectSelectables(s_selectables);
 
+			var isSideways = direction is MoveDirection.Left or MoveDirection.Right;
 			var source = GetNavRect(current.transform, direction);
-			var best = FindBestFrom(current, source, direction);
+			var best = FindBestFrom(current, source, direction, isSideways && m_sidewaysStaysInRow);
 
 			if (best == null && allowWrap) {
-				// Search again as if current sat just before everything else, e.g. Right from the end of a row
-				// finds the start of that row
+				// Search again as if current sat just before everything else. Sideways only the same row counts,
+				// so Right from the end of a row finds the start of that row rather than whatever sits nearest
+				// the scope's left edge
 				var start = source.Near;
 
 				for (var i = 0; i < s_selectables.Count; i++) {
 					start = Mathf.Min(start, GetNavRect(s_selectables[i].transform, direction).Near);
 				}
 
-				best = FindBestFrom(current, source.MovedBefore(start), direction);
+				best = FindBestFrom(current, source.MovedBefore(start), direction, isSideways);
 			}
 
 			s_selectables.Clear();
@@ -541,7 +563,7 @@ namespace Tekly.Leaf.Elements
 			       selectable.navigation.mode != Navigation.Mode.None;
 		}
 
-		private Selectable FindBestFrom(Selectable current, NavRect source, MoveDirection direction)
+		private Selectable FindBestFrom(Selectable current, NavRect source, MoveDirection direction, bool requireBeam)
 		{
 			Selectable best = null;
 			var bestRect = default(NavRect);
@@ -555,7 +577,7 @@ namespace Tekly.Leaf.Elements
 
 				var rect = GetNavRect(candidate.transform, direction);
 
-				if (!source.IsCandidate(rect)) {
+				if (!source.IsCandidate(rect) || (requireBeam && !source.BeamOverlaps(rect))) {
 					continue;
 				}
 
