@@ -2382,7 +2382,6 @@ GameObject:
   - component: {fileID: 506201695}
   - component: {fileID: 506201697}
   - component: {fileID: 506201698}
-  - component: {fileID: 506201699}
   m_Layer: 5
   m_Name: Quality
   m_TagString: Untagged
@@ -2469,7 +2468,7 @@ MonoBehaviour:
   m_initialOption: {fileID: 0}
   m_interactable: 1
   m_layoutAxis: 0
-  m_wrap: 1
+  m_wrap: 0
   m_selectionFollowsFocus: 1
   m_singleTabStop: 1
   m_onChanged:
@@ -2536,24 +2535,6 @@ MonoBehaviour:
   m_maxPerLine: 0
   m_lineSpacing: 0
   m_lineAlignment: 0
---- !u!114 &506201699
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 506201689}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39eee64041b1d1c48be879b2c3d74aa4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Tekly.Trellis.Runtime::Tekly.Trellis.WidthGroup
-  m_minWidth:
-    IsSet: 0
-    Value: 0
-  m_maxWidth:
-    IsSet: 0
-    Value: 0
 --- !u!1 &533984520 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 167165164049946300, guid: be6eec1fe19baa743a59036f3a6a9d3e, type: 3}
@@ -15977,10 +15958,6 @@ PrefabInstance:
     - target: {fileID: 167165164049946300, guid: be6eec1fe19baa743a59036f3a6a9d3e, type: 3}
       propertyPath: m_Name
       value: options_radiooption_pfb
-      objectReference: {fileID: 0}
-    - target: {fileID: 957610494083062381, guid: be6eec1fe19baa743a59036f3a6a9d3e, type: 3}
-      propertyPath: m_widthGroup
-      value: option
       objectReference: {fileID: 0}
     - target: {fileID: 1417932230543685513, guid: be6eec1fe19baa743a59036f3a6a9d3e, type: 3}
       propertyPath: m_IsActive

@@ -26,7 +26,11 @@
 ### Scroll To Selection
 - `LeafScrollToSelection` on a ScrollRect scrolls the least distance that shows a newly selected object inside its content, plus `m_padding`. Nothing moves if it's already fully visible
 - Forces a canvas update before measuring, so a widget added and selected in the same frame is measured after layout
-- Clamps to the ends of the content afterwards, so Elastic scroll views don't spring back
+- Never scrolls past the ends of the content, so Elastic scroll views don't spring back
+- `m_duration` glides there (SmoothDamp, unscaled time); 0 jumps. A new selection while moving is measured from where the content is heading, so quick or held arrow keys stay one smooth motion. Dragging or the scroll wheel cancels it, and the goal is kept in range if the content resizes while moving
+- Only updates while moving: it subscribes to `LifeCycle.LateUpdate` for the duration of a scroll
+- The first selection after the component is enabled (e.g. a scope's entry when a screen opens) jumps instead of scrolling in
+- `ScrollIntoView(target, instant)` scrolls from code; `StopAnimating()` stops where it is
 
 ### Tab Navigation
 - The UI input modules never send Tab, so `LeafCore` reads Tab/Shift+Tab every LateUpdate (`LeafTabInput`) and passes it to the scope that navigates the selection

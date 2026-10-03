@@ -5,6 +5,7 @@ using Tekly.Leaf.Elements.Animators;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using UnityEngine.Pool;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -74,8 +75,6 @@ namespace Tekly.Leaf.Elements.Radios
 		}
 
 		[Tooltip("Clicking the current option turns it off, and no option has to be on")]
-		[FormerlySerializedAs("m_allowNoOption")]
-		[FormerlySerializedAs("_allowNoOption")]
 		[SerializeField] private bool m_allowNone;
 
 		[Tooltip("The option that's on when the group starts. Empty: the first option in hierarchy order, or none if the group allows none")]
@@ -407,20 +406,15 @@ namespace Tekly.Leaf.Elements.Radios
 
 		private void RefreshOptions()
 		{
-			CollectOptions(s_options);
+			using (ListPool<ILeafRadioOption>.Get(out var options)) {
+				CollectOptions(options);
 
-			// Copied first: refreshing can run code that uses the shared list
-			var options = s_options.ToArray();
-			s_options.Clear();
-
-			for (var i = 0; i < options.Length; i++) {
-				options[i].RefreshState(false);
+				for (var i = 0; i < options.Count; i++) {
+					options[i].RefreshState(false);
+				}
 			}
 		}
 
-		/// <summary>
-		/// The active options of this group in hierarchy order. Options of nested groups are left out.
-		/// </summary>
 		private void OnSelectionChanged(GameObject selected)
 		{
 			var hasFocus = selected != null && selected.TryGetComponent(out ILeafRadioOption option) && option.Group == this;
@@ -446,6 +440,9 @@ namespace Tekly.Leaf.Elements.Radios
 			m_animator.HandleState(new LeafElementState(LeafElementMode.Normal, flags), instant);
 		}
 
+		/// <summary>
+		/// The active options of this group in hierarchy order. Options of nested groups are left out.
+		/// </summary>
 		private void CollectOptions(List<ILeafRadioOption> output)
 		{
 			GetComponentsInChildren(false, output);

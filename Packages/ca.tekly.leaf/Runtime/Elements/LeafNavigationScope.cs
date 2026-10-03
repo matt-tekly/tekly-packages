@@ -481,6 +481,11 @@ namespace Tekly.Leaf.Elements
 			return result;
 		}
 
+		private static LeafRadioGroup GetRadioGroup(Selectable selectable)
+		{
+			return selectable != null && selectable.TryGetComponent(out ILeafRadioOption option) ? option.Group : null;
+		}
+
 		private static bool IsUsable(GameObject target)
 		{
 			return target != null && target.activeInHierarchy &&
@@ -567,11 +572,18 @@ namespace Tekly.Leaf.Elements
 		{
 			Selectable best = null;
 			var bestRect = default(NavRect);
+			var currentGroup = GetRadioGroup(current);
 
 			for (var i = 0; i < s_selectables.Count; i++) {
 				var candidate = s_selectables[i];
 
 				if (!ShouldIncludeInNavigation(current, candidate)) {
+					continue;
+				}
+
+				// A radio group moves between its own options (LeafRadioGroup.TryMove), so a move it turned down,
+				// e.g. at an end without wrapping, mustn't land back inside it by the scope wrapping around the row
+				if (currentGroup != null && GetRadioGroup(candidate) == currentGroup) {
 					continue;
 				}
 
