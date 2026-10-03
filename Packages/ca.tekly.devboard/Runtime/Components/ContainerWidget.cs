@@ -8,6 +8,12 @@ namespace Tekly.DevBoard.Components
 {
 	public class ContainerWidget : Widget
 	{
+		/// <summary>
+		/// When set, adds a level to the saved view state keys of everything inside this container, so the same
+		/// widgets in different containers keep separate state. See <see cref="DevBoardState.KeyFor"/>.
+		/// </summary>
+		public virtual string StateScope { get; set; }
+
 		[SerializeField] protected RectTransform m_content;
 		[SerializeField] private FlowLayout m_layout;
 

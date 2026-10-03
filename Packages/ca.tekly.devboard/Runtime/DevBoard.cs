@@ -9,7 +9,23 @@ namespace Tekly.DevBoard
 {
 	public class DevBoard : Singleton<DevBoard>
 	{
+		/// <summary>
+		/// View state (foldouts, scroll positions) that survives widgets being destroyed and rebuilt.
+		/// </summary>
+		public DevBoardState State { get; } = new();
+
+		/// <summary>
+		/// Ticks behaviours that aren't inside a Board.
+		/// </summary>
+		internal TickGroup UnboardedTickGroup {
+			get {
+				Initialize();
+				return m_ticker.TickGroup;
+			}
+		}
+
 		private GameObject m_root;
+		private DevBoardTicker m_ticker;
 
 		// Widget prefabs by name (the variant), and the first prefab of each exact type as that type's fallback
 		private readonly Dictionary<string, Widget> m_widgets = new();
@@ -24,6 +40,7 @@ namespace Tekly.DevBoard
 			// Unity null check, so a destroyed root is recreated
 			if (m_root == null) {
 				m_root = new GameObject("DevBoard");
+				m_ticker = m_root.AddComponent<DevBoardTicker>();
 				Object.DontDestroyOnLoad(m_root);
 			}
 		}

@@ -231,6 +231,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Tekly.DevBoard::Tekly.DevBoard.Components.ScrollViewWidget
   m_content: {fileID: 1853186824319880763}
   m_layout: {fileID: 3086875175669366769}
+  m_scrollRect: {fileID: 501785114920986494}
 --- !u!114 &2328176498840479678
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -244,6 +245,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Tekly.Leaf::Tekly.Leaf.Scrolling.LeafScrollToSelection
   m_padding: 8
+  m_duration: 0.15
 --- !u!1 &2541974832914373445
 GameObject:
   m_ObjectHideFlags: 0
@@ -304,7 +306,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.48627454, g: 0.43529415, b: 0.3921569, a: 1}
   m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: -8}
+  m_RaycastPadding: {x: 0, y: -10, z: 0, w: -10}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -365,7 +367,7 @@ MonoBehaviour:
   m_revealOrigin: 3
   m_revealAmount: 1
   m_revealClockwise: 1
-  m_raycastUsesShape: 1
+  m_raycastUsesShape: 0
 --- !u!1 &4158838138318591105
 GameObject:
   m_ObjectHideFlags: 0
@@ -580,7 +582,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 582095355360051127}
   m_Direction: 0
   m_Value: 0
-  m_Size: 1
+  m_Size: 0.5
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -842,8 +844,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4201715111048744441}
   m_HandleRect: {fileID: 5044990560436365489}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 0.9999999
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -924,7 +926,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.48627454, g: 0.43529415, b: 0.3921569, a: 1}
   m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_RaycastPadding: {x: -10, y: 0, z: -10, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -985,7 +987,7 @@ MonoBehaviour:
   m_revealOrigin: 3
   m_revealAmount: 1
   m_revealClockwise: 1
-  m_raycastUsesShape: 1
+  m_raycastUsesShape: 0
 --- !u!1 &8672374916414766499
 GameObject:
   m_ObjectHideFlags: 0
