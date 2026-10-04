@@ -177,8 +177,8 @@ MonoBehaviour:
     IsSet: 0
     Value: 0
   m_preferredHeight:
-    IsSet: 1
-    Value: 20
+    IsSet: 0
+    Value: 0
   m_flexibleWidth:
     IsSet: 0
     Value: 0

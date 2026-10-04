@@ -846,14 +846,14 @@ MonoBehaviour:
     IsSet: 0
     Value: 0
   m_minHeight:
-    IsSet: 0
-    Value: 0
+    IsSet: 1
+    Value: 26
   m_preferredWidth:
     IsSet: 0
     Value: 0
   m_preferredHeight:
-    IsSet: 1
-    Value: 26
+    IsSet: 0
+    Value: 0
   m_flexibleWidth:
     IsSet: 1
     Value: 1

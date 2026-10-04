@@ -88,6 +88,12 @@ namespace Tekly.DevBoard.Components
 			return this;
 		}
 
+		public ContainerWidget WithAlignment(LayoutAlignment layoutAlignment)
+		{
+			m_layout.Alignment = layoutAlignment;
+			return this;
+		}
+		
 		public ContainerWidget WithCrossAlignment(CrossAlignment crossAlignment)
 		{
 			m_layout.CrossAlignment = crossAlignment;

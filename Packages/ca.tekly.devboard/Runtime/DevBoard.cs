@@ -4,6 +4,7 @@ using Tekly.Common.Utils;
 using Tekly.DevBoard.Components;
 using Tekly.DevBoard.Pages;
 using Tekly.DevBoard.Panels;
+using Tekly.Trellis;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -403,20 +404,25 @@ namespace Tekly.DevBoard
 			}
 		}
 
+		private string LabelAndSubLabel(string label, string subLabel)
+		{
+			return $"{label}\n<style=\"sublabel\">{subLabel}</style>";
+		}
+
 		private void RegisterOptionsPage()
 		{
 			Page(OPTIONS_PATH, page => {
 				var form = page.Root.Form();
-				form.FloatInput("UI Scale", () => Settings.Scale, value => Settings.Scale = value)
+				form.FloatInput(LabelAndSubLabel("UI Scale", "Scales all UI Elements"), () => Settings.Scale, value => Settings.Scale = value)
 					.WithFormat("0.##");
 
-				var scaleRow = form.Row().WithPadding(0);
+				var scaleRow = form.Row().WithPadding(0).WithAlignment(LayoutAlignment.End).WithFlexibleWidth();
 				scaleRow.Button("-", () => Settings.Scale -= DevBoardSettings.SCALE_STEP);
 				scaleRow.Button("+", () => Settings.Scale += DevBoardSettings.SCALE_STEP);
 				scaleRow.Button("1x", () => Settings.Scale = 1f);
 
 #if UNITY_EDITOR
-				form.Toggle("Use Physical Size Scale", () => Settings.KeepPhysicalSizeInEditor,
+				form.Toggle(LabelAndSubLabel("Use Physical Size Scale", "Use screen DPI to scale UI"), () => Settings.KeepPhysicalSizeInEditor,
 					value => Settings.KeepPhysicalSizeInEditor = value);
 #endif
 
