@@ -25,6 +25,7 @@ namespace Tekly.DevBoard.Panels
 		public RectTransform Area { get; }
 
 		private readonly RectTransform[] m_slots;
+		private readonly FixedPhysicalCanvasScaler m_scaler;
 
 		public DevBoardDock(Transform parent)
 		{
@@ -39,7 +40,7 @@ namespace Tekly.DevBoard.Panels
 			Canvas.pixelPerfect = true;
 
 			// Same scaler as board.prefab: constant pixel size, kept physical in the editor's Game view
-			canvasObject.AddComponent<FixedPhysicalCanvasScaler>();
+			m_scaler = canvasObject.AddComponent<FixedPhysicalCanvasScaler>();
 			canvasObject.AddComponent<GraphicRaycaster>();
 
 			var areaObject = new GameObject("Safe Area", typeof(RectTransform));
@@ -57,6 +58,12 @@ namespace Tekly.DevBoard.Panels
 			foreach (var slot in slots) {
 				m_slots[(int) slot] = CreateSlot(slot);
 			}
+		}
+
+		public void ApplySettings(DevBoardSettings settings)
+		{
+			m_scaler.scaleFactor = settings.Scale;
+			m_scaler.CompensateGameViewScale = settings.KeepPhysicalSizeInEditor;
 		}
 
 		public RectTransform GetSlot(DockSlot slot)

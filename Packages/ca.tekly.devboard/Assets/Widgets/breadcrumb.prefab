@@ -76,8 +76,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4289911787
-  m_fontColor: {r: 0.92156863, g: 0.85882354, b: 0.69803923, a: 1}
+    rgba: 4280392151
+  m_fontColor: {r: 0.8431373, g: 0.6, b: 0.12941177, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -197,5 +197,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Tekly.DevBoard::Tekly.DevBoard.Components.BreadcrumbWidget
   m_text: {fileID: 601371542662589404}
   m_separator: /
-  m_linkColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
+  m_linkColor: {r: 0.65882355, g: 0.6, b: 0.5176471, a: 1}
   m_hoverColor: {r: 1, g: 1, b: 1, a: 1}
+  m_currentColor: {r: 0.84313726, g: 0.6, b: 0.12941177, a: 1}
+  m_separatorColor: {r: 0.40000004, g: 0.36078432, b: 0.32941177, a: 1}

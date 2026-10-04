@@ -22,6 +22,16 @@ namespace Tekly.DevBoard
 		public const string PANEL_VARIANT = "panel";
 
 		/// <summary>
+		/// The page DevBoard's own options are on. Other code can add segments to it too.
+		/// </summary>
+		public const string OPTIONS_PATH = "Options";
+
+		/// <summary>
+		/// DevBoard's own options, like the UI scale. Saved in PlayerPrefs.
+		/// </summary>
+		public DevBoardSettings Settings { get; } = DevBoardSettings.Load();
+
+		/// <summary>
 		/// Every registered page. Usually used through Page().
 		/// </summary>
 		public PageTree Pages { get; } = new();
@@ -58,6 +68,12 @@ namespace Tekly.DevBoard
 		private readonly Dictionary<string, Widget> m_widgets = new();
 		private readonly Dictionary<Type, Widget> m_defaults = new();
 		private readonly HashSet<string> m_warnings = new();
+
+		public DevBoard()
+		{
+			Settings.Changed += ApplySettings;
+			RegisterOptionsPage();
+		}
 
 		/// <summary>
 		/// Creates the root object boards live under. Safe to call any number of times.
@@ -280,6 +296,7 @@ namespace Tekly.DevBoard
 			// Unity null check on the canvas, so a destroyed dock is recreated along with the root
 			if (m_dock == null || m_dock.Canvas == null) {
 				m_dock = new DevBoardDock(m_root.transform);
+				m_dock.ApplySettings(Settings);
 			}
 
 			if (!TryGet(PANEL_VARIANT, out DevBoardPanel prefab)) {
@@ -317,6 +334,35 @@ namespace Tekly.DevBoard
 
 			m_widgets[widget.name] = widget;
 			m_defaults.TryAdd(type, widget);
+		}
+
+		private void ApplySettings()
+		{
+			// Unity null check on the canvas: the dock may not exist yet, or may have been destroyed
+			if (m_dock != null && m_dock.Canvas != null) {
+				m_dock.ApplySettings(Settings);
+			}
+		}
+
+		private void RegisterOptionsPage()
+		{
+			Page(OPTIONS_PATH, page => {
+				var form = page.Root.Form();
+				form.FloatInput("UI Scale", () => Settings.Scale, value => Settings.Scale = value)
+					.WithFormat("0.##");
+
+				var scaleRow = form.Row().WithPadding(0);
+				scaleRow.Button("-", () => Settings.Scale -= DevBoardSettings.SCALE_STEP);
+				scaleRow.Button("+", () => Settings.Scale += DevBoardSettings.SCALE_STEP);
+				scaleRow.Button("1x", () => Settings.Scale = 1f);
+
+#if UNITY_EDITOR
+				form.Toggle("Use Physical Size Scale", () => Settings.KeepPhysicalSizeInEditor,
+					value => Settings.KeepPhysicalSizeInEditor = value);
+#endif
+
+				form.Button("Reset options", Settings.ResetToDefaults);
+			}, order: int.MinValue);
 		}
 
 		private void WarnOnce(string message, bool isError = false)

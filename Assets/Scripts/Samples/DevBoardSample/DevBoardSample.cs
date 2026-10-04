@@ -11,7 +11,7 @@ namespace TeklySample.Samples.DevBoardSample
 	{
 		// State lives here, not in the builders: builders can run several times (once per panel showing the page)
 		private string m_testValue = "Starting Value";
-		private bool m_toggleValue;
+		private bool m_toggleValue = true;
 		private int m_intValue;
 		private float m_floatValue;
 		private int m_coins;

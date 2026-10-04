@@ -33,6 +33,7 @@ MonoBehaviour:
   - {fileID: 2744805454382699224, guid: f04f59ba5c9271f4f96a7d4a68fb43b7, type: 3}
   - {fileID: 2056309467435892577, guid: 4f881ceea937cee4392a6884f5a6bfd8, type: 3}
   - {fileID: 4296174205817953816, guid: 1a516debe3883a543bb25ac2d9fdcf13, type: 3}
+  - {fileID: 1633324391445996928, guid: 8e59b4a43254b0f4cbd973126d6be5db, type: 3}
   Fonts:
   - {fileID: 11400000, guid: 8096619a8053df240b901c57a8928de4, type: 2}
   - {fileID: 11400000, guid: 02ee2563343ffb84b87ca0f4d35e1c45, type: 2}

@@ -15,16 +15,23 @@ namespace Tekly.DevBoard.Components
 		public readonly string Title;
 		public readonly string Key;
 
-		public Crumb(string title, string key)
+		/// <summary>
+		/// Overrides the breadcrumb's link or current color for this crumb. The hover color still wins.
+		/// </summary>
+		public readonly Color? Color;
+
+		public Crumb(string title, string key, Color? color = null)
 		{
 			Title = title;
 			Key = key;
+			Color = color;
 		}
 	}
 
 	/// <summary>
 	/// A trail like "DevBoard / Game / Economy" in a single text, where every crumb but the last is a link.
-	/// The link under the pointer is drawn in the hover color.
+	/// Links, the link under the pointer, the current (last) crumb and the separators each have their own color,
+	/// and a single crumb can override its color through Crumb.Color.
 	///
 	/// Prefab setup: a TMP text with Raycast Target on, on this GameObject or a child of it (found automatically
 	/// if Text isn't set). Long trails are handled by the text's own overflow settings.
@@ -35,6 +42,28 @@ namespace Tekly.DevBoard.Components
 		[SerializeField] private string m_separator = "/";
 		[SerializeField] private Color m_linkColor = new Color(0.7f, 0.7f, 0.7f, 1f);
 		[SerializeField] private Color m_hoverColor = Color.white;
+		[SerializeField] private Color m_currentColor = Color.white;
+		[SerializeField] private Color m_separatorColor = new Color(0.5f, 0.5f, 0.5f, 1f);
+
+		public Color LinkColor {
+			get => m_linkColor;
+			set => SetColor(ref m_linkColor, value);
+		}
+
+		public Color HoverColor {
+			get => m_hoverColor;
+			set => SetColor(ref m_hoverColor, value);
+		}
+
+		public Color CurrentColor {
+			get => m_currentColor;
+			set => SetColor(ref m_currentColor, value);
+		}
+
+		public Color SeparatorColor {
+			get => m_separatorColor;
+			set => SetColor(ref m_separatorColor, value);
+		}
 
 		/// <summary>
 		/// Drawn between crumbs, with a space either side.
@@ -95,6 +124,12 @@ namespace Tekly.DevBoard.Components
 			}
 		}
 
+		private void SetColor(ref Color field, Color value)
+		{
+			field = value;
+			Refresh();
+		}
+
 		private void SetHovered(int index)
 		{
 			if (index != m_hoveredLink) {
@@ -133,30 +168,37 @@ namespace Tekly.DevBoard.Components
 
 			m_builder.Clear();
 
-			var linkColor = ColorUtility.ToHtmlStringRGBA(m_linkColor);
-			var hoverColor = ColorUtility.ToHtmlStringRGBA(m_hoverColor);
-
 			for (var i = 0; i < m_crumbs.Count; i++) {
 				if (i > 0) {
-					m_builder.Append(' ').Append("<noparse>").Append(m_separator).Append("</noparse>").Append(' ');
+					m_builder.Append(' ');
+					AppendColored(m_separatorColor, m_separator);
+					m_builder.Append(' ');
 				}
 
-				var isLast = i == m_crumbs.Count - 1;
+				var crumb = m_crumbs[i];
 
-				if (!isLast) {
-					var color = i == m_hoveredLink ? hoverColor : linkColor;
-					m_builder.Append("<link=\"").Append(i).Append("\"><color=#").Append(color).Append('>');
-				}
+				if (i == m_crumbs.Count - 1) {
+					AppendColored(crumb.Color ?? m_currentColor, crumb.Title);
+				} else {
+					var color = i == m_hoveredLink ? m_hoverColor : crumb.Color ?? m_linkColor;
 
-				// Titles are shown as written, even if they contain something that looks like a tag
-				m_builder.Append("<noparse>").Append(m_crumbs[i].Title).Append("</noparse>");
-
-				if (!isLast) {
-					m_builder.Append("</color></link>");
+					m_builder.Append($"<u color=#{ColorUtility.ToHtmlStringRGBA(color)}><link=\"").Append(i).Append("\">");
+					AppendColored(color, crumb.Title);
+					m_builder.Append("</link></u>");
 				}
 			}
 
 			m_text.SetText(m_builder);
+		}
+
+		/// <summary>
+		/// Appends text in a color. The text is shown as written, even if it contains something that looks like a tag.
+		/// </summary>
+		private void AppendColored(Color color, string text)
+		{
+			m_builder.Append("<color=#").Append(ColorUtility.ToHtmlStringRGBA(color)).Append('>')
+				.Append(text)
+				.Append("</color>");
 		}
 	}
 }

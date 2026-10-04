@@ -12,9 +12,22 @@ namespace Tekly.Common.Ui
 	[AddComponentMenu("Layout/Fixed Physical Canvas Scaler")]
 	public class FixedPhysicalCanvasScaler : CanvasScaler
 	{
+		[Tooltip("In the editor, scale against the Game view's zoom so the UI stays the same size on the monitor")]
+		[SerializeField] private bool m_compensateGameViewScale = true;
+
+		/// <summary>
+		/// In the editor, scale against the Game view's zoom so the UI stays the same size on the monitor.
+		/// Has no effect in builds.
+		/// </summary>
+		public bool CompensateGameViewScale {
+			get => m_compensateGameViewScale;
+			set => m_compensateGameViewScale = value;
+		}
+
 		protected override void HandleConstantPixelSize()
 		{
-			SetScaleFactor(m_ScaleFactor * GameViewScale.Get());
+			var gameViewScale = m_compensateGameViewScale ? GameViewScale.Get() : 1f;
+			SetScaleFactor(m_ScaleFactor * gameViewScale);
 			SetReferencePixelsPerUnit(m_ReferencePixelsPerUnit);
 		}
 

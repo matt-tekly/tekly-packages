@@ -86,10 +86,26 @@ namespace Tekly.Leaf.Elements
 			LeafNavigationScope.TryNavigateFrom(this, eventData);
 		}
 
+		/// <summary>
+		/// Hides Toggle.SetIsOnWithoutNotify, which changes isOn without raising onValueChanged, so the animator
+		/// would keep showing the old On state until the next pointer or selection change. The new state is
+		/// applied instantly: it's a programmatic sync, not something the user did.
+		/// </summary>
+		public new void SetIsOnWithoutNotify(bool value)
+		{
+			base.SetIsOnWithoutNotify(value);
+			RefreshAnimator(true);
+		}
+
 		private void OnToggleValueChanged(bool value)
 		{
+			RefreshAnimator(false);
+		}
+
+		private void RefreshAnimator(bool instant)
+		{
 			if (m_animator != null) {
-				m_animator.HandleState(CurrentState, false);
+				m_animator.HandleState(CurrentState, instant);
 			}
 		}
 
