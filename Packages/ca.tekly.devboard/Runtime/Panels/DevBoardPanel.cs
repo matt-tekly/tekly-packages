@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using Tekly.DevBoard.Components;
 using Tekly.DevBoard.Pages;
+using Tekly.Leaf.Elements;
 using Tekly.Trellis;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Tekly.DevBoard.Panels
@@ -64,15 +66,19 @@ namespace Tekly.DevBoard.Panels
 		[SerializeField] private string m_collapseLabel = "-";
 		[SerializeField] private string m_expandLabel = "+";
 
-		[Tooltip("Opens and closes the actions row")]
-		[SerializeField] private ButtonWidget m_menuButton;
+		[Tooltip("Switches the header between its normal and settings contents. Keep it outside both so it stays visible")]
+		[SerializeField] private LeafToggle m_actionsToggle;
+
+		[Tooltip("The header's normal contents, e.g. the breadcrumb. Shown while settings are closed")]
+		[SerializeField] private GameObject m_headerNormal;
 
 		[Tooltip("Shown instead of the header in overlay mode, labelled with the page title. Tapping it makes the panel interactive again")]
 		[SerializeField] private ButtonWidget m_overlayHandle;
 
-		[Header("Actions")]
-		[Tooltip("Hidden until the menu button is tapped. Any of the buttons can be left out")]
-		[SerializeField] private GameObject m_actions;
+		[Header("Settings")]
+		[Tooltip("The header's settings contents (panel actions). Shown instead of the normal header while the toggle is on. Any of the buttons can be left out")]
+		[FormerlySerializedAs("m_actions")]
+		[SerializeField] private GameObject m_headerSettings;
 		[SerializeField] private ButtonWidget m_popButton;
 		[SerializeField] private ButtonWidget m_dockButton;
 		[SerializeField] private ButtonWidget m_overlayButton;
@@ -99,7 +105,6 @@ namespace Tekly.DevBoard.Panels
 		private float m_nextTickTime;
 		private float m_maxHeight = -1f;
 		private bool m_headerDirty;
-		private bool m_actionsOpen;
 		private bool m_tornDown;
 
 		/// <summary>
@@ -223,17 +228,18 @@ namespace Tekly.DevBoard.Panels
 				m_bodyGroup = m_body.gameObject.AddComponent<CanvasGroup>();
 			}
 
-			if (m_actions != null) {
-				m_actions.SetActive(false);
-			}
-
 			Wire(m_collapseButton, Deferred(() => SetCollapsed(!IsCollapsed)));
-			Wire(m_menuButton, Deferred(ToggleActions));
 			Wire(m_overlayHandle, Deferred(() => SetOverlay(false)));
 			Wire(m_popButton, MenuAction(() => PopOut()));
 			Wire(m_dockButton, MenuAction(CycleDock));
 			Wire(m_overlayButton, MenuAction(() => SetOverlay(true)));
 			Wire(m_closeButton, MenuAction(Close));
+
+			if (m_actionsToggle != null) {
+				m_actionsToggle.onValueChanged.AddListener(OnActionsToggleChanged);
+			}
+
+			SetSettingsOpen(false);
 		}
 
 		private void Setup(DevBoard board, DevBoardDock dock, PanelRecord record)
@@ -554,22 +560,12 @@ namespace Tekly.DevBoard.Panels
 		{
 			m_headerDirty = false;
 
+			// Only text changes here. Which header objects are active is set directly by SetSettingsOpen and
+			// ApplyOverlay, so nothing here fights the toggle.
 			var page = m_current?.Page;
 
-			// In overlay mode the header gives way to a small handle, if the prefab has one
-			var showHandle = IsOverlay && m_overlayHandle != null;
-
-			if (m_header != null) {
-				m_header.SetActive(!showHandle);
-			}
-
 			if (m_overlayHandle != null) {
-				m_overlayHandle.gameObject.SetActive(showHandle);
 				m_overlayHandle.Label = page?.Title ?? PageTree.ROOT_TITLE;
-			}
-
-			if (m_actions != null) {
-				m_actions.SetActive(m_actionsOpen && !IsOverlay);
 			}
 
 			if (m_breadcrumb != null) {
@@ -591,20 +587,42 @@ namespace Tekly.DevBoard.Panels
 			}
 		}
 
-		private void ToggleActions()
+		/// <summary>
+		/// The toggle is the only state for settings: it just swaps the normal and settings header objects. Runs
+		/// immediately, since the toggle sits outside both and nothing is rebuilt.
+		/// </summary>
+		private void OnActionsToggleChanged(bool isOn)
 		{
-			m_actionsOpen = !m_actionsOpen;
-			m_headerDirty = true;
+			ApplySettingsOpen(isOn);
+		}
+
+		private void SetSettingsOpen(bool open)
+		{
+			if (m_actionsToggle != null) {
+				m_actionsToggle.SetIsOnWithoutNotify(open);
+			}
+
+			ApplySettingsOpen(open);
+		}
+
+		private void ApplySettingsOpen(bool open)
+		{
+			if (m_headerNormal != null) {
+				m_headerNormal.SetActive(!open);
+			}
+
+			if (m_headerSettings != null) {
+				m_headerSettings.SetActive(open);
+			}
 		}
 
 		/// <summary>
-		/// A button action from the "..." row: closes the row, then runs.
+		/// A button from the settings header: closes settings, then runs.
 		/// </summary>
 		private Action MenuAction(Action action)
 		{
 			return Deferred(() => {
-				m_actionsOpen = false;
-				m_headerDirty = true;
+				SetSettingsOpen(false);
 				action();
 			});
 		}
@@ -626,6 +644,21 @@ namespace Tekly.DevBoard.Panels
 			// Let touches around the handle through to the game too
 			if (m_frameGraphic != null) {
 				m_frameGraphic.raycastTarget = !overlay;
+			}
+
+			// In overlay mode the header gives way to a small handle, if the prefab has one
+			var showHandle = overlay && m_overlayHandle != null;
+
+			if (m_header != null) {
+				m_header.SetActive(!showHandle);
+			}
+
+			if (m_overlayHandle != null) {
+				m_overlayHandle.gameObject.SetActive(showHandle);
+			}
+
+			if (overlay) {
+				SetSettingsOpen(false);
 			}
 
 			UpdateTickInterval();
@@ -728,6 +761,10 @@ namespace Tekly.DevBoard.Panels
 			}
 
 			m_tornDown = true;
+
+			if (m_actionsToggle != null) {
+				m_actionsToggle.onValueChanged.RemoveListener(OnActionsToggleChanged);
+			}
 
 			if (m_tree != null) {
 				m_tree.SegmentAdded -= OnSegmentAdded;
