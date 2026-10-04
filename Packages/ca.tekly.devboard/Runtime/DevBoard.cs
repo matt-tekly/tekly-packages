@@ -362,7 +362,7 @@ namespace Tekly.DevBoard
 #endif
 
 				form.Button("Reset options", Settings.ResetToDefaults);
-			}, order: int.MinValue);
+			}, order: int.MaxValue);
 		}
 
 		private void WarnOnce(string message, bool isError = false)

@@ -23,7 +23,13 @@ namespace Tekly.DevBoard.Pages
 		public bool IsRoot => Parent == null;
 
 		/// <summary>
-		/// Child pages, sorted by title.
+		/// Where this page sorts among its siblings: the lowest Order of its segments, or for a folder page with
+		/// no segments of its own, the lowest Order of its children. 0 when it has neither.
+		/// </summary>
+		public int Order { get; private set; }
+
+		/// <summary>
+		/// Child pages, sorted by Order and then by title.
 		/// </summary>
 		public IReadOnlyList<PageNode> Children => m_children;
 
@@ -65,13 +71,42 @@ namespace Tekly.DevBoard.Pages
 
 		internal void AddChild(PageNode child)
 		{
-			var index = 0;
+			m_children.Add(child);
+			SortChildren();
+		}
 
-			while (index < m_children.Count && string.Compare(m_children[index].Title, child.Title, StringComparison.OrdinalIgnoreCase) <= 0) {
-				index++;
+		internal void SortChildren()
+		{
+			m_children.Sort(CompareChildren);
+		}
+
+		/// <summary>
+		/// Recalculates Order from the segments and children. Returns true if it changed.
+		/// </summary>
+		internal bool RefreshOrder()
+		{
+			var order = 0;
+
+			if (m_segments.Count > 0) {
+				order = int.MaxValue;
+
+				foreach (var segment in m_segments) {
+					order = Math.Min(order, segment.Order);
+				}
+			} else if (m_children.Count > 0) {
+				order = int.MaxValue;
+
+				foreach (var child in m_children) {
+					order = Math.Min(order, child.Order);
+				}
 			}
 
-			m_children.Insert(index, child);
+			if (order == Order) {
+				return false;
+			}
+
+			Order = order;
+			return true;
 		}
 
 		internal void RemoveChild(PageNode child)
@@ -106,6 +141,12 @@ namespace Tekly.DevBoard.Pages
 			}
 
 			return index;
+		}
+
+		private static int CompareChildren(PageNode a, PageNode b)
+		{
+			var order = a.Order.CompareTo(b.Order);
+			return order != 0 ? order : string.Compare(a.Title, b.Title, StringComparison.OrdinalIgnoreCase);
 		}
 
 		private static int Compare(PageSegment a, PageSegment b)

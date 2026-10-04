@@ -33,6 +33,9 @@ namespace TeklySample.Samples.DevBoardSample
 			card.TextInput("Delayed", "Placeholder", () => m_testValue, value => m_testValue = value, InputMode.Delayed);
 			card.TextInput("Immediate", "Placeholder", () => m_testValue, value => m_testValue = value, InputMode.Immediate);
 			card.Toggle("Togglo", () => m_toggleValue, value => m_toggleValue = value);
+			card.Toggle("Togglo", () => m_toggleValue, value => m_toggleValue = value);
+			card.Toggle("Togglo", () => m_toggleValue, value => m_toggleValue = value);
+			card.Toggle("Togglo", () => m_toggleValue, value => m_toggleValue = value);
 			card.IntInput("Int", () => m_intValue, value => m_intValue = value);
 			card.FloatInput("Float", () => m_floatValue, value => m_floatValue = value);
 
@@ -78,11 +81,6 @@ namespace TeklySample.Samples.DevBoardSample
 				.WithMaxResults(8);
 				
 			}).BindTo(gameObject);
-
-			devBoard.Page("Sample/Widgets/Smoop", page => {
-				var card = page.Root.Form();
-				card.Property("Bingus", () => Time.realtimeSinceStartup, "{0:N2}");
-			});
 			
 			// Each segment is removed when this GameObject is destroyed
 			devBoard.Page("Sample/Widgets", DoPage).BindTo(gameObject);
@@ -106,19 +104,10 @@ namespace TeklySample.Samples.DevBoardSample
 			}).BindTo(gameObject);
 		}
 
-
 		private void AddItem(string item, int count)
 		{
 			m_inventory.TryGetValue(item, out var current);
 			m_inventory[item] = current + count;
 		}
-
-		#warning Dropdown Search Thingy - maybe this is full screen?
-		// Text Field - maybe a text area?
-		// Number Field
-		// Scroll View
-		// Dropdown Search that could be a full screen spotlight type thing
-		// Slider
-		// Foldout?
 	}
 }

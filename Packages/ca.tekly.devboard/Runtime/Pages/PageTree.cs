@@ -168,6 +168,7 @@ namespace Tekly.DevBoard.Pages
 			page.AddSegment(segment);
 
 			Raise(SegmentAdded, segment);
+			UpdateOrders(page);
 		}
 
 		private void Detach(PageSegment segment)
@@ -186,7 +187,7 @@ namespace Tekly.DevBoard.Pages
 			}
 
 			Raise(SegmentRemoved, segment, page);
-			Prune(page);
+			UpdateOrders(Prune(page));
 		}
 
 		private PageNode GetOrCreate(string path)
@@ -209,7 +210,10 @@ namespace Tekly.DevBoard.Pages
 			return page;
 		}
 
-		private void Prune(PageNode page)
+		/// <summary>
+		/// Removes empty pages from page upwards. Returns the first page that's left.
+		/// </summary>
+		private PageNode Prune(PageNode page)
 		{
 			while (page != null && !page.IsRoot && page.IsEmpty) {
 				var parent = page.Parent;
@@ -222,6 +226,22 @@ namespace Tekly.DevBoard.Pages
 				Raise(ChildrenChanged, parent);
 
 				page = parent;
+			}
+
+			return page;
+		}
+
+		/// <summary>
+		/// A page's Order depends on its segments and children, so a change can move it, and every page above it,
+		/// among their siblings. Re-sorts each level and tells listeners when a level's order changed.
+		/// </summary>
+		private void UpdateOrders(PageNode page)
+		{
+			for (var node = page; node != null && !node.IsRoot; node = node.Parent) {
+				if (node.RefreshOrder()) {
+					node.Parent.SortChildren();
+					Raise(ChildrenChanged, node.Parent);
+				}
 			}
 		}
 
