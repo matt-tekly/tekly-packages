@@ -41,6 +41,7 @@ namespace Tekly.Common.Ui.Fancy
 		private SerializedProperty m_outlines;
 		private SerializedProperty m_shadows;
 		private SerializedProperty m_raycastUsesShape;
+		private SerializedProperty m_rendererTintLayers;
 		private SerializedProperty m_blendMode;
 		private SerializedProperty m_sprite;
 		private SerializedProperty m_textureMode;
@@ -74,6 +75,7 @@ namespace Tekly.Common.Ui.Fancy
 			m_outlines = serializedObject.FindProperty("m_outlines");
 			m_shadows = serializedObject.FindProperty("m_shadows");
 			m_raycastUsesShape = serializedObject.FindProperty("m_raycastUsesShape");
+			m_rendererTintLayers = serializedObject.FindProperty("m_rendererTintLayers");
 			m_blendMode = serializedObject.FindProperty("m_blendMode");
 			m_sprite = serializedObject.FindProperty("m_sprite");
 			m_textureMode = serializedObject.FindProperty("m_textureMode");
@@ -91,6 +93,7 @@ namespace Tekly.Common.Ui.Fancy
 			serializedObject.Update();
 
 			EditorGUILayout.PropertyField(m_Color, s_tintContent);
+			EditorGUILayout.PropertyField(m_rendererTintLayers);
 			EditorGUILayout.PropertyField(m_Material);
 			MaterialWarningGUI();
 			BlendModeGUI();

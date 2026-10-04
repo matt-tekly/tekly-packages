@@ -406,7 +406,7 @@ MonoBehaviour:
     RangeEndInset: 0
     Bias: 0
   m_outlines:
-  - Enabled: 1
+  - Enabled: 0
     Width: 1
     Offset: 0
     Alignment: 0
@@ -440,6 +440,7 @@ MonoBehaviour:
   m_revealAmount: 1
   m_revealClockwise: 1
   m_raycastUsesShape: 1
+  m_rendererTintLayers: 127
 --- !u!114 &254386833649707541
 MonoBehaviour:
   m_ObjectHideFlags: 0

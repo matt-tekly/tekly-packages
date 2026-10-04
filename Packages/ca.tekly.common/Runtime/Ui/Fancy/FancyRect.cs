@@ -21,7 +21,8 @@ namespace Tekly.Common.Ui.Fancy
 	{
 		public const AdditionalCanvasShaderChannels NEEDED_SHADER_CHANNELS = AdditionalCanvasShaderChannels.TexCoord1 |
 		                                                                     AdditionalCanvasShaderChannels.TexCoord2 |
-		                                                                     AdditionalCanvasShaderChannels.TexCoord3;
+		                                                                     AdditionalCanvasShaderChannels.TexCoord3 |
+		                                                                     AdditionalCanvasShaderChannels.Tangent;
 
 		public const string SHADER_NAME = "UI/Fancy Rect";
 		public const int MAX_LAYERS_PER_LIST = 8;
@@ -43,6 +44,9 @@ namespace Tekly.Common.Ui.Fancy
 		private const int REVEAL_CLOCKWISE_BIT = 1 << 4;
 		private const int REVEAL_VALUE_SHIFT = 5;
 		private const int REVEAL_OFFSET_SPACE_BIT = 1 << 21;
+		// Spare uv3.w bits above the reveal: the layer ignores the CanvasRenderer RGB, and the anchor color is Color 2.
+		private const int IGNORE_RENDERER_TINT_BIT = 1 << 22;
+		private const int ANCHOR_IS_COLOR2_BIT = 1 << 23;
 
 		// Textured layers sample slightly past the texture's edge so anti-aliased fringes pick up its color.
 		private const float TEXTURE_EDGE_MARGIN = 1.5f;
@@ -100,6 +104,9 @@ namespace Tekly.Common.Ui.Fancy
 
 		[Tooltip("Ignore raycasts outside the shape instead of using the full rect.")]
 		[SerializeField] private bool m_raycastUsesShape = true;
+
+		[Tooltip("Layers tinted by the CanvasRenderer color (CrossFadeColor, Selectable color tint, Leaf animators). Others keep their colors but still fade with its alpha.")]
+		[SerializeField] private FancyRectLayers m_rendererTintLayers = FancyRectLayers.All;
 
 		private const int BLEND_COLOR_PREMULTIPLIED = 0;
 		private const int BLEND_COLOR_TOWARD_WHITE = 1;
@@ -429,6 +436,19 @@ namespace Tekly.Common.Ui.Fancy
 			set => m_raycastUsesShape = value;
 		}
 
+		/// <summary>Layers the CanvasRenderer color tints. Others keep their colors but still fade with its alpha.</summary>
+		public FancyRectLayers RendererTintLayers {
+			get => m_rendererTintLayers;
+			set {
+				if (m_rendererTintLayers == value) {
+					return;
+				}
+
+				m_rendererTintLayers = value;
+				SetVerticesDirty();
+			}
+		}
+
 		public int OutlineCount => m_outlines.Count;
 		public int ShadowCount => m_shadows.Count;
 
@@ -571,28 +591,28 @@ namespace Tekly.Common.Ui.Fancy
 
 					// Drop shadows are revealed in their own offset space, so they stay the shadow of the revealed shape.
 					if (edges == Vector4.zero) {
-						AddLayer(vh, shape, LAYER_BAND, NO_INNER_EDGE_CODE, spread, shadow.Softness, shadow.Offset, shadow.Paint, shadow.UseTexture,
+						AddLayer(vh, FancyRectLayers.DropShadows, shape, LAYER_BAND, NO_INNER_EDGE_CODE, spread, shadow.Softness, shadow.Offset, shadow.Paint, shadow.UseTexture,
 							true, Vector2.zero);
 					} else {
 						var shadowShape = WithEdgeOffsets(shape, edges, out var edgeShift);
-						AddLayer(vh, shadowShape, LAYER_BAND, NO_INNER_EDGE_CODE, spread, shadow.Softness, shadow.Offset + edgeShift, shadow.Paint, shadow.UseTexture,
+						AddLayer(vh, FancyRectLayers.DropShadows, shadowShape, LAYER_BAND, NO_INNER_EDGE_CODE, spread, shadow.Softness, shadow.Offset + edgeShift, shadow.Paint, shadow.UseTexture,
 							true, edgeShift);
 					}
 				}
 			}
 
 			if (m_backgroundEnabled) {
-				AddLayer(vh, shape, LAYER_BAND, NO_INNER_EDGE_CODE, 0, 0, Vector2.zero, m_background, false);
+				AddLayer(vh, FancyRectLayers.Background, shape, LAYER_BAND, NO_INNER_EDGE_CODE, 0, 0, Vector2.zero, m_background, false);
 			}
 
 			if (m_fillEnabled) {
-				AddLayer(vh, shape, LAYER_BAND, NO_INNER_EDGE_CODE, 0, 0, Vector2.zero, m_fill, true);
+				AddLayer(vh, FancyRectLayers.Fill, shape, LAYER_BAND, NO_INNER_EDGE_CODE, 0, 0, Vector2.zero, m_fill, true);
 			}
 
 			foreach (var shadow in m_shadows) {
 				if (shadow.Enabled && shadow.Inset) {
 					var spread = Mathf.Clamp(shadow.Spread, 0, MAX_DISTANCE);
-					AddLayer(vh, shape, LAYER_INNER_SHADOW, NO_INNER_EDGE_CODE, spread, shadow.Softness, shadow.Offset, shadow.Paint, shadow.UseTexture);
+					AddLayer(vh, FancyRectLayers.InnerShadows, shape, LAYER_INNER_SHADOW, NO_INNER_EDGE_CODE, spread, shadow.Softness, shadow.Offset, shadow.Paint, shadow.UseTexture);
 				}
 			}
 
@@ -608,7 +628,7 @@ namespace Tekly.Common.Ui.Fancy
 				if (outline.Enabled && outline.Width > 0) {
 					var band = outline.GetBand();
 					var startCode = Signed12(Mathf.Max(band.x, -MAX_DISTANCE + 0.5f));
-					AddLayer(vh, shape, LAYER_BAND, startCode, band.y, 0, Vector2.zero, outline.Paint, outline.UseTexture);
+					AddLayer(vh, FancyRectLayers.Outlines, shape, LAYER_BAND, startCode, band.y, 0, Vector2.zero, outline.Paint, outline.UseTexture);
 				}
 			}
 		}
@@ -625,7 +645,7 @@ namespace Tekly.Common.Ui.Fancy
 				Angle = m_bevel.LightAngle
 			};
 
-			AddLayer(vh, shape, LAYER_BEVEL, Signed12(-width), 0f, m_bevel.Softness, Vector2.zero, paint, false);
+			AddLayer(vh, FancyRectLayers.Bevel, shape, LAYER_BEVEL, Signed12(-width), 0f, m_bevel.Softness, Vector2.zero, paint, false);
 		}
 
 		/// <summary>
@@ -659,7 +679,7 @@ namespace Tekly.Common.Ui.Fancy
 			faded.a *= 1f - Mathf.Clamp01(m_gloss.Fade);
 
 			var paint = ShapePaint.TwoColor(faded, m_gloss.Color, GradientType.Linear, 90f);
-			AddLayer(vh, glossShape, LAYER_BAND, NO_INNER_EDGE_CODE, 0f, m_gloss.Softness, shift, paint, false);
+			AddLayer(vh, FancyRectLayers.Gloss, glossShape, LAYER_BAND, NO_INNER_EDGE_CODE, 0f, m_gloss.Softness, shift, paint, false);
 		}
 
 		/// <summary>
@@ -979,7 +999,7 @@ namespace Tekly.Common.Ui.Fancy
 
 		/// <param name="startCode">Encoded inner edge of the band; NO_INNER_EDGE_CODE for a solid layer.</param>
 		/// <param name="end">Outer edge of the band (distance from the shape edge), or the spread for inner shadows.</param>
-		private void AddLayer(VertexHelper vh, in ShapeData shape, int layerType, int startCode, float end, float softness,
+		private void AddLayer(VertexHelper vh, FancyRectLayers layerKind, in ShapeData shape, int layerType, int startCode, float end, float softness,
 			Vector2 offset, ShapePaint paint, bool textured, bool revealInOffsetSpace = false, Vector2 revealShapeShift = default)
 		{
 			softness = Mathf.Clamp(softness, 0, MAX_DISTANCE * 2f);
@@ -1000,6 +1020,16 @@ namespace Tekly.Common.Ui.Fancy
 			var tint = color;
 			var color1 = (Color32)(paint.Color * tint);
 			var color2 = paint.Gradient == GradientType.None ? color1 : (Color32)(paint.Color2 * tint);
+
+			// The vertex color is white with the anchor's alpha, so the shader receives the CanvasRenderer color
+			// directly in rgb. The anchor (the color with more alpha) travels in tangent.w and the other color in uv3,
+			// its alpha stored relative to the anchor's so the CanvasRenderer alpha scales both.
+			var anchorIsColor2 = color2.a > color1.a;
+			var anchor = anchorIsColor2 ? color2 : color1;
+			var other = anchorIsColor2 ? color1 : color2;
+			var otherAlphaCode = anchor.a == 0 ? 0 : Mathf.Min(255, Mathf.RoundToInt(other.a * 255f / anchor.a));
+			var tintBits = ((m_rendererTintLayers & layerKind) == 0 ? IGNORE_RENDERER_TINT_BIT : 0)
+			               | (anchorIsColor2 ? ANCHOR_IS_COLOR2_BIT : 0);
 
 			// Gradient shaping, 8 bits each: start and end in uv3.y above the alpha, bias in the spare flag bits.
 			var rangeStart = Mathf.Clamp01(paint.RangeStart);
@@ -1022,15 +1052,16 @@ namespace Tekly.Common.Ui.Fancy
 
 			var texturedUv2 = new Vector4(plainUv2.x, plainUv2.y, plainUv2.z, flags | FLAG_TEXTURED);
 			var uv3 = new Vector4(
-				(color2.r << 16) | (color2.g << 8) | color2.b,
-				color2.a | (gradientStartCode << 8) | (gradientEndCode << 16),
+				(other.r << 16) | (other.g << 8) | other.b,
+				otherAlphaCode | (gradientStartCode << 8) | (gradientEndCode << 16),
 				shape.PackedHalfSize,
-				PackReveal(shape, revealInOffsetSpace, revealShapeShift));
+				(int)PackReveal(shape, revealInOffsetSpace, revealShapeShift) | tintBits);
 
 			var layer = new LayerVertexData {
 				// A textured drop shadow carries its texture along with its offset; inner shadows stay with the fill.
 				TextureOrigin = layerType == LAYER_INNER_SHADOW ? Vector2.zero : offset,
-				Color = color1,
+				Color = new Color32(255, 255, 255, anchor.a),
+				AnchorRgb = (anchor.r << 16) | (anchor.g << 8) | anchor.b,
 				Uv3 = uv3
 			};
 
@@ -1050,6 +1081,7 @@ namespace Tekly.Common.Ui.Fancy
 		{
 			public Vector2 TextureOrigin;
 			public Color32 Color;
+			public int AnchorRgb;
 			public Vector4 Uv3;
 		}
 
@@ -1133,6 +1165,8 @@ namespace Tekly.Common.Ui.Fancy
 			vertex.uv1 = shape.Uv1;
 			vertex.uv2 = uv2;
 			vertex.uv3 = layer.Uv3;
+			// Only w carries data: the canvas may rotate xyz with the element, but leaves w alone.
+			vertex.tangent = new Vector4(1f, 0f, 0f, layer.AnchorRgb);
 			vh.AddVert(vertex);
 		}
 

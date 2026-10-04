@@ -212,30 +212,43 @@ MonoBehaviour:
   m_fill:
     Color: {r: 1, g: 1, b: 1, a: 1}
     Gradient: 0
+    Color2: {r: 0.2735849, g: 0.2735849, b: 0.2735849, a: 1}
+    Angle: 270
+    RangeStart: 0.6708861
+    RangeEndInset: 0
+    Bias: -0.48
+  m_backgroundEnabled: 0
+  m_background:
+    Color: {r: 0, g: 0, b: 0, a: 1}
+    Gradient: 1
     Color2: {r: 1, g: 1, b: 1, a: 1}
     Angle: 90
     RangeStart: 0
     RangeEndInset: 0
     Bias: 0
-  m_backgroundEnabled: 0
-  m_background:
-    Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Gradient: 0
-    Color2: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Angle: 90
-    RangeStart: 0
-    RangeEndInset: 0
-    Bias: 0
-  m_outlines: []
+  m_outlines:
+  - Enabled: 0
+    Width: 1
+    Offset: 0
+    Alignment: 0
+    Paint:
+      Color: {r: 0, g: 0, b: 0, a: 0.09803922}
+      Gradient: 0
+      Color2: {r: 1, g: 1, b: 1, a: 1}
+      Angle: 90
+      RangeStart: 0
+      RangeEndInset: 0
+      Bias: 0
+    UseTexture: 0
   m_shadows: []
   m_blendMode: 0
   m_bevel:
-    Enabled: 0
-    Width: 2
+    Enabled: 1
+    Width: 1
     Softness: 0
     LightAngle: 135
-    Highlight: {r: 1, g: 1, b: 1, a: 0.5}
-    Shadow: {r: 0, g: 0, b: 0, a: 0.3}
+    Highlight: {r: 1, g: 1, b: 1, a: 0.0627451}
+    Shadow: {r: 0, g: 0, b: 0, a: 0.101960786}
   m_gloss:
     Enabled: 0
     Color: {r: 0, g: 0, b: 0, a: 0}
@@ -248,6 +261,7 @@ MonoBehaviour:
   m_revealAmount: 1
   m_revealClockwise: 1
   m_raycastUsesShape: 1
+  m_rendererTintLayers: 111
 --- !u!114 &996164124684349914
 MonoBehaviour:
   m_ObjectHideFlags: 0

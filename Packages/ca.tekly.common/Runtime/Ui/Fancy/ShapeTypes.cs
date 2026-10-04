@@ -58,6 +58,24 @@ namespace Tekly.Common.Ui.Fancy
 		Tile = 1
 	}
 
+	/// <summary>
+	/// Which layers the CanvasRenderer color (CrossFadeColor, Selectable color tint, LeafAnimatorColors) tints.
+	/// Layers left out keep their own colors but still fade with the CanvasRenderer / CanvasGroup alpha.
+	/// </summary>
+	[Flags]
+	public enum FancyRectLayers
+	{
+		None = 0,
+		DropShadows = 1 << 0,
+		Background = 1 << 1,
+		Fill = 1 << 2,
+		InnerShadows = 1 << 3,
+		Bevel = 1 << 4,
+		Gloss = 1 << 5,
+		Outlines = 1 << 6,
+		All = DropShadows | Background | Fill | InnerShadows | Bevel | Gloss | Outlines
+	}
+
 	/// <summary>How the Reveal setting cuts the element (like Image's Filled type, but anti-aliased).</summary>
 	public enum RevealMethod
 	{

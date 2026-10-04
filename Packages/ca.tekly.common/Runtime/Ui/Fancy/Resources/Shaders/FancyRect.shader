@@ -16,11 +16,13 @@
 //   uv2.w   flags: layer type (2 bits) | gradient type (3 bits) | corner types (4 x 2 bits) | textured (1 bit)
 //           | channel check (1 bit, always set; draws magenta if the canvas drops the data)
 //           | gradient bias (8 bits, 0-255 = -1 to 1) | solid (1 bit: band is the whole shape, uv2.x is scroll)
-//   uv3.x   gradient color 2 RGB (8 bits each)
-//   uv3.y   gradient color 2 alpha | range start | range end   (8 bits each)
+//   uv3.x   other color RGB (8 bits each); see color / tangent.w
+//   uv3.y   other color alpha, relative to the anchor's | range start | range end   (8 bits each)
 //   uv3.z   shape half size x | y   (12-bit each, 0.5 unit steps)
 //   uv3.w   reveal: method (2 bits) | origin (2 bits) | clockwise / from-far-side (1 bit)
-//           | value (16 bits: radial amount, or linear cut position in 1/16 units from -2048) | offset space (1 bit)
+//           | value (16 bits: radial amount, or linear cut position in 1/16 units from -2048) | offset space (1 bit) | ignore renderer tint (1 bit) | anchor is color 2 (1 bit)
+//   color   white with the anchor's alpha, so the CanvasRenderer color arrives untouched in rgb
+//   tangent.w  anchor color RGB (8 bits each). The anchor is whichever gradient color has more alpha.
 Shader "UI/Fancy Rect"
 {
     Properties
@@ -129,6 +131,7 @@ Shader "UI/Fancy Rect"
                 float4 uv1        : TEXCOORD1;
                 float4 uv2        : TEXCOORD2;
                 float4 uv3        : TEXCOORD3;
+                float4 tangent    : TANGENT; // w = anchor color RGB (8 bits each)
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -328,7 +331,8 @@ Shader "UI/Fancy Rect"
                 // frac() keeps the offset small; the jump by a whole tile is invisible on a repeating texture.
                 float2 scroll = solid ? (Unpack12(IN.uv2.x) - 2048.0) / 256.0 : float2(0, 0);
                 OUT.local = float4(IN.uv0.xy, IN.uv0.zw + frac(_Time.y * scroll));
-                OUT.extra = float4(round(IN.uv3.w), 0, 0, 0);
+                float revealBits = round(IN.uv3.w);
+                OUT.extra = float4(fmod(revealBits, 4194304.0), 0, 0, 0); // strip the tint bits (22, 23)
                 float gradientBits = round(IN.uv3.y);
                 OUT.halfSize = float4(Unpack12(IN.uv3.z) * 0.5, Bits(gradientBits, 8, 8) / 255.0, Bits(gradientBits, 16, 8) / 255.0);
 
@@ -344,20 +348,33 @@ Shader "UI/Fancy Rect"
 
                 OUT.offset = float4(UnpackSigned(IN.uv2.z), flags, Bits(flags, 14, 1));
 
-                float3 color2 = float3(Bits(round(IN.uv3.x), 16, 8), Bits(round(IN.uv3.x), 8, 8), Bits(round(IN.uv3.x), 0, 8)) / 255.0;
-                float4 vertexColor = IN.color;
+                // The vertex color is white with the anchor's alpha, so after the canvas multiplies in the
+                // CanvasRenderer color, rgb is that color and a is anchor alpha * its alpha. Both layer colors are
+                // packed: the anchor (more alpha) in tangent.w, the other in uv3 with alpha relative to the anchor.
+                float anchorBits = round(IN.tangent.w);
+                float otherBits = round(IN.uv3.x);
+                float3 anchorRgb = float3(Bits(anchorBits, 16, 8), Bits(anchorBits, 8, 8), Bits(anchorBits, 0, 8)) / 255.0;
+                float3 otherRgb = float3(Bits(otherBits, 16, 8), Bits(otherBits, 8, 8), Bits(otherBits, 0, 8)) / 255.0;
+                float4 rendererColor = IN.color;
 
                 // Canvas converts vertex colors to linear on the CPU unless "Vertex Color Always In Gamma" is on;
-                // the gradient color is packed data, so it always needs converting here.
+                // the layer colors are packed data, so they always need converting here.
                 if (!IsGammaSpace()) {
-                    color2 = GammaToLinearSpace(color2);
+                    anchorRgb = GammaToLinearSpace(anchorRgb);
+                    otherRgb = GammaToLinearSpace(otherRgb);
                     if (_UIVertexColorAlwaysGammaSpace > 0.5) {
-                        vertexColor.rgb = GammaToLinearSpace(vertexColor.rgb);
+                        rendererColor.rgb = GammaToLinearSpace(rendererColor.rgb);
                     }
                 }
 
-                OUT.color = vertexColor * _Color;
-                OUT.color2 = float4(color2, Bits(gradientBits, 0, 8) / 255.0) * _Color;
+                // Layers opted out of the renderer tint keep their colors but still fade with its alpha.
+                float3 tintRgb = Bits(revealBits, 22, 1) > 0.5 ? float3(1, 1, 1) : rendererColor.rgb;
+                float4 anchor = float4(anchorRgb * tintRgb, rendererColor.a);
+                float4 other = float4(otherRgb * tintRgb, rendererColor.a * Bits(gradientBits, 0, 8) / 255.0);
+                bool anchorIsColor2 = Bits(revealBits, 23, 1) > 0.5;
+
+                OUT.color = (anchorIsColor2 ? other : anchor) * _Color;
+                OUT.color2 = (anchorIsColor2 ? anchor : other) * _Color;
 
                 float2 pixelSize = OUT.positionCS.w;
                 pixelSize /= abs(mul((float2x2)UNITY_MATRIX_P, _ScreenParams.xy));
