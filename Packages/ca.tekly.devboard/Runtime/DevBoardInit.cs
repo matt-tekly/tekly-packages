@@ -10,7 +10,7 @@ namespace Tekly.DevBoard
 	{
 		[SerializeField] private DevBoardAssets m_assets;
 
-		[Tooltip("Create the main panel if it doesn't exist yet. Panels saved from the last session are restored either way")]
+		[Tooltip("Create the main panel when there are no panels, e.g. on first launch. Panels saved from the last session are restored either way")]
 		[SerializeField] private bool m_createMainPanel = true;
 
 #if ENABLE_INPUT_SYSTEM
@@ -32,7 +32,7 @@ namespace Tekly.DevBoard
 			devBoard.AddAssets(m_assets);
 			devBoard.RestorePanels();
 
-			if (m_createMainPanel) {
+			if (m_createMainPanel && devBoard.Panels.Count == 0) {
 				devBoard.Panel(DevBoard.MAIN_PANEL_ID);
 			}
 		}

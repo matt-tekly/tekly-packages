@@ -62,7 +62,7 @@ namespace Tekly.DevBoard
 
 		/// <summary>
 		/// Whether panels are shown. Hiding keeps every panel and its state, it just stops drawing them,
-		/// taking touches and refreshing their widgets.
+		/// taking touches and refreshing their widgets. Panels with ShowWhenHidden stay up either way.
 		/// </summary>
 		public bool IsVisible { get; private set; } = true;
 
@@ -255,29 +255,96 @@ namespace Tekly.DevBoard
 			SavePanels();
 		}
 
+		/// <summary>
+		/// Opens a copy of source: same page, mode and dock slot.
+		/// </summary>
 		internal DevBoardPanel PopOut(DevBoardPanel source)
 		{
-			var number = 1;
-
-			while (FindPanel($"popout-{number}") != null) {
-				number++;
-			}
-
 			return CreatePanel(new PanelRecord {
-				Id = $"popout-{number}",
-				Dock = DockSlot.TopRight,
+				Id = NextPanelId("panel"),
+				Dock = source.Dock,
 				Path = source.Path,
-				Overlay = true
+				Overlay = source.IsOverlay,
+				ShowWhenHidden = source.ShowWhenHidden
 			});
 		}
 
 		/// <summary>
-		/// A panel was closed by the user: forget it, including its saved layout.
+		/// A panel was closed by the user: forget it, including its saved layout. Closing the last panel opens a
+		/// new one at the root, so there's always a way back in.
 		/// </summary>
 		internal void ClosePanel(DevBoardPanel panel)
 		{
 			m_panels.Remove(panel);
+			m_panels.RemoveAll(other => other == null);
+
+			if (m_panels.Count == 0) {
+				CreatePanel(new PanelRecord {
+					Id = NextPanelId(MAIN_PANEL_ID),
+					Dock = panel.Dock,
+					Path = string.Empty
+				});
+			}
+
 			SavePanels();
+		}
+
+		/// <summary>
+		/// Shows or hides panels to match IsVisible and their ShowWhenHidden. Called by panels when that changes.
+		/// </summary>
+		internal void ApplyVisibility()
+		{
+			// Unity null check on the canvas: the dock may not exist yet, or may have been destroyed
+			if (m_dock == null || m_dock.Canvas == null) {
+				return;
+			}
+
+			var anyShown = IsVisible;
+
+			foreach (var panel in m_panels) {
+				if (panel != null) {
+					panel.RefreshActive();
+					anyShown |= panel.ShowWhenHidden;
+				}
+			}
+
+			// Nothing to draw: turn the whole canvas off rather than keep an empty one around
+			m_dock.Canvas.enabled = anyShown;
+		}
+
+		private string NextPanelId(string prefix)
+		{
+			if (FindPanel(prefix) == null) {
+				return prefix;
+			}
+
+			var number = 2;
+
+			while (FindPanel($"{prefix}-{number}") != null) {
+				number++;
+			}
+
+			return $"{prefix}-{number}";
+		}
+
+		private DockSlot FindEmptySlot(DockSlot fallback)
+		{
+			foreach (DockSlot slot in Enum.GetValues(typeof(DockSlot))) {
+				var used = false;
+
+				foreach (var panel in m_panels) {
+					if (panel != null && panel.Dock == slot) {
+						used = true;
+						break;
+					}
+				}
+
+				if (!used) {
+					return slot;
+				}
+			}
+
+			return fallback;
 		}
 
 		/// <summary>
@@ -358,6 +425,7 @@ namespace Tekly.DevBoard
 
 			var panel = DevBoardPanel.Create(this, m_dock, prefab, record);
 			m_panels.Add(panel);
+			ApplyVisibility();
 			SavePanels();
 
 			return panel;
@@ -393,14 +461,6 @@ namespace Tekly.DevBoard
 			// Unity null check on the canvas: the dock may not exist yet, or may have been destroyed
 			if (m_dock != null && m_dock.Canvas != null) {
 				m_dock.ApplySettings(Settings);
-			}
-		}
-
-		private void ApplyVisibility()
-		{
-			// Unity null check on the canvas: the dock may not exist yet, or may have been destroyed
-			if (m_dock != null && m_dock.Canvas != null) {
-				m_dock.Canvas.enabled = IsVisible;
 			}
 		}
 

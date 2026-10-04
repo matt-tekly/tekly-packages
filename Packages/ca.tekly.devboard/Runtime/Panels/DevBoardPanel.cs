@@ -39,6 +39,11 @@ namespace Tekly.DevBoard.Panels
 		public bool IsCollapsed { get; private set; }
 
 		/// <summary>
+		/// Stays on screen while DevBoard is hidden, e.g. a perf readout.
+		/// </summary>
+		public bool ShowWhenHidden { get; private set; }
+
+		/// <summary>
 		/// The page being shown, or null while a hidden overlay waits for its page.
 		/// </summary>
 		public PageNode CurrentPage => m_current?.Page;
@@ -62,9 +67,8 @@ namespace Tekly.DevBoard.Panels
 		[Header("Header")]
 		[SerializeField] private GameObject m_header;
 		[SerializeField] private BreadcrumbWidget m_breadcrumb;
-		[SerializeField] private ButtonWidget m_collapseButton;
-		[SerializeField] private string m_collapseLabel = "-";
-		[SerializeField] private string m_expandLabel = "+";
+		[Tooltip("On while the panel is collapsed")]
+		[SerializeField] private LeafToggle m_collapseToggle;
 
 		[Tooltip("Switches the header between its normal and settings contents. Keep it outside both so it stays visible")]
 		[SerializeField] private LeafToggle m_actionsToggle;
@@ -82,6 +86,12 @@ namespace Tekly.DevBoard.Panels
 		[SerializeField] private ButtonWidget m_popButton;
 		[SerializeField] private ButtonWidget m_dockButton;
 		[SerializeField] private ButtonWidget m_overlayButton;
+
+		[Tooltip("Toggles whether the panel stays on screen while DevBoard is hidden")]
+		[SerializeField] private ButtonWidget m_showWhenHiddenButton;
+		[SerializeField] private string m_showWhenHiddenOnLabel = "Keep: On";
+		[SerializeField] private string m_showWhenHiddenOffLabel = "Keep: Off";
+
 		[SerializeField] private ButtonWidget m_closeButton;
 
 		[Header("Body")]
@@ -99,6 +109,7 @@ namespace Tekly.DevBoard.Panels
 
 		private PageView m_current;
 		private string m_waitingPath;
+		private bool m_waitingHidden;
 
 		private float m_tickRate;
 		private float m_tickInterval;
@@ -172,6 +183,18 @@ namespace Tekly.DevBoard.Panels
 			m_board.SavePanels();
 		}
 
+		public void SetShowWhenHidden(bool showWhenHidden)
+		{
+			if (showWhenHidden == ShowWhenHidden) {
+				return;
+			}
+
+			ShowWhenHidden = showWhenHidden;
+			m_headerDirty = true;
+			m_board.ApplyVisibility();
+			m_board.SavePanels();
+		}
+
 		public void SetDock(DockSlot dock)
 		{
 			Dock = dock;
@@ -181,7 +204,7 @@ namespace Tekly.DevBoard.Panels
 		}
 
 		/// <summary>
-		/// Opens the current page in a new overlay panel.
+		/// Opens a copy of this panel in another dock slot.
 		/// </summary>
 		public DevBoardPanel PopOut()
 		{
@@ -189,7 +212,7 @@ namespace Tekly.DevBoard.Panels
 		}
 
 		/// <summary>
-		/// Removes the panel. It isn't restored next session.
+		/// Removes the panel. It isn't restored next session. Closing the last panel opens a new one at the root.
 		/// </summary>
 		public void Close()
 		{
@@ -205,7 +228,8 @@ namespace Tekly.DevBoard.Panels
 				Dock = Dock,
 				Path = Path,
 				Overlay = IsOverlay,
-				Collapsed = IsCollapsed
+				Collapsed = IsCollapsed,
+				ShowWhenHidden = ShowWhenHidden
 			};
 		}
 
@@ -228,15 +252,19 @@ namespace Tekly.DevBoard.Panels
 				m_bodyGroup = m_body.gameObject.AddComponent<CanvasGroup>();
 			}
 
-			Wire(m_collapseButton, Deferred(() => SetCollapsed(!IsCollapsed)));
 			Wire(m_overlayHandle, Deferred(() => SetOverlay(false)));
 			Wire(m_popButton, MenuAction(() => PopOut()));
 			Wire(m_dockButton, MenuAction(CycleDock));
 			Wire(m_overlayButton, MenuAction(() => SetOverlay(true)));
+			Wire(m_showWhenHiddenButton, MenuAction(() => SetShowWhenHidden(!ShowWhenHidden)));
 			Wire(m_closeButton, MenuAction(Close));
 
 			if (m_actionsToggle != null) {
 				m_actionsToggle.onValueChanged.AddListener(OnActionsToggleChanged);
+			}
+
+			if (m_collapseToggle != null) {
+				m_collapseToggle.onValueChanged.AddListener(OnCollapseToggleChanged);
 			}
 
 			SetSettingsOpen(false);
@@ -250,6 +278,7 @@ namespace Tekly.DevBoard.Panels
 
 			Id = record.Id;
 			Dock = record.Dock;
+			ShowWhenHidden = record.ShowWhenHidden;
 
 			// The panel remembers scroll positions per page itself
 			m_body.WithoutSavedState();
@@ -277,8 +306,8 @@ namespace Tekly.DevBoard.Panels
 
 			var now = Time.realtimeSinceStartup;
 
-			// Hidden panels don't refresh their widgets
-			if (m_board.IsVisible && now >= m_nextTickTime) {
+			// Hidden panels are inactive, so this only runs while the panel is on screen
+			if (now >= m_nextTickTime) {
 				m_nextTickTime = now + m_tickInterval;
 				m_tickGroup.Tick();
 			}
@@ -301,10 +330,10 @@ namespace Tekly.DevBoard.Panels
 			m_waitingPath = page.Path == path ? null : path;
 
 			// An overlay is pinned to its page: rather than show some other page, it hides until the page is back
-			var hidden = IsOverlay && m_waitingPath != null;
-			gameObject.SetActive(!hidden);
+			m_waitingHidden = IsOverlay && m_waitingPath != null;
+			RefreshActive();
 
-			if (!hidden) {
+			if (!m_waitingHidden) {
 				Show(page);
 			}
 		}
@@ -554,6 +583,19 @@ namespace Tekly.DevBoard.Panels
 			}
 		}
 
+		/// <summary>
+		/// Active while it has a page to show and either DevBoard is visible or the panel shows when hidden.
+		/// Inactive panels keep their built pages but don't draw, take touches or tick.
+		/// </summary>
+		internal void RefreshActive()
+		{
+			var active = !m_waitingHidden && (m_board.IsVisible || ShowWhenHidden);
+
+			if (gameObject.activeSelf != active) {
+				gameObject.SetActive(active);
+			}
+		}
+
 		// ----- Header and modes -----
 
 		private void BuildHeader()
@@ -578,12 +620,8 @@ namespace Tekly.DevBoard.Panels
 				m_breadcrumb.Set(crumbs, path => m_deferred.Add(() => Open(path)));
 			}
 
-			if (m_collapseButton != null) {
-				var label = IsCollapsed ? m_expandLabel : m_collapseLabel;
-
-				if (!string.IsNullOrEmpty(label)) {
-					m_collapseButton.Label = label;
-				}
+			if (m_showWhenHiddenButton != null) {
+				m_showWhenHiddenButton.Label = ShowWhenHidden ? m_showWhenHiddenOnLabel : m_showWhenHiddenOffLabel;
 			}
 		}
 
@@ -594,6 +632,14 @@ namespace Tekly.DevBoard.Panels
 		private void OnActionsToggleChanged(bool isOn)
 		{
 			ApplySettingsOpen(isOn);
+		}
+
+		/// <summary>
+		/// Deferred like the buttons, since collapsing changes the layout around the toggle that was clicked.
+		/// </summary>
+		private void OnCollapseToggleChanged(bool isOn)
+		{
+			m_deferred.Add(() => SetCollapsed(isOn));
 		}
 
 		private void SetSettingsOpen(bool open)
@@ -681,7 +727,10 @@ namespace Tekly.DevBoard.Panels
 		{
 			IsCollapsed = collapsed;
 			m_body.gameObject.SetActive(!collapsed);
-			m_headerDirty = true;
+
+			if (m_collapseToggle != null) {
+				m_collapseToggle.SetIsOnWithoutNotify(collapsed);
+			}
 		}
 
 		/// <summary>
@@ -764,6 +813,10 @@ namespace Tekly.DevBoard.Panels
 
 			if (m_actionsToggle != null) {
 				m_actionsToggle.onValueChanged.RemoveListener(OnActionsToggleChanged);
+			}
+
+			if (m_collapseToggle != null) {
+				m_collapseToggle.onValueChanged.RemoveListener(OnCollapseToggleChanged);
 			}
 
 			if (m_tree != null) {

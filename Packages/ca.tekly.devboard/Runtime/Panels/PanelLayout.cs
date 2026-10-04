@@ -15,6 +15,7 @@ namespace Tekly.DevBoard.Panels
 		public string Path;
 		public bool Overlay;
 		public bool Collapsed;
+		public bool ShowWhenHidden;
 	}
 
 	/// <summary>
