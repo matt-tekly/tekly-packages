@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
+using UnityEngine;
 
 namespace Tekly.DevBoard
 {
@@ -10,9 +13,22 @@ namespace Tekly.DevBoard
 		[Tooltip("Create the main panel if it doesn't exist yet. Panels saved from the last session are restored either way")]
 		[SerializeField] private bool m_createMainPanel = true;
 
+#if ENABLE_INPUT_SYSTEM
+		[Tooltip("Shows and hides DevBoard. None turns the shortcut off")]
+		[SerializeField] private Key m_toggleKey = Key.Backquote;
+#else
+		[Tooltip("Shows and hides DevBoard. None turns the shortcut off")]
+		[SerializeField] private KeyCode m_toggleKey = KeyCode.BackQuote;
+#endif
+
+		[Tooltip("Start with DevBoard hidden until the shortcut is pressed")]
+		[SerializeField] private bool m_startHidden = true;
+
 		private void Awake()
 		{
 			var devBoard = DevBoard.Instance;
+			devBoard.ToggleKey = m_toggleKey;
+			devBoard.SetVisible(!m_startHidden);
 			devBoard.AddAssets(m_assets);
 			devBoard.RestorePanels();
 

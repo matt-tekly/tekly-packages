@@ -271,7 +271,8 @@ namespace Tekly.DevBoard.Panels
 
 			var now = Time.realtimeSinceStartup;
 
-			if (now >= m_nextTickTime) {
+			// Hidden panels don't refresh their widgets
+			if (m_board.IsVisible && now >= m_nextTickTime) {
 				m_nextTickTime = now + m_tickInterval;
 				m_tickGroup.Tick();
 			}

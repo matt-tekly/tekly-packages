@@ -4,6 +4,9 @@ using Tekly.Common.Utils;
 using Tekly.DevBoard.Components;
 using Tekly.DevBoard.Pages;
 using Tekly.DevBoard.Panels;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -55,6 +58,29 @@ namespace Tekly.DevBoard
 				return m_ticker.TickGroup;
 			}
 		}
+
+		/// <summary>
+		/// Whether panels are shown. Hiding keeps every panel and its state, it just stops drawing them,
+		/// taking touches and refreshing their widgets.
+		/// </summary>
+		public bool IsVisible { get; private set; } = true;
+
+		/// <summary>
+		/// Raised with the new value when IsVisible changes.
+		/// </summary>
+		public event Action<bool> VisibilityChanged;
+
+#if ENABLE_INPUT_SYSTEM
+		/// <summary>
+		/// The key that shows and hides DevBoard. Key.None turns the shortcut off.
+		/// </summary>
+		public Key ToggleKey { get; set; } = Key.F1;
+#else
+		/// <summary>
+		/// The key that shows and hides DevBoard. KeyCode.None turns the shortcut off.
+		/// </summary>
+		public KeyCode ToggleKey { get; set; } = KeyCode.F1;
+#endif
 
 		private GameObject m_root;
 		private DevBoardTicker m_ticker;
@@ -279,6 +305,40 @@ namespace Tekly.DevBoard
 			layout.Save();
 		}
 
+		public void SetVisible(bool visible)
+		{
+			if (IsVisible == visible) {
+				return;
+			}
+
+			IsVisible = visible;
+			ApplyVisibility();
+			VisibilityChanged?.Invoke(visible);
+		}
+
+		public void ToggleVisible()
+		{
+			SetVisible(!IsVisible);
+		}
+
+		/// <summary>
+		/// Called every frame by DevBoardTicker.
+		/// </summary>
+		internal void CheckToggleKey()
+		{
+#if ENABLE_INPUT_SYSTEM
+			var keyboard = Keyboard.current;
+
+			if (ToggleKey != Key.None && keyboard != null && keyboard[ToggleKey].wasPressedThisFrame) {
+				ToggleVisible();
+			}
+#elif ENABLE_LEGACY_INPUT_MANAGER
+			if (ToggleKey != KeyCode.None && Input.GetKeyDown(ToggleKey)) {
+				ToggleVisible();
+			}
+#endif
+		}
+
 		private DevBoardPanel CreatePanel(PanelRecord record)
 		{
 			Initialize();
@@ -287,6 +347,7 @@ namespace Tekly.DevBoard
 			if (m_dock == null || m_dock.Canvas == null) {
 				m_dock = new DevBoardDock(m_root.transform);
 				m_dock.ApplySettings(Settings);
+				ApplyVisibility();
 			}
 
 			if (!TryGet(PANEL_VARIANT, out DevBoardPanel prefab)) {
@@ -331,6 +392,14 @@ namespace Tekly.DevBoard
 			// Unity null check on the canvas: the dock may not exist yet, or may have been destroyed
 			if (m_dock != null && m_dock.Canvas != null) {
 				m_dock.ApplySettings(Settings);
+			}
+		}
+
+		private void ApplyVisibility()
+		{
+			// Unity null check on the canvas: the dock may not exist yet, or may have been destroyed
+			if (m_dock != null && m_dock.Canvas != null) {
+				m_dock.Canvas.enabled = IsVisible;
 			}
 		}
 
