@@ -37,6 +37,11 @@ namespace Tekly.Leaf.Elements
 		private bool m_wasFocused;
 		private bool m_isMoveNextPending;
 		private int m_moveNextFrame;
+		private int m_clickCount;
+		private float m_lastClickTime = float.NegativeInfinity;
+
+		// Matches TMP_InputField's private m_DoubleClickDelay so both agree on what counts as a double click
+		private const float MULTI_CLICK_DELAY = 0.5f;
 
 		protected override void OnEnable()
 		{
@@ -74,6 +79,16 @@ namespace Tekly.Leaf.Elements
 			}
 
 			base.OnPointerDown(eventData);
+
+			// TMP only positions the caret when it uses the event
+			if (eventData.used) {
+				// eventData.clickCount can't be used here: the Input System UI module only increments it on release
+				var time = Time.unscaledTime;
+				m_clickCount = m_lastClickTime + MULTI_CLICK_DELAY > time ? m_clickCount + 1 : 1;
+				m_lastClickTime = time;
+
+				ApplyMultiClickSelection(eventData);
+			}
 		}
 
 		public override void OnPointerUp(PointerEventData eventData)
@@ -188,6 +203,93 @@ namespace Tekly.Leaf.Elements
 
 			m_isMoveNextPending = true;
 			m_moveNextFrame = Time.frameCount;
+		}
+
+		private void ApplyMultiClickSelection(PointerEventData eventData)
+		{
+			// TMP has no triple click: it treats every click inside its double click window as another double click
+			if (m_clickCount >= 3) {
+				SelectAll();
+				UpdateLabel();
+				return;
+			}
+
+			// TMP's double click only finds a word directly under the pointer. Past the end of a line nothing is,
+			// so it selects the nearest character. The word is found from the text instead.
+			if (m_clickCount == 2) {
+				SelectWordAt(eventData);
+			}
+		}
+
+		private void SelectWordAt(PointerEventData eventData)
+		{
+			var textInfo = m_TextComponent.textInfo;
+			if (textInfo.characterCount == 0) {
+				return;
+			}
+
+			var characterIndex = TMP_TextUtilities.GetCursorIndexFromPosition(m_TextComponent, eventData.position, eventData.pressEventCamera, out var side);
+			characterIndex = Mathf.Clamp(characterIndex, 0, textInfo.characterCount - 1);
+
+			// Clicking the right half of a character, or past the end of its line, puts the caret after it. Look at
+			// that character first, then the one after the caret.
+			var current = text;
+			var stringIndex = textInfo.characterInfo[characterIndex].index;
+			if (side == CaretPosition.Left && !IsWordCharacter(current, stringIndex) && characterIndex > 0) {
+				var previous = textInfo.characterInfo[characterIndex - 1].index;
+				if (IsWordCharacter(current, previous)) {
+					stringIndex = previous;
+				}
+			}
+
+			// Past the end of a line ending in punctuation or spaces, step back to the last word on that line
+			var probe = stringIndex;
+			while (probe > 0 && !IsWordCharacter(current, probe) && current[probe] != '\n') {
+				probe--;
+			}
+
+			if (!IsWordCharacter(current, probe)) {
+				// No word to grab (e.g. a line of only spaces): leave TMP's single character selection
+				return;
+			}
+
+			var start = probe;
+			while (start > 0 && IsWordCharacter(current, start - 1)) {
+				start--;
+			}
+
+			var end = probe + 1;
+			while (end < current.Length && IsWordCharacter(current, end)) {
+				end++;
+			}
+
+			stringPositionInternal = start;
+			stringSelectPositionInternal = end;
+			caretPositionInternal = GetCaretIndex(textInfo, start);
+			caretSelectPositionInternal = GetCaretIndex(textInfo, end);
+
+			UpdateLabel();
+		}
+
+		private static bool IsWordCharacter(string value, int index)
+		{
+			if (index < 0 || index >= value.Length) {
+				return false;
+			}
+
+			var c = value[index];
+			return char.IsLetterOrDigit(c) || c == '_' || c == '\'';
+		}
+
+		private static int GetCaretIndex(TMP_TextInfo textInfo, int stringIndex)
+		{
+			for (var i = 0; i < textInfo.characterCount; i++) {
+				if (textInfo.characterInfo[i].index >= stringIndex) {
+					return i;
+				}
+			}
+
+			return textInfo.characterCount;
 		}
 
 		private void UpdateFocus()
