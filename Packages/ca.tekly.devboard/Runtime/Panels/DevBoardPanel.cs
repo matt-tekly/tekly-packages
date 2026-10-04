@@ -94,12 +94,24 @@ namespace Tekly.DevBoard.Panels
 		private PageView m_current;
 		private string m_waitingPath;
 
+		private float m_tickRate;
 		private float m_tickInterval;
 		private float m_nextTickTime;
 		private float m_maxHeight = -1f;
 		private bool m_headerDirty;
 		private bool m_actionsOpen;
 		private bool m_tornDown;
+
+		/// <summary>
+		/// How many times per second widgets refresh while interactive. Zero or less ticks every frame. Overlays
+		/// refresh at this rate or OVERLAY_TICK_RATE, whichever is slower.
+		/// </summary>
+		public DevBoardPanel WithTickRate(float ticksPerSecond)
+		{
+			m_tickRate = ticksPerSecond;
+			UpdateTickInterval();
+			return this;
+		}
 
 		internal static DevBoardPanel Create(DevBoard board, DevBoardDock dock, DevBoardPanel prefab, PanelRecord record)
 		{
@@ -615,9 +627,20 @@ namespace Tekly.DevBoard.Panels
 				m_frameGraphic.raycastTarget = !overlay;
 			}
 
-			m_tickInterval = overlay ? 1f / OVERLAY_TICK_RATE : 0f;
-			m_nextTickTime = 0f;
+			UpdateTickInterval();
 			m_headerDirty = true;
+		}
+
+		private void UpdateTickInterval()
+		{
+			var rate = m_tickRate;
+
+			if (IsOverlay && (rate <= 0f || rate > OVERLAY_TICK_RATE)) {
+				rate = OVERLAY_TICK_RATE;
+			}
+
+			m_tickInterval = rate > 0f ? 1f / rate : 0f;
+			m_nextTickTime = 0f;
 		}
 
 		private void ApplyCollapsed(bool collapsed)

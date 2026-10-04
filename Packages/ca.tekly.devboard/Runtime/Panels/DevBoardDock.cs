@@ -7,6 +7,16 @@ using UnityEngine.UI;
 
 namespace Tekly.DevBoard.Panels
 {
+	public enum DockSlot
+	{
+		TopLeft,
+		Top,
+		TopRight,
+		BottomRight,
+		Bottom,
+		BottomLeft
+	}
+	
 	/// <summary>
 	/// The screen-space canvas panels live on, inside the safe area, with a stacking area for each DockSlot.
 	/// </summary>
@@ -38,8 +48,7 @@ namespace Tekly.DevBoard.Panels
 			Canvas.renderMode = RenderMode.ScreenSpaceOverlay;
 			Canvas.sortingOrder = SORTING_ORDER;
 			Canvas.pixelPerfect = true;
-
-			// Same scaler as board.prefab: constant pixel size, kept physical in the editor's Game view
+			
 			m_scaler = canvasObject.AddComponent<FixedPhysicalCanvasScaler>();
 			canvasObject.AddComponent<GraphicRaycaster>();
 

@@ -67,10 +67,6 @@ namespace Tekly.DevBoard
 				if (!string.IsNullOrEmpty(scope)) {
 					builder.Insert(0, '/').Insert(0, scope);
 				}
-
-				if (container is Board) {
-					break;
-				}
 			}
 
 			return builder.ToString();

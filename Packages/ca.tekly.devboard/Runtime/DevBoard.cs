@@ -47,9 +47,9 @@ namespace Tekly.DevBoard
 		public DevBoardState State { get; } = new();
 
 		/// <summary>
-		/// Ticks behaviours that aren't inside a Board.
+		/// Ticks behaviours that aren't inside a panel.
 		/// </summary>
-		internal TickGroup UnboardedTickGroup {
+		internal TickGroup DefaultTickGroup {
 			get {
 				Initialize();
 				return m_ticker.TickGroup;
@@ -148,16 +148,6 @@ namespace Tekly.DevBoard
 
 			prefab = null;
 			return false;
-		}
-
-		public Board Board(string name, string variant = "board")
-		{
-			Initialize();
-
-			var board = Object.Instantiate(Get<Board>(variant), m_root.transform);
-			board.name = name;
-
-			return board;
 		}
 
 		/// <summary>

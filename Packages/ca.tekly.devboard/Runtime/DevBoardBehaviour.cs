@@ -6,9 +6,9 @@ using UnityEngine;
 namespace Tekly.DevBoard
 {
 	/// <summary>
-	/// Base for everything in a DevBoard. Behaviours that override Tick are ticked by the Board or panel they
-	/// live in, at its tick rate, and only while enabled, so hidden pages cost nothing. Behaviours outside a
-	/// Board or panel are ticked every frame by DevBoard.
+	/// Base for everything in a DevBoard. Behaviours that override Tick are ticked by the panel they live in,
+	/// at its tick rate, and only while enabled, so hidden pages cost nothing. Behaviours outside a panel are
+	/// ticked every frame by DevBoard.
 	///
 	/// A Tick that throws is logged once and the behaviour is marked faulted. Widget getters often reach into
 	/// game objects that can be destroyed or unloaded, so a faulted behaviour keeps retrying at a slower rate
@@ -46,7 +46,7 @@ namespace Tekly.DevBoard
 
 		protected virtual void OnTransformParentChanged()
 		{
-			// Moved to another container, which may belong to a different Board
+			// Moved to another container, which may belong to a different panel
 			if (isActiveAndEnabled) {
 				UnregisterTick();
 				RegisterTick();
@@ -131,7 +131,7 @@ namespace Tekly.DevBoard
 			}
 
 			// Null outside of play mode
-			return DevBoard.Instance?.UnboardedTickGroup;
+			return DevBoard.Instance?.DefaultTickGroup;
 		}
 
 		private static bool OverridesTick(Type type)
