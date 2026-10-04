@@ -484,7 +484,7 @@ MonoBehaviour:
     Offset: 0
     Alignment: 0
     Paint:
-      Color: {r: 1, g: 1, b: 1, a: 0.36078432}
+      Color: {r: 1, g: 1, b: 1, a: 0.050980393}
       Gradient: 0
       Color2: {r: 1, g: 1, b: 1, a: 1}
       Angle: 90
@@ -614,7 +614,20 @@ MonoBehaviour:
     RangeStart: 0
     RangeEndInset: 0
     Bias: 0
-  m_outlines: []
+  m_outlines:
+  - Enabled: 1
+    Width: 1
+    Offset: 0
+    Alignment: 2
+    Paint:
+      Color: {r: 1, g: 1, b: 1, a: 0.29803923}
+      Gradient: 1
+      Color2: {r: 0, g: 0, b: 0, a: 0}
+      Angle: 300
+      RangeStart: 0
+      RangeEndInset: 0.48192775
+      Bias: 1
+    UseTexture: 0
   m_shadows:
   - Enabled: 0
     Inset: 0
@@ -651,7 +664,7 @@ MonoBehaviour:
   m_revealAmount: 1
   m_revealClockwise: 1
   m_raycastUsesShape: 1
-  m_rendererTintLayers: 111
+  m_rendererTintLayers: 47
 --- !u!1 &8589962676909377238
 GameObject:
   m_ObjectHideFlags: 0
@@ -984,8 +997,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -16, y: 0}
+  m_AnchoredPosition: {x: 0, y: -0.5}
+  m_SizeDelta: {x: -16, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &4268991206122180920
 MonoBehaviour:
