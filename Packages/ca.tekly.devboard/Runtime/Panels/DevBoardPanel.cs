@@ -52,7 +52,7 @@ namespace Tekly.DevBoard.Panels
 		/// <summary>
 		/// The page this panel wants to show. Differs from CurrentPage while that page doesn't exist.
 		/// </summary>
-		public string Path => m_waitingPath ?? m_current?.Page.Path ?? string.Empty;
+		public string Path => m_pendingShowPath ?? m_waitingPath ?? m_current?.Page.Path ?? string.Empty;
 
 		TickGroup ITickHost.TickGroup => m_tickGroup;
 
@@ -109,6 +109,10 @@ namespace Tekly.DevBoard.Panels
 
 		private PageView m_current;
 		private string m_waitingPath;
+
+		// Page tree events only queue work; Update builds it. Tree events also fire while the scene is torn down
+		// (registrants unregistering in OnDestroy), and building widgets then leaks them past the scene close.
+		private string m_pendingShowPath;
 		private bool m_waitingHidden;
 
 		private float m_tickRate;
@@ -310,7 +314,12 @@ namespace Tekly.DevBoard.Panels
 		private void Update()
 		{
 			RunDeferred();
+			RunPendingShow();
 			RunRebuilds();
+
+			if (m_current != null && m_current.LinksDirty) {
+				BuildLinks(m_current);
+			}
 			UpdateSizeLimits();
 
 			if (m_headerDirty) {
@@ -448,11 +457,19 @@ namespace Tekly.DevBoard.Panels
 
 		private void RefreshLinks(PageView view)
 		{
-			if (view == m_current) {
-				BuildLinks(view);
-			} else {
-				view.LinksDirty = true;
+			// Built in Update (current view) or when the view is next shown
+			view.LinksDirty = true;
+		}
+
+		private void RunPendingShow()
+		{
+			if (m_pendingShowPath == null) {
+				return;
 			}
+
+			var path = m_pendingShowPath;
+			m_pendingShowPath = null;
+			ShowPath(path);
 		}
 
 		private void BuildSegment(PageView view, PageSegment segment)
@@ -565,7 +582,7 @@ namespace Tekly.DevBoard.Panels
 		private void OnPageAdded(PageNode page)
 		{
 			if (m_waitingPath == page.Path) {
-				ShowPath(page.Path);
+				m_pendingShowPath = page.Path;
 				m_board.SavePanels();
 			}
 		}
@@ -585,7 +602,7 @@ namespace Tekly.DevBoard.Panels
 				m_current = null;
 
 				// Keep wanting the page that went away, so the panel returns to it when it's registered again
-				ShowPath(m_waitingPath ?? page.Path);
+				m_pendingShowPath = m_waitingPath ?? page.Path;
 			}
 		}
 
