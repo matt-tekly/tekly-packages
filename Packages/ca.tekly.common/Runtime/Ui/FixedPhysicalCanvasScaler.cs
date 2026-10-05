@@ -45,6 +45,16 @@ namespace Tekly.Common.Ui
 			private static readonly PropertyInfo s_targetInView = s_gameViewType?.GetProperty("targetInView",
 				BindingFlags.Instance | BindingFlags.NonPublic);
 
+			// EditorWindow.m_Parent (HostView) -> View.window (ContainerWindow) -> ContainerWindow.GetBackingScale()
+			private static readonly FieldInfo s_parentField = typeof(UnityEditor.EditorWindow).GetField("m_Parent",
+				BindingFlags.Instance | BindingFlags.NonPublic);
+
+			private static readonly PropertyInfo s_viewWindowProperty = Type.GetType("UnityEditor.View,UnityEditor")?
+				.GetProperty("window", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+			private static readonly MethodInfo s_getBackingScale = Type.GetType("UnityEditor.ContainerWindow,UnityEditor")?
+				.GetMethod("GetBackingScale", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
 			private static UnityEditor.EditorWindow s_gameView;
 			private static double s_nextSearchTime;
 
@@ -61,7 +71,7 @@ namespace Tekly.Common.Ui
 				}
 
 				var viewRect = (Rect) s_targetInView.GetValue(gameView);
-				var viewWidth = viewRect.width * UnityEditor.EditorGUIUtility.pixelsPerPoint;
+				var viewWidth = viewRect.width * GetPixelsPerPoint(gameView);
 
 				if (viewWidth <= 0f) {
 					return 1f;
@@ -70,6 +80,29 @@ namespace Tekly.Common.Ui
 				UnityEditor.PlayModeWindow.GetRenderingResolution(out var width, out _);
 
 				return width / viewWidth;
+			}
+
+			/// <summary>
+			/// The backing scale of the window hosting the Game view. EditorGUIUtility.pixelsPerPoint can't be used
+			/// here: it reflects whichever editor window last ran OnGUI, so on macOS/HiDPI it flips between values as
+			/// hovering the mouse repaints other windows (or windows on a monitor with a different scale).
+			/// </summary>
+			private static float GetPixelsPerPoint(UnityEditor.EditorWindow window)
+			{
+				if (s_parentField != null && s_viewWindowProperty != null && s_getBackingScale != null) {
+					var hostView = s_parentField.GetValue(window);
+					var containerWindow = hostView != null ? s_viewWindowProperty.GetValue(hostView) : null;
+
+					if (containerWindow is UnityEngine.Object unityObject && unityObject != null) {
+						var scale = (float) s_getBackingScale.Invoke(containerWindow, null);
+
+						if (scale > 0f) {
+							return scale;
+						}
+					}
+				}
+
+				return UnityEditor.EditorGUIUtility.pixelsPerPoint;
 			}
 
 			private static UnityEditor.EditorWindow FindGameView()
