@@ -42,25 +42,26 @@ namespace Tekly.Common.Ui
 
 			private static readonly Type s_gameViewType = Type.GetType("UnityEditor.GameView,UnityEditor");
 
-			private static readonly PropertyInfo s_targetInView = s_gameViewType?.GetProperty("targetInView",
+			// GameView.m_ZoomArea (ZoomableArea) -> ZoomableArea.scale
+			private static readonly FieldInfo s_zoomAreaField = s_gameViewType?.GetField("m_ZoomArea",
 				BindingFlags.Instance | BindingFlags.NonPublic);
 
-			// EditorWindow.m_Parent (HostView) -> View.window (ContainerWindow) -> ContainerWindow.GetBackingScale()
-			private static readonly FieldInfo s_parentField = typeof(UnityEditor.EditorWindow).GetField("m_Parent",
-				BindingFlags.Instance | BindingFlags.NonPublic);
-
-			private static readonly PropertyInfo s_viewWindowProperty = Type.GetType("UnityEditor.View,UnityEditor")?
-				.GetProperty("window", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
-			private static readonly MethodInfo s_getBackingScale = Type.GetType("UnityEditor.ContainerWindow,UnityEditor")?
-				.GetMethod("GetBackingScale", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+			private static readonly PropertyInfo s_zoomScaleProperty = s_zoomAreaField?.FieldType.GetProperty("scale",
+				BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
 			private static UnityEditor.EditorWindow s_gameView;
 			private static double s_nextSearchTime;
 
+			/// <remarks>
+			/// The Game view draws its render target (in pixels) converted to points with its own backing scale, then
+			/// zooms it, so render pixels map to monitor pixels by exactly the zoom area's scale. Using the zoom
+			/// directly avoids EditorGUIUtility.pixelsPerPoint, which belongs to whichever editor window last ran
+			/// OnGUI and flips between values on macOS/HiDPI as the mouse causes other windows to repaint.
+			/// GameView.targetInView and PlayModeWindow.GetRenderingResolution both depend on that value internally.
+			/// </remarks>
 			public static float Get()
 			{
-				if (s_targetInView == null) {
+				if (s_zoomScaleProperty == null) {
 					return 1f;
 				}
 
@@ -70,39 +71,15 @@ namespace Tekly.Common.Ui
 					return 1f;
 				}
 
-				var viewRect = (Rect) s_targetInView.GetValue(gameView);
-				var viewWidth = viewRect.width * GetPixelsPerPoint(gameView);
+				var zoomArea = s_zoomAreaField.GetValue(gameView);
 
-				if (viewWidth <= 0f) {
+				if (zoomArea == null) {
 					return 1f;
 				}
 
-				UnityEditor.PlayModeWindow.GetRenderingResolution(out var width, out _);
+				var zoom = ((Vector2) s_zoomScaleProperty.GetValue(zoomArea)).x;
 
-				return width / viewWidth;
-			}
-
-			/// <summary>
-			/// The backing scale of the window hosting the Game view. EditorGUIUtility.pixelsPerPoint can't be used
-			/// here: it reflects whichever editor window last ran OnGUI, so on macOS/HiDPI it flips between values as
-			/// hovering the mouse repaints other windows (or windows on a monitor with a different scale).
-			/// </summary>
-			private static float GetPixelsPerPoint(UnityEditor.EditorWindow window)
-			{
-				if (s_parentField != null && s_viewWindowProperty != null && s_getBackingScale != null) {
-					var hostView = s_parentField.GetValue(window);
-					var containerWindow = hostView != null ? s_viewWindowProperty.GetValue(hostView) : null;
-
-					if (containerWindow is UnityEngine.Object unityObject && unityObject != null) {
-						var scale = (float) s_getBackingScale.Invoke(containerWindow, null);
-
-						if (scale > 0f) {
-							return scale;
-						}
-					}
-				}
-
-				return UnityEditor.EditorGUIUtility.pixelsPerPoint;
+				return zoom > 0f ? 1f / zoom : 1f;
 			}
 
 			private static UnityEditor.EditorWindow FindGameView()
