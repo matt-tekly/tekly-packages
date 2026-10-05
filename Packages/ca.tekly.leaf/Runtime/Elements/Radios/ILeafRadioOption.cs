@@ -69,6 +69,12 @@ namespace Tekly.Leaf.Elements.Radios
 				return;
 			}
 
+			// Moving along with the group, e.g. an ancestor of both was reparented, changes nothing. Leaving and
+			// rejoining would make the group pick another option, since this one is disabled for a moment.
+			if (behaviour.GetComponentInParent<LeafRadioGroup>() == Group) {
+				return;
+			}
+
 			Disable();
 			Enable(m_option, behaviour);
 			m_option.RefreshState(true);

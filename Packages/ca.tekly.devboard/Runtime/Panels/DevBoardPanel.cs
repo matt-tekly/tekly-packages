@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Tekly.DevBoard.Components;
 using Tekly.DevBoard.Pages;
 using Tekly.Leaf.Elements;
+using Tekly.Leaf.Elements.Radios;
 using Tekly.Trellis;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -84,7 +85,8 @@ namespace Tekly.DevBoard.Panels
 		[FormerlySerializedAs("m_actions")]
 		[SerializeField] private GameObject m_headerSettings;
 		[SerializeField] private ButtonWidget m_popButton;
-		[SerializeField] private ButtonWidget m_dockButton;
+		[Tooltip("Picks the dock slot. Each option needs a DockSlotOption saying which slot it is")]
+		[SerializeField] private LeafRadioGroup m_dockGroup;
 		[SerializeField] private ButtonWidget m_overlayButton;
 
 		[Tooltip("Toggles whether the panel stays on screen while DevBoard is hidden")]
@@ -197,9 +199,15 @@ namespace Tekly.DevBoard.Panels
 
 		public void SetDock(DockSlot dock)
 		{
+			if (dock == Dock) {
+				SyncDockGroup();
+				return;
+			}
+
 			Dock = dock;
 			transform.SetParent(m_dock.GetSlot(dock), false);
 			transform.SetAsLastSibling();
+			SyncDockGroup();
 			m_board.SavePanels();
 		}
 
@@ -254,7 +262,6 @@ namespace Tekly.DevBoard.Panels
 
 			Wire(m_overlayHandle, Deferred(() => SetOverlay(false)));
 			Wire(m_popButton, MenuAction(() => PopOut()));
-			Wire(m_dockButton, MenuAction(CycleDock));
 			Wire(m_overlayButton, MenuAction(() => SetOverlay(true)));
 			Wire(m_showWhenHiddenButton, MenuAction(() => SetShowWhenHidden(!ShowWhenHidden)));
 			Wire(m_closeButton, MenuAction(Close));
@@ -265,6 +272,10 @@ namespace Tekly.DevBoard.Panels
 
 			if (m_collapseToggle != null) {
 				m_collapseToggle.onValueChanged.AddListener(OnCollapseToggleChanged);
+			}
+
+			if (m_dockGroup != null) {
+				m_dockGroup.OnChanged.AddListener(OnDockOptionChanged);
 			}
 
 			SetSettingsOpen(false);
@@ -660,6 +671,46 @@ namespace Tekly.DevBoard.Panels
 			if (m_headerSettings != null) {
 				m_headerSettings.SetActive(open);
 			}
+
+			// The options only count once they're active, so sync after showing them
+			if (open) {
+				SyncDockGroup();
+			}
+		}
+
+		/// <summary>
+		/// Deferred, since docking moves the panel, and with it the option that was clicked. Settings stay open
+		/// so the panel can be moved again straight away.
+		/// </summary>
+		private void OnDockOptionChanged(int index)
+		{
+			if (m_dockGroup.GetOption(index) is Component option && option.TryGetComponent(out DockSlotOption slot)) {
+				var dock = slot.Slot;
+				m_deferred.Add(() => SetDock(dock));
+			}
+		}
+
+		/// <summary>
+		/// Turns on the option for the current dock slot, without events.
+		/// </summary>
+		private void SyncDockGroup()
+		{
+			if (m_dockGroup == null || !m_dockGroup.isActiveAndEnabled) {
+				return;
+			}
+
+			for (var i = 0; ; i++) {
+				var option = m_dockGroup.GetOption(i);
+
+				if (option == null) {
+					return;
+				}
+
+				if (option is Component component && component.TryGetComponent(out DockSlotOption slot) && slot.Slot == Dock) {
+					m_dockGroup.SetWithoutNotify(option);
+					return;
+				}
+			}
 		}
 
 		/// <summary>
@@ -671,12 +722,6 @@ namespace Tekly.DevBoard.Panels
 				SetSettingsOpen(false);
 				action();
 			});
-		}
-
-		private void CycleDock()
-		{
-			var count = Enum.GetValues(typeof(DockSlot)).Length;
-			SetDock((DockSlot) (((int) Dock + 1) % count));
 		}
 
 		private void ApplyOverlay(bool overlay)
@@ -817,6 +862,10 @@ namespace Tekly.DevBoard.Panels
 
 			if (m_collapseToggle != null) {
 				m_collapseToggle.onValueChanged.RemoveListener(OnCollapseToggleChanged);
+			}
+
+			if (m_dockGroup != null) {
+				m_dockGroup.OnChanged.RemoveListener(OnDockOptionChanged);
 			}
 
 			if (m_tree != null) {

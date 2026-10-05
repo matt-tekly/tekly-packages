@@ -84,7 +84,6 @@ namespace TeklySample.Samples.DevBoardSample
 			
 			// Each segment is removed when this GameObject is destroyed
 			devBoard.Page("Sample/Widgets", DoPage).BindTo(gameObject);
-			devBoard.Page("Sample/Widgets", DoPage).BindTo(gameObject);
 
 			// Two segments on the same page, as if registered by two different systems
 			devBoard.Page("Sample/Cheats", page => {

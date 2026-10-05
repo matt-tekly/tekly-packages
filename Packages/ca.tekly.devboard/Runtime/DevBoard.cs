@@ -271,7 +271,7 @@ namespace Tekly.DevBoard
 
 		/// <summary>
 		/// A panel was closed by the user: forget it, including its saved layout. Closing the last panel opens a
-		/// new one at the root, so there's always a way back in.
+		/// new one at the root in the top left, so there's always a way back in.
 		/// </summary>
 		internal void ClosePanel(DevBoardPanel panel)
 		{
@@ -281,7 +281,7 @@ namespace Tekly.DevBoard
 			if (m_panels.Count == 0) {
 				CreatePanel(new PanelRecord {
 					Id = NextPanelId(MAIN_PANEL_ID),
-					Dock = panel.Dock,
+					Dock = DockSlot.TopLeft,
 					Path = string.Empty
 				});
 			}
