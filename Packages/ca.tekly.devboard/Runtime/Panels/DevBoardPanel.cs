@@ -89,10 +89,8 @@ namespace Tekly.DevBoard.Panels
 		[SerializeField] private LeafRadioGroup m_dockGroup;
 		[SerializeField] private ButtonWidget m_overlayButton;
 
-		[Tooltip("Toggles whether the panel stays on screen while DevBoard is hidden")]
-		[SerializeField] private ButtonWidget m_showWhenHiddenButton;
-		[SerializeField] private string m_showWhenHiddenOnLabel = "Keep: On";
-		[SerializeField] private string m_showWhenHiddenOffLabel = "Keep: Off";
+		[Tooltip("On while the panel stays on screen when DevBoard is hidden")]
+		[SerializeField] private LeafToggle m_showWhenHiddenToggle;
 
 		[SerializeField] private ButtonWidget m_closeButton;
 
@@ -192,7 +190,7 @@ namespace Tekly.DevBoard.Panels
 			}
 
 			ShowWhenHidden = showWhenHidden;
-			m_headerDirty = true;
+			SyncShowWhenHiddenToggle();
 			m_board.ApplyVisibility();
 			m_board.SavePanels();
 		}
@@ -263,7 +261,6 @@ namespace Tekly.DevBoard.Panels
 			Wire(m_overlayHandle, Deferred(() => SetOverlay(false)));
 			Wire(m_popButton, MenuAction(() => PopOut()));
 			Wire(m_overlayButton, MenuAction(() => SetOverlay(true)));
-			Wire(m_showWhenHiddenButton, MenuAction(() => SetShowWhenHidden(!ShowWhenHidden)));
 			Wire(m_closeButton, MenuAction(Close));
 
 			if (m_actionsToggle != null) {
@@ -278,6 +275,10 @@ namespace Tekly.DevBoard.Panels
 				m_dockGroup.OnChanged.AddListener(OnDockOptionChanged);
 			}
 
+			if (m_showWhenHiddenToggle != null) {
+				m_showWhenHiddenToggle.onValueChanged.AddListener(OnShowWhenHiddenToggleChanged);
+			}
+
 			SetSettingsOpen(false);
 		}
 
@@ -290,6 +291,7 @@ namespace Tekly.DevBoard.Panels
 			Id = record.Id;
 			Dock = record.Dock;
 			ShowWhenHidden = record.ShowWhenHidden;
+			SyncShowWhenHiddenToggle();
 
 			// The panel remembers scroll positions per page itself
 			m_body.WithoutSavedState();
@@ -630,10 +632,6 @@ namespace Tekly.DevBoard.Panels
 
 				m_breadcrumb.Set(crumbs, path => m_deferred.Add(() => Open(path)));
 			}
-
-			if (m_showWhenHiddenButton != null) {
-				m_showWhenHiddenButton.Label = ShowWhenHidden ? m_showWhenHiddenOnLabel : m_showWhenHiddenOffLabel;
-			}
 		}
 
 		/// <summary>
@@ -651,6 +649,21 @@ namespace Tekly.DevBoard.Panels
 		private void OnCollapseToggleChanged(bool isOn)
 		{
 			m_deferred.Add(() => SetCollapsed(isOn));
+		}
+
+		/// <summary>
+		/// Settings stay open, like the dock options, so it's easy to see the new state.
+		/// </summary>
+		private void OnShowWhenHiddenToggleChanged(bool isOn)
+		{
+			m_deferred.Add(() => SetShowWhenHidden(isOn));
+		}
+
+		private void SyncShowWhenHiddenToggle()
+		{
+			if (m_showWhenHiddenToggle != null) {
+				m_showWhenHiddenToggle.SetIsOnWithoutNotify(ShowWhenHidden);
+			}
 		}
 
 		private void SetSettingsOpen(bool open)
@@ -866,6 +879,10 @@ namespace Tekly.DevBoard.Panels
 
 			if (m_dockGroup != null) {
 				m_dockGroup.OnChanged.RemoveListener(OnDockOptionChanged);
+			}
+
+			if (m_showWhenHiddenToggle != null) {
+				m_showWhenHiddenToggle.onValueChanged.RemoveListener(OnShowWhenHiddenToggleChanged);
 			}
 
 			if (m_tree != null) {
