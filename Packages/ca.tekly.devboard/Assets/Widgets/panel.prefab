@@ -177,6 +177,7 @@ MonoBehaviour:
     TopRight: 0
     BottomRight: 0
     BottomLeft: 0
+  m_roundedCorners: 6
   m_bulge: {x: 0, y: 0, z: 0, w: 0}
   m_containBulge: 0
   m_sprite: {fileID: 0}
@@ -362,20 +363,20 @@ MonoBehaviour:
   m_targets:
   - m_target: {fileID: 79493627431649709}
     m_colors:
-      Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 0}
+      Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
       Highlighted: {r: 0.40000004, g: 0.36078432, b: 0.32941177, a: 1}
       Pressed: {r: 0.23529413, g: 0.21960786, b: 0.21176472, a: 1}
     m_layers:
     - m_flags: 1
       m_blend: 0
       m_colors:
-        Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 0}
+        Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
         Highlighted: {r: 0.48627454, g: 0.43529415, b: 0.3921569, a: 1}
         Pressed: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
     - m_flags: 2
       m_blend: 0
       m_colors:
-        Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 0}
+        Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
         Highlighted: {r: 0.23529413, g: 0.21960786, b: 0.21176472, a: 1}
         Pressed: {r: 0.23529413, g: 0.21960786, b: 0.21176472, a: 1}
     m_fadeDuration: 0.1
@@ -485,6 +486,7 @@ MonoBehaviour:
     TopRight: 0
     BottomRight: 0
     BottomLeft: 0
+  m_roundedCorners: 9
   m_bulge: {x: 0, y: 0, z: 0, w: 0}
   m_containBulge: 0
   m_sprite: {fileID: 0}
@@ -670,20 +672,20 @@ MonoBehaviour:
   m_targets:
   - m_target: {fileID: 4689586072461258373}
     m_colors:
-      Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 0}
+      Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
       Highlighted: {r: 0.40000004, g: 0.36078432, b: 0.32941177, a: 1}
       Pressed: {r: 0.23529413, g: 0.21960786, b: 0.21176472, a: 1}
     m_layers:
     - m_flags: 1
       m_blend: 0
       m_colors:
-        Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 0}
+        Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
         Highlighted: {r: 0.48627454, g: 0.43529415, b: 0.3921569, a: 1}
         Pressed: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
     - m_flags: 2
       m_blend: 0
       m_colors:
-        Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 0}
+        Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
         Highlighted: {r: 0.23529413, g: 0.21960786, b: 0.21176472, a: 1}
         Pressed: {r: 0.23529413, g: 0.21960786, b: 0.21176472, a: 1}
     m_fadeDuration: 0.1
@@ -714,6 +716,120 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Tekly.DevBoard::Tekly.DevBoard.Panels.DockSlotOption
   m_slot: 0
+--- !u!1 &1888335718269114942
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1487063734416177762}
+  - component: {fileID: 5696047641136174035}
+  - component: {fileID: 806668750290489169}
+  m_Layer: 5
+  m_Name: BasicButtons
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1487063734416177762
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1888335718269114942}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2033303465085612777}
+  - {fileID: 4349271301688487381}
+  - {fileID: 4668468365828067166}
+  m_Father: {fileID: 3952988143605500653}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &5696047641136174035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1888335718269114942}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd235bcb11258d04c9d967a19a1b0e49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Tekly.Trellis.Runtime::Tekly.Trellis.FlowLayout
+  m_ignoreLayout: 0
+  m_minWidth:
+    IsSet: 0
+    Value: 0
+  m_minHeight:
+    IsSet: 0
+    Value: 0
+  m_preferredWidth:
+    IsSet: 0
+    Value: 0
+  m_preferredHeight:
+    IsSet: 0
+    Value: 0
+  m_flexibleWidth:
+    IsSet: 0
+    Value: 0
+  m_flexibleHeight:
+    IsSet: 0
+    Value: 0
+  m_maxWidth:
+    IsSet: 0
+    Value: 0
+  m_maxHeight:
+    IsSet: 0
+    Value: 0
+  m_margin:
+    Left: 0
+    Right: 0
+    Top: 0
+    Bottom: 0
+  m_layoutPriority: 1
+  m_widthGroup: 
+  m_fitWidth: 0
+  m_fitHeight: 0
+  m_axis: 0
+  m_reverse: 0
+  m_padding:
+    Left: 0
+    Right: 0
+    Top: 0
+    Bottom: 0
+  m_spacing: 0
+  m_alignment: 0
+  m_crossAlignment: 0
+  m_wrap: 0
+  m_maxPerLine: 0
+  m_lineSpacing: 0
+  m_lineAlignment: 0
+--- !u!114 &806668750290489169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1888335718269114942}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70e2d86bf4951044a97eae118bc34bc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Tekly.Trellis.Runtime::Tekly.Trellis.SegmentCorners
+  m_allowed: -1
+  m_roundWhenAlone: 1
 --- !u!1 &2284166462474302369
 GameObject:
   m_ObjectHideFlags: 0
@@ -1032,6 +1148,7 @@ MonoBehaviour:
     TopRight: 0
     BottomRight: 2
     BottomLeft: 0
+  m_roundedCorners: 15
   m_bulge: {x: 0, y: 0, z: 0, w: 0}
   m_containBulge: 0
   m_sprite: {fileID: 0}
@@ -1284,6 +1401,7 @@ MonoBehaviour:
     TopRight: 0
     BottomRight: 0
     BottomLeft: 0
+  m_roundedCorners: 0
   m_bulge: {x: 0, y: 0, z: 0, w: 0}
   m_containBulge: 0
   m_sprite: {fileID: 0}
@@ -1469,20 +1587,20 @@ MonoBehaviour:
   m_targets:
   - m_target: {fileID: 2164552257647086705}
     m_colors:
-      Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 0}
+      Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
       Highlighted: {r: 0.40000004, g: 0.36078432, b: 0.32941177, a: 1}
       Pressed: {r: 0.23529413, g: 0.21960786, b: 0.21176472, a: 1}
     m_layers:
     - m_flags: 1
       m_blend: 0
       m_colors:
-        Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 0}
+        Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
         Highlighted: {r: 0.48627454, g: 0.43529415, b: 0.3921569, a: 1}
         Pressed: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
     - m_flags: 2
       m_blend: 0
       m_colors:
-        Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 0}
+        Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
         Highlighted: {r: 0.23529413, g: 0.21960786, b: 0.21176472, a: 1}
         Pressed: {r: 0.23529413, g: 0.21960786, b: 0.21176472, a: 1}
     m_fadeDuration: 0.1
@@ -1976,6 +2094,7 @@ GameObject:
   - component: {fileID: 3306570516155071477}
   - component: {fileID: 6806920632752916162}
   - component: {fileID: 1060004025381309051}
+  - component: {fileID: 3629066761986117926}
   m_Layer: 5
   m_Name: DockOptions
   m_TagString: Untagged
@@ -2089,6 +2208,20 @@ MonoBehaviour:
   m_maxPerLine: 0
   m_lineSpacing: 0
   m_lineAlignment: 0
+--- !u!114 &3629066761986117926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5746656184764957832}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70e2d86bf4951044a97eae118bc34bc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Tekly.Trellis.Runtime::Tekly.Trellis.SegmentCorners
+  m_allowed: -1
+  m_roundWhenAlone: 1
 --- !u!1 &5832015838661346270
 GameObject:
   m_ObjectHideFlags: 0
@@ -2262,6 +2395,7 @@ MonoBehaviour:
     TopRight: 0
     BottomRight: 0
     BottomLeft: 0
+  m_roundedCorners: 15
   m_bulge: {x: 0, y: 0, z: 0, w: 0}
   m_containBulge: 0
   m_sprite: {fileID: 0}
@@ -2532,9 +2666,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2033303465085612777}
-  - {fileID: 4349271301688487381}
-  - {fileID: 4668468365828067166}
+  - {fileID: 1487063734416177762}
   - {fileID: 3076873508404543125}
   - {fileID: 3306570516155071477}
   m_Father: {fileID: 5180386647293217680}
@@ -2597,7 +2729,7 @@ MonoBehaviour:
     Right: 0
     Top: 0
     Bottom: 0
-  m_spacing: 0
+  m_spacing: 4
   m_alignment: 0
   m_crossAlignment: 0
   m_wrap: 0
@@ -2683,6 +2815,7 @@ MonoBehaviour:
     TopRight: 0
     BottomRight: 0
     BottomLeft: 0
+  m_roundedCorners: 0
   m_bulge: {x: 0, y: 0, z: 0, w: 0}
   m_containBulge: 0
   m_sprite: {fileID: 0}
@@ -2868,20 +3001,20 @@ MonoBehaviour:
   m_targets:
   - m_target: {fileID: 5187410186407260806}
     m_colors:
-      Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 0}
+      Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
       Highlighted: {r: 0.40000004, g: 0.36078432, b: 0.32941177, a: 1}
       Pressed: {r: 0.23529413, g: 0.21960786, b: 0.21176472, a: 1}
     m_layers:
     - m_flags: 1
       m_blend: 0
       m_colors:
-        Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 0}
+        Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
         Highlighted: {r: 0.48627454, g: 0.43529415, b: 0.3921569, a: 1}
         Pressed: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
     - m_flags: 2
       m_blend: 0
       m_colors:
-        Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 0}
+        Normal: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
         Highlighted: {r: 0.23529413, g: 0.21960786, b: 0.21176472, a: 1}
         Pressed: {r: 0.23529413, g: 0.21960786, b: 0.21176472, a: 1}
     m_fadeDuration: 0.1
@@ -2946,7 +3079,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4773393916768904197}
-  m_Father: {fileID: 3952988143605500653}
+  m_Father: {fileID: 1487063734416177762}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -3045,7 +3178,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 0}
+  m_TargetGraphic: {fileID: 8487490717389901391}
   toggleTransition: 1
   graphic: {fileID: 0}
   m_Group: {fileID: 0}
@@ -3129,6 +3262,7 @@ MonoBehaviour:
     TopRight: 0
     BottomRight: 0
     BottomLeft: 0
+  m_roundedCorners: 6
   m_bulge: {x: 0, y: 0, z: 0, w: 0}
   m_containBulge: 0
   m_sprite: {fileID: 0}
@@ -3706,7 +3840,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 3952988143605500653}
+    m_TransformParent: {fileID: 1487063734416177762}
     m_Modifications:
     - target: {fileID: 2187255556830693669, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
       propertyPath: m_text
@@ -3848,6 +3982,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Pop
       objectReference: {fileID: 0}
+    - target: {fileID: 7526671982862658844, guid: aab4de6e7e9e08446bf02014bd151462, type: 3}
+      propertyPath: m_roundedCorners
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8153162773759831833, guid: aab4de6e7e9e08446bf02014bd151462, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -3911,7 +4049,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 3952988143605500653}
+    m_TransformParent: {fileID: 1487063734416177762}
     m_Modifications:
     - target: {fileID: 2187255556830693669, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
       propertyPath: m_text
@@ -4052,6 +4190,10 @@ PrefabInstance:
     - target: {fileID: 4599989377616542402, guid: aab4de6e7e9e08446bf02014bd151462, type: 3}
       propertyPath: m_Name
       value: Close
+      objectReference: {fileID: 0}
+    - target: {fileID: 7526671982862658844, guid: aab4de6e7e9e08446bf02014bd151462, type: 3}
+      propertyPath: m_roundedCorners
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 8153162773759831833, guid: aab4de6e7e9e08446bf02014bd151462, type: 3}
       propertyPath: m_IsActive

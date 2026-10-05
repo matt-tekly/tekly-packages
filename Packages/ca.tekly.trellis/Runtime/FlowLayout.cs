@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Tekly.Common.Utils;
 using UnityEngine;
@@ -158,6 +159,19 @@ namespace Tekly.Trellis
 		/// </summary>
 		public int LineCount => m_lines.Count;
 
+		/// <summary>
+		/// Raised after every rebuild, once children are placed and lines are final.
+		/// </summary>
+		public event Action<FlowLayout> Arranged;
+
+		/// <summary>Children taking part in layout from the last rebuild, in placement order.</summary>
+		public int ArrangedChildCount => ChildCount;
+
+		public RectTransform GetArrangedChild(int index) => GetChildRect(index);
+
+		/// <summary>A line (row when horizontal, column when vertical) from the last rebuild.</summary>
+		public LayoutLine GetLine(int index) => m_lines[index];
+
 		protected override bool ReverseChildren => m_reverse;
 
 		private int MainAxis => m_axis == LayoutAxis.Horizontal ? 0 : 1;
@@ -198,6 +212,11 @@ namespace Tekly.Trellis
 				ArrangeMain(axis);
 			} else {
 				ArrangeCross(axis);
+			}
+
+			// Vertical is always the last pass, so lines and placement are final
+			if (axis == 1) {
+				Arranged?.Invoke(this);
 			}
 		}
 

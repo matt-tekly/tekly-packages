@@ -19,6 +19,7 @@ namespace Tekly.Common.Ui.Fancy
 		private SerializedProperty m_cornerRadii;
 		private SerializedProperty m_cornerType;
 		private SerializedProperty m_cornerTypes;
+		private SerializedProperty m_roundedCorners;
 		private SerializedProperty m_bulge;
 		private SerializedProperty m_containBulge;
 		private SerializedProperty m_backgroundEnabled;
@@ -60,6 +61,7 @@ namespace Tekly.Common.Ui.Fancy
 			m_cornerRadii = serializedObject.FindProperty("m_cornerRadii");
 			m_cornerType = serializedObject.FindProperty("m_cornerType");
 			m_cornerTypes = serializedObject.FindProperty("m_cornerTypes");
+			m_roundedCorners = serializedObject.FindProperty("m_roundedCorners");
 			m_bulge = serializedObject.FindProperty("m_bulge");
 			m_containBulge = serializedObject.FindProperty("m_containBulge");
 			m_backgroundEnabled = serializedObject.FindProperty("m_backgroundEnabled");
@@ -171,6 +173,8 @@ namespace Tekly.Common.Ui.Fancy
 					CornerGridGUI();
 					break;
 			}
+
+			EditorGUILayout.PropertyField(m_roundedCorners);
 
 			EdgeGridGUI(m_bulge, s_bulgeContent);
 

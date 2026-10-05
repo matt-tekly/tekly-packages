@@ -4458,7 +4458,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1417932230543685513, guid: be6eec1fe19baa743a59036f3a6a9d3e, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4290264171243184117, guid: be6eec1fe19baa743a59036f3a6a9d3e, type: 3}
       propertyPath: m_text
@@ -6550,6 +6550,7 @@ MonoBehaviour:
     TopRight: 0
     BottomRight: 0
     BottomLeft: 0
+  m_roundedCorners: 15
   m_bulge: {x: 0, y: 0, z: 0, w: 0}
   m_containBulge: 0
   m_sprite: {fileID: 0}
@@ -6611,6 +6612,7 @@ MonoBehaviour:
   m_revealAmount: 1
   m_revealClockwise: 1
   m_raycastUsesShape: 1
+  m_rendererTintLayers: 127
 --- !u!114 &1088955119
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6891,6 +6893,7 @@ MonoBehaviour:
     TopRight: 0
     BottomRight: 0
     BottomLeft: 0
+  m_roundedCorners: 15
   m_bulge: {x: 0, y: 0, z: 0, w: 0}
   m_containBulge: 0
   m_sprite: {fileID: 0}
@@ -6952,6 +6955,7 @@ MonoBehaviour:
   m_revealAmount: 1
   m_revealClockwise: 1
   m_raycastUsesShape: 1
+  m_rendererTintLayers: 127
 --- !u!1001 &1132291507
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8115,6 +8119,7 @@ GameObject:
   - component: {fileID: 1266622208}
   - component: {fileID: 1266622209}
   - component: {fileID: 1266622210}
+  - component: {fileID: 1266622211}
   m_Layer: 5
   m_Name: ButtonGrid
   m_TagString: Untagged
@@ -8203,11 +8208,11 @@ MonoBehaviour:
     Right: 0
     Top: 0
     Bottom: 0
-  m_spacing: 40
+  m_spacing: 20
   m_alignment: 0
   m_crossAlignment: 1
   m_wrap: 1
-  m_maxPerLine: 3
+  m_maxPerLine: 5
   m_lineSpacing: 20
   m_lineAlignment: 0
 --- !u!114 &1266622210
@@ -8232,6 +8237,20 @@ MonoBehaviour:
   m_wrapHorizontal: 1
   m_wrapVertical: 1
   m_firstSelection: {fileID: 0}
+--- !u!114 &1266622211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1266622207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70e2d86bf4951044a97eae118bc34bc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Tekly.Trellis.Runtime::Tekly.Trellis.SegmentCorners
+  m_allowed: -1
+  m_roundWhenAlone: 1
 --- !u!1001 &1266799796
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8623,6 +8642,7 @@ MonoBehaviour:
     TopRight: 0
     BottomRight: 0
     BottomLeft: 0
+  m_roundedCorners: 15
   m_bulge: {x: 0, y: 0, z: 0, w: 0}
   m_containBulge: 0
   m_sprite: {fileID: 21300000, guid: 4b2250ecbcbb650418b23535f1e69cd0, type: 3}
@@ -8699,6 +8719,7 @@ MonoBehaviour:
   m_revealAmount: 1
   m_revealClockwise: 1
   m_raycastUsesShape: 1
+  m_rendererTintLayers: 127
 --- !u!222 &1300771324
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -9919,6 +9940,7 @@ MonoBehaviour:
     TopRight: 0
     BottomRight: 0
     BottomLeft: 0
+  m_roundedCorners: 15
   m_bulge: {x: 0, y: 0, z: 0, w: 0}
   m_containBulge: 0
   m_sprite: {fileID: 0}
@@ -9980,6 +10002,7 @@ MonoBehaviour:
   m_revealAmount: 1
   m_revealClockwise: 1
   m_raycastUsesShape: 1
+  m_rendererTintLayers: 127
 --- !u!1 &1484986436
 GameObject:
   m_ObjectHideFlags: 0
@@ -15530,6 +15553,7 @@ MonoBehaviour:
     TopRight: 0
     BottomRight: 0
     BottomLeft: 0
+  m_roundedCorners: 15
   m_bulge: {x: 0, y: 0, z: 0, w: 0}
   m_containBulge: 0
   m_sprite: {fileID: 21300000, guid: 4b2250ecbcbb650418b23535f1e69cd0, type: 3}
@@ -15606,6 +15630,7 @@ MonoBehaviour:
   m_revealAmount: 1
   m_revealClockwise: 1
   m_raycastUsesShape: 1
+  m_rendererTintLayers: 127
 --- !u!222 &2140569717
 CanvasRenderer:
   m_ObjectHideFlags: 0

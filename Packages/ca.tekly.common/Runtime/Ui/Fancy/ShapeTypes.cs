@@ -11,6 +11,25 @@ namespace Tekly.Common.Ui.Fancy
 		Inverted = 3
 	}
 
+	/// <summary>
+	/// Which corners of a rect. Used to square off corners that touch a neighbour, like the inner
+	/// corners of a segmented button row.
+	/// </summary>
+	[Flags]
+	public enum RectCorners
+	{
+		None = 0,
+		TopLeft = 1 << 0,
+		TopRight = 1 << 1,
+		BottomRight = 1 << 2,
+		BottomLeft = 1 << 3,
+		Top = TopLeft | TopRight,
+		Bottom = BottomLeft | BottomRight,
+		Left = TopLeft | BottomLeft,
+		Right = TopRight | BottomRight,
+		All = TopLeft | TopRight | BottomRight | BottomLeft
+	}
+
 	public enum RadiusMode
 	{
 		Uniform,

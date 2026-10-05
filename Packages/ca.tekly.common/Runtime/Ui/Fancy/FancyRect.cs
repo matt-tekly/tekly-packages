@@ -66,6 +66,9 @@ namespace Tekly.Common.Ui.Fancy
 		[SerializeField] private CornerType m_cornerType = CornerType.Round;
 		[SerializeField] private CornerTypes m_cornerTypes;
 
+		[Tooltip("Corners that use the radius. Others are square. Driven by SegmentCorners on a FlowLayout.")]
+		[SerializeField] private RectCorners m_roundedCorners = RectCorners.All;
+
 		[Tooltip("Top, Right, Bottom, Left. Positive bulges outward, negative curves inward.")]
 		[SerializeField] private Vector4 m_bulge;
 
@@ -314,6 +317,21 @@ namespace Tekly.Common.Ui.Fancy
 			get => m_cornerTypes;
 			set {
 				m_cornerTypes = value;
+				SetVerticesDirty();
+			}
+		}
+
+		/// <summary>
+		/// Corners that use the radius; the rest are square. Applies to every radius mode.
+		/// </summary>
+		public RectCorners RoundedCorners {
+			get => m_roundedCorners;
+			set {
+				if (m_roundedCorners == value) {
+					return;
+				}
+
+				m_roundedCorners = value;
 				SetVerticesDirty();
 			}
 		}
@@ -1178,7 +1196,37 @@ namespace Tekly.Common.Ui.Fancy
 				_ => Vector4.one * m_radius
 			};
 
+			radii = MaskRadii(radii, m_roundedCorners);
+
 			return FitRadii(radii, halfSize * 2f);
+		}
+
+		/// <summary>
+		/// Zeroes the radii (TL, TR, BR, BL) of corners that aren't rounded.
+		/// </summary>
+		private static Vector4 MaskRadii(Vector4 radii, RectCorners corners)
+		{
+			if (corners == RectCorners.All) {
+				return radii;
+			}
+
+			if ((corners & RectCorners.TopLeft) == 0) {
+				radii.x = 0;
+			}
+
+			if ((corners & RectCorners.TopRight) == 0) {
+				radii.y = 0;
+			}
+
+			if ((corners & RectCorners.BottomRight) == 0) {
+				radii.z = 0;
+			}
+
+			if ((corners & RectCorners.BottomLeft) == 0) {
+				radii.w = 0;
+			}
+
+			return radii;
 		}
 
 		private CornerTypes GetCornerTypes()

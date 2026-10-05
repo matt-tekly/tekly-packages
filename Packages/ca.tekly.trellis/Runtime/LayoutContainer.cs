@@ -123,6 +123,14 @@ namespace Tekly.Trellis
 		/// </summary>
 		protected abstract void Arrange(int axis);
 
+		/// <summary>
+		/// A child taking part in layout, in placement order (Reverse already applied).
+		/// </summary>
+		protected RectTransform GetChildRect(int index)
+		{
+			return m_children[index];
+		}
+
 		protected LayoutMeasure MeasureChild(int index, int axis)
 		{
 			return m_items[index].Measure(axis);
