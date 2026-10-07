@@ -12,6 +12,7 @@ namespace Tekly.Leaf.Elements.Radios
 	{
 		public LeafRadioGroup Group => m_membership.Group;
 		public LeafRadioValueEvent OnValueChanged => m_onValueChanged;
+		public ButtonClickedEvent OnClicked => m_onClick;
 
 		public bool IsOn {
 			get => m_membership.IsOn;
@@ -19,6 +20,7 @@ namespace Tekly.Leaf.Elements.Radios
 		}
 
 		[SerializeField] private LeafRadioValueEvent m_onValueChanged = new();
+		[SerializeField] private ButtonClickedEvent m_onClick = new();
 
 		private readonly LeafRadioMembership m_membership = new();
 
@@ -59,6 +61,7 @@ namespace Tekly.Leaf.Elements.Radios
 			}
 
 			m_membership.Press();
+			m_onClick.Invoke();
 		}
 
 		public override void OnMove(AxisEventData eventData)

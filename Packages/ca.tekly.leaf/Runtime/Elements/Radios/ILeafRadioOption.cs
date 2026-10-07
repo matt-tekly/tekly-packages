@@ -18,6 +18,12 @@ namespace Tekly.Leaf.Elements.Radios
 		bool IsOn { get; set; }
 		LeafRadioValueEvent OnValueChanged { get; }
 
+		/// <summary>
+		/// Invoked each time the option is pressed, even when it was already on and nothing changed.
+		/// Use <see cref="OnValueChanged"/> to react to the option turning on or off.
+		/// </summary>
+		ButtonClickedEvent OnClicked { get; }
+
 		// Implemented by Component/Behaviour/Selectable already
 		Transform transform { get; }
 		bool isActiveAndEnabled { get; }
