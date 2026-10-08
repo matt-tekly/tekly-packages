@@ -1,0 +1,11 @@
+{
+	"$credits": "Credits",
+	"$egg": "Egg",
+	"$chicken": "Chicken {$egg}",
+	"$pig": "Pig",
+	"$boar": "Boar",
+	"$donkey": "Donkey",
+	"$dinosaur": "Dinosaur",
+	"$generator.buy": "Buy <color=#fdcbb0>{count}</color> {count:plural:{name}|{name}s}",
+	"test": "test {$dinosaur}"
+}

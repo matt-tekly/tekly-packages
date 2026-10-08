@@ -140,7 +140,9 @@
       "version": "file:ca.tekly.localizations",
       "depth": 0,
       "source": "embedded",
-      "dependencies": {}
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.2.2"
+      }
     },
     "ca.tekly.lofi": {
       "version": "file:ca.tekly.lofi",
