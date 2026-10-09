@@ -170,9 +170,14 @@ namespace Tekly.Leaf.Elements
 
 		/// <summary>
 		/// For a Selectable's OnMove: navigates within the scope that handles navigation for it, if there is one.
+		/// Does nothing while input is disabled for current (<see cref="LeafInputExtensions.IsLeafInputDisabled"/>).
 		/// </summary>
 		public static bool TryNavigateFrom(Selectable current, AxisEventData eventData)
 		{
+			if (current.IsLeafInputDisabled()) {
+				return false;
+			}
+
 			var scope = FindNavigationScope(current.transform);
 			return scope != null && scope.TryNavigate(current, eventData);
 		}
@@ -356,7 +361,7 @@ namespace Tekly.Leaf.Elements
 		/// </summary>
 		internal static void ProcessTab()
 		{
-			if (!LeafTabInput.WasPressedThisFrame(out var isReverse) || LeafCore.Instance.DisableInput.IsHeld.Value) {
+			if (!LeafTabInput.WasPressedThisFrame(out var isReverse)) {
 				return;
 			}
 
@@ -370,10 +375,14 @@ namespace Tekly.Leaf.Elements
 			// Clicking the background clears the selection, and hiding a panel leaves it on a hidden object.
 			// Either way Tab picks up again where it was in the scope used last
 			if (selected == null || !selected.activeInHierarchy) {
-				if (s_lastActiveScope != null) {
+				if (s_lastActiveScope != null && !s_lastActiveScope.IsLeafInputDisabled()) {
 					s_lastActiveScope.SelectGameObject(true);
 				}
 
+				return;
+			}
+
+			if (selected.transform.IsLeafInputDisabled()) {
 				return;
 			}
 

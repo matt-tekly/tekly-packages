@@ -81,6 +81,24 @@ namespace Tekly.Leaf.Elements
 			base.OnDeselect(eventData);
 		}
 
+		public override void OnPointerClick(PointerEventData eventData)
+		{
+			if (this.IsLeafInputDisabled()) {
+				return;
+			}
+
+			base.OnPointerClick(eventData);
+		}
+
+		public override void OnSubmit(BaseEventData eventData)
+		{
+			if (this.IsLeafInputDisabled()) {
+				return;
+			}
+
+			base.OnSubmit(eventData);
+		}
+
 		public override void OnMove(AxisEventData eventData)
 		{
 			LeafNavigationScope.TryNavigateFrom(this, eventData);

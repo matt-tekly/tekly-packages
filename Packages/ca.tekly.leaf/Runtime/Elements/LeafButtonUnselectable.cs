@@ -131,7 +131,7 @@ namespace Tekly.Leaf.Elements
 
 		public virtual void OnPointerClick(PointerEventData eventData)
 		{
-			if (eventData.button != PointerEventData.InputButton.Left) {
+			if (eventData.button != PointerEventData.InputButton.Left || this.IsLeafInputDisabled()) {
 				return;
 			}
 

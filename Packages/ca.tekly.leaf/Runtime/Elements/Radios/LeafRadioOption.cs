@@ -42,7 +42,7 @@ namespace Tekly.Leaf.Elements.Radios
 
 		public virtual void OnPointerClick(PointerEventData eventData)
 		{
-			if (eventData.button != PointerEventData.InputButton.Left) {
+			if (eventData.button != PointerEventData.InputButton.Left || this.IsLeafInputDisabled()) {
 				return;
 			}
 
@@ -51,6 +51,10 @@ namespace Tekly.Leaf.Elements.Radios
 
 		public virtual void OnSubmit(BaseEventData eventData)
 		{
+			if (this.IsLeafInputDisabled()) {
+				return;
+			}
+
 			Press();
 		}
 
@@ -66,6 +70,11 @@ namespace Tekly.Leaf.Elements.Radios
 
 		public override void OnMove(AxisEventData eventData)
 		{
+			// The group can turn options on as focus moves, so this can't wait for TryNavigateFrom's check
+			if (this.IsLeafInputDisabled()) {
+				return;
+			}
+
 			var group = m_membership.Group;
 			if (group != null && group.TryMove(this, eventData.moveDir)) {
 				return;

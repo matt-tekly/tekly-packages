@@ -30,6 +30,10 @@ namespace Tekly.Leaf.Elements
 
 		public override void OnPointerDown(PointerEventData eventData)
 		{
+			if (this.IsLeafInputDisabled()) {
+				return;
+			}
+
 			// Mirrors Slider.MayDrag, which skips Selectable.OnPointerDown when it fails
 			if (eventData.button == PointerEventData.InputButton.Left && IsActive() && IsInteractable()) {
 				m_tracker.IsPointerDown = true;
@@ -80,8 +84,22 @@ namespace Tekly.Leaf.Elements
 			}
 		}
 
+		public override void OnDrag(PointerEventData eventData)
+		{
+			if (this.IsLeafInputDisabled()) {
+				return;
+			}
+
+			base.OnDrag(eventData);
+		}
+
 		public override void OnMove(AxisEventData eventData)
 		{
+			// Left and Right change the value, so they're checked here as well as in TryNavigateFrom
+			if (this.IsLeafInputDisabled()) {
+				return;
+			}
+
 			// TODO: Handle slider alignment axis
 			switch (eventData.moveDir) {
 				case MoveDirection.Left:

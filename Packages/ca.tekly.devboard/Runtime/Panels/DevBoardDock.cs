@@ -43,7 +43,10 @@ namespace Tekly.DevBoard.Panels
 			canvasObject.transform.SetParent(parent, false);
 			var navigationScope = canvasObject.AddComponent<LeafNavigationScope>();
 			navigationScope.ContainNavigation = true;
-			
+
+			// Debug UI keeps working while the game holds LeafCore.DisableInput
+			canvasObject.AddComponent<LeafIgnoreDisableInput>();
+
 			Canvas = canvasObject.AddComponent<Canvas>();
 			Canvas.renderMode = RenderMode.ScreenSpaceOverlay;
 			Canvas.sortingOrder = SORTING_ORDER;

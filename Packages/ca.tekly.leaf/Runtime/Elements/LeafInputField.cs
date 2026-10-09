@@ -73,6 +73,10 @@ namespace Tekly.Leaf.Elements
 
 		public override void OnPointerDown(PointerEventData eventData)
 		{
+			if (this.IsLeafInputDisabled()) {
+				return;
+			}
+
 			// Mirrors TMP_InputField.MayDrag, which skips Selectable.OnPointerDown when it fails
 			if (eventData.button == PointerEventData.InputButton.Left && IsActive() && IsInteractable()) {
 				m_tracker.IsPointerDown = true;
@@ -98,6 +102,16 @@ namespace Tekly.Leaf.Elements
 			}
 
 			base.OnPointerUp(eventData);
+		}
+
+		public override void OnPointerClick(PointerEventData eventData)
+		{
+			// TMP starts editing on click
+			if (this.IsLeafInputDisabled()) {
+				return;
+			}
+
+			base.OnPointerClick(eventData);
 		}
 
 		public override void OnPointerEnter(PointerEventData eventData)
@@ -140,6 +154,10 @@ namespace Tekly.Leaf.Elements
 			// The Enter that ended the edit can also arrive as a Submit event, which would start editing again
 			if (m_isMoveNextPending) {
 				eventData?.Use();
+				return;
+			}
+
+			if (this.IsLeafInputDisabled()) {
 				return;
 			}
 
