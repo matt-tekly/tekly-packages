@@ -49,7 +49,7 @@ namespace Tekly.Localizations
 
 		public string Localize(string id)
 		{
-			if (m_strings.TryGetValue(id, out var locString)) {
+			if (TryGetString(id, out var locString)) {
 				if (locString.Keys != null && locString.Keys.Length > 0) {
 					return Format(locString, m_emptyData);
 				}
@@ -57,18 +57,15 @@ namespace Tekly.Localizations
 				return locString.Format;
 			}
 
-			m_logger.Error("Failed to find localization ID: [{id}]", ("id", id));
-
 			return $"[{id}]";
 		}
 
 		public string Localize(string id, (string, object)[] data)
 		{
-			if (m_strings.TryGetValue(id, out var locString)) {
+			if (TryGetString(id, out var locString)) {
 				return Format(locString, data);
 			}
 
-			m_logger.Error("Failed to find localization ID: [{id}]", ("id", id));
 			return $"[{id}]";
 		}
 
@@ -101,6 +98,21 @@ namespace Tekly.Localizations
 					m_banks.Remove(bank);
 				}
 			}
+		}
+		
+		private bool TryGetString(string id, out LocalizationString locString)
+		{
+			if (!m_strings.TryGetValue(id, out locString)) {
+				m_logger.Error("Failed to find localization ID: [{id}]", ("id", id));
+				return false;
+			}
+
+			if (string.IsNullOrEmpty(locString.Format)) {
+				m_logger.Warning("Localization ID has no text: [{id}]", ("id", id));
+				return false;
+			}
+
+			return true;
 		}
 	}
 }
