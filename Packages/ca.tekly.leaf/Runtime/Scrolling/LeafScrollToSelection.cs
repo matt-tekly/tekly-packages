@@ -104,12 +104,25 @@ namespace Tekly.Leaf.Scrolling
 
 		public void OnBeginDrag(PointerEventData eventData)
 		{
-			StopAnimating();
+			if (!IsIgnoringInput()) {
+				StopAnimating();
+			}
 		}
 
 		public void OnScroll(PointerEventData eventData)
 		{
-			StopAnimating();
+			if (!IsIgnoringInput()) {
+				StopAnimating();
+			}
+		}
+
+		/// <summary>
+		/// A LeafScrollRect ignores drags and the wheel while input is disabled, so they shouldn't cancel the
+		/// glide either. A plain ScrollRect still moves, so its glide has to stop or the two would fight.
+		/// </summary>
+		private bool IsIgnoringInput()
+		{
+			return m_scrollRect is LeafScrollRect && this.IsLeafInputDisabled();
 		}
 
 		private void Tick()

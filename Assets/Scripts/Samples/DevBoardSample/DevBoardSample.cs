@@ -2,6 +2,7 @@
 using Tekly.DevBoard;
 using Tekly.DevBoard.Components.Inputs;
 using Tekly.DevBoard.Pages;
+using Tekly.Leaf;
 using Tekly.Trellis;
 using UnityEngine;
 
@@ -15,6 +16,10 @@ namespace TeklySample.Samples.DevBoardSample
 		private int m_intValue;
 		private float m_floatValue;
 		private int m_coins;
+
+		// This page's own hold. IsInputDisabled is also true while anything else holds the latch, e.g. a button's
+		// press delay
+		private bool m_isHoldingInput;
 
 		// A stand-in item database and inventory for the search sample
 		private readonly List<string> m_items = new();
@@ -101,6 +106,31 @@ namespace TeklySample.Samples.DevBoardSample
 				page.Root.PropertyMonospaced("Time", () => Time.realtimeSinceStartup, 0.05f, "{0:N1}");
 				page.Root.PropertyMonospaced("Frame", () => Time.frameCount);
 			}).BindTo(gameObject);
+			
+			devBoard.Page("Sample/Leaf", page => {
+				page.Root.Toggle("Input Disabled", () => m_isHoldingInput, value => {
+					if (value == m_isHoldingInput) {
+						return;
+					}
+
+					m_isHoldingInput = value;
+
+					if (value) {
+						LeafCore.Instance.DisableInput.Hold(this);
+					} else {
+						LeafCore.Instance.DisableInput.Release(this);
+					}
+				});
+			}).BindTo(gameObject);
+		}
+
+		private void OnDestroy()
+		{
+			// LeafCore outlives this scene, so a hold left behind would keep input disabled
+			if (m_isHoldingInput) {
+				m_isHoldingInput = false;
+				LeafCore.Instance.DisableInput.Release(this);
+			}
 		}
 
 		private void AddItem(string item, int count)

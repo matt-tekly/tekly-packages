@@ -100,17 +100,13 @@ namespace Tekly.Leaf.Elements
 				return;
 			}
 
-			// TODO: Handle slider alignment axis
-			switch (eventData.moveDir) {
-				case MoveDirection.Left:
-				case MoveDirection.Right:
-					base.OnMove(eventData);
-					return;
-
-				case MoveDirection.Up:
-				case MoveDirection.Down:
-					LeafNavigationScope.TryNavigateFrom(this, eventData);
-					return;
+			// Along the slider's axis changes the value, across it navigates. Slider.axis is private
+			var isHorizontalMove = eventData.moveDir == MoveDirection.Left || eventData.moveDir == MoveDirection.Right;
+			var isHorizontal = direction == Direction.LeftToRight || direction == Direction.RightToLeft;
+			if (isHorizontalMove == isHorizontal) {
+				base.OnMove(eventData);
+			} else {
+				LeafNavigationScope.TryNavigateFrom(this, eventData);
 			}
 		}
 	}
