@@ -25,7 +25,7 @@ namespace Tekly.Leaf.Elements.Radios
 	/// none. Options run in edit mode, so changing it in the editor shows straight away.
 	/// </summary>
 	[DisallowMultipleComponent]
-	public class LeafRadioGroup : MonoBehaviour
+	public class LeafRadioGroup : UIBehaviour
 	{
 		/// <summary>
 		/// The option that's on, or null. An option destroyed while the group was hidden reads as null.
@@ -103,6 +103,9 @@ namespace Tekly.Leaf.Elements.Radios
 		private bool m_hasResolvedInitial;
 		private IDisposable m_selectionSubscription;
 		private bool m_hasFocus;
+
+		// Only for the group's own animator: options check CanvasGroups themselves
+		private bool m_groupsAllowInteraction = true;
 
 		private static readonly List<ILeafRadioOption> s_options = new();
 
@@ -432,7 +435,7 @@ namespace Tekly.Leaf.Elements.Radios
 			}
 
 			var flags = m_hasFocus ? LeafElementFlags.Selected : LeafElementFlags.None;
-			if (!m_interactable) {
+			if (!m_interactable || !m_groupsAllowInteraction) {
 				flags |= LeafElementFlags.Disabled;
 			}
 
@@ -453,13 +456,35 @@ namespace Tekly.Leaf.Elements.Radios
 			}
 		}
 
-		private void OnEnable()
+		protected override void OnEnable()
 		{
 			m_selectionSubscription = LeafCore.Instance.Selection.Current.Subscribe(OnSelectionChanged);
+			m_groupsAllowInteraction = LeafCanvasGroups.AllowInteraction(transform);
 			UpdateAnimator(true);
 		}
 
-		private void OnDisable()
+		protected override void OnCanvasGroupChanged()
+		{
+			RefreshGroupsAllowInteraction();
+		}
+
+		protected override void OnTransformParentChanged()
+		{
+			// Moving under a different CanvasGroup doesn't send OnCanvasGroupChanged
+			RefreshGroupsAllowInteraction();
+		}
+
+		private void RefreshGroupsAllowInteraction()
+		{
+			var groupsAllowInteraction = LeafCanvasGroups.AllowInteraction(transform);
+
+			if (groupsAllowInteraction != m_groupsAllowInteraction) {
+				m_groupsAllowInteraction = groupsAllowInteraction;
+				UpdateAnimator(false);
+			}
+		}
+
+		protected override void OnDisable()
 		{
 			m_selectionSubscription?.Dispose();
 			m_selectionSubscription = null;
@@ -467,7 +492,7 @@ namespace Tekly.Leaf.Elements.Radios
 		}
 
 #if UNITY_EDITOR
-		private void OnValidate()
+		protected override void OnValidate()
 		{
 			if (m_initialOption != null && m_initialOption is not ILeafRadioOption) {
 				m_initialOption = m_initialOption.GetComponent<ILeafRadioOption>() as MonoBehaviour;

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using Tekly.Leaf.Elements.Animators;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -59,14 +58,12 @@ namespace Tekly.Leaf.Elements
 		private bool m_isPressPending;
 		private IDisposable m_disableInputScope;
 
-		private static readonly List<CanvasGroup> s_canvasGroupCache = new();
-
 		protected virtual bool IsOnState => false;
 
 		protected override void OnEnable()
 		{
 			m_tracker.IsPressSimulated = false;
-			m_groupsAllowInteraction = ParentGroupAllowsInteraction();
+			m_groupsAllowInteraction = LeafCanvasGroups.AllowInteraction(transform);
 			UpdateAnimatorState(CurrentState, true);
 		}
 
@@ -156,33 +153,23 @@ namespace Tekly.Leaf.Elements
 
 		protected override void OnCanvasGroupChanged()
 		{
-			var parentGroupAllowsInteraction = ParentGroupAllowsInteraction();
-
-			if (parentGroupAllowsInteraction != m_groupsAllowInteraction) {
-				m_groupsAllowInteraction = parentGroupAllowsInteraction;
-				UpdateAnimatorState();
-			}
+			RefreshGroupsAllowInteraction();
 		}
 
-		private bool ParentGroupAllowsInteraction()
+		protected override void OnTransformParentChanged()
 		{
-			var t = transform;
-			while (t != null) {
-				t.GetComponents(s_canvasGroupCache);
-				foreach (var canvasGroup in s_canvasGroupCache) {
-					if (canvasGroup.enabled && !canvasGroup.interactable) {
-						return false;
-					}
+			// Moving under a different CanvasGroup doesn't send OnCanvasGroupChanged
+			RefreshGroupsAllowInteraction();
+		}
 
-					if (canvasGroup.ignoreParentGroups) {
-						return true;
-					}
-				}
+		private void RefreshGroupsAllowInteraction()
+		{
+			var groupsAllowInteraction = LeafCanvasGroups.AllowInteraction(transform);
 
-				t = t.parent;
+			if (groupsAllowInteraction != m_groupsAllowInteraction) {
+				m_groupsAllowInteraction = groupsAllowInteraction;
+				UpdateAnimatorState();
 			}
-
-			return true;
 		}
 
 		protected virtual void OnClick()
