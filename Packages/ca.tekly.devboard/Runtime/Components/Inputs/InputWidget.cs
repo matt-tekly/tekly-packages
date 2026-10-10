@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Tekly.Leaf.Elements;
 using TMPro;
 using UnityEngine;
@@ -28,38 +27,27 @@ namespace Tekly.DevBoard.Components.Inputs
 		[SerializeField] protected LeafInputField m_input;
 		[SerializeField] private LabelWidget m_label;
 
-		private static readonly IEqualityComparer<T> s_comparer = EqualityComparer<T>.Default;
-
-		private Action<T> m_setValue;
-		private Func<T> m_getValue;
+		private Binding<T> m_binding;
 		private InputMode m_inputMode = InputMode.Delayed;
 
 		private float m_nextUpdateTime;
 		private string m_nextUpdate;
 		private bool m_committedThisEdit;
 
-		private T m_shownValue;
+		private BindingWatch<T> m_watch;
 		private string m_shownText;
-		private bool m_hasShownValue;
 
 		private const float DEBOUNCE_TIME = 0.33f;
 
-		public void Initialize(string label, string placeholder, Func<T> getValue, Action<T> setValue,
-			InputMode inputMode = InputMode.Delayed)
+		public void Initialize(string label, Binding<T> binding)
 		{
-			m_getValue = getValue;
-			m_setValue = setValue;
-			m_inputMode = inputMode;
+			m_binding = binding;
 			m_nextUpdate = null;
 			m_committedThisEdit = false;
 
 			if (m_label != null) {
 				m_label.Text = label;
 				m_label.gameObject.SetActive(!string.IsNullOrEmpty(label));
-			}
-
-			if (m_input.placeholder != null && m_input.placeholder.TryGetComponent(out TMP_Text placeholderText)) {
-				placeholderText.text = placeholder;
 			}
 
 			Invalidate();
@@ -69,6 +57,24 @@ namespace Tekly.DevBoard.Components.Inputs
 			} catch (Exception) {
 				// Don't break the code building the board. Tick retries, and logs and shows the error if it keeps throwing
 			}
+		}
+
+		/// <summary>
+		/// The text shown while the field is empty. Subclasses expose it as WithPlaceholder.
+		/// </summary>
+		protected void SetPlaceholder(string placeholder)
+		{
+			if (m_input.placeholder != null && m_input.placeholder.TryGetComponent(out TMP_Text placeholderText)) {
+				placeholderText.text = placeholder;
+			}
+		}
+
+		/// <summary>
+		/// When typed text reaches the setter. Delayed by default. Subclasses expose it as WithInputMode.
+		/// </summary>
+		protected void SetInputMode(InputMode inputMode)
+		{
+			m_inputMode = inputMode;
 		}
 
 		/// <summary>
@@ -82,9 +88,6 @@ namespace Tekly.DevBoard.Components.Inputs
 		protected abstract string Format(T value);
 
 		/// <summary>
-		/// Makes the next refresh rewrite the text even if the value hasn't changed, e.g. after a format change.
-		/// </summary>
-		/// <summary>
 		/// The label widget, for subclasses that add behaviour to it. Null when the prefab has none.
 		/// </summary>
 		protected LabelWidget LabelComponent => m_label;
@@ -94,13 +97,12 @@ namespace Tekly.DevBoard.Components.Inputs
 		/// </summary>
 		protected bool TryGetValue(out T value)
 		{
-			value = default;
-
-			if (m_getValue == null) {
+			if (m_binding == null) {
+				value = default;
 				return false;
 			}
 
-			value = m_getValue();
+			value = m_binding.Read();
 			return true;
 		}
 
@@ -109,14 +111,17 @@ namespace Tekly.DevBoard.Components.Inputs
 		/// </summary>
 		protected void SetValue(T value)
 		{
-			m_setValue?.Invoke(value);
+			m_binding?.Write(value);
 			Invalidate();
 			RefreshFromSource();
 		}
 
+		/// <summary>
+		/// Makes the next refresh rewrite the text even if the value hasn't changed, e.g. after a format change.
+		/// </summary>
 		protected void Invalidate()
 		{
-			m_hasShownValue = false;
+			m_watch.Invalidate();
 		}
 
 		protected virtual void Awake()
@@ -183,25 +188,17 @@ namespace Tekly.DevBoard.Components.Inputs
 			m_nextUpdate = null;
 
 			if (TryParse(text, out var value)) {
-				m_setValue?.Invoke(value);
+				m_binding?.Write(value);
 			}
 		}
 
 		private void RefreshFromSource()
 		{
-			if (m_getValue == null) {
+			if (m_binding == null || !m_watch.Poll(m_binding, out var value)) {
 				return;
 			}
 
-			var value = m_getValue();
-
-			if (m_hasShownValue && s_comparer.Equals(value, m_shownValue)) {
-				return;
-			}
-
-			m_shownValue = value;
 			m_shownText = Format(value);
-			m_hasShownValue = true;
 
 			if (m_input.text != m_shownText) {
 				m_input.SetTextWithoutNotify(m_shownText);

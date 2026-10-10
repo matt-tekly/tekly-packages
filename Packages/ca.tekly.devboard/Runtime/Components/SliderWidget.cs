@@ -26,8 +26,8 @@ namespace Tekly.DevBoard.Components
 		private const string WHOLE_FORMAT = "0";
 		private const string VALUE_STYLE = "sublabel";
 
-		private Action<float> m_setValue;
-		private Func<float> m_getValue;
+		private Binding<float> m_binding;
+		private BindingWatch<float> m_watch;
 
 		private string m_labelText;
 		private string m_format = DEFAULT_FORMAT;
@@ -44,10 +44,10 @@ namespace Tekly.DevBoard.Components
 			m_slider.onValueChanged.RemoveListener(OnValueChanged);
 		}
 
-		public void Initialize(string label, float min, float max, bool wholeNumbers, Func<float> getValue, Action<float> setValue)
+		public void Initialize(string label, float min, float max, bool wholeNumbers, Binding<float> binding)
 		{
-			m_getValue = getValue;
-			m_setValue = setValue;
+			m_binding = binding;
+			m_watch.Invalidate();
 
 			m_labelText = label;
 			m_format = wholeNumbers ? WHOLE_FORMAT : DEFAULT_FORMAT;
@@ -61,7 +61,7 @@ namespace Tekly.DevBoard.Components
 				m_valueInput.WithWholeNumbers(wholeNumbers).WithFormat(m_format);
 
 				// Delayed, so the slider doesn't jump about while a number is being typed
-				m_valueInput.Initialize(null, null, () => m_getValue(), SetTypedValue);
+				m_valueInput.Initialize(null, binding.Convert(value => (double) value, ClampTyped));
 			}
 
 			try {
@@ -117,30 +117,29 @@ namespace Tekly.DevBoard.Components
 		private void OnValueChanged(float value)
 		{
 			// Only user drags get here: refreshes use SetValueWithoutNotify
-			m_setValue?.Invoke(value);
+			m_binding?.Write(value);
+
+			// The setter may have clamped or rejected the value, so the next refresh moves the handle to the real one
+			m_watch.Invalidate();
 		}
 
-		private void SetTypedValue(double value)
+		/// <summary>
+		/// A typed value, clamped to the slider's range.
+		/// </summary>
+		private float ClampTyped(double value)
 		{
 			var clamped = Mathf.Clamp((float) value, m_slider.minValue, m_slider.maxValue);
-
-			if (m_slider.wholeNumbers) {
-				clamped = Mathf.Round(clamped);
-			}
-
-			m_setValue?.Invoke(clamped);
+			return m_slider.wholeNumbers ? Mathf.Round(clamped) : clamped;
 		}
 
 		private void Refresh()
 		{
-			if (m_getValue == null) {
+			if (m_binding == null) {
 				return;
 			}
 
-			var value = m_getValue();
-
 			// Without notify, so a change made by the game isn't pushed back through the setter
-			if (!Mathf.Approximately(m_slider.value, value)) {
+			if (m_watch.Poll(m_binding, out var value)) {
 				m_slider.SetValueWithoutNotify(value);
 			}
 
@@ -177,6 +176,37 @@ namespace Tekly.DevBoard.Components
 			var valueText = $"<style=\"{VALUE_STYLE}\">{value.ToString(m_format, CultureInfo.InvariantCulture)}</style>";
 			m_label.Text = string.IsNullOrEmpty(m_labelText) ? valueText : $"{m_labelText}\n{valueText}";
 			m_label.gameObject.SetActive(true);
+		}
+	}
+
+	public static class SliderWidgetFactory
+	{
+		public static SliderWidget Slider(this ContainerWidget parent, string label, float min, float max, Func<float> getValue,
+			Action<float> setValue, WidgetPrefab<SliderWidget> prefab = default)
+		{
+			return parent.Slider(label, min, max, new Binding<float>(getValue, setValue), prefab);
+		}
+
+		public static SliderWidget Slider(this ContainerWidget parent, string label, float min, float max, Binding<float> binding,
+			WidgetPrefab<SliderWidget> prefab = default)
+		{
+			var instance = parent.Create(prefab.Or(WidgetPrefabs.Slider));
+			instance.Initialize(label, min, max, false, binding);
+
+			return instance;
+		}
+
+		/// <summary>
+		/// A slider that snaps to whole numbers.
+		/// </summary>
+		public static SliderWidget SliderInt(this ContainerWidget parent, string label, int min, int max, Func<int> getValue,
+			Action<int> setValue, WidgetPrefab<SliderWidget> prefab = default)
+		{
+			var instance = parent.Create(prefab.Or(WidgetPrefabs.Slider));
+			var binding = new Binding<int>(getValue, setValue).Convert(value => (float) value, Mathf.RoundToInt);
+			instance.Initialize(label, min, max, true, binding);
+
+			return instance;
 		}
 	}
 }

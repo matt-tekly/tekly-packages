@@ -98,11 +98,11 @@ namespace TeklySample.Samples.DevBoardSample
 
 			// Properties read their getter every tick and show the value with a format
 			form.Property("Time", () => Time.time, "{0:N2}");
-			form.PropertyMonospaced("Monospaced", () => Time.time, "{0:N2}");
+			form.Property("Monospaced", () => Time.time, "{0:N2}").WithMonospaced();
 
 			// With an epsilon, small float changes don't redraw the text
-			form.PropertyMonospaced("Frame", () => Time.frameCount);
-			form.PropertyMonospaced("Epsilon 0.5", () => Time.time, 0.5f, "{0:N1}");
+			form.Property("Frame", () => Time.frameCount).WithMonospaced();
+			form.Property("Epsilon 0.5", () => Time.time, 0.5f, "{0:N1}").WithMonospaced();
 		}
 
 		private void Buttons(PageContext page)
@@ -130,9 +130,15 @@ namespace TeklySample.Samples.DevBoardSample
 			form.Property("Value", () => m_text);
 
 			// When typed text reaches the setter
-			form.TextInput("Delayed", "On Enter or deselect", () => m_text, value => m_text = value, InputMode.Delayed);
-			form.TextInput("Debounced", "When typing pauses", () => m_text, value => m_text = value, InputMode.Debounced);
-			form.TextInput("Immediate", "Every keystroke", () => m_text, value => m_text = value, InputMode.Immediate);
+			form.TextInput("Delayed", () => m_text, value => m_text = value)
+				.WithPlaceholder("On Enter or deselect")
+				.WithInputMode(InputMode.Delayed);
+			form.TextInput("Debounced", () => m_text, value => m_text = value)
+				.WithPlaceholder("When typing pauses")
+				.WithInputMode(InputMode.Debounced);
+			form.TextInput("Immediate", () => m_text, value => m_text = value)
+				.WithPlaceholder("Every keystroke")
+				.WithInputMode(InputMode.Immediate);
 		}
 
 		private void NumberInputs(PageContext page)

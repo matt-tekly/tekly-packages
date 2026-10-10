@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Tekly.DevBoard.Components
@@ -17,21 +16,21 @@ namespace Tekly.DevBoard.Components
 		private const string ERROR_TEXT = "<color=#E5534B>error</color>";
 
 		/// <summary>
-		/// Shows the value of getValue, reformatting only when it changes. isSame decides whether a new value
-		/// counts as a change from the last one shown; null uses the default equality for T.
+		/// Shows the bound value, reformatting only when the binding says it changed.
 		/// </summary>
-		public void Initialize<T>(string label, Func<T> getValue, string format, Func<T, T, bool> isSame = null)
+		public void Initialize<T>(string label, Binding<T> binding, string format)
 		{
 			m_label.TextComponent.text = label;
-			m_property = new Property<T>(this, getValue, format, isSame);
+			m_property = new Property<T>(this, binding, format);
 		}
 
 		/// <summary>
-		/// Shows a float, skipping the reformat while it stays within epsilon of the last value shown.
+		/// Shows the value in the monospace text style, so digits don't jitter as they change.
 		/// </summary>
-		public void Initialize(string label, Func<float> getValue, float epsilon, string format)
+		public PropertyWidget WithMonospaced(bool monospaced = true)
 		{
-			Initialize(label, getValue, format, (last, value) => IsWithin(last, value, epsilon));
+			m_value.Monospaced = monospaced;
+			return this;
 		}
 
 		protected override void Tick()
@@ -47,16 +46,6 @@ namespace Tekly.DevBoard.Components
 			m_property?.Invalidate();
 		}
 
-		private static bool IsWithin(float last, float value, float epsilon)
-		{
-			// The == also covers equal infinities, whose difference is NaN
-			if (last == value || (float.IsNaN(last) && float.IsNaN(value))) {
-				return true;
-			}
-
-			return Mathf.Abs(value - last) <= epsilon;
-		}
-
 		private abstract class Property
 		{
 			public abstract void Tick();
@@ -65,25 +54,20 @@ namespace Tekly.DevBoard.Components
 		
 		private class Property<T> : Property
 		{
-			private static readonly IEqualityComparer<T> s_defaultEqualityComparer = EqualityComparer<T>.Default;
-			
 			private readonly PropertyWidget m_widget;
-			private readonly Func<T> m_getValue;
+			private readonly Binding<T> m_binding;
 			private readonly string m_format;
-			private readonly Func<T, T, bool> m_isSame;
-			
-			private T m_lastValue;
-			private bool m_hasValue;
 
-			public Property(PropertyWidget widget, Func<T> getValue, string format, Func<T, T, bool> isSame)
+			private BindingWatch<T> m_watch;
+
+			public Property(PropertyWidget widget, Binding<T> binding, string format)
 			{
 				m_widget = widget;
-				m_getValue = getValue;
+				m_binding = binding;
 				m_format = format;
-				m_isSame = isSame ?? s_defaultEqualityComparer.Equals;
-				
+
 				try {
-					Show(m_getValue());
+					Tick();
 				} catch (Exception) {
 					// Tick retries, and logs and shows the error if it keeps throwing
 				}
@@ -91,28 +75,46 @@ namespace Tekly.DevBoard.Components
 
 			public override void Tick()
 			{
-				var value = m_getValue();
-            
-				// Compares against the last value shown, not last frame's, so slow drift still adds up to a change
-				if (m_hasValue && m_isSame(m_lastValue, value)) {
-					return;
+				if (m_watch.Poll(m_binding, out var value)) {
+					m_widget.m_value.Text = string.Format(m_format, value);
 				}
-			
-				Show(value);
 			}
 
 			public override void Invalidate()
 			{
-				m_hasValue = false;
-			}
-
-			private void Show(T value)
-			{
-				m_widget.m_value.Text = string.Format(m_format, value);
-				m_lastValue = value;
-				m_hasValue = true;
+				m_watch.Invalidate();
 			}
 		}
 		
+	}
+
+	public static class PropertyWidgetFactory
+	{
+		/// <summary>
+		/// Shows the value of getValue with format, updating as it changes.
+		/// </summary>
+		public static PropertyWidget Property<T>(this ContainerWidget parent, string label, Func<T> getValue, string format = "{0}",
+			WidgetPrefab<PropertyWidget> prefab = default)
+		{
+			return parent.Property(label, new Binding<T>(getValue), format, prefab);
+		}
+
+		/// <summary>
+		/// Shows a float, skipping the reformat while it stays within epsilon of the last value shown.
+		/// </summary>
+		public static PropertyWidget Property(this ContainerWidget parent, string label, Func<float> getValue, float epsilon,
+			string format = "{0}", WidgetPrefab<PropertyWidget> prefab = default)
+		{
+			return parent.Property(label, new Binding<float>(getValue, isSame: BindingCompare.Within(epsilon)), format, prefab);
+		}
+
+		public static PropertyWidget Property<T>(this ContainerWidget parent, string label, Binding<T> binding, string format = "{0}",
+			WidgetPrefab<PropertyWidget> prefab = default)
+		{
+			var instance = parent.Create(prefab.Or(WidgetPrefabs.Property));
+			instance.Initialize(label, binding, format);
+
+			return instance;
+		}
 	}
 }

@@ -84,4 +84,15 @@ namespace Tekly.DevBoard.Components
 			return state != null && state.TryGet(m_stateKey, out expanded);
 		}
 	}
+
+	public static class FoldoutWidgetFactory
+	{
+		public static FoldoutWidget Foldout(this ContainerWidget parent, string label, WidgetPrefab<FoldoutWidget> prefab = default)
+		{
+			var instance = parent.Create(prefab.Or(WidgetPrefabs.Foldout));
+			instance.Initialize(label);
+
+			return instance;
+		}
+	}
 }

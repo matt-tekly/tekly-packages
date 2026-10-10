@@ -201,4 +201,16 @@ namespace Tekly.DevBoard.Components
 				.Append("</color>");
 		}
 	}
+
+	public static class BreadcrumbWidgetFactory
+	{
+		public static BreadcrumbWidget Breadcrumb(this ContainerWidget parent, IReadOnlyList<Crumb> crumbs, Action<string> onSelect,
+			WidgetPrefab<BreadcrumbWidget> prefab = default)
+		{
+			var instance = parent.Create(prefab.Or(WidgetPrefabs.Breadcrumb));
+			instance.Set(crumbs, onSelect);
+
+			return instance;
+		}
+	}
 }

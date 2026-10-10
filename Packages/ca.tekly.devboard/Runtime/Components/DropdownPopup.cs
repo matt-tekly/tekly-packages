@@ -32,7 +32,7 @@ namespace Tekly.DevBoard.Components
 		private DropdownChoice[] m_choices;
 		private int m_selectedIndex = -1;
 		private Action<int> m_onSelect;
-		private string m_optionVariant;
+		private WidgetPrefab<DropdownOption> m_optionPrefab;
 		private string m_query = string.Empty;
 
 		private ScrollRect m_scrollRect;
@@ -50,15 +50,15 @@ namespace Tekly.DevBoard.Components
 		}
 
 		/// <summary>
-		/// Shows the choices with options built from optionVariant, marking selectedIndex as the current value
+		/// Shows the choices with options built from optionPrefab, marking selectedIndex as the current value
 		/// (-1 for none). onSelect gets the index of the one clicked.
 		/// </summary>
-		public void Initialize(DropdownChoice[] choices, int selectedIndex, Action<int> onSelect, bool searchable, string optionVariant)
+		public void Initialize(DropdownChoice[] choices, int selectedIndex, Action<int> onSelect, bool searchable, WidgetPrefab<DropdownOption> optionPrefab)
 		{
 			m_choices = choices;
 			m_selectedIndex = selectedIndex;
 			m_onSelect = onSelect;
-			m_optionVariant = optionVariant;
+			m_optionPrefab = optionPrefab;
 
 			m_list.WithoutSavedState();
 			m_scrollRect = m_list.GetComponent<ScrollRect>();
@@ -69,7 +69,8 @@ namespace Tekly.DevBoard.Components
 				m_search.gameObject.SetActive(searchable);
 
 				if (searchable) {
-					m_search.Initialize(null, "Search", () => m_query, SetQuery, InputMode.Immediate);
+					m_search.Initialize(null, new Binding<string>(() => m_query, SetQuery));
+					m_search.WithPlaceholder("Search").WithInputMode(InputMode.Immediate);
 				}
 			}
 
@@ -214,7 +215,7 @@ namespace Tekly.DevBoard.Components
 
 		private Row AddRow()
 		{
-			var row = new Row { Option = m_list.Create<DropdownOption>(m_optionVariant) };
+			var row = new Row { Option = m_list.Create(m_optionPrefab) };
 			row.Option.WithAction(() => {
 				if (row.Item >= 0) {
 					m_onSelect(row.Item);

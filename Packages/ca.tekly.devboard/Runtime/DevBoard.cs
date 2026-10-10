@@ -21,11 +21,6 @@ namespace Tekly.DevBoard
 		public const string MAIN_PANEL_ID = "main";
 
 		/// <summary>
-		/// The widget variant panels are created from.
-		/// </summary>
-		public const string PANEL_VARIANT = "panel";
-
-		/// <summary>
 		/// The page DevBoard's own options are on. Other code can add segments to it too.
 		/// </summary>
 		public const string OPTIONS_PATH = "Options";
@@ -91,7 +86,7 @@ namespace Tekly.DevBoard
 		private bool m_panelsRestored;
 		private bool m_restoringPanels;
 
-		// Widget prefabs by name (the variant), and the first prefab of each exact type as that type's fallback
+		// Widget prefabs by name, and the first prefab of each exact type as that type's fallback
 		private readonly Dictionary<string, Widget> m_widgets = new();
 		private readonly Dictionary<Type, Widget> m_defaults = new();
 		private readonly HashSet<string> m_warnings = new();
@@ -140,19 +135,19 @@ namespace Tekly.DevBoard
 		}
 
 		/// <summary>
-		/// Gets the widget prefab for a variant. Falls back to the default prefab of type T, with a warning,
-		/// if the variant doesn't exist or isn't a T.
+		/// Gets the registered prefab. Falls back to the default prefab of type T, with a warning, if there's
+		/// no prefab registered under that name or it isn't a T.
 		/// </summary>
-		public T Get<T>(string variant) where T : Widget
+		public T Get<T>(WidgetPrefab<T> prefab) where T : Widget
 		{
-			if (variant != null && m_widgets.TryGetValue(variant, out var widget)) {
+			if (prefab.IsSet && m_widgets.TryGetValue(prefab.Name, out var widget)) {
 				if (widget is T typed) {
 					return typed;
 				}
 
-				WarnOnce($"[DevBoard] Widget variant '{variant}' is a {widget.GetType().Name}, not a {typeof(T).Name}. Using the default {typeof(T).Name}.");
+				WarnOnce($"[DevBoard] Widget prefab '{prefab}' is a {widget.GetType().Name}, not a {typeof(T).Name}. Using the default {typeof(T).Name}.");
 			} else {
-				WarnOnce($"[DevBoard] No widget variant named '{variant}'. Using the default {typeof(T).Name}.");
+				WarnOnce($"[DevBoard] No widget prefab named '{prefab}'. Using the default {typeof(T).Name}.");
 			}
 
 			if (m_defaults.TryGetValue(typeof(T), out var fallback)) {
@@ -164,16 +159,16 @@ namespace Tekly.DevBoard
 		}
 
 		/// <summary>
-		/// Gets the widget prefab for a variant without falling back or warning, for optional widgets.
+		/// Gets the registered prefab without falling back or warning, for optional widgets.
 		/// </summary>
-		public bool TryGet<T>(string variant, out T prefab) where T : Widget
+		public bool TryGet<T>(WidgetPrefab<T> prefab, out T asset) where T : Widget
 		{
-			if (variant != null && m_widgets.TryGetValue(variant, out var widget) && widget is T typed) {
-				prefab = typed;
+			if (prefab.IsSet && m_widgets.TryGetValue(prefab.Name, out var widget) && widget is T typed) {
+				asset = typed;
 				return true;
 			}
 
-			prefab = null;
+			asset = null;
 			return false;
 		}
 
@@ -234,8 +229,8 @@ namespace Tekly.DevBoard
 			}
 
 			// Without the prefab nothing can be restored. Leave the saved layout alone until it's registered.
-			if (!TryGet(PANEL_VARIANT, out DevBoardPanel _)) {
-				WarnOnce($"[DevBoard] No '{PANEL_VARIANT}' widget is registered, so panels can't be created. Add the panel prefab to a DevBoardAssets (Collect Assets).", true);
+			if (!TryGet(WidgetPrefabs.Panel, out DevBoardPanel _)) {
+				WarnOnce($"[DevBoard] No '{WidgetPrefabs.Panel}' widget is registered, so panels can't be created. Add the panel prefab to a DevBoardAssets (Collect Assets).", true);
 				return;
 			}
 
@@ -423,8 +418,8 @@ namespace Tekly.DevBoard
 				ApplyVisibility();
 			}
 
-			if (!TryGet(PANEL_VARIANT, out DevBoardPanel prefab)) {
-				WarnOnce($"[DevBoard] No '{PANEL_VARIANT}' widget is registered, so panels can't be created. Add the panel prefab to a DevBoardAssets (Collect Assets).", true);
+			if (!TryGet(WidgetPrefabs.Panel, out DevBoardPanel prefab)) {
+				WarnOnce($"[DevBoard] No '{WidgetPrefabs.Panel}' widget is registered, so panels can't be created. Add the panel prefab to a DevBoardAssets (Collect Assets).", true);
 				return null;
 			}
 

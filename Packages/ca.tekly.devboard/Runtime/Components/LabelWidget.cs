@@ -32,4 +32,23 @@ namespace Tekly.DevBoard.Components
 			m_textComponent.textStyle = m_textComponent.styleSheet.GetStyle(style);
 		}
 	}
+
+	public static class LabelWidgetFactory
+	{
+		public static LabelWidget Label(this ContainerWidget parent, string text, WidgetPrefab<LabelWidget> prefab = default)
+		{
+			var instance = parent.Create(prefab.Or(WidgetPrefabs.Label));
+			instance.Text = text;
+
+			return instance;
+		}
+
+		/// <summary>
+		/// A label styled as a heading, for titling a group of widgets.
+		/// </summary>
+		public static LabelWidget Heading(this ContainerWidget parent, string text, WidgetPrefab<LabelWidget> prefab = default)
+		{
+			return parent.Label(text, prefab.Or(WidgetPrefabs.Heading));
+		}
+	}
 }

@@ -9,8 +9,8 @@ namespace Tekly.DevBoard.Components
 		[SerializeField] private LeafToggle m_toggle;
 		[SerializeField] private LabelWidget m_label;
 
-		private Action<bool> m_setValue;
-		private Func<bool> m_getValue;
+		private Binding<bool> m_binding;
+		private BindingWatch<bool> m_watch;
 
 		private void Awake()
 		{
@@ -25,17 +25,20 @@ namespace Tekly.DevBoard.Components
 		private void OnValueChanged(bool isOn)
 		{
 			// Only user clicks get here: refreshes use SetIsOnWithoutNotify
-			m_setValue?.Invoke(isOn);
+			m_binding?.Write(isOn);
+
+			// The setter may have rejected the change, so the next tick puts the toggle back to the real value
+			m_watch.Invalidate();
 		}
 
-		public void Initialize(string label, Func<bool> getValue, Action<bool> setValue)
+		public void Initialize(string label, Binding<bool> binding)
 		{
 			m_label.Text = label;
-			m_getValue = getValue;
-			m_setValue = setValue;
+			m_binding = binding;
+			m_watch.Invalidate();
 
 			try {
-				m_toggle.SetIsOnWithoutNotify(getValue());
+				Tick();
 			} catch (Exception) {
 				// Don't break the code building the board. Tick retries, and logs the error if it keeps throwing
 			}
@@ -43,16 +46,28 @@ namespace Tekly.DevBoard.Components
 
 		protected override void Tick()
 		{
-			if (m_getValue == null) {
-				return;
-			}
-
-			var value = m_getValue();
-
 			// Without notify, so a change made by the game isn't pushed back through the setter
-			if (m_toggle.isOn != value) {
+			if (m_binding != null && m_watch.Poll(m_binding, out var value)) {
 				m_toggle.SetIsOnWithoutNotify(value);
 			}
+		}
+	}
+
+	public static class ToggleWidgetFactory
+	{
+		public static ToggleWidget Toggle(this ContainerWidget parent, string label, Func<bool> getValue, Action<bool> setValue,
+			WidgetPrefab<ToggleWidget> prefab = default)
+		{
+			return parent.Toggle(label, new Binding<bool>(getValue, setValue), prefab);
+		}
+
+		public static ToggleWidget Toggle(this ContainerWidget parent, string label, Binding<bool> binding,
+			WidgetPrefab<ToggleWidget> prefab = default)
+		{
+			var instance = parent.Create(prefab.Or(WidgetPrefabs.Toggle));
+			instance.Initialize(label, binding);
+
+			return instance;
 		}
 	}
 }

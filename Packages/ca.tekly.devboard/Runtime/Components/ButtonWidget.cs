@@ -71,4 +71,15 @@ namespace Tekly.DevBoard.Components
 			m_onActivate?.Invoke();
 		}
 	}
+
+	public static class ButtonWidgetFactory
+	{
+		public static ButtonWidget Button(this ContainerWidget parent, string label, Action action, WidgetPrefab<ButtonWidget> prefab = default)
+		{
+			var instance = parent.Create(prefab.Or(WidgetPrefabs.Button));
+			instance.Initialize(action, label);
+
+			return instance;
+		}
+	}
 }

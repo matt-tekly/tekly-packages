@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Tekly.DevBoard.Components.Inputs;
-using Tekly.Trellis;
+﻿using Tekly.Trellis;
 using UnityEngine;
 
 namespace Tekly.DevBoard.Components
@@ -18,6 +15,11 @@ namespace Tekly.DevBoard.Components
 		/// Where child widgets go.
 		/// </summary>
 		public RectTransform Content => m_content;
+
+		/// <summary>
+		/// Which way children are laid out.
+		/// </summary>
+		public Common.Utils.LayoutAxis Axis => m_layout.Axis;
 
 		[SerializeField] protected RectTransform m_content;
 		[SerializeField] private FlowLayout m_layout;
@@ -142,12 +144,12 @@ namespace Tekly.DevBoard.Components
 		}
 
 		/// <summary>
-		/// Creates a widget from the prefab registered under variant, inside this container.
+		/// Creates a widget from a registered prefab, inside this container.
 		/// Every widget factory goes through here.
 		/// </summary>
-		public T Create<T>(string variant) where T : Widget
+		public T Create<T>(WidgetPrefab<T> prefab) where T : Widget
 		{
-			return Instantiate(DevBoard.Instance.Get<T>(variant), m_content, false);
+			return Instantiate(DevBoard.Instance.Get(prefab), m_content, false);
 		}
 
 		/// <summary>
@@ -164,258 +166,32 @@ namespace Tekly.DevBoard.Components
 			widget.transform.SetParent(null, false);
 			Destroy(widget);
 		}
+	}
 
-		public LabelWidget Label(string text, string variant = "label")
+	public static class ContainerWidgetFactory
+	{
+		/// <summary>
+		/// A container with a background, for grouping widgets.
+		/// </summary>
+		public static ContainerWidget Card(this ContainerWidget parent, WidgetPrefab<ContainerWidget> prefab = default)
 		{
-			var instance = Create<LabelWidget>(variant);
-			instance.Text = text;
-
-			return instance;
+			return parent.Create(prefab.Or(WidgetPrefabs.Card));
 		}
 
 		/// <summary>
-		/// A label styled as a heading, for titling a group of widgets.
+		/// A vertical list of labelled controls, with their labels lined up.
 		/// </summary>
-		public LabelWidget Heading(string text, string variant = "label_heading")
+		public static ContainerWidget Form(this ContainerWidget parent, WidgetPrefab<ContainerWidget> prefab = default)
 		{
-			return Label(text, variant);
-		}
-
-		public BreadcrumbWidget Breadcrumb(IReadOnlyList<Crumb> crumbs, Action<string> onSelect, string variant = "breadcrumb")
-		{
-			var instance = Create<BreadcrumbWidget>(variant);
-			instance.Set(crumbs, onSelect);
-
-			return instance;
-		}
-
-		public PropertyWidget Property<T>(string label, Func<T> getValue, string format = "{0}", string variant = "property")
-		{
-			var instance = Create<PropertyWidget>(variant);
-			instance.Initialize(label, getValue, format);
-
-			return instance;
-		}
-
-		public PropertyWidget PropertyMonospaced<T>(string label, Func<T> getValue, string format = "{0}", string variant = "property")
-		{
-			var instance = Property(label, getValue, format, variant);
-			instance.Value.Monospaced = true;
-
-			return instance;
-		}
-
-		public PropertyWidget Property(string label, Func<float> getValue, float epsilon, string format = "{0}", string variant = "property")
-		{
-			var instance = Create<PropertyWidget>(variant);
-			instance.Initialize(label, getValue, epsilon, format);
-
-			return instance;
-		}
-
-		public PropertyWidget PropertyMonospaced(string label, Func<float> getValue, float epsilon, string format = "{0}", string variant = "property")
-		{
-			var instance = Property(label, getValue, epsilon, format, variant);
-			instance.Value.Monospaced = true;
-
-			return instance;
-		}
-
-		public ContainerWidget Card(string variant = "container")
-		{
-			return Create<ContainerWidget>(variant);
-		}
-
-		public ContainerWidget Form(string variant = "container_form")
-		{
-			return Create<ContainerWidget>(variant);
-		}
-
-		public ContainerWidget Row(string variant = "container_row")
-		{
-			return Create<ContainerWidget>(variant);
-		}
-
-		public ScrollViewWidget ScrollView(string variant = "scrollview")
-		{
-			return Create<ScrollViewWidget>(variant);
-		}
-
-		public ButtonWidget Button(string label, Action action, string variant = "button")
-		{
-			var instance = Create<ButtonWidget>(variant);
-			instance.Initialize(action, label);
-
-			return instance;
-		}
-
-		public FoldoutWidget Foldout(string label, string variant = "foldout")
-		{
-			var instance = Create<FoldoutWidget>(variant);
-			instance.Initialize(label);
-
-			return instance;
-		}
-
-		public TextInputWidget TextInput(string variant, string label, string placeholder, Func<string> getValue, Action<string> setValue, InputMode inputMode = InputMode.Delayed)
-		{
-			var instance = Create<TextInputWidget>(variant);
-			instance.Initialize(label, placeholder, getValue, setValue, inputMode);
-
-			return instance;
-		}
-
-		public TextInputWidget TextInput(string label, string placeholder, Func<string> getValue, Action<string> setValue, InputMode inputMode = InputMode.Delayed)
-		{
-			return TextInput("textinput", label, placeholder, getValue, setValue, inputMode);
-		}
-		
-		public TextInputWidget SearchInput(string label, string placeholder, Func<string> getValue, Action<string> setValue, InputMode inputMode = InputMode.Delayed)
-		{
-			return TextInput("textinput_search", label, placeholder, getValue, setValue, inputMode);
-		}
-		public TextInputWidget TextInput(string label, Func<string> getValue, Action<string> setValue, InputMode inputMode = InputMode.Delayed)
-		{
-			return TextInput(label, null, getValue, setValue, inputMode);
-		}
-
-		public TextInputWidget TextInput(Func<string> getValue, Action<string> setValue, InputMode inputMode = InputMode.Delayed)
-		{
-			return TextInput(null, null, getValue, setValue, inputMode);
+			return parent.Create(prefab.Or(WidgetPrefabs.Form));
 		}
 
 		/// <summary>
-		/// A number input over doubles. Use WithWholeNumbers for integers only.
+		/// Lays widgets out side by side.
 		/// </summary>
-		public NumberInputWidget NumberInput(string variant, string label, string placeholder, Func<double> getValue, Action<double> setValue, InputMode inputMode = InputMode.Delayed)
+		public static ContainerWidget Row(this ContainerWidget parent, WidgetPrefab<ContainerWidget> prefab = default)
 		{
-			var instance = Create<NumberInputWidget>(variant);
-			instance.Initialize(label, placeholder, getValue, setValue, inputMode);
-
-			return instance;
-		}
-
-		public NumberInputWidget NumberInput(string label, Func<double> getValue, Action<double> setValue, InputMode inputMode = InputMode.Delayed)
-		{
-			return NumberInput("numberinput", label, null, getValue, setValue, inputMode);
-		}
-
-		public NumberInputWidget IntInput(string variant, string label, string placeholder, Func<int> getValue, Action<int> setValue, InputMode inputMode = InputMode.Delayed)
-		{
-			var instance = Create<NumberInputWidget>(variant).WithWholeNumbers(true);
-			instance.Initialize(label, placeholder, () => getValue(), value => setValue(ToInt(value)), inputMode);
-
-			return instance;
-		}
-
-		public NumberInputWidget IntInput(string label, Func<int> getValue, Action<int> setValue, InputMode inputMode = InputMode.Delayed)
-		{
-			return IntInput("numberinput", label, null, getValue, setValue, inputMode);
-		}
-
-		public NumberInputWidget FloatInput(string variant, string label, string placeholder, Func<float> getValue, Action<float> setValue, InputMode inputMode = InputMode.Delayed)
-		{
-			var instance = Create<NumberInputWidget>(variant).WithWholeNumbers(false);
-			instance.Initialize(label, placeholder, () => getValue(), value => setValue((float) value), inputMode);
-
-			return instance;
-		}
-
-		public NumberInputWidget FloatInput(string label, Func<float> getValue, Action<float> setValue, InputMode inputMode = InputMode.Delayed)
-		{
-			return FloatInput("numberinput", label, null, getValue, setValue, inputMode);
-		}
-
-		/// <summary>
-		/// A typed number as an int, clamped to the int range.
-		/// </summary>
-		private static int ToInt(double value)
-		{
-			return (int) Math.Round(Math.Clamp(value, int.MinValue, int.MaxValue));
-		}
-
-		public DividerWidget Divider()
-		{
-			// A divider runs across the layout axis
-			var variant = m_layout.Axis == Common.Utils.LayoutAxis.Horizontal ? "divider_vertical" : "divider_horizontal";
-			return Create<DividerWidget>(variant);
-		}
-
-		public ToggleWidget Toggle(string label, Func<bool> getValue, Action<bool> setValue, string variant = "toggle")
-		{
-			var instance = Create<ToggleWidget>(variant);
-			instance.Initialize(label, getValue, setValue);
-
-			return instance;
-		}
-
-		public SliderWidget Slider(string label, float min, float max, Func<float> getValue, Action<float> setValue, string variant = "slider")
-		{
-			var instance = Create<SliderWidget>(variant);
-			instance.Initialize(label, min, max, false, getValue, setValue);
-
-			return instance;
-		}
-
-		public SliderWidget SliderInt(string label, int min, int max, Func<int> getValue, Action<int> setValue, string variant = "slider")
-		{
-			var instance = Create<SliderWidget>(variant);
-			instance.Initialize(label, min, max, true, () => getValue(), value => setValue(Mathf.RoundToInt(value)));
-
-			return instance;
-		}
-
-		/// <summary>
-		/// A dropdown over a list of items. choices is read each time the dropdown refreshes or opens, so it can change.
-		/// getChoice is what an option shows for an item, e.g. a title and subtitle. A getter value that isn't in
-		/// choices shows as no choice.
-		/// </summary>
-		public DropdownWidget Dropdown<T>(string label, IReadOnlyList<T> choices, Func<T, DropdownChoice> getChoice, Func<T> getValue,
-			Action<T> setValue, string variant = "dropdown")
-		{
-			var comparer = EqualityComparer<T>.Default;
-
-			int IndexOf(T value)
-			{
-				for (var i = 0; i < choices.Count; i++) {
-					if (comparer.Equals(choices[i], value)) {
-						return i;
-					}
-				}
-
-				return -1;
-			}
-
-			var instance = Create<DropdownWidget>(variant);
-			instance.Initialize(label, () => choices.Count, i => getChoice(choices[i]), () => IndexOf(getValue()),
-				i => setValue(choices[i]));
-
-			return instance;
-		}
-
-		/// <summary>
-		/// A dropdown over a list of items, each shown as a line of text from getText.
-		/// </summary>
-		public DropdownWidget Dropdown<T>(string label, IReadOnlyList<T> choices, Func<T, string> getText, Func<T> getValue,
-			Action<T> setValue, string variant = "dropdown")
-		{
-			return Dropdown(label, choices, item => new DropdownChoice(getText(item)), getValue, setValue, variant);
-		}
-
-		public DropdownWidget Dropdown(string label, IReadOnlyList<string> choices, Func<string> getValue, Action<string> setValue,
-			string variant = "dropdown")
-		{
-			return Dropdown(label, choices, s => s, getValue, setValue, variant);
-		}
-
-		/// <summary>
-		/// A dropdown over every value of an enum.
-		/// </summary>
-		public DropdownWidget Dropdown<TEnum>(string label, Func<TEnum> getValue, Action<TEnum> setValue, string variant = "dropdown")
-			where TEnum : struct, Enum
-		{
-			var values = (TEnum[]) Enum.GetValues(typeof(TEnum));
-			return Dropdown(label, values, v => v.ToString(), getValue, setValue, variant);
+			return parent.Create(prefab.Or(WidgetPrefabs.Row));
 		}
 	}
 }

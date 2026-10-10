@@ -253,4 +253,12 @@ namespace Tekly.DevBoard.Components
 			public Vector2 ContentSize;
 		}
 	}
+
+	public static class ScrollViewWidgetFactory
+	{
+		public static ScrollViewWidget ScrollView(this ContainerWidget parent, WidgetPrefab<ScrollViewWidget> prefab = default)
+		{
+			return parent.Create(prefab.Or(WidgetPrefabs.ScrollView));
+		}
+	}
 }

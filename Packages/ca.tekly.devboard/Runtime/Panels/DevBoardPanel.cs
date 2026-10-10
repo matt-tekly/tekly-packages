@@ -439,7 +439,7 @@ namespace Tekly.DevBoard.Panels
 
 			foreach (var child in page.Children) {
 				var path = child.Path;
-				var button = view.Links.Button(child.Title, Deferred(() => Open(path)), "button_page");
+				var button = view.Links.Button(child.Title, Deferred(() => Open(path)), WidgetPrefabs.PageButton);
 				if (button.TryGetComponent(out LayoutItem layoutItem)) {
 					layoutItem.FlexibleWidth = 1;
 					layoutItem.MinWidth = 80;
