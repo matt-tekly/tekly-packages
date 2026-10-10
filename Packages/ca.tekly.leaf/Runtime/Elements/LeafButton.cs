@@ -12,13 +12,40 @@ namespace Tekly.Leaf.Elements
 
 		[SerializeField] private ButtonClickedEvent m_onClick = new();
 
+		[Tooltip("Shows the On state through the animator, e.g. the current choice in a list or the current tab. Clicking doesn't change it")]
+		[SerializeField] private bool m_isOn;
+
 		public ButtonClickedEvent OnClicked {
 			get => m_onClick;
 			set => m_onClick = value;
 		}
 
+		/// <summary>
+		/// Whether the animator shows the On state. Unlike a toggle, clicking never changes it: whatever owns
+		/// the button decides what's on.
+		/// </summary>
+		public bool IsOn {
+			get => m_isOn;
+			set => SetIsOn(value, false);
+		}
+
+		protected override bool IsOnState => m_isOn;
+
 		private bool m_isPressPending;
 		private IDisposable m_disableInputScope;
+
+		/// <summary>
+		/// Sets the On state. instant skips the animator's transition, e.g. when a pooled row is reused.
+		/// </summary>
+		public void SetIsOn(bool isOn, bool instant)
+		{
+			if (m_isOn == isOn) {
+				return;
+			}
+
+			m_isOn = isOn;
+			DoStateTransition(currentSelectionState, instant);
+		}
 
 		protected virtual void Press()
 		{

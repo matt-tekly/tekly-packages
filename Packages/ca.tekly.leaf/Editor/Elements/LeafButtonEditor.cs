@@ -10,6 +10,7 @@ namespace Tekly.Leaf.Elements
 		private SerializedProperty m_onClickProperty;
 		private SerializedProperty m_animatorProperty;
 		private SerializedProperty m_pressDelay;
+		private SerializedProperty m_isOn;
 		
 		protected override void OnEnable()
 		{
@@ -17,6 +18,7 @@ namespace Tekly.Leaf.Elements
 			m_onClickProperty = serializedObject.FindProperty("m_onClick");
 			m_animatorProperty = serializedObject.FindProperty("m_animator");
 			m_pressDelay = serializedObject.FindProperty("m_pressDelay");
+			m_isOn = serializedObject.FindProperty("m_isOn");
 			
 		}
 
@@ -29,6 +31,7 @@ namespace Tekly.Leaf.Elements
 			EditorGUILayout.PropertyField(m_onClickProperty);
 			EditorGUILayout.PropertyField(m_animatorProperty);
 			EditorGUILayout.PropertyField(m_pressDelay);
+			EditorGUILayout.PropertyField(m_isOn);
 			serializedObject.ApplyModifiedProperties();
 		}
 	}
