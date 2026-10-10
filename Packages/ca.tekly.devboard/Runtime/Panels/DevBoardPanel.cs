@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Tekly.DevBoard.Components;
 using Tekly.DevBoard.Pages;
+using Tekly.DevBoard.Views;
 using Tekly.Leaf.Elements;
 using Tekly.Leaf.Elements.Radios;
 using Tekly.Trellis;
@@ -13,8 +14,8 @@ namespace Tekly.DevBoard.Panels
 {
 	/// <summary>
 	/// A docked window onto the page tree. It has a header (breadcrumb, collapse, and a "..." row of panel actions) and a scrolling
-	/// body showing one page at a time. Each panel builds its own copy of the pages it visits, keeps them while
-	/// they exist, and updates them as segments come and go.
+	/// body showing one page at a time. Each panel renders its own widgets for the pages it visits from their
+	/// segments' nodes, keeps them while the pages exist, and updates them as segments and nodes come and go.
 	///
 	/// Panels are instances of the "panel" widget prefab. The prefab provides the frame, header, actions row and
 	/// body; the panel fills the body with pages and keeps the header in sync.
@@ -32,7 +33,6 @@ namespace Tekly.DevBoard.Panels
 
 		private const float OVERLAY_ALPHA = 0.85f;
 		private const float MAX_HEIGHT_FRACTION = 0.85f;
-		private const string ERROR_COLOR = "#E5534B";
 
 		public string Id { get; private set; }
 		public DockSlot Dock { get; private set; }
@@ -58,10 +58,10 @@ namespace Tekly.DevBoard.Panels
 
 		private readonly TickGroup m_tickGroup = new();
 		private readonly Dictionary<PageNode, PageView> m_views = new();
-		private readonly HashSet<PageSegment> m_rebuildRequests = new();
 		private readonly List<Action> m_deferred = new();
 
 		private DevBoard m_board;
+		private ViewContext m_viewContext;
 		private PageTree m_tree;
 		private DevBoardDock m_dock;
 
@@ -172,7 +172,7 @@ namespace Tekly.DevBoard.Panels
 
 			ApplyOverlay(overlay);
 
-			// Builders can lay out differently in overlays, so rebuild everything for the new mode
+			// Nodes can be limited to one mode, so render everything again for the new mode
 			ResetViews();
 			m_board.SavePanels();
 		}
@@ -243,9 +243,12 @@ namespace Tekly.DevBoard.Panels
 			};
 		}
 
-		internal void RequestRebuild(PageSegment segment)
+		/// <summary>
+		/// Opens path after the current click or tick, for links inside the page.
+		/// </summary>
+		internal void OpenDeferred(string path)
 		{
-			m_rebuildRequests.Add(segment);
+			m_deferred.Add(() => Open(path));
 		}
 
 		private void Awake()
@@ -291,6 +294,7 @@ namespace Tekly.DevBoard.Panels
 			m_board = board;
 			m_tree = board.Pages;
 			m_dock = dock;
+			m_viewContext = new ViewContext(this);
 
 			Id = record.Id;
 			Dock = record.Dock;
@@ -315,7 +319,6 @@ namespace Tekly.DevBoard.Panels
 		{
 			RunDeferred();
 			RunPendingShow();
-			RunRebuilds();
 
 			if (m_current != null && m_current.LinksDirty) {
 				BuildLinks(m_current);
@@ -332,6 +335,7 @@ namespace Tekly.DevBoard.Panels
 			if (now >= m_nextTickTime) {
 				m_nextTickTime = now + m_tickInterval;
 				m_tickGroup.Tick();
+				m_current?.Tick();
 			}
 		}
 
@@ -478,6 +482,13 @@ namespace Tekly.DevBoard.Panels
 				return;
 			}
 
+			// Builds the segment's nodes the first time any panel needs them
+			var root = segment.Root;
+
+			if (root == null || !root.ShowsIn(IsOverlay)) {
+				return;
+			}
+
 			// Keep the same order as the page's segments
 			var index = 0;
 
@@ -491,24 +502,11 @@ namespace Tekly.DevBoard.Panels
 				}
 			}
 
-			var container = view.Root.Card();
-			var previous = index > 0 ? view.Segments[index - 1].Container.transform : view.Links.transform;
-			container.transform.SetSiblingIndex(previous.GetSiblingIndex() + 1);
-			container.StateScope = segment.Title;
+			var nodeView = m_board.Renderers.Render(root, view.Root, m_viewContext);
+			var previous = index > 0 ? view.Segments[index - 1].View.Widget.transform : view.Links.transform;
+			nodeView.Widget.transform.SetSiblingIndex(previous.GetSiblingIndex() + 1);
 
-			if (segment.Title != null) {
-				container.Heading(segment.Title);
-			}
-
-			var context = new PageContext(this, segment, container);
-			view.Segments.Insert(index, new SegmentView(segment, container, context));
-
-			try {
-				segment.Build(context);
-			} catch (Exception exception) {
-				Debug.LogException(exception);
-				container.Label($"<color={ERROR_COLOR}>{exception.GetType().Name}: {exception.Message}</color>");
-			}
+			view.Segments.Insert(index, new SegmentView(segment, nodeView));
 		}
 
 		private void DisposeSegment(PageView view, int index)
@@ -516,8 +514,7 @@ namespace Tekly.DevBoard.Panels
 			var segmentView = view.Segments[index];
 			view.Segments.RemoveAt(index);
 
-			segmentView.Context.Dispose();
-			ContainerWidget.DestroyWidget(segmentView.Container.gameObject);
+			segmentView.View.Dispose(true);
 		}
 
 		private void DisposeView(PageView view)
@@ -527,29 +524,6 @@ namespace Tekly.DevBoard.Panels
 			}
 
 			ContainerWidget.DestroyWidget(view.Root.gameObject);
-		}
-
-		private void RunRebuilds()
-		{
-			if (m_rebuildRequests.Count == 0) {
-				return;
-			}
-
-			var segments = new List<PageSegment>(m_rebuildRequests);
-			m_rebuildRequests.Clear();
-
-			foreach (var segment in segments) {
-				if (segment.Node == null || !m_views.TryGetValue(segment.Node, out var view)) {
-					continue;
-				}
-
-				var index = view.IndexOf(segment);
-
-				if (index >= 0) {
-					DisposeSegment(view, index);
-					BuildSegment(view, segment);
-				}
-			}
 		}
 
 		// ----- Page tree events -----
@@ -564,8 +538,6 @@ namespace Tekly.DevBoard.Panels
 
 		private void OnSegmentRemoved(PageSegment segment, PageNode page)
 		{
-			m_rebuildRequests.Remove(segment);
-
 			if (!m_views.TryGetValue(page, out var view)) {
 				return;
 			}
@@ -910,10 +882,10 @@ namespace Tekly.DevBoard.Panels
 				m_tree.ChildrenChanged -= OnChildrenChanged;
 			}
 
-			// Run the builders' OnDispose callbacks. The widgets go with the panel's GameObject.
+			// Stop listening to the nodes. The widgets go with the panel's GameObject.
 			foreach (var view in m_views.Values) {
 				foreach (var segment in view.Segments) {
-					segment.Context.Dispose();
+					segment.View.Dispose(false);
 				}
 			}
 
@@ -950,19 +922,27 @@ namespace Tekly.DevBoard.Panels
 
 				return -1;
 			}
+
+			/// <summary>
+			/// Refreshes the widgets of every segment on the page.
+			/// </summary>
+			public void Tick()
+			{
+				foreach (var segment in Segments) {
+					segment.View.Tick();
+				}
+			}
 		}
 
 		private class SegmentView
 		{
 			public readonly PageSegment Segment;
-			public readonly ContainerWidget Container;
-			public readonly PageContext Context;
+			public readonly NodeView View;
 
-			public SegmentView(PageSegment segment, ContainerWidget container, PageContext context)
+			public SegmentView(PageSegment segment, NodeView view)
 			{
 				Segment = segment;
-				Container = container;
-				Context = context;
+				View = view;
 			}
 		}
 	}

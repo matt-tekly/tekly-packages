@@ -66,15 +66,24 @@ namespace Tekly.DevBoard.Components
 			DevBoard.Instance?.State.Set(m_stateKey, expanded);
 		}
 
-		private void UseStateKey(string key)
+		/// <summary>
+		/// Saves state under exactly key, rather than a key built from where the foldout is. For views that know
+		/// their own keys, like rendered nodes.
+		/// </summary>
+		internal void UseFullStateKey(string key)
 		{
-			// Widgets inside this foldout get their state keys scoped under it
-			StateScope = key;
-			m_stateKey = DevBoardState.KeyFor(this, key);
+			m_stateKey = key;
 
 			if (TryGetSavedExpanded(out var expanded)) {
 				m_content.gameObject.SetActive(expanded);
 			}
+		}
+
+		private void UseStateKey(string key)
+		{
+			// Widgets inside this foldout get their state keys scoped under it
+			StateScope = key;
+			UseFullStateKey(DevBoardState.KeyFor(this, key));
 		}
 
 		private bool TryGetSavedExpanded(out bool expanded)

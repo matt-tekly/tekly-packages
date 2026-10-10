@@ -2,7 +2,7 @@
 using Tekly.DevBoard;
 using Tekly.DevBoard.Components;
 using Tekly.DevBoard.Components.Inputs;
-using Tekly.DevBoard.Pages;
+using Tekly.DevBoard.Nodes;
 using Tekly.Leaf;
 using Tekly.Trellis;
 using UnityEngine;
@@ -26,7 +26,8 @@ namespace TeklySample.Samples.DevBoardSample
 		public float Test;
 		private const string CONTROLS = "Sample/Controls";
 
-		// State lives here, not in the builders: builders can run several times (once per panel showing the page)
+		// Builders run once and every panel shows the same nodes, so state could live in them. It's kept here so
+		// other code (and the inspector) can see it
 		private string m_text = "Hello";
 		private bool m_toggle = true;
 		private int m_int = 5;
@@ -46,6 +47,10 @@ namespace TeklySample.Samples.DevBoardSample
 
 		// A long list, for the searchable dropdown and the search
 		private readonly List<string> m_items = new();
+
+		// Data that changes in the background, like a server response, for the Data section
+		private readonly List<string> m_inventory = new() { "Wood Sword", "Iron Shield", "Gold Ring" };
+		private bool m_showDetails;
 
 		private void Start()
 		{
@@ -73,9 +78,10 @@ namespace TeklySample.Samples.DevBoardSample
 			devBoard.Page(CONTROLS, Dropdowns, "Dropdowns", 6).BindTo(gameObject);
 			devBoard.Page(CONTROLS, Layout, "Layout", 7).BindTo(gameObject);
 			devBoard.Page(CONTROLS, Search, "Search", 8).BindTo(gameObject);
+			devBoard.Page(CONTROLS, Data, "Data", 9).BindTo(gameObject);
 
 			devBoard.Page("Sample/Leaf", page => {
-				page.Root.Toggle("Input Disabled", () => m_isHoldingInput, value => {
+				page.Toggle("Input Disabled", () => m_isHoldingInput, value => {
 					if (value == m_isHoldingInput) {
 						return;
 					}
@@ -91,9 +97,9 @@ namespace TeklySample.Samples.DevBoardSample
 			}).BindTo(gameObject);
 		}
 
-		private void Labels(PageContext page)
+		private void Labels(Segment page)
 		{
-			var form = page.Root.Form();
+			var form = page.Form();
 			form.Label("A label is plain text.");
 
 			// Properties read their getter every tick and show the value with a format
@@ -105,9 +111,9 @@ namespace TeklySample.Samples.DevBoardSample
 			form.Property("Epsilon 0.5", () => Time.time, 0.5f, "{0:N1}").WithMonospaced();
 		}
 
-		private void Buttons(PageContext page)
+		private void Buttons(Segment page)
 		{
-			var form = page.Root.Form();
+			var form = page.Form();
 			form.Property("Clicks", () => m_clicks);
 			form.Button("Click", () => m_clicks++);
 
@@ -117,16 +123,16 @@ namespace TeklySample.Samples.DevBoardSample
 			row.Button("Reset", () => m_clicks = 0);
 		}
 
-		private void Toggles(PageContext page)
+		private void Toggles(Segment page)
 		{
-			var form = page.Root.Form();
+			var form = page.Form();
 			form.Toggle("Toggle", () => m_toggle, value => m_toggle = value);
 			form.Property("Value", () => m_toggle);
 		}
 
-		private void TextInputs(PageContext page)
+		private void TextInputs(Segment page)
 		{
-			var form = page.Root.Form();
+			var form = page.Form();
 			form.Property("Value", () => m_text);
 
 			// When typed text reaches the setter
@@ -141,9 +147,9 @@ namespace TeklySample.Samples.DevBoardSample
 				.WithInputMode(InputMode.Immediate);
 		}
 
-		private void NumberInputs(PageContext page)
+		private void NumberInputs(Segment page)
 		{
-			var form = page.Root.Form();
+			var form = page.Form();
 			form.IntInput("Int", () => m_int, value => m_int = value);
 
 			// The setter can clamp: the field shows the clamped value once editing ends
@@ -153,9 +159,9 @@ namespace TeklySample.Samples.DevBoardSample
 			form.FloatInput("Float (0.00)", () => m_float, value => m_float = value).WithFormat("0.00");
 		}
 
-		private void Sliders(PageContext page)
+		private void Sliders(Segment page)
 		{
-			var form = page.Root.Form();
+			var form = page.Form();
 			form.Slider("Float", 0f, 1f, () => m_float, value => m_float = value).WithFormat("0.00");
 			form.SliderInt("Int", 0, 10, () => m_int, value => m_int = value);
 			form.Slider("Time Scale", 0f, 2f, () => Time.timeScale, value => Time.timeScale = value).WithFormat("0.0");
@@ -171,9 +177,9 @@ namespace TeklySample.Samples.DevBoardSample
 				.WithValueInLabel(true);
 		}
 
-		private void Dropdowns(PageContext page)
+		private void Dropdowns(Segment page)
 		{
-			var form = page.Root.Form();
+			var form = page.Form();
 
 			// Every value of an enum
 			form.Dropdown("Enum", () => m_difficulty, value => m_difficulty = value);
@@ -203,9 +209,9 @@ namespace TeklySample.Samples.DevBoardSample
 			}
 		}
 
-		private void Layout(PageContext page)
+		private void Layout(Segment page)
 		{
-			var form = page.Root.Form();
+			var form = page.Form();
 			form.Label("A row lays widgets out side by side:");
 
 			var row = form.Row();
@@ -224,24 +230,68 @@ namespace TeklySample.Samples.DevBoardSample
 			nested.Label("Foldouts can nest");
 
 			// A card is a container with a background
-			var card = page.Root.Card();
+			var card = page.Card();
 			card.Heading("A card");
 			card.Property("Clicks", () => m_clicks);
 		}
 
-		private void Search(PageContext page)
+		private void Search(Segment page)
 		{
-			// A search field over a list, with each result built by a row builder
-			page.Search(page.Root.Form(), () => m_items, item => item, row => {
-				var line = row.Root.Row()
-					.WithAlignment(LayoutAlignment.SpaceBetween)
-					.WithCrossAlignment(CrossAlignment.Center)
-					.WithPadding(0);
-				line.Label(row.Item);
-				line.Button("Pick", () => m_item = row.Item);
-			}).WithScroll(150)
-			.WithResultSpacing(1)
-			.WithMaxResults(8);
+			// A list with a search field. Each result is built by the row builder, so a row can be any nodes
+			page.Form().List(() => m_items, (row, item) => {
+					var line = row.Row()
+						.WithAlignment(LayoutAlignment.SpaceBetween)
+						.WithCrossAlignment(CrossAlignment.Center)
+						.WithPadding(0);
+					line.Label(item);
+					line.Button("Pick", () => m_item = item);
+				})
+				.WithSearch(item => item)
+				.WithScroll(150)
+				.WithRowSpacing(1)
+				.WithMaxResults(8);
+		}
+
+		private void Data(Segment page)
+		{
+			var form = page.Form();
+
+			// The buttons only change the data. The list follows it by key: rows come and go, and the rest stay put
+			var row = form.Row().WithPadding(0);
+			row.Button("Add", () => {
+				// Rows are keyed by name, so keep names unique
+				var name = m_items[Random.Range(0, m_items.Count)];
+
+				if (!m_inventory.Contains(name)) {
+					m_inventory.Add(name);
+				}
+			});
+			row.Button("Remove", () => {
+				if (m_inventory.Count > 0) {
+					m_inventory.RemoveAt(Random.Range(0, m_inventory.Count));
+				}
+			});
+			row.Button("Sort", () => m_inventory.Sort());
+
+			form.List(() => m_inventory, (item, name) => item.Label(name));
+
+			// A dynamic scope rebuilds when its key changes, for content whose shape depends on data
+			form.Toggle("Show details", () => m_showDetails, value => m_showDetails = value);
+			form.Dynamic(() => m_showDetails, (scope, showDetails) => {
+				if (!showDetails) {
+					scope.Label("Details are hidden");
+					return;
+				}
+
+				scope.Property("Items", () => m_inventory.Count);
+				scope.Property("Clicks", () => m_clicks);
+			});
+
+			// VisibleWhen shows and hides a node without rebuilding anything
+			form.Label("Shown while the Toggles section's toggle is on").VisibleWhen(() => m_toggle);
+
+			// A link opens another page in the panel it's clicked in
+			form.Link("Leaf options", "Sample/Leaf");
 		}
 
 		private void OnDestroy()

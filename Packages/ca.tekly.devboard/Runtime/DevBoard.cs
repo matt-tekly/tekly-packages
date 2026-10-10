@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using Tekly.Common.Utils;
 using Tekly.DevBoard.Components;
+using Tekly.DevBoard.Nodes;
 using Tekly.DevBoard.Pages;
 using Tekly.DevBoard.Panels;
+using Tekly.DevBoard.Views;
 using Tekly.Trellis;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -44,6 +46,11 @@ namespace Tekly.DevBoard
 		/// View state (foldouts, scroll positions) that survives widgets being destroyed and rebuilt.
 		/// </summary>
 		public DevBoardState State { get; } = new();
+
+		/// <summary>
+		/// How each kind of node becomes a widget. Register here to restyle a built-in node or add your own.
+		/// </summary>
+		public NodeRenderers Renderers { get; } = NodeRenderers.CreateDefault();
 
 		/// <summary>
 		/// Ticks behaviours that aren't inside a panel.
@@ -90,6 +97,9 @@ namespace Tekly.DevBoard
 		private readonly Dictionary<string, Widget> m_widgets = new();
 		private readonly Dictionary<Type, Widget> m_defaults = new();
 		private readonly HashSet<string> m_warnings = new();
+
+		// Scopes waiting for the end of the frame to rebuild
+		private readonly List<ScopeNode> m_rebuilds = new();
 
 		public DevBoard()
 		{
@@ -177,10 +187,11 @@ namespace Tekly.DevBoard
 		/// and segments sharing a path appear one after another on the same page, sorted by order. Dispose the
 		/// returned segment to remove it, or tie it to a GameObject with BindTo.
 		///
-		/// build runs once for every panel showing the page, and again when the segment is rebuilt, so it should
-		/// read values through getters and undo anything it hooks up with PageContext.OnDispose.
+		/// build makes the segment's nodes. It runs once, the first time something needs the segment, and every
+		/// panel showing the page renders the same nodes; it runs again only when the segment is rebuilt. Values
+		/// that change go through getters and setters, and anything it hooks up can be undone with Segment.OnDispose.
 		/// </summary>
-		public PageSegment Page(string path, Action<PageContext> build, string title = null, int order = 0)
+		public PageSegment Page(string path, Action<Segment> build, string title = null, int order = 0)
 		{
 			return Pages.Add(path, build, title, order);
 		}
@@ -385,6 +396,40 @@ namespace Tekly.DevBoard
 		}
 
 		/// <summary>
+		/// Rebuilds scope at the end of the frame. Rebuilding straight away could destroy the widget whose click
+		/// asked for it.
+		/// </summary>
+		internal void QueueRebuild(ScopeNode scope)
+		{
+			Initialize();
+
+			if (!m_rebuilds.Contains(scope)) {
+				m_rebuilds.Add(scope);
+			}
+		}
+
+		/// <summary>
+		/// Called at the end of every frame by DevBoardTicker.
+		/// </summary>
+		internal void RunRebuilds()
+		{
+			if (m_rebuilds.Count == 0) {
+				return;
+			}
+
+			var scopes = m_rebuilds.ToArray();
+			m_rebuilds.Clear();
+
+			foreach (var scope in scopes) {
+				try {
+					scope.RebuildNow();
+				} catch (Exception exception) {
+					Debug.LogException(exception);
+				}
+			}
+		}
+
+		/// <summary>
 		/// Called every frame by DevBoardTicker.
 		/// </summary>
 		internal void CheckToggleKey()
@@ -472,7 +517,7 @@ namespace Tekly.DevBoard
 		private void RegisterOptionsPage()
 		{
 			Page(OPTIONS_PATH, page => {
-				var form = page.Root.Form();
+				var form = page.Form();
 				form.FloatInput(LabelAndSubLabel("UI Scale", "Scales all UI Elements"), () => Settings.Scale, value => Settings.Scale = value)
 					.WithFormat("0.##");
 

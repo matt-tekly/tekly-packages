@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Tekly.DevBoard.Nodes;
 using UnityEngine;
 
 namespace Tekly.DevBoard.Pages
@@ -26,7 +27,7 @@ namespace Tekly.DevBoard.Pages
 		public event Action<PageSegment> SegmentAdded;
 
 		/// <summary>
-		/// A segment was removed from the page passed with it.
+		/// A segment was removed from the page passed with it. Its content is disposed after this is raised.
 		/// </summary>
 		public event Action<PageSegment, PageNode> SegmentRemoved;
 
@@ -60,7 +61,7 @@ namespace Tekly.DevBoard.Pages
 		/// <summary>
 		/// Adds a segment to the page at path, creating the page and any missing parents.
 		/// </summary>
-		public PageSegment Add(string path, Action<PageContext> build, string title = null, int order = 0)
+		public PageSegment Add(string path, Action<Segment> build, string title = null, int order = 0)
 		{
 			if (build == null) {
 				throw new ArgumentNullException(nameof(build));
@@ -187,6 +188,10 @@ namespace Tekly.DevBoard.Pages
 			}
 
 			Raise(SegmentRemoved, segment, page);
+
+			// After the panels have let go of it, so its callbacks run with nothing still showing it
+			segment.DisposeRoot();
+
 			UpdateOrders(Prune(page));
 		}
 

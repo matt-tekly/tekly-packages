@@ -1,4 +1,5 @@
 ﻿using System;
+using Tekly.DevBoard.Nodes;
 using UnityEngine;
 
 namespace Tekly.DevBoard.Pages
@@ -29,19 +30,35 @@ namespace Tekly.DevBoard.Pages
 		/// </summary>
 		public PageNode Node { get; internal set; }
 
+		/// <summary>
+		/// The segment's content. Built by the builder the first time it's asked for, so pages nobody looks at cost
+		/// nothing. Null once the segment is disposed.
+		/// </summary>
+		public Segment Root {
+			get {
+				if (m_root == null && !IsDisposed) {
+					m_root = new Segment(this, m_build);
+					m_root.Build();
+				}
+
+				return m_root;
+			}
+		}
+
 		internal long Sequence { get; }
-		internal Action<PageContext> Build { get; }
 
 		private readonly PageTree m_tree;
+		private readonly Action<Segment> m_build;
+		private Segment m_root;
 
-		internal PageSegment(PageTree tree, string path, string title, int order, long sequence, Action<PageContext> build)
+		internal PageSegment(PageTree tree, string path, string title, int order, long sequence, Action<Segment> build)
 		{
 			m_tree = tree;
 			Path = path;
 			Title = string.IsNullOrEmpty(title) ? null : title;
 			Order = order;
 			Sequence = sequence;
-			Build = build;
+			m_build = build;
 		}
 
 		public void Dispose()
@@ -52,6 +69,16 @@ namespace Tekly.DevBoard.Pages
 
 			IsDisposed = true;
 			m_tree.Remove(this);
+		}
+
+		/// <summary>
+		/// Runs the content's OnDispose callbacks. Called once the segment has left its page.
+		/// </summary>
+		internal void DisposeRoot()
+		{
+			var root = m_root;
+			m_root = null;
+			root?.DisposeTree();
 		}
 
 		/// <summary>
