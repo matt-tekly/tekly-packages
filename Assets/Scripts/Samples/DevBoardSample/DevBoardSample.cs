@@ -111,7 +111,7 @@ namespace TeklySample.Samples.DevBoardSample
 			form.Property("Clicks", () => m_clicks);
 			form.Button("Click", () => m_clicks++);
 
-			var row = form.Row();
+			var row = form.Row().WithPadding(0);
 			row.Button("-1", () => m_clicks--);
 			row.Button("+1", () => m_clicks++);
 			row.Button("Reset", () => m_clicks = 0);
