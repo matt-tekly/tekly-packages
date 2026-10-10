@@ -8,56 +8,42 @@ using UnityEngine;
 
 namespace TeklySample.Samples.DevBoardSample
 {
+	public enum Difficulty
+	{
+		Easy,
+		Normal,
+		Hard,
+		Nightmare
+	}
+
+	/// <summary>
+	/// One of each DevBoard control, on the "Sample/Controls" page, one section per kind of control.
+	/// </summary>
 	public class DevBoardSample : MonoBehaviour
 	{
+		private const string CONTROLS = "Sample/Controls";
+
 		// State lives here, not in the builders: builders can run several times (once per panel showing the page)
-		private string m_testValue = "Starting Value";
-		private bool m_toggleValue = true;
-		private int m_intValue;
-		private float m_floatValue;
-		private int m_coins;
+		private string m_text = "Hello";
+		private bool m_toggle = true;
+		private int m_int = 5;
+		private float m_float = 0.5f;
+		private int m_clicks;
+		private Difficulty m_difficulty = Difficulty.Normal;
+		private string m_color = "Red";
+		private string m_item;
 
 		// This page's own hold. IsInputDisabled is also true while anything else holds the latch, e.g. a button's
 		// press delay
 		private bool m_isHoldingInput;
 
-		// A stand-in item database and inventory for the search sample
+		private static readonly string[] s_colors = { "Red", "Green", "Blue", "Yellow", "Purple" };
+
+		// A long list, for the searchable dropdown and the search
 		private readonly List<string> m_items = new();
-		private readonly Dictionary<string, int> m_inventory = new();
 
-		private void DoPage(PageContext page)
-		{
-			var card = page.Root.Form();
-			var timeProperty = card.Property("Bingus", () => Time.realtimeSinceStartup, "{0:N2}");
-			card.Toggle("Monospaced", () => timeProperty.Value.Monospaced, value => timeProperty.Value.Monospaced = value);
-			card.PropertyMonospaced("Bingus Mono", () => Time.realtimeSinceStartup, "{0:N2}");
-
-			card.Divider();
-			card.Property("Test Value", () => m_testValue);
-			card.TextInput("Debounced", "Placeholder", () => m_testValue, value => m_testValue = value, InputMode.Debounced);
-			card.TextInput("Delayed", "Placeholder", () => m_testValue, value => m_testValue = value, InputMode.Delayed);
-			card.TextInput("Immediate", "Placeholder", () => m_testValue, value => m_testValue = value, InputMode.Immediate);
-			card.Toggle("Togglo", () => m_toggleValue, value => m_toggleValue = value);
-			card.Toggle("Togglo", () => m_toggleValue, value => m_toggleValue = value);
-			card.Toggle("Togglo", () => m_toggleValue, value => m_toggleValue = value);
-			card.Toggle("Togglo", () => m_toggleValue, value => m_toggleValue = value);
-			card.IntInput("Int", () => m_intValue, value => m_intValue = value);
-			card.FloatInput("Float", () => m_floatValue, value => m_floatValue = value);
-
-			var row = card.Row();
-			row.Button("a", () => Debug.Log("a"));
-			row.Button("b", () => Debug.Log("b"));
-			row.Button("c", () => Debug.Log("c"));
-
-			var foldout = card.Foldout("Test Foldout");
-			foldout.Property("Real Time", () => Time.realtimeSinceStartup, "{0:N2}");
-			foldout.Button("Log", () => Debug.Log("Foldout button"));
-		}
-		
 		private void Start()
 		{
-			var devBoard = DevBoard.Instance;
-
 			string[] materials = { "Wood", "Stone", "Iron", "Gold", "Crystal", "Bone", "Leather", "Silk" };
 			string[] things = { "Sword", "Shield", "Helmet", "Boots", "Ring", "Potion", "Arrow", "Bow", "Wand", "Key" };
 
@@ -68,45 +54,21 @@ namespace TeklySample.Samples.DevBoardSample
 			}
 
 			m_items.Sort();
+			m_item = m_items[0];
 
-			// A search whose results are built by a row builder
-			devBoard.Page("Sample/Inventory", page => {
-				page.Search(page.Root.Form(), () => m_items, item => item, row => {
-					var line = row.Root.Row()
-						.WithCrossAlignment(CrossAlignment.Center)
-						.WithPadding(0);
-					
-					line.Property(row.Item, () => m_inventory.TryGetValue(row.Item, out var count) ? count : 0)
-						.WithWidthGroup("property");
-					
-					line.Button("+1", () => AddItem(row.Item, 1));
-					line.Button("+10", () => AddItem(row.Item, 10));
-				}).WithScroll(150)
-				.WithResultSpacing(1)
-				.WithMaxResults(8);
-				
-			}).BindTo(gameObject);
-			
-			// Each segment is removed when this GameObject is destroyed
-			devBoard.Page("Sample/Widgets", DoPage).BindTo(gameObject);
+			var devBoard = DevBoard.Instance;
 
-			// Two segments on the same page, as if registered by two different systems
-			devBoard.Page("Sample/Cheats", page => {
-				page.Root.Property("Coins", () => m_coins);
-				page.Root.Button("Add 100 coins", () => m_coins += 100);
-			}, "Economy").BindTo(gameObject);
+			// Each section is a segment of the same page, in order. All are removed when this GameObject is destroyed
+			devBoard.Page(CONTROLS, Labels, "Labels and Properties", 0).BindTo(gameObject);
+			devBoard.Page(CONTROLS, Buttons, "Buttons", 1).BindTo(gameObject);
+			devBoard.Page(CONTROLS, Toggles, "Toggles", 2).BindTo(gameObject);
+			devBoard.Page(CONTROLS, TextInputs, "Text Inputs", 3).BindTo(gameObject);
+			devBoard.Page(CONTROLS, NumberInputs, "Number Inputs", 4).BindTo(gameObject);
+			devBoard.Page(CONTROLS, Sliders, "Sliders", 5).BindTo(gameObject);
+			devBoard.Page(CONTROLS, Dropdowns, "Dropdowns", 6).BindTo(gameObject);
+			devBoard.Page(CONTROLS, Layout, "Layout", 7).BindTo(gameObject);
+			devBoard.Page(CONTROLS, Search, "Search", 8).BindTo(gameObject);
 
-			devBoard.Page("Sample/Cheats", page => {
-				page.Root.Button("Reset test value", () => m_testValue = "Starting Value");
-				page.Root.Property("Reset test value", () => m_testValue);
-			}, "Misc", order: 10).BindTo(gameObject);
-
-			// A small page meant for an overlay: open it, then press Pop
-			devBoard.Page("Sample/Stats", page => {
-				page.Root.PropertyMonospaced("Time", () => Time.realtimeSinceStartup, 0.05f, "{0:N1}");
-				page.Root.PropertyMonospaced("Frame", () => Time.frameCount);
-			}).BindTo(gameObject);
-			
 			devBoard.Page("Sample/Leaf", page => {
 				page.Root.Toggle("Input Disabled", () => m_isHoldingInput, value => {
 					if (value == m_isHoldingInput) {
@@ -124,6 +86,125 @@ namespace TeklySample.Samples.DevBoardSample
 			}).BindTo(gameObject);
 		}
 
+		private void Labels(PageContext page)
+		{
+			var form = page.Root.Form();
+			form.Label("A label is plain text.");
+
+			// Properties read their getter every tick and show the value with a format
+			form.Property("Time", () => Time.time, "{0:N2}");
+			form.PropertyMonospaced("Monospaced", () => Time.time, "{0:N2}");
+
+			// With an epsilon, small float changes don't redraw the text
+			form.PropertyMonospaced("Frame", () => Time.frameCount);
+			form.PropertyMonospaced("Epsilon 0.5", () => Time.time, 0.5f, "{0:N1}");
+		}
+
+		private void Buttons(PageContext page)
+		{
+			var form = page.Root.Form();
+			form.Property("Clicks", () => m_clicks);
+			form.Button("Click", () => m_clicks++);
+
+			var row = form.Row();
+			row.Button("-1", () => m_clicks--);
+			row.Button("+1", () => m_clicks++);
+			row.Button("Reset", () => m_clicks = 0);
+		}
+
+		private void Toggles(PageContext page)
+		{
+			var form = page.Root.Form();
+			form.Toggle("Toggle", () => m_toggle, value => m_toggle = value);
+			form.Property("Value", () => m_toggle);
+		}
+
+		private void TextInputs(PageContext page)
+		{
+			var form = page.Root.Form();
+			form.Property("Value", () => m_text);
+
+			// When typed text reaches the setter
+			form.TextInput("Delayed", "On Enter or deselect", () => m_text, value => m_text = value, InputMode.Delayed);
+			form.TextInput("Debounced", "When typing pauses", () => m_text, value => m_text = value, InputMode.Debounced);
+			form.TextInput("Immediate", "Every keystroke", () => m_text, value => m_text = value, InputMode.Immediate);
+		}
+
+		private void NumberInputs(PageContext page)
+		{
+			var form = page.Root.Form();
+			form.IntInput("Int", () => m_int, value => m_int = value);
+
+			// The setter can clamp: the field shows the clamped value once editing ends
+			form.IntInput("Int (0-10)", () => m_int, value => m_int = Mathf.Clamp(value, 0, 10));
+
+			form.FloatInput("Float", () => m_float, value => m_float = value);
+			form.FloatInput("Float (0.00)", () => m_float, value => m_float = value).WithFormat("0.00");
+		}
+
+		private void Sliders(PageContext page)
+		{
+			var form = page.Root.Form();
+			form.Slider("Float", 0f, 1f, () => m_float, value => m_float = value).WithFormat("0.00");
+			form.SliderInt("Int", 0, 10, () => m_int, value => m_int = value);
+			form.Slider("Time Scale", 0f, 2f, () => Time.timeScale, value => Time.timeScale = value).WithFormat("0.0x");
+		}
+
+		private void Dropdowns(PageContext page)
+		{
+			var form = page.Root.Form();
+
+			// Every value of an enum
+			form.Dropdown("Enum", () => m_difficulty, value => m_difficulty = value);
+
+			// A list of strings
+			form.Dropdown("Strings", s_colors, () => m_color, value => m_color = value);
+
+			// Any list, with the text for each item. WithSearch suits long lists
+			form.Dropdown("Searchable", m_items, item => item, () => m_item, value => m_item = value).WithSearch();
+		}
+
+		private void Layout(PageContext page)
+		{
+			var form = page.Root.Form();
+			form.Label("A row lays widgets out side by side:");
+
+			var row = form.Row();
+			row.Button("A", () => Debug.Log("A"));
+			row.Button("B", () => Debug.Log("B"));
+			row.Button("C", () => Debug.Log("C"));
+
+			form.Divider();
+
+			// A foldout is a container that opens and closes, and remembers which
+			var foldout = form.Foldout("Foldout");
+			foldout.Label("Inside the foldout");
+			foldout.Property("Time", () => Time.time, "{0:N2}");
+
+			var nested = foldout.Foldout("Nested Foldout");
+			nested.Label("Foldouts can nest");
+
+			// A card is a container with a background
+			var card = page.Root.Card();
+			card.Heading("A card");
+			card.Property("Clicks", () => m_clicks);
+		}
+
+		private void Search(PageContext page)
+		{
+			// A search field over a list, with each result built by a row builder
+			page.Search(page.Root.Form(), () => m_items, item => item, row => {
+				var line = row.Root.Row()
+					.WithAlignment(LayoutAlignment.SpaceBetween)
+					.WithCrossAlignment(CrossAlignment.Center)
+					.WithPadding(0);
+				line.Label(row.Item);
+				line.Button("Pick", () => m_item = row.Item);
+			}).WithScroll(150)
+			.WithResultSpacing(1)
+			.WithMaxResults(8);
+		}
+
 		private void OnDestroy()
 		{
 			// LeafCore outlives this scene, so a hold left behind would keep input disabled
@@ -131,12 +212,6 @@ namespace TeklySample.Samples.DevBoardSample
 				m_isHoldingInput = false;
 				LeafCore.Instance.DisableInput.Release(this);
 			}
-		}
-
-		private void AddItem(string item, int count)
-		{
-			m_inventory.TryGetValue(item, out var current);
-			m_inventory[item] = current + count;
 		}
 	}
 }

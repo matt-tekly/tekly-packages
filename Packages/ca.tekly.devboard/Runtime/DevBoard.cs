@@ -407,6 +407,11 @@ namespace Tekly.DevBoard
 #endif
 		}
 
+		/// <summary>
+		/// Where floating widgets like an open dropdown go, above every panel. Null until a panel has been created.
+		/// </summary>
+		internal RectTransform PopupLayer => m_dock != null && m_dock.Canvas != null ? m_dock.Popups : null;
+
 		private DevBoardPanel CreatePanel(PanelRecord record)
 		{
 			Initialize();

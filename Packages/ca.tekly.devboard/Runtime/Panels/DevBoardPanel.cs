@@ -497,7 +497,7 @@ namespace Tekly.DevBoard.Panels
 			container.StateScope = segment.Title;
 
 			if (segment.Title != null) {
-				container.Label(segment.Title);
+				container.Heading(segment.Title);
 			}
 
 			var context = new PageContext(this, segment, container);

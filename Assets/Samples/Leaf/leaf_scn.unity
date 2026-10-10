@@ -276,6 +276,7 @@ GameObject:
   - component: {fileID: 50511980}
   - component: {fileID: 50511981}
   - component: {fileID: 50511982}
+  - component: {fileID: 50511983}
   m_Layer: 5
   m_Name: settings_pfb
   m_TagString: Untagged
@@ -346,6 +347,18 @@ MonoBehaviour:
     Name: Music
   - Parameter: sfx.volume
     Name: SFX
+--- !u!225 &50511983
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 50511979}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1001 &97191642
 PrefabInstance:
   m_ObjectHideFlags: 0

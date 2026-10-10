@@ -173,6 +173,14 @@ namespace Tekly.DevBoard.Components
 			return instance;
 		}
 
+		/// <summary>
+		/// A label styled as a heading, for titling a group of widgets.
+		/// </summary>
+		public LabelWidget Heading(string text, string variant = "label_heading")
+		{
+			return Label(text, variant);
+		}
+
 		public BreadcrumbWidget Breadcrumb(IReadOnlyList<Crumb> crumbs, Action<string> onSelect, string variant = "breadcrumb")
 		{
 			var instance = Create<BreadcrumbWidget>(variant);
@@ -315,6 +323,65 @@ namespace Tekly.DevBoard.Components
 			instance.Initialize(label, getValue, setValue);
 
 			return instance;
+		}
+
+		public SliderWidget Slider(string label, float min, float max, Func<float> getValue, Action<float> setValue, string variant = "slider")
+		{
+			var instance = Create<SliderWidget>(variant);
+			instance.Initialize(label, min, max, false, getValue, setValue);
+
+			return instance;
+		}
+
+		public SliderWidget SliderInt(string label, int min, int max, Func<int> getValue, Action<int> setValue, string variant = "slider")
+		{
+			var instance = Create<SliderWidget>(variant);
+			instance.Initialize(label, min, max, true, () => getValue(), value => setValue(Mathf.RoundToInt(value)));
+
+			return instance;
+		}
+
+		/// <summary>
+		/// A dropdown over a list of items. choices is read each time the dropdown refreshes or opens, so it can change.
+		/// getText is the text shown for an item. A getter value that isn't in choices shows as no choice.
+		/// </summary>
+		public DropdownWidget Dropdown<T>(string label, IReadOnlyList<T> choices, Func<T, string> getText, Func<T> getValue,
+			Action<T> setValue, string variant = "dropdown")
+		{
+			var comparer = EqualityComparer<T>.Default;
+
+			int IndexOf(T value)
+			{
+				for (var i = 0; i < choices.Count; i++) {
+					if (comparer.Equals(choices[i], value)) {
+						return i;
+					}
+				}
+
+				return -1;
+			}
+
+			var instance = Create<DropdownWidget>(variant);
+			instance.Initialize(label, () => choices.Count, i => getText(choices[i]), () => IndexOf(getValue()),
+				i => setValue(choices[i]));
+
+			return instance;
+		}
+
+		public DropdownWidget Dropdown(string label, IReadOnlyList<string> choices, Func<string> getValue, Action<string> setValue,
+			string variant = "dropdown")
+		{
+			return Dropdown(label, choices, s => s, getValue, setValue, variant);
+		}
+
+		/// <summary>
+		/// A dropdown over every value of an enum.
+		/// </summary>
+		public DropdownWidget Dropdown<TEnum>(string label, Func<TEnum> getValue, Action<TEnum> setValue, string variant = "dropdown")
+			where TEnum : struct, Enum
+		{
+			var values = (TEnum[]) Enum.GetValues(typeof(TEnum));
+			return Dropdown(label, values, v => v.ToString(), getValue, setValue, variant);
 		}
 	}
 }

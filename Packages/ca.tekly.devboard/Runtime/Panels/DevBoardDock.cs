@@ -34,6 +34,11 @@ namespace Tekly.DevBoard.Panels
 		/// </summary>
 		public RectTransform Area { get; }
 
+		/// <summary>
+		/// Covers the whole canvas above every panel, for widgets that float over the board, like an open dropdown.
+		/// </summary>
+		public RectTransform Popups { get; }
+
 		private readonly RectTransform[] m_slots;
 		private readonly FixedPhysicalCanvasScaler m_scaler;
 
@@ -70,6 +75,15 @@ namespace Tekly.DevBoard.Panels
 			foreach (var slot in slots) {
 				m_slots[(int) slot] = CreateSlot(slot);
 			}
+
+			// Created last so it draws and takes touches above the panels
+			var popupsObject = new GameObject("Popups", typeof(RectTransform));
+			Popups = (RectTransform) popupsObject.transform;
+			Popups.SetParent(canvasObject.transform, false);
+			Popups.anchorMin = Vector2.zero;
+			Popups.anchorMax = Vector2.one;
+			Popups.offsetMin = Vector2.zero;
+			Popups.offsetMax = Vector2.zero;
 		}
 
 		public void ApplySettings(DevBoardSettings settings)
