@@ -691,18 +691,6 @@ PrefabInstance:
       propertyPath: m_targets.Array.data[2].m_colors.Highlighted.r
       value: 0.9607843
       objectReference: {fileID: 0}
-    - target: {fileID: 8846877831763874475, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
-      propertyPath: m_onClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 2441663034153046568}
-    - target: {fileID: 8846877831763874475, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
-      propertyPath: m_onClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: Toggle
-      objectReference: {fileID: 0}
-    - target: {fileID: 8846877831763874475, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
-      propertyPath: m_onClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: Tekly.DevBoard.Components.FoldoutWidget, Tekly.DevBoard
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:

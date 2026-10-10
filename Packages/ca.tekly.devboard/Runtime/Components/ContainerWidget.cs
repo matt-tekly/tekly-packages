@@ -57,7 +57,7 @@ namespace Tekly.DevBoard.Components
 
 		public ContainerWidget WithPadding(int left, int top, int right, int bottom)
 		{
-			m_layout.Padding = new Edges(left, top, right, bottom);
+			m_layout.Padding = new Edges(left, right, top, bottom);
 			return this;
 		}
 
@@ -343,9 +343,10 @@ namespace Tekly.DevBoard.Components
 
 		/// <summary>
 		/// A dropdown over a list of items. choices is read each time the dropdown refreshes or opens, so it can change.
-		/// getText is the text shown for an item. A getter value that isn't in choices shows as no choice.
+		/// getChoice is what an option shows for an item, e.g. a title and subtitle. A getter value that isn't in
+		/// choices shows as no choice.
 		/// </summary>
-		public DropdownWidget Dropdown<T>(string label, IReadOnlyList<T> choices, Func<T, string> getText, Func<T> getValue,
+		public DropdownWidget Dropdown<T>(string label, IReadOnlyList<T> choices, Func<T, DropdownChoice> getChoice, Func<T> getValue,
 			Action<T> setValue, string variant = "dropdown")
 		{
 			var comparer = EqualityComparer<T>.Default;
@@ -362,10 +363,19 @@ namespace Tekly.DevBoard.Components
 			}
 
 			var instance = Create<DropdownWidget>(variant);
-			instance.Initialize(label, () => choices.Count, i => getText(choices[i]), () => IndexOf(getValue()),
+			instance.Initialize(label, () => choices.Count, i => getChoice(choices[i]), () => IndexOf(getValue()),
 				i => setValue(choices[i]));
 
 			return instance;
+		}
+
+		/// <summary>
+		/// A dropdown over a list of items, each shown as a line of text from getText.
+		/// </summary>
+		public DropdownWidget Dropdown<T>(string label, IReadOnlyList<T> choices, Func<T, string> getText, Func<T> getValue,
+			Action<T> setValue, string variant = "dropdown")
+		{
+			return Dropdown(label, choices, item => new DropdownChoice(getText(item)), getValue, setValue, variant);
 		}
 
 		public DropdownWidget Dropdown(string label, IReadOnlyList<string> choices, Func<string> getValue, Action<string> setValue,

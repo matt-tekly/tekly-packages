@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Tekly.Trellis;
 using UnityEngine;
 
@@ -11,28 +10,25 @@ namespace Tekly.DevBoard.Components
 	/// outside the popup closes it. Works on indexes, so the ContainerWidget.Dropdown overloads can bind it to
 	/// strings, enums or any other list.
 	///
-	/// The popup and the choice buttons are widget variants set on the prefab or with WithPopupVariant and
-	/// WithOptionVariant: "dropdown_popup" and "dropdown_option" by default, falling back to "scrollview" and
-	/// "button" when those aren't registered.
-	/// Its layout should fit its content, like scrollview's LayoutProxy does. The dropdown bounds it: at least
-	/// as wide as the button, and no taller than the room available.
+	/// The popup is a DropdownPopup ("dropdown_popup" by default), which lays itself out. The dropdown only places
+	/// it and bounds it: at least as wide as the button, no wider than the screen, no taller than the room on its
+	/// side. Each choice is a DropdownOption of the option variant ("dropdown_option" by default), so a choice
+	/// can be more than a line of text, e.g. a title with a subtitle under it.
 	///
-	/// With WithSearch, the popup is a search field with results, for long lists.
+	/// With WithSearch, the popup shows a search field over the choices, for long lists.
 	/// </summary>
 	public class DropdownWidget : Widget
 	{
 		[SerializeField] private LabelWidget m_label;
 		[SerializeField] private ButtonWidget m_button;
 
-		[Tooltip("Widget variant for the popup the choices open in. Falls back to \"scrollview\" when not registered")]
+		[Tooltip("DropdownPopup variant the choices open in")]
 		[SerializeField] private string m_popupVariant = "dropdown_popup";
 
-		[Tooltip("Button variant for each choice. Falls back to \"button\" when not registered")]
+		[Tooltip("DropdownOption variant for each choice")]
 		[SerializeField] private string m_optionVariant = "dropdown_option";
 
 		private const string NO_CHOICE = "-";
-		private const string POPUP_FALLBACK_VARIANT = "scrollview";
-		private const string OPTION_FALLBACK_VARIANT = "button";
 
 		// Opens upwards when there's less than this much room below and more room above
 		private const float MIN_HEIGHT_BELOW = 160f;
@@ -41,16 +37,15 @@ namespace Tekly.DevBoard.Components
 		private static readonly Vector3[] s_corners = new Vector3[4];
 
 		private Func<int> m_getCount;
-		private Func<int, string> m_getText;
+		private Func<int, DropdownChoice> m_getChoice;
 		private Func<int> m_getIndex;
 		private Action<int> m_setIndex;
 
 		private bool m_searchable;
-		private SearchList<int> m_search;
 		private int m_shownIndex = int.MinValue;
 
 		private PopupBlocker m_blocker;
-		private ScrollViewWidget m_popup;
+		private DropdownPopup m_popup;
 		private bool m_closeRequested;
 
 		public bool IsOpen => m_blocker != null;
@@ -68,10 +63,10 @@ namespace Tekly.DevBoard.Components
 			Close();
 		}
 
-		public void Initialize(string label, Func<int> getCount, Func<int, string> getText, Func<int> getIndex, Action<int> setIndex)
+		public void Initialize(string label, Func<int> getCount, Func<int, DropdownChoice> getChoice, Func<int> getIndex, Action<int> setIndex)
 		{
 			m_getCount = getCount;
-			m_getText = getText;
+			m_getChoice = getChoice;
 			m_getIndex = getIndex;
 			m_setIndex = setIndex;
 
@@ -103,7 +98,7 @@ namespace Tekly.DevBoard.Components
 		}
 
 		/// <summary>
-		/// Sets the button variant used for each choice, instead of the prefab's.
+		/// Sets the DropdownOption variant used for each choice, instead of the prefab's.
 		/// </summary>
 		public DropdownWidget WithOptionVariant(string variant)
 		{
@@ -114,7 +109,7 @@ namespace Tekly.DevBoard.Components
 		}
 
 		/// <summary>
-		/// Shows a search field instead of the full list when opened.
+		/// Shows a search field over the choices when opened.
 		/// </summary>
 		public DropdownWidget WithSearch(bool searchable = true)
 		{
@@ -143,25 +138,15 @@ namespace Tekly.DevBoard.Components
 				return;
 			}
 
-			if (!DevBoard.Instance.TryGet(m_popupVariant, out ScrollViewWidget prefab)) {
-				prefab = DevBoard.Instance.Get<ScrollViewWidget>(POPUP_FALLBACK_VARIANT);
-			}
-
 			m_blocker = PopupBlocker.Create(layer, $"Dropdown {name}", RequestClose);
-			m_popup = Instantiate(prefab, m_blocker.RectTransform, false);
-			m_popup.WithoutSavedState();
+			m_popup = Instantiate(DevBoard.Instance.Get<DropdownPopup>(m_popupVariant), m_blocker.RectTransform, false);
+			var choices = new DropdownChoice[m_getCount()];
 
-			if (m_searchable) {
-				var root = ContainerWidget.CreatePlain(m_popup.Content, "Search");
-				m_search = new SearchList<int>(root, AllIndexes, i => m_getText(i), BuildSearchRow, "Search");
-			} else {
-				var count = m_getCount();
-
-				for (var i = 0; i < count; i++) {
-					var index = i;
-					m_popup.Button(m_getText(index), () => Select(index), OptionVariant());
-				}
+			for (var i = 0; i < choices.Length; i++) {
+				choices[i] = m_getChoice(i);
 			}
+
+			m_popup.Initialize(choices, m_getIndex(), Select, m_searchable, m_optionVariant);
 
 			Place();
 		}
@@ -169,8 +154,6 @@ namespace Tekly.DevBoard.Components
 		public void Close()
 		{
 			m_closeRequested = false;
-			m_search?.Dispose();
-			m_search = null;
 			m_popup = null;
 
 			if (m_blocker != null) {
@@ -229,14 +212,12 @@ namespace Tekly.DevBoard.Components
 			var buttonWidth = topRight.x - bottomLeft.x;
 			var room = Mathf.Max(0f, below ? roomBelow : roomAbove);
 
-			// The popup's own layout (a LayoutProxy on scroll views) sizes it to the choices. Bound it: at least
-			// as wide as the button, no wider than the screen, no taller than the room on its side.
+			// The popup sizes itself to its choices. Bound it: at least as wide as the button, no wider than the
+			// screen, no taller than the room on its side (the list inside shrinks and scrolls)
 			if (popup.TryGetComponent(out LayoutItem popupLayout)) {
 				popupLayout.MinWidth = buttonWidth;
 				popupLayout.MaxWidth = layerRect.width;
 				popupLayout.MaxHeight = room;
-			} else {
-				popup.sizeDelta = new Vector2(buttonWidth, room);
 			}
 
 			// Lined up with the button's left edge, shifted left when that would run off the right of the screen.
@@ -247,25 +228,6 @@ namespace Tekly.DevBoard.Components
 			popup.anchorMin = popup.anchorMax = layer.pivot;
 			popup.pivot = new Vector2(0f, below ? 1f : 0f);
 			popup.anchoredPosition = new Vector2(x, below ? bottomLeft.y - POPUP_GAP : topRight.y + POPUP_GAP);
-		}
-
-		private string OptionVariant()
-		{
-			return DevBoard.Instance.TryGet(m_optionVariant, out ButtonWidget _) ? m_optionVariant : OPTION_FALLBACK_VARIANT;
-		}
-
-		private void BuildSearchRow(SearchRow<int> row)
-		{
-			row.Root.Button(m_getText(row.Item), () => Select(row.Item), OptionVariant());
-		}
-
-		private IEnumerable<int> AllIndexes()
-		{
-			var count = m_getCount();
-
-			for (var i = 0; i < count; i++) {
-				yield return i;
-			}
 		}
 
 		private void Refresh()
@@ -281,7 +243,7 @@ namespace Tekly.DevBoard.Components
 			}
 
 			m_shownIndex = index;
-			m_button.Label = index >= 0 && index < m_getCount() ? m_getText(index) : NO_CHOICE;
+			m_button.Label = index >= 0 && index < m_getCount() ? m_getChoice(index).Title : NO_CHOICE;
 		}
 	}
 }

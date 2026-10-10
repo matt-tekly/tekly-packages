@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Tekly.DevBoard;
+using Tekly.DevBoard.Components;
 using Tekly.DevBoard.Components.Inputs;
 using Tekly.DevBoard.Pages;
 using Tekly.Leaf;
@@ -36,6 +37,8 @@ namespace TeklySample.Samples.DevBoardSample
 		// This page's own hold. IsInputDisabled is also true while anything else holds the latch, e.g. a button's
 		// press delay
 		private bool m_isHoldingInput;
+
+		private static readonly Difficulty[] s_difficulties = (Difficulty[]) System.Enum.GetValues(typeof(Difficulty));
 
 		private static readonly string[] s_colors = { "Red", "Green", "Blue", "Yellow", "Purple" };
 
@@ -160,8 +163,26 @@ namespace TeklySample.Samples.DevBoardSample
 			// A list of strings
 			form.Dropdown("Strings", s_colors, () => m_color, value => m_color = value);
 
+			// Each choice can have a subtitle, shown under the title in the popup
+			form.Dropdown("With Subtitles", s_difficulties, d => new DropdownChoice(d.ToString(), Describe(d)),
+				() => m_difficulty, value => m_difficulty = value);
+
 			// Any list, with the text for each item. WithSearch suits long lists
 			form.Dropdown("Searchable", m_items, item => item, () => m_item, value => m_item = value).WithSearch();
+		}
+
+		private static string Describe(Difficulty difficulty)
+		{
+			switch (difficulty) {
+				case Difficulty.Easy:
+					return "For learning the ropes";
+				case Difficulty.Normal:
+					return "The intended experience";
+				case Difficulty.Hard:
+					return "Enemies hit harder";
+				default:
+					return "One life, no saves";
+			}
 		}
 
 		private void Layout(PageContext page)

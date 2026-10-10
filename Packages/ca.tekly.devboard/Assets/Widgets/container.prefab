@@ -76,6 +76,7 @@ MonoBehaviour:
     TopRight: 0
     BottomRight: 0
     BottomLeft: 0
+  m_roundedCorners: 15
   m_bulge: {x: 0, y: 0, z: 0, w: 0}
   m_containBulge: 0
   m_sprite: {fileID: 21300000, guid: 4b2250ecbcbb650418b23535f1e69cd0, type: 3}
@@ -116,7 +117,22 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     UseTexture: 0
-  m_shadows: []
+  m_shadows:
+  - Enabled: 1
+    Inset: 0
+    Offset: {x: 0, y: 0}
+    Tuck: 1
+    Spread: 0
+    Softness: 3
+    Paint:
+      Color: {r: 0, g: 0, b: 0, a: 0.35}
+      Gradient: 0
+      Color2: {r: 0, g: 0, b: 0, a: 0.35}
+      Angle: 90
+      RangeStart: 0
+      RangeEndInset: 0
+      Bias: 0
+    UseTexture: 0
   m_blendMode: 0
   m_bevel:
     Enabled: 0
@@ -164,8 +180,8 @@ MonoBehaviour:
     IsSet: 0
     Value: 0
   m_flexibleWidth:
-    IsSet: 0
-    Value: 0
+    IsSet: 1
+    Value: 1
   m_flexibleHeight:
     IsSet: 0
     Value: 0

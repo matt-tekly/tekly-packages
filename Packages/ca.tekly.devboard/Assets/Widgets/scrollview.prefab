@@ -89,9 +89,9 @@ MonoBehaviour:
     Right: 0
     Top: 0
     Bottom: 0
-  m_spacing: 20
+  m_spacing: 4
   m_alignment: 0
-  m_crossAlignment: 2
+  m_crossAlignment: 1
   m_wrap: 0
   m_maxPerLine: 0
   m_lineSpacing: 10
