@@ -29,6 +29,20 @@ namespace Tekly.DevBoard.Nodes
 			Id = NodePaths.Slug(source.Title) ?? "segment";
 		}
 
+		/// <summary>
+		/// The segment node is in, or null if it isn't in one.
+		/// </summary>
+		public static Segment Of(Node node)
+		{
+			for (; node != null; node = node.Parent) {
+				if (node is Segment segment) {
+					return segment;
+				}
+			}
+
+			return null;
+		}
+
 		protected override void RunBuilder()
 		{
 			m_build(this);

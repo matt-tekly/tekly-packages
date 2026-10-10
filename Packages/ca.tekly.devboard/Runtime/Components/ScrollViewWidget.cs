@@ -139,6 +139,73 @@ namespace Tekly.DevBoard.Components
 		}
 
 		/// <summary>
+		/// Scrolls just enough to show target, with margin around it, if it's somewhere in the content. Something
+		/// taller than the view is lined up with its top. Call it once layout has placed target; it replaces any
+		/// position waiting to be restored.
+		/// </summary>
+		public void ScrollIntoView(RectTransform target, float margin = 8f)
+		{
+			var content = m_scrollRect != null ? m_scrollRect.content : null;
+
+			if (content == null || target == null || !target.IsChildOf(content)) {
+				return;
+			}
+
+			m_restorePending = false;
+			m_scrollRect.StopMovement();
+
+			var viewport = m_scrollRect.viewport != null ? m_scrollRect.viewport : (RectTransform) m_scrollRect.transform;
+			var view = viewport.rect;
+
+			target.GetWorldCorners(s_corners);
+			var a = (Vector2) viewport.InverseTransformPoint(s_corners[0]);
+			var b = (Vector2) viewport.InverseTransformPoint(s_corners[2]);
+			var min = Vector2.Min(a, b);
+			var max = Vector2.Max(a, b);
+
+			var offset = Vector2.zero;
+
+			if (m_scrollRect.horizontal) {
+				offset.x = RevealAxis(min.x, max.x, view.xMin, view.xMax, margin, false);
+			}
+
+			if (m_scrollRect.vertical) {
+				offset.y = RevealAxis(min.y, max.y, view.yMin, view.yMax, margin, true);
+			}
+
+			if (offset.sqrMagnitude < 0.0001f) {
+				return;
+			}
+
+			var world = viewport.TransformVector(offset);
+			var parent = content.parent;
+			content.anchoredPosition += (Vector2) (parent != null ? parent.InverseTransformVector(world) : world);
+		}
+
+		/// <summary>
+		/// How far the content must move along one axis to bring min..max into the view. The start of the axis is
+		/// the top (max) vertically and the left (min) horizontally; something too big to fit is lined up with it.
+		/// </summary>
+		private static float RevealAxis(float min, float max, float viewMin, float viewMax, float margin, bool startIsMax)
+		{
+			var fits = max - min <= viewMax - viewMin - margin * 2f;
+
+			if (!fits) {
+				return startIsMax ? viewMax - margin - max : viewMin + margin - min;
+			}
+
+			if (max + margin > viewMax) {
+				return viewMax - margin - max;
+			}
+
+			if (min - margin < viewMin) {
+				return viewMin + margin - min;
+			}
+
+			return 0f;
+		}
+
+		/// <summary>
 		/// ScrollRect only clamps in LateUpdate, before the canvas lays out. When the content shrinks while
 		/// scrolled to the end (like a foldout collapsing) that frame would draw out of range and snap back the
 		/// next, so clamp after layout. It has to be before RectMask2D culls, or rows moving into view stay hidden

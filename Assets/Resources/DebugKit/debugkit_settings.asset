@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: debugkit_settings
   m_EditorClassIdentifier: 
   AutoScaleInEditor: 1
-  OpenKey: 95
+  OpenKey: 0
   OpenAction: {fileID: 0}
   OpenTouchCount: 3
   UseTouchSimulationInEditor: 0

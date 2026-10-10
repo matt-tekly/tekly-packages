@@ -153,8 +153,12 @@ namespace Tekly.DevBoard.Components
 			}
 
 			m_popup.Initialize(choices, m_index.Read(), Select, m_searchable, m_optionPrefab);
+			m_popup.Cancelled += RequestClose;
 
 			Place();
+
+			// Opening a searchable dropdown is usually to search it. Does nothing without a search field
+			m_popup.FocusSearch();
 		}
 
 		public void Close()

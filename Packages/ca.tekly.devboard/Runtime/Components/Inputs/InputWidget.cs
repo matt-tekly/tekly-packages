@@ -78,6 +78,26 @@ namespace Tekly.DevBoard.Components.Inputs
 		}
 
 		/// <summary>
+		/// True while the field is being typed in.
+		/// </summary>
+		public bool IsFocused => m_input.isFocused;
+
+		/// <summary>
+		/// The field itself, for adding behaviour to it.
+		/// </summary>
+		internal LeafInputField InputField => m_input;
+
+		/// <summary>
+		/// Puts the keyboard in the field. With selectAll, its text is selected so typing replaces it.
+		/// </summary>
+		public void Focus(bool selectAll = true)
+		{
+			m_input.onFocusSelectAll = selectAll;
+			m_input.Select();
+			m_input.ActivateInputField();
+		}
+
+		/// <summary>
 		/// Converts the field's text to a value. Return false to reject the text.
 		/// </summary>
 		protected abstract bool TryParse(string text, out T value);

@@ -5,9 +5,20 @@ using UnityEngine;
 namespace Tekly.DevBoard.Nodes
 {
 	/// <summary>
+	/// A list row, whatever its item type.
+	/// </summary>
+	public interface IListRow
+	{
+		/// <summary>
+		/// The row's key as text, e.g. to tell apart controls with the same label in different rows.
+		/// </summary>
+		string KeyText { get; }
+	}
+
+	/// <summary>
 	/// One row of a list, built by the list's row builder for one item.
 	/// </summary>
-	public sealed class ListItem<T> : ScopeNode
+	public sealed class ListItem<T> : ScopeNode, IListRow
 	{
 		/// <summary>
 		/// The item this row shows. When the list's data hands back a different item for the same key, the row is
@@ -15,13 +26,16 @@ namespace Tekly.DevBoard.Nodes
 		/// </summary>
 		public T Item { get; internal set; }
 
+		public string KeyText { get; }
+
 		private readonly Action<ListItem<T>, T> m_build;
 
-		internal ListItem(string id, T item, Action<ListItem<T>, T> build) : base(null, null)
+		internal ListItem(string keyText, T item, Action<ListItem<T>, T> build) : base(null, null)
 		{
 			Item = item;
+			KeyText = keyText;
 			m_build = build;
-			SetRequestedId(id);
+			SetRequestedId(keyText);
 		}
 
 		internal override string DefaultId => "item";

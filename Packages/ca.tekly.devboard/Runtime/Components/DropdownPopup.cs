@@ -16,6 +16,11 @@ namespace Tekly.DevBoard.Components
 	/// which can measure a choice without showing it: the popup measures every choice once, gives every row the
 	/// tallest height, and the list the widest width. Only the rows in view exist, from a small pool that's
 	/// repositioned and re-shown as the list scrolls. The content's layout is told the full list's height.
+	///
+	/// The selected choice is shown with the option's On state. While the search field is being typed in, Up and
+	/// Down (or Tab and Shift+Tab) move the selection and Enter picks it, so the list can be used without leaving
+	/// the field. Escape raises Cancelled. A search that hides the selection moves it to the first match, and with
+	/// a custom filter the selection always follows the best match.
 	/// </summary>
 	public class DropdownPopup : Widget
 	{
@@ -32,8 +37,10 @@ namespace Tekly.DevBoard.Components
 		private DropdownChoice[] m_choices;
 		private int m_selectedIndex = -1;
 		private Action<int> m_onSelect;
+		private Action<string, List<int>> m_filter;
 		private WidgetPrefab<DropdownOption> m_optionPrefab;
 		private string m_query = string.Empty;
+		private bool m_wasSearching;
 
 		private ScrollRect m_scrollRect;
 		private RectTransform m_viewport;
@@ -50,15 +57,38 @@ namespace Tekly.DevBoard.Components
 		}
 
 		/// <summary>
+		/// The search text.
+		/// </summary>
+		public string Query => m_query;
+
+		/// <summary>
+		/// Escape was pressed. Whoever opened the popup closes it.
+		/// </summary>
+		public event Action Cancelled;
+
+		/// <summary>
+		/// The index of the selected choice, -1 for none.
+		/// </summary>
+		public int SelectedIndex => m_selectedIndex;
+
+		/// <summary>
 		/// Shows the choices with options built from optionPrefab, marking selectedIndex as the current value
 		/// (-1 for none). onSelect gets the index of the one clicked.
+		///
+		/// filter, when given, replaces the search: it gets the search text and fills the list with the indexes of
+		/// the choices to show, in the order to show them. The selection then follows the first one.
+		///
+		/// query is the search text to start with, e.g. the last one used.
 		/// </summary>
-		public void Initialize(DropdownChoice[] choices, int selectedIndex, Action<int> onSelect, bool searchable, WidgetPrefab<DropdownOption> optionPrefab)
+		public void Initialize(DropdownChoice[] choices, int selectedIndex, Action<int> onSelect, bool searchable, WidgetPrefab<DropdownOption> optionPrefab,
+			Action<string, List<int>> filter = null, string query = null)
 		{
+			m_query = searchable ? query ?? string.Empty : string.Empty;
 			m_choices = choices;
 			m_selectedIndex = selectedIndex;
 			m_onSelect = onSelect;
 			m_optionPrefab = optionPrefab;
+			m_filter = filter;
 
 			m_list.WithoutSavedState();
 			m_scrollRect = m_list.GetComponent<ScrollRect>();
@@ -69,14 +99,124 @@ namespace Tekly.DevBoard.Components
 				m_search.gameObject.SetActive(searchable);
 
 				if (searchable) {
-					m_search.Initialize(null, new Binding<string>(() => m_query, SetQuery));
+					m_search.Initialize(null, new Binding<string>(() => m_query, OnQueryTyped));
 					m_search.WithPlaceholder("Search").WithInputMode(InputMode.Immediate);
+
+					// Escape closes the popup, so it shouldn't also throw away what was typed
+					m_search.InputField.restoreOriginalTextOnEscape = false;
+
+					var tabHandler = m_search.InputField.GetComponent<SearchTabHandler>();
+
+					if (tabHandler == null) {
+						tabHandler = m_search.InputField.gameObject.AddComponent<SearchTabHandler>();
+					}
+
+					tabHandler.Tabbed = OnSearchTabbed;
 				}
 			}
 
 			MeasureChoices();
-			SetQuery(string.Empty);
+			Filter(m_query);
 			ScrollToSelected();
+		}
+
+		/// <summary>
+		/// Moves the selection through the choices shown, e.g. -1 for the arrow up key.
+		/// </summary>
+		public void MoveSelection(int delta)
+		{
+			if (m_matches.Count == 0) {
+				return;
+			}
+
+			var position = m_matches.IndexOf(m_selectedIndex);
+
+			if (position < 0) {
+				position = delta > 0 ? -1 : m_matches.Count;
+			}
+
+			position = Mathf.Clamp(position + delta, 0, m_matches.Count - 1);
+			m_selectedIndex = m_matches[position];
+
+			ScrollIntoView(position);
+			ShowSelection();
+		}
+
+		/// <summary>
+		/// Does what clicking the selected choice does.
+		/// </summary>
+		public void ActivateSelected()
+		{
+			if (m_selectedIndex >= 0) {
+				m_onSelect(m_selectedIndex);
+			}
+		}
+
+		/// <summary>
+		/// Replaces the choices, e.g. after their text changed, keeping the search, selection and scroll position.
+		/// Options aren't measured again, so the choices should be about the same size.
+		/// </summary>
+		public void SetChoices(DropdownChoice[] choices)
+		{
+			var scroll = m_list.Content.anchoredPosition;
+			var selected = m_selectedIndex;
+
+			m_choices = choices;
+			Filter(m_query);
+
+			if (selected >= 0 && selected < choices.Length && m_matches.Contains(selected)) {
+				m_selectedIndex = selected;
+			}
+
+			m_list.Content.anchoredPosition = scroll;
+
+			foreach (var row in m_rows) {
+				row.Item = -1;
+			}
+
+			m_firstShown = -1;
+			ShowRowsInView();
+			ShowSelection();
+		}
+
+		/// <summary>
+		/// Puts the keyboard in the search field, if there is one, with its text selected so typing replaces it.
+		/// </summary>
+		public void FocusSearch()
+		{
+			if (m_search != null && m_search.gameObject.activeInHierarchy) {
+				m_search.Focus();
+			}
+		}
+
+		private void Update()
+		{
+			if (KeyInput.Escape) {
+				Cancelled?.Invoke();
+				return;
+			}
+
+			// The field stops being focused in the same frame Enter is pressed, so last frame counts too
+			var isSearching = m_search != null && m_search.isActiveAndEnabled && m_search.IsFocused;
+			var wasSearching = m_wasSearching;
+			m_wasSearching = isSearching;
+
+			if (!isSearching && !wasSearching) {
+				return;
+			}
+
+			if (KeyInput.Up) {
+				MoveSelection(-1);
+			} else if (KeyInput.Down) {
+				MoveSelection(1);
+			} else if (KeyInput.Enter) {
+				ActivateSelected();
+			}
+		}
+
+		private void OnSearchTabbed(bool isReverse)
+		{
+			MoveSelection(isReverse ? -1 : 1);
 		}
 
 		private void LateUpdate()
@@ -86,14 +226,40 @@ namespace Tekly.DevBoard.Components
 			}
 		}
 
-		private void SetQuery(string query)
+		/// <summary>
+		/// From the search field. It also writes back unchanged text, e.g. when Enter ends editing, and filtering
+		/// again then would move a selection made with the arrow keys back to the first match.
+		/// </summary>
+		private void OnQueryTyped(string query)
+		{
+			query ??= string.Empty;
+
+			if (query != m_query) {
+				Filter(query);
+			}
+		}
+
+		/// <summary>
+		/// Shows the choices matching query, from the top of the list.
+		/// </summary>
+		private void Filter(string query)
 		{
 			m_query = query ?? string.Empty;
 			m_matches.Clear();
 
-			for (var i = 0; i < m_choices.Length; i++) {
-				if (Matches(m_choices[i], m_query)) {
-					m_matches.Add(i);
+			if (m_filter != null) {
+				m_filter(m_query, m_matches);
+				m_selectedIndex = m_matches.Count > 0 ? m_matches[0] : -1;
+			} else {
+				for (var i = 0; i < m_choices.Length; i++) {
+					if (Matches(m_choices[i], m_query)) {
+						m_matches.Add(i);
+					}
+				}
+
+				// The current choice stays selected while it shows; otherwise Enter picks the first match
+				if (m_query.Length > 0 && !m_matches.Contains(m_selectedIndex)) {
+					m_selectedIndex = m_matches.Count > 0 ? m_matches[0] : -1;
 				}
 			}
 
@@ -107,6 +273,42 @@ namespace Tekly.DevBoard.Components
 
 			// Force the rows to refresh even if the same range is in view
 			m_firstShown = -1;
+			ShowRowsInView();
+			ShowSelection();
+		}
+
+		/// <summary>
+		/// Marks the selected choice on the rows in view.
+		/// </summary>
+		private void ShowSelection()
+		{
+			foreach (var row in m_rows) {
+				if (row.Item >= 0 && row.Option.gameObject.activeSelf) {
+					row.Option.SetSelected(row.Item == m_selectedIndex);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Scrolls just enough to show the match at position.
+		/// </summary>
+		private void ScrollIntoView(int position)
+		{
+			var stride = m_rowHeight + m_contentLayout.Spacing;
+			var top = m_contentLayout.Padding.Top + position * stride;
+			var bottom = top + m_rowHeight;
+
+			var scrolled = m_list.Content.anchoredPosition.y;
+			var height = m_viewport.rect.height;
+
+			if (top < scrolled) {
+				scrolled = top;
+			} else if (bottom > scrolled + height) {
+				scrolled = bottom - height;
+			}
+
+			m_list.Content.anchoredPosition = new Vector2(m_list.Content.anchoredPosition.x, scrolled);
+			m_scrollRect.StopMovement();
 			ShowRowsInView();
 		}
 

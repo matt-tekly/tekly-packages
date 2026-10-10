@@ -22,8 +22,6 @@ namespace TeklySample.Samples.DevBoardSample
 	/// </summary>
 	public class DevBoardSample : MonoBehaviour
 	{
-		[Range(0f, 100f)]
-		public float Test;
 		private const string CONTROLS = "Sample/Controls";
 
 		// Builders run once and every panel shows the same nodes, so state could live in them. It's kept here so

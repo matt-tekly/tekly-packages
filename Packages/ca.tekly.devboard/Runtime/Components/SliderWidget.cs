@@ -50,7 +50,7 @@ namespace Tekly.DevBoard.Components
 			m_watch.Invalidate();
 
 			m_labelText = label;
-			m_format = wholeNumbers ? WHOLE_FORMAT : DEFAULT_FORMAT;
+			m_format = ResolveFormat(wholeNumbers, null);
 			RefreshLabel(true);
 
 			m_slider.wholeNumbers = wholeNumbers;
@@ -72,11 +72,29 @@ namespace Tekly.DevBoard.Components
 		}
 
 		/// <summary>
+		/// Shows a value the way the slider does. format is null for the default.
+		/// </summary>
+		public static string FormatValue(float value, bool wholeNumbers, string format)
+		{
+			return value.ToString(ResolveFormat(wholeNumbers, format), CultureInfo.InvariantCulture);
+		}
+
+		/// <summary>
+		/// A value given some other way than dragging, e.g. typed, as the slider would take it: clamped to its
+		/// range, and rounded for whole numbers.
+		/// </summary>
+		public static float ClampValue(double value, float min, float max, bool wholeNumbers)
+		{
+			var clamped = Mathf.Clamp((float) value, min, max);
+			return wholeNumbers ? Mathf.Round(clamped) : clamped;
+		}
+
+		/// <summary>
 		/// Sets the numeric format string used to display the value, e.g. "0.00".
 		/// </summary>
 		public SliderWidget WithFormat(string format)
 		{
-			m_format = string.IsNullOrEmpty(format) ? (m_slider.wholeNumbers ? WHOLE_FORMAT : DEFAULT_FORMAT) : format;
+			m_format = ResolveFormat(m_slider.wholeNumbers, format);
 
 			if (m_valueInput != null) {
 				m_valueInput.WithFormat(m_format);
@@ -114,6 +132,15 @@ namespace Tekly.DevBoard.Components
 			Refresh();
 		}
 
+		private static string ResolveFormat(bool wholeNumbers, string format)
+		{
+			if (!string.IsNullOrEmpty(format)) {
+				return format;
+			}
+
+			return wholeNumbers ? WHOLE_FORMAT : DEFAULT_FORMAT;
+		}
+
 		private void OnValueChanged(float value)
 		{
 			// Only user drags get here: refreshes use SetValueWithoutNotify
@@ -128,8 +155,7 @@ namespace Tekly.DevBoard.Components
 		/// </summary>
 		private float ClampTyped(double value)
 		{
-			var clamped = Mathf.Clamp((float) value, m_slider.minValue, m_slider.maxValue);
-			return m_slider.wholeNumbers ? Mathf.Round(clamped) : clamped;
+			return ClampValue(value, m_slider.minValue, m_slider.maxValue, m_slider.wholeNumbers);
 		}
 
 		private void Refresh()
@@ -173,7 +199,7 @@ namespace Tekly.DevBoard.Components
 
 			m_labelValue = value;
 
-			var valueText = $"<style=\"{VALUE_STYLE}\">{value.ToString(m_format, CultureInfo.InvariantCulture)}</style>";
+			var valueText = $"<style=\"{VALUE_STYLE}\">{FormatValue(value, m_slider.wholeNumbers, m_format)}</style>";
 			m_label.Text = string.IsNullOrEmpty(m_labelText) ? valueText : $"{m_labelText}\n{valueText}";
 			m_label.gameObject.SetActive(true);
 		}

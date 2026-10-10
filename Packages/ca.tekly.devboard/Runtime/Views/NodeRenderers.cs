@@ -12,6 +12,11 @@ namespace Tekly.DevBoard.Views
 	/// built-in node type again replaces how it renders.
 	///
 	/// A node's Prefab, when set, is created instead of the registration's prefab.
+	///
+	/// A bind sets everything about the widget that the node decides, including settings left at their defaults,
+	/// rather than only what differs from the prefab. That keeps the door open to reusing widgets: a reused widget
+	/// keeps whatever the last bind set. Container layout overrides are the one exception so far, since only the
+	/// overrides a node sets are known.
 	/// </summary>
 	public sealed partial class NodeRenderers
 	{
@@ -51,9 +56,10 @@ namespace Tekly.DevBoard.Views
 		}
 
 		/// <summary>
-		/// Creates the widget for node inside parent, and a view that keeps it in step with the node.
+		/// Creates the widget for node inside parent. Containers' elements create their children's widgets as a
+		/// NodeMirror asks for them.
 		/// </summary>
-		internal NodeView Render(Node node, ContainerWidget parent, ViewContext view)
+		internal WidgetElement Render(Node node, ContainerWidget parent, ViewContext view)
 		{
 			var entry = Find(node.GetType());
 
@@ -62,7 +68,7 @@ namespace Tekly.DevBoard.Views
 					Debug.LogError($"[DevBoard] No renderer is registered for {node.GetType().Name}.");
 				}
 
-				return ErrorView(node, parent, view, $"No renderer for {node.GetType().Name}");
+				return ErrorElement(parent, $"No renderer for {node.GetType().Name}");
 			}
 
 			Widget widget;
@@ -71,7 +77,7 @@ namespace Tekly.DevBoard.Views
 				widget = entry.Create(node, parent);
 			} catch (Exception exception) {
 				Debug.LogException(exception);
-				return ErrorView(node, parent, view, $"{exception.GetType().Name}: {exception.Message}");
+				return ErrorElement(parent, $"{exception.GetType().Name}: {exception.Message}");
 			}
 
 			try {
@@ -84,17 +90,17 @@ namespace Tekly.DevBoard.Views
 			if (node is ContainerNode container) {
 				if (widget is not ContainerWidget containerWidget) {
 					Debug.LogError($"[DevBoard] {container.GetType().Name} rendered as a {widget.GetType().Name}, which can't hold children.");
-					return new NodeView(node, widget);
+					return new WidgetElement(widget);
 				}
 
 				if (container is ListNode list) {
-					return new ListView(list, containerWidget, view);
+					return new ListWidgetElement(list, containerWidget, this, view);
 				}
 
-				return new ContainerView(container, containerWidget, containerWidget, view);
+				return new ContainerWidgetElement(containerWidget, this, view);
 			}
 
-			return new NodeView(node, widget);
+			return new WidgetElement(widget);
 		}
 
 		private Entry Find(Type type)
@@ -108,9 +114,9 @@ namespace Tekly.DevBoard.Views
 			return null;
 		}
 
-		private static NodeView ErrorView(Node node, ContainerWidget parent, ViewContext view, string message)
+		private static WidgetElement ErrorElement(ContainerWidget parent, string message)
 		{
-			return new NodeView(node, parent.Label(ErrorText(message)));
+			return new WidgetElement(parent.Label(ErrorText(message)));
 		}
 
 		private abstract class Entry

@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using Tekly.Common.Utils;
+using Tekly.DevBoard.Access;
 using Tekly.DevBoard.Components;
 using Tekly.DevBoard.Nodes;
 using Tekly.DevBoard.Pages;
+using Tekly.DevBoard.Palette;
 using Tekly.DevBoard.Panels;
 using Tekly.DevBoard.Views;
 using Tekly.Trellis;
@@ -53,6 +55,12 @@ namespace Tekly.DevBoard
 		public NodeRenderers Renderers { get; } = NodeRenderers.CreateDefault();
 
 		/// <summary>
+		/// Finds nodes on any page by path, and reads, sets and runs them as text. Register here to make a custom
+		/// node work with the command palette.
+		/// </summary>
+		public NodeAccess Access { get; }
+
+		/// <summary>
 		/// Ticks behaviours that aren't inside a panel.
 		/// </summary>
 		internal TickGroup DefaultTickGroup {
@@ -78,11 +86,21 @@ namespace Tekly.DevBoard
 		/// The key that shows and hides DevBoard. Key.None turns the shortcut off.
 		/// </summary>
 		public Key ToggleKey { get; set; } = Key.F1;
+
+		/// <summary>
+		/// The key that opens the command palette. Key.None turns the shortcut off.
+		/// </summary>
+		public Key PaletteKey { get; set; } = Key.F2;
 #else
 		/// <summary>
 		/// The key that shows and hides DevBoard. KeyCode.None turns the shortcut off.
 		/// </summary>
 		public KeyCode ToggleKey { get; set; } = KeyCode.F1;
+
+		/// <summary>
+		/// The key that opens the command palette. KeyCode.None turns the shortcut off.
+		/// </summary>
+		public KeyCode PaletteKey { get; set; } = KeyCode.F2;
 #endif
 
 		private GameObject m_root;
@@ -101,10 +119,30 @@ namespace Tekly.DevBoard
 		// Scopes waiting for the end of the frame to rebuild
 		private readonly List<ScopeNode> m_rebuilds = new();
 
+		private readonly CommandPalette m_palette;
+
 		public DevBoard()
 		{
+			Access = new NodeAccess(Pages);
+			m_palette = new CommandPalette(this);
+
 			Settings.Changed += ApplySettings;
+			RegisterSearchPage();
 			RegisterOptionsPage();
+		}
+
+		/// <summary>
+		/// Opens the command palette: search every page and control by name.
+		/// </summary>
+		public void OpenPalette()
+		{
+			Initialize();
+			m_palette.Open();
+		}
+
+		public void ClosePalette()
+		{
+			m_palette.Close();
 		}
 
 		/// <summary>
@@ -305,7 +343,8 @@ namespace Tekly.DevBoard
 				return;
 			}
 
-			var anyShown = IsVisible;
+			// The palette floats on the panels' canvas, and can be open while the panels are hidden
+			var anyShown = IsVisible || m_palette.IsOpen;
 
 			foreach (var panel in m_panels) {
 				if (panel != null) {
@@ -430,22 +469,37 @@ namespace Tekly.DevBoard
 		}
 
 		/// <summary>
-		/// Called every frame by DevBoardTicker.
+		/// Called every frame by DevBoardTicker: the shortcuts, and the command palette's keys.
 		/// </summary>
-		internal void CheckToggleKey()
+		internal void UpdateKeys()
 		{
-#if ENABLE_INPUT_SYSTEM
-			var keyboard = Keyboard.current;
+			if (WasPressed(ToggleKey)) {
+				ToggleVisible();
+			}
 
-			if (ToggleKey != Key.None && keyboard != null && keyboard[ToggleKey].wasPressedThisFrame) {
-				ToggleVisible();
+			if (WasPressed(PaletteKey)) {
+				OpenPalette();
 			}
-#elif ENABLE_LEGACY_INPUT_MANAGER
-			if (ToggleKey != KeyCode.None && Input.GetKeyDown(ToggleKey)) {
-				ToggleVisible();
-			}
+
+			m_palette.Update();
+		}
+
+#if ENABLE_INPUT_SYSTEM
+		private static bool WasPressed(Key key)
+		{
+			var keyboard = Keyboard.current;
+			return key != Key.None && keyboard != null && keyboard[key].wasPressedThisFrame;
+		}
+#else
+		private static bool WasPressed(KeyCode key)
+		{
+#if ENABLE_LEGACY_INPUT_MANAGER
+			return key != KeyCode.None && Input.GetKeyDown(key);
+#else
+			return false;
 #endif
 		}
+#endif
 
 		/// <summary>
 		/// Where floating widgets like an open dropdown go, above every panel. Null until a panel has been created.
@@ -507,6 +561,18 @@ namespace Tekly.DevBoard
 			if (m_dock != null && m_dock.Canvas != null) {
 				m_dock.ApplySettings(Settings);
 			}
+		}
+
+		/// <summary>
+		/// A way into the command palette on the root page, for devices without a keyboard.
+		/// </summary>
+		private void RegisterSearchPage()
+		{
+			Page(string.Empty, page => {
+				page.Button("Search everything", OpenPalette)
+					.WithDescription($"Find any page or control ({PaletteKey})")
+					.InteractiveOnly();
+			}, order: int.MinValue);
 		}
 
 		private void RegisterOptionsPage()

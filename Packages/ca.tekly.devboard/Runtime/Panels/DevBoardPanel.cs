@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Tekly.DevBoard.Components;
+using Tekly.DevBoard.Nodes;
 using Tekly.DevBoard.Pages;
 using Tekly.DevBoard.Views;
 using Tekly.Leaf.Elements;
 using Tekly.Leaf.Elements.Radios;
 using Tekly.Trellis;
+using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -23,16 +27,19 @@ namespace Tekly.DevBoard.Panels
 	/// Interactive panels are for navigating. Overlay panels are pinned to one page: the body lets touches through
 	/// to the game, refreshes less often, and the header shrinks to a handle that switches back to interactive.
 	///
-	/// When the page a panel shows is removed, an interactive panel moves up to the nearest page that still
-	/// exists and an overlay hides. Either way the panel remembers the page and goes back to it if it's
-	/// registered again, e.g. the next time that part of the game loads.
+	/// The work is split three ways: PanelHeader runs the header, PageHost the pages in the body, and
+	/// PanelNavigation which page is wanted. This class holds the panel's state and ties them together.
 	/// </summary>
-	public class DevBoardPanel : Widget, ITickHost
+	public class DevBoardPanel : Widget, ITickHost, IViewHost
 	{
 		public const float OVERLAY_TICK_RATE = 10f;
 
 		private const float OVERLAY_ALPHA = 0.85f;
 		private const float MAX_HEIGHT_FRACTION = 0.85f;
+
+		private const float FLASH_TIME = 0.8f;
+		private const float REVEAL_TIMEOUT = 1f;
+		private static readonly Color s_flashColor = new(0.4f, 0.7f, 1f, 0.35f);
 
 		public string Id { get; private set; }
 		public DockSlot Dock { get; private set; }
@@ -47,23 +54,23 @@ namespace Tekly.DevBoard.Panels
 		/// <summary>
 		/// The page being shown, or null while a hidden overlay waits for its page.
 		/// </summary>
-		public PageNode CurrentPage => m_current?.Page;
+		public PageNode CurrentPage => m_pages?.CurrentPage;
 
 		/// <summary>
 		/// The page this panel wants to show. Differs from CurrentPage while that page doesn't exist.
 		/// </summary>
-		public string Path => m_pendingShowPath ?? m_waitingPath ?? m_current?.Page.Path ?? string.Empty;
+		public string Path => m_navigation?.Path ?? string.Empty;
 
 		TickGroup ITickHost.TickGroup => m_tickGroup;
 
 		private readonly TickGroup m_tickGroup = new();
-		private readonly Dictionary<PageNode, PageView> m_views = new();
 		private readonly List<Action> m_deferred = new();
 
 		private DevBoard m_board;
-		private ViewContext m_viewContext;
-		private PageTree m_tree;
 		private DevBoardDock m_dock;
+		private PanelHeader m_panelHeader;
+		private PageHost m_pages;
+		private PanelNavigation m_navigation;
 
 		[Header("Header")]
 		[SerializeField] private GameObject m_header;
@@ -107,20 +114,13 @@ namespace Tekly.DevBoard.Panels
 		[Tooltip("Stops blocking touches in overlay mode. Found on this GameObject if not set")]
 		[SerializeField] private Graphic m_frameGraphic;
 
-		private PageView m_current;
-		private string m_waitingPath;
-
-		// Page tree events only queue work; Update builds it. Tree events also fire while the scene is torn down
-		// (registrants unregistering in OnDestroy), and building widgets then leaks them past the scene close.
-		private string m_pendingShowPath;
-		private bool m_waitingHidden;
-
 		private float m_tickRate;
 		private float m_tickInterval;
 		private float m_nextTickTime;
 		private float m_maxHeight = -1f;
 		private bool m_headerDirty;
 		private bool m_tornDown;
+		private Coroutine m_revealRoutine;
 
 		/// <summary>
 		/// How many times per second widgets refresh while interactive. Zero or less ticks every frame. Overlays
@@ -148,8 +148,42 @@ namespace Tekly.DevBoard.Panels
 		/// </summary>
 		public void Open(string path)
 		{
-			ShowPath(path);
+			m_navigation.ShowPath(path);
 			m_board.SavePanels();
+		}
+
+		/// <summary>
+		/// Shows where node is: opens its page, opens foldouts on the way, scrolls to it, selects it and flashes it.
+		/// Selecting an input puts the keyboard in it, ready to type; anything else is just selected, so a dropdown
+		/// stays closed until Enter. False if node isn't on a page or can't be shown in this panel, e.g. VisibleWhen
+		/// is hiding it, it's only for the other mode, or it's a list row this panel's search is hiding.
+		/// </summary>
+		public bool Reveal(Node node)
+		{
+			var page = Segment.Of(node)?.Source.Node;
+
+			if (page == null || page.IsRemoved) {
+				return false;
+			}
+
+			SetCollapsed(false);
+			Open(page.Path);
+
+			var widget = m_pages.Reveal(node);
+
+			if (widget == null) {
+				return false;
+			}
+
+			if (m_revealRoutine != null) {
+				StopCoroutine(m_revealRoutine);
+			}
+
+			if (isActiveAndEnabled) {
+				m_revealRoutine = StartCoroutine(RevealAfterLayout(widget));
+			}
+
+			return true;
 		}
 
 		/// <summary>
@@ -157,7 +191,7 @@ namespace Tekly.DevBoard.Panels
 		/// </summary>
 		public void Back()
 		{
-			var parent = m_current?.Page.Parent;
+			var parent = CurrentPage?.Parent;
 
 			if (parent != null) {
 				Open(parent.Path);
@@ -170,10 +204,13 @@ namespace Tekly.DevBoard.Panels
 				return;
 			}
 
+			var path = Path;
 			ApplyOverlay(overlay);
 
 			// Nodes can be limited to one mode, so render everything again for the new mode
-			ResetViews();
+			m_pages.Reset();
+			m_navigation.ShowPath(path);
+
 			m_board.SavePanels();
 		}
 
@@ -194,7 +231,7 @@ namespace Tekly.DevBoard.Panels
 			}
 
 			ShowWhenHidden = showWhenHidden;
-			SyncShowWhenHiddenToggle();
+			m_panelHeader.ShowShowWhenHidden(showWhenHidden);
 			m_board.ApplyVisibility();
 			m_board.SavePanels();
 		}
@@ -202,14 +239,14 @@ namespace Tekly.DevBoard.Panels
 		public void SetDock(DockSlot dock)
 		{
 			if (dock == Dock) {
-				SyncDockGroup();
+				m_panelHeader.ShowDock();
 				return;
 			}
 
 			Dock = dock;
 			transform.SetParent(m_dock.GetSlot(dock), false);
 			transform.SetAsLastSibling();
-			SyncDockGroup();
+			m_panelHeader.ShowDock();
 			m_board.SavePanels();
 		}
 
@@ -231,6 +268,23 @@ namespace Tekly.DevBoard.Panels
 			ContainerWidget.DestroyWidget(gameObject);
 		}
 
+		/// <summary>
+		/// Links inside pages call this from their click, so the page changes after the click has finished.
+		/// </summary>
+		void IViewHost.Open(string path)
+		{
+			Defer(() => Open(path));
+		}
+
+		/// <summary>
+		/// Runs action in the next Update rather than straight away. Most panel actions rebuild or hide the very
+		/// button that was clicked to start them.
+		/// </summary>
+		internal void Defer(Action action)
+		{
+			m_deferred.Add(action);
+		}
+
 		internal PanelRecord ToRecord()
 		{
 			return new PanelRecord {
@@ -244,15 +298,34 @@ namespace Tekly.DevBoard.Panels
 		}
 
 		/// <summary>
-		/// Opens path after the current click or tick, for links inside the page.
+		/// Active while it has a page to show and either DevBoard is visible or the panel shows when hidden.
+		/// Inactive panels keep their built pages but don't draw, take touches or tick.
 		/// </summary>
-		internal void OpenDeferred(string path)
+		internal void RefreshActive()
 		{
-			m_deferred.Add(() => Open(path));
+			var waitingHidden = m_navigation != null && m_navigation.IsWaitingHidden;
+			var active = !waitingHidden && (m_board.IsVisible || ShowWhenHidden);
+
+			if (gameObject.activeSelf != active) {
+				gameObject.SetActive(active);
+			}
 		}
 
 		private void Awake()
 		{
+			FindParts();
+		}
+
+		/// <summary>
+		/// Fills in the optional parts and sets up the header. Runs from Awake or Setup, whichever is first: Awake
+		/// waits when the panel is created under an inactive parent.
+		/// </summary>
+		private void FindParts()
+		{
+			if (m_panelHeader != null) {
+				return;
+			}
+
 			if (m_layoutItem == null) {
 				m_layoutItem = GetComponent<LayoutItem>();
 			}
@@ -265,68 +338,56 @@ namespace Tekly.DevBoard.Panels
 				m_bodyGroup = m_body.gameObject.AddComponent<CanvasGroup>();
 			}
 
-			Wire(m_overlayHandle, Deferred(() => SetOverlay(false)));
-			Wire(m_popButton, MenuAction(() => PopOut()));
-			Wire(m_overlayButton, MenuAction(() => SetOverlay(true)));
-			Wire(m_closeButton, MenuAction(Close));
-
-			if (m_actionsToggle != null) {
-				m_actionsToggle.onValueChanged.AddListener(OnActionsToggleChanged);
-			}
-
-			if (m_collapseToggle != null) {
-				m_collapseToggle.onValueChanged.AddListener(OnCollapseToggleChanged);
-			}
-
-			if (m_dockGroup != null) {
-				m_dockGroup.OnChanged.AddListener(OnDockOptionChanged);
-			}
-
-			if (m_showWhenHiddenToggle != null) {
-				m_showWhenHiddenToggle.onValueChanged.AddListener(OnShowWhenHiddenToggleChanged);
-			}
-
-			SetSettingsOpen(false);
+			m_panelHeader = new PanelHeader(this, new PanelHeader.Parts {
+				Header = m_header,
+				Breadcrumb = m_breadcrumb,
+				CollapseToggle = m_collapseToggle,
+				ActionsToggle = m_actionsToggle,
+				HeaderNormal = m_headerNormal,
+				OverlayHandle = m_overlayHandle,
+				HeaderSettings = m_headerSettings,
+				PopButton = m_popButton,
+				DockGroup = m_dockGroup,
+				OverlayButton = m_overlayButton,
+				ShowWhenHiddenToggle = m_showWhenHiddenToggle,
+				CloseButton = m_closeButton
+			});
 		}
 
 		private void Setup(DevBoard board, DevBoardDock dock, PanelRecord record)
 		{
+			FindParts();
+
 			m_board = board;
-			m_tree = board.Pages;
 			m_dock = dock;
-			m_viewContext = new ViewContext(this);
 
 			Id = record.Id;
 			Dock = record.Dock;
 			ShowWhenHidden = record.ShowWhenHidden;
-			SyncShowWhenHiddenToggle();
+			m_panelHeader.ShowShowWhenHidden(ShowWhenHidden);
 
-			// The panel remembers scroll positions per page itself
-			m_body.WithoutSavedState();
+			m_pages = new PageHost(board.Pages, m_body, board.Renderers, new ViewContext(this),
+				path => Defer(() => Open(path)),
+				path => m_navigation.CurrentPageRemoved(path));
 
-			m_tree.SegmentAdded += OnSegmentAdded;
-			m_tree.SegmentRemoved += OnSegmentRemoved;
-			m_tree.PageAdded += OnPageAdded;
-			m_tree.PageRemoved += OnPageRemoved;
-			m_tree.ChildrenChanged += OnChildrenChanged;
+			m_navigation = new PanelNavigation(board.Pages, m_pages, () => IsOverlay, OnShownChanged, m_board.SavePanels);
 
 			ApplyOverlay(record.Overlay);
 			ApplyCollapsed(record.Collapsed);
-			ShowPath(record.Path);
+			m_navigation.ShowPath(record.Path);
 		}
 
 		private void Update()
 		{
 			RunDeferred();
-			RunPendingShow();
 
-			if (m_current != null && m_current.LinksDirty) {
-				BuildLinks(m_current);
-			}
+			m_navigation.Update();
+			m_pages.Update();
 			UpdateSizeLimits();
 
 			if (m_headerDirty) {
-				BuildHeader();
+				m_headerDirty = false;
+				m_panelHeader.ShowPage(CurrentPage);
 			}
 
 			var now = Time.realtimeSinceStartup;
@@ -335,7 +396,7 @@ namespace Tekly.DevBoard.Panels
 			if (now >= m_nextTickTime) {
 				m_nextTickTime = now + m_tickInterval;
 				m_tickGroup.Tick();
-				m_current?.Tick();
+				m_pages.Tick();
 			}
 		}
 
@@ -346,384 +407,125 @@ namespace Tekly.DevBoard.Panels
 			Teardown();
 		}
 
-		// ----- Navigation -----
-
-		private void ShowPath(string path)
+		private IEnumerator RevealAfterLayout(Widget widget)
 		{
-			path = PageTree.NormalizePath(path);
+			var target = (RectTransform) widget.transform;
+			var content = m_body.Content;
+			var deadline = Time.realtimeSinceStartup + REVEAL_TIMEOUT;
 
-			var page = m_tree.FindNearest(path);
-			m_waitingPath = page.Path == path ? null : path;
+			var lastPosition = new Vector2(float.NaN, float.NaN);
+			var lastSize = Vector2.zero;
+			var lastContentSize = Vector2.zero;
 
-			// An overlay is pinned to its page: rather than show some other page, it hides until the page is back
-			m_waitingHidden = IsOverlay && m_waitingPath != null;
-			RefreshActive();
+			// A page or panel shown this frame can take a few frames to lay out: text measures itself, fitted
+			// containers resize, and the body's content grows. Scrolling before then aims at the wrong place, or is
+			// clamped back by content that isn't tall enough yet. So wait until the target stops moving and the
+			// content stops resizing for a frame.
+			while (true) {
+				yield return null;
 
-			if (!m_waitingHidden) {
-				Show(page);
-			}
-		}
-
-		private void Show(PageNode page)
-		{
-			if (m_current != null && m_current.Page == page) {
-				m_headerDirty = true;
-				return;
-			}
-
-			if (m_current != null) {
-				m_current.Scroll = m_body.CapturePosition();
-				m_current.Root.gameObject.SetActive(false);
-			}
-
-			var view = GetOrBuildView(page);
-			view.Root.gameObject.SetActive(true);
-
-			if (view.LinksDirty) {
-				BuildLinks(view);
-			}
-
-			m_current = view;
-			m_body.RestorePosition(view.Scroll);
-			m_headerDirty = true;
-		}
-
-		/// <summary>
-		/// Throws away every built page and shows the current one again from scratch.
-		/// </summary>
-		private void ResetViews()
-		{
-			var path = Path;
-
-			foreach (var view in m_views.Values) {
-				DisposeView(view);
-			}
-
-			m_views.Clear();
-			m_current = null;
-
-			ShowPath(path);
-		}
-
-		// ----- Building pages -----
-
-		private PageView GetOrBuildView(PageNode page)
-		{
-			if (m_views.TryGetValue(page, out var view)) {
-				return view;
-			}
-
-			var root = ContainerWidget.CreatePlain(m_body.Content, page.IsRoot ? "Page (root)" : $"Page {page.Path}", 8);
-			root.WithFlexibleWidth();
-			root.StateScope = page.Path;
-
-			var links = ContainerWidget.CreatePlain(root.Content, "Links");
-
-			view = new PageView(page, root, links);
-			m_views.Add(page, view);
-
-			BuildLinks(view);
-
-			foreach (var segment in page.Segments) {
-				BuildSegment(view, segment);
-			}
-
-			return view;
-		}
-
-		/// <summary>
-		/// The buttons for a page's child pages, or a note when the page is empty.
-		/// </summary>
-		private void BuildLinks(PageView view)
-		{
-			view.LinksDirty = false;
-			view.Links.Clear();
-
-			var page = view.Page;
-
-			foreach (var child in page.Children) {
-				var path = child.Path;
-				var button = view.Links.Button(child.Title, Deferred(() => Open(path)), WidgetPrefabs.PageButton);
-				if (button.TryGetComponent(out LayoutItem layoutItem)) {
-					layoutItem.FlexibleWidth = 1;
-					layoutItem.MinWidth = 80;
+				if (widget == null) {
+					m_revealRoutine = null;
+					yield break;
 				}
-			}
 
-			var isEmpty = page.Children.Count == 0 && page.Segments.Count == 0;
+				// Relative to the content, so scrolling doesn't count as moving
+				var position = (Vector2) content.InverseTransformPoint(target.position);
+				var size = target.rect.size;
+				var contentSize = content.rect.size;
 
-			if (isEmpty) {
-				view.Links.Label(page.IsRoot ? "No pages registered yet" : "This page is empty");
-			}
+				var settled = position == lastPosition && size == lastSize && contentSize == lastContentSize;
 
-			view.Links.gameObject.SetActive(page.Children.Count > 0 || isEmpty);
-		}
-
-		private void RefreshLinks(PageView view)
-		{
-			// Built in Update (current view) or when the view is next shown
-			view.LinksDirty = true;
-		}
-
-		private void RunPendingShow()
-		{
-			if (m_pendingShowPath == null) {
-				return;
-			}
-
-			var path = m_pendingShowPath;
-			m_pendingShowPath = null;
-			ShowPath(path);
-		}
-
-		private void BuildSegment(PageView view, PageSegment segment)
-		{
-			if (view.IndexOf(segment) >= 0) {
-				return;
-			}
-
-			// Builds the segment's nodes the first time any panel needs them
-			var root = segment.Root;
-
-			if (root == null || !root.ShowsIn(IsOverlay)) {
-				return;
-			}
-
-			// Keep the same order as the page's segments
-			var index = 0;
-
-			foreach (var other in view.Page.Segments) {
-				if (other == segment) {
+				if (settled || Time.realtimeSinceStartup > deadline) {
 					break;
 				}
 
-				if (view.IndexOf(other) >= 0) {
-					index++;
+				lastPosition = position;
+				lastSize = size;
+				lastContentSize = contentSize;
+			}
+
+			m_revealRoutine = null;
+
+			if (!widget.isActiveAndEnabled) {
+				yield break;
+			}
+
+			// Innermost first, e.g. a list's own scroll view, then the panel's body
+			for (var parent = target.parent; parent != null; parent = parent.parent) {
+				if (parent.TryGetComponent(out ScrollViewWidget scroll)) {
+					scroll.ScrollIntoView(target);
+				}
+
+				if (parent == transform) {
+					break;
 				}
 			}
 
-			var nodeView = m_board.Renderers.Render(root, view.Root, m_viewContext);
-			var previous = index > 0 ? view.Segments[index - 1].View.Widget.transform : view.Links.transform;
-			nodeView.Widget.transform.SetSiblingIndex(previous.GetSiblingIndex() + 1);
-
-			view.Segments.Insert(index, new SegmentView(segment, nodeView));
+			Select(widget);
+			StartCoroutine(Flash(target));
 		}
 
-		private void DisposeSegment(PageView view, int index)
+		/// <summary>
+		/// Selects the widget's first selectable, so the keyboard acts on it next. Input fields start editing when
+		/// selected, with their text selected so typing replaces it.
+		/// </summary>
+		private static void Select(Widget widget)
 		{
-			var segmentView = view.Segments[index];
-			view.Segments.RemoveAt(index);
+			var eventSystem = EventSystem.current;
+			var selectable = widget.GetComponentInChildren<Selectable>();
 
-			segmentView.View.Dispose(true);
-		}
-
-		private void DisposeView(PageView view)
-		{
-			for (var i = view.Segments.Count - 1; i >= 0; i--) {
-				DisposeSegment(view, i);
-			}
-
-			ContainerWidget.DestroyWidget(view.Root.gameObject);
-		}
-
-		// ----- Page tree events -----
-
-		private void OnSegmentAdded(PageSegment segment)
-		{
-			if (m_views.TryGetValue(segment.Node, out var view)) {
-				BuildSegment(view, segment);
-				RefreshLinks(view);
-			}
-		}
-
-		private void OnSegmentRemoved(PageSegment segment, PageNode page)
-		{
-			if (!m_views.TryGetValue(page, out var view)) {
+			if (eventSystem == null || selectable == null) {
 				return;
 			}
 
-			var index = view.IndexOf(segment);
-
-			if (index >= 0) {
-				DisposeSegment(view, index);
+			if (selectable is TMP_InputField input) {
+				input.onFocusSelectAll = true;
 			}
 
-			RefreshLinks(view);
-		}
-
-		private void OnPageAdded(PageNode page)
-		{
-			if (m_waitingPath == page.Path) {
-				m_pendingShowPath = page.Path;
-				m_board.SavePanels();
-			}
-		}
-
-		private void OnPageRemoved(PageNode page)
-		{
-			if (!m_views.TryGetValue(page, out var view)) {
-				return;
-			}
-
-			var wasCurrent = view == m_current;
-
-			DisposeView(view);
-			m_views.Remove(page);
-
-			if (wasCurrent) {
-				m_current = null;
-
-				// Keep wanting the page that went away, so the panel returns to it when it's registered again
-				m_pendingShowPath = m_waitingPath ?? page.Path;
-			}
-		}
-
-		private void OnChildrenChanged(PageNode page)
-		{
-			if (m_views.TryGetValue(page, out var view)) {
-				RefreshLinks(view);
-			}
+			eventSystem.SetSelectedGameObject(selectable.gameObject);
 		}
 
 		/// <summary>
-		/// Active while it has a page to show and either DevBoard is visible or the panel shows when hidden.
-		/// Inactive panels keep their built pages but don't draw, take touches or tick.
+		/// A tint over target that fades out, to show where it is.
 		/// </summary>
-		internal void RefreshActive()
+		private static IEnumerator Flash(RectTransform target)
 		{
-			var active = !m_waitingHidden && (m_board.IsVisible || ShowWhenHidden);
+			var flashObject = new GameObject("Reveal Flash", typeof(RectTransform));
+			var rect = (RectTransform) flashObject.transform;
+			rect.SetParent(target, false);
+			rect.anchorMin = Vector2.zero;
+			rect.anchorMax = Vector2.one;
+			rect.offsetMin = Vector2.zero;
+			rect.offsetMax = Vector2.zero;
 
-			if (gameObject.activeSelf != active) {
-				gameObject.SetActive(active);
-			}
-		}
+			// On top of the widget, but not part of its layout and not catching touches
+			flashObject.AddComponent<LayoutItem>().IgnoreLayout = true;
+			var image = flashObject.AddComponent<Image>();
+			image.raycastTarget = false;
 
-		// ----- Header and modes -----
-
-		private void BuildHeader()
-		{
-			m_headerDirty = false;
-
-			// Only text changes here. Which header objects are active is set directly by SetSettingsOpen and
-			// ApplyOverlay, so nothing here fights the toggle.
-			var page = m_current?.Page;
-
-			if (m_overlayHandle != null) {
-				m_overlayHandle.Label = page?.Title ?? PageTree.ROOT_TITLE;
-			}
-
-			if (m_breadcrumb != null) {
-				var crumbs = new List<Crumb>();
-
-				for (var node = page; node != null; node = node.Parent) {
-					crumbs.Insert(0, new Crumb(node.Title, node.Path));
+			for (var time = 0f; time < FLASH_TIME; time += Time.unscaledDeltaTime) {
+				// Gone with the widget
+				if (image == null) {
+					yield break;
 				}
 
-				m_breadcrumb.Set(crumbs, path => m_deferred.Add(() => Open(path)));
+				var color = s_flashColor;
+				color.a *= 1f - time / FLASH_TIME;
+				image.color = color;
+
+				yield return null;
+			}
+
+			if (flashObject != null) {
+				Destroy(flashObject);
 			}
 		}
 
-		/// <summary>
-		/// The toggle is the only state for settings: it just swaps the normal and settings header objects. Runs
-		/// immediately, since the toggle sits outside both and nothing is rebuilt.
-		/// </summary>
-		private void OnActionsToggleChanged(bool isOn)
+		private void OnShownChanged()
 		{
-			ApplySettingsOpen(isOn);
-		}
-
-		/// <summary>
-		/// Deferred like the buttons, since collapsing changes the layout around the toggle that was clicked.
-		/// </summary>
-		private void OnCollapseToggleChanged(bool isOn)
-		{
-			m_deferred.Add(() => SetCollapsed(isOn));
-		}
-
-		/// <summary>
-		/// Settings stay open, like the dock options, so it's easy to see the new state.
-		/// </summary>
-		private void OnShowWhenHiddenToggleChanged(bool isOn)
-		{
-			m_deferred.Add(() => SetShowWhenHidden(isOn));
-		}
-
-		private void SyncShowWhenHiddenToggle()
-		{
-			if (m_showWhenHiddenToggle != null) {
-				m_showWhenHiddenToggle.SetIsOnWithoutNotify(ShowWhenHidden);
-			}
-		}
-
-		private void SetSettingsOpen(bool open)
-		{
-			if (m_actionsToggle != null) {
-				m_actionsToggle.SetIsOnWithoutNotify(open);
-			}
-
-			ApplySettingsOpen(open);
-		}
-
-		private void ApplySettingsOpen(bool open)
-		{
-			if (m_headerNormal != null) {
-				m_headerNormal.SetActive(!open);
-			}
-
-			if (m_headerSettings != null) {
-				m_headerSettings.SetActive(open);
-			}
-
-			// The options only count once they're active, so sync after showing them
-			if (open) {
-				SyncDockGroup();
-			}
-		}
-
-		/// <summary>
-		/// Deferred, since docking moves the panel, and with it the option that was clicked. Settings stay open
-		/// so the panel can be moved again straight away.
-		/// </summary>
-		private void OnDockOptionChanged(int index)
-		{
-			if (m_dockGroup.GetOption(index) is Component option && option.TryGetComponent(out DockSlotOption slot)) {
-				var dock = slot.Slot;
-				m_deferred.Add(() => SetDock(dock));
-			}
-		}
-
-		/// <summary>
-		/// Turns on the option for the current dock slot, without events.
-		/// </summary>
-		private void SyncDockGroup()
-		{
-			if (m_dockGroup == null || !m_dockGroup.isActiveAndEnabled) {
-				return;
-			}
-
-			for (var i = 0; ; i++) {
-				var option = m_dockGroup.GetOption(i);
-
-				if (option == null) {
-					return;
-				}
-
-				if (option is Component component && component.TryGetComponent(out DockSlotOption slot) && slot.Slot == Dock) {
-					m_dockGroup.SetWithoutNotify(option);
-					return;
-				}
-			}
-		}
-
-		/// <summary>
-		/// A button from the settings header: closes settings, then runs.
-		/// </summary>
-		private Action MenuAction(Action action)
-		{
-			return Deferred(() => {
-				SetSettingsOpen(false);
-				action();
-			});
+			RefreshActive();
+			m_headerDirty = true;
 		}
 
 		private void ApplyOverlay(bool overlay)
@@ -739,23 +541,17 @@ namespace Tekly.DevBoard.Panels
 				m_frameGraphic.raycastTarget = !overlay;
 			}
 
-			// In overlay mode the header gives way to a small handle, if the prefab has one
-			var showHandle = overlay && m_overlayHandle != null;
-
-			if (m_header != null) {
-				m_header.SetActive(!showHandle);
-			}
-
-			if (m_overlayHandle != null) {
-				m_overlayHandle.gameObject.SetActive(showHandle);
-			}
-
-			if (overlay) {
-				SetSettingsOpen(false);
-			}
+			m_panelHeader.ApplyOverlay(overlay);
 
 			UpdateTickInterval();
 			m_headerDirty = true;
+		}
+
+		private void ApplyCollapsed(bool collapsed)
+		{
+			IsCollapsed = collapsed;
+			m_body.gameObject.SetActive(!collapsed);
+			m_panelHeader.ShowCollapsed(collapsed);
 		}
 
 		private void UpdateTickInterval()
@@ -768,16 +564,6 @@ namespace Tekly.DevBoard.Panels
 
 			m_tickInterval = rate > 0f ? 1f / rate : 0f;
 			m_nextTickTime = 0f;
-		}
-
-		private void ApplyCollapsed(bool collapsed)
-		{
-			IsCollapsed = collapsed;
-			m_body.gameObject.SetActive(!collapsed);
-
-			if (m_collapseToggle != null) {
-				m_collapseToggle.SetIsOnWithoutNotify(collapsed);
-			}
 		}
 
 		/// <summary>
@@ -810,24 +596,6 @@ namespace Tekly.DevBoard.Panels
 			}
 		}
 
-		// ----- Teardown and helpers -----
-
-		/// <summary>
-		/// Wraps a button action so it runs in the next Update rather than inside the click. Most panel actions
-		/// rebuild or hide the very button that was clicked.
-		/// </summary>
-		private static void Wire(ButtonWidget button, Action action)
-		{
-			if (button != null) {
-				button.WithAction(action);
-			}
-		}
-
-		private Action Deferred(Action action)
-		{
-			return () => m_deferred.Add(action);
-		}
-
 		private void RunDeferred()
 		{
 			if (m_deferred.Count == 0) {
@@ -858,92 +626,9 @@ namespace Tekly.DevBoard.Panels
 
 			m_tornDown = true;
 
-			if (m_actionsToggle != null) {
-				m_actionsToggle.onValueChanged.RemoveListener(OnActionsToggleChanged);
-			}
-
-			if (m_collapseToggle != null) {
-				m_collapseToggle.onValueChanged.RemoveListener(OnCollapseToggleChanged);
-			}
-
-			if (m_dockGroup != null) {
-				m_dockGroup.OnChanged.RemoveListener(OnDockOptionChanged);
-			}
-
-			if (m_showWhenHiddenToggle != null) {
-				m_showWhenHiddenToggle.onValueChanged.RemoveListener(OnShowWhenHiddenToggleChanged);
-			}
-
-			if (m_tree != null) {
-				m_tree.SegmentAdded -= OnSegmentAdded;
-				m_tree.SegmentRemoved -= OnSegmentRemoved;
-				m_tree.PageAdded -= OnPageAdded;
-				m_tree.PageRemoved -= OnPageRemoved;
-				m_tree.ChildrenChanged -= OnChildrenChanged;
-			}
-
-			// Stop listening to the nodes. The widgets go with the panel's GameObject.
-			foreach (var view in m_views.Values) {
-				foreach (var segment in view.Segments) {
-					segment.View.Dispose(false);
-				}
-			}
-
-			m_views.Clear();
-			m_current = null;
-		}
-
-		// ----- Built copies of pages -----
-
-		private class PageView
-		{
-			public readonly PageNode Page;
-			public readonly ContainerWidget Root;
-			public readonly ContainerWidget Links;
-			public readonly List<SegmentView> Segments = new();
-
-			public bool LinksDirty;
-			public ScrollViewWidget.ScrollState Scroll;
-
-			public PageView(PageNode page, ContainerWidget root, ContainerWidget links)
-			{
-				Page = page;
-				Root = root;
-				Links = links;
-			}
-
-			public int IndexOf(PageSegment segment)
-			{
-				for (var i = 0; i < Segments.Count; i++) {
-					if (Segments[i].Segment == segment) {
-						return i;
-					}
-				}
-
-				return -1;
-			}
-
-			/// <summary>
-			/// Refreshes the widgets of every segment on the page.
-			/// </summary>
-			public void Tick()
-			{
-				foreach (var segment in Segments) {
-					segment.View.Tick();
-				}
-			}
-		}
-
-		private class SegmentView
-		{
-			public readonly PageSegment Segment;
-			public readonly NodeView View;
-
-			public SegmentView(PageSegment segment, NodeView view)
-			{
-				Segment = segment;
-				View = view;
-			}
+			m_panelHeader?.Teardown();
+			m_navigation?.Teardown();
+			m_pages?.Teardown();
 		}
 	}
 }

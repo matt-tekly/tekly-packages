@@ -142,10 +142,18 @@ namespace Tekly.DevBoard.Components.Inputs
 			}
 		}
 
-		protected override bool TryParse(string text, out double value)
+		/// <summary>
+		/// Reads a typed number the way the input does: an integer for whole numbers, otherwise a decimal with
+		/// either separator. Fails on partial input like "" or "-", and on overflow.
+		/// </summary>
+		public static bool TryParseNumber(string text, bool wholeNumbers, out double value)
 		{
-			if (m_wholeNumbers) {
-				// Fails on partial input like "" or "-", and on overflow
+			if (text == null) {
+				value = 0;
+				return false;
+			}
+
+			if (wholeNumbers) {
 				var parsed = long.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var whole);
 				value = whole;
 				return parsed;
@@ -156,10 +164,23 @@ namespace Tekly.DevBoard.Components.Inputs
 			return double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out value);
 		}
 
+		/// <summary>
+		/// Shows a number the way the input does. format is null for the default.
+		/// </summary>
+		public static string FormatNumber(double value, bool wholeNumbers, string format)
+		{
+			format ??= wholeNumbers ? WHOLE_FORMAT : DEFAULT_FORMAT;
+			return value.ToString(format, CultureInfo.InvariantCulture);
+		}
+
+		protected override bool TryParse(string text, out double value)
+		{
+			return TryParseNumber(text, m_wholeNumbers, out value);
+		}
+
 		protected override string Format(double value)
 		{
-			var format = m_format ?? (m_wholeNumbers ? WHOLE_FORMAT : DEFAULT_FORMAT);
-			return value.ToString(format, CultureInfo.InvariantCulture);
+			return FormatNumber(value, m_wholeNumbers, m_format);
 		}
 
 		private void ApplyContentType()

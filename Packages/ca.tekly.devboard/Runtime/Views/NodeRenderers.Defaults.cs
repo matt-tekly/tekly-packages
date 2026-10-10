@@ -55,12 +55,8 @@ namespace Tekly.DevBoard.Views
 
 			Register<SliderNode, SliderWidget>(WidgetPrefabs.Slider, (node, widget, view) => {
 				widget.Initialize(LabelText(node), node.Min, node.Max, node.WholeNumbers, node.Binding);
-
-				if (node.Format != null) {
-					widget.WithFormat(node.Format);
-				}
-
-				widget.WithValueInput(node.ShowValueInput).WithValueInLabel(node.ShowValueInLabel);
+				widget.WithFormat(node.Format)
+					.WithValueInput(node.ShowValueInput).WithValueInLabel(node.ShowValueInLabel);
 			});
 
 			Register<DropdownNode, DropdownWidget>(WidgetPrefabs.Dropdown, (node, widget, view) => {
