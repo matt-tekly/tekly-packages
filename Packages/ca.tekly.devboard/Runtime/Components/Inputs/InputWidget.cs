@@ -84,6 +84,36 @@ namespace Tekly.DevBoard.Components.Inputs
 		/// <summary>
 		/// Makes the next refresh rewrite the text even if the value hasn't changed, e.g. after a format change.
 		/// </summary>
+		/// <summary>
+		/// The label widget, for subclasses that add behaviour to it. Null when the prefab has none.
+		/// </summary>
+		protected LabelWidget LabelComponent => m_label;
+
+		/// <summary>
+		/// Reads the bound value. Throws if the getter does.
+		/// </summary>
+		protected bool TryGetValue(out T value)
+		{
+			value = default;
+
+			if (m_getValue == null) {
+				return false;
+			}
+
+			value = m_getValue();
+			return true;
+		}
+
+		/// <summary>
+		/// Pushes a value to the setter straight away, as if it was typed and committed, and shows it.
+		/// </summary>
+		protected void SetValue(T value)
+		{
+			m_setValue?.Invoke(value);
+			Invalidate();
+			RefreshFromSource();
+		}
+
 		protected void Invalidate()
 		{
 			m_hasShownValue = false;
