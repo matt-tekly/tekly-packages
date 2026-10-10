@@ -7,11 +7,32 @@ using UnityEngine;
 namespace Tekly.DevBoard.Nodes
 {
 	/// <summary>
+	/// How a container lays out its children. Renderers pick how each looks; a container's Prefab overrides it in
+	/// the panels.
+	/// </summary>
+	public enum ContainerKind
+	{
+		/// A plain vertical group with no background
+		Stack,
+
+		/// A vertical group with a background
+		Card,
+
+		/// A vertical list of labelled controls, with their labels lined up
+		Form,
+
+		/// Side by side
+		Row
+	}
+
+	/// <summary>
 	/// A node holding other nodes: a card, form, row or foldout, or a scope that builds its own content.
 	/// Panels listen to ChildrenChanged to keep their widgets in step.
 	/// </summary>
 	public class ContainerNode : Node
 	{
+		public ContainerKind Kind { get; }
+
 		public IReadOnlyList<Node> Children => m_children;
 
 		/// <summary>
@@ -30,8 +51,9 @@ namespace Tekly.DevBoard.Nodes
 		private int m_changeDepth;
 		private bool m_changed;
 
-		public ContainerNode(string label = null) : base(label)
+		public ContainerNode(ContainerKind kind = ContainerKind.Stack, string label = null) : base(label)
 		{
+			Kind = kind;
 		}
 
 		/// <summary>
@@ -55,15 +77,20 @@ namespace Tekly.DevBoard.Nodes
 			return child;
 		}
 
-		public ContainerNode WithPadding(int all)
+		public ContainerNode WithPadding(float all)
 		{
-			return WithPadding(all, all, all, all);
+			return WithPadding(Edges.All(all));
 		}
 
-		public ContainerNode WithPadding(int left, int top, int right, int bottom)
+		public ContainerNode WithPadding(float left, float top, float right, float bottom)
+		{
+			return WithPadding(new Edges(left, right, top, bottom));
+		}
+
+		public ContainerNode WithPadding(Edges padding)
 		{
 			EnsureEditable();
-			Layout.Padding = (left, top, right, bottom);
+			Layout.Padding = padding;
 			return this;
 		}
 
@@ -234,8 +261,11 @@ namespace Tekly.DevBoard.Nodes
 			MarkChanged();
 		}
 
+		internal override string DefaultId => Kind.ToString().ToLowerInvariant();
+
 		/// <summary>
-		/// Gives every child without an id one: its requested id or label, made unique among its siblings.
+		/// Gives every child without an id one: its requested id, label or kind as a slug, made unique among its
+		/// siblings.
 		/// </summary>
 		internal void AssignIds()
 		{
@@ -244,11 +274,11 @@ namespace Tekly.DevBoard.Nodes
 					continue;
 				}
 
-				var baseId = Sanitize(child.RequestedId ?? child.Label ?? child.GetType().Name);
+				var baseId = NodePaths.Slug(child.RequestedId) ?? NodePaths.Slug(child.Label) ?? child.DefaultId;
 				var id = baseId;
 
 				for (var number = 2; m_ids.Contains(id); number++) {
-					id = $"{baseId}#{number}";
+					id = $"{baseId}-{number}";
 				}
 
 				child.Id = id;
@@ -282,14 +312,6 @@ namespace Tekly.DevBoard.Nodes
 				}
 			}
 		}
-
-		/// <summary>
-		/// Slashes separate path parts, so they can't appear in an id.
-		/// </summary>
-		private static string Sanitize(string id)
-		{
-			return id.Replace('/', '_');
-		}
 	}
 
 	/// <summary>
@@ -297,7 +319,7 @@ namespace Tekly.DevBoard.Nodes
 	/// </summary>
 	public class LayoutOptions
 	{
-		public (int Left, int Top, int Right, int Bottom)? Padding { get; internal set; }
+		public Edges? Padding { get; internal set; }
 		public int? Spacing { get; internal set; }
 		public LayoutAlignment? Alignment { get; internal set; }
 		public CrossAlignment? CrossAlignment { get; internal set; }
@@ -313,7 +335,7 @@ namespace Tekly.DevBoard.Nodes
 		/// </summary>
 		public static ContainerNode Card(this ContainerNode parent, WidgetPrefab<ContainerWidget> prefab = default)
 		{
-			return parent.Add(Container(prefab.Or(WidgetPrefabs.Card)));
+			return parent.Add(Container(ContainerKind.Card, prefab));
 		}
 
 		/// <summary>
@@ -321,7 +343,7 @@ namespace Tekly.DevBoard.Nodes
 		/// </summary>
 		public static ContainerNode Form(this ContainerNode parent, WidgetPrefab<ContainerWidget> prefab = default)
 		{
-			return parent.Add(Container(prefab.Or(WidgetPrefabs.Form)));
+			return parent.Add(Container(ContainerKind.Form, prefab));
 		}
 
 		/// <summary>
@@ -329,12 +351,20 @@ namespace Tekly.DevBoard.Nodes
 		/// </summary>
 		public static ContainerNode Row(this ContainerNode parent, WidgetPrefab<ContainerWidget> prefab = default)
 		{
-			return parent.Add(Container(prefab.Or(WidgetPrefabs.Row)));
+			return parent.Add(Container(ContainerKind.Row, prefab));
 		}
 
-		private static ContainerNode Container(WidgetPrefab<ContainerWidget> prefab)
+		/// <summary>
+		/// A plain vertical group, with no background.
+		/// </summary>
+		public static ContainerNode Stack(this ContainerNode parent, WidgetPrefab<ContainerWidget> prefab = default)
 		{
-			var container = new ContainerNode();
+			return parent.Add(Container(ContainerKind.Stack, prefab));
+		}
+
+		private static ContainerNode Container(ContainerKind kind, WidgetPrefab<ContainerWidget> prefab)
+		{
+			var container = new ContainerNode(kind);
 			container.SetPrefab(prefab.Name);
 
 			return container;

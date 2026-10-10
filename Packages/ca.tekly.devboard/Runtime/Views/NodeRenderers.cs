@@ -110,7 +110,7 @@ namespace Tekly.DevBoard.Views
 
 		private static NodeView ErrorView(Node node, ContainerWidget parent, ViewContext view, string message)
 		{
-			return new NodeView(node, parent.Label($"<color={ERROR_COLOR}>{message}</color>"));
+			return new NodeView(node, parent.Label(ErrorText(message)));
 		}
 
 		private abstract class Entry

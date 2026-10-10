@@ -509,17 +509,13 @@ namespace Tekly.DevBoard
 			}
 		}
 
-		private string LabelAndSubLabel(string label, string subLabel)
-		{
-			return $"{label}\n<style=\"sublabel\">{subLabel}</style>";
-		}
-
 		private void RegisterOptionsPage()
 		{
 			Page(OPTIONS_PATH, page => {
 				var form = page.Form();
-				form.FloatInput(LabelAndSubLabel("UI Scale", "Scales all UI Elements"), () => Settings.Scale, value => Settings.Scale = value)
-					.WithFormat("0.##");
+				form.FloatInput("UI Scale", () => Settings.Scale, value => Settings.Scale = value)
+					.WithFormat("0.##")
+					.WithDescription("Scales all UI Elements");
 
 				var scaleRow = form.Row().WithPadding(0).WithAlignment(LayoutAlignment.End).WithFlexibleWidth();
 				scaleRow.Button("-", () => Settings.Scale -= DevBoardSettings.SCALE_STEP);
@@ -527,8 +523,8 @@ namespace Tekly.DevBoard
 				scaleRow.Button("1x", () => Settings.Scale = 1f);
 
 #if UNITY_EDITOR
-				form.Toggle(LabelAndSubLabel("Use Physical Size Scale", "Use screen DPI to scale UI"), () => Settings.KeepPhysicalSizeInEditor,
-					value => Settings.KeepPhysicalSizeInEditor = value);
+				form.Toggle("Use Physical Size Scale", () => Settings.KeepPhysicalSizeInEditor, value => Settings.KeepPhysicalSizeInEditor = value)
+					.WithDescription("Use screen DPI to scale UI");
 #endif
 
 				form.Button("Reset options", Settings.ResetToDefaults);

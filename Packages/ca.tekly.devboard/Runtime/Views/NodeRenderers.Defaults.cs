@@ -17,27 +17,29 @@ namespace Tekly.DevBoard.Views
 			return renderers;
 		}
 
+		private const string DESCRIPTION_STYLE = "sublabel";
+
 		private void RegisterDefaults()
 		{
-			Register<LabelNode, LabelWidget>((node, parent) => node.IsHeading ? WidgetPrefabs.Heading : WidgetPrefabs.Label,
-				(node, widget, view) => widget.Text = node.Text);
+			Register<LabelNode, LabelWidget>((node, parent) => node.Style == LabelStyle.Heading ? WidgetPrefabs.Heading : WidgetPrefabs.Label,
+				(node, widget, view) => widget.Text = node.Style == LabelStyle.Error ? ErrorText(node.Text) : node.Text);
 
 			Register<PropertyNode, PropertyWidget>(WidgetPrefabs.Property, (node, widget, view) => {
-				node.Accept(new PropertyBinder(widget, node.Label, node.Format));
+				node.Accept(new PropertyBinder(widget, LabelText(node), node.Format));
 				widget.WithMonospaced(node.Monospaced);
 			});
 
 			Register<ButtonNode, ButtonWidget>(WidgetPrefabs.Button,
-				(node, widget, view) => widget.Initialize(node.Action, node.Label));
+				(node, widget, view) => widget.Initialize(node.Action, LabelText(node)));
 
 			Register<LinkNode, ButtonWidget>(WidgetPrefabs.PageButton,
-				(node, widget, view) => widget.Initialize(() => view.Open(node.Target), node.Label));
+				(node, widget, view) => widget.Initialize(() => view.Open(node.Target), LabelText(node)));
 
 			Register<ToggleNode, ToggleWidget>(WidgetPrefabs.Toggle,
-				(node, widget, view) => widget.Initialize(node.Label, node.Binding));
+				(node, widget, view) => widget.Initialize(LabelText(node), node.Binding));
 
 			Register<TextInputNode, TextInputWidget>(WidgetPrefabs.TextInput, (node, widget, view) => {
-				widget.Initialize(node.Label, node.Binding);
+				widget.Initialize(LabelText(node), node.Binding);
 				widget.WithPlaceholder(node.Placeholder).WithInputMode(node.InputMode);
 			});
 
@@ -47,12 +49,12 @@ namespace Tekly.DevBoard.Views
 					.WithDragStep(node.DragStep)
 					.WithDragScrub(node.DragScrub);
 
-				widget.Initialize(node.Label, node.Binding);
+				widget.Initialize(LabelText(node), node.Binding);
 				widget.WithPlaceholder(node.Placeholder).WithInputMode(node.InputMode);
 			});
 
 			Register<SliderNode, SliderWidget>(WidgetPrefabs.Slider, (node, widget, view) => {
-				widget.Initialize(node.Label, node.Min, node.Max, node.WholeNumbers, node.Binding);
+				widget.Initialize(LabelText(node), node.Min, node.Max, node.WholeNumbers, node.Binding);
 
 				if (node.Format != null) {
 					widget.WithFormat(node.Format);
@@ -62,7 +64,7 @@ namespace Tekly.DevBoard.Views
 			});
 
 			Register<DropdownNode, DropdownWidget>(WidgetPrefabs.Dropdown, (node, widget, view) => {
-				widget.Initialize(node.Label, node.GetCount, node.GetChoice, node.Index);
+				widget.Initialize(LabelText(node), node.GetCount, node.GetChoice, node.Index);
 				widget.WithSearch(node.Searchable);
 			});
 
@@ -71,10 +73,10 @@ namespace Tekly.DevBoard.Views
 					parent.Axis == Common.Utils.LayoutAxis.Horizontal ? WidgetPrefabs.DividerVertical : WidgetPrefabs.DividerHorizontal,
 				null);
 
-			Register<ContainerNode, ContainerWidget>(WidgetPrefabs.Card, (node, widget, view) => ApplyLayout(node, widget));
+			RegisterFactory<ContainerNode, ContainerWidget>(CreateContainer, (node, widget, view) => ApplyLayout(node, widget));
 
 			Register<FoldoutNode, FoldoutWidget>(WidgetPrefabs.Foldout, (node, widget, view) => {
-				widget.Initialize(node.Label);
+				widget.Initialize(LabelText(node));
 				widget.UseFullStateKey(view.StateKey(node, "expanded"));
 				widget.StartExpanded(node.StartExpanded);
 				ApplyLayout(node, widget);
@@ -97,6 +99,45 @@ namespace Tekly.DevBoard.Views
 		}
 
 		/// <summary>
+		/// The text for a widget's label: the node's label, with its description under it in the "sublabel" style.
+		/// </summary>
+		public static string LabelText(Node node)
+		{
+			if (string.IsNullOrEmpty(node.Description)) {
+				return node.Label;
+			}
+
+			var description = $"<style=\"{DESCRIPTION_STYLE}\">{node.Description}</style>";
+			return string.IsNullOrEmpty(node.Label) ? description : $"{node.Label}\n{description}";
+		}
+
+		public static string ErrorText(string text)
+		{
+			return $"<color={ERROR_COLOR}>{text}</color>";
+		}
+
+		/// <summary>
+		/// The prefab for each kind of container, or a bare layout for a stack. A node's Prefab overrides it.
+		/// </summary>
+		private static ContainerWidget CreateContainer(ContainerNode node, ContainerWidget parent)
+		{
+			if (node.Prefab != null) {
+				return parent.Create(new WidgetPrefab<ContainerWidget>(node.Prefab));
+			}
+
+			switch (node.Kind) {
+				case ContainerKind.Card:
+					return parent.Create(WidgetPrefabs.Card);
+				case ContainerKind.Form:
+					return parent.Create(WidgetPrefabs.Form);
+				case ContainerKind.Row:
+					return parent.Create(WidgetPrefabs.Row);
+				default:
+					return ContainerWidget.CreatePlain(parent.Content, "Stack");
+			}
+		}
+
+		/// <summary>
 		/// Applies a container node's layout overrides to its widget.
 		/// </summary>
 		public static void ApplyLayout(ContainerNode node, ContainerWidget widget)
@@ -104,7 +145,7 @@ namespace Tekly.DevBoard.Views
 			var layout = node.Layout;
 
 			if (layout.Padding is { } padding) {
-				widget.WithPadding(padding.Left, padding.Top, padding.Right, padding.Bottom);
+				widget.WithPadding(padding);
 			}
 
 			if (layout.Spacing is int spacing) {

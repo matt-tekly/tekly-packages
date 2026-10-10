@@ -13,8 +13,6 @@ namespace Tekly.DevBoard.Nodes
 	/// </summary>
 	public class ScopeNode : ContainerNode
 	{
-		private const string ERROR_COLOR = "#E5534B";
-
 		/// <summary>
 		/// True once the scope has been removed. A disposed scope is never rebuilt.
 		/// </summary>
@@ -25,10 +23,12 @@ namespace Tekly.DevBoard.Nodes
 		private bool m_building;
 		private bool m_built;
 
-		public ScopeNode(string label, Action<ScopeNode> build) : base(label)
+		public ScopeNode(string label, Action<ScopeNode> build) : base(ContainerKind.Stack, label)
 		{
 			m_build = build;
 		}
+
+		internal override string DefaultId => "scope";
 
 		protected override bool CanAddChildren => m_building || base.CanAddChildren;
 
@@ -75,7 +75,7 @@ namespace Tekly.DevBoard.Nodes
 				RunBuilder();
 			} catch (Exception exception) {
 				Debug.LogException(exception);
-				Add(new LabelNode($"<color={ERROR_COLOR}>{exception.GetType().Name}: {exception.Message}</color>", false));
+				Add(new LabelNode($"{exception.GetType().Name}: {exception.Message}", LabelStyle.Error));
 			} finally {
 				m_building = false;
 			}
@@ -171,6 +171,8 @@ namespace Tekly.DevBoard.Nodes
 			m_build = build ?? throw new ArgumentNullException(nameof(build));
 			m_isSame = isSame ?? EqualityComparer<TKey>.Default.Equals;
 		}
+
+		internal override string DefaultId => "dynamic";
 
 		protected override void RunBuilder()
 		{

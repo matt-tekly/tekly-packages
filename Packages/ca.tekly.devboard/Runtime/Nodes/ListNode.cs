@@ -24,6 +24,8 @@ namespace Tekly.DevBoard.Nodes
 			SetRequestedId(id);
 		}
 
+		internal override string DefaultId => "item";
+
 		protected override void RunBuilder()
 		{
 			m_build(this, Item);
@@ -62,9 +64,11 @@ namespace Tekly.DevBoard.Nodes
 		/// </summary>
 		public bool ShowAllWhenEmpty { get; private set; } = true;
 
-		protected ListNode() : base(null)
+		protected ListNode() : base(ContainerKind.Stack)
 		{
 		}
+
+		internal override string DefaultId => "list";
 
 		public ListNode WithMaxResults(int maxResults)
 		{

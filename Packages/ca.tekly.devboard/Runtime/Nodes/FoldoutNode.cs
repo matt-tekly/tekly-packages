@@ -12,9 +12,11 @@ namespace Tekly.DevBoard.Nodes
 		/// </summary>
 		public bool StartExpanded { get; private set; }
 
-		public FoldoutNode(string label) : base(label)
+		public FoldoutNode(string label) : base(ContainerKind.Stack, label)
 		{
 		}
+
+		internal override string DefaultId => "foldout";
 
 		public FoldoutNode WithStartExpanded(bool expanded = true)
 		{

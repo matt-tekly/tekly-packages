@@ -29,14 +29,15 @@ namespace Tekly.DevBoard.Nodes
 		public ContainerNode Parent { get; internal set; }
 
 		/// <summary>
-		/// Unique among the node's siblings. Assigned once its builder finishes: the id set with WithId, or the
-		/// label, with "#2", "#3" and so on added when siblings would otherwise share it.
+		/// A slug unique among the node's siblings, see <see cref="NodePaths"/>. Assigned once its builder finishes:
+		/// the id set with WithId, or the label, or the kind of node, with "-2", "-3" and so on added when siblings
+		/// would otherwise share it.
 		/// </summary>
 		public string Id { get; internal set; }
 
 		/// <summary>
-		/// Where the node is: the page path, the segment, then the id of each node down to this one, e.g.
-		/// "Game/Economy/Cheats/Give Gold". Saved view state like foldouts is keyed by it.
+		/// Where the node is: the page path, the segment, then the id of each node down to this one, all as slugs,
+		/// e.g. "game/economy/cheats/give-gold". Saved view state like foldouts is keyed by it.
 		/// </summary>
 		public virtual string Path {
 			get {
@@ -73,6 +74,11 @@ namespace Tekly.DevBoard.Nodes
 		}
 
 		/// <summary>
+		/// A line explaining the node, shown under its label. Null for none.
+		/// </summary>
+		public string Description { get; private set; }
+
+		/// <summary>
 		/// The registered prefab to render with, instead of the usual one for this kind of node. Null for the usual.
 		/// </summary>
 		public string Prefab { get; private set; }
@@ -95,6 +101,11 @@ namespace Tekly.DevBoard.Nodes
 		public bool IsFrozen { get; private set; }
 
 		internal string RequestedId { get; private set; }
+
+		/// <summary>
+		/// The id used when the node has no requested id or label, before it's made unique.
+		/// </summary>
+		internal virtual string DefaultId => NodePaths.Slug(GetType().Name.Replace("Node", string.Empty)) ?? "node";
 
 		private string m_path;
 
@@ -134,6 +145,12 @@ namespace Tekly.DevBoard.Nodes
 		{
 			EnsureEditable();
 			Prefab = prefab;
+		}
+
+		internal void SetDescription(string description)
+		{
+			EnsureEditable();
+			Description = description;
 		}
 
 		internal void SetVisible(Func<bool> visible)
@@ -215,6 +232,15 @@ namespace Tekly.DevBoard.Nodes
 		public static T WithId<T>(this T node, string id) where T : Node
 		{
 			node.SetRequestedId(id);
+			return node;
+		}
+
+		/// <summary>
+		/// A line explaining the node, shown under its label.
+		/// </summary>
+		public static T WithDescription<T>(this T node, string description) where T : Node
+		{
+			node.SetDescription(description);
 			return node;
 		}
 

@@ -57,15 +57,19 @@ namespace Tekly.DevBoard.Components
 			}
 		}
 
-		public ContainerWidget WithPadding(int left, int top, int right, int bottom)
+		public ContainerWidget WithPadding(float left, float top, float right, float bottom)
 		{
-			m_layout.Padding = new Edges(left, right, top, bottom);
-			return this;
+			return WithPadding(new Edges(left, right, top, bottom));
 		}
 
-		public ContainerWidget WithPadding(int all)
+		public ContainerWidget WithPadding(float all)
 		{
-			m_layout.Padding = new Edges(all, all, all, all);
+			return WithPadding(Edges.All(all));
+		}
+
+		public ContainerWidget WithPadding(Edges padding)
+		{
+			m_layout.Padding = padding;
 			return this;
 		}
 

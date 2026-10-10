@@ -17,15 +17,16 @@ namespace Tekly.DevBoard.Nodes
 		/// </summary>
 		public string Title => Source.Title;
 
-		public override string Path => string.IsNullOrEmpty(Source.Path) ? Id : $"{Source.Path}/{Id}";
+		public override string Path => m_path ??= string.IsNullOrEmpty(Source.Path) ? Id : $"{NodePaths.SlugPath(Source.Path)}/{Id}";
 
 		private readonly Action<Segment> m_build;
+		private string m_path;
 
 		internal Segment(PageSegment source, Action<Segment> build) : base(source.Title, null)
 		{
 			Source = source;
 			m_build = build;
-			Id = source.Title ?? "Segment";
+			Id = NodePaths.Slug(source.Title) ?? "segment";
 		}
 
 		protected override void RunBuilder()
