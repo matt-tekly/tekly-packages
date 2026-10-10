@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &2345391426434608837
+--- !u!1001 &6371617802713706064
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -24,10 +24,6 @@ PrefabInstance:
       propertyPath: m_sharedMaterial
       value: 
       objectReference: {fileID: -3218671869473612163, guid: 02ee2563343ffb84b87ca0f4d35e1c45, type: 2}
-    - target: {fileID: 1149634169742105766, guid: 9e2400166c4f51c44bceb4ce25a5efa1, type: 3}
-      propertyPath: m_hasFontAssetChanged
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4372094345222130980, guid: 9e2400166c4f51c44bceb4ce25a5efa1, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -162,7 +158,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8589962676909377238, guid: 9e2400166c4f51c44bceb4ce25a5efa1, type: 3}
       propertyPath: m_Name
-      value: intinput
+      value: floatinput
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 6942456697618048646, guid: 9e2400166c4f51c44bceb4ce25a5efa1, type: 3}
@@ -171,12 +167,42 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 8589962676909377238, guid: 9e2400166c4f51c44bceb4ce25a5efa1, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 5555911072812987431}
+      addedObject: {fileID: -9118408024169011908}
   m_SourcePrefab: {fileID: 100100000, guid: 9e2400166c4f51c44bceb4ce25a5efa1, type: 3}
---- !u!114 &1925031557431959709 stripped
+--- !u!1 &3411799051140737158 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8589962676909377238, guid: 9e2400166c4f51c44bceb4ce25a5efa1, type: 3}
+  m_PrefabInstance: {fileID: 6371617802713706064}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &-9118408024169011908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3411799051140737158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26db12e561a7e174bb12239ed3a86917, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Tekly.DevBoard::Tekly.DevBoard.Components.Inputs.NumberInputWidget
+  m_input: {fileID: 4347130693130979241}
+  m_label: {fileID: 7086167387561107464}
+--- !u!114 &4347130693130979241 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7221685792325446137, guid: 9e2400166c4f51c44bceb4ce25a5efa1, type: 3}
+  m_PrefabInstance: {fileID: 6371617802713706064}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3411799051140737158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14c03a51862547c0b9b918dfc31ee64b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TMP_InputField
+--- !u!114 &7086167387561107464 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4196113589943635544, guid: 9e2400166c4f51c44bceb4ce25a5efa1, type: 3}
-  m_PrefabInstance: {fileID: 2345391426434608837}
+  m_PrefabInstance: {fileID: 6371617802713706064}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -184,33 +210,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b272c050ef624c70af9a4e40469fb222, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Tekly.DevBoard::Tekly.DevBoard.Components.Text
---- !u!114 &4950605960003094332 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7221685792325446137, guid: 9e2400166c4f51c44bceb4ce25a5efa1, type: 3}
-  m_PrefabInstance: {fileID: 2345391426434608837}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6321132585098258451}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 14c03a51862547c0b9b918dfc31ee64b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TMP_InputField
---- !u!1 &6321132585098258451 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8589962676909377238, guid: 9e2400166c4f51c44bceb4ce25a5efa1, type: 3}
-  m_PrefabInstance: {fileID: 2345391426434608837}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &5555911072812987431
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6321132585098258451}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bbc1c493575fc45428e957133ca39213, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Tekly.DevBoard::Tekly.DevBoard.Components.Inputs.IntInputWidget
-  m_input: {fileID: 4950605960003094332}
-  m_label: {fileID: 1925031557431959709}

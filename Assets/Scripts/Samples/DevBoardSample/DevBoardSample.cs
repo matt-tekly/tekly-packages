@@ -22,6 +22,8 @@ namespace TeklySample.Samples.DevBoardSample
 	/// </summary>
 	public class DevBoardSample : MonoBehaviour
 	{
+		[Range(0f, 100f)]
+		public float Test;
 		private const string CONTROLS = "Sample/Controls";
 
 		// State lives here, not in the builders: builders can run several times (once per panel showing the page)
@@ -150,7 +152,17 @@ namespace TeklySample.Samples.DevBoardSample
 			var form = page.Root.Form();
 			form.Slider("Float", 0f, 1f, () => m_float, value => m_float = value).WithFormat("0.00");
 			form.SliderInt("Int", 0, 10, () => m_int, value => m_int = value);
-			form.Slider("Time Scale", 0f, 2f, () => Time.timeScale, value => Time.timeScale = value).WithFormat("0.0x");
+			form.Slider("Time Scale", 0f, 2f, () => Time.timeScale, value => Time.timeScale = value).WithFormat("0.0");
+
+			// Without a label or a value input, the bar takes the whole row
+			form.Slider("No Input", 0f, 1f, () => m_float, value => m_float = value).WithValueInput(false);
+			form.Slider(null, 0f, 1f, () => m_float, value => m_float = value).WithValueInput(false);
+
+			// The value under the label instead of in an input
+			form.Slider("Compact", 0f, 1f, () => m_float, value => m_float = value)
+				.WithFormat("0.00")
+				.WithValueInput(false)
+				.WithValueInLabel(true);
 		}
 
 		private void Dropdowns(PageContext page)

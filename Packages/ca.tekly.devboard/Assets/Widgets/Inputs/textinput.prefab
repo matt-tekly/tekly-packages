@@ -54,7 +54,7 @@ MonoBehaviour:
   m_ignoreLayout: 0
   m_minWidth:
     IsSet: 1
-    Value: 120
+    Value: 50
   m_minHeight:
     IsSet: 1
     Value: 24
@@ -452,6 +452,7 @@ MonoBehaviour:
     TopRight: 0
     BottomRight: 0
     BottomLeft: 0
+  m_roundedCorners: 15
   m_bulge: {x: 0, y: 0, z: 0, w: 0}
   m_containBulge: 0
   m_sprite: {fileID: 0}
@@ -588,6 +589,7 @@ MonoBehaviour:
     TopRight: 0
     BottomRight: 0
     BottomLeft: 0
+  m_roundedCorners: 15
   m_bulge: {x: 0, y: 0, z: 0, w: 0}
   m_containBulge: 0
   m_sprite: {fileID: 0}
@@ -704,7 +706,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: -20}
-  m_SizeDelta: {x: 197.26001, y: 26}
+  m_SizeDelta: {x: 135.4, y: 26}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &6446394019226035834
 MonoBehaviour:

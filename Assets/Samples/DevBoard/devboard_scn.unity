@@ -245,6 +245,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0eeba51d3af2467c881b99cf2e1e1c0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TeklySample.Samples.DevBoardSample.DevBoardSample
+  Test: 100
 --- !u!4 &517403964
 Transform:
   m_ObjectHideFlags: 0

@@ -284,30 +284,54 @@ namespace Tekly.DevBoard.Components
 			return TextInput(null, null, getValue, setValue, inputMode);
 		}
 
-		public IntInputWidget IntInput(string variant, string label, string placeholder, Func<int> getValue, Action<int> setValue, InputMode inputMode = InputMode.Delayed)
+		/// <summary>
+		/// A number input over doubles. Use WithWholeNumbers for integers only.
+		/// </summary>
+		public NumberInputWidget NumberInput(string variant, string label, string placeholder, Func<double> getValue, Action<double> setValue, InputMode inputMode = InputMode.Delayed)
 		{
-			var instance = Create<IntInputWidget>(variant);
+			var instance = Create<NumberInputWidget>(variant);
 			instance.Initialize(label, placeholder, getValue, setValue, inputMode);
 
 			return instance;
 		}
 
-		public IntInputWidget IntInput(string label, Func<int> getValue, Action<int> setValue, InputMode inputMode = InputMode.Delayed)
+		public NumberInputWidget NumberInput(string label, Func<double> getValue, Action<double> setValue, InputMode inputMode = InputMode.Delayed)
 		{
-			return IntInput("intinput", label, null, getValue, setValue, inputMode);
+			return NumberInput("numberinput", label, null, getValue, setValue, inputMode);
 		}
 
-		public FloatInputWidget FloatInput(string variant, string label, string placeholder, Func<float> getValue, Action<float> setValue, InputMode inputMode = InputMode.Delayed)
+		public NumberInputWidget IntInput(string variant, string label, string placeholder, Func<int> getValue, Action<int> setValue, InputMode inputMode = InputMode.Delayed)
 		{
-			var instance = Create<FloatInputWidget>(variant);
-			instance.Initialize(label, placeholder, getValue, setValue, inputMode);
+			var instance = Create<NumberInputWidget>(variant).WithWholeNumbers(true);
+			instance.Initialize(label, placeholder, () => getValue(), value => setValue(ToInt(value)), inputMode);
 
 			return instance;
 		}
 
-		public FloatInputWidget FloatInput(string label, Func<float> getValue, Action<float> setValue, InputMode inputMode = InputMode.Delayed)
+		public NumberInputWidget IntInput(string label, Func<int> getValue, Action<int> setValue, InputMode inputMode = InputMode.Delayed)
 		{
-			return FloatInput("floatinput", label, null, getValue, setValue, inputMode);
+			return IntInput("numberinput", label, null, getValue, setValue, inputMode);
+		}
+
+		public NumberInputWidget FloatInput(string variant, string label, string placeholder, Func<float> getValue, Action<float> setValue, InputMode inputMode = InputMode.Delayed)
+		{
+			var instance = Create<NumberInputWidget>(variant).WithWholeNumbers(false);
+			instance.Initialize(label, placeholder, () => getValue(), value => setValue((float) value), inputMode);
+
+			return instance;
+		}
+
+		public NumberInputWidget FloatInput(string label, Func<float> getValue, Action<float> setValue, InputMode inputMode = InputMode.Delayed)
+		{
+			return FloatInput("numberinput", label, null, getValue, setValue, inputMode);
+		}
+
+		/// <summary>
+		/// A typed number as an int, clamped to the int range.
+		/// </summary>
+		private static int ToInt(double value)
+		{
+			return (int) Math.Round(Math.Clamp(value, int.MinValue, int.MaxValue));
 		}
 
 		public DividerWidget Divider()
