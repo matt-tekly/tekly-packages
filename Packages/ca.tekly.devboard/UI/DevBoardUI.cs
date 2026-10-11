@@ -12,6 +12,7 @@ using Tekly.Trellis;
 using UnityEngine.InputSystem;
 #endif
 using UnityEngine;
+using UnityEngine.EventSystems;
 using Object = UnityEngine.Object;
 
 namespace Tekly.DevBoard
@@ -96,6 +97,8 @@ namespace Tekly.DevBoard
 		private DevBoardDock m_dock;
 
 		private readonly List<DevBoardPanel> m_panels = new();
+		private DevBoardPanel m_lastUsedPanel;
+		private readonly List<RaycastResult> m_pressHits = new();
 		private bool m_panelsRestored;
 		private bool m_restoringPanels;
 
@@ -292,14 +295,22 @@ namespace Tekly.DevBoard
 			m_panels.RemoveAll(other => other == null);
 
 			if (m_panels.Count == 0) {
-				CreatePanel(new PanelRecord {
-					Id = NextPanelId(MAIN_PANEL_ID),
-					Dock = DockSlot.TopLeft,
-					Path = string.Empty
-				});
+				CreateRootPanel();
 			}
 
 			SavePanels();
+		}
+
+		/// <summary>
+		/// A new interactive panel at the root in the top left, with an id no other panel has.
+		/// </summary>
+		internal DevBoardPanel CreateRootPanel()
+		{
+			return CreatePanel(new PanelRecord {
+				Id = NextPanelId(MAIN_PANEL_ID),
+				Dock = DockSlot.TopLeft,
+				Path = string.Empty
+			});
 		}
 
 		/// <summary>
@@ -412,11 +423,53 @@ namespace Tekly.DevBoard
 				ToggleVisible();
 			}
 
+			// The same key closes it again
 			if (WasPressed(PaletteKey)) {
-				OpenPalette();
+				if (m_palette.IsOpen) {
+					ClosePalette();
+				} else {
+					OpenPalette();
+				}
 			}
 
+			NoteUsedPanel();
 			m_palette.Update();
+		}
+
+		/// <summary>
+		/// The panel clicked or touched most recently, while it's still showing. Null if there isn't one.
+		/// </summary>
+		public DevBoardPanel LastUsedPanel =>
+			m_lastUsedPanel != null && m_lastUsedPanel.isActiveAndEnabled ? m_lastUsedPanel : null;
+
+		/// <summary>
+		/// Remembers which panel a click or touch began on: the panel above whatever the UI hit there.
+		/// Polled rather than heard through UI events, since the buttons and fields inside a panel take those first.
+		/// A press on a popup, like the palette, hits the popup and changes nothing.
+		/// </summary>
+		private void NoteUsedPanel()
+		{
+			var eventSystem = EventSystem.current;
+
+			if (eventSystem == null || !KeyInput.TryGetPress(out var position)) {
+				return;
+			}
+
+			// Made per press, which is rare enough not to matter, so it never belongs to an old event system
+			var pressData = new PointerEventData(eventSystem) { position = position };
+
+			m_pressHits.Clear();
+			eventSystem.RaycastAll(pressData, m_pressHits);
+
+			if (m_pressHits.Count == 0) {
+				return;
+			}
+
+			var panel = m_pressHits[0].gameObject.GetComponentInParent<DevBoardPanel>();
+
+			if (panel != null) {
+				m_lastUsedPanel = panel;
+			}
 		}
 
 #if ENABLE_INPUT_SYSTEM

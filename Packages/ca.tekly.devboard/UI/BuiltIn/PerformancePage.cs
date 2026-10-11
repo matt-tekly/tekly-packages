@@ -1,3 +1,4 @@
+using System;
 using Tekly.Common.LifeCycles;
 using Tekly.DevBoard.Nodes;
 using Unity.Profiling;
@@ -25,9 +26,9 @@ namespace Tekly.DevBoard.BuiltIn
 		private const int AVERAGED_FRAMES = 30;
 
 		// Values keep these widths, so the columns don't move as numbers change length
-		private const int FRAME_WIDTH = 8;
-		private const int COUNTER_WIDTH = 11;
-		private const int BYTES_WIDTH = 11;
+		private const int FRAME_WIDTH = 7;     // "16.7 ms"
+		private const int COUNTER_WIDTH = 6;   // "999.9K", see Compact
+		private const int BYTES_WIDTH = 10;    // "1,234.5 MB"
 
 		public static void Register(object owner)
 		{
@@ -100,7 +101,7 @@ namespace Tekly.DevBoard.BuiltIn
 		/// </summary>
 		private static void Counter(Segment page, ContainerNode form, string label, ProfilerCategory category, string counter)
 		{
-			Show(page, form, label, category, counter, AVERAGED_FRAMES, 1f, "{0:N0}", COUNTER_WIDTH);
+			Show(page, form, label, category, counter, AVERAGED_FRAMES, Compact, COUNTER_WIDTH);
 		}
 
 		/// <summary>
@@ -110,31 +111,51 @@ namespace Tekly.DevBoard.BuiltIn
 		private static void Bytes(Segment page, ContainerNode form, string label, string counter, float unit, string format,
 			int frames = 1)
 		{
-			Show(page, form, label, ProfilerCategory.Memory, counter, frames, unit, format, BYTES_WIDTH);
+			Show(page, form, label, ProfilerCategory.Memory, counter, frames, value => string.Format(format, value / unit), BYTES_WIDTH);
 		}
 
 		/// <summary>
-		/// Shows a profiler counter divided by unit, read every READ_INTERVAL. Hidden if this player doesn't have
-		/// the counter.
+		/// Shows a profiler counter as text, read every READ_INTERVAL. Hidden if this player doesn't have the
+		/// counter.
 		/// </summary>
 		private static void Show(Segment page, ContainerNode form, string label, ProfilerCategory category, string counter,
-			int frames, float unit, string format, int width)
+			int frames, Func<float, string> toText, int width)
 		{
 			var recorder = Record(page, category, counter, frames);
-			var value = 0f;
+			var text = string.Empty;
 			var nextRead = 0f;
 
 			form.Property(label, () => {
 					if (Time.unscaledTime >= nextRead) {
 						nextRead = Time.unscaledTime + READ_INTERVAL;
-						value = recorder.Valid ? Average(recorder) / unit : 0f;
+						text = toText(recorder.Valid ? Average(recorder) : 0f);
 					}
 
-					return value;
-				}, format)
+					return text;
+				})
 				.WithMonospaced()
 				.WithValueWidth(width)
 				.VisibleWhen(() => recorder.Valid);
+		}
+
+		/// <summary>
+		/// A count in at most six characters: "9,999", "48.2K", "1.3M".
+		/// </summary>
+		private static string Compact(float count)
+		{
+			if (count < 10_000f) {
+				return count.ToString("N0");
+			}
+
+			if (count < 1_000_000f) {
+				return (count / 1_000f).ToString("0.#") + "K";
+			}
+
+			if (count < 1_000_000_000f) {
+				return (count / 1_000_000f).ToString("0.#") + "M";
+			}
+
+			return (count / 1_000_000_000f).ToString("0.#") + "B";
 		}
 
 		/// <summary>

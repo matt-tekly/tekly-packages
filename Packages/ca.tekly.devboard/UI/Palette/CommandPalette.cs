@@ -24,11 +24,18 @@ namespace Tekly.DevBoard.Palette
 	/// Matching is loose (see SearchQuery), and recent picks come first among
 	/// equally good matches, so an empty search starts with them.
 	///
+	/// Chips under the search narrow it to a category in plain words: Pages (pages, their sections and links),
+	/// Actions (things that run), Settings (things you change) and Info (values to read). While searching, each
+	/// shows how many entries match, so it's clear where the matches are before picking one.
+	///
+	/// With nothing typed and no category picked it's a menu: recent picks, then every page, top level first.
+	///
 	/// A searchable list is one entry, not one per row: it has its own search, and its rows may be hidden by it.
 	/// Picking it reveals the list.
 	///
 	/// Opening it doesn't show DevBoard: buttons and toggles can be used over the game with the panels hidden.
-	/// Picks that need a panel (pages, links, reveals) show DevBoard then.
+	/// Picks that need a panel (pages, links, reveals) use one already on screen, like a pinned one, and only
+	/// show DevBoard when there isn't one.
 	/// </summary>
 	internal sealed class CommandPalette
 	{
@@ -40,12 +47,25 @@ namespace Tekly.DevBoard.Palette
 		private const string PATH_SEPARATOR = " › ";
 		private const int MAX_RECENT = 8;
 
+		private const string PAGE_KIND = "page";
+		private const string SECTION_KIND = "section";
+		private const string RECENT = "recent";
+
+		// Rich text for the chips: the picked one in the accent color, counts dimmed
+		private const string CHIP_SELECTED = "<color=#F6C050>{0}</color>";
+		private const string CHIP_COUNT = "{0} <alpha=#80>{1}<alpha=#FF>";
+
+		private static readonly Category[] s_categories = (Category[]) Enum.GetValues(typeof(Category));
+		private static readonly int s_categoryCount = s_categories.Length;
+
 		public bool IsOpen => m_blocker != null;
 
 		private readonly DevBoardUI m_board;
 		private readonly List<Entry> m_entries = new();
 		private readonly List<(int Index, int Score, int Recent)> m_scored = new();
 		private readonly SearchQuery m_query = new();
+		private readonly int[] m_categoryCounts = new int[s_categoryCount];
+		private readonly ButtonWidget[] m_chips = new ButtonWidget[s_categoryCount];
 
 		// Keys of the most recently picked entries, most recent first
 		private readonly List<string> m_recent = new();
@@ -55,6 +75,7 @@ namespace Tekly.DevBoard.Palette
 
 		// Brought back, selected, the next time the palette opens
 		private string m_lastQuery;
+		private Category m_category;
 		private int m_pendingPick = -1;
 		private bool m_pendingReveal;
 		private bool m_closeRequested;
@@ -89,6 +110,7 @@ namespace Tekly.DevBoard.Palette
 			m_popup = UnityEngine.Object.Instantiate(m_board.Get(WidgetPrefabs.DropdownPopup), m_blocker.RectTransform, false);
 			m_popup.Initialize(Choices(), -1, QueuePick, true, WidgetPrefabs.DropdownOption, Filter, m_lastQuery);
 			m_popup.Cancelled += () => m_closeRequested = true;
+			AddChips();
 
 			Place(layer);
 			m_popup.FocusSearch();
@@ -108,6 +130,7 @@ namespace Tekly.DevBoard.Palette
 			}
 
 			m_entries.Clear();
+			Array.Clear(m_chips, 0, m_chips.Length);
 
 			if (m_blocker != null) {
 				ContainerWidget.DestroyWidget(m_blocker.gameObject);
@@ -211,28 +234,46 @@ namespace Tekly.DevBoard.Palette
 		}
 
 		/// <summary>
-		/// The panel most likely to be the one in use: the last interactive panel on screen, or the main panel.
-		/// Shows DevBoard, since whatever asks for a panel is about to show something in it.
+		/// The panel to show a pick in, from those already on screen: the one last clicked or touched, else the last
+		/// interactive one, else the last overlay. Panels pinned to show while DevBoard is hidden count, so using one
+		/// doesn't bring the rest of DevBoard back. With none on screen, shows DevBoard and picks the same way, or
+		/// makes a panel if there are none at all.
 		/// </summary>
 		private DevBoardPanel TargetPanel()
 		{
-			m_board.SetVisible(true);
+			var target = ShownPanel();
 
-			DevBoardPanel target = null;
-
-			foreach (var panel in m_board.Panels) {
-				if (panel != null && !panel.IsOverlay && panel.isActiveAndEnabled) {
-					target = panel;
-				}
+			if (target == null) {
+				m_board.SetVisible(true);
+				target = ShownPanel() ?? m_board.CreateRootPanel();
 			}
-
-			target ??= m_board.Panel(DevBoardUI.MAIN_PANEL_ID);
 
 			if (target != null) {
 				target.SetCollapsed(false);
 			}
 
 			return target;
+		}
+
+		private DevBoardPanel ShownPanel()
+		{
+			return m_board.LastUsedPanel ?? LastShownPanel(false) ?? LastShownPanel(true);
+		}
+
+		/// <summary>
+		/// The last panel on screen in the given mode, or null if there isn't one.
+		/// </summary>
+		private DevBoardPanel LastShownPanel(bool overlay)
+		{
+			DevBoardPanel shown = null;
+
+			foreach (var panel in m_board.Panels) {
+				if (panel != null && panel.IsOverlay == overlay && panel.isActiveAndEnabled) {
+					shown = panel;
+				}
+			}
+
+			return shown;
 		}
 
 		private void CollectEntries()
@@ -243,11 +284,17 @@ namespace Tekly.DevBoard.Palette
 
 			foreach (var page in access.AllPages()) {
 				if (!page.IsRoot) {
-					AddEntry(page, null, page.Title, page.Title, "page", null);
+					AddEntry(page, null, page.Title, page.Title, PAGE_KIND, null, Category.Pages);
 				}
 
 				foreach (var node in access.NodesOn(page)) {
-					var kind = access.KindOf(node);
+					// Titled segments and foldouts are sections to jump to
+					if (node is Segment { Title: not null } segment) {
+						AddEntry(page, node, segment.Title, segment.Title, SECTION_KIND, null, Category.Pages);
+						continue;
+					}
+
+					var kind = node is FoldoutNode { Label: not null } ? SECTION_KIND : access.KindOf(node);
 
 					// Labels have nothing to do, hidden nodes would be confusing to find, and searchable lists are
 					// searched with their own search
@@ -255,12 +302,31 @@ namespace Tekly.DevBoard.Palette
 						continue;
 					}
 
-					AddEntry(page, node, Title(node, kind), node.Label ?? kind, kind, ReadValue(node));
+					AddEntry(page, node, Title(node, kind), node.Label ?? kind, kind, ReadValue(node), CategoryOf(node, kind));
 				}
 			}
 		}
 
-		private void AddEntry(PageNode page, Node node, string title, string name, string kind, string value)
+		/// <summary>
+		/// Which chip a control is under, from what it can do, so custom nodes registered with NodeAccess land
+		/// somewhere sensible too.
+		/// </summary>
+		private static Category CategoryOf(Node node, string kind)
+		{
+			var access = DevBoard.Instance.Access;
+
+			if (kind == SECTION_KIND || node is LinkNode) {
+				return Category.Pages;
+			}
+
+			if (access.CanWrite(node)) {
+				return Category.Settings;
+			}
+
+			return access.CanInvoke(node) ? Category.Actions : Category.Info;
+		}
+
+		private void AddEntry(PageNode page, Node node, string title, string name, string kind, string value, Category category)
 		{
 			var location = Location(page, node);
 			var search = new StringBuilder(title).Append(' ').Append(location).Append(' ').Append(kind);
@@ -282,6 +348,7 @@ namespace Tekly.DevBoard.Palette
 				Title = title,
 				Name = name,
 				Kind = kind,
+				Category = category,
 				Location = location,
 				Value = value,
 				SearchText = search.ToString()
@@ -317,6 +384,10 @@ namespace Tekly.DevBoard.Palette
 					? $"{entry.Kind}{SEPARATOR}{entry.Value}{SEPARATOR}{entry.Location}"
 					: $"{entry.Kind}{SEPARATOR}{entry.Location}";
 
+				if (RecentRank(entry) != int.MaxValue) {
+					subtitle = RECENT + SEPARATOR + subtitle;
+				}
+
 				choices[i] = new DropdownChoice(entry.Title, subtitle);
 			}
 
@@ -324,22 +395,52 @@ namespace Tekly.DevBoard.Palette
 		}
 
 		/// <summary>
-		/// Entries matching the search, best first (see <see cref="SearchQuery"/>), scored on their name, with
-		/// their location, kind, row key, description and keywords as other text. Ties go to recent picks, then
-		/// page order, so an empty search lists recent picks first.
+		/// Entries matching the search and the picked category, best first (see <see cref="SearchQuery"/>), scored
+		/// on their name, with their location, kind, row key, description and keywords as other text. Ties go to
+		/// recent picks, then page order. Counts every category's matches for the chips as it goes.
+		///
+		/// With nothing typed and no category it's the menu: recent picks, then pages, top level first.
 		/// </summary>
 		private void Filter(string query, List<int> matches)
 		{
 			m_query.Set(query);
 			m_scored.Clear();
+			Array.Clear(m_categoryCounts, 0, m_categoryCounts.Length);
+
+			var isMenu = m_query.IsEmpty && m_category == Category.All;
 
 			for (var i = 0; i < m_entries.Count; i++) {
-				var score = m_query.Score(m_entries[i].Name, m_entries[i].SearchText);
+				var entry = m_entries[i];
+				var score = m_query.Score(entry.Name, entry.SearchText);
 
-				if (score != SearchQuery.NO_MATCH) {
-					m_scored.Add((i, score, RecentRank(m_entries[i])));
+				if (score == SearchQuery.NO_MATCH) {
+					continue;
 				}
+
+				m_categoryCounts[(int) Category.All]++;
+				m_categoryCounts[(int) entry.Category]++;
+
+				if (m_category != Category.All && entry.Category != m_category) {
+					continue;
+				}
+
+				var recent = RecentRank(entry);
+
+				if (isMenu) {
+					var isPage = entry.Node == null;
+
+					if (recent == int.MaxValue && !isPage) {
+						continue;
+					}
+
+					// Recent picks first, then pages by depth
+					score = recent != int.MaxValue ? 1 : -Depth(entry.Page);
+				}
+
+				m_scored.Add((i, score, recent));
 			}
+
+			UpdateChips();
 
 			m_scored.Sort((a, b) => {
 				if (a.Score != b.Score) {
@@ -351,6 +452,62 @@ namespace Tekly.DevBoard.Palette
 
 			foreach (var scored in m_scored) {
 				matches.Add(scored.Index);
+			}
+		}
+
+		private static int Depth(PageNode page)
+		{
+			var depth = 0;
+
+			for (var current = page; current != null && !current.IsRoot; current = current.Parent) {
+				depth++;
+			}
+
+			return depth;
+		}
+
+		/// <summary>
+		/// A chip per category, in a row between the search and the list.
+		/// </summary>
+		private void AddChips()
+		{
+			// Tight, so all the chips fit the palette's width
+			var row = m_popup.AddHeader().WithPadding(0).WithSpacing(2);
+
+			foreach (var category in s_categories) {
+				m_chips[(int) category] = row.Button(category.ToString(), () => PickCategory(category));
+			}
+
+			UpdateChips();
+		}
+
+		/// <summary>
+		/// Picking the chip already picked goes back to All.
+		/// </summary>
+		private void PickCategory(Category category)
+		{
+			m_category = category == m_category ? Category.All : category;
+			m_popup.Refilter();
+
+			// Back to typing, without selecting the text so the next key doesn't replace it
+			m_popup.FocusSearch(false);
+		}
+
+		private void UpdateChips()
+		{
+			foreach (var category in s_categories) {
+				var chip = m_chips[(int) category];
+
+				if (chip == null) {
+					continue;
+				}
+
+				// Counts only mean something while searching, and leaving them off otherwise keeps the chips short
+				var label = category == Category.All || m_query.IsEmpty
+					? category.ToString()
+					: string.Format(CHIP_COUNT, category, m_categoryCounts[(int) category]);
+
+				chip.Label = category == m_category ? string.Format(CHIP_SELECTED, label) : label;
 			}
 		}
 
@@ -404,7 +561,8 @@ namespace Tekly.DevBoard.Palette
 
 			var segment = Segment.Of(node);
 
-			if (segment?.Title != null) {
+			// A segment's own entry is titled with it already
+			if (segment?.Title != null && segment != node) {
 				builder.Append(builder.Length > 0 ? PATH_SEPARATOR : string.Empty).Append(segment.Title);
 			}
 
@@ -430,6 +588,15 @@ namespace Tekly.DevBoard.Palette
 			popup.anchoredPosition = new Vector2(0f, -layerRect.height * TOP_FRACTION);
 		}
 
+		private enum Category
+		{
+			All,
+			Pages,
+			Actions,
+			Settings,
+			Info
+		}
+
 		private class Entry
 		{
 			public PageNode Page;
@@ -452,6 +619,7 @@ namespace Tekly.DevBoard.Palette
 			public string Name;
 
 			public string Kind;
+			public Category Category;
 			public string Location;
 			public string Value;
 			public string SearchText;

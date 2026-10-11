@@ -56,7 +56,7 @@ namespace Tekly.DevBoard.Panels
 			var page = m_tree.FindNearest(path);
 			m_waitingPath = page.Path == path ? null : path;
 
-			// An overlay is pinned to its page: rather than show some other page, it hides until the page is back
+			// An overlay waiting for its page hides until the page is back, rather than showing some other page
 			IsWaitingHidden = m_isOverlay() && m_waitingPath != null;
 
 			// Before showing, so a panel coming back from hiding builds the page while active

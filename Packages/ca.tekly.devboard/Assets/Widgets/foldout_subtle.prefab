@@ -364,6 +364,10 @@ PrefabInstance:
       propertyPath: m_targets.Array.data[0].m_layers.Array.data[0].m_colors.Normal.a
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7667526207816569574, guid: 98ae9185e74df18458e16ea144ef6e4f, type: 3}
+      propertyPath: m_targets.Array.data[0].m_layers.Array.data[1].m_colors.Normal.a
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8823438749736223963, guid: 98ae9185e74df18458e16ea144ef6e4f, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

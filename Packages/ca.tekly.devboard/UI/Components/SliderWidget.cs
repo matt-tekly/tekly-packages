@@ -31,6 +31,7 @@ namespace Tekly.DevBoard.Components
 		private string m_format = NumberText.SLIDER_FORMAT;
 		private bool m_valueInLabel;
 		private float m_labelValue = float.NaN;
+		private bool m_settingRange;
 
 		private void Awake()
 		{
@@ -51,9 +52,17 @@ namespace Tekly.DevBoard.Components
 			m_format = NumberText.SliderFormat(null, wholeNumbers);
 			RefreshLabel(true);
 
-			m_slider.wholeNumbers = wholeNumbers;
-			m_slider.minValue = min;
-			m_slider.maxValue = max;
+			// Changing the range can move the value, e.g. a fresh slider at 0 given a minimum of 0.1, and Unity
+			// reports that as a change. It isn't the user's, so it mustn't reach the binding
+			m_settingRange = true;
+
+			try {
+				m_slider.wholeNumbers = wholeNumbers;
+				m_slider.minValue = min;
+				m_slider.maxValue = max;
+			} finally {
+				m_settingRange = false;
+			}
 
 			if (m_valueInput != null) {
 				m_valueInput.WithWholeNumbers(wholeNumbers).WithFormat(m_format);
@@ -114,7 +123,11 @@ namespace Tekly.DevBoard.Components
 
 		private void OnValueChanged(float value)
 		{
-			// Only user drags get here: refreshes use SetValueWithoutNotify
+			if (m_settingRange) {
+				return;
+			}
+
+			// Only user drags get here: refreshes use SetValueWithoutNotify, and range changes are ignored above
 			m_binding?.Write(value);
 
 			// The setter may have clamped or rejected the value, so the next refresh moves the handle to the real one

@@ -183,12 +183,13 @@ namespace Tekly.DevBoard.Components
 		}
 
 		/// <summary>
-		/// Puts the keyboard in the search field, if there is one, with its text selected so typing replaces it.
+		/// Puts the keyboard in the search field, if there is one. With selectAll, its text is selected so typing
+		/// replaces it.
 		/// </summary>
-		public void FocusSearch()
+		public void FocusSearch(bool selectAll = true)
 		{
 			if (m_search != null && m_search.gameObject.activeInHierarchy) {
-				m_search.Focus();
+				m_search.Focus(selectAll);
 			}
 		}
 
@@ -240,6 +241,27 @@ namespace Tekly.DevBoard.Components
 			if (query != m_query) {
 				Filter(query);
 			}
+		}
+
+		/// <summary>
+		/// Adds a row between the search field and the list, for controls that change what's listed, like the
+		/// command palette's category chips. Call Refilter when they change it.
+		/// </summary>
+		public ContainerWidget AddHeader()
+		{
+			var row = Instantiate(DevBoardUI.Instance.Get(WidgetPrefabs.Row), m_list.transform.parent, false);
+			row.transform.SetSiblingIndex(m_list.transform.GetSiblingIndex());
+
+			return row;
+		}
+
+		/// <summary>
+		/// Runs the search again, for when what a custom filter keeps has changed.
+		/// </summary>
+		public void Refilter()
+		{
+			Filter(m_query);
+			ShowSelection();
 		}
 
 		/// <summary>

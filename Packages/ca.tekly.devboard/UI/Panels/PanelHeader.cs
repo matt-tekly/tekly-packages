@@ -31,7 +31,7 @@ namespace Tekly.DevBoard.Panels
 			public GameObject HeaderSettings;
 			public ButtonWidget PopButton;
 			public LeafRadioGroup DockGroup;
-			public ButtonWidget OverlayButton;
+			public LeafToggle OverlayToggle;
 			public LeafToggle ShowWhenHiddenToggle;
 			public ButtonWidget CloseButton;
 		}
@@ -46,7 +46,6 @@ namespace Tekly.DevBoard.Panels
 
 			Wire(parts.OverlayHandle, () => m_panel.Defer(() => m_panel.SetOverlay(false)));
 			Wire(parts.PopButton, MenuAction(() => m_panel.PopOut()));
-			Wire(parts.OverlayButton, MenuAction(() => m_panel.SetOverlay(true)));
 			Wire(parts.CloseButton, MenuAction(m_panel.Close));
 
 			if (parts.ActionsToggle != null) {
@@ -63,6 +62,10 @@ namespace Tekly.DevBoard.Panels
 
 			if (parts.ShowWhenHiddenToggle != null) {
 				parts.ShowWhenHiddenToggle.onValueChanged.AddListener(OnShowWhenHiddenToggleChanged);
+			}
+
+			if (parts.OverlayToggle != null) {
+				parts.OverlayToggle.onValueChanged.AddListener(OnOverlayToggleChanged);
 			}
 
 			SetSettingsOpen(false);
@@ -90,10 +93,15 @@ namespace Tekly.DevBoard.Panels
 		}
 
 		/// <summary>
-		/// In overlay mode the header gives way to a small handle, if the prefab has one, and settings close.
+		/// In overlay mode the header gives way to a small handle, if the prefab has one, and settings close with it.
+		/// Without a handle the header stays as it is, settings included.
 		/// </summary>
 		public void ApplyOverlay(bool overlay)
 		{
+			if (m_parts.OverlayToggle != null) {
+				m_parts.OverlayToggle.SetIsOnWithoutNotify(overlay);
+			}
+
 			var showHandle = overlay && m_parts.OverlayHandle != null;
 
 			if (m_parts.Header != null) {
@@ -104,7 +112,7 @@ namespace Tekly.DevBoard.Panels
 				m_parts.OverlayHandle.gameObject.SetActive(showHandle);
 			}
 
-			if (overlay) {
+			if (showHandle) {
 				SetSettingsOpen(false);
 			}
 		}
@@ -165,6 +173,10 @@ namespace Tekly.DevBoard.Panels
 			if (m_parts.ShowWhenHiddenToggle != null) {
 				m_parts.ShowWhenHiddenToggle.onValueChanged.RemoveListener(OnShowWhenHiddenToggleChanged);
 			}
+
+			if (m_parts.OverlayToggle != null) {
+				m_parts.OverlayToggle.onValueChanged.RemoveListener(OnOverlayToggleChanged);
+			}
 		}
 
 		/// <summary>
@@ -190,6 +202,11 @@ namespace Tekly.DevBoard.Panels
 		private void OnShowWhenHiddenToggleChanged(bool isOn)
 		{
 			m_panel.Defer(() => m_panel.SetShowWhenHidden(isOn));
+		}
+
+		private void OnOverlayToggleChanged(bool isOn)
+		{
+			m_panel.Defer(() => m_panel.SetOverlay(isOn));
 		}
 
 		/// <summary>

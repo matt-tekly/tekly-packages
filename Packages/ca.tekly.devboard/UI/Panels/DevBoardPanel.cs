@@ -24,8 +24,9 @@ namespace Tekly.DevBoard.Panels
 	/// Panels are instances of the "panel" widget prefab. The prefab provides the frame, header, actions row and
 	/// body; the panel fills the body with pages and keeps the header in sync.
 	///
-	/// Interactive panels are for navigating. Overlay panels are pinned to one page: the body lets touches through
-	/// to the game, refreshes less often, and the header shrinks to a handle that switches back to interactive.
+	/// Interactive panels are for navigating. Overlay panels show their page over the game: the body lets touches
+	/// through, refreshes less often, and the header shrinks to a handle that switches back to interactive. An
+	/// overlay whose page goes away hides until it's back, rather than showing the page above it.
 	///
 	/// The work is split three ways: PanelHeader runs the header, PageHost the pages in the body, and
 	/// PanelNavigation which page is wanted. This class holds the panel's state and ties them together.
@@ -33,8 +34,8 @@ namespace Tekly.DevBoard.Panels
 	public class DevBoardPanel : Widget, ITickHost, IViewHost
 	{
 		public const float OVERLAY_TICK_RATE = 10f;
-
 		private const float OVERLAY_ALPHA = 0.85f;
+
 		private const float MAX_HEIGHT_FRACTION = 0.85f;
 
 		private const float FLASH_TIME = 0.8f;
@@ -94,7 +95,8 @@ namespace Tekly.DevBoard.Panels
 		[SerializeField] private ButtonWidget m_popButton;
 		[Tooltip("Picks the dock slot. Each option needs a DockSlotOption saying which slot it is")]
 		[SerializeField] private LeafRadioGroup m_dockGroup;
-		[SerializeField] private ButtonWidget m_overlayButton;
+		[Tooltip("Optional. Switches the panel between interactive and overlay")]
+		[SerializeField] private LeafToggle m_overlayToggle;
 
 		[Tooltip("On while the panel stays on screen when DevBoard is hidden")]
 		[SerializeField] private LeafToggle m_showWhenHiddenToggle;
@@ -348,7 +350,7 @@ namespace Tekly.DevBoard.Panels
 				HeaderSettings = m_headerSettings,
 				PopButton = m_popButton,
 				DockGroup = m_dockGroup,
-				OverlayButton = m_overlayButton,
+				OverlayToggle = m_overlayToggle,
 				ShowWhenHiddenToggle = m_showWhenHiddenToggle,
 				CloseButton = m_closeButton
 			});
