@@ -50,7 +50,7 @@ namespace Tekly.DevBoard.Nodes
 		/// choices shows as no choice.
 		/// </summary>
 		public static DropdownNode Dropdown<T>(this ContainerNode parent, string label, IReadOnlyList<T> choices,
-			Func<T, DropdownChoice> getChoice, Func<T> getValue, Action<T> setValue, WidgetPrefab<DropdownWidget> prefab = default)
+			Func<T, DropdownChoice> getChoice, Func<T> getValue, Action<T> setValue, Style<DropdownNode> style = default)
 		{
 			var comparer = EqualityComparer<T>.Default;
 
@@ -67,7 +67,7 @@ namespace Tekly.DevBoard.Nodes
 
 			var index = new Binding<int>(() => IndexOf(getValue()), i => setValue(choices[i]));
 			var node = parent.Add(new DropdownNode(label, () => choices.Count, i => getChoice(choices[i]), index));
-			node.SetPrefab(prefab.Name);
+			node.SetStyle(style.Name);
 
 			return node;
 		}
@@ -76,25 +76,25 @@ namespace Tekly.DevBoard.Nodes
 		/// A dropdown over a list of items, each shown as a line of text from getText.
 		/// </summary>
 		public static DropdownNode Dropdown<T>(this ContainerNode parent, string label, IReadOnlyList<T> choices,
-			Func<T, string> getText, Func<T> getValue, Action<T> setValue, WidgetPrefab<DropdownWidget> prefab = default)
+			Func<T, string> getText, Func<T> getValue, Action<T> setValue, Style<DropdownNode> style = default)
 		{
-			return parent.Dropdown(label, choices, item => new DropdownChoice(getText(item)), getValue, setValue, prefab);
+			return parent.Dropdown(label, choices, item => new DropdownChoice(getText(item)), getValue, setValue, style);
 		}
 
 		public static DropdownNode Dropdown(this ContainerNode parent, string label, IReadOnlyList<string> choices,
-			Func<string> getValue, Action<string> setValue, WidgetPrefab<DropdownWidget> prefab = default)
+			Func<string> getValue, Action<string> setValue, Style<DropdownNode> style = default)
 		{
-			return parent.Dropdown(label, choices, s => s, getValue, setValue, prefab);
+			return parent.Dropdown(label, choices, s => s, getValue, setValue, style);
 		}
 
 		/// <summary>
 		/// A dropdown over every value of an enum.
 		/// </summary>
 		public static DropdownNode Dropdown<TEnum>(this ContainerNode parent, string label, Func<TEnum> getValue,
-			Action<TEnum> setValue, WidgetPrefab<DropdownWidget> prefab = default) where TEnum : struct, Enum
+			Action<TEnum> setValue, Style<DropdownNode> style = default) where TEnum : struct, Enum
 		{
 			var values = (TEnum[]) Enum.GetValues(typeof(TEnum));
-			return parent.Dropdown(label, values, v => v.ToString(), getValue, setValue, prefab);
+			return parent.Dropdown(label, values, v => v.ToString(), getValue, setValue, style);
 		}
 	}
 }

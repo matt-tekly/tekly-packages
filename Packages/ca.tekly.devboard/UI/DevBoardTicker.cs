@@ -13,7 +13,7 @@ namespace Tekly.DevBoard
 
 		private void Update()
 		{
-			DevBoard.Instance.UpdateKeys();
+			DevBoardUI.Instance.UpdateKeys();
 			TickGroup.Tick();
 		}
 

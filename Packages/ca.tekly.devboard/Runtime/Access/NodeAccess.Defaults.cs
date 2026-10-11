@@ -1,7 +1,5 @@
 using System;
 using System.Globalization;
-using Tekly.DevBoard.Components;
-using Tekly.DevBoard.Components.Inputs;
 using Tekly.DevBoard.Nodes;
 
 namespace Tekly.DevBoard.Access
@@ -50,9 +48,9 @@ namespace Tekly.DevBoard.Access
 				});
 
 			Register<NumberInputNode>("number",
-				read: node => NumberInputWidget.FormatNumber(node.Binding.Read(), node.WholeNumbers, node.Format),
+				read: node => NumberText.FormatNumber(node.Binding.Read(), node.WholeNumbers, node.Format),
 				write: (node, text) => {
-					if (!NumberInputWidget.TryParseNumber(text, node.WholeNumbers, out var value)) {
+					if (!NumberText.TryParse(text, node.WholeNumbers, out var value)) {
 						return node.WholeNumbers ? $"'{text}' isn't a whole number" : $"'{text}' isn't a number";
 					}
 
@@ -61,13 +59,13 @@ namespace Tekly.DevBoard.Access
 				});
 
 			Register<SliderNode>("slider",
-				read: node => SliderWidget.FormatValue(node.Binding.Read(), node.WholeNumbers, node.Format),
+				read: node => NumberText.FormatSlider(node.Binding.Read(), node.WholeNumbers, node.Format),
 				write: (node, text) => {
-					if (!NumberInputWidget.TryParseNumber(text, false, out var value)) {
+					if (!NumberText.TryParse(text, false, out var value)) {
 						return $"'{text}' isn't a number";
 					}
 
-					node.Binding.Write(SliderWidget.ClampValue(value, node.Min, node.Max, node.WholeNumbers));
+					node.Binding.Write(NumberText.ClampSlider(value, node.Min, node.Max, node.WholeNumbers));
 					return null;
 				});
 

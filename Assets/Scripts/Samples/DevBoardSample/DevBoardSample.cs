@@ -64,21 +64,20 @@ namespace TeklySample.Samples.DevBoardSample
 			m_items.Sort();
 			m_item = m_items[0];
 
-			var devBoard = DevBoard.Instance;
+			// Each section is a segment of the same page, in order. All are removed when this GameObject is destroyed.
+			// In builds without DevBoard these calls are removed by the compiler
+			DevBoard.Page(CONTROLS, Labels, "Labels and Properties", 0, owner: gameObject);
+			DevBoard.Page(CONTROLS, Buttons, "Buttons", 1, owner: gameObject);
+			DevBoard.Page(CONTROLS, Toggles, "Toggles", 2, owner: gameObject);
+			DevBoard.Page(CONTROLS, TextInputs, "Text Inputs", 3, owner: gameObject);
+			DevBoard.Page(CONTROLS, NumberInputs, "Number Inputs", 4, owner: gameObject);
+			DevBoard.Page(CONTROLS, Sliders, "Sliders", 5, owner: gameObject);
+			DevBoard.Page(CONTROLS, Dropdowns, "Dropdowns", 6, owner: gameObject);
+			DevBoard.Page(CONTROLS, Layout, "Layout", 7, owner: gameObject);
+			DevBoard.Page(CONTROLS, Search, "Search", 8, owner: gameObject);
+			DevBoard.Page(CONTROLS, Data, "Data", 9, owner: gameObject);
 
-			// Each section is a segment of the same page, in order. All are removed when this GameObject is destroyed
-			devBoard.Page(CONTROLS, Labels, "Labels and Properties", 0).BindTo(gameObject);
-			devBoard.Page(CONTROLS, Buttons, "Buttons", 1).BindTo(gameObject);
-			devBoard.Page(CONTROLS, Toggles, "Toggles", 2).BindTo(gameObject);
-			devBoard.Page(CONTROLS, TextInputs, "Text Inputs", 3).BindTo(gameObject);
-			devBoard.Page(CONTROLS, NumberInputs, "Number Inputs", 4).BindTo(gameObject);
-			devBoard.Page(CONTROLS, Sliders, "Sliders", 5).BindTo(gameObject);
-			devBoard.Page(CONTROLS, Dropdowns, "Dropdowns", 6).BindTo(gameObject);
-			devBoard.Page(CONTROLS, Layout, "Layout", 7).BindTo(gameObject);
-			devBoard.Page(CONTROLS, Search, "Search", 8).BindTo(gameObject);
-			devBoard.Page(CONTROLS, Data, "Data", 9).BindTo(gameObject);
-
-			devBoard.Page("Sample/Leaf", page => {
+			DevBoard.Page("Sample/Leaf", page => {
 				page.Toggle("Input Disabled", () => m_isHoldingInput, value => {
 					if (value == m_isHoldingInput) {
 						return;
@@ -92,7 +91,7 @@ namespace TeklySample.Samples.DevBoardSample
 						LeafCore.Instance.DisableInput.Release(this);
 					}
 				});
-			}).BindTo(gameObject);
+			}, owner: gameObject);
 		}
 
 		private void Labels(Segment page)

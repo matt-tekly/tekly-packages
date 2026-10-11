@@ -83,7 +83,7 @@ namespace Tekly.DevBoard.Components
 		{
 			// Widgets inside this foldout get their state keys scoped under it
 			StateScope = key;
-			UseFullStateKey(DevBoardState.KeyFor(this, key));
+			UseFullStateKey(WidgetState.KeyFor(this, key));
 		}
 
 		private bool TryGetSavedExpanded(out bool expanded)

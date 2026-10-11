@@ -138,14 +138,14 @@ namespace Tekly.DevBoard.Components
 		{
 			Close();
 
-			var layer = DevBoard.Instance?.PopupLayer;
+			var layer = DevBoardUI.Instance?.PopupLayer;
 
 			if (layer == null || !isActiveAndEnabled) {
 				return;
 			}
 
 			m_blocker = PopupBlocker.Create(layer, $"Dropdown {name}", RequestClose);
-			m_popup = Instantiate(DevBoard.Instance.Get<DropdownPopup>(m_popupPrefab), m_blocker.RectTransform, false);
+			m_popup = Instantiate(DevBoardUI.Instance.Get<DropdownPopup>(m_popupPrefab), m_blocker.RectTransform, false);
 			var choices = new DropdownChoice[m_getCount()];
 
 			for (var i = 0; i < choices.Length; i++) {

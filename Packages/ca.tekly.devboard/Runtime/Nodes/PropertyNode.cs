@@ -1,5 +1,4 @@
 using System;
-using Tekly.DevBoard.Components;
 
 namespace Tekly.DevBoard.Nodes
 {
@@ -62,25 +61,25 @@ namespace Tekly.DevBoard.Nodes
 		/// Shows the value of getValue with format, updating as it changes.
 		/// </summary>
 		public static PropertyNode Property<T>(this ContainerNode parent, string label, Func<T> getValue, string format = "{0}",
-			WidgetPrefab<PropertyWidget> prefab = default)
+			Style<PropertyNode> style = default)
 		{
-			return parent.Property(label, new Binding<T>(getValue), format, prefab);
+			return parent.Property(label, new Binding<T>(getValue), format, style);
 		}
 
 		/// <summary>
 		/// Shows a float, skipping the redraw while it stays within epsilon of the last value shown.
 		/// </summary>
 		public static PropertyNode Property(this ContainerNode parent, string label, Func<float> getValue, float epsilon,
-			string format = "{0}", WidgetPrefab<PropertyWidget> prefab = default)
+			string format = "{0}", Style<PropertyNode> style = default)
 		{
-			return parent.Property(label, new Binding<float>(getValue, isSame: BindingCompare.Within(epsilon)), format, prefab);
+			return parent.Property(label, new Binding<float>(getValue, isSame: BindingCompare.Within(epsilon)), format, style);
 		}
 
 		public static PropertyNode Property<T>(this ContainerNode parent, string label, Binding<T> binding, string format = "{0}",
-			WidgetPrefab<PropertyWidget> prefab = default)
+			Style<PropertyNode> style = default)
 		{
 			var node = parent.Add(new PropertyNode<T>(label, binding, format));
-			node.SetPrefab(prefab.Name);
+			node.SetStyle(style.Name);
 
 			return node;
 		}

@@ -66,7 +66,7 @@ namespace Tekly.DevBoard.Panels
 		private readonly TickGroup m_tickGroup = new();
 		private readonly List<Action> m_deferred = new();
 
-		private DevBoard m_board;
+		private DevBoardUI m_board;
 		private DevBoardDock m_dock;
 		private PanelHeader m_panelHeader;
 		private PageHost m_pages;
@@ -133,7 +133,7 @@ namespace Tekly.DevBoard.Panels
 			return this;
 		}
 
-		internal static DevBoardPanel Create(DevBoard board, DevBoardDock dock, DevBoardPanel prefab, PanelRecord record)
+		internal static DevBoardPanel Create(DevBoardUI board, DevBoardDock dock, DevBoardPanel prefab, PanelRecord record)
 		{
 			var panel = Instantiate(prefab, dock.GetSlot(record.Dock), false);
 			panel.name = $"Panel {record.Id}";
@@ -354,7 +354,7 @@ namespace Tekly.DevBoard.Panels
 			});
 		}
 
-		private void Setup(DevBoard board, DevBoardDock dock, PanelRecord record)
+		private void Setup(DevBoardUI board, DevBoardDock dock, PanelRecord record)
 		{
 			FindParts();
 
@@ -366,11 +366,11 @@ namespace Tekly.DevBoard.Panels
 			ShowWhenHidden = record.ShowWhenHidden;
 			m_panelHeader.ShowShowWhenHidden(ShowWhenHidden);
 
-			m_pages = new PageHost(board.Pages, m_body, board.Renderers, new ViewContext(this),
+			m_pages = new PageHost(DevBoard.Instance.Pages, m_body, board.Renderers, new ViewContext(this),
 				path => Defer(() => Open(path)),
 				path => m_navigation.CurrentPageRemoved(path));
 
-			m_navigation = new PanelNavigation(board.Pages, m_pages, () => IsOverlay, OnShownChanged, m_board.SavePanels);
+			m_navigation = new PanelNavigation(DevBoard.Instance.Pages, m_pages, () => IsOverlay, OnShownChanged, m_board.SavePanels);
 
 			ApplyOverlay(record.Overlay);
 			ApplyCollapsed(record.Collapsed);

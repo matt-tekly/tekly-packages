@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
-using Tekly.DevBoard.Components;
 using Tekly.Trellis;
 using UnityEngine;
 
 namespace Tekly.DevBoard.Nodes
 {
 	/// <summary>
-	/// How a container lays out its children. Renderers pick how each looks; a container's Prefab overrides it in
-	/// the panels.
+	/// How a container lays out its children. Front ends pick how each looks; a container's Style overrides it.
 	/// </summary>
 	public enum ContainerKind
 	{
@@ -333,39 +331,39 @@ namespace Tekly.DevBoard.Nodes
 		/// <summary>
 		/// A container with a background, for grouping widgets.
 		/// </summary>
-		public static ContainerNode Card(this ContainerNode parent, WidgetPrefab<ContainerWidget> prefab = default)
+		public static ContainerNode Card(this ContainerNode parent, Style<ContainerNode> style = default)
 		{
-			return parent.Add(Container(ContainerKind.Card, prefab));
+			return parent.Add(Container(ContainerKind.Card, style));
 		}
 
 		/// <summary>
 		/// A vertical list of labelled controls, with their labels lined up.
 		/// </summary>
-		public static ContainerNode Form(this ContainerNode parent, WidgetPrefab<ContainerWidget> prefab = default)
+		public static ContainerNode Form(this ContainerNode parent, Style<ContainerNode> style = default)
 		{
-			return parent.Add(Container(ContainerKind.Form, prefab));
+			return parent.Add(Container(ContainerKind.Form, style));
 		}
 
 		/// <summary>
 		/// Lays nodes out side by side.
 		/// </summary>
-		public static ContainerNode Row(this ContainerNode parent, WidgetPrefab<ContainerWidget> prefab = default)
+		public static ContainerNode Row(this ContainerNode parent, Style<ContainerNode> style = default)
 		{
-			return parent.Add(Container(ContainerKind.Row, prefab));
+			return parent.Add(Container(ContainerKind.Row, style));
 		}
 
 		/// <summary>
 		/// A plain vertical group, with no background.
 		/// </summary>
-		public static ContainerNode Stack(this ContainerNode parent, WidgetPrefab<ContainerWidget> prefab = default)
+		public static ContainerNode Stack(this ContainerNode parent, Style<ContainerNode> style = default)
 		{
-			return parent.Add(Container(ContainerKind.Stack, prefab));
+			return parent.Add(Container(ContainerKind.Stack, style));
 		}
 
-		private static ContainerNode Container(ContainerKind kind, WidgetPrefab<ContainerWidget> prefab)
+		private static ContainerNode Container(ContainerKind kind, Style<ContainerNode> style)
 		{
 			var container = new ContainerNode(kind);
-			container.SetPrefab(prefab.Name);
+			container.SetStyle(style.Name);
 
 			return container;
 		}

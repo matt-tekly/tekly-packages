@@ -1,5 +1,3 @@
-using Tekly.DevBoard.Components;
-
 namespace Tekly.DevBoard.Nodes
 {
 	/// <summary>
@@ -14,10 +12,10 @@ namespace Tekly.DevBoard.Nodes
 
 	public static class DividerNodeFactory
 	{
-		public static DividerNode Divider(this ContainerNode parent, WidgetPrefab<DividerWidget> prefab = default)
+		public static DividerNode Divider(this ContainerNode parent, Style<DividerNode> style = default)
 		{
 			var node = parent.Add(new DividerNode());
-			node.SetPrefab(prefab.Name);
+			node.SetStyle(style.Name);
 
 			return node;
 		}

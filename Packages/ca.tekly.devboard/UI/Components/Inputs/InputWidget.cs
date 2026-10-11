@@ -6,19 +6,6 @@ using UnityEngine;
 namespace Tekly.DevBoard.Components.Inputs
 {
 	/// <summary>
-	/// When an <see cref="InputWidget{T}"/> pushes typed text to its setter.
-	/// </summary>
-	public enum InputMode
-	{
-		/// Every edit, applied on the next Tick.
-		Immediate,
-		/// Only when editing ends: Enter, clicking away or deselecting.
-		Delayed,
-		/// Once typing pauses for a moment, and when editing ends.
-		Debounced
-	}
-
-	/// <summary>
 	/// An input field bound to a value of type T through a getter and setter. Subclasses convert between
 	/// the field's text and T; text that doesn't parse is never pushed to the setter.
 	/// </summary>

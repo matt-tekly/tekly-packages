@@ -1,5 +1,4 @@
 using System;
-using Tekly.DevBoard.Components;
 
 namespace Tekly.DevBoard.Nodes
 {
@@ -16,16 +15,16 @@ namespace Tekly.DevBoard.Nodes
 	public static class ToggleNodeFactory
 	{
 		public static ToggleNode Toggle(this ContainerNode parent, string label, Func<bool> getValue, Action<bool> setValue,
-			WidgetPrefab<ToggleWidget> prefab = default)
+			Style<ToggleNode> style = default)
 		{
-			return parent.Toggle(label, new Binding<bool>(getValue, setValue), prefab);
+			return parent.Toggle(label, new Binding<bool>(getValue, setValue), style);
 		}
 
 		public static ToggleNode Toggle(this ContainerNode parent, string label, Binding<bool> binding,
-			WidgetPrefab<ToggleWidget> prefab = default)
+			Style<ToggleNode> style = default)
 		{
 			var node = parent.Add(new ToggleNode(label, binding));
-			node.SetPrefab(prefab.Name);
+			node.SetStyle(style.Name);
 
 			return node;
 		}

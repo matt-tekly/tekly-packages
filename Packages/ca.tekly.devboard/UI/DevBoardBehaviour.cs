@@ -131,7 +131,7 @@ namespace Tekly.DevBoard
 			}
 
 			// Null outside of play mode
-			return DevBoard.Instance?.DefaultTickGroup;
+			return DevBoardUI.Instance?.DefaultTickGroup;
 		}
 
 		private static bool OverridesTick(Type type)

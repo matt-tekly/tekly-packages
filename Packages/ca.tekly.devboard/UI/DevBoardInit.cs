@@ -26,14 +26,14 @@ namespace Tekly.DevBoard
 
 		private void Awake()
 		{
-			var devBoard = DevBoard.Instance;
+			var devBoard = DevBoardUI.Instance;
 			devBoard.ToggleKey = m_toggleKey;
 			devBoard.SetVisible(!m_startHidden);
 			devBoard.AddAssets(m_assets);
 			devBoard.RestorePanels();
 
 			if (m_createMainPanel && devBoard.Panels.Count == 0) {
-				devBoard.Panel(DevBoard.MAIN_PANEL_ID);
+				devBoard.Panel(DevBoardUI.MAIN_PANEL_ID);
 			}
 		}
 	}

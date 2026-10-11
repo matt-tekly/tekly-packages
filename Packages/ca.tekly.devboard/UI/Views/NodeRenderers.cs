@@ -11,7 +11,7 @@ namespace Tekly.DevBoard.Views
 	/// A node uses the registration for its own type, or failing that its nearest base type, so registering a
 	/// built-in node type again replaces how it renders.
 	///
-	/// A node's Prefab, when set, is created instead of the registration's prefab.
+	/// A node's Style, when set, is the name of the prefab created instead of the registration's.
 	///
 	/// A bind sets everything about the widget that the node decides, including settings left at their defaults,
 	/// rather than only what differs from the prefab. That keeps the door open to reusing widgets: a reused widget
@@ -41,7 +41,7 @@ namespace Tekly.DevBoard.Views
 			Action<TNode, TWidget, ViewContext> bind) where TNode : Node where TWidget : Widget
 		{
 			RegisterFactory<TNode, TWidget>((node, parent) => {
-				var chosen = node.Prefab != null ? new WidgetPrefab<TWidget>(node.Prefab) : prefab(node, parent);
+				var chosen = node.Style != null ? new WidgetPrefab<TWidget>(node.Style) : prefab(node, parent);
 				return parent.Create(chosen);
 			}, bind);
 		}

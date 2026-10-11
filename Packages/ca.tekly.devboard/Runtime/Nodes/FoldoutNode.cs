@@ -1,5 +1,3 @@
-using Tekly.DevBoard.Components;
-
 namespace Tekly.DevBoard.Nodes
 {
 	/// <summary>
@@ -28,10 +26,10 @@ namespace Tekly.DevBoard.Nodes
 
 	public static class FoldoutNodeFactory
 	{
-		public static FoldoutNode Foldout(this ContainerNode parent, string label, WidgetPrefab<FoldoutWidget> prefab = default)
+		public static FoldoutNode Foldout(this ContainerNode parent, string label, Style<FoldoutNode> style = default)
 		{
 			var node = parent.Add(new FoldoutNode(label));
-			node.SetPrefab(prefab.Name);
+			node.SetStyle(style.Name);
 
 			return node;
 		}

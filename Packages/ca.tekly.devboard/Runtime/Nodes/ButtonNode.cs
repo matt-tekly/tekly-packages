@@ -1,5 +1,4 @@
 using System;
-using Tekly.DevBoard.Components;
 using Tekly.DevBoard.Pages;
 
 namespace Tekly.DevBoard.Nodes
@@ -33,10 +32,10 @@ namespace Tekly.DevBoard.Nodes
 
 	public static class ButtonNodeFactory
 	{
-		public static ButtonNode Button(this ContainerNode parent, string label, Action action, WidgetPrefab<ButtonWidget> prefab = default)
+		public static ButtonNode Button(this ContainerNode parent, string label, Action action, Style<ButtonNode> style = default)
 		{
 			var node = parent.Add(new ButtonNode(label, action));
-			node.SetPrefab(prefab.Name);
+			node.SetStyle(style.Name);
 
 			return node;
 		}
@@ -44,10 +43,10 @@ namespace Tekly.DevBoard.Nodes
 		/// <summary>
 		/// A button that opens the page at path in the panel it's clicked in.
 		/// </summary>
-		public static LinkNode Link(this ContainerNode parent, string label, string path, WidgetPrefab<ButtonWidget> prefab = default)
+		public static LinkNode Link(this ContainerNode parent, string label, string path, Style<LinkNode> style = default)
 		{
 			var node = parent.Add(new LinkNode(label, path));
-			node.SetPrefab(prefab.Name);
+			node.SetStyle(style.Name);
 
 			return node;
 		}

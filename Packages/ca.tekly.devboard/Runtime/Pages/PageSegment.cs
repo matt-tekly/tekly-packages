@@ -5,12 +5,18 @@ using UnityEngine;
 namespace Tekly.DevBoard.Pages
 {
 	/// <summary>
-	/// A piece of content on a page, returned by DevBoard.Page. Several segments can share a path: they appear one
+	/// A piece of content on a page, returned by DevBoard.AddPage. Several segments can share a path: they appear one
 	/// after another on the same page. Dispose it to remove it, e.g. when the part of the game that registered it
 	/// unloads. Disposing more than once, or after DevBoard has shut down, does nothing.
 	/// </summary>
 	public sealed class PageSegment : IDisposable
 	{
+		/// <summary>
+		/// What AddPage returns in builds without DevBoard: already removed, never built, and disposing it does
+		/// nothing.
+		/// </summary>
+		public static PageSegment Inert { get; } = new(null, string.Empty, null, 0, 0, null) { IsDisposed = true };
+
 		public string Path { get; }
 
 		/// <summary>
@@ -68,7 +74,7 @@ namespace Tekly.DevBoard.Pages
 			}
 
 			IsDisposed = true;
-			m_tree.Remove(this);
+			m_tree?.Remove(this);
 		}
 
 		/// <summary>
@@ -86,16 +92,16 @@ namespace Tekly.DevBoard.Pages
 		/// </summary>
 		public PageSegment BindTo(GameObject owner)
 		{
+			if (IsDisposed) {
+				return this;
+			}
+
 			if (owner == null) {
 				Dispose();
 				return this;
 			}
 
-			if (!owner.TryGetComponent(out PageSegmentBinding binding)) {
-				binding = owner.AddComponent<PageSegmentBinding>();
-			}
-
-			binding.Add(this);
+			PageSegmentBinding.Get(owner).Add(this);
 			return this;
 		}
 	}

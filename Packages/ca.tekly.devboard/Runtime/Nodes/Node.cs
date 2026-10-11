@@ -79,9 +79,10 @@ namespace Tekly.DevBoard.Nodes
 		public string Description { get; private set; }
 
 		/// <summary>
-		/// The registered prefab to render with, instead of the usual one for this kind of node. Null for the usual.
+		/// The name of the look to show the node in, instead of its usual one; see <see cref="Style{TNode}"/>. Null
+		/// for the usual look.
 		/// </summary>
-		public string Prefab { get; private set; }
+		public string Style { get; private set; }
 
 		/// <summary>
 		/// Polled by panels showing the node. Null means always visible.
@@ -141,10 +142,10 @@ namespace Tekly.DevBoard.Nodes
 			}
 		}
 
-		internal void SetPrefab(string prefab)
+		internal void SetStyle(string style)
 		{
 			EnsureEditable();
-			Prefab = prefab;
+			Style = style;
 		}
 
 		internal void SetDescription(string description)

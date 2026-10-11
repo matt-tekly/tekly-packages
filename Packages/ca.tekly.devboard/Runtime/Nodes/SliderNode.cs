@@ -1,5 +1,4 @@
 using System;
-using Tekly.DevBoard.Components;
 using UnityEngine;
 
 namespace Tekly.DevBoard.Nodes
@@ -63,16 +62,16 @@ namespace Tekly.DevBoard.Nodes
 	public static class SliderNodeFactory
 	{
 		public static SliderNode Slider(this ContainerNode parent, string label, float min, float max, Func<float> getValue,
-			Action<float> setValue, WidgetPrefab<SliderWidget> prefab = default)
+			Action<float> setValue, Style<SliderNode> style = default)
 		{
-			return parent.Slider(label, min, max, new Binding<float>(getValue, setValue), prefab);
+			return parent.Slider(label, min, max, new Binding<float>(getValue, setValue), style);
 		}
 
 		public static SliderNode Slider(this ContainerNode parent, string label, float min, float max, Binding<float> binding,
-			WidgetPrefab<SliderWidget> prefab = default)
+			Style<SliderNode> style = default)
 		{
 			var node = parent.Add(new SliderNode(label, min, max, false, binding));
-			node.SetPrefab(prefab.Name);
+			node.SetStyle(style.Name);
 
 			return node;
 		}
@@ -81,11 +80,11 @@ namespace Tekly.DevBoard.Nodes
 		/// A slider that snaps to whole numbers.
 		/// </summary>
 		public static SliderNode SliderInt(this ContainerNode parent, string label, int min, int max, Func<int> getValue,
-			Action<int> setValue, WidgetPrefab<SliderWidget> prefab = default)
+			Action<int> setValue, Style<SliderNode> style = default)
 		{
 			var binding = new Binding<int>(getValue, setValue).Convert(value => (float) value, Mathf.RoundToInt);
 			var node = parent.Add(new SliderNode(label, min, max, true, binding));
-			node.SetPrefab(prefab.Name);
+			node.SetStyle(style.Name);
 
 			return node;
 		}

@@ -127,47 +127,47 @@ namespace Tekly.DevBoard.Nodes
 	public static class InputNodeFactory
 	{
 		public static TextInputNode TextInput(this ContainerNode parent, string label, Func<string> getValue, Action<string> setValue,
-			WidgetPrefab<TextInputWidget> prefab = default)
+			Style<TextInputNode> style = default)
 		{
-			return parent.TextInput(label, new Binding<string>(getValue, setValue), prefab);
+			return parent.TextInput(label, new Binding<string>(getValue, setValue), style);
 		}
 
 		public static TextInputNode TextInput(this ContainerNode parent, string label, Binding<string> binding,
-			WidgetPrefab<TextInputWidget> prefab = default)
+			Style<TextInputNode> style = default)
 		{
 			var node = parent.Add(new TextInputNode(label, binding));
-			node.SetPrefab(prefab.Name);
+			node.SetStyle(style.Name);
 
 			return node;
 		}
 
 		public static NumberInputNode NumberInput(this ContainerNode parent, string label, Func<double> getValue,
-			Action<double> setValue, WidgetPrefab<NumberInputWidget> prefab = default)
+			Action<double> setValue, Style<NumberInputNode> style = default)
 		{
-			return parent.NumberInput(label, new Binding<double>(getValue, setValue), prefab);
+			return parent.NumberInput(label, new Binding<double>(getValue, setValue), style);
 		}
 
 		public static NumberInputNode NumberInput(this ContainerNode parent, string label, Binding<double> binding,
-			WidgetPrefab<NumberInputWidget> prefab = default)
+			Style<NumberInputNode> style = default)
 		{
 			var node = parent.Add(new NumberInputNode(label, binding));
-			node.SetPrefab(prefab.Name);
+			node.SetStyle(style.Name);
 
 			return node;
 		}
 
 		public static NumberInputNode IntInput(this ContainerNode parent, string label, Func<int> getValue, Action<int> setValue,
-			WidgetPrefab<NumberInputWidget> prefab = default)
+			Style<NumberInputNode> style = default)
 		{
 			var binding = new Binding<int>(getValue, setValue).Convert(value => (double) value, ToInt);
-			return parent.NumberInput(label, binding, prefab).WithWholeNumbers(true);
+			return parent.NumberInput(label, binding, style).WithWholeNumbers(true);
 		}
 
 		public static NumberInputNode FloatInput(this ContainerNode parent, string label, Func<float> getValue, Action<float> setValue,
-			WidgetPrefab<NumberInputWidget> prefab = default)
+			Style<NumberInputNode> style = default)
 		{
 			var binding = new Binding<float>(getValue, setValue).Convert(value => (double) value, value => (float) value);
-			return parent.NumberInput(label, binding, prefab);
+			return parent.NumberInput(label, binding, style);
 		}
 
 		/// <summary>

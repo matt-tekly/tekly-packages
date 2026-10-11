@@ -37,7 +37,7 @@ namespace Tekly.DevBoard.Palette
 
 		public bool IsOpen => m_blocker != null;
 
-		private readonly DevBoard m_board;
+		private readonly DevBoardUI m_board;
 		private readonly List<Entry> m_entries = new();
 		private readonly List<(int Index, int Score)> m_scored = new();
 		private readonly List<string> m_words = new();
@@ -51,7 +51,7 @@ namespace Tekly.DevBoard.Palette
 		private bool m_pendingReveal;
 		private bool m_closeRequested;
 
-		public CommandPalette(DevBoard board)
+		public CommandPalette(DevBoardUI board)
 		{
 			m_board = board;
 		}
@@ -66,7 +66,7 @@ namespace Tekly.DevBoard.Palette
 			// Popups float over the panels' canvas, which only exists once there's a panel. A panel made while
 			// DevBoard is hidden stays hidden
 			if (m_board.PopupLayer == null) {
-				m_board.Panel(DevBoard.MAIN_PANEL_ID);
+				m_board.Panel(DevBoardUI.MAIN_PANEL_ID);
 			}
 
 			var layer = m_board.PopupLayer;
@@ -143,7 +143,7 @@ namespace Tekly.DevBoard.Palette
 
 		private void Pick(Entry entry, bool reveal)
 		{
-			var access = m_board.Access;
+			var access = DevBoard.Instance.Access;
 
 			switch (entry.Node) {
 				case null:
@@ -199,7 +199,7 @@ namespace Tekly.DevBoard.Palette
 				}
 			}
 
-			target ??= m_board.Panel(DevBoard.MAIN_PANEL_ID);
+			target ??= m_board.Panel(DevBoardUI.MAIN_PANEL_ID);
 
 			if (target != null) {
 				target.SetCollapsed(false);
@@ -212,7 +212,7 @@ namespace Tekly.DevBoard.Palette
 		{
 			m_entries.Clear();
 
-			var access = m_board.Access;
+			var access = DevBoard.Instance.Access;
 
 			foreach (var page in access.AllPages()) {
 				if (!page.IsRoot) {
@@ -275,7 +275,7 @@ namespace Tekly.DevBoard.Palette
 
 		private string ReadValue(Node node)
 		{
-			return node is LinkNode || !m_board.Access.TryRead(node, out var value) ? null : value;
+			return node is LinkNode || !DevBoard.Instance.Access.TryRead(node, out var value) ? null : value;
 		}
 
 		private DropdownChoice[] Choices()

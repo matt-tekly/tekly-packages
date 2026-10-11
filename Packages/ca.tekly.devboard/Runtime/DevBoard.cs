@@ -1,437 +1,138 @@
+// DevBoard is in the editor always, and in player builds that are development builds or define DEVBOARD_ENABLED,
+// unless they define DEVBOARD_DISABLED. The UI assembly's define constraints say the same.
+#if UNITY_EDITOR || ((DEVELOPMENT_BUILD || DEVBOARD_ENABLED) && !DEVBOARD_DISABLED)
+#define DEVBOARD_ACTIVE
+#endif
+
 using System;
 using System.Collections.Generic;
 using Tekly.Common.Utils;
 using Tekly.DevBoard.Access;
-using Tekly.DevBoard.Components;
 using Tekly.DevBoard.Nodes;
 using Tekly.DevBoard.Pages;
-using Tekly.DevBoard.Palette;
-using Tekly.DevBoard.Panels;
-using Tekly.DevBoard.Views;
-using Tekly.Trellis;
-#if ENABLE_INPUT_SYSTEM
-using UnityEngine.InputSystem;
-#endif
-using UnityEngine;
-using Object = UnityEngine.Object;
+using Debug = UnityEngine.Debug;
+using GameObject = UnityEngine.GameObject;
+using Component = UnityEngine.Component;
 
 namespace Tekly.DevBoard
 {
+	/// <summary>
+	/// Where game code registers debug pages. The pages are shown by DevBoard's UI, which is only in builds that
+	/// include DevBoard (see Enabled); this part is in every build so game code compiles everywhere.
+	///
+	/// Register pages with the static Page methods. In builds without DevBoard every call to them is removed by
+	/// the compiler, arguments and all, so nothing runs and the builders they'd have called can be stripped:
+	/// <code>
+	/// DevBoard.Page("Ads", BuildAdsPage, owner: this);   // removed again with RemovePages(this)
+	/// DevBoard.Page(ref m_page, "Ads", BuildAdsPage);    // removed again with m_page.Dispose()
+	/// </code>
+	/// </summary>
 	public class DevBoard : Singleton<DevBoard>
 	{
 		/// <summary>
-		/// The id DevBoardInit gives the panel it creates.
+		/// True in builds that include DevBoard: the editor, development builds, and builds defining
+		/// DEVBOARD_ENABLED, but not builds defining DEVBOARD_DISABLED. For skipping debug-only work at runtime;
+		/// use your own define with #if for code that must be left out of release builds.
 		/// </summary>
-		public const string MAIN_PANEL_ID = "main";
+#if DEVBOARD_ACTIVE
+		public static readonly bool Enabled = true;
+#else
+		public static readonly bool Enabled = false;
+#endif
 
 		/// <summary>
-		/// The page DevBoard's own options are on. Other code can add segments to it too.
-		/// </summary>
-		public const string OPTIONS_PATH = "Options";
-
-		/// <summary>
-		/// DevBoard's own options, like the UI scale. Saved in PlayerPrefs.
-		/// </summary>
-		public DevBoardSettings Settings { get; } = DevBoardSettings.Load();
-
-		/// <summary>
-		/// Every registered page. Usually used through Page().
+		/// Every registered page.
 		/// </summary>
 		public PageTree Pages { get; } = new();
 
 		/// <summary>
-		/// Open panels.
-		/// </summary>
-		public IReadOnlyList<DevBoardPanel> Panels => m_panels;
-
-		/// <summary>
-		/// View state (foldouts, scroll positions) that survives widgets being destroyed and rebuilt.
+		/// View state (foldouts, scroll positions, searches) that survives widgets being destroyed and rebuilt.
 		/// </summary>
 		public DevBoardState State { get; } = new();
 
 		/// <summary>
-		/// How each kind of node becomes a widget. Register here to restyle a built-in node or add your own.
-		/// </summary>
-		public NodeRenderers Renderers { get; } = NodeRenderers.CreateDefault();
-
-		/// <summary>
 		/// Finds nodes on any page by path, and reads, sets and runs them as text. Register here to make a custom
-		/// node work with the command palette.
+		/// node work with the command palette and other tools.
 		/// </summary>
 		public NodeAccess Access { get; }
 
-		/// <summary>
-		/// Ticks behaviours that aren't inside a panel.
-		/// </summary>
-		internal TickGroup DefaultTickGroup {
-			get {
-				Initialize();
-				return m_ticker.TickGroup;
-			}
-		}
-
-		/// <summary>
-		/// Whether panels are shown. Hiding keeps every panel and its state, it just stops drawing them,
-		/// taking touches and refreshing their widgets. Panels with ShowWhenHidden stay up either way.
-		/// </summary>
-		public bool IsVisible { get; private set; } = true;
-
-		/// <summary>
-		/// Raised with the new value when IsVisible changes.
-		/// </summary>
-		public event Action<bool> VisibilityChanged;
-
-#if ENABLE_INPUT_SYSTEM
-		/// <summary>
-		/// The key that shows and hides DevBoard. Key.None turns the shortcut off.
-		/// </summary>
-		public Key ToggleKey { get; set; } = Key.F1;
-
-		/// <summary>
-		/// The key that opens the command palette. Key.None turns the shortcut off.
-		/// </summary>
-		public Key PaletteKey { get; set; } = Key.F2;
-#else
-		/// <summary>
-		/// The key that shows and hides DevBoard. KeyCode.None turns the shortcut off.
-		/// </summary>
-		public KeyCode ToggleKey { get; set; } = KeyCode.F1;
-
-		/// <summary>
-		/// The key that opens the command palette. KeyCode.None turns the shortcut off.
-		/// </summary>
-		public KeyCode PaletteKey { get; set; } = KeyCode.F2;
-#endif
-
-		private GameObject m_root;
-		private DevBoardTicker m_ticker;
-		private DevBoardDock m_dock;
-
-		private readonly List<DevBoardPanel> m_panels = new();
-		private bool m_panelsRestored;
-		private bool m_restoringPanels;
-
-		// Widget prefabs by name, and the first prefab of each exact type as that type's fallback
-		private readonly Dictionary<string, Widget> m_widgets = new();
-		private readonly Dictionary<Type, Widget> m_defaults = new();
-		private readonly HashSet<string> m_warnings = new();
+		// Segments registered with an owner, to remove with RemovePages
+		private readonly Dictionary<object, List<PageSegment>> m_owned = new();
 
 		// Scopes waiting for the end of the frame to rebuild
 		private readonly List<ScopeNode> m_rebuilds = new();
 
-		private readonly CommandPalette m_palette;
-
 		public DevBoard()
 		{
 			Access = new NodeAccess(Pages);
-			m_palette = new CommandPalette(this);
-
-			Settings.Changed += ApplySettings;
-			RegisterSearchPage();
-			RegisterOptionsPage();
-		}
-
-		/// <summary>
-		/// Opens the command palette: search every page and control by name.
-		/// </summary>
-		public void OpenPalette()
-		{
-			Initialize();
-			m_palette.Open();
-		}
-
-		public void ClosePalette()
-		{
-			m_palette.Close();
-		}
-
-		/// <summary>
-		/// Creates the root object boards live under. Safe to call any number of times.
-		/// </summary>
-		public void Initialize()
-		{
-			// Unity null check, so a destroyed root is recreated
-			if (m_root == null) {
-				m_root = new GameObject("DevBoard");
-				m_ticker = m_root.AddComponent<DevBoardTicker>();
-				Object.DontDestroyOnLoad(m_root);
-			}
-		}
-
-		/// <summary>
-		/// Registers the widgets and fonts in assets. Safe to call more than once: adding the same assets again
-		/// does nothing, and a widget with the same name as an existing one replaces it, so a game can add its
-		/// own assets to restyle the built-in widgets.
-		/// </summary>
-		public void AddAssets(DevBoardAssets assets)
-		{
-			if (assets == null) {
-				return;
-			}
-
-			Initialize();
-
-			if (assets.Widgets != null) {
-				foreach (var widget in assets.Widgets) {
-					if (widget != null) {
-						AddWidget(widget);
-					}
-				}
-			}
-
-			DevBoardFonts.Register(assets);
-		}
-
-		/// <summary>
-		/// Gets the registered prefab. Falls back to the default prefab of type T, with a warning, if there's
-		/// no prefab registered under that name or it isn't a T.
-		/// </summary>
-		public T Get<T>(WidgetPrefab<T> prefab) where T : Widget
-		{
-			if (prefab.IsSet && m_widgets.TryGetValue(prefab.Name, out var widget)) {
-				if (widget is T typed) {
-					return typed;
-				}
-
-				WarnOnce($"[DevBoard] Widget prefab '{prefab}' is a {widget.GetType().Name}, not a {typeof(T).Name}. Using the default {typeof(T).Name}.");
-			} else {
-				WarnOnce($"[DevBoard] No widget prefab named '{prefab}'. Using the default {typeof(T).Name}.");
-			}
-
-			if (m_defaults.TryGetValue(typeof(T), out var fallback)) {
-				return (T) fallback;
-			}
-
-			throw new InvalidOperationException(
-				$"[DevBoard] No {typeof(T).Name} widgets are registered. Has a DevBoardAssets been added with AddAssets?");
-		}
-
-		/// <summary>
-		/// Gets the registered prefab without falling back or warning, for optional widgets.
-		/// </summary>
-		public bool TryGet<T>(WidgetPrefab<T> prefab, out T asset) where T : Widget
-		{
-			if (prefab.IsSet && m_widgets.TryGetValue(prefab.Name, out var widget) && widget is T typed) {
-				asset = typed;
-				return true;
-			}
-
-			asset = null;
-			return false;
 		}
 
 		/// <summary>
 		/// Adds a segment to the page at path, e.g. "Game/Economy". The page and any missing parents are created,
-		/// and segments sharing a path appear one after another on the same page, sorted by order. Dispose the
-		/// returned segment to remove it, or tie it to a GameObject with BindTo.
+		/// and segments sharing a path appear one after another on the same page, sorted by order.
 		///
-		/// build makes the segment's nodes. It runs once, the first time something needs the segment, and every
-		/// panel showing the page renders the same nodes; it runs again only when the segment is rebuilt. Values
-		/// that change go through getters and setters, and anything it hooks up can be undone with Segment.OnDispose.
+		/// build makes the segment's nodes. It runs once, the first time something shows the segment, and every
+		/// panel shows the same nodes; it runs again only when the segment is rebuilt. Values that change go
+		/// through getters and setters, and anything it hooks up can be undone with Segment.OnDispose.
+		///
+		/// owner, when given, removes the segment with RemovePages(owner). A GameObject owner, or a component's,
+		/// also removes it when destroyed.
+		///
+		/// Removed by the compiler in builds without DevBoard.
 		/// </summary>
-		public PageSegment Page(string path, Action<Segment> build, string title = null, int order = 0)
+#if !DEVBOARD_ACTIVE
+		[System.Diagnostics.Conditional("__UNDEFINED__")]
+#endif
+		public static void Page(string path, Action<Segment> build, string title = null, int order = 0, object owner = null)
 		{
-			return Pages.Add(path, build, title, order);
-		}
-
-		/// <summary>
-		/// Gets the panel with this id, creating it if needed. A panel saved from an earlier session keeps its
-		/// saved dock, page and mode; dock and path only apply to a brand new panel.
-		/// Returns null, with an error, if no panel prefab is registered.
-		/// </summary>
-		public DevBoardPanel Panel(string id, DockSlot dock = DockSlot.TopLeft, string path = null)
-		{
-			RestorePanels();
-
-			var existing = FindPanel(id);
-
-			if (existing != null) {
-				return existing;
-			}
-
-			return CreatePanel(new PanelRecord {
-				Id = id,
-				Dock = dock,
-				Path = path ?? string.Empty
-			});
-		}
-
-		public DevBoardPanel FindPanel(string id)
-		{
-			foreach (var panel in m_panels) {
-				if (panel != null && panel.Id == id) {
-					return panel;
-				}
-			}
-
-			return null;
-		}
-
-		/// <summary>
-		/// Recreates the panels saved from the last session. Only does anything the first time it's called.
-		/// Needs the widget assets, so call it after AddAssets.
-		/// </summary>
-		public void RestorePanels()
-		{
-			if (m_panelsRestored) {
+			if (!Enabled) {
 				return;
 			}
 
-			// Without the prefab nothing can be restored. Leave the saved layout alone until it's registered.
-			if (!TryGet(WidgetPrefabs.Panel, out DevBoardPanel _)) {
-				WarnOnce($"[DevBoard] No '{WidgetPrefabs.Panel}' widget is registered, so panels can't be created. Add the panel prefab to a DevBoardAssets (Collect Assets).", true);
-				return;
+			var segment = Instance.AddPage(path, build, title, order);
+
+			if (owner != null) {
+				Instance.Own(owner, segment);
 			}
-
-			m_panelsRestored = true;
-			m_restoringPanels = true;
-
-			try {
-				foreach (var record in PanelLayout.Load().Panels) {
-					if (FindPanel(record.Id) == null) {
-						CreatePanel(record);
-					}
-				}
-			} finally {
-				m_restoringPanels = false;
-			}
-
-			SavePanels();
 		}
 
 		/// <summary>
-		/// Opens a copy of source: same page, mode and dock slot.
+		/// Adds a segment like Page, and puts it in handle so handle.Dispose() removes it. Anything already in
+		/// handle is removed first. In builds without DevBoard the call is removed by the compiler and handle stays
+		/// empty, so disposing it does nothing.
 		/// </summary>
-		internal DevBoardPanel PopOut(DevBoardPanel source)
+#if !DEVBOARD_ACTIVE
+		[System.Diagnostics.Conditional("__UNDEFINED__")]
+#endif
+		public static void Page(ref PageHandle handle, string path, Action<Segment> build, string title = null, int order = 0)
 		{
-			return CreatePanel(new PanelRecord {
-				Id = NextPanelId("panel"),
-				Dock = source.Dock,
-				Path = source.Path,
-				Overlay = source.IsOverlay,
-				ShowWhenHidden = source.ShowWhenHidden
-			});
+			handle.Dispose();
+
+			if (Enabled) {
+				handle = new PageHandle(Instance.AddPage(path, build, title, order));
+			}
 		}
 
 		/// <summary>
-		/// A panel was closed by the user: forget it, including its saved layout. Closing the last panel opens a
-		/// new one at the root in the top left, so there's always a way back in.
+		/// Removes every segment registered with owner. Removed by the compiler in builds without DevBoard.
 		/// </summary>
-		internal void ClosePanel(DevBoardPanel panel)
+#if !DEVBOARD_ACTIVE
+		[System.Diagnostics.Conditional("__UNDEFINED__")]
+#endif
+		public static void RemovePages(object owner)
 		{
-			m_panels.Remove(panel);
-			m_panels.RemoveAll(other => other == null);
-
-			if (m_panels.Count == 0) {
-				CreatePanel(new PanelRecord {
-					Id = NextPanelId(MAIN_PANEL_ID),
-					Dock = DockSlot.TopLeft,
-					Path = string.Empty
-				});
+			if (Enabled && owner != null && Instance != null) {
+				Instance.ReleaseOwner(owner);
 			}
-
-			SavePanels();
 		}
 
 		/// <summary>
-		/// Shows or hides panels to match IsVisible and their ShowWhenHidden. Called by panels when that changes.
+		/// Adds a segment and returns it, for code that keeps it to remove later. Unlike Page, calls to this stay
+		/// in builds without DevBoard, where it returns a segment that does nothing and never builds.
 		/// </summary>
-		internal void ApplyVisibility()
+		public PageSegment AddPage(string path, Action<Segment> build, string title = null, int order = 0)
 		{
-			// Unity null check on the canvas: the dock may not exist yet, or may have been destroyed
-			if (m_dock == null || m_dock.Canvas == null) {
-				return;
-			}
-
-			// The palette floats on the panels' canvas, and can be open while the panels are hidden
-			var anyShown = IsVisible || m_palette.IsOpen;
-
-			foreach (var panel in m_panels) {
-				if (panel != null) {
-					panel.RefreshActive();
-					anyShown |= panel.ShowWhenHidden;
-				}
-			}
-
-			// Nothing to draw: turn the whole canvas off rather than keep an empty one around
-			m_dock.Canvas.enabled = anyShown;
-		}
-
-		private string NextPanelId(string prefix)
-		{
-			if (FindPanel(prefix) == null) {
-				return prefix;
-			}
-
-			var number = 2;
-
-			while (FindPanel($"{prefix}-{number}") != null) {
-				number++;
-			}
-
-			return $"{prefix}-{number}";
-		}
-
-		private DockSlot FindEmptySlot(DockSlot fallback)
-		{
-			foreach (DockSlot slot in Enum.GetValues(typeof(DockSlot))) {
-				var used = false;
-
-				foreach (var panel in m_panels) {
-					if (panel != null && panel.Dock == slot) {
-						used = true;
-						break;
-					}
-				}
-
-				if (!used) {
-					return slot;
-				}
-			}
-
-			return fallback;
-		}
-
-		/// <summary>
-		/// A panel was destroyed some other way (scene teardown, leaving play mode): forget it but keep its saved layout.
-		/// </summary>
-		internal void ForgetPanel(DevBoardPanel panel)
-		{
-			m_panels.Remove(panel);
-		}
-
-		internal void SavePanels()
-		{
-			// Saving before or during the restore would overwrite panels that haven't been recreated yet
-			if (!m_panelsRestored || m_restoringPanels) {
-				return;
-			}
-
-			var layout = new PanelLayout();
-
-			foreach (var panel in m_panels) {
-				if (panel != null) {
-					layout.Panels.Add(panel.ToRecord());
-				}
-			}
-
-			layout.Save();
-		}
-
-		public void SetVisible(bool visible)
-		{
-			if (IsVisible == visible) {
-				return;
-			}
-
-			IsVisible = visible;
-			ApplyVisibility();
-			VisibilityChanged?.Invoke(visible);
-		}
-
-		public void ToggleVisible()
-		{
-			SetVisible(!IsVisible);
+			return Enabled ? Pages.Add(path, build, title, order) : PageSegment.Inert;
 		}
 
 		/// <summary>
@@ -440,15 +141,14 @@ namespace Tekly.DevBoard
 		/// </summary>
 		internal void QueueRebuild(ScopeNode scope)
 		{
-			Initialize();
-
 			if (!m_rebuilds.Contains(scope)) {
 				m_rebuilds.Add(scope);
 			}
 		}
 
 		/// <summary>
-		/// Called at the end of every frame by DevBoardTicker.
+		/// Runs the queued rebuilds. Called at the end of every frame by whatever is showing pages: DevBoard's
+		/// panels, or a remote viewer. With nothing showing pages, nothing needs rebuilding.
 		/// </summary>
 		internal void RunRebuilds()
 		{
@@ -468,146 +168,59 @@ namespace Tekly.DevBoard
 			}
 		}
 
-		/// <summary>
-		/// Called every frame by DevBoardTicker: the shortcuts, and the command palette's keys.
-		/// </summary>
-		internal void UpdateKeys()
+		private void Own(object owner, PageSegment segment)
 		{
-			if (WasPressed(ToggleKey)) {
-				ToggleVisible();
-			}
+			if (!m_owned.TryGetValue(owner, out var segments)) {
+				segments = new List<PageSegment>();
+				m_owned.Add(owner, segments);
 
-			if (WasPressed(PaletteKey)) {
-				OpenPalette();
-			}
+				// Destroying a GameObject owner removes its segments, so MonoBehaviours don't need RemovePages
+				var gameObject = owner as GameObject ?? (owner as Component)?.gameObject;
 
-			m_palette.Update();
-		}
-
-#if ENABLE_INPUT_SYSTEM
-		private static bool WasPressed(Key key)
-		{
-			var keyboard = Keyboard.current;
-			return key != Key.None && keyboard != null && keyboard[key].wasPressedThisFrame;
-		}
-#else
-		private static bool WasPressed(KeyCode key)
-		{
-#if ENABLE_LEGACY_INPUT_MANAGER
-			return key != KeyCode.None && Input.GetKeyDown(key);
-#else
-			return false;
-#endif
-		}
-#endif
-
-		/// <summary>
-		/// Where floating widgets like an open dropdown go, above every panel. Null until a panel has been created.
-		/// </summary>
-		internal RectTransform PopupLayer => m_dock != null && m_dock.Canvas != null ? m_dock.Popups : null;
-
-		private DevBoardPanel CreatePanel(PanelRecord record)
-		{
-			Initialize();
-
-			// Unity null check on the canvas, so a destroyed dock is recreated along with the root
-			if (m_dock == null || m_dock.Canvas == null) {
-				m_dock = new DevBoardDock(m_root.transform);
-				m_dock.ApplySettings(Settings);
-				ApplyVisibility();
-			}
-
-			if (!TryGet(WidgetPrefabs.Panel, out DevBoardPanel prefab)) {
-				WarnOnce($"[DevBoard] No '{WidgetPrefabs.Panel}' widget is registered, so panels can't be created. Add the panel prefab to a DevBoardAssets (Collect Assets).", true);
-				return null;
-			}
-
-			var panel = DevBoardPanel.Create(this, m_dock, prefab, record);
-			m_panels.Add(panel);
-			ApplyVisibility();
-			SavePanels();
-
-			return panel;
-		}
-
-		private void AddWidget(Widget widget)
-		{
-			var type = widget.GetType();
-
-			if (m_widgets.TryGetValue(widget.name, out var existing)) {
-				if (existing == widget) {
-					return;
-				}
-
-				// A replacement of the same type also takes over as that type's default
-				var existingType = existing.GetType();
-
-				if (m_defaults.TryGetValue(existingType, out var existingDefault) && existingDefault == existing) {
-					if (existingType == type) {
-						m_defaults[type] = widget;
-					} else {
-						m_defaults.Remove(existingType);
-					}
+				if (gameObject != null) {
+					PageSegmentBinding.Watch(gameObject, owner);
 				}
 			}
 
-			m_widgets[widget.name] = widget;
-			m_defaults.TryAdd(type, widget);
+			segments.Add(segment);
 		}
 
-		private void ApplySettings()
+		internal void ReleaseOwner(object owner)
 		{
-			// Unity null check on the canvas: the dock may not exist yet, or may have been destroyed
-			if (m_dock != null && m_dock.Canvas != null) {
-				m_dock.ApplySettings(Settings);
-			}
-		}
-
-		/// <summary>
-		/// A way into the command palette on the root page, for devices without a keyboard.
-		/// </summary>
-		private void RegisterSearchPage()
-		{
-			Page(string.Empty, page => {
-				page.Button("Search everything", OpenPalette)
-					.WithDescription($"Find any page or control ({PaletteKey})")
-					.InteractiveOnly();
-			}, order: int.MinValue);
-		}
-
-		private void RegisterOptionsPage()
-		{
-			Page(OPTIONS_PATH, page => {
-				var form = page.Form();
-				form.FloatInput("UI Scale", () => Settings.Scale, value => Settings.Scale = value)
-					.WithFormat("0.##")
-					.WithDescription("Scales all UI Elements");
-
-				var scaleRow = form.Row().WithPadding(0).WithAlignment(LayoutAlignment.End).WithFlexibleWidth();
-				scaleRow.Button("-", () => Settings.Scale -= DevBoardSettings.SCALE_STEP);
-				scaleRow.Button("+", () => Settings.Scale += DevBoardSettings.SCALE_STEP);
-				scaleRow.Button("1x", () => Settings.Scale = 1f);
-
-#if UNITY_EDITOR
-				form.Toggle("Use Physical Size Scale", () => Settings.KeepPhysicalSizeInEditor, value => Settings.KeepPhysicalSizeInEditor = value)
-					.WithDescription("Use screen DPI to scale UI");
-#endif
-
-				form.Button("Reset options", Settings.ResetToDefaults);
-			}, order: int.MaxValue);
-		}
-
-		private void WarnOnce(string message, bool isError = false)
-		{
-			if (!m_warnings.Add(message)) {
+			if (!m_owned.TryGetValue(owner, out var segments)) {
 				return;
 			}
 
-			if (isError) {
-				Debug.LogError(message);
-			} else {
-				Debug.LogWarning(message);
+			m_owned.Remove(owner);
+
+			foreach (var segment in segments) {
+				segment.Dispose();
 			}
+		}
+	}
+
+	/// <summary>
+	/// Holds a segment added with DevBoard.Page(ref handle, ...), to remove it with Dispose. Empty by default, and
+	/// in builds without DevBoard, where disposing it does nothing. Keep it in a field; copies share the segment.
+	/// </summary>
+	public struct PageHandle : IDisposable
+	{
+		private PageSegment m_segment;
+
+		/// <summary>
+		/// True while it holds a segment that hasn't been removed.
+		/// </summary>
+		public bool IsValid => m_segment != null && !m_segment.IsDisposed;
+
+		internal PageHandle(PageSegment segment)
+		{
+			m_segment = segment;
+		}
+
+		public void Dispose()
+		{
+			m_segment?.Dispose();
+			m_segment = null;
 		}
 	}
 }

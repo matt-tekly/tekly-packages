@@ -7,7 +7,7 @@ namespace Tekly.DevBoard.Components
 	{
 		/// <summary>
 		/// When set, adds a level to the saved view state keys of everything inside this container, so the same
-		/// widgets in different containers keep separate state. See <see cref="DevBoardState.KeyFor"/>.
+		/// widgets in different containers keep separate state. See <see cref="WidgetState.KeyFor"/>.
 		/// </summary>
 		public virtual string StateScope { get; set; }
 
@@ -153,7 +153,7 @@ namespace Tekly.DevBoard.Components
 		/// </summary>
 		public T Create<T>(WidgetPrefab<T> prefab) where T : Widget
 		{
-			return Instantiate(DevBoard.Instance.Get(prefab), m_content, false);
+			return Instantiate(DevBoardUI.Instance.Get(prefab), m_content, false);
 		}
 
 		/// <summary>

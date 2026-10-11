@@ -1,8 +1,6 @@
-using Tekly.DevBoard.Components;
-
 namespace Tekly.DevBoard.Nodes
 {
-	public enum LabelStyle
+	public enum LabelKind
 	{
 		Normal,
 
@@ -19,33 +17,33 @@ namespace Tekly.DevBoard.Nodes
 	public sealed class LabelNode : Node
 	{
 		public string Text => Label;
-		public LabelStyle Style { get; }
+		public LabelKind Kind { get; }
 
-		public LabelNode(string text, LabelStyle style = LabelStyle.Normal) : base(text)
+		public LabelNode(string text, LabelKind kind = LabelKind.Normal) : base(text)
 		{
-			Style = style;
+			Kind = kind;
 		}
 	}
 
 	public static class LabelNodeFactory
 	{
-		public static LabelNode Label(this ContainerNode parent, string text, WidgetPrefab<LabelWidget> prefab = default)
+		public static LabelNode Label(this ContainerNode parent, string text, Style<LabelNode> style = default)
 		{
-			return parent.Label(text, LabelStyle.Normal, prefab);
+			return parent.Label(text, LabelKind.Normal, style);
 		}
 
 		/// <summary>
 		/// A label styled as a heading, for titling a group of nodes.
 		/// </summary>
-		public static LabelNode Heading(this ContainerNode parent, string text, WidgetPrefab<LabelWidget> prefab = default)
+		public static LabelNode Heading(this ContainerNode parent, string text, Style<LabelNode> style = default)
 		{
-			return parent.Label(text, LabelStyle.Heading, prefab);
+			return parent.Label(text, LabelKind.Heading, style);
 		}
 
-		public static LabelNode Label(this ContainerNode parent, string text, LabelStyle style, WidgetPrefab<LabelWidget> prefab = default)
+		public static LabelNode Label(this ContainerNode parent, string text, LabelKind kind, Style<LabelNode> style = default)
 		{
-			var node = parent.Add(new LabelNode(text, style));
-			node.SetPrefab(prefab.Name);
+			var node = parent.Add(new LabelNode(text, kind));
+			node.SetStyle(style.Name);
 
 			return node;
 		}

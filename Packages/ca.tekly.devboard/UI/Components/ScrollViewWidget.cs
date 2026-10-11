@@ -28,7 +28,7 @@ namespace Tekly.DevBoard.Components
 		/// </summary>
 		public ScrollViewWidget WithStateKey(string key)
 		{
-			m_stateKey = DevBoardState.KeyFor(this, key);
+			m_stateKey = WidgetState.KeyFor(this, key);
 			return this;
 		}
 
@@ -83,7 +83,7 @@ namespace Tekly.DevBoard.Components
 			}
 
 			// Start runs after the code building the board, so the key reflects where the scroll view ended up
-			m_stateKey ??= DevBoardState.KeyFor(this, DEFAULT_STATE_KEY);
+			m_stateKey ??= WidgetState.KeyFor(this, DEFAULT_STATE_KEY);
 
 			var state = DevBoard.Instance?.State;
 

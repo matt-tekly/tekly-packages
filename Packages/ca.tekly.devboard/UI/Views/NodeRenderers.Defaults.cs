@@ -21,8 +21,8 @@ namespace Tekly.DevBoard.Views
 
 		private void RegisterDefaults()
 		{
-			Register<LabelNode, LabelWidget>((node, parent) => node.Style == LabelStyle.Heading ? WidgetPrefabs.Heading : WidgetPrefabs.Label,
-				(node, widget, view) => widget.Text = node.Style == LabelStyle.Error ? ErrorText(node.Text) : node.Text);
+			Register<LabelNode, LabelWidget>((node, parent) => node.Kind == LabelKind.Heading ? WidgetPrefabs.Heading : WidgetPrefabs.Label,
+				(node, widget, view) => widget.Text = node.Kind == LabelKind.Error ? ErrorText(node.Text) : node.Text);
 
 			Register<PropertyNode, PropertyWidget>(WidgetPrefabs.Property, (node, widget, view) => {
 				node.Accept(new PropertyBinder(widget, LabelText(node), node.Format));
@@ -117,8 +117,8 @@ namespace Tekly.DevBoard.Views
 		/// </summary>
 		private static ContainerWidget CreateContainer(ContainerNode node, ContainerWidget parent)
 		{
-			if (node.Prefab != null) {
-				return parent.Create(new WidgetPrefab<ContainerWidget>(node.Prefab));
+			if (node.Style != null) {
+				return parent.Create(new WidgetPrefab<ContainerWidget>(node.Style));
 			}
 
 			switch (node.Kind) {

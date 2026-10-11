@@ -75,7 +75,7 @@ namespace Tekly.DevBoard.Nodes
 				RunBuilder();
 			} catch (Exception exception) {
 				Debug.LogException(exception);
-				Add(new LabelNode($"{exception.GetType().Name}: {exception.Message}", LabelStyle.Error));
+				Add(new LabelNode($"{exception.GetType().Name}: {exception.Message}", LabelKind.Error));
 			} finally {
 				m_building = false;
 			}

@@ -1,0 +1,24 @@
+{
+    "name": "Tekly.DevBoard.UI",
+    "rootNamespace": "Tekly.DevBoard",
+    "references": [
+        "GUID:ddc00dd6ba7be9d489842d055df28ffd",
+        "GUID:b9160372c6c55a741932d482673e3abb",
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:4362376ea7489ed459f84ff1838d71c7",
+        "GUID:92e9d0c25e5487c4aaa6f9d67a9b913f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "UNITY_EDITOR || DEVELOPMENT_BUILD || DEVBOARD_ENABLED",
+        "UNITY_EDITOR || !DEVBOARD_DISABLED"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
