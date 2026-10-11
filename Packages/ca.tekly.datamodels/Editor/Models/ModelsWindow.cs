@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Tekly.Common.Gui;
+using Tekly.Common.Search;
 using Tekly.Common.Utils;
 using Tekly.EditorUtils.Gui;
 using UnityEditor;
@@ -26,6 +27,7 @@ namespace Tekly.DataModels.Models
 		private List<ObjectEntry> m_visibleEntries = new List<ObjectEntry>();
 
 		private SearchField m_searchField;
+		private readonly SearchQuery m_searchQuery = new();
 		private bool m_updateVisibleEntries = true;
 
 		private Color[] m_backgroundColors = new Color[2];
@@ -119,21 +121,6 @@ namespace Tekly.DataModels.Models
 			}
 
 			GUI.EndScrollView();
-		}
-
-		private bool MatchesSearch(string[] search, string fullPath)
-		{
-			if (search.Length == 1) {
-				return fullPath.Contains(search[0], StringComparison.OrdinalIgnoreCase);
-			}
-
-			foreach (var entry in search) {
-				if (!fullPath.Contains(entry, StringComparison.OrdinalIgnoreCase)) {
-					return false;
-				}
-			}
-
-			return true;
 		}
 
 		private bool IsExpanded(ObjectEntry entry)
@@ -320,11 +307,11 @@ namespace Tekly.DataModels.Models
 					}
 				}
 			} else {
-				var search = m_search.Split(" ");
+				m_searchQuery.Set(m_search);
 				Parallel.For(0, m_entries.Count,
 					new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, (index) => {
 						var entry = m_entries[index];
-						entry.Visible = MatchesSearch(search, entry.FullPath);
+						entry.Visible = m_searchQuery.Matches(entry.FullPath);
 					});
 
 				for (var index = 0; index < m_entries.Count; index++) {

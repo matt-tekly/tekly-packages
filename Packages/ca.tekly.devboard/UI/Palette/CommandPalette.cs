@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Tekly.Common.Search;
 using Tekly.DevBoard.Access;
 using Tekly.DevBoard.Components;
 using Tekly.DevBoard.Nodes;
@@ -20,6 +21,9 @@ namespace Tekly.DevBoard.Palette
 	/// haven't been built yet. The popup does the keys: Up and Down (or Tab and Shift+Tab) move the selection,
 	/// Enter picks, Escape closes.
 	///
+	/// Matching is loose (see SearchQuery), and recent picks come first among
+	/// equally good matches, so an empty search starts with them.
+	///
 	/// A searchable list is one entry, not one per row: it has its own search, and its rows may be hidden by it.
 	/// Picking it reveals the list.
 	///
@@ -34,13 +38,17 @@ namespace Tekly.DevBoard.Palette
 		private const float HEIGHT_FRACTION = 0.6f;
 		private const string SEPARATOR = "  ·  ";
 		private const string PATH_SEPARATOR = " › ";
+		private const int MAX_RECENT = 8;
 
 		public bool IsOpen => m_blocker != null;
 
 		private readonly DevBoardUI m_board;
 		private readonly List<Entry> m_entries = new();
-		private readonly List<(int Index, int Score)> m_scored = new();
-		private readonly List<string> m_words = new();
+		private readonly List<(int Index, int Score, int Recent)> m_scored = new();
+		private readonly SearchQuery m_query = new();
+
+		// Keys of the most recently picked entries, most recent first
+		private readonly List<string> m_recent = new();
 
 		private PopupBlocker m_blocker;
 		private DropdownPopup m_popup;
@@ -145,6 +153,8 @@ namespace Tekly.DevBoard.Palette
 		{
 			var access = DevBoard.Instance.Access;
 
+			Remember(entry);
+
 			switch (entry.Node) {
 				case null:
 					Close();
@@ -168,6 +178,23 @@ namespace Tekly.DevBoard.Palette
 					Close();
 					RevealInPanel(entry);
 					return;
+			}
+		}
+
+		/// <summary>
+		/// Moves the entry to the front of the recent picks.
+		/// </summary>
+		private void Remember(Entry entry)
+		{
+			if (entry.Key == null) {
+				return;
+			}
+
+			m_recent.Remove(entry.Key);
+			m_recent.Insert(0, entry.Key);
+
+			if (m_recent.Count > MAX_RECENT) {
+				m_recent.RemoveAt(m_recent.Count - 1);
 			}
 		}
 
@@ -216,7 +243,7 @@ namespace Tekly.DevBoard.Palette
 
 			foreach (var page in access.AllPages()) {
 				if (!page.IsRoot) {
-					AddEntry(page, null, page.Title, "page", null);
+					AddEntry(page, null, page.Title, page.Title, "page", null);
 				}
 
 				foreach (var node in access.NodesOn(page)) {
@@ -228,12 +255,12 @@ namespace Tekly.DevBoard.Palette
 						continue;
 					}
 
-					AddEntry(page, node, Title(node, kind), kind, ReadValue(node));
+					AddEntry(page, node, Title(node, kind), node.Label ?? kind, kind, ReadValue(node));
 				}
 			}
 		}
 
-		private void AddEntry(PageNode page, Node node, string title, string kind, string value)
+		private void AddEntry(PageNode page, Node node, string title, string name, string kind, string value)
 		{
 			var location = Location(page, node);
 			var search = new StringBuilder(title).Append(' ').Append(location).Append(' ').Append(kind);
@@ -251,7 +278,9 @@ namespace Tekly.DevBoard.Palette
 			m_entries.Add(new Entry {
 				Page = page,
 				Node = node,
+				Key = node != null ? node.Path : "page:" + page.Path,
 				Title = title,
+				Name = name,
 				Kind = kind,
 				Location = location,
 				Value = value,
@@ -295,68 +324,43 @@ namespace Tekly.DevBoard.Palette
 		}
 
 		/// <summary>
-		/// Entries containing every typed word, best first: titles that are the search, then titles starting with
-		/// it, then titles holding its words, then anything else that matches.
+		/// Entries matching the search, best first (see <see cref="SearchQuery"/>), scored on their name, with
+		/// their location, kind, row key, description and keywords as other text. Ties go to recent picks, then
+		/// page order, so an empty search lists recent picks first.
 		/// </summary>
 		private void Filter(string query, List<int> matches)
 		{
-			query = query.Trim();
-
-			m_words.Clear();
-			m_words.AddRange(query.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+			m_query.Set(query);
 			m_scored.Clear();
 
 			for (var i = 0; i < m_entries.Count; i++) {
-				var entry = m_entries[i];
+				var score = m_query.Score(m_entries[i].Name, m_entries[i].SearchText);
 
-				if (Matches(entry.SearchText)) {
-					m_scored.Add((i, Score(entry.Title, query)));
+				if (score != SearchQuery.NO_MATCH) {
+					m_scored.Add((i, score, RecentRank(m_entries[i])));
 				}
 			}
 
-			// Stable, so equal scores keep page order
-			m_scored.Sort((a, b) => a.Score != b.Score ? b.Score.CompareTo(a.Score) : a.Index.CompareTo(b.Index));
+			m_scored.Sort((a, b) => {
+				if (a.Score != b.Score) {
+					return b.Score.CompareTo(a.Score);
+				}
 
-			foreach (var (index, _) in m_scored) {
-				matches.Add(index);
+				return a.Recent != b.Recent ? a.Recent.CompareTo(b.Recent) : a.Index.CompareTo(b.Index);
+			});
+
+			foreach (var scored in m_scored) {
+				matches.Add(scored.Index);
 			}
 		}
 
-		private bool Matches(string text)
+		/// <summary>
+		/// Where the entry is in the recent picks, or past the end if it isn't one.
+		/// </summary>
+		private int RecentRank(Entry entry)
 		{
-			foreach (var word in m_words) {
-				if (text.IndexOf(word, StringComparison.OrdinalIgnoreCase) < 0) {
-					return false;
-				}
-			}
-
-			return true;
-		}
-
-		private int Score(string title, string query)
-		{
-			if (query.Length == 0) {
-				return 0;
-			}
-
-			if (string.Equals(title, query, StringComparison.OrdinalIgnoreCase)) {
-				return 100;
-			}
-
-			var score = title.StartsWith(query, StringComparison.OrdinalIgnoreCase) ? 50 : 0;
-
-			foreach (var word in m_words) {
-				var at = title.IndexOf(word, StringComparison.OrdinalIgnoreCase);
-
-				if (at < 0) {
-					continue;
-				}
-
-				// Words matched at the start of a word in the title count for more than ones in the middle
-				score += at == 0 || title[at - 1] == ' ' ? 15 : 10;
-			}
-
-			return score;
+			var rank = entry.Key != null ? m_recent.IndexOf(entry.Key) : -1;
+			return rank >= 0 ? rank : int.MaxValue;
 		}
 
 		private static bool IsInSearchableList(Node node)
@@ -435,7 +439,18 @@ namespace Tekly.DevBoard.Palette
 			/// </summary>
 			public Node Node;
 
+			/// <summary>
+			/// Identifies the entry across openings, for recent picks: the node's path, or the page's.
+			/// </summary>
+			public string Key;
+
 			public string Title;
+
+			/// <summary>
+			/// What searches are scored against: the title without a list row's key.
+			/// </summary>
+			public string Name;
+
 			public string Kind;
 			public string Location;
 			public string Value;

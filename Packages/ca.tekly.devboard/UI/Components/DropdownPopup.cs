@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Tekly.Common.Search;
 using Tekly.DevBoard.Components.Inputs;
 using Tekly.Trellis;
 using UnityEngine;
@@ -32,6 +33,8 @@ namespace Tekly.DevBoard.Components
 		private const int EXTRA_ROWS = 2;
 
 		private readonly List<int> m_matches = new();
+		private readonly List<(int Index, int Score)> m_scored = new();
+		private readonly SearchQuery m_searchQuery = new();
 		private readonly List<Row> m_rows = new();
 
 		private DropdownChoice[] m_choices;
@@ -251,11 +254,7 @@ namespace Tekly.DevBoard.Components
 				m_filter(m_query, m_matches);
 				m_selectedIndex = m_matches.Count > 0 ? m_matches[0] : -1;
 			} else {
-				for (var i = 0; i < m_choices.Length; i++) {
-					if (Matches(m_choices[i], m_query)) {
-						m_matches.Add(i);
-					}
-				}
+				MatchChoices();
 
 				// The current choice stays selected while it shows; otherwise Enter picks the first match
 				if (m_query.Length > 0 && !m_matches.Contains(m_selectedIndex)) {
@@ -331,16 +330,29 @@ namespace Tekly.DevBoard.Components
 			ShowRowsInView();
 		}
 
-		private static bool Matches(in DropdownChoice choice, string query)
+		/// <summary>
+		/// The choices matching the search (see <see cref="SearchQuery"/>), scored on their titles with subtitles as
+		/// other text, best first and otherwise in order.
+		/// </summary>
+		private void MatchChoices()
 		{
-			return query.Length == 0
-				|| Contains(choice.Title, query)
-				|| choice.HasSubtitle && Contains(choice.Subtitle, query);
-		}
+			m_searchQuery.Set(m_query);
+			m_scored.Clear();
 
-		private static bool Contains(string text, string query)
-		{
-			return text != null && text.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0;
+			for (var i = 0; i < m_choices.Length; i++) {
+				var choice = m_choices[i];
+				var score = m_searchQuery.Score(choice.Title, choice.HasSubtitle ? choice.Subtitle : null);
+
+				if (score != SearchQuery.NO_MATCH) {
+					m_scored.Add((i, score));
+				}
+			}
+
+			m_scored.Sort((a, b) => a.Score != b.Score ? b.Score.CompareTo(a.Score) : a.Index.CompareTo(b.Index));
+
+			foreach (var scored in m_scored) {
+				m_matches.Add(scored.Index);
+			}
 		}
 
 		/// <summary>

@@ -2,7 +2,8 @@
     "name": "Tekly.Localizations.Editor",
     "rootNamespace": "Tekly.Localizations",
     "references": [
-        "GUID:fccf0c2a537abd14db080b44a0a81a76"
+        "GUID:fccf0c2a537abd14db080b44a0a81a76",
+        "GUID:b9160372c6c55a741932d482673e3abb"
     ],
     "includePlatforms": [
         "Editor"

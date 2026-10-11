@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Tekly.Common.Search;
 using UnityEngine;
 
 namespace Tekly.DevBoard.Nodes
@@ -120,9 +121,9 @@ namespace Tekly.DevBoard.Nodes
 		}
 
 		/// <summary>
-		/// Whether a row matches a search. words is query split on spaces; query is trimmed and never empty.
+		/// Whether a row matches a search, which is never empty.
 		/// </summary>
-		public abstract bool Matches(Node row, string query, IReadOnlyList<string> words);
+		public abstract bool Matches(Node row, SearchQuery query);
 	}
 
 	public sealed class ListNode<TItem, TKey> : ListNode
@@ -151,7 +152,8 @@ namespace Tekly.DevBoard.Nodes
 		}
 
 		/// <summary>
-		/// Adds a search field. A row matches when every typed word appears in getText of its item, ignoring case.
+		/// Adds a search field, matching getText of each row's item the way the command palette matches names:
+		/// every typed term must match, loosely (see <see cref="SearchQuery"/>).
 		/// </summary>
 		public ListNode<TItem, TKey> WithSearch(Func<TItem, string> getText)
 		{
@@ -183,25 +185,17 @@ namespace Tekly.DevBoard.Nodes
 			return this;
 		}
 
-		public override bool Matches(Node row, string query, IReadOnlyList<string> words)
+		public override bool Matches(Node row, SearchQuery query)
 		{
 			if (row is not ListItem<TItem> item) {
 				return false;
 			}
 
 			if (m_match != null) {
-				return m_match(item.Item, query);
+				return m_match(item.Item, query.Text);
 			}
 
-			var text = m_getText?.Invoke(item.Item) ?? string.Empty;
-
-			foreach (var word in words) {
-				if (text.IndexOf(word, StringComparison.OrdinalIgnoreCase) < 0) {
-					return false;
-				}
-			}
-
-			return true;
+			return query.Matches(m_getText?.Invoke(item.Item));
 		}
 
 		internal override void Freeze()

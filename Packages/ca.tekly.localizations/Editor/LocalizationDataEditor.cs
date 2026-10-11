@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Tekly.Common.Search;
 using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEditor.IMGUI.Controls;
@@ -25,6 +26,7 @@ namespace Tekly.Localizations
 
 		private SearchField m_searchField;
 		private string m_search = "";
+		private readonly SearchQuery m_searchQuery = new();
 		private Vector2 m_scroll;
 
 		// Caches
@@ -180,16 +182,8 @@ namespace Tekly.Localizations
 
 		private bool Matches(LocalizationStringData stringData)
 		{
-			if (m_search.Length == 0) {
-				return true;
-			}
-
-			return Contains(stringData.Id, m_search) || Contains(stringData.Format, m_search);
-		}
-
-		private static bool Contains(string value, string search)
-		{
-			return value != null && value.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0;
+			m_searchQuery.Set(m_search);
+			return m_searchQuery.Matches(stringData.Id, stringData.Format);
 		}
 
 		private static void DrawHeader(float width)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Tekly.Common.Search;
 using Tekly.DevBoard.Nodes;
 using UnityEngine;
 
@@ -328,7 +329,7 @@ namespace Tekly.DevBoard.Views
 
 		private readonly ListNode m_list;
 		private readonly IListElement m_listElement;
-		private readonly List<string> m_words = new();
+		private readonly SearchQuery m_query = new();
 
 		private string m_stateKey;
 		private bool m_matchFaulted;
@@ -387,10 +388,7 @@ namespace Tekly.DevBoard.Views
 
 		private void Filter()
 		{
-			var query = Query.Trim();
-
-			m_words.Clear();
-			m_words.AddRange(query.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+			m_query.Set(Query);
 
 			var shown = 0;
 			var hidden = 0;
@@ -400,7 +398,7 @@ namespace Tekly.DevBoard.Views
 					continue;
 				}
 
-				var matches = query.Length == 0 ? m_list.ShowAllWhenEmpty : Matches(row, query);
+				var matches = m_query.IsEmpty ? m_list.ShowAllWhenEmpty : Matches(row);
 				Children.TryGetValue(row, out var mirror);
 
 				if (matches && shown < m_list.MaxResults) {
@@ -418,13 +416,13 @@ namespace Tekly.DevBoard.Views
 				}
 			}
 
-			m_listElement.ShowSummary(new ListSummary(shown, hidden, query.Length > 0, m_list.ShowAllWhenEmpty));
+			m_listElement.ShowSummary(new ListSummary(shown, hidden, !m_query.IsEmpty, m_list.ShowAllWhenEmpty));
 		}
 
-		private bool Matches(Node row, string query)
+		private bool Matches(Node row)
 		{
 			try {
-				var matches = m_list.Matches(row, query, m_words);
+				var matches = m_list.Matches(row, m_query);
 				m_matchFaulted = false;
 
 				return matches;
