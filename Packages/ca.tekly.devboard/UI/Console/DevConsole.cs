@@ -29,6 +29,9 @@ namespace Tekly.DevBoard.Console
 		private const int MAX_OUTPUT = 200;
 		private const int MAX_HISTORY = 100;
 		private const int SHOWN_SUGGESTIONS = 8;
+
+		// Space between the suggestion box and the line or hint it stands on
+		private const float SUGGESTION_GAP = 8f;
 		private const string HISTORY_KEY = "Tekly.DevBoard.ConsoleHistory";
 
 		private const string ECHO = "<alpha=#80>> <noparse>{0}</noparse><alpha=#FF>";
@@ -349,7 +352,7 @@ namespace Tekly.DevBoard.Console
 			var width = Mathf.Min(LayoutUtility.GetPreferredWidth(box), bounds.width - x);
 
 			box.sizeDelta = new Vector2(width, LayoutUtility.GetPreferredHeight(box));
-			box.anchoredPosition = new Vector2(x, topLeft.y - bounds.yMin);
+			box.anchoredPosition = new Vector2(x, topLeft.y - bounds.yMin + SUGGESTION_GAP);
 		}
 
 		/// <summary>
