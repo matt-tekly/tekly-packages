@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Tekly.Common.Utils;
 using Tekly.DevBoard.Access;
+using Tekly.DevBoard.Commands;
 using Tekly.DevBoard.Nodes;
 using Tekly.DevBoard.Pages;
 using Debug = UnityEngine.Debug;
@@ -56,8 +57,13 @@ namespace Tekly.DevBoard
 		/// </summary>
 		public NodeAccess Access { get; }
 
-		// Segments registered with an owner, to remove with RemovePages
-		private readonly Dictionary<object, List<PageSegment>> m_owned = new();
+		/// <summary>
+		/// Commands typed into the console: [DevCommand] static methods and those added with Command.
+		/// </summary>
+		public CommandRegistry Commands { get; } = new();
+
+		// Segments and commands registered with an owner, to remove with RemovePages
+		private readonly Dictionary<object, List<IDisposable>> m_owned = new();
 
 		// Scopes waiting for the end of the frame to rebuild
 		private readonly List<ScopeNode> m_rebuilds = new();
@@ -114,7 +120,104 @@ namespace Tekly.DevBoard
 		}
 
 		/// <summary>
-		/// Removes every segment registered with owner. Removed by the compiler in builds without DevBoard.
+		/// Adds a command typed into the console: name, then arguments for the action's parameters, e.g.
+		/// <code>
+		/// DevBoard.Command("give gold", (int amount) => m_wallet.Add(amount), "Adds gold", owner: this);
+		/// </code>
+		/// The return value is shown as the result. A method group keeps its optional parameters' defaults; a
+		/// lambda can't have any. See DevCommandAttribute for static methods, and for how arguments are typed.
+		///
+		/// suggest, when given, gives the values the console suggests as each argument is typed: it gets a
+		/// parameter's name and returns its values, or null for none (enums and bools are suggested anyway):
+		/// <code>
+		/// DevBoard.Command("inventory remove", (string item) => Remove(item), owner: this, suggest: _ => m_inventory);
+		/// </code>
+		///
+		/// owner, when given, removes the command with RemovePages(owner), or when a GameObject owner is destroyed.
+		/// Removed by the compiler in builds without DevBoard.
+		/// </summary>
+#if !DEVBOARD_ACTIVE
+		[System.Diagnostics.Conditional("__UNDEFINED__")]
+#endif
+		public static void Command(string name, Action action, string description = null, object owner = null,
+			Func<string, IEnumerable<string>> suggest = null) =>
+			AddCommand(name, action, description, owner, suggest);
+
+#if !DEVBOARD_ACTIVE
+		[System.Diagnostics.Conditional("__UNDEFINED__")]
+#endif
+		public static void Command<T1>(string name, Action<T1> action, string description = null, object owner = null,
+			Func<string, IEnumerable<string>> suggest = null) =>
+			AddCommand(name, action, description, owner, suggest);
+
+#if !DEVBOARD_ACTIVE
+		[System.Diagnostics.Conditional("__UNDEFINED__")]
+#endif
+		public static void Command<T1, T2>(string name, Action<T1, T2> action, string description = null, object owner = null,
+			Func<string, IEnumerable<string>> suggest = null) =>
+			AddCommand(name, action, description, owner, suggest);
+
+#if !DEVBOARD_ACTIVE
+		[System.Diagnostics.Conditional("__UNDEFINED__")]
+#endif
+		public static void Command<T1, T2, T3>(string name, Action<T1, T2, T3> action, string description = null, object owner = null,
+			Func<string, IEnumerable<string>> suggest = null) =>
+			AddCommand(name, action, description, owner, suggest);
+
+#if !DEVBOARD_ACTIVE
+		[System.Diagnostics.Conditional("__UNDEFINED__")]
+#endif
+		public static void Command<TResult>(string name, Func<TResult> action, string description = null, object owner = null,
+			Func<string, IEnumerable<string>> suggest = null) =>
+			AddCommand(name, action, description, owner, suggest);
+
+#if !DEVBOARD_ACTIVE
+		[System.Diagnostics.Conditional("__UNDEFINED__")]
+#endif
+		public static void Command<T1, TResult>(string name, Func<T1, TResult> action, string description = null, object owner = null,
+			Func<string, IEnumerable<string>> suggest = null) =>
+			AddCommand(name, action, description, owner, suggest);
+
+#if !DEVBOARD_ACTIVE
+		[System.Diagnostics.Conditional("__UNDEFINED__")]
+#endif
+		public static void Command<T1, T2, TResult>(string name, Func<T1, T2, TResult> action, string description = null,
+			object owner = null,
+			Func<string, IEnumerable<string>> suggest = null) =>
+			AddCommand(name, action, description, owner, suggest);
+
+#if !DEVBOARD_ACTIVE
+		[System.Diagnostics.Conditional("__UNDEFINED__")]
+#endif
+		public static void Command<T1, T2, T3, TResult>(string name, Func<T1, T2, T3, TResult> action, string description = null,
+			object owner = null,
+			Func<string, IEnumerable<string>> suggest = null) =>
+			AddCommand(name, action, description, owner, suggest);
+
+		private static void AddCommand(string name, Delegate action, string description, object owner,
+			Func<string, IEnumerable<string>> suggest)
+		{
+			if (!Enabled) {
+				return;
+			}
+
+			var command = Instance.Commands.Add(name, action, description);
+
+			if (suggest != null) {
+				foreach (var parameter in command.Parameters) {
+					var parameterName = parameter.Name;
+					command.WithSuggestions(parameterName, () => suggest(parameterName));
+				}
+			}
+
+			if (owner != null) {
+				Instance.Own(owner, command);
+			}
+		}
+
+		/// <summary>
+		/// Removes every segment and command registered with owner. Removed by the compiler in builds without
+		/// DevBoard.
 		/// </summary>
 #if !DEVBOARD_ACTIVE
 		[System.Diagnostics.Conditional("__UNDEFINED__")]
@@ -168,11 +271,11 @@ namespace Tekly.DevBoard
 			}
 		}
 
-		private void Own(object owner, PageSegment segment)
+		private void Own(object owner, IDisposable registration)
 		{
-			if (!m_owned.TryGetValue(owner, out var segments)) {
-				segments = new List<PageSegment>();
-				m_owned.Add(owner, segments);
+			if (!m_owned.TryGetValue(owner, out var registrations)) {
+				registrations = new List<IDisposable>();
+				m_owned.Add(owner, registrations);
 
 				// Destroying a GameObject owner removes its segments, so MonoBehaviours don't need RemovePages
 				var gameObject = owner as GameObject ?? (owner as Component)?.gameObject;
@@ -182,19 +285,19 @@ namespace Tekly.DevBoard
 				}
 			}
 
-			segments.Add(segment);
+			registrations.Add(registration);
 		}
 
 		internal void ReleaseOwner(object owner)
 		{
-			if (!m_owned.TryGetValue(owner, out var segments)) {
+			if (!m_owned.TryGetValue(owner, out var registrations)) {
 				return;
 			}
 
 			m_owned.Remove(owner);
 
-			foreach (var segment in segments) {
-				segment.Dispose();
+			foreach (var registration in registrations) {
+				registration.Dispose();
 			}
 		}
 	}

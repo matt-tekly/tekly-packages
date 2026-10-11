@@ -71,10 +71,21 @@ namespace Tekly.DevBoard
 		public static readonly WidgetPrefab<TextInputWidget> TextInput = "textinput";
 		public static readonly WidgetPrefab<TextInputWidget> TextInputVertical = "textinput_vertical";
 		public static readonly WidgetPrefab<TextInputWidget> SearchInput = "textinput_search";
+
+		/// <summary>
+		/// Optional. The console's line: a text input showing a prompt, like the search input shows its icon.
+		/// Without it the console puts a "&gt;" label before a plain input.
+		/// </summary>
+		public static readonly WidgetPrefab<TextInputWidget> PromptInput = "textinput_prompt";
 		public static readonly WidgetPrefab<NumberInputWidget> NumberInput = "numberinput";
 
 		public static readonly WidgetPrefab<DropdownWidget> Dropdown = "dropdown";
 		public static readonly WidgetPrefab<DropdownPopup> DropdownPopup = "dropdown_popup";
 		public static readonly WidgetPrefab<DropdownOption> DropdownOption = "dropdown_option";
+
+		/// <summary>
+		/// Optional. The box the console's suggestions float in. A card when there isn't one.
+		/// </summary>
+		public static readonly WidgetPrefab<ContainerWidget> ConsoleSuggestions = "console_suggestions";
 	}
 }

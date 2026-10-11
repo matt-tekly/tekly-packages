@@ -244,8 +244,8 @@ namespace Tekly.DevBoard.Components
 		}
 
 		/// <summary>
-		/// Adds a row between the search field and the list, for controls that change what's listed, like the
-		/// command palette's category chips. Call Refilter when they change it.
+		/// Adds a row between the search field and the list, below any added before, for controls that change
+		/// what's listed, like the command palette's category chips. Call Refilter when they change it.
 		/// </summary>
 		public ContainerWidget AddHeader()
 		{

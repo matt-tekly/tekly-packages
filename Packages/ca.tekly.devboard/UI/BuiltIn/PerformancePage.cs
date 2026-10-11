@@ -124,7 +124,7 @@ namespace Tekly.DevBoard.BuiltIn
 			var recorder = Record(page, category, counter, frames);
 			var text = string.Empty;
 			var nextRead = 0f;
-
+			
 			form.Property(label, () => {
 					if (Time.unscaledTime >= nextRead) {
 						nextRead = Time.unscaledTime + READ_INTERVAL;

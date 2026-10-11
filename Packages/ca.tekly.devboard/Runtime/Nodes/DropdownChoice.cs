@@ -13,10 +13,18 @@ namespace Tekly.DevBoard.Components
 		/// </summary>
 		public string Subtitle;
 
-		public DropdownChoice(string title, string subtitle = null)
+		/// <summary>
+		/// Shows Title and Subtitle as rich text, so tags in them style the text. Off by default, so a "&lt;" in a
+		/// name is shown as written; turn it on only for text whose tags are meant, and wrap anything else that
+		/// goes in it in &lt;noparse&gt;. The default search then matches the tags too.
+		/// </summary>
+		public bool IsRichText;
+
+		public DropdownChoice(string title, string subtitle = null, bool isRichText = false)
 		{
 			Title = title;
 			Subtitle = subtitle;
+			IsRichText = isRichText;
 		}
 
 		public bool HasSubtitle => !string.IsNullOrEmpty(Subtitle);

@@ -1,11 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Tekly.DevBoard;
+using Tekly.DevBoard.Commands;
 using Tekly.DevBoard.Components;
 using Tekly.DevBoard.Components.Inputs;
 using Tekly.DevBoard.Nodes;
 using Tekly.Leaf;
 using Tekly.Trellis;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace TeklySample.Samples.DevBoardSample
 {
@@ -63,7 +66,7 @@ namespace TeklySample.Samples.DevBoardSample
 
 			m_items.Sort();
 			m_item = m_items[0];
-
+			
 			// Each section is a segment of the same page, in order. All are removed when this GameObject is destroyed.
 			// In builds without DevBoard these calls are removed by the compiler
 			DevBoard.Page(CONTROLS, Labels, "Labels and Properties", 0, owner: gameObject);
@@ -77,6 +80,17 @@ namespace TeklySample.Samples.DevBoardSample
 			DevBoard.Page(CONTROLS, Search, "Search", 8, owner: gameObject);
 			DevBoard.Page(CONTROLS, Data, "Data", 9, owner: gameObject);
 
+			// Commands for the console (F2), removed with this GameObject like the pages. A last text argument takes
+			// the rest of the line, so "inventory add Gold Ring" needs no quotes. suggest gives the values the console
+			// offers as an argument is typed
+			DevBoard.Command("inventory add", (string item) => AddItem(item), "Adds an item to the inventory", gameObject,
+				suggest: _ => m_items);
+			DevBoard.Command("inventory remove", (CommandContext context, string item) => RemoveItem(context, item),
+				"Removes an item from the inventory", gameObject, suggest: _ => m_inventory);
+			DevBoard.Command("inventory list", () => string.Join(", ", m_inventory), "Lists the inventory", gameObject);
+			DevBoard.Command("inventory clear", () => m_inventory.Clear(), "Empties the inventory", gameObject);
+			DevBoard.Command("exception", () => throw new Exception("Meow"), "Throws Exception", gameObject);
+			
 			DevBoard.Page("Sample/Leaf", page => {
 				page.Toggle("Input Disabled", () => m_isHoldingInput, value => {
 					if (value == m_isHoldingInput) {
@@ -94,11 +108,47 @@ namespace TeklySample.Samples.DevBoardSample
 			}, owner: gameObject);
 		}
 
+		private string AddItem(string item)
+		{
+			if (m_inventory.Contains(item)) {
+				return $"Already have {item}";
+			}
+
+			m_inventory.Add(item);
+			return $"Added {item}";
+		}
+
+		// A CommandContext parameter isn't typed by the user: it's for output, here reporting a failure
+		private void RemoveItem(CommandContext context, string item)
+		{
+			var index = m_inventory.FindIndex(other => string.Equals(other, item, System.StringComparison.OrdinalIgnoreCase));
+
+			if (index < 0) {
+				context.Error($"No {item} in the inventory");
+				return;
+			}
+
+			context.Log($"Removed {m_inventory[index]}");
+			m_inventory.RemoveAt(index);
+		}
+
+		// A static method becomes a command with the attribute alone. [Suggest] names a static method giving the
+		// values the console offers for a parameter
+		[DevCommand("sample greet", "Says hello, a number of times")]
+		private static void Greet(CommandContext context, [Suggest(nameof(GreetNames))] string name = "world", int times = 1)
+		{
+			for (var i = 0; i < times; i++) {
+				context.Log($"Hello, {name}!");
+			}
+		}
+
+		private static IEnumerable<string> GreetNames() => new[] { "world", "team", "Unity" };
+
 		private void Labels(Segment page)
 		{
 			var form = page.Form();
 			form.Label("A label is plain text.");
-
+			
 			// Properties read their getter every tick and show the value with a format
 			form.Property("Time", () => Time.time, "{0:N2}");
 			form.Property("Monospaced", () => Time.time, "{0:N2}").WithMonospaced();

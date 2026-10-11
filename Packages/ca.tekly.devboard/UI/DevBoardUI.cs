@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Tekly.Common.Utils;
 using Tekly.DevBoard.Components;
+using Tekly.DevBoard.Console;
 using Tekly.DevBoard.Nodes;
 using Tekly.DevBoard.Pages;
 using Tekly.DevBoard.Palette;
@@ -77,9 +78,10 @@ namespace Tekly.DevBoard
 		public Key ToggleKey { get; set; } = Key.F1;
 
 		/// <summary>
-		/// The key that opens the command palette. Key.None turns the shortcut off.
+		/// The key that opens and closes the console. Key.None turns the shortcut off. The palette opens with
+		/// Ctrl+F while DevBoard has focus.
 		/// </summary>
-		public Key PaletteKey { get; set; } = Key.F2;
+		public Key ConsoleKey { get; set; } = Key.F2;
 #else
 		/// <summary>
 		/// The key that shows and hides DevBoard. KeyCode.None turns the shortcut off.
@@ -87,9 +89,10 @@ namespace Tekly.DevBoard
 		public KeyCode ToggleKey { get; set; } = KeyCode.F1;
 
 		/// <summary>
-		/// The key that opens the command palette. KeyCode.None turns the shortcut off.
+		/// The key that opens and closes the console. KeyCode.None turns the shortcut off. The palette opens with
+		/// Ctrl+F while DevBoard has focus.
 		/// </summary>
-		public KeyCode PaletteKey { get; set; } = KeyCode.F2;
+		public KeyCode ConsoleKey { get; set; } = KeyCode.F2;
 #endif
 
 		private GameObject m_root;
@@ -98,6 +101,7 @@ namespace Tekly.DevBoard
 
 		private readonly List<DevBoardPanel> m_panels = new();
 		private DevBoardPanel m_lastUsedPanel;
+		private bool m_lastPressOnBoard;
 		private readonly List<RaycastResult> m_pressHits = new();
 		private bool m_panelsRestored;
 		private bool m_restoringPanels;
@@ -108,10 +112,12 @@ namespace Tekly.DevBoard
 		private readonly HashSet<string> m_warnings = new();
 
 		private readonly CommandPalette m_palette;
+		private readonly DevConsole m_console;
 
 		public DevBoardUI()
 		{
 			m_palette = new CommandPalette(this);
+			m_console = new DevConsole(this);
 
 			Settings.Changed += ApplySettings;
 			RegisterOptionsPage();
@@ -129,6 +135,20 @@ namespace Tekly.DevBoard
 		public void ClosePalette()
 		{
 			m_palette.Close();
+		}
+
+		/// <summary>
+		/// Opens the console: a terminal for typing commands, along the bottom of the screen.
+		/// </summary>
+		public void OpenConsole()
+		{
+			Initialize();
+			m_console.Open();
+		}
+
+		public void CloseConsole()
+		{
+			m_console.Close();
 		}
 
 		/// <summary>
@@ -324,7 +344,7 @@ namespace Tekly.DevBoard
 			}
 
 			// The palette floats on the panels' canvas, and can be open while the panels are hidden
-			var anyShown = IsVisible || m_palette.IsOpen;
+			var anyShown = IsVisible || m_palette.IsOpen || m_console.IsOpen;
 
 			foreach (var panel in m_panels) {
 				if (panel != null) {
@@ -415,7 +435,7 @@ namespace Tekly.DevBoard
 		}
 
 		/// <summary>
-		/// Called every frame by DevBoardTicker: the shortcuts, and the command palette's keys.
+		/// Called every frame by DevBoardTicker: the shortcuts, and the palette's and console's keys.
 		/// </summary>
 		internal void UpdateKeys()
 		{
@@ -424,16 +444,42 @@ namespace Tekly.DevBoard
 			}
 
 			// The same key closes it again
-			if (WasPressed(PaletteKey)) {
-				if (m_palette.IsOpen) {
-					ClosePalette();
+			if (WasPressed(ConsoleKey)) {
+				if (m_console.IsOpen) {
+					CloseConsole();
 				} else {
-					OpenPalette();
+					OpenConsole();
 				}
+			}
+
+			// Ctrl+F only while DevBoard has focus, so the game can use it otherwise
+			if (KeyInput.Find && IsFocused) {
+				OpenPalette();
 			}
 
 			NoteUsedPanel();
 			m_palette.Update();
+			m_console.Update();
+		}
+
+		/// <summary>
+		/// True while DevBoard has the user's attention: the last click or touch landed on its UI, or something in it
+		/// is selected, like an input being typed in.
+		/// </summary>
+		public bool IsFocused {
+			get {
+				if (m_dock == null || m_dock.Canvas == null || !m_dock.Canvas.enabled) {
+					return false;
+				}
+
+				var selected = EventSystem.current != null ? EventSystem.current.currentSelectedGameObject : null;
+				return m_lastPressOnBoard || IsOnBoard(selected);
+			}
+		}
+
+		private bool IsOnBoard(GameObject gameObject)
+		{
+			return gameObject != null && m_dock != null && m_dock.Canvas != null && gameObject.transform.IsChildOf(m_dock.Canvas.transform);
 		}
 
 		/// <summary>
@@ -445,7 +491,8 @@ namespace Tekly.DevBoard
 		/// <summary>
 		/// Remembers which panel a click or touch began on: the panel above whatever the UI hit there.
 		/// Polled rather than heard through UI events, since the buttons and fields inside a panel take those first.
-		/// A press on a popup, like the palette, hits the popup and changes nothing.
+		/// A press on a popup, like the palette, hits the popup and leaves the panel as it was. Also notes whether the
+		/// press was on DevBoard at all, for IsFocused.
 		/// </summary>
 		private void NoteUsedPanel()
 		{
@@ -460,6 +507,8 @@ namespace Tekly.DevBoard
 
 			m_pressHits.Clear();
 			eventSystem.RaycastAll(pressData, m_pressHits);
+
+			m_lastPressOnBoard = m_pressHits.Count > 0 && IsOnBoard(m_pressHits[0].gameObject);
 
 			if (m_pressHits.Count == 0) {
 				return;

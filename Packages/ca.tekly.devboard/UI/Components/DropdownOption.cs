@@ -51,17 +51,19 @@ namespace Tekly.DevBoard.Components
 		}
 
 		/// <summary>
-		/// The label text for a choice. Names are shown as written, so a "&lt;" in one isn't read as a tag.
+		/// The label text for a choice. Names are shown as written, so a "&lt;" in one isn't read as a tag, unless
+		/// the choice is rich text.
 		/// </summary>
 		protected string Format(in DropdownChoice choice)
 		{
-			var title = $"<noparse>{choice.Title}</noparse>";
+			var title = choice.IsRichText ? choice.Title : $"<noparse>{choice.Title}</noparse>";
 
 			if (!choice.HasSubtitle) {
 				return title;
 			}
 
-			return $"{title}\n<style=\"{m_subtitleStyle}\"><noparse>{choice.Subtitle}</noparse></style>";
+			var subtitle = choice.IsRichText ? choice.Subtitle : $"<noparse>{choice.Subtitle}</noparse>";
+			return $"{title}\n<style=\"{m_subtitleStyle}\">{subtitle}</style>";
 		}
 
 		/// <summary>

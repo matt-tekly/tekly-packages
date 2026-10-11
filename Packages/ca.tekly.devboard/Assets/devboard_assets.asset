@@ -38,6 +38,8 @@ MonoBehaviour:
   - {fileID: 8506708087344712343, guid: 9bed85a2d30b4314c9dc1bf92a41c7de, type: 3}
   - {fileID: 2441663034153046568, guid: 98ae9185e74df18458e16ea144ef6e4f, type: 3}
   - {fileID: 5617699402304560603, guid: 538f4127ba4edc8408ca1e296349256c, type: 3}
+  - {fileID: 4296174205817953816, guid: f3a4a8dbb40a3724eb6e742d03ac6202, type: 3}
+  - {fileID: 8799560512126566558, guid: 0e45e16894624d348a507202eb4bd034, type: 3}
   Fonts:
   - {fileID: 11400000, guid: 8096619a8053df240b901c57a8928de4, type: 2}
   - {fileID: 11400000, guid: 02ee2563343ffb84b87ca0f4d35e1c45, type: 2}

@@ -28,6 +28,8 @@ namespace Tekly.DevBoard.Palette
 	/// Actions (things that run), Settings (things you change) and Info (values to read). While searching, each
 	/// shows how many entries match, so it's clear where the matches are before picking one.
 	///
+	/// It's for finding things on the board, for anyone. Typed commands are the console's, see DevConsole.
+	///
 	/// With nothing typed and no category picked it's a menu: recent picks, then every page, top level first.
 	///
 	/// A searchable list is one entry, not one per row: it has its own search, and its rows may be hidden by it.
@@ -80,6 +82,10 @@ namespace Tekly.DevBoard.Palette
 		private bool m_pendingReveal;
 		private bool m_closeRequested;
 
+		// Puts the keyboard back in the search a frame after a pick that keeps the palette open, see RefocusSearch
+		private int m_refocusAfterFrame = -1;
+		private bool m_refocusSelectAll;
+
 		public CommandPalette(DevBoardUI board)
 		{
 			m_board = board;
@@ -123,6 +129,7 @@ namespace Tekly.DevBoard.Palette
 		{
 			m_closeRequested = false;
 			m_pendingPick = -1;
+			m_refocusAfterFrame = -1;
 
 			if (m_popup != null) {
 				m_lastQuery = m_popup.Query;
@@ -161,6 +168,21 @@ namespace Tekly.DevBoard.Palette
 				m_pendingPick = -1;
 				Pick(m_entries[pick], m_pendingReveal);
 			}
+
+			if (m_refocusAfterFrame >= 0 && Time.frameCount > m_refocusAfterFrame) {
+				m_refocusAfterFrame = -1;
+				m_popup.FocusSearch(m_refocusSelectAll);
+			}
+		}
+
+		/// <summary>
+		/// Puts the keyboard back in the search next frame. Enter deactivates the field later in the frame it's
+		/// pressed, after the pick it caused, so focusing straight away would be undone.
+		/// </summary>
+		private void RefocusSearch(bool selectAll)
+		{
+			m_refocusAfterFrame = Time.frameCount;
+			m_refocusSelectAll = selectAll;
 		}
 
 		/// <summary>
@@ -191,7 +213,7 @@ namespace Tekly.DevBoard.Palette
 					// Stays open, showing the new value, so several toggles can be flipped in a row
 					access.TryInvoke(toggle, out _);
 					RefreshValues();
-					m_popup.FocusSearch();
+					RefocusSearch(true);
 					return;
 				case ButtonNode button when !reveal:
 					Close();
@@ -380,6 +402,7 @@ namespace Tekly.DevBoard.Palette
 
 			for (var i = 0; i < choices.Length; i++) {
 				var entry = m_entries[i];
+
 				var subtitle = entry.Value != null
 					? $"{entry.Kind}{SEPARATOR}{entry.Value}{SEPARATOR}{entry.Location}"
 					: $"{entry.Kind}{SEPARATOR}{entry.Location}";
