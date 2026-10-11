@@ -9,28 +9,80 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 797643170885697563, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
+      propertyPath: m_radius
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 797643170885697563, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
+      propertyPath: m_Color.b
+      value: 0.6313726
+      objectReference: {fileID: 0}
+    - target: {fileID: 797643170885697563, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
+      propertyPath: m_Color.g
+      value: 0.7686275
+      objectReference: {fileID: 0}
+    - target: {fileID: 797643170885697563, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
+      propertyPath: m_Color.r
+      value: 0.8352942
+      objectReference: {fileID: 0}
+    - target: {fileID: 797643170885697563, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
       propertyPath: m_fill.Color.b
-      value: 0.291
+      value: 0.21960784
       objectReference: {fileID: 0}
     - target: {fileID: 797643170885697563, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
       propertyPath: m_fill.Color.g
-      value: 0.291
+      value: 0.21960784
       objectReference: {fileID: 0}
     - target: {fileID: 797643170885697563, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
       propertyPath: m_fill.Color.r
-      value: 0.291
+      value: 0.21960784
+      objectReference: {fileID: 0}
+    - target: {fileID: 797643170885697563, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
+      propertyPath: m_rendererTintLayers
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 797643170885697563, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
+      propertyPath: m_shadows.Array.data[0].Tuck
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 797643170885697563, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
+      propertyPath: m_shadows.Array.data[0].Spread
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 797643170885697563, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
+      propertyPath: m_shadows.Array.data[0].Softness
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 797643170885697563, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
+      propertyPath: m_shadows.Array.data[0].Paint.Color.a
+      value: 0.28235295
+      objectReference: {fileID: 0}
+    - target: {fileID: 797643170885697563, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
+      propertyPath: m_shadows.Array.data[0].Paint.Color.b
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 797643170885697563, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
+      propertyPath: m_shadows.Array.data[0].Paint.Color.g
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 797643170885697563, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
+      propertyPath: m_shadows.Array.data[0].Paint.Color.r
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 797643170885697563, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
       propertyPath: m_outlines.Array.data[0].Paint.Color.b
-      value: 0.2997
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 797643170885697563, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
       propertyPath: m_outlines.Array.data[0].Paint.Color.g
-      value: 0.31080002
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 797643170885697563, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
       propertyPath: m_outlines.Array.data[0].Paint.Color.r
-      value: 0.333
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 797643170885697563, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
+      propertyPath: m_shadows.Array.data[0].Paint.Gradient
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3800044106018391679, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
       propertyPath: m_Name
