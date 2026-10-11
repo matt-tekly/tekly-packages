@@ -5,7 +5,7 @@ namespace Tekly.DevBoard.Components
 {
 	public class LabelWidget : Widget
 	{
-		private const string MONOSPACED = "monospace";
+		internal const string MONOSPACED = "monospace";
 		
 		public TMP_Text TextComponent => m_textComponent;
 

@@ -28,7 +28,7 @@ namespace Tekly.DevBoard.Console
 		private const float HEIGHT_FRACTION = 0.4f;
 		private const int MAX_OUTPUT = 200;
 		private const int MAX_HISTORY = 100;
-		private const int SHOWN_SUGGESTIONS = 8;
+		private const int SCROLL_TO_END_FRAMES = 2;
 
 		// Space between the suggestion box and the line or hint it stands on
 		private const float SUGGESTION_GAP = 8f;
@@ -38,7 +38,6 @@ namespace Tekly.DevBoard.Console
 		private const string ERROR = "<color=#E5534B>{0}</color>";
 		private const string DIM = "<alpha=#80>{0}<alpha=#FF>";
 		private const string DIMMER = "<alpha=#55>{0}<alpha=#FF>";
-		private const string PROMPT = ">";
 		private const string PICKED = "<color=#F6C050>{0}</color>";
 
 		public bool IsOpen => m_root != null;
@@ -53,10 +52,10 @@ namespace Tekly.DevBoard.Console
 		private readonly List<LabelWidget> m_suggestionLabels = new();
 		private static readonly Vector3[] s_corners = new Vector3[4];
 
-		private ContainerWidget m_root;
+		private ConsoleWidget m_root;
 		private ScrollViewWidget m_scroll;
 		private ContainerWidget m_suggestionBox;
-		private ContainerWidget m_outputContent;
+		private ConsoleOutput m_outputField;
 		private LabelWidget m_hint;
 		private TextInputWidget m_input;
 
@@ -77,7 +76,7 @@ namespace Tekly.DevBoard.Console
 		// Up and Down also move the field's caret to the start or end of the line, repeating while held, before or
 		// after this update runs. So while either is held, and the frame after, the caret is held where it was
 		private int m_holdCaretUntilFrame = -1;
-		private bool m_scrollToEnd;
+		private int m_scrollToEndFrames;
 		private int m_refocusAfterFrame = -1;
 
 		public DevConsole(DevBoardUI board)
@@ -118,11 +117,9 @@ namespace Tekly.DevBoard.Console
 
 			Build(layer);
 
-			foreach (var line in m_output) {
-				AddOutputLabel(line);
-			}
+			RefreshOutput();
 
-			m_scrollToEnd = true;
+			m_scrollToEndFrames = SCROLL_TO_END_FRAMES;
 			UpdateCompletion();
 			m_input.Focus(false);
 
@@ -140,7 +137,7 @@ namespace Tekly.DevBoard.Console
 			m_root = null;
 			m_scroll = null;
 			m_suggestionBox = null;
-			m_outputContent = null;
+			m_outputField = null;
 			m_hint = null;
 			m_input = null;
 			m_suggestionLabels.Clear();
@@ -164,17 +161,27 @@ namespace Tekly.DevBoard.Console
 				m_input.Focus(false);
 			}
 
-			if (m_scrollToEnd) {
-				m_scrollToEnd = false;
-				ScrollToEnd();
-			}
-
 			if (KeyInput.UpOrDownHeld) {
 				m_holdCaretUntilFrame = Time.frameCount + 1;
 			}
 
 			ReadLine();
+			m_outputField.FitToText();
+			FitHeight();
+
+			// After the sizing above, and again next frame once the layout has settled on it
+			if (m_scrollToEndFrames > 0) {
+				m_scrollToEndFrames--;
+				ScrollToEnd();
+			}
+
 			PlaceSuggestionBox();
+
+			// Selecting output takes the keyboard from the line. Enter or Escape hands it back
+			if (m_outputField.isFocused && (KeyInput.Enter || KeyInput.Escape)) {
+				m_input.Focus(false);
+				return;
+			}
 
 			// The field stops being focused in the same frame Enter is pressed, so last frame counts too
 			var focused = m_input.IsFocused;
@@ -223,41 +230,41 @@ namespace Tekly.DevBoard.Console
 			}
 		}
 
+		/// <summary>
+		/// Sizes the console to what it holds, up to a fraction of the screen. Past that the output scrolls.
+		/// </summary>
+		private void FitHeight()
+		{
+			var rect = (RectTransform) m_root.transform;
+			var max = ((RectTransform) rect.parent).rect.height * HEIGHT_FRACTION;
+			var height = Mathf.Min(LayoutUtility.GetPreferredHeight(rect), max);
+
+			if (!Mathf.Approximately(rect.sizeDelta.y, height)) {
+				rect.sizeDelta = new Vector2(0f, height);
+			}
+		}
+
 		private bool HasSuggestions => !m_suggestionsDismissed && m_completion.Suggestions.Count > 0;
 
 		private void Build(RectTransform layer)
 		{
-			m_root = ContainerWidget.CreatePlain(layer, "Console", 0);
+			m_root = UnityEngine.Object.Instantiate(m_board.Get(WidgetPrefabs.Console), layer, false);
+			FitHeight();
 
-			var rect = (RectTransform) m_root.transform;
-			rect.anchorMin = new Vector2(0f, 0f);
-			rect.anchorMax = new Vector2(1f, 0f);
-			rect.pivot = new Vector2(0.5f, 0f);
-			rect.sizeDelta = new Vector2(0f, layer.rect.height * HEIGHT_FRACTION);
-			rect.anchoredPosition = Vector2.zero;
-
-			// Everything spans the strip's width
-			var card = m_root.Card().WithFlexibleHeight().WithSpacing(2).WithCrossAlignment(CrossAlignment.Stretch);
-
-			m_scroll = card.ScrollView().WithoutSavedState();
-
-			// Takes only the height left over, rather than asking for all of its output and squeezing the rest. Set
-			// on the scroll view's own layout: the widget's With methods size its content, which must stay its full
-			// height to scroll
-			if (m_scroll.TryGetComponent(out LayoutProxy scrollLayout)) {
-				scrollLayout.UseSourceHeight = false;
-				scrollLayout.MinHeight = 0f;
-				scrollLayout.PreferredHeight = 0f;
-				scrollLayout.FlexibleHeight = 1f;
-			}
-			m_outputContent = m_scroll;
-
-			m_hint = card.Label(string.Empty);
+			m_scroll = m_root.Scroll.WithoutSavedState();
+			m_outputField = m_root.Output;
+			m_hint = m_root.Hint;
 			m_hint.Monospaced = true;
+			m_suggestionBox = m_root.Suggestions;
 
-			m_input = BuildInput(card)
-				.WithPlaceholder("Type a command. Tab completes, help lists them")
-				.WithInputMode(InputMode.Immediate);
+			foreach (var label in m_root.SuggestionLabels) {
+				label.Monospaced = true;
+				m_suggestionLabels.Add(label);
+			}
+
+			m_input = m_root.Input;
+			m_input.Initialize(null, new Binding<string>(() => m_line, _ => { }));
+			m_input.WithPlaceholder("Type a command. Tab completes, help lists them").WithInputMode(InputMode.Immediate);
 
 			// Tab moves through the suggestions instead of leaving the field
 			var tabHandler = m_input.InputField.gameObject.AddComponent<SearchTabHandler>();
@@ -277,59 +284,9 @@ namespace Tekly.DevBoard.Console
 
 			m_input.InputField.restoreOriginalTextOnEscape = false;
 
-			BuildSuggestionBox();
-		}
-
-		/// <summary>
-		/// The line typed into: the prompt input prefab, which shows its own prompt, or without one a plain input
-		/// after a "&gt;" label.
-		/// </summary>
-		private TextInputWidget BuildInput(ContainerWidget card)
-		{
-			if (m_board.TryGet(WidgetPrefabs.PromptInput, out _)) {
-				return card.TextInput(null, () => m_line, _ => { }, WidgetPrefabs.PromptInput);
-			}
-
-			var line = card.Row().WithPadding(0).WithCrossAlignment(CrossAlignment.Center);
-			var prompt = line.Label(PROMPT);
-			prompt.Monospaced = true;
-
-			var input = line.TextInput(null, () => m_line, _ => { });
-
-			if (input.TryGetComponent(out LayoutItem layout)) {
-				layout.FlexibleWidth = 1f;
-			}
-
-			return input;
-		}
-
-		/// <summary>
-		/// The box suggestions float in, over the output just above the line, like an editor's autocomplete. Made
-		/// last so it draws over the rest, and left out of the console's layout: PlaceSuggestionBox sizes and
-		/// places it.
-		/// </summary>
-		private void BuildSuggestionBox()
-		{
-			var prefab = m_board.TryGet(WidgetPrefabs.ConsoleSuggestions, out var custom) ? custom : m_board.Get(WidgetPrefabs.Card);
-			m_suggestionBox = UnityEngine.Object.Instantiate(prefab, m_root.Content, false);
-			m_suggestionBox.WithSpacing(0);
-
-			if (!m_suggestionBox.TryGetComponent(out LayoutItem layout)) {
-				layout = m_suggestionBox.gameObject.AddComponent<LayoutItem>();
-			}
-
-			layout.IgnoreLayout = true;
-
-			var rect = (RectTransform) m_suggestionBox.transform;
-			rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.zero;
-
-			for (var i = 0; i < SHOWN_SUGGESTIONS; i++) {
-				var label = m_suggestionBox.Label(string.Empty);
-				label.Monospaced = true;
-				m_suggestionLabels.Add(label);
-			}
-
-			m_suggestionBox.gameObject.SetActive(false);
+			// Enter runs the line and Refocus keeps the keyboard in it. The prompt input moving on to the next
+			// element would land on the output
+			m_input.InputField.EnterMovesNext = false;
 		}
 
 		/// <summary>
@@ -539,34 +496,25 @@ namespace Tekly.DevBoard.Console
 
 			if (m_output.Count > MAX_OUTPUT) {
 				m_output.RemoveAt(0);
-
-				if (m_outputContent != null && m_outputContent.Content.childCount > 0) {
-					ContainerWidget.DestroyWidget(m_outputContent.Content.GetChild(0).gameObject);
-				}
 			}
 
 			if (IsOpen) {
-				AddOutputLabel(line);
-				m_scrollToEnd = true;
+				RefreshOutput();
+				m_scrollToEndFrames = SCROLL_TO_END_FRAMES;
 			}
 		}
 
-		private void AddOutputLabel(string line)
+		private void RefreshOutput()
 		{
-			var label = m_outputContent.Label(line);
-			label.Monospaced = true;
+			m_outputField.SetLines(m_output);
 		}
 
 		private void Clear()
 		{
 			m_output.Clear();
 
-			if (m_outputContent == null) {
-				return;
-			}
-
-			for (var i = m_outputContent.Content.childCount - 1; i >= 0; i--) {
-				ContainerWidget.DestroyWidget(m_outputContent.Content.GetChild(i).gameObject);
+			if (m_outputField != null) {
+				RefreshOutput();
 			}
 		}
 
