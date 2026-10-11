@@ -65,3 +65,6 @@ crashlytics-build.properties
 
 # Thumbnails
 ._*
+
+# Tekly favorites (per-user)
+UserSettings/TeklyFavorites.asset
