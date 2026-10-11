@@ -19,6 +19,11 @@ namespace Tekly.DevBoard.Nodes
 		public string Format { get; }
 		public bool Monospaced { get; private set; }
 
+		/// <summary>
+		/// How many characters wide the value is, or 0 to fit the value.
+		/// </summary>
+		public int ValueWidth { get; private set; }
+
 		protected PropertyNode(string label, string format) : base(label)
 		{
 			Format = format ?? "{0}";
@@ -31,6 +36,17 @@ namespace Tekly.DevBoard.Nodes
 		{
 			EnsureEditable();
 			Monospaced = monospaced;
+			return this;
+		}
+
+		/// <summary>
+		/// Makes the value always as wide as this many characters, cutting longer values off with an ellipsis. Keeps
+		/// a layout still while values change length, e.g. columns of numbers side by side.
+		/// </summary>
+		public PropertyNode WithValueWidth(int characters)
+		{
+			EnsureEditable();
+			ValueWidth = characters;
 			return this;
 		}
 

@@ -1,6 +1,7 @@
 ﻿#if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
+using Tekly.DevBoard.BuiltIn;
 using UnityEngine;
 
 namespace Tekly.DevBoard
@@ -24,12 +25,20 @@ namespace Tekly.DevBoard
 		[Tooltip("Start with DevBoard hidden until the shortcut is pressed")]
 		[SerializeField] private bool m_startHidden = true;
 
+		[Tooltip("Add DevBoard's own pages, like System/Performance")]
+		[SerializeField] private bool m_builtInPages = true;
+
 		private void Awake()
 		{
 			var devBoard = DevBoardUI.Instance;
 			devBoard.ToggleKey = m_toggleKey;
 			devBoard.SetVisible(!m_startHidden);
 			devBoard.AddAssets(m_assets);
+
+			if (m_builtInPages) {
+				BuiltInPages.Register(gameObject);
+			}
+
 			devBoard.RestorePanels();
 
 			if (m_createMainPanel && devBoard.Panels.Count == 0) {

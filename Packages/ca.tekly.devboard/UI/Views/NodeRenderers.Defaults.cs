@@ -27,6 +27,7 @@ namespace Tekly.DevBoard.Views
 			Register<PropertyNode, PropertyWidget>(WidgetPrefabs.Property, (node, widget, view) => {
 				node.Accept(new PropertyBinder(widget, LabelText(node), node.Format));
 				widget.WithMonospaced(node.Monospaced);
+				widget.WithValueWidth(node.ValueWidth);
 			});
 
 			Register<ButtonNode, ButtonWidget>(WidgetPrefabs.Button,

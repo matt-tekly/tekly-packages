@@ -111,7 +111,6 @@ namespace Tekly.DevBoard
 			m_palette = new CommandPalette(this);
 
 			Settings.Changed += ApplySettings;
-			RegisterSearchPage();
 			RegisterOptionsPage();
 		}
 
@@ -500,37 +499,30 @@ namespace Tekly.DevBoard
 		}
 
 		/// <summary>
-		/// A way into the command palette on the root page, for devices without a keyboard.
+		/// DevBoard's own settings. Sorted last among the top pages, as its order is int.MaxValue.
 		/// </summary>
-		private void RegisterSearchPage()
-		{
-			DevBoard.Instance.AddPage(string.Empty, page => {
-				page.Button("Search everything", OpenPalette)
-					.WithDescription($"Find any page or control ({PaletteKey})")
-					.InteractiveOnly();
-			}, order: int.MinValue);
-		}
-
 		private void RegisterOptionsPage()
 		{
 			DevBoard.Instance.AddPage(OPTIONS_PATH, page => {
 				var form = page.Form();
-				form.FloatInput("UI Scale", () => Settings.Scale, value => Settings.Scale = value)
-					.WithFormat("0.##")
-					.WithDescription("Scales all UI Elements");
 
-				var scaleRow = form.Row().WithPadding(0).WithAlignment(LayoutAlignment.End).WithFlexibleWidth();
+				// The steps sit right after the input rather than on a row of their own
+				var scaleRow = form.Row().WithPadding(0).WithCrossAlignment(CrossAlignment.Center);
+				scaleRow.FloatInput("UI Scale", () => Settings.Scale, value => Settings.Scale = value)
+					.WithFormat("0.##")
+					.WithDescription($"Scales all of DevBoard, from {DevBoardSettings.MIN_SCALE}x to {DevBoardSettings.MAX_SCALE}x");
 				scaleRow.Button("-", () => Settings.Scale -= DevBoardSettings.SCALE_STEP);
 				scaleRow.Button("+", () => Settings.Scale += DevBoardSettings.SCALE_STEP);
 				scaleRow.Button("1x", () => Settings.Scale = 1f);
 
 #if UNITY_EDITOR
-				form.Toggle("Use Physical Size Scale", () => Settings.KeepPhysicalSizeInEditor, value => Settings.KeepPhysicalSizeInEditor = value)
-					.WithDescription("Use screen DPI to scale UI");
+				form.Toggle("Physical Size", () => Settings.KeepPhysicalSizeInEditor, value => Settings.KeepPhysicalSizeInEditor = value)
+					.WithDescription("Scale by screen DPI: DevBoard is the size it would be on a device");
 #endif
 
-				form.Button("Reset options", Settings.ResetToDefaults);
-			}, order: int.MaxValue);
+				var resetRow = page.Row().WithPadding(0).WithAlignment(LayoutAlignment.End);
+				resetRow.Button("Reset options", Settings.ResetToDefaults).InteractiveOnly();
+			}, "Display", int.MaxValue);
 		}
 
 		private void WarnOnce(string message, bool isError = false)

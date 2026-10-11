@@ -18,6 +18,12 @@ namespace Tekly.DevBoard.Components
 		[SerializeField] private ContainerWidget m_infoContainer;
 		[SerializeField] private ButtonWidget m_button;
 
+		[Tooltip("Optional. Shown while open, e.g. a collapse icon")]
+		[SerializeField] private GameObject m_expandedIcon;
+
+		[Tooltip("Optional. Shown while closed, e.g. an expand icon")]
+		[SerializeField] private GameObject m_collapsedIcon;
+
 		private string m_stateKey;
 
 		private void Awake()
@@ -25,6 +31,7 @@ namespace Tekly.DevBoard.Components
 			// Awake can run after Initialize when the foldout is created inside an inactive container,
 			// so keep whatever label is already set
 			m_button.Initialize(Toggle, m_button.Label);
+			ShowExpanded(Expanded);
 		}
 
 		public void Initialize(string label)
@@ -49,7 +56,7 @@ namespace Tekly.DevBoard.Components
 		public FoldoutWidget StartExpanded(bool expanded)
 		{
 			if (!TryGetSavedExpanded(out _)) {
-				m_content.gameObject.SetActive(expanded);
+				ShowExpanded(expanded);
 			}
 
 			return this;
@@ -62,8 +69,24 @@ namespace Tekly.DevBoard.Components
 
 		private void SetExpanded(bool expanded)
 		{
-			m_content.gameObject.SetActive(expanded);
+			ShowExpanded(expanded);
 			DevBoard.Instance?.State.Set(m_stateKey, expanded);
+		}
+
+		/// <summary>
+		/// Opens or closes the content and swaps the icons, without saving.
+		/// </summary>
+		private void ShowExpanded(bool expanded)
+		{
+			m_content.gameObject.SetActive(expanded);
+
+			if (m_expandedIcon != null) {
+				m_expandedIcon.SetActive(expanded);
+			}
+
+			if (m_collapsedIcon != null) {
+				m_collapsedIcon.SetActive(!expanded);
+			}
 		}
 
 		/// <summary>
@@ -75,7 +98,7 @@ namespace Tekly.DevBoard.Components
 			m_stateKey = key;
 
 			if (TryGetSavedExpanded(out var expanded)) {
-				m_content.gameObject.SetActive(expanded);
+				ShowExpanded(expanded);
 			}
 		}
 

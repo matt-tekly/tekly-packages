@@ -40,5 +40,11 @@ namespace Tekly.DevBoard.Nodes
 		public static readonly Style<ButtonNode> IconButton = "button_icon";
 		public static readonly Style<TextInputNode> VerticalTextInput = "textinput_vertical";
 		public static readonly Style<TextInputNode> SearchInput = "textinput_search";
+
+		/// <summary>
+		/// A quieter foldout: no bar, just a small expand/collapse icon and its label, like a panel's collapse toggle.
+		/// For optional detail that shouldn't stand out.
+		/// </summary>
+		public static readonly Style<FoldoutNode> SubtleFoldout = "foldout_subtle";
 	}
 }

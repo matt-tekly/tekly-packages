@@ -1,4 +1,7 @@
 ﻿using System;
+using Tekly.Common.Utils;
+using Tekly.Trellis;
+using TMPro;
 using UnityEngine;
 
 namespace Tekly.DevBoard.Components
@@ -12,6 +15,13 @@ namespace Tekly.DevBoard.Components
 		[SerializeField] private LabelWidget m_value;
 		
 		private Property m_property;
+
+		// The value's own sizing, put back when it stops having a fixed width
+		private bool m_hasValueDefaults;
+		private OptionalFloat m_defaultMinWidth;
+		private OptionalFloat m_defaultPreferredWidth;
+		private TextWrappingModes m_defaultWrapping;
+		private TextOverflowModes m_defaultOverflow;
 
 		private const string ERROR_TEXT = "<color=#E5534B>error</color>";
 
@@ -30,6 +40,46 @@ namespace Tekly.DevBoard.Components
 		public PropertyWidget WithMonospaced(bool monospaced = true)
 		{
 			m_value.Monospaced = monospaced;
+			return this;
+		}
+
+		/// <summary>
+		/// Makes the value always as wide as this many characters, cutting longer text off with an ellipsis. 0 fits
+		/// the value again. Call after WithMonospaced, since the width is measured in the value's text style.
+		/// </summary>
+		public PropertyWidget WithValueWidth(int characters)
+		{
+			var text = m_value.TextComponent;
+
+			if (!m_value.TryGetComponent(out LayoutItem layout)) {
+				return this;
+			}
+
+			if (!m_hasValueDefaults) {
+				m_hasValueDefaults = true;
+				m_defaultMinWidth = layout.MinWidth;
+				m_defaultPreferredWidth = layout.PreferredWidth;
+				m_defaultWrapping = text.textWrappingMode;
+				m_defaultOverflow = text.overflowMode;
+			}
+
+			if (characters <= 0) {
+				layout.MinWidth = m_defaultMinWidth;
+				layout.PreferredWidth = m_defaultPreferredWidth;
+				text.textWrappingMode = m_defaultWrapping;
+				text.overflowMode = m_defaultOverflow;
+
+				return this;
+			}
+
+			// Digits are as wide as any character in the monospace style, and typical in a proportional one
+			var width = text.GetPreferredValues(new string('0', characters)).x;
+
+			layout.MinWidth = width;
+			layout.PreferredWidth = width;
+			text.textWrappingMode = TextWrappingModes.NoWrap;
+			text.overflowMode = TextOverflowModes.Ellipsis;
+
 			return this;
 		}
 
