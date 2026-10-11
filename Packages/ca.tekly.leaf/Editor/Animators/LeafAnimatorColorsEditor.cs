@@ -204,8 +204,13 @@ namespace Tekly.Leaf.Elements.Animators
 
 			using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox)) {
 				var header = EditorGUILayout.GetControlRect();
+				if (Event.current.type == EventType.ContextClick && header.Contains(Event.current.mousePosition)) {
+					ShowTargetMenu(m_targets, index);
+					Event.current.Use();
+				}
+
 				var foldRect = new Rect(header.x + 2f, header.y, 16f, header.height);
-				var buttonsWidth = 3 * 22f;
+				var buttonsWidth = 5 * 22f;
 				var swatchRect = new Rect(header.xMax - buttonsWidth - SWATCH_WIDTH - SPACING, header.y + 1f, SWATCH_WIDTH, header.height - 2f);
 				var fieldRect = new Rect(foldRect.xMax + 2f, header.y, swatchRect.x - foldRect.xMax - SPACING - 2f, header.height);
 
@@ -218,6 +223,18 @@ namespace Tekly.Leaf.Elements.Animators
 				GUI.Label(swatchRect, new GUIContent(string.Empty, "Color for the previewed state"));
 
 				var buttonRect = new Rect(swatchRect.xMax + SPACING, header.y, 20f, header.height);
+				if (GUI.Button(buttonRect, IconButton("TreeEditor.Duplicate", "C", "Copy this target's colors, layers and fade"), EditorStyles.miniButtonLeft)) {
+					CopyTarget(element);
+				}
+
+				buttonRect.x += 21f;
+				using (new EditorGUI.DisabledScope(s_copiedTarget == null)) {
+					if (GUI.Button(buttonRect, IconButton("Clipboard", "P", "Paste the copied colors, layers and fade onto this target"), EditorStyles.miniButtonRight)) {
+						PasteTarget(element);
+					}
+				}
+
+				buttonRect.x += 23f;
 				using (new EditorGUI.DisabledScope(index == 0)) {
 					if (GUI.Button(buttonRect, new GUIContent("▲", "Move target up"), EditorStyles.miniButtonLeft)) {
 						m_targets.MoveArrayElement(index, index - 1);
@@ -254,6 +271,112 @@ namespace Tekly.Leaf.Elements.Animators
 
 			EditorGUILayout.Space(2f);
 			return false;
+		}
+
+		// ---- Copy / paste ----
+
+		private class LayerCopy
+		{
+			public int Flags;
+			public int Blend;
+			public Color[] Colors;
+		}
+
+		private class TargetCopy
+		{
+			public float Fade;
+			public Color[] Colors;
+			public List<LayerCopy> Layers;
+		}
+
+		// Everything but the Graphic, so settings can be pasted onto a different target
+		private static TargetCopy s_copiedTarget;
+
+		private static Color[] ReadBlock(SerializedProperty block)
+		{
+			var colors = new Color[s_colorFields.Length];
+			for (var i = 0; i < colors.Length; i++) {
+				colors[i] = block.FindPropertyRelative(s_colorFields[i]).colorValue;
+			}
+
+			return colors;
+		}
+
+		private static void WriteBlock(SerializedProperty block, Color[] colors)
+		{
+			for (var i = 0; i < colors.Length; i++) {
+				block.FindPropertyRelative(s_colorFields[i]).colorValue = colors[i];
+			}
+		}
+
+		/// <summary>
+		/// A built-in editor icon button. Falls back to text if the icon doesn't exist in this Unity version.
+		/// </summary>
+		private static GUIContent IconButton(string icon, string fallbackText, string tooltip)
+		{
+			var texture = EditorGUIUtility.FindTexture(icon);
+			return texture != null ? new GUIContent(texture, tooltip) : new GUIContent(fallbackText, tooltip);
+		}
+
+		private static void CopyTarget(SerializedProperty element)
+		{
+			var layers = element.FindPropertyRelative("m_layers");
+			var copy = new TargetCopy {
+				Fade = element.FindPropertyRelative("m_fadeDuration").floatValue,
+				Colors = ReadBlock(element.FindPropertyRelative("m_colors")),
+				Layers = new List<LayerCopy>(layers.arraySize)
+			};
+
+			for (var i = 0; i < layers.arraySize; i++) {
+				var layer = layers.GetArrayElementAtIndex(i);
+				copy.Layers.Add(new LayerCopy {
+					Flags = layer.FindPropertyRelative("m_flags").intValue,
+					Blend = layer.FindPropertyRelative("m_blend").enumValueIndex,
+					Colors = ReadBlock(layer.FindPropertyRelative("m_colors"))
+				});
+			}
+
+			s_copiedTarget = copy;
+		}
+
+		private static void PasteTarget(SerializedProperty element)
+		{
+			element.FindPropertyRelative("m_fadeDuration").floatValue = s_copiedTarget.Fade;
+			WriteBlock(element.FindPropertyRelative("m_colors"), s_copiedTarget.Colors);
+
+			var layers = element.FindPropertyRelative("m_layers");
+			layers.arraySize = s_copiedTarget.Layers.Count;
+			for (var i = 0; i < s_copiedTarget.Layers.Count; i++) {
+				var layer = layers.GetArrayElementAtIndex(i);
+				var source = s_copiedTarget.Layers[i];
+				layer.FindPropertyRelative("m_flags").intValue = source.Flags;
+				layer.FindPropertyRelative("m_blend").enumValueIndex = source.Blend;
+				WriteBlock(layer.FindPropertyRelative("m_colors"), source.Colors);
+			}
+		}
+
+		private static void ShowTargetMenu(SerializedProperty array, int index)
+		{
+			var serialized = array.serializedObject;
+			var path = array.propertyPath;
+			var menu = new GenericMenu();
+
+			menu.AddItem(new GUIContent("Copy Target Settings"), false, () => {
+				serialized.Update();
+				CopyTarget(serialized.FindProperty(path).GetArrayElementAtIndex(index));
+			});
+
+			if (s_copiedTarget == null) {
+				menu.AddDisabledItem(new GUIContent("Paste Target Settings"));
+			} else {
+				menu.AddItem(new GUIContent("Paste Target Settings"), false, () => {
+					serialized.Update();
+					PasteTarget(serialized.FindProperty(path).GetArrayElementAtIndex(index));
+					serialized.ApplyModifiedProperties();
+				});
+			}
+
+			menu.ShowAsContext();
 		}
 
 		private void DrawColorTable(SerializedProperty colors, SerializedProperty layers, LeafElementState state)
