@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Tekly.Common.Observables;
 using Tekly.Common.Utils;
 using Tekly.DevBoard.Access;
 using Tekly.DevBoard.Commands;
@@ -42,6 +43,18 @@ namespace Tekly.DevBoard
 #endif
 
 		/// <summary>
+		/// True while the user's attention is on DevBoard: the last click or touch landed on its UI, or something in
+		/// it is selected, like an input being typed in. For game code to ignore its own input then, like moving the
+		/// player while typing in the console. Always false in builds without DevBoard.
+		/// </summary>
+		public static bool IsFocused => Enabled && Instance.Focused.Value;
+
+		/// <summary>
+		/// <see cref="IsFocused"/> as a value to subscribe to.
+		/// </summary>
+		public IObservableValue<bool> Focused => m_focused;
+
+		/// <summary>
 		/// Every registered page.
 		/// </summary>
 		public PageTree Pages { get; } = new();
@@ -62,6 +75,8 @@ namespace Tekly.DevBoard
 		/// </summary>
 		public CommandRegistry Commands { get; } = new();
 
+		private readonly ObservableValue<bool> m_focused = new();
+
 		// Segments and commands registered with an owner, to remove with RemovePages
 		private readonly Dictionary<object, List<IDisposable>> m_owned = new();
 
@@ -71,6 +86,14 @@ namespace Tekly.DevBoard
 		public DevBoard()
 		{
 			Access = new NodeAccess(Pages);
+		}
+
+		/// <summary>
+		/// Set by DevBoard's UI each frame. Game code reads <see cref="IsFocused"/> instead.
+		/// </summary>
+		public void SetFocused(bool focused)
+		{
+			m_focused.Value = focused;
 		}
 
 		/// <summary>

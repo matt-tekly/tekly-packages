@@ -90,22 +90,6 @@ namespace TeklySample.Samples.DevBoardSample
 			DevBoard.Command("inventory list", () => string.Join(", ", m_inventory), "Lists the inventory", gameObject);
 			DevBoard.Command("inventory clear", () => m_inventory.Clear(), "Empties the inventory", gameObject);
 			DevBoard.Command("exception", () => throw new Exception("Meow"), "Throws Exception", gameObject);
-			
-			DevBoard.Page("Sample/Leaf", page => {
-				page.Toggle("Input Disabled", () => m_isHoldingInput, value => {
-					if (value == m_isHoldingInput) {
-						return;
-					}
-
-					m_isHoldingInput = value;
-
-					if (value) {
-						LeafCore.Instance.DisableInput.Hold(this);
-					} else {
-						LeafCore.Instance.DisableInput.Release(this);
-					}
-				});
-			}, owner: gameObject);
 		}
 
 		private string AddItem(string item)

@@ -12,6 +12,9 @@ namespace Tekly.DevBoard.BuiltIn
 		public static void Register(object owner)
 		{
 			PerformancePage.Register(owner);
+			TimePage.Register(owner);
+			DisplayPage.Register(owner);
+			DevicePage.Register(owner);
 		}
 	}
 }

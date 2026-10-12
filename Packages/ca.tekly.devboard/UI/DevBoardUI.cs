@@ -33,7 +33,7 @@ namespace Tekly.DevBoard
 		/// <summary>
 		/// The page DevBoard's own options are on. Other code can add segments to it too.
 		/// </summary>
-		public const string OPTIONS_PATH = "Options";
+		public const string OPTIONS_PATH = "System/Options";
 
 		/// <summary>
 		/// DevBoard's own options, like the UI scale. Saved in PlayerPrefs.
@@ -458,6 +458,7 @@ namespace Tekly.DevBoard
 			}
 
 			NoteUsedPanel();
+			DevBoard.Instance.SetFocused(IsFocused);
 			m_palette.Update();
 			m_console.Update();
 		}
