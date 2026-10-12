@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Tekly.Common.Ui.Fancy;
 using Tekly.DevBoard.Components;
 using Tekly.DevBoard.Nodes;
 using Tekly.DevBoard.Pages;
@@ -246,10 +247,32 @@ namespace Tekly.DevBoard.Panels
 			}
 
 			Dock = dock;
+			ApplyDockCorners();
 			transform.SetParent(m_dock.GetSlot(dock), false);
 			transform.SetAsLastSibling();
 			m_panelHeader.ShowDock();
 			m_board.SavePanels();
+		}
+
+		/// <summary>
+		/// Squares the corners that touch a screen edge, so a docked panel sits flush against it.
+		/// </summary>
+		private void ApplyDockCorners()
+		{
+			if (!TryGetComponent(out FancyRect rect)) {
+				return;
+			}
+
+			var square = Dock switch {
+				DockSlot.TopLeft => RectCorners.TopLeft | RectCorners.TopRight | RectCorners.BottomLeft,
+				DockSlot.Top => RectCorners.Top,
+				DockSlot.TopRight => RectCorners.TopLeft | RectCorners.TopRight | RectCorners.BottomRight,
+				DockSlot.BottomRight => RectCorners.BottomLeft | RectCorners.BottomRight | RectCorners.TopRight,
+				DockSlot.Bottom => RectCorners.Bottom,
+				_ => RectCorners.BottomLeft | RectCorners.BottomRight | RectCorners.TopLeft
+			};
+
+			rect.RoundedCorners = RectCorners.All & ~square;
 		}
 
 		/// <summary>
@@ -365,6 +388,7 @@ namespace Tekly.DevBoard.Panels
 
 			Id = record.Id;
 			Dock = record.Dock;
+			ApplyDockCorners();
 			ShowWhenHidden = record.ShowWhenHidden;
 			m_panelHeader.ShowShowWhenHidden(ShowWhenHidden);
 

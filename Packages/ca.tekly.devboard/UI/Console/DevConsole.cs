@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Tekly.Common.Ui.Fancy;
 using Tekly.DevBoard.Commands;
 using Tekly.DevBoard.Components;
 using Tekly.DevBoard.Components.Inputs;
@@ -250,6 +251,13 @@ namespace Tekly.DevBoard.Console
 		{
 			m_root = UnityEngine.Object.Instantiate(m_board.Get(WidgetPrefabs.Console), layer, false);
 			FitHeight();
+
+			// Docked to the bottom edge of the screen, so only the top corners are rounded
+			var background = m_root.GetComponentInChildren<FancyRect>();
+
+			if (background != null) {
+				background.RoundedCorners = RectCorners.Top;
+			}
 
 			m_scroll = m_root.Scroll.WithoutSavedState();
 			m_outputField = m_root.Output;

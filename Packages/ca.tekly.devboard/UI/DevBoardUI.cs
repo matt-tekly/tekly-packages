@@ -619,7 +619,7 @@ namespace Tekly.DevBoard
 
 #if UNITY_EDITOR
 				form.Toggle("Physical Size", () => Settings.KeepPhysicalSizeInEditor, value => Settings.KeepPhysicalSizeInEditor = value)
-					.WithDescription("Scale by screen DPI: DevBoard is the size it would be on a device");
+					.WithDescription("Scale by screen DPI. Editor only");
 #endif
 
 				var resetRow = page.Row().WithPadding(0).WithAlignment(LayoutAlignment.End);
