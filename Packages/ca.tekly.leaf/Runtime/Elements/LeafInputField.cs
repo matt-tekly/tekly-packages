@@ -25,7 +25,19 @@ namespace Tekly.Leaf.Elements
 			set => m_enterMovesNext = value;
 		}
 
+		/// <summary>
+		/// The cursor asked for while the pointer is over this and it's interactable. Takes effect the next time
+		/// the pointer enters or the state changes.
+		/// </summary>
+		public LeafCursor Cursor {
+			get => m_cursor;
+			set => m_cursor = value;
+		}
+
 		[SerializeField] private LeafAnimator m_animator;
+
+		[Tooltip("The cursor asked for while the pointer is over this and it's interactable. None asks for nothing")]
+		[SerializeField] private LeafCursor m_cursor = LeafCursor.Text;
 
 		[Tooltip("Tab moves to the next element instead of typing a tab character. Only matters for multi-line fields: single-line fields never take tabs.")]
 		[SerializeField] private bool m_tabNavigates = true;
@@ -34,6 +46,7 @@ namespace Tekly.Leaf.Elements
 		[SerializeField] private bool m_enterMovesNext;
 
 		private readonly LeafStateTracker m_tracker = new();
+		private LeafCursorHover m_cursorHover;
 		private bool m_wasFocused;
 		private bool m_isMoveNextPending;
 		private int m_moveNextFrame;
@@ -68,6 +81,9 @@ namespace Tekly.Leaf.Elements
 		protected override void InstantClearState()
 		{
 			m_tracker.Clear();
+
+			// Unity doesn't transition when it clears state on disable, so release the cursor here
+			m_cursorHover.Update(this, false, m_cursor);
 			base.InstantClearState();
 		}
 
@@ -204,6 +220,8 @@ namespace Tekly.Leaf.Elements
 
 		protected override void DoStateTransition(SelectionState state, bool instant)
 		{
+			m_cursorHover.Update(this, m_tracker.HoldsCursor && IsInteractable(), m_cursor);
+
 			// Skips TMP's override on purpose, the Focused flag replaces its focus transition
 			if (m_animator == null) {
 				base.DoStateTransition(state, instant);

@@ -83,6 +83,8 @@ namespace Tekly.DevBoard
 		// Scopes waiting for the end of the frame to rebuild
 		private readonly List<ScopeNode> m_rebuilds = new();
 
+		private Func<GameObject, bool> m_isBoardObject;
+
 		public DevBoard()
 		{
 			Access = new NodeAccess(Pages);
@@ -94,6 +96,23 @@ namespace Tekly.DevBoard
 		public void SetFocused(bool focused)
 		{
 			m_focused.Value = focused;
+		}
+
+		/// <summary>
+		/// Whether gameObject is part of DevBoard's own UI, e.g. one of its buttons, so tools that look at the game's
+		/// UI can leave it out. False when nothing is drawing DevBoard.
+		/// </summary>
+		public bool IsBoardObject(GameObject gameObject)
+		{
+			return gameObject != null && m_isBoardObject != null && m_isBoardObject(gameObject);
+		}
+
+		/// <summary>
+		/// Set by DevBoard's UI, which knows which objects are its own.
+		/// </summary>
+		public void SetBoardObjectCheck(Func<GameObject, bool> isBoardObject)
+		{
+			m_isBoardObject = isBoardObject;
 		}
 
 		/// <summary>

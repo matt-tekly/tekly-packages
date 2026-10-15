@@ -101,6 +101,15 @@ namespace Tekly.DevBoard
 		/// </summary>
 		public int ToggleTouchCount { get; set; }
 
+		/// <summary>
+		/// Shows the cursor Leaf asks for over its elements: the browser's own on WebGL, the DevBoardAssets' cursor
+		/// textures elsewhere. Off by default; leave it off when the game draws its own cursor from LeafCore.Cursor.
+		/// </summary>
+		public bool ApplyLeafCursor {
+			get => m_cursor.Enabled;
+			set => m_cursor.Enabled = value;
+		}
+
 		private GameObject m_root;
 		private bool m_toggleTouchHeld;
 		private DevBoardTicker m_ticker;
@@ -118,6 +127,7 @@ namespace Tekly.DevBoard
 		private readonly Dictionary<Type, Widget> m_defaults = new();
 		private readonly Dictionary<string, Sprite> m_icons = new();
 		private readonly Dictionary<ButtonTone, ButtonToneColors> m_buttonTones = new();
+		private readonly DevBoardCursor m_cursor = new();
 		private readonly HashSet<string> m_warnings = new();
 
 		private readonly CommandPalette m_palette;
@@ -130,6 +140,8 @@ namespace Tekly.DevBoard
 
 			Settings.Changed += ApplySettings;
 			RegisterOptionsPage();
+
+			DevBoard.Instance.SetBoardObjectCheck(IsDevBoardObject);
 		}
 
 		/// <summary>
@@ -201,6 +213,8 @@ namespace Tekly.DevBoard
 					}
 				}
 			}
+
+			m_cursor.AddTextures(assets.Cursors);
 
 			if (assets.ButtonTones != null) {
 				foreach (var tone in assets.ButtonTones) {

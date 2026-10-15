@@ -25,6 +25,10 @@ namespace Tekly.DevBoard
 		[Tooltip("Shows and hides DevBoard when this many fingers touch the screen together, e.g. 4 on mobile. 0 turns the gesture off")]
 		[SerializeField, Min(0)] private int m_toggleTouchCount;
 
+		[Tooltip("Show the cursor Leaf asks for over its elements, e.g. a hand over buttons. Leave off when the game " +
+			"draws its own cursor from LeafCore.Cursor")]
+		[SerializeField] private bool m_applyLeafCursor;
+
 		[Tooltip("Start with DevBoard hidden until the shortcut is pressed")]
 		[SerializeField] private bool m_startHidden = true;
 
@@ -38,6 +42,7 @@ namespace Tekly.DevBoard
 			devBoard.ToggleTouchCount = m_toggleTouchCount;
 			devBoard.SetVisible(!m_startHidden);
 			devBoard.AddAssets(m_assets);
+			devBoard.ApplyLeafCursor = m_applyLeafCursor;
 
 			if (m_builtInPages) {
 				BuiltInPages.Register(gameObject);

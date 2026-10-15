@@ -41,8 +41,20 @@ namespace Tekly.Leaf.Elements
 		public SelectableSelectedEvent OnSelected => m_onSelected;
 		public ButtonClickedEvent OnClicked => m_clicked;
 
+		/// <summary>
+		/// The cursor asked for while the pointer is over this and it's interactable. Takes effect the next time
+		/// the pointer enters or the state changes.
+		/// </summary>
+		public LeafCursor Cursor {
+			get => m_cursor;
+			set => m_cursor = value;
+		}
+
 		[SerializeField] private bool m_interactable = true;
 		[SerializeField] protected LeafAnimator m_animator;
+
+		[Tooltip("The cursor asked for while the pointer is over this and it's interactable. None asks for nothing")]
+		[SerializeField] private LeafCursor m_cursor = LeafCursor.Pointer;
 
 		[Tooltip("Add delay to when the press or submit is processed")] [SerializeField]
 		private float m_pressDelay;
@@ -50,6 +62,7 @@ namespace Tekly.Leaf.Elements
 		[SerializeField] private ButtonClickedEvent m_clicked;
 
 		private readonly LeafStateTracker m_tracker = new();
+		private LeafCursorHover m_cursorHover;
 		private readonly SelectableSelectedEvent m_onSelected = new();
 		
 		private bool m_wasDeselectOnBackgroundClick;
@@ -183,6 +196,8 @@ namespace Tekly.Leaf.Elements
 
 		protected virtual void UpdateAnimatorState(LeafElementState state, bool instant)
 		{
+			m_cursorHover.Update(this, m_tracker.HoldsCursor && IsInteractable(), m_cursor);
+
 			if (m_animator != null) {
 				m_animator.HandleState(state, instant);
 			}

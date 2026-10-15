@@ -16,9 +16,22 @@ namespace Tekly.Leaf.Elements
 	{
 		public LeafElementState CurrentState => m_tracker.GetState(IsInteractable(), false);
 
+		/// <summary>
+		/// The cursor asked for while the pointer is over this and it's interactable. Takes effect the next time
+		/// the pointer enters or the state changes.
+		/// </summary>
+		public LeafCursor Cursor {
+			get => m_cursor;
+			set => m_cursor = value;
+		}
+
 		[SerializeField] private LeafAnimator m_animator;
 
+		[Tooltip("The cursor asked for while the pointer is over this and it's interactable. None asks for nothing")]
+		[SerializeField] private LeafCursor m_cursor = LeafCursor.Pointer;
+
 		private readonly LeafStateTracker m_tracker = new();
+		private LeafCursorHover m_cursorHover;
 		private Coroutine m_releaseWatch;
 
 		// Drag events still arrive after an ignored or released press: the EventSystem picks the drag target on
@@ -44,6 +57,9 @@ namespace Tekly.Leaf.Elements
 		protected override void InstantClearState()
 		{
 			m_tracker.Clear();
+
+			// Unity doesn't transition when it clears state on disable, so release the cursor here
+			m_cursorHover.Update(this, false, m_cursor);
 			base.InstantClearState();
 		}
 
@@ -138,6 +154,8 @@ namespace Tekly.Leaf.Elements
 
 		protected override void DoStateTransition(SelectionState state, bool instant)
 		{
+			m_cursorHover.Update(this, m_tracker.HoldsCursor && IsInteractable(), m_cursor);
+
 			if (m_animator == null) {
 				base.DoStateTransition(state, instant);
 			} else {

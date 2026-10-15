@@ -132,3 +132,19 @@ MonoBehaviour:
       Normal: {r: 0.98, g: 0.76, b: 0.24, a: 1}
       Highlighted: {r: 1, g: 0.84, b: 0.36, a: 1}
       Pressed: {r: 0.86, g: 0.66, b: 0.18, a: 1}
+  Cursors:
+  - Cursor: 1
+    Texture: {fileID: 2800000, guid: a72dc16e42826e04ea476d776f31dc7e, type: 3}
+    Hotspot: {x: 9, y: 4}
+  - Cursor: 2
+    Texture: {fileID: 2800000, guid: 93c4748e580634c4387e7638d25221e6, type: 3}
+    Hotspot: {x: 16, y: 16}
+  - Cursor: 3
+    Texture: {fileID: 2800000, guid: 06fa9319f961a654cba7e51caab28555, type: 3}
+    Hotspot: {x: 16, y: 16}
+  - Cursor: 4
+    Texture: {fileID: 2800000, guid: 62a4bfbbf5e75e941a5be95e0b5b9eb5, type: 3}
+    Hotspot: {x: 16, y: 16}
+  - Cursor: 5
+    Texture: {fileID: 2800000, guid: a197d0366d06c484b9f6a622556159bb, type: 3}
+    Hotspot: {x: 16, y: 16}

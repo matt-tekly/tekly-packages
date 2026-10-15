@@ -18,6 +18,12 @@ namespace Tekly.Leaf.Elements
 		/// </summary>
 		public bool IsPressSimulated { get; set; }
 
+		/// <summary>
+		/// Whether the element should hold its cursor: while the pointer is over it, and while it's pressed, so
+		/// dragging a scrollbar or slider keeps the cursor even when the pointer drifts off it.
+		/// </summary>
+		public bool HoldsCursor => IsPointerInside || IsPointerDown;
+
 		public void Clear()
 		{
 			IsPointerInside = false;

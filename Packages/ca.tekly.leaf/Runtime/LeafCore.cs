@@ -13,6 +13,11 @@ namespace Tekly.Leaf
 		public readonly LeafSelection Selection = new();
 
 		/// <summary>
+		/// The cursor Leaf elements are asking for while the pointer is over them, for the game to draw.
+		/// </summary>
+		public readonly LeafCursorRequests Cursor = new();
+
+		/// <summary>
 		/// True while <see cref="DisableInput"/> is held, except during <see cref="Click"/>. Leaf elements ignore
 		/// clicks, submits, drags and navigation from the EventSystem while it's true.
 		/// </summary>

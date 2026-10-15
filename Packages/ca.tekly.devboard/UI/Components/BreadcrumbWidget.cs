@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Tekly.Leaf;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -81,6 +82,7 @@ namespace Tekly.DevBoard.Components
 
 		private Action<string> m_onSelect;
 		private int m_hoveredLink = -1;
+		private LeafCursorHover m_cursorHover;
 
 		/// <summary>
 		/// Shows crumbs, first to last. onSelect gets the key of the crumb that was picked.
@@ -94,8 +96,14 @@ namespace Tekly.DevBoard.Components
 				m_crumbs.AddRange(crumbs);
 			}
 
-			m_hoveredLink = -1;
+			SetHovered(-1);
 			Refresh();
+		}
+
+		protected override void OnDisable()
+		{
+			base.OnDisable();
+			SetHovered(-1);
 		}
 
 		public void OnPointerMove(PointerEventData eventData)
@@ -132,6 +140,9 @@ namespace Tekly.DevBoard.Components
 
 		private void SetHovered(int index)
 		{
+			// Links ask for the pointer cursor, like buttons
+			m_cursorHover.Update(this, index >= 0, LeafCursor.Pointer);
+
 			if (index != m_hoveredLink) {
 				m_hoveredLink = index;
 				Refresh();

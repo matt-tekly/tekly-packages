@@ -1,4 +1,5 @@
 using System;
+using Tekly.Leaf;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -9,9 +10,16 @@ namespace Tekly.DevBoard.Components.Inputs
 	/// Turns horizontal drags on an object (e.g. a number input's label) into value changes, like the labels in
 	/// Unity's inspector. Mostly vertical drags are handed to the nearest ScrollRect above it, so the panel still
 	/// scrolls. Not to the parent: that's usually the input field, which takes drags for selecting text.
+	///
+	/// Asks for the left-right cursor while the pointer is over it or a scrub is going, above the input field's
+	/// text cursor.
 	/// </summary>
-	internal class DragScrubber : MonoBehaviour, IInitializePotentialDragHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+	internal class DragScrubber : MonoBehaviour, IInitializePotentialDragHandler, IBeginDragHandler, IDragHandler,
+		IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
 	{
+		// Above the input field it sits in, which asks for the text cursor at the default priority
+		private const int CURSOR_PRIORITY = 1;
+
 		/// <summary>
 		/// Called when a scrub starts, e.g. to stop the input field editing.
 		/// </summary>
@@ -23,6 +31,27 @@ namespace Tekly.DevBoard.Components.Inputs
 		public Action<float> Scrubbed;
 
 		private bool m_scrubbing;
+		private bool m_hovered;
+		private LeafCursorHover m_cursorHover;
+
+		public void OnPointerEnter(PointerEventData eventData)
+		{
+			m_hovered = true;
+			UpdateCursor();
+		}
+
+		public void OnPointerExit(PointerEventData eventData)
+		{
+			m_hovered = false;
+			UpdateCursor();
+		}
+
+		private void OnDisable()
+		{
+			m_hovered = false;
+			m_scrubbing = false;
+			UpdateCursor();
+		}
 
 		public void OnInitializePotentialDrag(PointerEventData eventData)
 		{
@@ -41,6 +70,7 @@ namespace Tekly.DevBoard.Components.Inputs
 			}
 
 			m_scrubbing = true;
+			UpdateCursor();
 			Began?.Invoke();
 		}
 
@@ -54,6 +84,12 @@ namespace Tekly.DevBoard.Components.Inputs
 		public void OnEndDrag(PointerEventData eventData)
 		{
 			m_scrubbing = false;
+			UpdateCursor();
+		}
+
+		private void UpdateCursor()
+		{
+			m_cursorHover.Update(this, m_hovered || m_scrubbing, LeafCursor.ResizeHorizontal, CURSOR_PRIORITY);
 		}
 
 		private GameObject Pass<T>(PointerEventData eventData, ExecuteEvents.EventFunction<T> function) where T : IEventSystemHandler
