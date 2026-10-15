@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Tekly.Common.Utils;
 using Tekly.DevBoard;
 using Tekly.DevBoard.Nodes;
 using Tekly.Trellis;
@@ -11,9 +13,9 @@ namespace Tekly.Leaf.Integration
 {
 	/// <summary>
 	/// Adds Leaf's pages to DevBoard. This assembly only compiles when the DevBoard package is in the project, so
-	/// Leaf itself doesn't depend on it.
+	/// Leaf itself doesn't depend on it. A Singleton, so what it remembers starts fresh every play session.
 	/// </summary>
-	internal static class LeafDevBoardPages
+	internal class LeafDevBoardPages : Singleton<LeafDevBoardPages>
 	{
 		private const string PATH = "System/Leaf";
 
@@ -22,15 +24,18 @@ namespace Tekly.Leaf.Integration
 
 		// The last thing selected outside DevBoard. Clicking DevBoard selects its own controls, which isn't what
 		// this page is for
-		private static GameObject s_lastSelected;
+		private GameObject m_lastSelected;
+
+		// The canvases Hide All turned off, so Show All turns back on only those, not ones the game had off itself
+		private readonly List<Canvas> m_hiddenCanvases = new();
 
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
 		private static void Register()
 		{
-			DevBoardApi.Page(PATH, Build, owner: typeof(LeafDevBoardPages));
+			DevBoardApi.Page(PATH, Instance.Build, owner: typeof(LeafDevBoardPages));
 		}
 
-		private static void Build(Segment page)
+		private void Build(Segment page)
 		{
 			// One form for the whole page, so every section's values line up in the same column
 			var form = page.Form();
@@ -60,20 +65,56 @@ namespace Tekly.Leaf.Integration
 			form.Property("Wanted", () => LeafCore.Instance.Cursor.Current);
 			form.Property("Asked By", () => OwnerName(LeafCore.Instance.Cursor.Owner)).WithValueWidth(VALUE_WIDTH);
 			form.Property("Requests", () => LeafCore.Instance.Cursor.RequestCount);
+
+			// Hide All hides every enabled canvas but DevBoard's, to see what's behind the UI
+			form.Heading("Canvases");
+			form.Property("Hidden", () => m_hiddenCanvases.Count);
+
+			var canvasRow = form.ButtonRow();
+			canvasRow.Button("Hide All", HideCanvases).InteractiveOnly();
+			canvasRow.Button("Show All", ShowCanvases)
+				.InteractableWhen(() => m_hiddenCanvases.Count > 0)
+				.InteractiveOnly();
+		}
+
+		private void HideCanvases()
+		{
+			var canvases = Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+			foreach (var canvas in canvases) {
+				if (!canvas.enabled || DevBoardApi.Instance.IsBoardObject(canvas.gameObject)) {
+					continue;
+				}
+
+				canvas.enabled = false;
+				m_hiddenCanvases.Add(canvas);
+			}
+		}
+
+		private void ShowCanvases()
+		{
+			foreach (var canvas in m_hiddenCanvases) {
+				// Destroyed since, e.g. with its scene
+				if (canvas != null) {
+					canvas.enabled = true;
+				}
+			}
+
+			m_hiddenCanvases.Clear();
 		}
 
 		/// <summary>
 		/// The current selection, or while DevBoard's own controls are selected, the last one before them.
 		/// </summary>
-		private static GameObject Selected()
+		private GameObject Selected()
 		{
 			var current = LeafCore.Instance.Selection.Current.Value;
 
 			if (current != null && !DevBoardApi.Instance.IsBoardObject(current)) {
-				s_lastSelected = current;
+				m_lastSelected = current;
 			}
 
-			return s_lastSelected != null ? s_lastSelected : null;
+			return m_lastSelected != null ? m_lastSelected : null;
 		}
 
 		/// <summary>

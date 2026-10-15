@@ -62,29 +62,6 @@ namespace Tekly.Leaf
 		private readonly List<Entry> m_requests = new List<Entry>(4);
 		private int m_nextOrder;
 
-		// LeafCore outlives play sessions when entering play mode doesn't reload the domain
-		private static LeafCursorRequests s_instance;
-
-		public LeafCursorRequests()
-		{
-			s_instance = this;
-		}
-
-		/// <summary>
-		/// Forgets every request, e.g. ones left by elements from the last play session.
-		/// </summary>
-		public void Clear()
-		{
-			m_requests.Clear();
-			Refresh();
-		}
-
-		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-		private static void ClearOnPlay()
-		{
-			s_instance?.Clear();
-		}
-
 		/// <summary>
 		/// Asks for cursor on behalf of owner, replacing owner's earlier request. Higher priority wins over newer
 		/// requests, e.g. 1 for a control inside another that asks for its own. None releases owner's request.
