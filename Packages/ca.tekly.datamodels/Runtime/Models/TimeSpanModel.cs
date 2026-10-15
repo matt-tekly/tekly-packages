@@ -26,8 +26,9 @@ namespace Tekly.DataModels.Models
 		
 		public override void SetOverrideValue(string value)
 		{
-			OverrideValue = true;
-			TimeSpan.TryParse(value, out m_value);
+			if (TimeSpan.TryParse(value, out var time)) {
+				SetOverride(time);
+			}
 		}
 	}
 }

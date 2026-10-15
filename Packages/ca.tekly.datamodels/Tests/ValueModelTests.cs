@@ -95,5 +95,36 @@ namespace Tekly.DataModels.Tests
             
             observer.DidNotReceiveWithAnyArgs().Changed(default);
         }
+
+        [Test]
+        public void TestOverrideNotifiesOnceAndClears()
+        {
+            var model = new StringValueModel("real");
+            var observer = Substitute.For<IValueObserver<string>>();
+            model.Subscribe(observer);
+            observer.ClearReceivedCalls();
+
+            model.SetOverrideValue("fake");
+
+            Assert.That(model.Value, Is.EqualTo("fake"));
+            observer.Received(1).Changed("fake");
+            observer.ClearReceivedCalls();
+
+            model.OverrideValue = false;
+
+            Assert.That(model.Value, Is.EqualTo("real"));
+            observer.Received(1).Changed("real");
+        }
+
+        [Test]
+        public void TestUnparsableOverrideIsIgnored()
+        {
+            var model = new NumberValueModel(5);
+
+            model.SetOverrideValue("not a number");
+
+            Assert.That(model.OverrideValue, Is.False);
+            Assert.That(model.Value, Is.EqualTo(5));
+        }
     }
 }

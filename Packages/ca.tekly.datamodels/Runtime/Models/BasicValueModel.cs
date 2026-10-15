@@ -53,8 +53,7 @@ namespace Tekly.DataModels.Models
 
         public override void SetOverrideValue(string value)
         {
-            OverrideValue = true;
-            OverriddenValue = value;
+            SetOverride(value);
         }
 
         protected override string OnToDisplayString()
@@ -106,9 +105,8 @@ namespace Tekly.DataModels.Models
         
         public override void SetOverrideValue(string value)
         {
-            OverrideValue = true;
             if (double.TryParse(value, out var newValue)) {
-                OverriddenValue = newValue;
+                SetOverride(newValue);
             }
         }
     }
@@ -131,9 +129,8 @@ namespace Tekly.DataModels.Models
         
         public override void SetOverrideValue(string value)
         {
-            OverrideValue = true;
             if (bool.TryParse(value, out var newValue)) {
-                OverriddenValue = newValue;
+                SetOverride(newValue);
             }
         }
     }

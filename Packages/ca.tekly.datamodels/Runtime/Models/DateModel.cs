@@ -28,9 +28,8 @@ namespace Tekly.DataModels.Models
         
         public override void SetOverrideValue(string value)
         {
-            OverrideValue = true;
             if (DateTimeOffset.TryParseExact(value, TkDateTime.FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out var time)) {
-                m_value = time;
+                SetOverride(time);
             }
         }
     }

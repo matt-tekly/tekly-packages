@@ -7,7 +7,15 @@ namespace Tekly.DataModels.Models
 {
     public interface IOverridableValue : IValueModel
     {
+        /// <summary>
+        /// Whether Value is the overridden value. Turning it off goes back to the real value and notifies subscribers.
+        /// </summary>
         bool OverrideValue { get; set; }    
+        
+        /// <summary>
+        /// Overrides the value with one parsed from text, e.g. typed into a debug tool. Text that can't be parsed
+        /// leaves the value as it was.
+        /// </summary>
         void SetOverrideValue(string value);
     }
     
@@ -41,7 +49,17 @@ namespace Tekly.DataModels.Models
         }
         public abstract bool IsTruthy { get; }
         
-        public bool OverrideValue { get; set; }
+        public bool OverrideValue {
+            get => m_overrideValue;
+            set {
+                if (m_overrideValue == value) {
+                    return;
+                }
+
+                m_overrideValue = value;
+                Emit(Value);
+            }
+        }
 
         protected ValueModel(T value) : this()
         {
@@ -80,6 +98,16 @@ namespace Tekly.DataModels.Models
         }
         
         public abstract void SetOverrideValue(string value);
+
+        /// <summary>
+        /// Overrides the value with value until OverrideValue is turned off, notifying subscribers once.
+        /// </summary>
+        protected void SetOverride(T value)
+        {
+            m_overriddenValue = value;
+            m_overrideValue = true;
+            Emit(value);
+        }
 
         public string ToDisplayString()
         {
