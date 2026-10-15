@@ -61,20 +61,50 @@ namespace Tekly.Leaf.Elements.Animators
 		[NonSerialized] private Color m_goal;
 		[NonSerialized] private float m_elapsed;
 
+		// Set at runtime, e.g. a button's tone, and never saved
+		[NonSerialized] private bool m_hasOverride;
+		[NonSerialized] private LeafColorBlock m_overrideColors;
+		[NonSerialized] private LeafElementFlags m_overrideKeepLayers;
+
 		public bool IsFading => m_isFading;
 
 		public Color Evaluate(LeafElementState state)
 		{
-			var color = m_colors.GetColor(state.Mode);
+			var color = (m_hasOverride ? m_overrideColors : m_colors).GetColor(state.Mode);
 
 			for (var i = 0; i < m_layers.Length; i++) {
 				var layer = m_layers[i];
-				if (layer != null && layer.Matches(state)) {
-					color = layer.Apply(color, state.Mode);
+
+				if (layer == null || !layer.Matches(state)) {
+					continue;
 				}
+
+				// An override drops the layers made for the serialized colors, apart from the ones it keeps
+				if (m_hasOverride && (layer.Flags & ~m_overrideKeepLayers) != 0) {
+					continue;
+				}
+
+				color = layer.Apply(color, state.Mode);
 			}
 
 			return color;
+		}
+
+		/// <summary>
+		/// Uses colors instead of the serialized base colors until <see cref="ClearOverride"/>. Only the layers
+		/// whose flags are all in keepLayers still apply on top, e.g. Disabled, so a recolored element still looks
+		/// disabled.
+		/// </summary>
+		public void SetOverride(LeafColorBlock colors, LeafElementFlags keepLayers)
+		{
+			m_hasOverride = true;
+			m_overrideColors = colors;
+			m_overrideKeepLayers = keepLayers;
+		}
+
+		public void ClearOverride()
+		{
+			m_hasOverride = false;
 		}
 
 		public void SetState(LeafElementState state, bool instant)
@@ -205,6 +235,48 @@ namespace Tekly.Leaf.Elements.Animators
 			if (showedObjects) {
 				RepairTargets();
 			}
+		}
+
+		/// <summary>
+		/// Gives target's Graphic colors to use instead of its serialized ones, at runtime, e.g. a button's tone.
+		/// Only the layers whose flags are all in keepLayers still apply on top. Never saved. Does nothing if
+		/// target isn't one of this animator's Graphics.
+		/// </summary>
+		public void OverrideColors(Graphic target, LeafColorBlock colors, LeafElementFlags keepLayers = LeafElementFlags.Disabled)
+		{
+			if (TryFindTarget(target, out var colorTarget)) {
+				colorTarget.SetOverride(colors, keepLayers);
+				ApplyCurrentState();
+			}
+		}
+
+		/// <summary>
+		/// Goes back to target's serialized colors.
+		/// </summary>
+		public void ClearColorOverride(Graphic target)
+		{
+			if (TryFindTarget(target, out var colorTarget)) {
+				colorTarget.ClearOverride();
+				ApplyCurrentState();
+			}
+		}
+
+		private bool TryFindTarget(Graphic target, out LeafColorTarget colorTarget)
+		{
+			for (var i = 0; i < m_targets.Length; i++) {
+				if (m_targets[i] != null && target != null && m_targets[i].Target == target) {
+					colorTarget = m_targets[i];
+					return true;
+				}
+			}
+
+			colorTarget = null;
+			return false;
+		}
+
+		private void ApplyCurrentState()
+		{
+			ApplyColors(HasState ? CurrentState : LeafElementState.Default, true);
 		}
 
 		private void ApplyColors(LeafElementState state, bool instant)

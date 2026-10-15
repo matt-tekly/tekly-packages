@@ -15,6 +15,7 @@ namespace Tekly.DevBoard.BuiltIn
 			TimePage.Register(owner);
 			DisplayPage.Register(owner);
 			DevicePage.Register(owner);
+			UIPage.Register(owner);
 		}
 	}
 }

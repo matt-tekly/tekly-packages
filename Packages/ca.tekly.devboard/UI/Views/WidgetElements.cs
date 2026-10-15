@@ -3,13 +3,14 @@ using Tekly.DevBoard.Components;
 using Tekly.DevBoard.Components.Inputs;
 using Tekly.DevBoard.Nodes;
 using Tekly.Trellis;
+using UnityEngine;
 
 namespace Tekly.DevBoard.Views
 {
 	/// <summary>
 	/// A node shown as a widget in a panel.
 	/// </summary>
-	internal class WidgetElement : IViewElement
+	internal class WidgetElement : IViewElement, IInteractableElement
 	{
 		public Widget Widget { get; }
 
@@ -23,6 +24,27 @@ namespace Tekly.DevBoard.Views
 			if (Widget != null && Widget.gameObject.activeSelf != shown) {
 				Widget.gameObject.SetActive(shown);
 			}
+		}
+
+		/// <summary>
+		/// Through a CanvasGroup, which every Selectable inside honours, so buttons, toggles, inputs and the rest all
+		/// show their prefab's disabled look without knowing about it. Added only to nodes that need one.
+		/// </summary>
+		public void SetInteractable(bool interactable)
+		{
+			if (Widget == null) {
+				return;
+			}
+
+			if (!Widget.TryGetComponent(out CanvasGroup group)) {
+				if (interactable) {
+					return;
+				}
+
+				group = Widget.gameObject.AddComponent<CanvasGroup>();
+			}
+
+			group.interactable = interactable;
 		}
 
 		public void Destroy()

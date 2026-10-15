@@ -132,6 +132,18 @@ PrefabInstance:
       propertyPath: m_targets.Array.data[0].m_colors.Normal.a
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8140774208369928806, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
+      propertyPath: m_targets.Array.data[0].m_layers.Array.data[1].m_colors.Normal.a
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8140774208369928806, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
+      propertyPath: m_targets.Array.data[0].m_layers.Array.data[1].m_colors.Pressed.a
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8140774208369928806, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
+      propertyPath: m_targets.Array.data[0].m_layers.Array.data[1].m_colors.Highlighted.a
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 2036694316024442763, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}

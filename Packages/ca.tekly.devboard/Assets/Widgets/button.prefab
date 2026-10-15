@@ -200,6 +200,7 @@ MonoBehaviour:
     TopRight: 0
     BottomRight: 0
     BottomLeft: 0
+  m_roundedCorners: 15
   m_bulge: {x: 0, y: 0, z: 0, w: 0}
   m_containBulge: 0
   m_sprite: {fileID: 0}
@@ -371,6 +372,7 @@ MonoBehaviour:
   m_onClick:
     m_PersistentCalls:
       m_Calls: []
+  m_isOn: 0
 --- !u!114 &8140774208369928806
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -416,6 +418,19 @@ MonoBehaviour:
         Highlighted: {r: 0.48627454, g: 0.43529415, b: 0.3921569, a: 1}
         Pressed: {r: 0.48627454, g: 0.43529415, b: 0.3921569, a: 1}
     m_fadeDuration: 0.1
+  - m_target: {fileID: 258284058931928341}
+    m_colors:
+      Normal: {r: 0.9215687, g: 0.8588236, b: 0.69803923, a: 1}
+      Highlighted: {r: 0.9843138, g: 0.9450981, b: 0.7803922, a: 1}
+      Pressed: {r: 0.8352942, g: 0.7686275, b: 0.6313726, a: 1}
+    m_layers:
+    - m_flags: 2
+      m_blend: 0
+      m_colors:
+        Normal: {r: 0.48627454, g: 0.43529415, b: 0.3921569, a: 1}
+        Highlighted: {r: 0.48627454, g: 0.43529415, b: 0.3921569, a: 1}
+        Pressed: {r: 0.48627454, g: 0.43529415, b: 0.3921569, a: 1}
+    m_fadeDuration: 0.1
   m_activeTargets: []
 --- !u!114 &5919477755552245529
 MonoBehaviour:
@@ -430,6 +445,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Tekly.DevBoard::Tekly.DevBoard.Components.ButtonWidget
   m_label: {fileID: 3140544319832857563}
+  m_icon: {fileID: 258284058931928341}
+  m_background: {fileID: 1636814726531491864}
 --- !u!1001 &1585884360786715385
 PrefabInstance:
   m_ObjectHideFlags: 0

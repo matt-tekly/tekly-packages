@@ -53,6 +53,9 @@ namespace Tekly.DevBoard.Palette
 		private const string SECTION_KIND = "section";
 		private const string RECENT = "recent";
 
+		// Shown as the value of a button that isn't interactable
+		private const string DISABLED_VALUE = "Disabled";
+
 		// Rich text for the chips: the picked one in the accent color, counts dimmed
 		private const string CHIP_SELECTED = "<color=#F6C050>{0}</color>";
 		private const string CHIP_COUNT = "{0} <alpha=#80>{1}<alpha=#FF>";
@@ -199,6 +202,14 @@ namespace Tekly.DevBoard.Palette
 			var access = DevBoard.Instance.Access;
 
 			Remember(entry);
+
+			// A disabled button or toggle does nothing, as it would in a panel, and the palette stays open. Other
+			// controls are revealed in a panel either way, where they show as disabled
+			if (!reveal && entry.Node is ButtonNode or ToggleNode && !entry.Node.IsInteractable()) {
+				RefreshValues();
+				RefocusSearch(false);
+				return;
+			}
 
 			switch (entry.Node) {
 				case null:
@@ -393,6 +404,14 @@ namespace Tekly.DevBoard.Palette
 
 		private string ReadValue(Node node)
 		{
+			if (node is ButtonNode button) {
+				return button.IsInteractable() ? null : DISABLED_VALUE;
+			}
+
+			if (!node.IsInteractable() && DevBoard.Instance.Access.TryRead(node, out var disabledValue)) {
+				return $"{disabledValue} ({DISABLED_VALUE})";
+			}
+
 			return node is LinkNode || !DevBoard.Instance.Access.TryRead(node, out var value) ? null : value;
 		}
 

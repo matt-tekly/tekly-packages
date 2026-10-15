@@ -1,4 +1,3 @@
-using System;
 using Tekly.DevBoard.Nodes;
 using Tekly.Trellis;
 using UnityEngine;
@@ -40,13 +39,16 @@ namespace Tekly.DevBoard.BuiltIn
 			var form = page.Form();
 			form.Property("Time", () => Time.time, 0.1f, "{0:F1} s").WithMonospaced();
 			form.Property("Unscaled", () => Time.unscaledTime, 0.1f, "{0:F1} s").WithMonospaced();
+			form.Property("Real", () => Time.realtimeSinceStartup, 0.1f, "{0:F1} s").WithMonospaced();
 			form.Property("Frame", () => Time.frameCount, "{0:N0}").WithMonospaced();
 
 			page.Heading("Frame Rate");
 			form = page.Form();
+			// A rate that isn't one of the choices, set by the game or typed in Custom, shows as no choice. Custom
+			// takes any rate, -1 for the platform default
 			form.Dropdown("Target", s_frameRates, rate => rate < 0 ? "Default" : rate.ToString(),
-				() => Array.IndexOf(s_frameRates, Application.targetFrameRate) >= 0 ? Application.targetFrameRate : -1,
-				rate => Application.targetFrameRate = rate);
+				() => Application.targetFrameRate, rate => Application.targetFrameRate = rate);
+			form.IntInput("Custom", () => Application.targetFrameRate, rate => Application.targetFrameRate = rate);
 			form.Dropdown("VSync", s_vSyncCounts, count => count == 0 ? "Off" : count == 1 ? "Every Frame" : "Every Second Frame",
 				() => Mathf.Clamp(QualitySettings.vSyncCount, 0, 2), count => QualitySettings.vSyncCount = count);
 			form.Slider("Fixed Step", 0.005f, 0.05f, () => Time.fixedDeltaTime, value => Time.fixedDeltaTime = value)

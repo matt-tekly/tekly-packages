@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using Tekly.DevBoard.Nodes;
+using UnityEngine;
 
 namespace Tekly.DevBoard.Access
 {
@@ -21,7 +22,7 @@ namespace Tekly.DevBoard.Access
 				return reader.Text;
 			});
 
-			Register<ButtonNode>("button", invoke: node => node.Action?.Invoke());
+			Register<ButtonNode>("button", invoke: node => node.Run());
 
 			// Opening a page needs a host, so whoever shows the link opens it
 			Register<LinkNode>("link", read: node => node.Target);
@@ -52,6 +53,21 @@ namespace Tekly.DevBoard.Access
 				write: (node, text) => {
 					if (!NumberText.TryParse(text, node.WholeNumbers, out var value)) {
 						return node.WholeNumbers ? $"'{text}' isn't a whole number" : $"'{text}' isn't a number";
+					}
+
+					node.Binding.Write(value);
+					return null;
+				});
+
+			Register<Vector3InputNode>("vector3",
+				read: node => {
+					var value = node.Binding.Read();
+					return string.Join(", ", NumberText.FormatNumber(value.x, false, node.Format),
+						NumberText.FormatNumber(value.y, false, node.Format), NumberText.FormatNumber(value.z, false, node.Format));
+				},
+				write: (node, text) => {
+					if (!TryParseVector3(text, out var value)) {
+						return $"'{text}' isn't three numbers, e.g. 1, 2, 3";
 					}
 
 					node.Binding.Write(value);
@@ -105,6 +121,29 @@ namespace Tekly.DevBoard.Access
 			}
 
 			return -1;
+		}
+
+		/// <summary>
+		/// Three numbers separated by commas or spaces, e.g. "1, 2.5, -3".
+		/// </summary>
+		private static bool TryParseVector3(string text, out Vector3 value)
+		{
+			value = default;
+			var parts = (text ?? string.Empty).Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+			if (parts.Length != 3) {
+				return false;
+			}
+
+			for (var i = 0; i < 3; i++) {
+				if (!NumberText.TryParse(parts[i], false, out var part)) {
+					return false;
+				}
+
+				value[i] = (float) part;
+			}
+
+			return true;
 		}
 
 		private static bool TryParseBool(string text, out bool value)

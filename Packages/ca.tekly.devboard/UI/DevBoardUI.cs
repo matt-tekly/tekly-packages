@@ -95,7 +95,14 @@ namespace Tekly.DevBoard
 		public KeyCode ConsoleKey { get; set; } = KeyCode.F2;
 #endif
 
+		/// <summary>
+		/// How many fingers touching the screen together show and hide DevBoard, like ToggleKey, e.g. 4. 0 turns
+		/// the gesture off. It fires once per gesture: every finger has to lift before it can fire again.
+		/// </summary>
+		public int ToggleTouchCount { get; set; }
+
 		private GameObject m_root;
+		private bool m_toggleTouchHeld;
 		private DevBoardTicker m_ticker;
 		private DevBoardDock m_dock;
 
@@ -109,6 +116,8 @@ namespace Tekly.DevBoard
 		// Widget prefabs by name, and the first prefab of each exact type as that type's fallback
 		private readonly Dictionary<string, Widget> m_widgets = new();
 		private readonly Dictionary<Type, Widget> m_defaults = new();
+		private readonly Dictionary<string, Sprite> m_icons = new();
+		private readonly Dictionary<ButtonTone, ButtonToneColors> m_buttonTones = new();
 		private readonly HashSet<string> m_warnings = new();
 
 		private readonly CommandPalette m_palette;
@@ -185,7 +194,60 @@ namespace Tekly.DevBoard
 				}
 			}
 
+			if (assets.Icons != null) {
+				foreach (var icon in assets.Icons) {
+					if (icon != null) {
+						m_icons[icon.name] = icon;
+					}
+				}
+			}
+
+			if (assets.ButtonTones != null) {
+				foreach (var tone in assets.ButtonTones) {
+					if (tone != null) {
+						m_buttonTones[tone.Tone] = tone;
+					}
+				}
+			}
+
 			DevBoardFonts.Register(assets);
+		}
+
+		/// <summary>
+		/// The colors for a button tone, from the DevBoardAssets added so far. Null if none lists it.
+		/// </summary>
+		public ButtonToneColors GetButtonTone(ButtonTone tone)
+		{
+			return m_buttonTones.TryGetValue(tone, out var colors) ? colors : null;
+		}
+
+		/// <summary>
+		/// The icon sprite with this name, from the DevBoardAssets added so far. Null, with a warning, if there
+		/// isn't one.
+		/// </summary>
+		public Sprite GetIcon(string name)
+		{
+			if (TryGetIcon(name, out var icon)) {
+				return icon;
+			}
+
+			WarnOnce($"[DevBoard] No icon named '{name}'. Add the sprite to a DevBoardAssets (Collect Assets).");
+			return null;
+		}
+
+		public bool TryGetIcon(string name, out Sprite icon)
+		{
+			icon = null;
+			return name != null && m_icons.TryGetValue(name, out icon) && icon != null;
+		}
+
+		/// <summary>
+		/// Whether gameObject is part of DevBoard's own UI, e.g. its canvas, so tools that act on the game's UI
+		/// can leave it alone.
+		/// </summary>
+		public bool IsDevBoardObject(GameObject gameObject)
+		{
+			return gameObject != null && m_root != null && gameObject.transform.IsChildOf(m_root.transform);
 		}
 
 		/// <summary>
@@ -439,7 +501,7 @@ namespace Tekly.DevBoard
 		/// </summary>
 		internal void UpdateKeys()
 		{
-			if (WasPressed(ToggleKey)) {
+			if (WasPressed(ToggleKey) || WasToggleTouched()) {
 				ToggleVisible();
 			}
 
@@ -520,6 +582,32 @@ namespace Tekly.DevBoard
 			if (panel != null) {
 				m_lastUsedPanel = panel;
 			}
+		}
+
+		/// <summary>
+		/// True on the frame ToggleTouchCount fingers are first down together. Fingers landing one at a time count
+		/// once the last one lands. It then waits for every finger to lift, so holding them down, or lifting and
+		/// putting back one of them, doesn't toggle it back.
+		/// </summary>
+		private bool WasToggleTouched()
+		{
+			if (ToggleTouchCount <= 0) {
+				return false;
+			}
+
+			var touches = KeyInput.TouchCount;
+
+			if (touches == 0) {
+				m_toggleTouchHeld = false;
+				return false;
+			}
+
+			if (m_toggleTouchHeld || touches < ToggleTouchCount) {
+				return false;
+			}
+
+			m_toggleTouchHeld = true;
+			return true;
 		}
 
 #if ENABLE_INPUT_SYSTEM

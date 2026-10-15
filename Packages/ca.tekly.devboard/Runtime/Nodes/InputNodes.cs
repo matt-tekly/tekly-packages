@@ -1,5 +1,6 @@
 using System;
 using Tekly.DevBoard.Components.Inputs;
+using UnityEngine;
 
 namespace Tekly.DevBoard.Nodes
 {
@@ -124,6 +125,32 @@ namespace Tekly.DevBoard.Nodes
 		}
 	}
 
+	/// <summary>
+	/// A Vector3 edited as an X, Y and Z number input. Each input writes the whole vector back with its own part
+	/// changed.
+	/// </summary>
+	public sealed class Vector3InputNode : Node
+	{
+		public Binding<Vector3> Binding { get; }
+
+		/// <summary>
+		/// The numeric format string each part is shown with, e.g. "0.00". Null for the default.
+		/// </summary>
+		public string Format { get; private set; }
+
+		public Vector3InputNode(string label, Binding<Vector3> binding) : base(label)
+		{
+			Binding = binding ?? throw new ArgumentNullException(nameof(binding));
+		}
+
+		public Vector3InputNode WithFormat(string format)
+		{
+			EnsureEditable();
+			Format = format;
+			return this;
+		}
+	}
+
 	public static class InputNodeFactory
 	{
 		public static TextInputNode TextInput(this ContainerNode parent, string label, Func<string> getValue, Action<string> setValue,
@@ -168,6 +195,15 @@ namespace Tekly.DevBoard.Nodes
 		{
 			var binding = new Binding<float>(getValue, setValue).Convert(value => (double) value, value => (float) value);
 			return parent.NumberInput(label, binding, style);
+		}
+
+		/// <summary>
+		/// X, Y and Z inputs after the label, e.g. for a position. In a form the label lines up with the others.
+		/// </summary>
+		public static Vector3InputNode Vector3Input(this ContainerNode parent, string label, Func<Vector3> getValue,
+			Action<Vector3> setValue)
+		{
+			return parent.Add(new Vector3InputNode(label, new Binding<Vector3>(getValue, setValue)));
 		}
 
 		/// <summary>

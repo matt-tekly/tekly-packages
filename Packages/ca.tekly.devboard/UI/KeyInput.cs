@@ -6,8 +6,8 @@ using UnityEngine.InputSystem;
 namespace Tekly.DevBoard
 {
 	/// <summary>
-	/// The few keys DevBoard's popups listen to, and where a click or touch began, read from whichever input
-	/// system the project uses.
+	/// The few keys DevBoard's popups listen to, where a click or touch began, and how many fingers are down,
+	/// read from whichever input system the project uses.
 	/// </summary>
 	internal static class KeyInput
 	{
@@ -51,6 +51,30 @@ namespace Tekly.DevBoard
 			return false;
 		}
 
+		/// <summary>
+		/// How many fingers are touching the screen. 0 without a touchscreen.
+		/// </summary>
+		public static int TouchCount {
+			get {
+				var touchscreen = Touchscreen.current;
+
+				if (touchscreen == null) {
+					return 0;
+				}
+
+				var touches = touchscreen.touches;
+				var count = 0;
+
+				for (var i = 0; i < touches.Count; i++) {
+					if (touches[i].press.isPressed) {
+						count++;
+					}
+				}
+
+				return count;
+			}
+		}
+
 		private static bool WasPressed(UnityEngine.InputSystem.Controls.KeyControl key)
 		{
 			return key != null && key.wasPressedThisFrame;
@@ -75,6 +99,11 @@ namespace Tekly.DevBoard
 			position = Input.mousePosition;
 			return Input.GetMouseButtonDown(0);
 		}
+
+		/// <summary>
+		/// How many fingers are touching the screen.
+		/// </summary>
+		public static int TouchCount => Input.touchCount;
 #else
 		public static bool Escape => false;
 		public static bool Up => false;
@@ -83,6 +112,7 @@ namespace Tekly.DevBoard
 		public static bool Shift => false;
 		public static bool UpOrDownHeld => false;
 		public static bool Find => false;
+		public static int TouchCount => 0;
 
 		public static bool TryGetPress(out Vector2 position)
 		{

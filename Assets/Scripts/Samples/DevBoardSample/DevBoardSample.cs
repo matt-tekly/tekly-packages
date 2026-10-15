@@ -53,6 +53,16 @@ namespace TeklySample.Samples.DevBoardSample
 		private readonly List<string> m_inventory = new() { "Wood Sword", "Iron Shield", "Gold Ring" };
 		private bool m_showDetails;
 
+		// Stands in for a slow job, like a scene load, that some buttons can't run during
+		private float m_busyUntil;
+		private bool IsBusy => Time.unscaledTime < m_busyUntil;
+
+		private Vector3 m_position = new(1f, 2f, 3f);
+		private bool m_locked;
+
+		// Kept in PlayerPrefs, so it's still there next session
+		private Binding<string> m_savedText;
+
 		private void Start()
 		{
 			string[] materials = { "Wood", "Stone", "Iron", "Gold", "Crystal", "Bone", "Leather", "Silk" };
@@ -66,6 +76,7 @@ namespace TeklySample.Samples.DevBoardSample
 
 			m_items.Sort();
 			m_item = m_items[0];
+			m_savedText = PrefBinding.String("devboard.sample.saved-text", "Remember me");
 			
 			// Each section is a segment of the same page, in order. All are removed when this GameObject is destroyed.
 			// In builds without DevBoard these calls are removed by the compiler
@@ -152,6 +163,44 @@ namespace TeklySample.Samples.DevBoardSample
 			row.Button("-1", () => m_clicks--);
 			row.Button("+1", () => m_clicks++);
 			row.Button("Reset", () => m_clicks = 0);
+
+			// InteractableWhen greys a button out while it returns false. Clicks, the palette and NodeAccess skip it
+			form.Property("Busy", () => IsBusy ? $"{m_busyUntil - Time.unscaledTime:F1} s" : "No");
+			row = form.Row().WithPadding(0);
+			row.Button("Start Job", () => m_busyUntil = Time.unscaledTime + 3f).InteractableWhen(() => !IsBusy);
+			row.Button("Needs Idle", () => m_clicks++).InteractableWhen(() => !IsBusy);
+
+			// Icon buttons show one of DevBoard's icons. The label names them for search and the palette
+			row = form.Row().WithPadding(0);
+			row.IconButton("Clear Clicks", Icons.Trash, () => m_clicks = 0);
+			row.IconButton("Copy Clicks", Icons.Copy, () => GUIUtility.systemCopyBuffer = m_clicks.ToString());
+			row.IconButton("Paste Clicks", Icons.Paste, () => int.TryParse(GUIUtility.systemCopyBuffer, out m_clicks));
+			row.IconButton("Refresh", Icons.Refresh, () => Debug.Log("Refresh"));
+			row.IconButton("Open Link", Icons.Link, () => Debug.Log("Link"));
+			row.IconButton("Download", Icons.Download, () => Debug.Log("Download"));
+			row.IconButton("Return", Icons.Return, () => Debug.Log("Return"));
+			row.IconButton("Busy Trash", Icons.Trash, () => m_clicks = 0).InteractableWhen(() => !IsBusy);
+
+			// What a button shows follows what it's given: text, an icon before the text, or only the icon
+			row = form.Row().WithPadding(0);
+			row.Button("Text", () => m_clicks++);
+			row.Button("Text and Icon", () => m_clicks++).WithIcon(Icons.Refresh);
+			row.Button("Icon Only", () => m_clicks++).WithIcon(Icons.Refresh).IconOnly();
+
+			// Tones say what a button does. Plain buttons have no background until hovered, and carry the tone
+			// in their text and icon
+			row = form.Row().WithPadding(0);
+			row.Button("Neutral", () => m_clicks++);
+			row.Button("Accent", () => m_clicks++).WithTone(ButtonTone.Accent);
+			row.Button("Positive", () => m_clicks++).WithTone(ButtonTone.Positive);
+			row.Button("Negative", () => m_clicks = 0).WithIcon(Icons.Trash).WithTone(ButtonTone.Negative);
+			row.Button("Warning", () => m_clicks++).WithTone(ButtonTone.Warning);
+
+			row = form.Row().WithPadding(0);
+			row.Button("Plain", () => m_clicks++).Plain();
+			row.Button("Plain Negative", () => m_clicks = 0).WithIcon(Icons.Trash).WithTone(ButtonTone.Negative).Plain();
+			row.IconButton("Delete", Icons.Trash, () => m_clicks = 0).WithTone(ButtonTone.Negative);
+			row.Button("Disabled Positive", () => m_clicks++).WithTone(ButtonTone.Positive).InteractableWhen(() => false);
 		}
 
 		private void Toggles(Segment page)
@@ -176,6 +225,9 @@ namespace TeklySample.Samples.DevBoardSample
 			form.TextInput("Immediate", () => m_text, value => m_text = value)
 				.WithPlaceholder("Every keystroke")
 				.WithInputMode(InputMode.Immediate);
+
+			// A PrefBinding keeps the value in PlayerPrefs, like DebugKit's TextFieldPersist
+			form.TextInput("Saved", m_savedText).WithDescription("Kept between sessions");
 		}
 
 		private void NumberInputs(Segment page)
@@ -188,6 +240,10 @@ namespace TeklySample.Samples.DevBoardSample
 
 			form.FloatInput("Float", () => m_float, value => m_float = value);
 			form.FloatInput("Float (0.00)", () => m_float, value => m_float = value).WithFormat("0.00");
+
+			// X, Y and Z inputs in a row
+			form.Vector3Input("Position", () => m_position, value => m_position = value);
+			form.Property("Position", () => m_position);
 		}
 
 		private void Sliders(Segment page)
@@ -224,6 +280,9 @@ namespace TeklySample.Samples.DevBoardSample
 
 			// Any list, with the text for each item. WithSearch suits long lists
 			form.Dropdown("Searchable", m_items, item => item, () => m_item, value => m_item = value).WithSearch();
+
+			// Without a label the dropdown takes the whole row
+			form.Dropdown(null, s_colors, () => m_color, value => m_color = value);
 		}
 
 		private static string Describe(Difficulty difficulty)
@@ -264,6 +323,16 @@ namespace TeklySample.Samples.DevBoardSample
 			var card = page.Card();
 			card.Heading("A card");
 			card.Property("Clicks", () => m_clicks);
+
+			// InteractableWhen on a container greys out everything inside it. Values keep refreshing
+			page.Form().Toggle("Lock the card below", () => m_locked, value => m_locked = value);
+			var locked = page.Card().InteractableWhen(() => !m_locked);
+			locked.Heading("Locked while the toggle is on");
+			locked.Property("Clicks", () => m_clicks);
+			locked.Button("Click", () => m_clicks++);
+			locked.Toggle("Toggle", () => m_toggle, value => m_toggle = value);
+			locked.Slider("Float", 0f, 1f, () => m_float, value => m_float = value).WithFormat("0.00");
+			locked.TextInput("Text", () => m_text, value => m_text = value);
 		}
 
 		private void Search(Segment page)

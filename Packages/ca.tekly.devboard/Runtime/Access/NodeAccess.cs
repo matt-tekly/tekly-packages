@@ -69,7 +69,8 @@ namespace Tekly.DevBoard.Access
 		}
 
 		/// <summary>
-		/// Sets the node's value from text. error says why when it returns false.
+		/// Sets the node's value from text. Nothing is set while the node, or a container it's in, isn't
+		/// interactable. error says why when it returns false.
 		/// </summary>
 		public bool TryWrite(Node node, string text, out string error)
 		{
@@ -77,6 +78,11 @@ namespace Tekly.DevBoard.Access
 
 			if (adapter == null || !adapter.CanWrite) {
 				error = $"{Describe(node)} can't be set";
+				return false;
+			}
+
+			if (!node.IsInteractable()) {
+				error = $"{Describe(node)} is disabled";
 				return false;
 			}
 
@@ -91,7 +97,8 @@ namespace Tekly.DevBoard.Access
 		}
 
 		/// <summary>
-		/// Does what clicking the node does: runs a button, flips a toggle. error says why when it returns false.
+		/// Does what clicking the node does: runs a button, flips a toggle. Nothing runs while the node, or a
+		/// container it's in, isn't interactable. error says why when it returns false.
 		/// </summary>
 		public bool TryInvoke(Node node, out string error)
 		{
@@ -99,6 +106,11 @@ namespace Tekly.DevBoard.Access
 
 			if (adapter == null || !adapter.CanInvoke) {
 				error = $"{Describe(node)} can't be run";
+				return false;
+			}
+
+			if (!node.IsInteractable()) {
+				error = $"{Describe(node)} is disabled";
 				return false;
 			}
 

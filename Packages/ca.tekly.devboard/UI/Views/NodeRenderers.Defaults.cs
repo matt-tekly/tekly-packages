@@ -1,6 +1,8 @@
 using Tekly.DevBoard.Components;
 using Tekly.DevBoard.Components.Inputs;
 using Tekly.DevBoard.Nodes;
+using Tekly.Trellis;
+using UnityEngine;
 
 namespace Tekly.DevBoard.Views
 {
@@ -19,6 +21,14 @@ namespace Tekly.DevBoard.Views
 
 		private const string DESCRIPTION_STYLE = "sublabel";
 
+		// The width group a form lines its labels up with
+		private const string LABEL_WIDTH_GROUP = "label";
+
+		private static readonly string[] s_vectorAxes = { "X", "Y", "Z" };
+
+		// The color the input and property prefabs give their labels, for labels made outside them
+		private static readonly Color s_fieldLabelColor = new Color32(189, 172, 143, 255);
+
 		private void RegisterDefaults()
 		{
 			Register<LabelNode, LabelWidget>((node, parent) => node.Kind == LabelKind.Heading ? WidgetPrefabs.Heading : WidgetPrefabs.Label,
@@ -30,8 +40,13 @@ namespace Tekly.DevBoard.Views
 				widget.WithValueWidth(node.ValueWidth);
 			});
 
-			Register<ButtonNode, ButtonWidget>(WidgetPrefabs.Button,
-				(node, widget, view) => widget.Initialize(node.Action, LabelText(node)));
+			Register<ButtonNode, ButtonWidget>(WidgetPrefabs.Button, (node, widget, view) => {
+				widget.Initialize(node.Run, LabelText(node));
+				// InteractableWhen is applied by the panel to every node, through a CanvasGroup
+				widget.WithIcon(node.Icon != null ? DevBoardUI.Instance.GetIcon(node.Icon) : null)
+					.WithLabelHidden(node.IsIconOnly)
+					.WithTone(DevBoardUI.Instance.GetButtonTone(node.Tone), node.IsPlain);
+			});
 
 			Register<LinkNode, ButtonWidget>(WidgetPrefabs.PageButton,
 				(node, widget, view) => widget.Initialize(() => view.Open(node.Target), LabelText(node)));
@@ -53,6 +68,10 @@ namespace Tekly.DevBoard.Views
 				widget.Initialize(LabelText(node), node.Binding);
 				widget.WithPlaceholder(node.Placeholder).WithInputMode(node.InputMode);
 			});
+
+			RegisterFactory<Vector3InputNode, ContainerWidget>(
+				(node, parent) => parent.Row().WithPadding(0).WithCrossAlignment(CrossAlignment.Center),
+				(node, row, view) => BindVector3(node, row));
 
 			Register<SliderNode, SliderWidget>(WidgetPrefabs.Slider, (node, widget, view) => {
 				widget.Initialize(LabelText(node), node.Min, node.Max, node.WholeNumbers, node.Binding);
@@ -93,6 +112,37 @@ namespace Tekly.DevBoard.Views
 
 			RegisterFactory<ListNode, ContainerWidget>((node, parent) => ContainerWidget.CreatePlain(parent.Content, "List"),
 				(node, widget, view) => ApplyLayout(node, widget));
+		}
+
+		/// <summary>
+		/// The label in the form's label column, then an input per axis sharing the rest of the row. The axis labels
+		/// stay out of the column, so they're only as wide as their letter.
+		/// </summary>
+		private static void BindVector3(Vector3InputNode node, ContainerWidget row)
+		{
+			var label = LabelText(node);
+
+			if (!string.IsNullOrEmpty(label)) {
+				var labelWidget = row.Label(label);
+				labelWidget.TextComponent.color = s_fieldLabelColor;
+				labelWidget.WithWidthGroup(LABEL_WIDTH_GROUP);
+			}
+
+			for (var i = 0; i < s_vectorAxes.Length; i++) {
+				var axis = i;
+				var binding = node.Binding.Convert(vector => (double) vector[axis], value => {
+					var vector = node.Binding.Read();
+					vector[axis] = (float) value;
+					return vector;
+				});
+
+				var input = row.NumberInput(s_vectorAxes[i], binding).WithFormat(node.Format);
+				input.WithLabelWidthGroup(null);
+
+				if (input.TryGetComponent(out LayoutItem layoutItem)) {
+					layoutItem.FlexibleWidth = 1f;
+				}
+			}
 		}
 
 		/// <summary>

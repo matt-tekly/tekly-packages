@@ -45,9 +45,15 @@ namespace Tekly.DevBoard
 					continue;
 				}
 
-				var found = typeof(Component).IsAssignableFrom(elementType)
-					? FindPrefabComponents(elementType, folder)
-					: FindMainAssets(elementType, folder);
+				List<Object> found;
+
+				if (typeof(Component).IsAssignableFrom(elementType)) {
+					found = FindPrefabComponents(elementType, folder);
+				} else if (elementType == typeof(Sprite)) {
+					found = FindSprites(folder);
+				} else {
+					found = FindMainAssets(elementType, folder);
+				}
 
 				var merged = Merge(field.GetValue(assets) as Array, found);
 				var array = Array.CreateInstance(elementType, merged.Count);
@@ -131,6 +137,27 @@ namespace Tekly.DevBoard
 
 				if (asset != null && assetType.IsInstanceOfType(asset)) {
 					results.Add(asset);
+				}
+			}
+
+			return results;
+		}
+
+		/// <summary>
+		/// Finds the sprite of each texture imported as a single sprite. A sprite is a sub-asset of its texture, so
+		/// FindMainAssets would miss it; sprite sheets are skipped, since their sprites aren't meant one by one.
+		/// </summary>
+		private static List<Object> FindSprites(string folder)
+		{
+			var results = new List<Object>();
+
+			foreach (var path in FindPaths("t:Sprite", folder)) {
+				if (AssetImporter.GetAtPath(path) is TextureImporter { spriteImportMode: SpriteImportMode.Single }) {
+					var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+
+					if (sprite != null) {
+						results.Add(sprite);
+					}
 				}
 			}
 

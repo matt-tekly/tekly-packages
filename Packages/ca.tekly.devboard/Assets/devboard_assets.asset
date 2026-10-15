@@ -46,3 +46,88 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 71929891152e35f428012bdddcbd9e71, type: 2}
   FontMaterials:
   - {fileID: 6880898219423524734, guid: 04ac27beec1074b48bbc85479a1bc4fc, type: 2}
+  Icons:
+  - {fileID: 21300000, guid: 4b2250ecbcbb650418b23535f1e69cd0, type: 3}
+  - {fileID: 21300000, guid: 2966b3d5d1fe2b44f9a35ea0f8cfca13, type: 3}
+  - {fileID: 21300000, guid: fda8b60019cb12e4cb26966eb45bf4ba, type: 3}
+  - {fileID: 21300000, guid: 389a7c77c7e637b4899e1a95d22402ac, type: 3}
+  - {fileID: 21300000, guid: 047e81527be945a4e9bab2914069a675, type: 3}
+  - {fileID: 21300000, guid: e0ceaebd4cb54e6588db8a442555426c, type: 3}
+  - {fileID: 21300000, guid: 7c89b96a550a2d84c9ccfcf9376f43ea, type: 3}
+  - {fileID: 21300000, guid: 7c89920bcead4e0c913d4091235227e9, type: 3}
+  - {fileID: 21300000, guid: 06b03bea023f4842b3e13dc22ecf416d, type: 3}
+  - {fileID: 21300000, guid: b1cf5c0c60ff1094f8e447b8a8e05480, type: 3}
+  - {fileID: 21300000, guid: 12139c85a085d3a41b30584d81f6f39b, type: 3}
+  - {fileID: 21300000, guid: 68898f9aed9294f41aa64d2ff8ba334d, type: 3}
+  - {fileID: 21300000, guid: a3e30e2f083847acb2735679417c5cc3, type: 3}
+  - {fileID: 21300000, guid: 9ddff4df7c655bb46a2f72f12b223ab0, type: 3}
+  - {fileID: 21300000, guid: 8ddbc5d17ce2476286a27c4812d403e1, type: 3}
+  - {fileID: 21300000, guid: e053f7a9bb7a4cf78d6463ef82f296ab, type: 3}
+  - {fileID: 21300000, guid: 803f7b9390daad848a5cebbec1bf505d, type: 3}
+  - {fileID: 21300000, guid: ecefd8ca3b804ba4f82eafe378ec7cae, type: 3}
+  ButtonTones:
+  - Tone: 0
+    Background:
+      Normal: {r: 0.314, g: 0.286, b: 0.271, a: 1}
+      Highlighted: {r: 0.4, g: 0.361, b: 0.329, a: 1}
+      Pressed: {r: 0.235, g: 0.22, b: 0.212, a: 1}
+    Text:
+      Normal: {r: 0.92, g: 0.86, b: 0.7, a: 1}
+      Highlighted: {r: 0.98, g: 0.95, b: 0.78, a: 1}
+      Pressed: {r: 0.84, g: 0.77, b: 0.63, a: 1}
+    Ink:
+      Normal: {r: 0.92, g: 0.86, b: 0.7, a: 1}
+      Highlighted: {r: 0.98, g: 0.95, b: 0.78, a: 1}
+      Pressed: {r: 0.84, g: 0.77, b: 0.63, a: 1}
+  - Tone: 1
+    Background:
+      Normal: {r: 0.27, g: 0.47, b: 0.62, a: 1}
+      Highlighted: {r: 0.33, g: 0.55, b: 0.71, a: 1}
+      Pressed: {r: 0.22, g: 0.39, b: 0.52, a: 1}
+    Text:
+      Normal: {r: 0.92, g: 0.86, b: 0.7, a: 1}
+      Highlighted: {r: 0.98, g: 0.95, b: 0.78, a: 1}
+      Pressed: {r: 0.84, g: 0.77, b: 0.63, a: 1}
+    Ink:
+      Normal: {r: 0.45, g: 0.72, b: 0.92, a: 1}
+      Highlighted: {r: 0.55, g: 0.8, b: 0.98, a: 1}
+      Pressed: {r: 0.36, g: 0.62, b: 0.8, a: 1}
+  - Tone: 2
+    Background:
+      Normal: {r: 0.26, g: 0.46, b: 0.31, a: 1}
+      Highlighted: {r: 0.31, g: 0.54, b: 0.36, a: 1}
+      Pressed: {r: 0.21, g: 0.38, b: 0.25, a: 1}
+    Text:
+      Normal: {r: 0.92, g: 0.86, b: 0.7, a: 1}
+      Highlighted: {r: 0.98, g: 0.95, b: 0.78, a: 1}
+      Pressed: {r: 0.84, g: 0.77, b: 0.63, a: 1}
+    Ink:
+      Normal: {r: 0.47, g: 0.78, b: 0.52, a: 1}
+      Highlighted: {r: 0.56, g: 0.86, b: 0.6, a: 1}
+      Pressed: {r: 0.4, g: 0.68, b: 0.45, a: 1}
+  - Tone: 3
+    Background:
+      Normal: {r: 0.6, g: 0.25, b: 0.23, a: 1}
+      Highlighted: {r: 0.69, g: 0.3, b: 0.27, a: 1}
+      Pressed: {r: 0.5, g: 0.2, b: 0.19, a: 1}
+    Text:
+      Normal: {r: 0.92, g: 0.86, b: 0.7, a: 1}
+      Highlighted: {r: 0.98, g: 0.95, b: 0.78, a: 1}
+      Pressed: {r: 0.84, g: 0.77, b: 0.63, a: 1}
+    Ink:
+      Normal: {r: 0.9, g: 0.4, b: 0.36, a: 1}
+      Highlighted: {r: 0.97, g: 0.5, b: 0.45, a: 1}
+      Pressed: {r: 0.8, g: 0.33, b: 0.3, a: 1}
+  - Tone: 4
+    Background:
+      Normal: {r: 0.85, g: 0.65, b: 0.18, a: 1}
+      Highlighted: {r: 0.93, g: 0.73, b: 0.25, a: 1}
+      Pressed: {r: 0.73, g: 0.55, b: 0.13, a: 1}
+    Text:
+      Normal: {r: 0.16, g: 0.14, b: 0.13, a: 1}
+      Highlighted: {r: 0.12, g: 0.11, b: 0.1, a: 1}
+      Pressed: {r: 0.2, g: 0.18, b: 0.16, a: 1}
+    Ink:
+      Normal: {r: 0.98, g: 0.76, b: 0.24, a: 1}
+      Highlighted: {r: 1, g: 0.84, b: 0.36, a: 1}
+      Pressed: {r: 0.86, g: 0.66, b: 0.18, a: 1}

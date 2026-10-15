@@ -47,6 +47,16 @@ namespace Tekly.DevBoard.Components.Inputs
 		}
 
 		/// <summary>
+		/// Puts the label in a width group, or none for null, e.g. so short labels inside a row don't take the
+		/// width of a form's label column.
+		/// </summary>
+		public InputWidget<T> WithLabelWidthGroup(string widthGroup)
+		{
+			m_label?.WithWidthGroup(widthGroup ?? string.Empty);
+			return this;
+		}
+
+		/// <summary>
 		/// The text shown while the field is empty. Subclasses expose it as WithPlaceholder.
 		/// </summary>
 		protected void SetPlaceholder(string placeholder)

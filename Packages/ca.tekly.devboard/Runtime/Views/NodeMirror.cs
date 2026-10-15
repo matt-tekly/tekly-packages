@@ -7,7 +7,8 @@ using UnityEngine;
 namespace Tekly.DevBoard.Views
 {
 	/// <summary>
-	/// One host's view of a node, kept in step with it: shows and hides its element as VisibleWhen says, and for
+	/// One host's view of a node, kept in step with it: shows and hides its element as VisibleWhen says, greys it
+	/// out as InteractableWhen says, and for
 	/// containers creates, removes and orders the children's elements as the node's children change. Knows nothing
 	/// about widgets: elements do the showing, so a panel and a remote viewer share all of this.
 	///
@@ -42,6 +43,9 @@ namespace Tekly.DevBoard.Views
 		private bool m_filteredOut;
 		private bool m_shown = true;
 		private bool m_visibleFaulted;
+		private bool m_interactable = true;
+		private bool m_interactableFaulted;
+		private bool m_hasAppliedInteractable;
 
 		protected NodeMirror(Node node, IViewElement element, ViewContext context)
 		{
@@ -75,6 +79,7 @@ namespace Tekly.DevBoard.Views
 		public virtual void Tick()
 		{
 			RefreshVisible();
+			RefreshInteractable();
 		}
 
 		/// <summary>
@@ -103,6 +108,7 @@ namespace Tekly.DevBoard.Views
 		protected virtual void Start()
 		{
 			RefreshVisible();
+			RefreshInteractable();
 		}
 
 		/// <summary>
@@ -133,6 +139,35 @@ namespace Tekly.DevBoard.Views
 			}
 
 			ApplyShown();
+		}
+
+		/// <summary>
+		/// Only this node's own check: a container's element greys out what's inside it, so children don't need to
+		/// look up. A check that throws counts as not interactable.
+		/// </summary>
+		private void RefreshInteractable()
+		{
+			var interactable = Node.Interactable;
+
+			if (interactable == null || Element is not IInteractableElement element) {
+				return;
+			}
+
+			bool value;
+
+			try {
+				value = interactable();
+				m_interactableFaulted = false;
+			} catch (Exception exception) {
+				ReportFault(ref m_interactableFaulted, exception);
+				value = false;
+			}
+
+			if (value != m_interactable || !m_hasAppliedInteractable) {
+				m_interactable = value;
+				m_hasAppliedInteractable = true;
+				element.SetInteractable(value);
+			}
 		}
 
 		private void ApplyShown()

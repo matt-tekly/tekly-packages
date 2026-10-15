@@ -18,6 +18,14 @@ namespace Tekly.DevBoard.Views
 	}
 
 	/// <summary>
+	/// An element that can be greyed out, for nodes with InteractableWhen. A container's covers everything inside it.
+	/// </summary>
+	public interface IInteractableElement
+	{
+		void SetInteractable(bool interactable);
+	}
+
+	/// <summary>
 	/// The element for a container node: it makes the elements for the node's children.
 	/// </summary>
 	public interface IContainerElement : IViewElement

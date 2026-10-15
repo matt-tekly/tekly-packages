@@ -22,6 +22,9 @@ namespace Tekly.DevBoard
 		[SerializeField] private KeyCode m_toggleKey = KeyCode.BackQuote;
 #endif
 
+		[Tooltip("Shows and hides DevBoard when this many fingers touch the screen together, e.g. 4 on mobile. 0 turns the gesture off")]
+		[SerializeField, Min(0)] private int m_toggleTouchCount;
+
 		[Tooltip("Start with DevBoard hidden until the shortcut is pressed")]
 		[SerializeField] private bool m_startHidden = true;
 
@@ -32,6 +35,7 @@ namespace Tekly.DevBoard
 		{
 			var devBoard = DevBoardUI.Instance;
 			devBoard.ToggleKey = m_toggleKey;
+			devBoard.ToggleTouchCount = m_toggleTouchCount;
 			devBoard.SetVisible(!m_startHidden);
 			devBoard.AddAssets(m_assets);
 

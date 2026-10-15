@@ -105,7 +105,7 @@ namespace Tekly.DevBoard
 
 		private void RegisterTick()
 		{
-			// Most widgets (labels, buttons, containers) never tick, so they stay out of the group entirely
+			// Most widgets (labels, containers) never tick, so they stay out of the group entirely
 			if (!OverridesTick(GetType())) {
 				return;
 			}

@@ -89,6 +89,12 @@ namespace Tekly.DevBoard.Nodes
 		/// </summary>
 		public Func<bool> Visible { get; private set; }
 
+		/// <summary>
+		/// Polled by panels showing the node, and checked before anything uses it. Null means interactable. A
+		/// container's applies to everything inside it.
+		/// </summary>
+		public Func<bool> Interactable { get; private set; }
+
 		public OverlayMode Overlay { get; private set; }
 
 		/// <summary>
@@ -131,6 +137,29 @@ namespace Tekly.DevBoard.Nodes
 		}
 
 		/// <summary>
+		/// Whether the node can be used now: it and every container above it are interactable. A check that throws
+		/// counts as not interactable.
+		/// </summary>
+		public bool IsInteractable()
+		{
+			for (var node = this; node != null; node = node.Parent) {
+				if (node.Interactable == null) {
+					continue;
+				}
+
+				try {
+					if (!node.Interactable()) {
+						return false;
+					}
+				} catch (Exception) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		/// <summary>
 		/// Throws if the node's builder has finished. Call it from every setting a node type adds.
 		/// </summary>
 		protected void EnsureEditable()
@@ -158,6 +187,12 @@ namespace Tekly.DevBoard.Nodes
 		{
 			EnsureEditable();
 			Visible = visible;
+		}
+
+		internal void SetInteractable(Func<bool> interactable)
+		{
+			EnsureEditable();
+			Interactable = interactable;
 		}
 
 		internal void SetOverlay(OverlayMode overlay)
@@ -205,6 +240,18 @@ namespace Tekly.DevBoard.Nodes
 		public static T VisibleWhen<T>(this T node, Func<bool> visible) where T : Node
 		{
 			node.SetVisible(visible);
+			return node;
+		}
+
+		/// <summary>
+		/// Greys the node out while interactable returns false, e.g. a scene load button while a scene is loading.
+		/// On a container it covers everything inside, e.g. a whole form of cheats. Clicks, typing, the command
+		/// palette and NodeAccess leave it alone then, but its values keep refreshing. Panels poll it as they
+		/// refresh, like VisibleWhen.
+		/// </summary>
+		public static T InteractableWhen<T>(this T node, Func<bool> interactable) where T : Node
+		{
+			node.SetInteractable(interactable);
 			return node;
 		}
 
