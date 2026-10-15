@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Tekly.Common.Utils;
+using Tekly.Common.Utils.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Pool;
@@ -50,7 +51,18 @@ namespace Tekly.Trellis
 		[Tooltip("Items with the same name under the same WidthGroup share the widest width. Empty = no group")]
 		[SerializeField] private string m_widthGroup = "";
 
+		[Tooltip("Seconds to ease to a new size instead of jumping, e.g. a panel whose content changes. 0 jumps. Play mode only")]
+		[SerializeField, Min(0f)] private float m_sizeTransition;
+
+		[Tooltip("How the size eases during a Size Transition")]
+		[SerializeField] private Ease m_sizeTransitionEase = Ease.OutCubic;
+
 		private RectTransform m_rectTransform;
+
+		// Made the first time a size transition is used, so items without one carry nothing extra
+		private SizeTween m_widthTween;
+		private SizeTween m_heightTween;
+		private Coroutine m_sizeTweenRoutine;
 
 		// Measures reused within a pass. Cleared when this item's settings change and when Unity starts
 		// measuring this object in a rebuild, so they're never older than the content they describe.
@@ -144,6 +156,32 @@ namespace Tekly.Trellis
 				}
 			}
 		}
+
+		/// <summary>
+		/// Seconds to ease to a new preferred size instead of jumping, e.g. a panel whose content changes. 0
+		/// jumps. Only in play mode. The first size after enabling is taken straight away.
+		/// </summary>
+		public float SizeTransition {
+			get => m_sizeTransition;
+			set {
+				if (SetPropertyUtility.SetStruct(ref m_sizeTransition, Mathf.Max(0f, value))) {
+					SetDirty();
+				}
+			}
+		}
+
+		/// <summary>
+		/// How the size eases during a size transition. OutCubic by default: quick to respond, gentle to settle.
+		/// </summary>
+		public Ease SizeTransitionEase {
+			get => m_sizeTransitionEase;
+			set => m_sizeTransitionEase = value;
+		}
+
+		/// <summary>
+		/// True while the size is easing toward its content's, and for the frame after it lands.
+		/// </summary>
+		public bool IsSizeTransitioning => m_sizeTweenRoutine != null;
 
 		public Edges Margin {
 			get => m_margin;
@@ -279,8 +317,34 @@ namespace Tekly.Trellis
 			var preferred = Pick(horizontal ? m_preferredWidth : m_preferredHeight, content.Preferred);
 			var flexible = Pick(horizontal ? m_flexibleWidth : m_flexibleHeight, content.Flexible);
 
-			return LayoutMeasure.Create(min, preferred, flexible, GetMaxSize(axis),
+			var measure = LayoutMeasure.Create(min, preferred, flexible, GetMaxSize(axis),
 				m_margin.Start(axis), m_margin.End(axis));
+
+			if (m_sizeTransition > 0f && Application.isPlaying) {
+				var tween = horizontal ? m_widthTween ??= new SizeTween() : m_heightTween ??= new SizeTween();
+
+				if (tween.Apply(ref measure, m_sizeTransition, m_sizeTransitionEase) && m_sizeTweenRoutine == null && isActiveAndEnabled) {
+					m_sizeTweenRoutine = StartCoroutine(RunSizeTweens());
+				}
+			}
+
+			return measure;
+		}
+
+		/// <summary>
+		/// Measures again every frame while a size transition runs, then once more so the last frame lands on the
+		/// content's size exactly.
+		/// </summary>
+		private IEnumerator RunSizeTweens()
+		{
+			while ((m_widthTween?.IsRunning(m_sizeTransition) ?? false) || (m_heightTween?.IsRunning(m_sizeTransition) ?? false)) {
+				yield return null;
+				SetDirty();
+			}
+
+			yield return null;
+			SetDirty();
+			m_sizeTweenRoutine = null;
 		}
 
 		/// <summary>
@@ -377,6 +441,11 @@ namespace Tekly.Trellis
 
 			// Coroutines stop when disabled, and IsActive is already false here
 			m_dirtyPending = false;
+			m_sizeTweenRoutine = null;
+
+			// Shown again, it takes its size straight away rather than easing from a stale one
+			m_widthTween?.Reset();
+			m_heightTween?.Reset();
 			LayoutRebuilder.MarkLayoutForRebuild(OwnRect);
 			base.OnDisable();
 		}

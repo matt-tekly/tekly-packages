@@ -50,6 +50,12 @@ namespace Tekly.Trellis
 			"Items with the same name under the same WidthGroup share the widest width, like a form's label column. " +
 			"Empty = no group");
 
+		private static readonly GUIContent s_sizeTransitionLabel = new GUIContent("Size Transition",
+			"Seconds to ease to a new size instead of jumping, e.g. a panel whose content changes. 0 jumps. Play mode only");
+
+		private static readonly GUIContent s_sizeTransitionEaseLabel = new GUIContent("Size Transition Ease",
+			"How the size eases during a Size Transition");
+
 		private static readonly GUIContent s_overrideTooltip = new GUIContent("", "Override this size");
 
 		private static readonly GUIContent s_sizeLabel = new GUIContent("Size",
@@ -136,6 +142,12 @@ namespace Tekly.Trellis
 			}
 
 			EditorGUILayout.PropertyField(serializedObject.FindProperty("m_layoutPriority"));
+			var sizeTransition = serializedObject.FindProperty("m_sizeTransition");
+			EditorGUILayout.PropertyField(sizeTransition, s_sizeTransitionLabel);
+
+			using (new EditorGUI.DisabledScope(sizeTransition.floatValue <= 0f && !sizeTransition.hasMultipleDifferentValues)) {
+				EditorGUILayout.PropertyField(serializedObject.FindProperty("m_sizeTransitionEase"), s_sizeTransitionEaseLabel);
+			}
 			EditorGUI.indentLevel--;
 		}
 
