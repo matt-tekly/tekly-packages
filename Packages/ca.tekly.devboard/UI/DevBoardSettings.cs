@@ -22,6 +22,7 @@ namespace Tekly.DevBoard
 
 		[SerializeField] private float m_scale = 1f;
 		[SerializeField] private bool m_keepPhysicalSizeInEditor = true;
+		[SerializeField] private bool m_animations = true;
 
 		/// <summary>
 		/// The scale factor of the DevBoard canvas. 1 is the size the widgets were designed at.
@@ -38,6 +39,14 @@ namespace Tekly.DevBoard
 		public bool KeepPhysicalSizeInEditor {
 			get => m_keepPhysicalSizeInEditor;
 			set => Set(ref m_keepPhysicalSizeInEditor, value);
+		}
+
+		/// <summary>
+		/// Whether panels ease to a new size when their page changes, rather than jumping.
+		/// </summary>
+		public bool Animations {
+			get => m_animations;
+			set => Set(ref m_animations, value);
 		}
 
 		public static DevBoardSettings Load()
@@ -64,6 +73,7 @@ namespace Tekly.DevBoard
 		{
 			m_scale = 1f;
 			m_keepPhysicalSizeInEditor = true;
+			m_animations = true;
 			OnChanged();
 		}
 

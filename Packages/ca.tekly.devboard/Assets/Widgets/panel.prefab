@@ -82,6 +82,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
   m_fitWidth: 0
   m_fitHeight: 0
   m_axis: 0
@@ -284,6 +286,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: button
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
   m_fitWidth: 2
   m_fitHeight: 2
   m_axis: 0
@@ -596,6 +600,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: button
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
   m_fitWidth: 2
   m_fitHeight: 2
   m_axis: 0
@@ -807,6 +813,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
   m_fitWidth: 0
   m_fitHeight: 0
   m_axis: 0
@@ -1033,6 +1041,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
 --- !u!114 &5896815520298914002
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1125,6 +1135,7 @@ MonoBehaviour:
   m_body: {fileID: 8152800914742813509}
   m_bodyGroup: {fileID: 8333007487693551490}
   m_layoutItem: {fileID: 0}
+  m_linkPageMinWidth: 280
   m_frameGraphic: {fileID: 0}
 --- !u!114 &797643170885697563
 MonoBehaviour:
@@ -1277,6 +1288,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0.25
+  m_sizeTransitionEase: 8
   m_fitWidth: 0
   m_fitHeight: 0
   m_axis: 1
@@ -1515,6 +1528,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: button
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
   m_fitWidth: 2
   m_fitHeight: 2
   m_axis: 0
@@ -1762,6 +1777,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
 --- !u!114 &6859692798192839699
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1897,6 +1914,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
 --- !u!114 &6612422163482363369
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2002,6 +2021,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
   m_fitWidth: 0
   m_fitHeight: 0
   m_axis: 0
@@ -2202,6 +2223,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
   m_fitWidth: 0
   m_fitHeight: 0
   m_axis: 0
@@ -2314,6 +2337,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
   m_fitWidth: 0
   m_fitHeight: 0
   m_axis: 0
@@ -2512,6 +2537,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
 --- !u!1 &6360498559244135552
 GameObject:
   m_ObjectHideFlags: 0
@@ -2633,6 +2660,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
 --- !u!114 &5090507106481352608
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2740,6 +2769,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
 --- !u!114 &3152985911120664992
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3009,6 +3040,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
   m_fitWidth: 0
   m_fitHeight: 0
   m_axis: 0
@@ -3211,6 +3244,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: button
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
   m_fitWidth: 2
   m_fitHeight: 2
   m_axis: 0
@@ -3430,6 +3465,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
 --- !u!114 &1484897009941891441
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3787,6 +3824,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
 --- !u!114 &4182220137373747027
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4126,6 +4165,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
 --- !u!1 &9040075969588674269
 GameObject:
   m_ObjectHideFlags: 0
@@ -4757,7 +4798,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4407353304567295013, guid: 7c4ee1cc6b6a21840a62ca4219d855de, type: 3}
       propertyPath: m_Size
-      value: 0.95412844
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5044990560436365489, guid: 7c4ee1cc6b6a21840a62ca4219d855de, type: 3}
       propertyPath: m_AnchorMax.x

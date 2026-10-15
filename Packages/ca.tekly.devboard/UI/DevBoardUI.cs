@@ -706,6 +706,9 @@ namespace Tekly.DevBoard
 				scaleRow.Button("+", () => Settings.Scale += DevBoardSettings.SCALE_STEP);
 				scaleRow.Button("1x", () => Settings.Scale = 1f);
 
+				form.Toggle("Animations", () => Settings.Animations, value => Settings.Animations = value)
+					.WithDescription("Ease panels between page sizes");
+
 #if UNITY_EDITOR
 				form.Toggle("Physical Size", () => Settings.KeepPhysicalSizeInEditor, value => Settings.KeepPhysicalSizeInEditor = value)
 					.WithDescription("Scale by screen DPI. Editor only");

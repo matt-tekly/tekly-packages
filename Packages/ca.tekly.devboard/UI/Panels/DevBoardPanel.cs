@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Tekly.Common.Utils;
 using Tekly.Common.Ui.Fancy;
 using Tekly.DevBoard.Components;
 using Tekly.DevBoard.Nodes;
@@ -114,6 +115,11 @@ namespace Tekly.DevBoard.Panels
 		[Tooltip("Gets a MaxHeight so panels in a slot share the screen height. Found on this GameObject if not set")]
 		[SerializeField] private LayoutItem m_layoutItem;
 
+		[Tooltip("The least width while showing a page that only lists other pages, so lists aren't skinny next to " +
+			"the pages they open. 0 for none. How fast the panel eases between page sizes is the Size Transition on " +
+			"its layout")]
+		[SerializeField, Min(0f)] private float m_linkPageMinWidth = 280f;
+
 		[Tooltip("Stops blocking touches in overlay mode. Found on this GameObject if not set")]
 		[SerializeField] private Graphic m_frameGraphic;
 
@@ -121,6 +127,12 @@ namespace Tekly.DevBoard.Panels
 		private float m_tickInterval;
 		private float m_nextTickTime;
 		private float m_maxHeight = -1f;
+		private bool m_frameSetUp;
+		private OptionalFloat m_prefabMinWidth;
+		private float m_prefabSizeTransition;
+		private bool m_showingLinkPage;
+		private PageNode m_sizedPage;
+		private int m_pageChangedFrame = -1;
 		private bool m_headerDirty;
 		private bool m_tornDown;
 		private Coroutine m_revealRoutine;
@@ -410,6 +422,8 @@ namespace Tekly.DevBoard.Panels
 			m_navigation.Update();
 			m_pages.Update();
 			UpdateSizeLimits();
+			UpdateFrameSize();
+			UpdateScrollbarFreeze();
 
 			if (m_headerDirty) {
 				m_headerDirty = false;
@@ -620,6 +634,72 @@ namespace Tekly.DevBoard.Panels
 					m_layoutItem.MaxHeight = maxHeight;
 				}
 			}
+		}
+
+		/// <summary>
+		/// Widens pages that only list other pages, and eases between page sizes with the Size Transition on the
+		/// panel's layout, unless animations are turned off in the options.
+		/// </summary>
+		private void UpdateFrameSize()
+		{
+			var layout = m_layoutItem != null ? m_layoutItem : GetComponent<LayoutItem>();
+
+			if (layout == null) {
+				return;
+			}
+
+			if (!m_frameSetUp) {
+				m_frameSetUp = true;
+				m_prefabMinWidth = layout.MinWidth;
+				m_prefabSizeTransition = layout.SizeTransition;
+			}
+
+			var sizeTransition = m_board == null || m_board.Settings.Animations ? m_prefabSizeTransition : 0f;
+
+			if (!Mathf.Approximately(layout.SizeTransition, sizeTransition)) {
+				layout.SizeTransition = sizeTransition;
+			}
+
+			var page = CurrentPage;
+			var isLinkPage = page != null && page.Segments.Count == 0 && page.Children.Count > 0;
+
+			if (isLinkPage == m_showingLinkPage) {
+				return;
+			}
+
+			m_showingLinkPage = isLinkPage;
+
+			// The prefab's own min width is kept, and put back on other pages
+			layout.MinWidth = isLinkPage
+				? new OptionalFloat(Mathf.Max(m_linkPageMinWidth, m_prefabMinWidth.GetValueOrDefault()))
+				: m_prefabMinWidth;
+		}
+
+		/// <summary>
+		/// Keeps the body's scrollbars from flashing while the panel eases to a new size, when the content is
+		/// briefly bigger than the panel. Frozen as soon as the page changes, before the new page is laid out, and
+		/// whenever a size transition runs, then let go once the panel has settled.
+		/// </summary>
+		private void UpdateScrollbarFreeze()
+		{
+			if (m_body == null) {
+				return;
+			}
+
+			var page = CurrentPage;
+
+			if (page != m_sizedPage) {
+				m_sizedPage = page;
+				m_pageChangedFrame = Time.frameCount;
+			}
+
+			var layout = m_layoutItem != null ? m_layoutItem : GetComponent<LayoutItem>();
+			var transitioning = layout != null && layout.SizeTransition > 0f && layout.IsSizeTransitioning;
+
+			// The page's layout, which starts the transition, runs after this frame's Update
+			var pageJustChanged = Time.frameCount <= m_pageChangedFrame + 1;
+
+			m_body.FreezeScrollbars(transitioning || (pageJustChanged && layout != null && layout.SizeTransition > 0f));
 		}
 
 		private void RunDeferred()

@@ -21,6 +21,9 @@ namespace Tekly.DevBoard.Components
 		private bool m_restorePending;
 		private ScrollState m_pendingState;
 		private float m_restoreDeadline;
+		private bool m_scrollbarsFrozen;
+		private Scrollbar m_frozenHorizontal;
+		private Scrollbar m_frozenVertical;
 
 		private static readonly Vector3[] s_corners = new Vector3[4];
 		/// <summary>
@@ -39,6 +42,33 @@ namespace Tekly.DevBoard.Components
 		{
 			m_saveState = false;
 			return this;
+		}
+
+		/// <summary>
+		/// Holds the scrollbars as they are, e.g. while the scroll view's container eases to a new size and the
+		/// content briefly doesn't fit. A scrollbar that's showing stays, so it doesn't flicker, and a hidden one
+		/// doesn't pop in and narrow the view. Unfreezing hands them back to the ScrollRect, which shows them as
+		/// the content needs.
+		/// </summary>
+		internal void FreezeScrollbars(bool frozen)
+		{
+			if (frozen == m_scrollbarsFrozen || m_scrollRect == null) {
+				return;
+			}
+
+			m_scrollbarsFrozen = frozen;
+
+			if (frozen) {
+				m_frozenHorizontal = m_scrollRect.horizontalScrollbar;
+				m_frozenVertical = m_scrollRect.verticalScrollbar;
+				m_scrollRect.horizontalScrollbar = null;
+				m_scrollRect.verticalScrollbar = null;
+			} else {
+				m_scrollRect.horizontalScrollbar = m_frozenHorizontal;
+				m_scrollRect.verticalScrollbar = m_frozenVertical;
+				m_frozenHorizontal = null;
+				m_frozenVertical = null;
+			}
 		}
 
 		/// <summary>

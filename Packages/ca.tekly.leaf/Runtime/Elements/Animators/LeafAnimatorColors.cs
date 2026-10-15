@@ -61,16 +61,15 @@ namespace Tekly.Leaf.Elements.Animators
 		[NonSerialized] private Color m_goal;
 		[NonSerialized] private float m_elapsed;
 
-		// Set at runtime, e.g. a button's tone, and never saved
-		[NonSerialized] private bool m_hasOverride;
-		[NonSerialized] private LeafColorBlock m_overrideColors;
-		[NonSerialized] private LeafElementFlags m_overrideKeepLayers;
+		// Set at runtime, e.g. a button's tone, and never saved. Null for the usual colors, so targets that are
+		// never overridden carry one reference
+		[NonSerialized] private ColorOverride m_override;
 
 		public bool IsFading => m_isFading;
 
 		public Color Evaluate(LeafElementState state)
 		{
-			var color = (m_hasOverride ? m_overrideColors : m_colors).GetColor(state.Mode);
+			var color = (m_override != null ? m_override.Colors : m_colors).GetColor(state.Mode);
 
 			for (var i = 0; i < m_layers.Length; i++) {
 				var layer = m_layers[i];
@@ -80,7 +79,7 @@ namespace Tekly.Leaf.Elements.Animators
 				}
 
 				// An override drops the layers made for the serialized colors, apart from the ones it keeps
-				if (m_hasOverride && (layer.Flags & ~m_overrideKeepLayers) != 0) {
+				if (m_override != null && (layer.Flags & ~m_override.KeepLayers) != 0) {
 					continue;
 				}
 
@@ -97,14 +96,20 @@ namespace Tekly.Leaf.Elements.Animators
 		/// </summary>
 		public void SetOverride(LeafColorBlock colors, LeafElementFlags keepLayers)
 		{
-			m_hasOverride = true;
-			m_overrideColors = colors;
-			m_overrideKeepLayers = keepLayers;
+			m_override ??= new ColorOverride();
+			m_override.Colors = colors;
+			m_override.KeepLayers = keepLayers;
 		}
 
 		public void ClearOverride()
 		{
-			m_hasOverride = false;
+			m_override = null;
+		}
+
+		private sealed class ColorOverride
+		{
+			public LeafColorBlock Colors;
+			public LeafElementFlags KeepLayers;
 		}
 
 		public void SetState(LeafElementState state, bool instant)
