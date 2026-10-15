@@ -26,6 +26,9 @@ namespace Tekly.DevBoard.Views
 
 		private static readonly string[] s_vectorAxes = { "X", "Y", "Z" };
 
+		private const string ON_LABEL = "On";
+		private const string OFF_LABEL = "Off";
+
 		// The color the input and property prefabs give their labels, for labels made outside them
 		private static readonly Color s_fieldLabelColor = new Color32(189, 172, 143, 255);
 
@@ -68,6 +71,17 @@ namespace Tekly.DevBoard.Views
 				widget.Initialize(LabelText(node), node.Binding);
 				widget.WithPlaceholder(node.Placeholder).WithInputMode(node.InputMode);
 			});
+
+			RegisterFactory<OnOffButtonsNode, ContainerWidget>(
+				(node, parent) => parent.Row().WithPadding(0).WithCrossAlignment(CrossAlignment.Center),
+				(node, row, view) => {
+					FieldLabel(row, LabelText(node));
+
+					// Joined into one bar: a green check for On and a red cross for Off
+					var buttons = row.Create(WidgetPrefabs.SegmentedRow);
+					OnOffButton(buttons, ON_LABEL, Icons.Check, ButtonTone.Positive, () => node.Run(true));
+					OnOffButton(buttons, OFF_LABEL, Icons.Close, ButtonTone.Negative, () => node.Run(false));
+				});
 
 			RegisterFactory<Vector3InputNode, ContainerWidget>(
 				(node, parent) => parent.Row().WithPadding(0).WithCrossAlignment(CrossAlignment.Center),
@@ -120,13 +134,7 @@ namespace Tekly.DevBoard.Views
 		/// </summary>
 		private static void BindVector3(Vector3InputNode node, ContainerWidget row)
 		{
-			var label = LabelText(node);
-
-			if (!string.IsNullOrEmpty(label)) {
-				var labelWidget = row.Label(label);
-				labelWidget.TextComponent.color = s_fieldLabelColor;
-				labelWidget.WithWidthGroup(LABEL_WIDTH_GROUP);
-			}
+			FieldLabel(row, LabelText(node));
 
 			for (var i = 0; i < s_vectorAxes.Length; i++) {
 				var axis = i;
@@ -143,6 +151,34 @@ namespace Tekly.DevBoard.Views
 					layoutItem.FlexibleWidth = 1f;
 				}
 			}
+		}
+
+		/// <summary>
+		/// One of OnOffButtons' buttons: its icon on a background in the tone's colors. The label is hidden, but kept
+		/// for anything that reads it.
+		/// </summary>
+		private static void OnOffButton(ContainerWidget parent, string label, string icon, ButtonTone tone,
+			System.Action action)
+		{
+			parent.Button(label, action)
+				.WithIcon(DevBoardUI.Instance.GetIcon(icon))
+				.WithLabelHidden(true)
+				.WithTone(DevBoardUI.Instance.GetButtonTone(tone), false);
+		}
+
+		/// <summary>
+		/// A label for controls built from several widgets, looking like an input's label: the same color, and in
+		/// a form's label column. Nothing for an empty label.
+		/// </summary>
+		private static void FieldLabel(ContainerWidget row, string label)
+		{
+			if (string.IsNullOrEmpty(label)) {
+				return;
+			}
+
+			var labelWidget = row.Label(label);
+			labelWidget.TextComponent.color = s_fieldLabelColor;
+			labelWidget.WithWidthGroup(LABEL_WIDTH_GROUP);
 		}
 
 		/// <summary>

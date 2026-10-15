@@ -201,6 +201,16 @@ namespace TeklySample.Samples.DevBoardSample
 			row.Button("Plain Negative", () => m_clicks = 0).WithIcon(Icons.Trash).WithTone(ButtonTone.Negative).Plain();
 			row.IconButton("Delete", Icons.Trash, () => m_clicks = 0).WithTone(ButtonTone.Negative);
 			row.Button("Disabled Positive", () => m_clicks++).WithTone(ButtonTone.Positive).InteractableWhen(() => false);
+
+			// For turning something on or off that has no single state to read. Use a toggle when there is one
+			form.OnOffButtons("Logging", on => Debug.Log(on ? "Logging on" : "Logging off"));
+
+			// A segmented row joins its buttons into one bar, rounding only the outer corners
+			row = form.ButtonRow();
+			row.Button("-10", () => m_clicks -= 10);
+			row.Button("-1", () => m_clicks--);
+			row.Button("+1", () => m_clicks++);
+			row.Button("+10", () => m_clicks += 10);
 		}
 
 		private void Toggles(Segment page)

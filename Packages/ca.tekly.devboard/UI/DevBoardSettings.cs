@@ -13,6 +13,10 @@ namespace Tekly.DevBoard
 		public const float MAX_SCALE = 4f;
 		public const float SCALE_STEP = 0.25f;
 
+		public const float MIN_PANEL_HEIGHT = 0.3f;
+		public const float MAX_PANEL_HEIGHT = 1f;
+		public const float DEFAULT_PANEL_HEIGHT = 0.85f;
+
 		private const string PREFS_KEY = "Tekly.DevBoard.Settings";
 
 		/// <summary>
@@ -23,6 +27,7 @@ namespace Tekly.DevBoard
 		[SerializeField] private float m_scale = 1f;
 		[SerializeField] private bool m_keepPhysicalSizeInEditor = true;
 		[SerializeField] private bool m_animations = true;
+		[SerializeField] private float m_maxPanelHeight = DEFAULT_PANEL_HEIGHT;
 
 		/// <summary>
 		/// The scale factor of the DevBoard canvas. 1 is the size the widgets were designed at.
@@ -49,6 +54,15 @@ namespace Tekly.DevBoard
 			set => Set(ref m_animations, value);
 		}
 
+		/// <summary>
+		/// The most of the screen's height panels take before their pages scroll, from 0.3 to 1. Panels docked in
+		/// the same corner share it.
+		/// </summary>
+		public float MaxPanelHeight {
+			get => m_maxPanelHeight;
+			set => Set(ref m_maxPanelHeight, Mathf.Clamp(value, MIN_PANEL_HEIGHT, MAX_PANEL_HEIGHT));
+		}
+
 		public static DevBoardSettings Load()
 		{
 			var json = PlayerPrefs.GetString(PREFS_KEY, null);
@@ -59,6 +73,11 @@ namespace Tekly.DevBoard
 
 					if (settings != null) {
 						settings.m_scale = Mathf.Clamp(settings.m_scale, MIN_SCALE, MAX_SCALE);
+
+						// Settings saved before this option existed load it as 0
+						settings.m_maxPanelHeight = settings.m_maxPanelHeight <= 0f
+							? DEFAULT_PANEL_HEIGHT
+							: Mathf.Clamp(settings.m_maxPanelHeight, MIN_PANEL_HEIGHT, MAX_PANEL_HEIGHT);
 						return settings;
 					}
 				} catch (Exception exception) {
@@ -74,6 +93,7 @@ namespace Tekly.DevBoard
 			m_scale = 1f;
 			m_keepPhysicalSizeInEditor = true;
 			m_animations = true;
+			m_maxPanelHeight = DEFAULT_PANEL_HEIGHT;
 			OnChanged();
 		}
 

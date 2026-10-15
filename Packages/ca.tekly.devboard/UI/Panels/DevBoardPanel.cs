@@ -38,7 +38,6 @@ namespace Tekly.DevBoard.Panels
 		public const float OVERLAY_TICK_RATE = 10f;
 		private const float OVERLAY_ALPHA = 0.85f;
 
-		private const float MAX_HEIGHT_FRACTION = 0.85f;
 
 		private const float FLASH_TIME = 0.8f;
 		private const float REVEAL_TIMEOUT = 1f;
@@ -607,7 +606,7 @@ namespace Tekly.DevBoard.Panels
 		}
 
 		/// <summary>
-		/// Panels in a slot share its height, so a stack of panels doesn't run off the screen.
+		/// Panels in a slot share the Max Height from the options, so a stack of panels doesn't run off the screen.
 		/// </summary>
 		private void UpdateSizeLimits()
 		{
@@ -625,7 +624,8 @@ namespace Tekly.DevBoard.Panels
 				}
 			}
 
-			var maxHeight = m_dock.Area.rect.height * MAX_HEIGHT_FRACTION / Mathf.Max(1, panelsInSlot);
+			var fraction = m_board != null ? m_board.Settings.MaxPanelHeight : DevBoardSettings.DEFAULT_PANEL_HEIGHT;
+			var maxHeight = m_dock.Area.rect.height * fraction / Mathf.Max(1, panelsInSlot);
 
 			if (!Mathf.Approximately(maxHeight, m_maxHeight)) {
 				m_maxHeight = maxHeight;

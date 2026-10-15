@@ -353,6 +353,15 @@ namespace Tekly.DevBoard.Nodes
 		}
 
 		/// <summary>
+		/// A row whose buttons sit edge to edge as one bar, with only its outer corners rounded. Short for
+		/// Row(Styles.SegmentedRow).
+		/// </summary>
+		public static ContainerNode ButtonRow(this ContainerNode parent)
+		{
+			return parent.Row(Styles.SegmentedRow);
+		}
+
+		/// <summary>
 		/// A plain vertical group, with no background.
 		/// </summary>
 		public static ContainerNode Stack(this ContainerNode parent, Style<ContainerNode> style = default)

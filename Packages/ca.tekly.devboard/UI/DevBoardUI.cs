@@ -708,6 +708,13 @@ namespace Tekly.DevBoard
 
 				form.Toggle("Animations", () => Settings.Animations, value => Settings.Animations = value)
 					.WithDescription("Ease panels between page sizes");
+				// The value shows under the label, where a description would go, so it has none: the most of the
+				// screen's height panels take before their pages scroll
+				form.Slider("Max Height", DevBoardSettings.MIN_PANEL_HEIGHT, DevBoardSettings.MAX_PANEL_HEIGHT,
+						() => Settings.MaxPanelHeight, value => Settings.MaxPanelHeight = value)
+					.WithFormat("0%")
+					.WithValueInput(false)
+					.WithValueInLabel(true);
 
 #if UNITY_EDITOR
 				form.Toggle("Physical Size", () => Settings.KeepPhysicalSizeInEditor, value => Settings.KeepPhysicalSizeInEditor = value)

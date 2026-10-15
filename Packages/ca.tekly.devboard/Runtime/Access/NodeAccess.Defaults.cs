@@ -24,6 +24,17 @@ namespace Tekly.DevBoard.Access
 
 			Register<ButtonNode>("button", invoke: node => node.Run());
 
+			// No state to read, so it's only set
+			Register<OnOffButtonsNode>("onoff",
+				write: (node, text) => {
+					if (!TryParseBool(text, out var on)) {
+						return $"'{text}' isn't on or off";
+					}
+
+					node.Run(on);
+					return null;
+				});
+
 			// Opening a page needs a host, so whoever shows the link opens it
 			Register<LinkNode>("link", read: node => node.Target);
 

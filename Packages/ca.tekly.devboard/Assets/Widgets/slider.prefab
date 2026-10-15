@@ -237,6 +237,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
   m_fitWidth: 0
   m_fitHeight: 2
   m_axis: 0
@@ -460,6 +462,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
 --- !u!1 &3531599056258941173
 GameObject:
   m_ObjectHideFlags: 0
@@ -860,6 +864,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6194769292026439112}
     m_Modifications:
+    - target: {fileID: 601371542662589404, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 739148740425387378, guid: 5e2ac748e01c57444be04072c5ff0879, type: 3}
       propertyPath: m_Name
       value: label

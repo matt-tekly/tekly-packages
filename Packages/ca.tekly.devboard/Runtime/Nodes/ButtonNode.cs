@@ -122,6 +122,34 @@ namespace Tekly.DevBoard.Nodes
 		}
 	}
 
+	/// <summary>
+	/// A positive On (a check) and a negative Off (a cross) button, joined as one bar after a label, for turning
+	/// something on or off that has no single state to show, e.g. every canvas in the scene, or a command sent to
+	/// a server. Use a toggle when there's a value to read.
+	/// </summary>
+	public sealed class OnOffButtonsNode : Node
+	{
+		/// <summary>
+		/// Called with true for On and false for Off.
+		/// </summary>
+		public Action<bool> Action { get; }
+
+		public OnOffButtonsNode(string label, Action<bool> action) : base(label)
+		{
+			Action = action;
+		}
+
+		/// <summary>
+		/// Turns it on or off, unless it, or a container it's in, isn't interactable.
+		/// </summary>
+		public void Run(bool on)
+		{
+			if (IsInteractable()) {
+				Action?.Invoke(on);
+			}
+		}
+	}
+
 	public static class ButtonNodeFactory
 	{
 		public static ButtonNode Button(this ContainerNode parent, string label, Action action, Style<ButtonNode> style = default)
@@ -140,6 +168,17 @@ namespace Tekly.DevBoard.Nodes
 		public static ButtonNode IconButton(this ContainerNode parent, string label, string icon, Action action)
 		{
 			return parent.Button(label, action, Styles.IconButton).WithIcon(icon).IconOnly().Plain();
+		}
+
+		/// <summary>
+		/// A positive On (a check) and a negative Off (a cross) button, joined as one bar after the label,
+		/// e.g. <c>form.OnOffButtons("Canvases", SetCanvasesEnabled)</c>.
+		/// For turning something on or off that has no single state to show; use a toggle when there's a value
+		/// to read.
+		/// </summary>
+		public static OnOffButtonsNode OnOffButtons(this ContainerNode parent, string label, Action<bool> action)
+		{
+			return parent.Add(new OnOffButtonsNode(label, action));
 		}
 
 		/// <summary>

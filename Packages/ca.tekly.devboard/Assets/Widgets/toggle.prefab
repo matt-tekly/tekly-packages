@@ -198,6 +198,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
   m_fitWidth: 0
   m_fitHeight: 0
   m_axis: 0
@@ -379,6 +381,7 @@ MonoBehaviour:
     TopRight: 0
     BottomRight: 0
     BottomLeft: 0
+  m_roundedCorners: 15
   m_bulge: {x: 0, y: 0, z: 0, w: 0}
   m_containBulge: 0
   m_sprite: {fileID: 0}
@@ -485,6 +488,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
 --- !u!1001 &813740241785364682
 PrefabInstance:
   m_ObjectHideFlags: 0

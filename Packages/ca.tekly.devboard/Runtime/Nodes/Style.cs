@@ -46,5 +46,11 @@ namespace Tekly.DevBoard.Nodes
 		/// For optional detail that shouldn't stand out.
 		/// </summary>
 		public static readonly Style<FoldoutNode> SubtleFoldout = "foldout_subtle";
+
+		/// <summary>
+		/// A row whose buttons sit edge to edge as one bar, with only its outer corners rounded, like the dock
+		/// options in a panel's settings. For a row of related buttons, e.g. Day / Week / Month.
+		/// </summary>
+		public static readonly Style<ContainerNode> SegmentedRow = "container_row_segmented";
 	}
 }
