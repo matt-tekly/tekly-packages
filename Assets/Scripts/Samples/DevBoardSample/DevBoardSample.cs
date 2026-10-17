@@ -49,6 +49,9 @@ namespace TeklySample.Samples.DevBoardSample
 		// A long list, for the searchable dropdown and the search
 		private readonly List<string> m_items = new();
 
+		// A very long list, for the virtual list
+		private readonly List<string> m_manyItems = new();
+
 		// Data that changes in the background, like a server response, for the Data section
 		private readonly List<string> m_inventory = new() { "Wood Sword", "Iron Shield", "Gold Ring" };
 		private bool m_showDetails;
@@ -76,6 +79,10 @@ namespace TeklySample.Samples.DevBoardSample
 
 			m_items.Sort();
 			m_item = m_items[0];
+
+			for (var i = 0; i < 10000; i++) {
+				m_manyItems.Add($"{m_items[i % m_items.Count]} #{i:00000}");
+			}
 			m_savedText = PrefBinding.String("devboard.sample.saved-text", "Remember me");
 			
 			// Each section is a segment of the same page, in order. All are removed when this GameObject is destroyed.
@@ -374,6 +381,22 @@ namespace TeklySample.Samples.DevBoardSample
 				.WithScroll(150)
 				.WithRowSpacing(1)
 				.WithMaxResults(8);
+
+			// A virtual list: every row is the same height, so only the rows on screen get widgets, and a row is only
+			// built the first time it's shown. Scrolls through every match, however many
+			page.Form().List(() => m_manyItems, (row, item) => {
+					var line = row.Row()
+						.WithAlignment(LayoutAlignment.SpaceBetween)
+						.WithCrossAlignment(CrossAlignment.Center)
+						.WithPadding(0);
+					line.Label(item);
+					line.Button("Pick", () => m_item = item);
+				})
+				.WithVirtualRows(28)
+				.WithScroll(240)
+				.WithRowSpacing(1)
+				.WithSearch(item => item)
+				.WithVersion(() => m_manyItems.Count);
 		}
 
 		private void Data(Segment page)

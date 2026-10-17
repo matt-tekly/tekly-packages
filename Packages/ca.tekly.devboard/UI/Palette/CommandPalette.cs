@@ -329,9 +329,9 @@ namespace Tekly.DevBoard.Palette
 
 					var kind = node is FoldoutNode { Label: not null } or TabNode { Label: not null } ? SECTION_KIND : access.KindOf(node);
 
-					// Labels have nothing to do, hidden nodes would be confusing to find, and searchable lists are
-					// searched with their own search
-					if (kind == null || node is LabelNode || !NodeAccess.IsVisible(node) || IsInSearchableList(node)) {
+					// Labels have nothing to do, hidden nodes would be confusing to find, and rows of searchable and
+					// virtual lists are found with the list's own search
+					if (kind == null || node is LabelNode || !NodeAccess.IsVisible(node) || IsInListWithOwnSearch(node)) {
 						continue;
 					}
 
@@ -562,10 +562,11 @@ namespace Tekly.DevBoard.Palette
 			return rank >= 0 ? rank : int.MaxValue;
 		}
 
-		private static bool IsInSearchableList(Node node)
+		private static bool IsInListWithOwnSearch(Node node)
 		{
 			for (var parent = node.Parent; parent != null; parent = parent.Parent) {
-				if (parent is ListNode { IsSearchable: true }) {
+				// Virtual lists only build rows as they're shown, so their rows would come and go
+				if (parent is ListNode { IsSearchable: true } or ListNode { IsVirtual: true }) {
 					return true;
 				}
 			}

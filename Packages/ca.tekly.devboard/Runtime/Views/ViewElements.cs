@@ -68,6 +68,28 @@ namespace Tekly.DevBoard.Views
 	}
 
 	/// <summary>
+	/// The element for a virtual list: it scrolls through room for every match, and only the rows on screen have
+	/// elements. Rows are all the list's RowHeight tall, so it can work out where each goes without them.
+	/// </summary>
+	public interface IVirtualListElement : IListElement
+	{
+		/// <summary>
+		/// The matches on screen, plus a few either side, out of count: first inclusive, end exclusive.
+		/// </summary>
+		void GetVisibleRange(int count, out int first, out int end);
+
+		/// <summary>
+		/// Shows rows, the elements for matches first onwards, in place, with room for count matches in all.
+		/// </summary>
+		void ShowRows(int count, int first, IReadOnlyList<IViewElement> rows);
+
+		/// <summary>
+		/// Scrolls so the match at index is on screen, straight away, so the next GetVisibleRange includes it.
+		/// </summary>
+		void ScrollToRow(int index);
+	}
+
+	/// <summary>
 	/// The element for a tabs node: a button per tab, with the selected tab's content under them. Only the selected
 	/// tab's child element is shown; the mirror hides the rest.
 	/// </summary>

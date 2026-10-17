@@ -93,6 +93,10 @@ namespace Tekly.DevBoard.Views
 					return new WidgetElement(widget);
 				}
 
+				if (container is ListNode { IsVirtual: true } virtualList) {
+					return new VirtualListWidgetElement(virtualList, containerWidget, this, view);
+				}
+
 				if (container is ListNode list) {
 					return new ListWidgetElement(list, containerWidget, this, view);
 				}

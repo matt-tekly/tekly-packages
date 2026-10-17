@@ -87,7 +87,7 @@ namespace Tekly.DevBoard.Views
 			}
 		}
 
-		public IViewElement CreateChild(Node child)
+		public virtual IViewElement CreateChild(Node child)
 		{
 			return m_renderers.Render(child, Target, m_context);
 		}
@@ -210,6 +210,161 @@ namespace Tekly.DevBoard.Views
 		public void ScrollToStart()
 		{
 			m_scroll?.RestorePosition(default);
+		}
+	}
+
+	/// <summary>
+	/// A virtual list: rows scroll in a view, with a spacer above and below the rows on screen standing in for the
+	/// rest, so the scrollbar covers every match. Every row is the list's RowHeight tall. A searchable one also gets
+	/// the search field over its rows and the line under them, like ListWidgetElement.
+	/// </summary>
+	internal sealed class VirtualListWidgetElement : ContainerWidgetElement, IVirtualListElement
+	{
+		// Rows made either side of the ones on screen, so a quick scroll doesn't show gaps before the next refresh
+		private const int OVERSCAN = 3;
+
+		private readonly ContainerWidget m_widget;
+		private readonly ScrollViewWidget m_scroll;
+		private readonly ContainerWidget m_above;
+		private readonly ContainerWidget m_below;
+		private readonly float m_rowHeight;
+		private readonly float m_stride;
+		private readonly float m_viewHeight;
+		private LabelWidget m_summary;
+
+		public VirtualListWidgetElement(ListNode list, ContainerWidget widget, NodeRenderers renderers, ViewContext context)
+			: base(widget, renderers, context)
+		{
+			m_widget = widget;
+			m_rowHeight = list.RowHeight ?? 0f;
+			m_stride = m_rowHeight + list.RowSpacing;
+			m_viewHeight = list.ScrollHeight ?? m_stride * ListNode.DEFAULT_VIRTUAL_ROWS - list.RowSpacing;
+
+			// The frame caps the height; the scroll view inside it shrinks to fit when there are few matches
+			var frame = ContainerWidget.CreatePlain(widget.Content, "Rows");
+			frame.WithMaxHeight(m_viewHeight);
+
+			m_scroll = frame.ScrollView().WithoutSavedState();
+
+			// The spacers and rows are placed by the scroll view's layout, so it owns the spacing and no padding
+			m_scroll.WithAxis(Common.Utils.LayoutAxis.Vertical)
+				.WithCrossAlignment(CrossAlignment.Stretch)
+				.WithSpacing(list.RowSpacing)
+				.WithPadding(0);
+
+			m_above = ContainerWidget.CreatePlain(m_scroll.Content, "Above");
+			m_below = ContainerWidget.CreatePlain(m_scroll.Content, "Below");
+			m_above.gameObject.SetActive(false);
+			m_below.gameObject.SetActive(false);
+
+			SetTarget(m_scroll);
+		}
+
+		public void ShowSearch(Binding<string> query, string placeholder)
+		{
+			var input = m_widget.TextInput(null, query, WidgetPrefabs.SearchInput)
+				.WithPlaceholder(placeholder)
+				.WithInputMode(InputMode.Debounced);
+
+			// Over the rows, which were made first
+			input.transform.SetSiblingIndex(0);
+
+			m_summary = m_widget.Label(string.Empty);
+			m_summary.gameObject.SetActive(false);
+		}
+
+		public void ShowSummary(ListSummary summary)
+		{
+			if (m_summary == null) {
+				return;
+			}
+
+			var text = string.Empty;
+
+			if (summary.Shown == 0 && (summary.HasQuery || summary.ShowAllWhenEmpty)) {
+				text = summary.HasQuery ? "No matches" : "Nothing to show";
+			}
+
+			m_summary.Text = text;
+			m_summary.gameObject.SetActive(text.Length > 0);
+		}
+
+		public void ScrollToStart()
+		{
+			m_scroll.VerticalOffset = 0f;
+		}
+
+		/// <summary>
+		/// Rows are held to the row height, so the spacers' sums stay true.
+		/// </summary>
+		public override IViewElement CreateChild(Node child)
+		{
+			var element = base.CreateChild(child);
+
+			if (element is WidgetElement { Widget: ContainerWidget row }) {
+				row.WithPreferredHeight(m_rowHeight).WithMaxHeight(m_rowHeight);
+			}
+
+			return element;
+		}
+
+		public void GetVisibleRange(int count, out int first, out int end)
+		{
+			var offset = Mathf.Max(0f, m_scroll.VerticalOffset);
+			var view = m_scroll.ViewportHeight;
+
+			// Not laid out yet: assume the view is as tall as it can be
+			if (view <= 0f) {
+				view = m_viewHeight;
+			}
+
+			first = Mathf.Clamp(Mathf.FloorToInt(offset / m_stride) - OVERSCAN, 0, count);
+			end = Mathf.Clamp(Mathf.CeilToInt((offset + view) / m_stride) + OVERSCAN, first, count);
+		}
+
+		public void ShowRows(int count, int first, IReadOnlyList<IViewElement> rows)
+		{
+			var shownEnd = first + rows.Count;
+			var index = 0;
+
+			// Each spacer is the rows it stands in for, less the gap the layout puts after it
+			ShowSpacer(m_above, first, ref index);
+
+			foreach (var row in rows) {
+				if (row is WidgetElement { Widget: { } widget }) {
+					widget.transform.SetSiblingIndex(index++);
+				}
+			}
+
+			ShowSpacer(m_below, count - shownEnd, ref index);
+		}
+
+		/// <summary>
+		/// Centres the row in the view, unless it's already all on screen.
+		/// </summary>
+		public void ScrollToRow(int index)
+		{
+			var top = index * m_stride;
+			var offset = m_scroll.VerticalOffset;
+			var view = m_scroll.ViewportHeight > 0f ? m_scroll.ViewportHeight : m_viewHeight;
+
+			if (top >= offset && top + m_rowHeight <= offset + view) {
+				return;
+			}
+
+			m_scroll.VerticalOffset = top - (view - m_rowHeight) * 0.5f;
+		}
+
+		private void ShowSpacer(ContainerWidget spacer, int rows, ref int index)
+		{
+			var shown = rows > 0;
+			spacer.gameObject.SetActive(shown);
+
+			if (shown) {
+				spacer.WithPreferredHeight(rows * m_stride - (m_stride - m_rowHeight));
+			}
+
+			spacer.transform.SetSiblingIndex(index++);
 		}
 	}
 }

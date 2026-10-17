@@ -11,6 +11,26 @@ namespace Tekly.DevBoard.Components
 	/// </summary>
 	public class ScrollViewWidget : ContainerWidget, IBeginDragHandler, IScrollHandler, ICanvasElement
 	{
+		/// <summary>
+		/// How far the content is scrolled down from its top. Setting it jumps there, stopping any glide and any
+		/// position waiting to be restored; it's clamped after the next layout.
+		/// </summary>
+		internal float VerticalOffset {
+			get => m_scrollRect.content.anchoredPosition.y;
+			set {
+				m_restorePending = false;
+				m_scrollRect.StopMovement();
+
+				var content = m_scrollRect.content;
+				content.anchoredPosition = new Vector2(content.anchoredPosition.x, Mathf.Max(0f, value));
+			}
+		}
+
+		/// <summary>
+		/// The height of the area the content scrolls in. Zero until it's been laid out.
+		/// </summary>
+		internal float ViewportHeight => (m_scrollRect.viewport != null ? m_scrollRect.viewport : (RectTransform) m_scrollRect.transform).rect.height;
+
 		private const string DEFAULT_STATE_KEY = "scroll";
 		private const float RESTORE_TIMEOUT = 1f;
 

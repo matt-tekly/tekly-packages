@@ -61,7 +61,9 @@ namespace Tekly.DevBoard.Views
 		{
 			NodeMirror mirror;
 
-			if (node is ListNode list && element is IListElement listElement) {
+			if (node is ListNode { IsVirtual: true } virtualList && element is IVirtualListElement virtualElement) {
+				mirror = new VirtualListMirror(virtualList, virtualElement, context);
+			} else if (node is ListNode list && element is IListElement listElement) {
 				mirror = new ListMirror(list, listElement, context);
 			} else if (node is TabsNode tabs && element is ITabsElement tabsElement) {
 				mirror = new TabsMirror(tabs, tabsElement, context);

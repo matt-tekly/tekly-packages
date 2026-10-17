@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Tekly.Common.Search;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace Tekly.DevBoard.Nodes
 {
@@ -29,6 +30,11 @@ namespace Tekly.DevBoard.Nodes
 
 		public string KeyText { get; }
 
+		/// <summary>
+		/// Where the row's item is in the list's data, as of the last sync.
+		/// </summary>
+		internal int ListIndex { get; set; }
+
 		private readonly Action<ListItem<T>, T> m_build;
 
 		internal ListItem(string keyText, T item, Action<ListItem<T>, T> build) : base(null, null)
@@ -52,10 +58,28 @@ namespace Tekly.DevBoard.Nodes
 	/// rows are added, removed and reordered by key. Rows whose key stays keep their widgets and view state.
 	///
 	/// WithSearch adds a search field; each panel filters the rows by its own search text.
+	///
+	/// WithVirtualRows makes the list virtual: every row is the same height, so panels only make widgets for the rows on
+	/// screen and scroll through every match, and a row's nodes are only built the first time a panel shows it.
 	/// </summary>
 	public abstract class ListNode : ContainerNode
 	{
+		/// <summary>
+		/// How many rows tall a virtual list's view is without WithScroll.
+		/// </summary>
+		public const int DEFAULT_VIRTUAL_ROWS = 10;
+
 		public bool IsSearchable { get; protected set; }
+
+		/// <summary>
+		/// Every row's height, for a virtual list. Null for a list that builds every row and shows up to MaxResults.
+		/// </summary>
+		public float? RowHeight { get; private set; }
+
+		/// <summary>
+		/// Only the rows on screen get widgets, and rows are built as they're first shown. See WithVirtualRows.
+		/// </summary>
+		public bool IsVirtual => RowHeight != null;
 
 		/// <summary>
 		/// Most rows a search shows at once. The rest are counted at the end.
@@ -79,51 +103,79 @@ namespace Tekly.DevBoard.Nodes
 		/// </summary>
 		public bool ShowAllWhenEmpty { get; private set; } = true;
 
+		/// <summary>
+		/// Goes up whenever the items, or their order, change. Indexes into the items are only good for one version.
+		/// </summary>
+		internal int ItemsVersion { get; private protected set; }
+
 		protected ListNode() : base(ContainerKind.Stack)
 		{
 		}
 
 		internal override string DefaultId => "list";
 
-		public ListNode WithMaxResults(int maxResults)
+		// Set through the With extensions in ListNodeSettings, which keep the caller's list type for chaining
+
+		internal void SetMaxResults(int maxResults)
 		{
 			EnsureEditable();
 			MaxResults = Mathf.Max(1, maxResults);
-			return this;
 		}
 
-		public ListNode WithScroll(float maxHeight)
+		internal void SetScroll(float maxHeight)
 		{
 			EnsureEditable();
 			ScrollHeight = maxHeight;
-			return this;
 		}
 
-		public ListNode WithRowSpacing(int spacing)
+		internal void SetRowSpacing(int spacing)
 		{
 			EnsureEditable();
 			RowSpacing = spacing;
-			return this;
 		}
 
-		public ListNode WithPlaceholder(string placeholder)
+		internal void SetPlaceholder(string placeholder)
 		{
 			EnsureEditable();
 			Placeholder = placeholder;
-			return this;
 		}
 
-		public ListNode WithShowAllWhenEmpty(bool showAll)
+		internal void SetShowAllWhenEmpty(bool showAll)
 		{
 			EnsureEditable();
 			ShowAllWhenEmpty = showAll;
-			return this;
+		}
+
+		internal void SetVirtualRows(float rowHeight)
+		{
+			EnsureEditable();
+			RowHeight = Mathf.Max(1f, rowHeight);
 		}
 
 		/// <summary>
 		/// Whether a row matches a search, which is never empty.
 		/// </summary>
 		public abstract bool Matches(Node row, SearchQuery query);
+
+		/// <summary>
+		/// How many items the data had at the last sync. A virtual list has a row for each, built or not.
+		/// </summary>
+		internal abstract int ItemCount { get; }
+
+		/// <summary>
+		/// Whether the item at index matches a search, which is never empty, without building its row.
+		/// </summary>
+		internal abstract bool ItemMatches(int index, SearchQuery query);
+
+		/// <summary>
+		/// The row for the item at index, building it first if it hasn't been.
+		/// </summary>
+		internal abstract Node GetRow(int index);
+
+		/// <summary>
+		/// Where row's item is in the items, or -1 if row isn't one of this list's rows.
+		/// </summary>
+		internal abstract int IndexOfRow(Node row);
 	}
 
 	public sealed class ListNode<TItem, TKey> : ListNode
@@ -133,13 +185,18 @@ namespace Tekly.DevBoard.Nodes
 		private readonly Func<IEnumerable<TItem>> m_getItems;
 		private readonly Func<TItem, TKey> m_getKey;
 		private readonly Action<ListItem<TItem>, TItem> m_build;
-		private readonly Dictionary<TKey, ListItem<TItem>> m_rows = new();
+		private readonly Dictionary<TKey, Entry> m_byKey = new();
+
+		// The items in order, as of the last sync
+		private List<Entry> m_entries = new();
+		private List<Entry> m_nextEntries = new();
 
 		private Func<TItem, string> m_getText;
 		private Func<TItem, string, bool> m_match;
 		private Func<int> m_getVersion;
 
 		private int m_version;
+		private int m_syncCount;
 		private bool m_synced;
 		private bool m_warnedDuplicate;
 		private int m_lastPollFrame = -1;
@@ -232,6 +289,61 @@ namespace Tekly.DevBoard.Nodes
 			Sync();
 		}
 
+		internal override int ItemCount => m_entries.Count;
+
+		internal override bool ItemMatches(int index, SearchQuery query)
+		{
+			var item = m_entries[index].Item;
+
+			if (m_match != null) {
+				return m_match(item, query.Text);
+			}
+
+			return query.Matches(m_getText?.Invoke(item));
+		}
+
+		internal override Node GetRow(int index)
+		{
+			var entry = m_entries[index];
+
+			if (entry.Row != null) {
+				return entry.Row;
+			}
+
+			// Built rows stay in item order among the children
+			var position = 0;
+
+			for (var i = 0; i < index; i++) {
+				if (m_entries[i].Row != null) {
+					position++;
+				}
+			}
+
+			BeginChanges();
+
+			try {
+				entry.Row = CreateRow(entry, index);
+				InsertChild(position, entry.Row);
+
+				// Its id first, so its content has paths
+				AssignIds();
+				entry.Row.Build();
+			} finally {
+				EndChanges();
+			}
+
+			return entry.Row;
+		}
+
+		internal override int IndexOfRow(Node row)
+		{
+			return row is ListItem<TItem> { Parent: { } parent } item && parent == this ? item.ListIndex : -1;
+		}
+
+		/// <summary>
+		/// Brings the items in line with the data. A list that isn't virtual builds a row for every new item; a
+		/// virtual one leaves that until a panel shows it. Built rows whose item changed are rebuilt either way.
+		/// </summary>
 		private void Sync()
 		{
 			m_synced = true;
@@ -241,75 +353,139 @@ namespace Tekly.DevBoard.Nodes
 			}
 
 			var items = m_getItems();
-			var order = new List<Node>();
-			var seen = new HashSet<TKey>();
-			var added = new List<ListItem<TItem>>();
-			var changed = new List<ListItem<TItem>>();
+			var itemsChanged = false;
 
-			BeginChanges();
+			// Pooled, since a list without a version syncs every frame it's shown
+			using (ListPool<ListItem<TItem>>.Get(out var added))
+			using (ListPool<ListItem<TItem>>.Get(out var changed)) {
+				m_syncCount++;
+				m_nextEntries.Clear();
 
-			try {
-				if (items != null) {
-					foreach (var item in items) {
-						var key = m_getKey(item);
+				BeginChanges();
 
-						if (!seen.Add(key)) {
-							WarnDuplicate(key);
-							continue;
-						}
+				try {
+					if (items != null) {
+						foreach (var item in items) {
+							var key = m_getKey(item);
 
-						if (m_rows.TryGetValue(key, out var row)) {
-							if (!s_itemComparer.Equals(row.Item, item)) {
-								row.Item = item;
-								changed.Add(row);
+							if (m_byKey.TryGetValue(key, out var entry)) {
+								if (entry.LastSync == m_syncCount) {
+									WarnDuplicate(key);
+									continue;
+								}
+
+								if (!s_itemComparer.Equals(entry.Item, item)) {
+									entry.Item = item;
+									itemsChanged = true;
+
+									if (entry.Row != null) {
+										entry.Row.Item = item;
+										changed.Add(entry.Row);
+									}
+								}
+							} else {
+								entry = new Entry(key, item);
+								m_byKey.Add(key, entry);
+								itemsChanged = true;
+
+								if (!IsVirtual) {
+									entry.Row = CreateRow(entry, m_nextEntries.Count);
+									InsertChild(Children.Count, entry.Row);
+									added.Add(entry.Row);
+								}
 							}
-						} else {
-							row = new ListItem<TItem>(key?.ToString(), item, m_build);
-							m_rows.Add(key, row);
-							InsertChild(Children.Count, row);
-							added.Add(row);
+
+							// Marks it seen this sync
+							entry.LastSync = m_syncCount;
+							m_nextEntries.Add(entry);
+						}
+					}
+
+					itemsChanged |= RemoveEntriesNotSynced() || !SameOrder();
+
+					(m_entries, m_nextEntries) = (m_nextEntries, m_entries);
+					m_nextEntries.Clear();
+
+					using (ListPool<Node>.Get(out var order)) {
+						for (var i = 0; i < m_entries.Count; i++) {
+							var row = m_entries[i].Row;
+
+							if (row != null) {
+								row.ListIndex = i;
+								order.Add(row);
+							}
 						}
 
-						order.Add(row);
+						SetChildOrder(order);
 					}
+
+					// Panels re-match against the new items before anything asks for a row by index
+					if (itemsChanged) {
+						ItemsVersion++;
+					}
+
+					// New rows need their ids before they're built, so their content has paths
+					AssignIds();
+
+					foreach (var row in added) {
+						row.Build();
+					}
+
+					foreach (var row in changed) {
+						row.RebuildNow();
+					}
+				} finally {
+					EndChanges();
 				}
-
-				RemoveRowsNotIn(seen);
-				SetChildOrder(order);
-
-				// New rows need their ids before they're built, so their content has paths
-				AssignIds();
-
-				foreach (var row in added) {
-					row.Build();
-				}
-
-				foreach (var row in changed) {
-					row.RebuildNow();
-				}
-			} finally {
-				EndChanges();
 			}
 		}
 
-		private void RemoveRowsNotIn(HashSet<TKey> keys)
+		private ListItem<TItem> CreateRow(Entry entry, int index)
 		{
-			if (m_rows.Count == keys.Count) {
-				return;
+			return new ListItem<TItem>(entry.Key?.ToString(), entry.Item, m_build) { ListIndex = index };
+		}
+
+		/// <summary>
+		/// Drops the items this sync didn't see, and their rows. True if there were any.
+		/// </summary>
+		private bool RemoveEntriesNotSynced()
+		{
+			if (m_byKey.Count == m_nextEntries.Count) {
+				return false;
 			}
 
-			var removed = new List<TKey>();
+			using (ListPool<Entry>.Get(out var removed)) {
+				foreach (var entry in m_byKey.Values) {
+					if (entry.LastSync != m_syncCount) {
+						removed.Add(entry);
+					}
+				}
 
-			foreach (var pair in m_rows) {
-				if (!keys.Contains(pair.Key)) {
-					removed.Add(pair.Key);
+				foreach (var entry in removed) {
+					if (entry.Row != null) {
+						RemoveChild(entry.Row);
+					}
+
+					m_byKey.Remove(entry.Key);
 				}
 			}
 
-			foreach (var key in removed) {
-				RemoveChild(m_rows[key]);
-				m_rows.Remove(key);
+			return true;
+		}
+
+		private bool SameOrder()
+		{
+			if (m_entries.Count != m_nextEntries.Count) {
+				return false;
 			}
+
+			for (var i = 0; i < m_entries.Count; i++) {
+				if (m_entries[i] != m_nextEntries[i]) {
+					return false;
+				}
+			}
+
+			return true;
 		}
 
 		private void WarnDuplicate(TKey key)
@@ -318,6 +494,82 @@ namespace Tekly.DevBoard.Nodes
 				m_warnedDuplicate = true;
 				Debug.LogWarning($"[DevBoard] A list has more than one item with the key '{key}'. Only the first is shown.");
 			}
+		}
+
+		/// <summary>
+		/// One item of the data, and its row once it's built.
+		/// </summary>
+		private sealed class Entry
+		{
+			public readonly TKey Key;
+			public TItem Item;
+			public ListItem<TItem> Row;
+
+			// The last sync that saw it, to spot duplicate keys and items that have gone
+			public int LastSync;
+
+			public Entry(TKey key, TItem item)
+			{
+				Key = key;
+				Item = item;
+			}
+		}
+	}
+
+	/// <summary>
+	/// Settings for every kind of list. Extensions rather than methods so they hand back the caller's own list type,
+	/// and typed settings like WithSearch and WithVersion can still follow them.
+	/// </summary>
+	public static class ListNodeSettings
+	{
+		/// <summary>
+		/// Most rows a search shows at once. The rest are counted at the end. Virtual lists show every match.
+		/// </summary>
+		public static T WithMaxResults<T>(this T list, int maxResults) where T : ListNode
+		{
+			list.SetMaxResults(maxResults);
+			return list;
+		}
+
+		/// <summary>
+		/// Scrolls the rows in a view at most maxHeight tall, so the search field stays put.
+		/// </summary>
+		public static T WithScroll<T>(this T list, float maxHeight) where T : ListNode
+		{
+			list.SetScroll(maxHeight);
+			return list;
+		}
+
+		public static T WithRowSpacing<T>(this T list, int spacing) where T : ListNode
+		{
+			list.SetRowSpacing(spacing);
+			return list;
+		}
+
+		public static T WithPlaceholder<T>(this T list, string placeholder) where T : ListNode
+		{
+			list.SetPlaceholder(placeholder);
+			return list;
+		}
+
+		/// <summary>
+		/// Whether an empty search shows the first rows (the default) or none.
+		/// </summary>
+		public static T WithShowAllWhenEmpty<T>(this T list, bool showAll) where T : ListNode
+		{
+			list.SetShowAllWhenEmpty(showAll);
+			return list;
+		}
+
+		/// <summary>
+		/// Makes the list virtual: every row is rowHeight tall, panels only make widgets for the rows on screen, and
+		/// rows are built the first time a panel shows them. Searches show every match, scrolling, so MaxResults
+		/// doesn't apply. The rows scroll in a view WithScroll tall, or DEFAULT_VIRTUAL_ROWS rows without it.
+		/// </summary>
+		public static T WithVirtualRows<T>(this T list, float rowHeight) where T : ListNode
+		{
+			list.SetVirtualRows(rowHeight);
+			return list;
 		}
 	}
 
