@@ -265,6 +265,10 @@ namespace Tekly.DevBoard.Views
 			if (layout.MaxHeight is float maxHeight) {
 				widget.WithMaxHeight(maxHeight);
 			}
+
+			if (layout.WidthGroupScope) {
+				widget.WithWidthGroupScope();
+			}
 		}
 
 		/// <summary>

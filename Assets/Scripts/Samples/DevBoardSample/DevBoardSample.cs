@@ -326,6 +326,16 @@ namespace TeklySample.Samples.DevBoardSample
 			row.Button("B", () => Debug.Log("B"));
 			row.Button("C", () => Debug.Log("C"));
 
+			// Nodes with the same width group take the widest one's width, here lining up buttons across rows. They
+			// share it under the nearest Form, tabs, or container with WithWidthGroupScope
+			var column = form.Stack().WithWidthGroupScope();
+			row = column.Row().WithPadding(0);
+			row.Button("Save", () => Debug.Log("Save")).WithWidthGroup("first");
+			row.Button("Load", () => Debug.Log("Load")).WithWidthGroup("second");
+			row = column.Row().WithPadding(0);
+			row.Button("Save As...", () => Debug.Log("Save As")).WithWidthGroup("first");
+			row.Button("Load Latest Autosave", () => Debug.Log("Load Latest")).WithWidthGroup("second");
+
 			form.Divider();
 
 			// A foldout is a container that opens and closes, and remembers which

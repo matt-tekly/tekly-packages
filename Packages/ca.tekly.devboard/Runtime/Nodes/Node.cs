@@ -103,6 +103,11 @@ namespace Tekly.DevBoard.Nodes
 		public bool RevealsOnHover { get; private set; }
 
 		/// <summary>
+		/// Nodes with the same width group under the same scope all take the widest one's width. Null for none.
+		/// </summary>
+		public string WidthGroup { get; private set; }
+
+		/// <summary>
 		/// Extra words search matches this node by, besides its label.
 		/// </summary>
 		public string[] Keywords { get; private set; }
@@ -212,6 +217,12 @@ namespace Tekly.DevBoard.Nodes
 			RevealsOnHover = revealsOnHover;
 		}
 
+		internal void SetWidthGroup(string widthGroup)
+		{
+			EnsureEditable();
+			WidthGroup = widthGroup;
+		}
+
 		internal void SetKeywords(string[] keywords)
 		{
 			EnsureEditable();
@@ -293,6 +304,17 @@ namespace Tekly.DevBoard.Nodes
 		public static T RevealOnHover<T>(this T node) where T : Node
 		{
 			node.SetRevealsOnHover(true);
+			return node;
+		}
+
+		/// <summary>
+		/// Sizes the node with every other node of the same width group: they all take the widest one's width, e.g.
+		/// the buttons in a column of list rows. Widths only, and only under the same scope: the nearest Form, tabs,
+		/// or container with WithWidthGroupScope above them.
+		/// </summary>
+		public static T WithWidthGroup<T>(this T node, string widthGroup) where T : Node
+		{
+			node.SetWidthGroup(widthGroup);
 			return node;
 		}
 

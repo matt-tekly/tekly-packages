@@ -87,6 +87,10 @@ namespace Tekly.DevBoard.Views
 				Debug.LogException(exception);
 			}
 
+			if (node.WidthGroup != null) {
+				widget.WithWidthGroup(node.WidthGroup);
+			}
+
 			if (node is ContainerNode container) {
 				if (widget is not ContainerWidget containerWidget) {
 					Debug.LogError($"[DevBoard] {container.GetType().Name} rendered as a {widget.GetType().Name}, which can't hold children.");

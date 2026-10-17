@@ -86,6 +86,18 @@ namespace Tekly.DevBoard.Components
 		}
 		
 		/// <summary>
+		/// Widgets inside with a width group share widths here instead of with the nearest scope above.
+		/// </summary>
+		public ContainerWidget WithWidthGroupScope()
+		{
+			if (!TryGetComponent<WidthGroup>(out _)) {
+				gameObject.AddComponent<WidthGroup>();
+			}
+
+			return this;
+		}
+
+		/// <summary>
 		/// Which way children are laid out: Vertical stacks them, Horizontal puts them in a row.
 		/// </summary>
 		public ContainerWidget WithAxis(Common.Utils.LayoutAxis axis)

@@ -141,6 +141,17 @@ namespace Tekly.DevBoard.Nodes
 		}
 
 		/// <summary>
+		/// Nodes inside with WithWidthGroup share widths here instead of with the rest of the nearest scope above,
+		/// or at all outside a Form or tabs, which are scopes already.
+		/// </summary>
+		public ContainerNode WithWidthGroupScope()
+		{
+			EnsureEditable();
+			Layout.WidthGroupScope = true;
+			return this;
+		}
+
+		/// <summary>
 		/// Whether children can be added right now, after the container is frozen. Scopes allow it while building.
 		/// </summary>
 		protected virtual bool CanAddChildren => !IsFrozen;
@@ -324,6 +335,11 @@ namespace Tekly.DevBoard.Nodes
 		public float? FlexibleWidth { get; internal set; }
 		public float? FlexibleHeight { get; internal set; }
 		public float? MaxHeight { get; internal set; }
+
+		/// <summary>
+		/// Whether nodes inside share their width groups here, see <see cref="ContainerNode.WithWidthGroupScope"/>.
+		/// </summary>
+		public bool WidthGroupScope { get; internal set; }
 	}
 
 	public static class ContainerNodeFactory
