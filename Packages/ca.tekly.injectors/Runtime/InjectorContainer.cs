@@ -170,7 +170,7 @@ namespace Tekly.Injectors
                 return result;
             }
             
-            throw new Exception($"[{Name}] Failed to get instance for type [{type.FullName}]");
+            throw new InjectionException($"No instance of [{type.FullName}] registered in container [{Name}]");
         }
 
         public virtual bool TryGet<T>(out T result)
@@ -211,7 +211,7 @@ namespace Tekly.Injectors
                 return result;
             }
             
-            throw new Exception($"[{Name}] Failed to get instance with id [{id}] for type [{type.FullName}]");
+            throw new InjectionException($"No instance of [{type.FullName}] with id [{id}] registered in container [{Name}]");
         }
         
         public bool TryGet(InstanceId instanceId, out object result)

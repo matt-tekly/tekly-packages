@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using Tekly.Injectors.Utils;
 
 namespace Tekly.Injectors
@@ -21,7 +22,7 @@ namespace Tekly.Injectors
 		{
 			m_type = type;
 			m_levels = levels;
-			m_constructor = new InjectableConstructor(type.Constructor());
+			m_constructor = new InjectableConstructor(type, type.Constructor());
 		}
 
 		public object Instantiate(InjectorContainer container)
@@ -32,11 +33,14 @@ namespace Tekly.Injectors
 			}
 
 			m_isInstantiating = true;
-			var instance = m_constructor.Instantiate(container);
-			Inject(instance, container);
-			m_isInstantiating = false;
 
-			return instance;
+			try {
+				var instance = m_constructor.Instantiate(container);
+				Inject(instance, container);
+				return instance;
+			} finally {
+				m_isInstantiating = false;
+			}
 		}
 
 		public void Inject(object instance, InjectorContainer container)
@@ -57,6 +61,61 @@ namespace Tekly.Injectors
 		}
 	}
 
+	/// <summary>
+	/// Resolves a member's dependencies from a container, naming the member when one is missing or the member
+	/// throws, so the InjectionException reads as a chain.
+	/// </summary>
+	internal static class InjectionErrors
+	{
+		/// <summary>
+		/// The value for parameter, from container. A missing one is reported as needed by "{member}({parameter})".
+		/// Names are only built when something fails, so the happy path allocates nothing.
+		/// </summary>
+		public static object Resolve(InjectorContainer container, ParameterInfo parameter, MethodBase member)
+		{
+			try {
+				if (parameter.IsOptional) {
+					container.TryGet(parameter.ParameterType, out var data);
+					return data;
+				}
+
+				return container.Get(parameter.ParameterType);
+			} catch (InjectionException exception) {
+				exception.NeededBy($"{Name(member)}({parameter.Name})");
+				throw;
+			}
+		}
+
+		/// <summary>
+		/// Rethrows what member threw from inside a reflection call: an InjectionException keeps its chain, with
+		/// member added; anything else is wrapped so the chain still says where it happened.
+		/// </summary>
+		public static Exception Thrown(TargetInvocationException exception, MethodBase member)
+		{
+			var inner = exception.InnerException ?? exception;
+
+			if (inner is InjectionException injectionException) {
+				injectionException.NeededBy(Name(member));
+				ExceptionDispatchInfo.Capture(inner).Throw();
+			}
+
+			return new InjectionException($"{Name(member)} threw {inner.GetType().Name}: {inner.Message}", inner);
+		}
+
+		/// <summary>
+		/// "new Type" for a constructor, "Type.Method" otherwise.
+		/// </summary>
+		public static string Name(MethodBase member)
+		{
+			return member is ConstructorInfo ? $"new {member.DeclaringType?.Name}" : $"{member.DeclaringType?.Name}.{member.Name}";
+		}
+
+		public static string Name(FieldInfo field)
+		{
+			return $"{field.DeclaringType?.Name}.{field.Name}";
+		}
+	}
+
 	public class InjectableConstructor
 	{
 		private readonly ConstructorInfo m_constructorInfo;
@@ -64,35 +123,32 @@ namespace Tekly.Injectors
 		private readonly ParameterInfo[] m_parameterInfos;
 		private readonly Type m_type;
 
-		public InjectableConstructor(ConstructorInfo constructorInfo)
+		public InjectableConstructor(Type type, ConstructorInfo constructorInfo)
 		{
+			m_type = type;
 			m_constructorInfo = constructorInfo;
-			m_type = constructorInfo.DeclaringType;
 
-			m_parameterInfos = constructorInfo.GetParameters();
-			if (m_parameterInfos.Length == 0) {
-				m_parameterValues = Array.Empty<object>();
-			} else {
-				m_parameterValues = new object[m_parameterInfos.Length];
-			}
+			m_parameterInfos = constructorInfo != null ? constructorInfo.GetParameters() : Array.Empty<ParameterInfo>();
+			m_parameterValues = m_parameterInfos.Length == 0 ? Array.Empty<object>() : new object[m_parameterInfos.Length];
 		}
 
 		public object Instantiate(InjectorContainer container)
 		{
-			for (var index = 0; index < m_parameterInfos.Length; index++) {
-				var parameterInfo = m_parameterInfos[index];
-				if (parameterInfo.IsOptional) {
-					container.TryGet(parameterInfo.ParameterType, out var data);
-					m_parameterValues[index] = data;
-				} else {
-					m_parameterValues[index] = container.Get(parameterInfo.ParameterType);
-				}
+			if (m_constructorInfo == null) {
+				throw new InjectionException($"{m_type.FullName} has no public constructor, so the container can't create it. Register an instance instead");
 			}
 
-			var instance = m_constructorInfo.Invoke(m_parameterValues);
+			for (var index = 0; index < m_parameterInfos.Length; index++) {
+				m_parameterValues[index] = InjectionErrors.Resolve(container, m_parameterInfos[index], m_constructorInfo);
+			}
 
-			Array.Clear(m_parameterValues, 0, m_parameterValues.Length);
-			return instance;
+			try {
+				return m_constructorInfo.Invoke(m_parameterValues);
+			} catch (TargetInvocationException exception) {
+				throw InjectionErrors.Thrown(exception, m_constructorInfo);
+			} finally {
+				Array.Clear(m_parameterValues, 0, m_parameterValues.Length);
+			}
 		}
 	}
 
@@ -107,30 +163,21 @@ namespace Tekly.Injectors
 			m_methodInfo = methodInfo;
 
 			m_parameterInfos = methodInfo.GetParameters();
-			if (m_parameterInfos.Length == 0) {
-				m_parameterValues = Array.Empty<object>();
-			} else {
-				m_parameterValues = new object[m_parameterInfos.Length];
-			}
+			m_parameterValues = m_parameterInfos.Length == 0 ? Array.Empty<object>() : new object[m_parameterInfos.Length];
 		}
 
 		public void Inject(object instance, InjectorContainer container)
 		{
 			for (var index = 0; index < m_parameterInfos.Length; index++) {
-				var parameterInfo = m_parameterInfos[index];
-
-				if (parameterInfo.IsOptional) {
-					container.TryGet(parameterInfo.ParameterType, out var data);
-					m_parameterValues[index] = data;
-				} else {
-					m_parameterValues[index] = container.Get(parameterInfo.ParameterType);
-				}
+				m_parameterValues[index] = InjectionErrors.Resolve(container, m_parameterInfos[index], m_methodInfo);
 			}
 
-			m_methodInfo.Invoke(instance, m_parameterValues);
-
-			for (var index = 0; index < m_parameterValues.Length; index++) {
-				m_parameterValues[index] = null;
+			try {
+				m_methodInfo.Invoke(instance, m_parameterValues);
+			} catch (TargetInvocationException exception) {
+				throw InjectionErrors.Thrown(exception, m_methodInfo);
+			} finally {
+				Array.Clear(m_parameterValues, 0, m_parameterValues.Length);
 			}
 		}
 	}
@@ -152,18 +199,19 @@ namespace Tekly.Injectors
 
 		public void Inject(object instance, InjectorContainer container)
 		{
-			if (m_injectAttribute.IsOptional == IsOptional.Optional) {
-				if (container.TryGet(m_fieldType, out var data)) {
-					m_fieldInfo.SetValue(instance, data);
-				}
-			} else {
-				if (m_injectAttribute.Id == null) {
-					var data = container.Get(m_fieldType);
-					m_fieldInfo.SetValue(instance, data);
+			try {
+				if (m_injectAttribute.IsOptional == IsOptional.Optional) {
+					if (container.TryGet(m_fieldType, out var data)) {
+						m_fieldInfo.SetValue(instance, data);
+					}
+				} else if (m_injectAttribute.Id == null) {
+					m_fieldInfo.SetValue(instance, container.Get(m_fieldType));
 				} else {
-					var data = container.Get(m_fieldType, m_injectAttribute.Id);
-					m_fieldInfo.SetValue(instance, data);
+					m_fieldInfo.SetValue(instance, container.Get(m_fieldType, m_injectAttribute.Id));
 				}
+			} catch (InjectionException exception) {
+				exception.NeededBy(InjectionErrors.Name(m_fieldInfo));
+				throw;
 			}
 		}
 
