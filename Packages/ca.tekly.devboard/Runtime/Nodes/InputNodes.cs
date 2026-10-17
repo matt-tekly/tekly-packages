@@ -13,9 +13,20 @@ namespace Tekly.DevBoard.Nodes
 		public string Placeholder { get; private set; }
 		public InputMode InputMode { get; private set; } = InputMode.Delayed;
 
+		/// <summary>
+		/// The most characters wide the field grows, or 0 to fill the row.
+		/// </summary>
+		public int MaxInputWidth { get; private set; }
+
 		protected InputNode(string label, Binding<T> binding) : base(label)
 		{
 			Binding = binding ?? throw new ArgumentNullException(nameof(binding));
+		}
+
+		protected void SetMaxInputWidth(int characters)
+		{
+			EnsureEditable();
+			MaxInputWidth = characters;
 		}
 
 		protected void SetPlaceholder(string placeholder)
@@ -54,6 +65,16 @@ namespace Tekly.DevBoard.Nodes
 			SetInputMode(inputMode);
 			return this;
 		}
+
+		/// <summary>
+		/// Stops the field growing past this many characters wide, so a short value doesn't sit in a field
+		/// stretched across a wide panel. It still shrinks when the panel is narrow. 0 fills the row again.
+		/// </summary>
+		public TextInputNode WithMaxInputWidth(int characters)
+		{
+			SetMaxInputWidth(characters);
+			return this;
+		}
 	}
 
 	/// <summary>
@@ -87,6 +108,16 @@ namespace Tekly.DevBoard.Nodes
 		public NumberInputNode WithInputMode(InputMode inputMode)
 		{
 			SetInputMode(inputMode);
+			return this;
+		}
+
+		/// <summary>
+		/// Stops the field growing past this many characters wide, e.g. so counts in a list don't sit in fields
+		/// stretched across a wide panel. It still shrinks when the panel is narrow. 0 fills the row again.
+		/// </summary>
+		public NumberInputNode WithMaxInputWidth(int characters)
+		{
+			SetMaxInputWidth(characters);
 			return this;
 		}
 

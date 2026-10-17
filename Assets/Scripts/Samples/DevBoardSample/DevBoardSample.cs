@@ -258,6 +258,9 @@ namespace TeklySample.Samples.DevBoardSample
 			form.FloatInput("Float", () => m_float, value => m_float = value);
 			form.FloatInput("Float (0.00)", () => m_float, value => m_float = value).WithFormat("0.00");
 
+			// A short value doesn't need a field stretched across the panel
+			form.IntInput("Int (6 wide)", () => m_int, value => m_int = value).WithMaxInputWidth(6);
+
 			// X, Y and Z inputs in a row
 			form.Vector3Input("Position", () => m_position, value => m_position = value);
 			form.Property("Position", () => m_position);

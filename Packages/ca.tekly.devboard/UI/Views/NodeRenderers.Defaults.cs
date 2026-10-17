@@ -60,6 +60,7 @@ namespace Tekly.DevBoard.Views
 			Register<TextInputNode, TextInputWidget>(WidgetPrefabs.TextInput, (node, widget, view) => {
 				widget.Initialize(LabelText(node), node.Binding);
 				widget.WithPlaceholder(node.Placeholder).WithInputMode(node.InputMode);
+				widget.WithMaxInputWidth(node.MaxInputWidth);
 			});
 
 			Register<NumberInputNode, NumberInputWidget>(WidgetPrefabs.NumberInput, (node, widget, view) => {
@@ -70,6 +71,7 @@ namespace Tekly.DevBoard.Views
 
 				widget.Initialize(LabelText(node), node.Binding);
 				widget.WithPlaceholder(node.Placeholder).WithInputMode(node.InputMode);
+				widget.WithMaxInputWidth(node.MaxInputWidth);
 			});
 
 			RegisterFactory<OnOffButtonsNode, ContainerWidget>(

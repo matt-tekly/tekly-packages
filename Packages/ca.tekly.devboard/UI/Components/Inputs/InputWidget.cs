@@ -1,5 +1,7 @@
 ﻿using System;
+using Tekly.Common.Utils;
 using Tekly.Leaf.Elements;
+using Tekly.Trellis;
 using TMPro;
 using UnityEngine;
 
@@ -23,6 +25,10 @@ namespace Tekly.DevBoard.Components.Inputs
 
 		private BindingWatch<T> m_watch;
 		private string m_shownText;
+
+		// The field's own max width, put back when it stops being capped
+		private bool m_hasFieldDefaults;
+		private OptionalFloat m_defaultMaxWidth;
 
 		private const float DEBOUNCE_TIME = 0.33f;
 
@@ -53,6 +59,38 @@ namespace Tekly.DevBoard.Components.Inputs
 		public InputWidget<T> WithLabelWidthGroup(string widthGroup)
 		{
 			m_label?.WithWidthGroup(widthGroup ?? string.Empty);
+			return this;
+		}
+
+		/// <summary>
+		/// Stops the field growing past this many characters wide. It still shrinks when there's less room. 0 lets
+		/// it fill the row again.
+		/// </summary>
+		public InputWidget<T> WithMaxInputWidth(int characters)
+		{
+			// The field's box is the text area's parent: the text area is inset from it by the field's padding
+			var textArea = m_input.textViewport;
+
+			if (textArea == null || textArea.parent == null || !textArea.parent.TryGetComponent(out LayoutItem layout)) {
+				return this;
+			}
+
+			if (!m_hasFieldDefaults) {
+				m_hasFieldDefaults = true;
+				m_defaultMaxWidth = layout.MaxWidth;
+			}
+
+			if (characters <= 0) {
+				layout.MaxWidth = m_defaultMaxWidth;
+				return this;
+			}
+
+			// Digits are as wide as any character in the monospace style, and typical in a proportional one
+			var textWidth = m_input.textComponent.GetPreferredValues(new string('0', characters)).x;
+			var padding = Mathf.Max(0f, -textArea.sizeDelta.x);
+
+			layout.MaxWidth = textWidth + padding;
+
 			return this;
 		}
 
