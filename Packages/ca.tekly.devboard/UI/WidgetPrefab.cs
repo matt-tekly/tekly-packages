@@ -50,6 +50,10 @@ namespace Tekly.DevBoard
 	{
 		public static readonly WidgetPrefab<DevBoardPanel> Panel = "panel";
 
+		/// <summary>
+		/// Plain white text, the base other prefabs nest and recolor. Label is a variant of it in the body text color.
+		/// </summary>
+		public static readonly WidgetPrefab<LabelWidget> Text = "text";
 		public static readonly WidgetPrefab<LabelWidget> Label = "label";
 		public static readonly WidgetPrefab<LabelWidget> Heading = "label_heading";
 		public static readonly WidgetPrefab<PropertyWidget> Property = "property";
