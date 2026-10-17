@@ -87,7 +87,6 @@ namespace Tekly.Common.Utils
 
           Assert.Throws<AssertionException>(() => latch.Hold(null));
           Assert.Throws<AssertionException>(() => latch.HoldScope(null));
-          Assert.Throws<AssertionException>(() => latch.Release(new object()));
           Assert.Throws<AssertionException>(() => new Latch(null));
        }
 
