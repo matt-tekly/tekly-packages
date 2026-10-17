@@ -43,7 +43,14 @@ namespace Tekly.Injectors.Utils
         
         private static bool IsInjectable(Type type)
         {
-            return Injector.GetInjectableFields(type).Count > 0 || Injector.GetInjectableMethods(type).Count > 0;
+            // Any type in the hierarchy declaring an [Inject] member makes the object injectable
+            for (var current = type; current != null && current != typeof(object); current = current.BaseType) {
+                if (ReflectionInjector.DeclaresInjectables(current)) {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
