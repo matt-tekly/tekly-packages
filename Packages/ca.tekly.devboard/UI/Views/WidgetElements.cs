@@ -89,7 +89,13 @@ namespace Tekly.DevBoard.Views
 
 		public virtual IViewElement CreateChild(Node child)
 		{
-			return m_renderers.Render(child, Target, m_context);
+			var element = m_renderers.Render(child, Target, m_context);
+
+			if (child.RevealsOnHover && element.Widget != null && Widget is ContainerWidget container) {
+				HoverReveal.For(container).Add(element.Widget);
+			}
+
+			return element;
 		}
 
 		public void Order(IReadOnlyList<IViewElement> children)

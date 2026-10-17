@@ -98,6 +98,11 @@ namespace Tekly.DevBoard.Nodes
 		public OverlayMode Overlay { get; private set; }
 
 		/// <summary>
+		/// Hidden until the pointer is over the node's parent container, e.g. a player's controls in their list row.
+		/// </summary>
+		public bool RevealsOnHover { get; private set; }
+
+		/// <summary>
 		/// Extra words search matches this node by, besides its label.
 		/// </summary>
 		public string[] Keywords { get; private set; }
@@ -201,6 +206,12 @@ namespace Tekly.DevBoard.Nodes
 			Overlay = overlay;
 		}
 
+		internal void SetRevealsOnHover(bool revealsOnHover)
+		{
+			EnsureEditable();
+			RevealsOnHover = revealsOnHover;
+		}
+
 		internal void SetKeywords(string[] keywords)
 		{
 			EnsureEditable();
@@ -270,6 +281,18 @@ namespace Tekly.DevBoard.Nodes
 		public static T OverlayOnly<T>(this T node) where T : Node
 		{
 			node.SetOverlay(OverlayMode.OverlayOnly);
+			return node;
+		}
+
+		/// <summary>
+		/// Hides the node until the pointer is over its parent container, e.g. the buttons in a list row, so a long
+		/// list of players only shows the controls for the one being pointed at. It keeps its space while hidden, so
+		/// the row doesn't shift. On touch, tapping the row shows them until another row is tapped. The command
+		/// palette and NodeAccess can still use it.
+		/// </summary>
+		public static T RevealOnHover<T>(this T node) where T : Node
+		{
+			node.SetRevealsOnHover(true);
 			return node;
 		}
 

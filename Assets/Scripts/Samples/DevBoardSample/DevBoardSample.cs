@@ -167,8 +167,8 @@ namespace TeklySample.Samples.DevBoardSample
 			form.Button("Click", () => m_clicks++);
 
 			var row = form.Row().WithPadding(0);
-			row.Button("-1", () => m_clicks--);
-			row.Button("+1", () => m_clicks++);
+			row.Button("-1", () => m_clicks--).WithIcon(Icons.Minus).IconOnly();
+			row.Button("+1", () => m_clicks++).WithIcon(Icons.Plus).IconOnly();
 			row.Button("Reset", () => m_clicks = 0);
 
 			// InteractableWhen greys a button out while it returns false. Clicks, the palette and NodeAccess skip it
@@ -397,6 +397,21 @@ namespace TeklySample.Samples.DevBoardSample
 				.WithRowSpacing(1)
 				.WithSearch(item => item)
 				.WithVersion(() => m_manyItems.Count);
+
+			// RevealOnHover hides a row's controls until the pointer is over the row, so a long list stays readable.
+			// They keep their space while hidden, so nothing shifts
+			page.Form().List(() => m_inventory, (row, item) => {
+					var line = row.Row()
+						.WithAlignment(LayoutAlignment.SpaceBetween)
+						.WithCrossAlignment(CrossAlignment.Center)
+						.WithPadding(0);
+					line.Label(item);
+
+					var controls = line.Row().WithPadding(0).RevealOnHover();
+					controls.Button("Pick", () => m_item = item);
+					controls.IconButton("Remove", Icons.Trash, () => m_inventory.Remove(item)).WithTone(ButtonTone.Negative);
+				})
+				.WithRowSpacing(1);
 		}
 
 		private void Data(Segment page)

@@ -208,6 +208,8 @@ namespace Tekly.DevBoard.Nodes
 		public const string Return = "return";
 		public const string Close = "close";
 		public const string Check = "check";
+		public const string Plus = "plus";
+		public const string Minus = "minus";
 		public const string Search = "search";
 		public const string Options = "options";
 		public const string Pin = "pin";
