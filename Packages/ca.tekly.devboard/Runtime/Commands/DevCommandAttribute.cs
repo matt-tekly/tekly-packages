@@ -9,7 +9,7 @@ using System;
 namespace Tekly.DevBoard.Commands
 {
 	/// <summary>
-	/// Makes a static method a command, run by typing its name and arguments into the console:
+	/// Makes a method a command, run by typing its name and arguments into the console:
 	/// <code>
 	/// [DevCommand("time scale", "Sets Time.timeScale")]
 	/// private static void TimeScale(float scale = 1f) => Time.timeScale = scale;
@@ -19,9 +19,24 @@ namespace Tekly.DevBoard.Commands
 	/// A CommandContext parameter isn't typed: it's handed in for logging output. A return value is shown as the
 	/// result.
 	///
-	/// Found in assemblies that reference DevBoard, the first time commands are asked for. In builds with DevBoard
-	/// it derives from PreserveAttribute, so IL2CPP keeps the method even though nothing calls it directly. In
-	/// builds without, it's a plain attribute, so the methods are stripped like any other unused code.
+	/// Static methods are found on their own, in assemblies that reference DevBoard, the first time commands are
+	/// asked for. Instance methods are commands of a particular object, registered with DevBoard.CommandsFrom while
+	/// it's around:
+	/// <code>
+	/// public class InventoryCommands
+	/// {
+	///     [DevCommand("item give", "Gives count of an item")]
+	///     private string Give(CommandContext context, [Suggest(nameof(ItemIds))] string item, int count = 1) { ... }
+	/// }
+	/// // on start
+	/// DevBoard.CommandsFrom(new InventoryCommands(inventory), owner: this);
+	/// // on stop
+	/// DevBoard.RemovePages(this);
+	/// </code>
+	///
+	/// In builds with DevBoard it derives from PreserveAttribute, so IL2CPP keeps the method even though nothing
+	/// calls it directly. In builds without, it's a plain attribute, so the methods are stripped like any other
+	/// unused code.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Method)]
 #if DEVBOARD_ACTIVE

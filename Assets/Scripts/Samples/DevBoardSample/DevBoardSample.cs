@@ -98,44 +98,15 @@ namespace TeklySample.Samples.DevBoardSample
 			DevBoard.Page(CONTROLS, Search, "Search", 8, owner: gameObject);
 			DevBoard.Page(CONTROLS, Data, "Data", 9, owner: gameObject);
 
-			// Commands for the console (F2), removed with this GameObject like the pages. A last text argument takes
-			// the rest of the line, so "inventory add Gold Ring" needs no quotes. suggest gives the values the console
-			// offers as an argument is typed
-			DevBoard.Command("inventory add", (string item) => AddItem(item), "Adds an item to the inventory", gameObject,
-				suggest: _ => m_items);
-			DevBoard.Command("inventory remove", (CommandContext context, string item) => RemoveItem(context, item),
-				"Removes an item from the inventory", gameObject, suggest: _ => m_inventory);
-			DevBoard.Command("inventory list", () => string.Join(", ", m_inventory), "Lists the inventory", gameObject);
-			DevBoard.Command("inventory clear", () => m_inventory.Clear(), "Empties the inventory", gameObject);
+			// Commands for the console (F2), removed with this GameObject like the pages. An object's [DevCommand]
+			// instance methods are registered together (see InventoryCommands); a one-off can be a lambda, whose
+			// parameters become its arguments
+			DevBoard.CommandsFrom(new InventoryCommands(m_inventory, m_items), owner: gameObject);
 			DevBoard.Command("exception", () => throw new Exception("Meow"), "Throws Exception", gameObject);
 		}
 
-		private string AddItem(string item)
-		{
-			if (m_inventory.Contains(item)) {
-				return $"Already have {item}";
-			}
-
-			m_inventory.Add(item);
-			return $"Added {item}";
-		}
-
-		// A CommandContext parameter isn't typed by the user: it's for output, here reporting a failure
-		private void RemoveItem(CommandContext context, string item)
-		{
-			var index = m_inventory.FindIndex(other => string.Equals(other, item, System.StringComparison.OrdinalIgnoreCase));
-
-			if (index < 0) {
-				context.Error($"No {item} in the inventory");
-				return;
-			}
-
-			context.Log($"Removed {m_inventory[index]}");
-			m_inventory.RemoveAt(index);
-		}
-
-		// A static method becomes a command with the attribute alone. [Suggest] names a static method giving the
-		// values the console offers for a parameter
+		// A static method becomes a command with the attribute alone, found without registering. [Suggest] names
+		// a static method giving the values the console offers for a parameter
 		[DevCommand("sample greet", "Says hello, a number of times")]
 		private static void Greet(CommandContext context, [Suggest(nameof(GreetNames))] string name = "world", int times = 1)
 		{

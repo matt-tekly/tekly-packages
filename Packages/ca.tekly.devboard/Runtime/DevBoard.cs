@@ -71,7 +71,8 @@ namespace Tekly.DevBoard
 		public NodeAccess Access { get; }
 
 		/// <summary>
-		/// Commands typed into the console: [DevCommand] static methods and those added with Command.
+		/// Commands typed into the console: [DevCommand] static methods, those of objects given to CommandsFrom, and
+		/// those added with Command.
 		/// </summary>
 		public CommandRegistry Commands { get; } = new();
 
@@ -167,7 +168,8 @@ namespace Tekly.DevBoard
 		/// DevBoard.Command("give gold", (int amount) => m_wallet.Add(amount), "Adds gold", owner: this);
 		/// </code>
 		/// The return value is shown as the result. A method group keeps its optional parameters' defaults; a
-		/// lambda can't have any. See DevCommandAttribute for static methods, and for how arguments are typed.
+		/// lambda can't have any. See DevCommandAttribute for static methods, CommandsFrom for a whole object's worth
+		/// of [DevCommand] instance methods, and either for how arguments are typed.
 		///
 		/// suggest, when given, gives the values the console suggests as each argument is typed: it gets a
 		/// parameter's name and returns its values, or null for none (enums and bools are suggested anyway):
@@ -258,6 +260,37 @@ namespace Tekly.DevBoard
 		}
 
 		/// <summary>
+		/// Adds every [DevCommand] instance method of target's type as a command run on target: public and
+		/// non-public, inherited too. Static [DevCommand] methods are found on their own and are skipped here. For
+		/// a set of commands that exists while some object does:
+		/// <code>
+		/// public class InventoryCommands
+		/// {
+		///     [DevCommand("item give", "Gives count of an item")]
+		///     private string Give(CommandContext context, [Suggest(nameof(ItemIds))] string item, int count = 1) { ... }
+		/// }
+		/// // on start
+		/// DevBoard.CommandsFrom(new InventoryCommands(inventory), owner: this);
+		/// // on stop
+		/// DevBoard.RemovePages(this);
+		/// </code>
+		/// A [Suggest] on a parameter can name an instance method of target's type. Two objects of the same type
+		/// register the same names: the newest runs, and removing one object's commands leaves the other's.
+		///
+		/// owner, when given, removes the commands with RemovePages(owner), or when a GameObject owner is destroyed.
+		/// Removed by the compiler in builds without DevBoard.
+		/// </summary>
+#if !DEVBOARD_ACTIVE
+		[System.Diagnostics.Conditional("__UNDEFINED__")]
+#endif
+		public static void CommandsFrom(object target, object owner = null)
+		{
+			if (Enabled) {
+				Instance.AddCommands(target, owner);
+			}
+		}
+
+		/// <summary>
 		/// Removes every segment and command registered with owner. Removed by the compiler in builds without
 		/// DevBoard.
 		/// </summary>
@@ -310,6 +343,22 @@ namespace Tekly.DevBoard
 				} catch (Exception exception) {
 					Debug.LogException(exception);
 				}
+			}
+		}
+
+		/// <summary>
+		/// What CommandsFrom(target, owner) does, on this board.
+		/// </summary>
+		internal void AddCommands(object target, object owner)
+		{
+			var commands = Commands.AddFrom(target);
+
+			if (owner == null) {
+				return;
+			}
+
+			foreach (var command in commands) {
+				Own(owner, command);
 			}
 		}
 

@@ -21,7 +21,7 @@ namespace Tekly.DevBoard.Commands
 		private Func<IEnumerable<string>> m_custom;
 		private readonly Func<IEnumerable<string>> m_default;
 
-		internal CommandParameter(ParameterInfo parameter)
+		internal CommandParameter(ParameterInfo parameter, object target)
 		{
 			Name = parameter.Name;
 			Type = parameter.ParameterType;
@@ -43,7 +43,7 @@ namespace Tekly.DevBoard.Commands
 			var suggest = parameter.GetCustomAttribute<SuggestAttribute>();
 
 			if (suggest != null) {
-				m_custom = FindProvider(parameter.Member.DeclaringType, suggest.MethodName);
+				m_custom = FindProvider(parameter.Member.DeclaringType, suggest.MethodName, target);
 			}
 		}
 
@@ -67,20 +67,49 @@ namespace Tekly.DevBoard.Commands
 		}
 
 		/// <summary>
-		/// The static method named by a [Suggest], as a provider of strings.
+		/// The method named by a [Suggest], as a provider of strings: an instance method of the command's target
+		/// when it has one and the type has one, else a static method on the type declaring the command.
 		/// </summary>
-		private Func<IEnumerable<string>> FindProvider(Type type, string methodName)
+		private Func<IEnumerable<string>> FindProvider(Type type, string methodName, object target)
 		{
-			const BindingFlags FLAGS = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
-			var method = type?.GetMethod(methodName, FLAGS, null, Type.EmptyTypes, null);
+			if (target != null) {
+				var instanceMethod = FindProviderMethod(target.GetType(), methodName, BindingFlags.Instance);
 
-			if (method == null || !typeof(IEnumerable).IsAssignableFrom(method.ReturnType)) {
-				Debug.LogWarning($"[DevBoard] [Suggest(\"{methodName}\")] on '{Name}' needs a static method on {type?.Name} that takes " +
-					"nothing and returns an IEnumerable");
+				if (instanceMethod != null) {
+					return () => ToStrings((IEnumerable) instanceMethod.Invoke(target, null));
+				}
+			}
+
+			var method = FindProviderMethod(type, methodName, BindingFlags.Static);
+
+			if (method == null) {
+				var on = target != null
+					? $"an instance method on {target.GetType().Name} or a static method on {type?.Name}"
+					: $"a static method on {type?.Name}";
+				Debug.LogWarning($"[DevBoard] [Suggest(\"{methodName}\")] on '{Name}' needs {on} that takes nothing and returns an IEnumerable");
 				return null;
 			}
 
 			return () => ToStrings((IEnumerable) method.Invoke(null, null));
+		}
+
+		/// <summary>
+		/// The method named methodName on type or a base type, taking nothing and returning an IEnumerable, or
+		/// null. Walks the base types itself so private methods of bases are found.
+		/// </summary>
+		private static MethodInfo FindProviderMethod(Type type, string methodName, BindingFlags kind)
+		{
+			var flags = kind | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+
+			for (; type != null && type != typeof(object); type = type.BaseType) {
+				var method = type.GetMethod(methodName, flags, null, Type.EmptyTypes, null);
+
+				if (method != null && typeof(IEnumerable).IsAssignableFrom(method.ReturnType)) {
+					return method;
+				}
+			}
+
+			return null;
 		}
 
 		private static IEnumerable<string> ToStrings(IEnumerable values)
@@ -214,7 +243,7 @@ namespace Tekly.DevBoard.Commands
 					continue;
 				}
 
-				var parameter = new CommandParameter(methodParameters[i]);
+				var parameter = new CommandParameter(methodParameters[i], target);
 				parameters.Add(parameter);
 				HasRequiredParameters |= !parameter.IsOptional;
 			}

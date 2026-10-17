@@ -4,3 +4,4 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("Tekly.DevBoard.UI")]
 [assembly: InternalsVisibleTo("Tekly.DevBoard.Remote")]
 [assembly: InternalsVisibleTo("Tekly.DevBoard.Editor")]
+[assembly: InternalsVisibleTo("Tekly.DevBoard.Tests")]

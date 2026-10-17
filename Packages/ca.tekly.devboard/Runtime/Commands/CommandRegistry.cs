@@ -7,7 +7,8 @@ namespace Tekly.DevBoard.Commands
 {
 	/// <summary>
 	/// Every command, and running typed lines against them. Commands come from [DevCommand] static methods, found
-	/// the first time commands are asked for, and from DevBoard.Command.
+	/// the first time commands are asked for, from [DevCommand] instance methods of objects given to AddFrom, and
+	/// from DevBoard.Command.
 	///
 	/// A line is a command's name followed by its arguments, separated by spaces: "give gold 100". The command
 	/// with the most of its words at the start of the line wins, so "spawn" and "spawn enemy" can both exist.
@@ -30,6 +31,7 @@ namespace Tekly.DevBoard.Commands
 		public event Action Changed;
 
 		private const int MAX_SUGGESTIONS = 50;
+		private const BindingFlags INSTANCE_FLAGS = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 
 		private readonly List<Command> m_commands = new();
 		private bool m_discovered;
@@ -66,6 +68,41 @@ namespace Tekly.DevBoard.Commands
 			Changed?.Invoke();
 
 			return command;
+		}
+
+		/// <summary>
+		/// Registers every [DevCommand] instance method of target's type, including inherited and non-public ones,
+		/// as a command run on target. Static ones are left out: discovery already has them. Returns the commands,
+		/// to dispose when target stops; DevBoard.CommandsFrom does that through an owner.
+		/// </summary>
+		public List<Command> AddFrom(object target)
+		{
+			if (target == null) {
+				throw new ArgumentNullException(nameof(target));
+			}
+
+			var commands = new List<Command>();
+			var seen = new HashSet<MethodInfo>();
+
+			// Walk from the runtime type up, so private methods of base types are found too. An override is
+			// registered once, by its most derived declaration.
+			for (var type = target.GetType(); type != null && type != typeof(object); type = type.BaseType) {
+				foreach (var method in type.GetMethods(INSTANCE_FLAGS)) {
+					var attribute = method.GetCustomAttribute<DevCommandAttribute>();
+
+					if (attribute == null || !seen.Add(method.GetBaseDefinition())) {
+						continue;
+					}
+
+					try {
+						commands.Add(Add(attribute.Name, method, target, attribute.Description));
+					} catch (Exception exception) {
+						Debug.LogWarning($"[DevBoard] Couldn't register command {type.Name}.{method.Name}: {exception.Message}");
+					}
+				}
+			}
+
+			return commands;
 		}
 
 		/// <summary>
@@ -429,15 +466,17 @@ namespace Tekly.DevBoard.Commands
 #endif
 		}
 
-		private void Discover(MethodInfo method)
+		/// <summary>
+		/// Registers a [DevCommand] static method found by discovery. Instance methods are left for AddFrom, which
+		/// has the object to run them on.
+		/// </summary>
+		internal void Discover(MethodInfo method)
 		{
-			var attribute = method.GetCustomAttribute<DevCommandAttribute>();
-
 			if (!method.IsStatic) {
-				Debug.LogWarning($"[DevBoard] [DevCommand] on {method.DeclaringType?.Name}.{method.Name} is ignored: only static methods " +
-					"can be commands. Register instance methods with DevBoard.Command.");
 				return;
 			}
+
+			var attribute = method.GetCustomAttribute<DevCommandAttribute>();
 
 			try {
 				Add(attribute.Name, method, null, attribute.Description);
