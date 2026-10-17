@@ -53,6 +53,11 @@ namespace Tekly.Trellis
 		// Set while this layout resizes itself, so the resulting dimension change doesn't re-dirty it
 		private bool m_resizingSelf;
 
+		// Whether the parent has a sizing group, reused within a pass. Asked twice per rebuild and on
+		// every dimension change, each a walk over the parent's components otherwise.
+		private bool m_parentSizes;
+		private int m_parentSizesPass = -1;
+
 		public FitMode FitWidth {
 			get => m_fitWidth;
 			set {
@@ -77,24 +82,43 @@ namespace Tekly.Trellis
 		/// </summary>
 		public bool IsLaidOutByParent {
 			get {
-				var parent = transform.parent;
-
-				if (parent == null || IgnoreLayout) {
+				if (IgnoreLayout) {
 					return false;
 				}
 
-				using (ListPool<Component>.Get(out var groups)) {
-					parent.GetComponents(typeof(ILayoutGroup), groups);
+				// The editor changes components between passes, so only trust the cache while playing
+				var pass = MeasurePass.Current;
 
-					foreach (var group in groups) {
-						if (group is Behaviour behaviour && behaviour.isActiveAndEnabled && SizesChildren(group)) {
-							return true;
-						}
-					}
+				if (m_parentSizesPass != pass || !Application.isPlaying) {
+					m_parentSizes = FindSizingGroup(transform.parent) != null;
+					m_parentSizesPass = pass;
 				}
 
-				return false;
+				return m_parentSizes;
 			}
+		}
+
+		/// <summary>
+		/// The enabled layout group on an object that sizes its children, skipping relays, proxies and
+		/// ScrollRects. Null when there is none, or no object.
+		/// </summary>
+		public static Component FindSizingGroup(Transform parent)
+		{
+			if (parent == null) {
+				return null;
+			}
+
+			using (ListPool<Component>.Get(out var groups)) {
+				parent.GetComponents(typeof(ILayoutGroup), groups);
+
+				foreach (var group in groups) {
+					if (group is Behaviour behaviour && behaviour.isActiveAndEnabled && SizesChildren(group)) {
+						return group;
+					}
+				}
+			}
+
+			return null;
 		}
 
 		/// <summary>
@@ -177,10 +201,22 @@ namespace Tekly.Trellis
 			}
 		}
 
+		protected override void OnEnable()
+		{
+			m_parentSizesPass = -1;
+			base.OnEnable();
+		}
+
 		protected override void OnDisable()
 		{
 			m_tracker.Clear();
 			base.OnDisable();
+		}
+
+		protected override void OnTransformParentChanged()
+		{
+			m_parentSizesPass = -1;
+			base.OnTransformParentChanged();
 		}
 
 		protected override void OnRectTransformDimensionsChange()

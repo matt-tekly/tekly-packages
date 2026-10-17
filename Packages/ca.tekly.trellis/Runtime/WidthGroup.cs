@@ -16,6 +16,9 @@ namespace Tekly.Trellis
 	/// - Min Width is a floor for the shared width, Max Width a cap. Min wins if they conflict,
 	///   and an item's own min always wins.
 	/// - Widths only. Flexible and heights stay each item's own.
+	/// - Members should share one layout tree. A change in one member rebuilds up to its own layout root
+	///   (the topmost run of layout groups above it); members under another root keep their old width
+	///   until something rebuilds them. Bridge gaps with a LayoutRelay.
 	/// </summary>
 	[ExecuteAlways]
 	[DisallowMultipleComponent]

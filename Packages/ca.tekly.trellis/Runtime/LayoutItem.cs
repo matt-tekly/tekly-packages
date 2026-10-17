@@ -74,7 +74,6 @@ namespace Tekly.Trellis
 		private WidthGroup m_joinedGroup;
 		private string m_joinedKey;
 		private bool m_measuring;
-		private bool m_dirtyPending;
 
 		public bool IgnoreLayout {
 			get => m_ignoreLayout;
@@ -357,24 +356,14 @@ namespace Tekly.Trellis
 		}
 
 		/// <summary>
-		/// Request a layout rebuild. Safe to call during a rebuild: it is deferred a frame, once.
+		/// Request a layout rebuild. Safe to call during a rebuild: it is held until the next layout pass.
 		/// </summary>
 		public void SetDirty()
 		{
 			InvalidateMeasure();
 
-			if (!IsActive()) {
-				return;
-			}
-
-			if (!CanvasUpdateRegistry.IsRebuildingLayout()) {
-				LayoutRebuilder.MarkLayoutForRebuild(OwnRect);
-				return;
-			}
-
-			if (!m_dirtyPending) {
-				m_dirtyPending = true;
-				StartCoroutine(DelayedSetDirty());
+			if (IsActive()) {
+				LayoutDirty.Mark(OwnRect);
 			}
 		}
 
@@ -439,14 +428,18 @@ namespace Tekly.Trellis
 		{
 			RefreshWidthGroup();
 
-			// Coroutines stop when disabled, and IsActive is already false here
-			m_dirtyPending = false;
-			m_sizeTweenRoutine = null;
+			// Disabling a component doesn't stop its coroutines, only deactivating the object does
+			if (m_sizeTweenRoutine != null) {
+				StopCoroutine(m_sizeTweenRoutine);
+				m_sizeTweenRoutine = null;
+			}
 
 			// Shown again, it takes its size straight away rather than easing from a stale one
 			m_widthTween?.Reset();
 			m_heightTween?.Reset();
-			LayoutRebuilder.MarkLayoutForRebuild(OwnRect);
+
+			// IsActive is already false, so this goes straight to the parent's tree
+			LayoutDirty.Mark(OwnRect);
 			base.OnDisable();
 		}
 
@@ -550,14 +543,6 @@ namespace Tekly.Trellis
 		private static float Pick(OptionalFloat value, float fallback)
 		{
 			return value.IsSet ? value.Value : fallback;
-		}
-
-		private IEnumerator DelayedSetDirty()
-		{
-			yield return null;
-
-			m_dirtyPending = false;
-			LayoutRebuilder.MarkLayoutForRebuild(OwnRect);
 		}
 
 		// ILayoutElement / ILayoutIgnorer, implemented explicitly so the lowercase names stay off the

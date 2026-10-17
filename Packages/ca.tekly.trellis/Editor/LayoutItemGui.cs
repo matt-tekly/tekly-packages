@@ -2,7 +2,6 @@ using System;
 using System.Globalization;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Tekly.Trellis
 {
@@ -242,7 +241,7 @@ namespace Tekly.Trellis
 				return;
 			}
 
-			var group = FindSizingGroup(parent);
+			var group = LayoutContainer.FindSizingGroup(parent);
 
 			if (group is LayoutContainer) {
 				return;
@@ -258,21 +257,6 @@ namespace Tekly.Trellis
 			if (!(item is LayoutContainer)) {
 				EditorGUILayout.HelpBox("The parent isn't a layout, so these settings have no effect.", MessageType.Info);
 			}
-		}
-
-		/// <summary>
-		/// The enabled layout group on the parent that sizes its children, skipping relays, proxies and ScrollRects.
-		/// </summary>
-		private static Component FindSizingGroup(Transform parent)
-		{
-			foreach (var component in parent.GetComponents(typeof(ILayoutGroup))) {
-				if (component is Behaviour behaviour && behaviour.isActiveAndEnabled
-					&& LayoutContainer.SizesChildren(component)) {
-					return component;
-				}
-			}
-
-			return null;
 		}
 
 		private static float CurrentValue(LayoutMeasure measure, int row)

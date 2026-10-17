@@ -37,9 +37,7 @@ namespace Tekly.Trellis
 
 		private void MarkDirty()
 		{
-			if (!CanvasUpdateRegistry.IsRebuildingLayout()) {
-				LayoutRebuilder.MarkLayoutForRebuild((RectTransform) transform);
-			}
+			LayoutDirty.Mark((RectTransform) transform);
 		}
 
 		void ILayoutController.SetLayoutHorizontal()

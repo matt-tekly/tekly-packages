@@ -30,6 +30,8 @@ namespace Tekly.Trellis
 		[Tooltip("Report the source's height. Off: height comes from the Item settings only")]
 		[SerializeField] private bool m_useSourceHeight = true;
 
+		private ScrollRect m_scrollRect;
+
 		public RectTransform Source {
 			get => m_source;
 			set {
@@ -69,7 +71,7 @@ namespace Tekly.Trellis
 				var source = m_source;
 
 				if (source == null) {
-					var scrollRect = GetComponent<ScrollRect>();
+					var scrollRect = ScrollRect;
 					source = scrollRect != null ? scrollRect.content : null;
 				}
 
@@ -78,6 +80,17 @@ namespace Tekly.Trellis
 				}
 
 				return source;
+			}
+		}
+
+		// Looked up again while missing, so a ScrollRect added later is still found
+		private ScrollRect ScrollRect {
+			get {
+				if (m_scrollRect == null) {
+					m_scrollRect = GetComponent<ScrollRect>();
+				}
+
+				return m_scrollRect;
 			}
 		}
 
@@ -136,7 +149,7 @@ namespace Tekly.Trellis
 
 		private bool Scrolls(int axis)
 		{
-			var scrollRect = GetComponent<ScrollRect>();
+			var scrollRect = ScrollRect;
 
 			if (scrollRect == null || !scrollRect.isActiveAndEnabled) {
 				return false;

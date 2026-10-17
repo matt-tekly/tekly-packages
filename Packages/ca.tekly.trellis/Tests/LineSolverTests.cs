@@ -145,6 +145,20 @@ namespace Tekly.Trellis
 		}
 
 		[Test]
+		public void ItemAlreadyAtMaxTakesNoSpare()
+		{
+			var items = new List<LayoutMeasure> {
+				LayoutMeasure.Create(0, 30, 1, 30),
+				LayoutMeasure.Create(0, 10, 1)
+			};
+
+			// The first sits at its max before anything is shared, so all 60 spare goes to the second
+			Solve(items, 100);
+
+			AssertSizes(30, 70);
+		}
+
+		[Test]
 		public void CapsCascadeAcrossRounds()
 		{
 			var items = new List<LayoutMeasure> {

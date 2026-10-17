@@ -3,7 +3,7 @@ using System;
 namespace Tekly.Common.Utils
 {
 	[Serializable]
-	public struct OptionalBool
+	public struct OptionalBool : IEquatable<OptionalBool>
 	{
 		public bool IsSet;
 		public bool Value;
@@ -40,6 +40,33 @@ namespace Tekly.Common.Utils
 			return optional.IsSet ? optional.Value : null;
 		}
 
+		public bool Equals(OptionalBool other)
+		{
+			return IsSet == other.IsSet && Value == other.Value;
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is OptionalBool other && Equals(other);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked {
+				return (IsSet.GetHashCode() * 397) ^ Value.GetHashCode();
+			}
+		}
+
+		public static bool operator ==(OptionalBool a, OptionalBool b)
+		{
+			return a.Equals(b);
+		}
+
+		public static bool operator !=(OptionalBool a, OptionalBool b)
+		{
+			return !a.Equals(b);
+		}
+
 		public override string ToString()
 		{
 			return IsSet ? Value.ToString() : "<unset>";
@@ -47,7 +74,7 @@ namespace Tekly.Common.Utils
 	}
 	
 	[Serializable]
-	public struct OptionalInt
+	public struct OptionalInt : IEquatable<OptionalInt>
 	{
 		public bool IsSet;
 		public int Value;
@@ -84,6 +111,33 @@ namespace Tekly.Common.Utils
 			return optional.IsSet ? optional.Value : null;
 		}
 
+		public bool Equals(OptionalInt other)
+		{
+			return IsSet == other.IsSet && Value == other.Value;
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is OptionalInt other && Equals(other);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked {
+				return (IsSet.GetHashCode() * 397) ^ Value.GetHashCode();
+			}
+		}
+
+		public static bool operator ==(OptionalInt a, OptionalInt b)
+		{
+			return a.Equals(b);
+		}
+
+		public static bool operator !=(OptionalInt a, OptionalInt b)
+		{
+			return !a.Equals(b);
+		}
+
 		public override string ToString()
 		{
 			return IsSet ? Value.ToString() : "<unset>";
@@ -91,7 +145,7 @@ namespace Tekly.Common.Utils
 	}
 	
 	[Serializable]
-	public struct OptionalFloat
+	public struct OptionalFloat : IEquatable<OptionalFloat>
 	{
 		public bool IsSet;
 		public float Value;
@@ -128,6 +182,33 @@ namespace Tekly.Common.Utils
 			return optional.IsSet ? optional.Value : null;
 		}
 
+		public bool Equals(OptionalFloat other)
+		{
+			return IsSet == other.IsSet && Value == other.Value;
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is OptionalFloat other && Equals(other);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked {
+				return (IsSet.GetHashCode() * 397) ^ Value.GetHashCode();
+			}
+		}
+
+		public static bool operator ==(OptionalFloat a, OptionalFloat b)
+		{
+			return a.Equals(b);
+		}
+
+		public static bool operator !=(OptionalFloat a, OptionalFloat b)
+		{
+			return !a.Equals(b);
+		}
+
 		public override string ToString()
 		{
 			return IsSet ? Value.ToString() : "<unset>";
@@ -135,7 +216,7 @@ namespace Tekly.Common.Utils
 	}
 	
 	[Serializable]
-	public struct OptionalDouble
+	public struct OptionalDouble : IEquatable<OptionalDouble>
 	{
 		public bool IsSet;
 		public double Value;
@@ -172,6 +253,33 @@ namespace Tekly.Common.Utils
 			return optional.IsSet ? optional.Value : null;
 		}
 
+		public bool Equals(OptionalDouble other)
+		{
+			return IsSet == other.IsSet && Value == other.Value;
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is OptionalDouble other && Equals(other);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked {
+				return (IsSet.GetHashCode() * 397) ^ Value.GetHashCode();
+			}
+		}
+
+		public static bool operator ==(OptionalDouble a, OptionalDouble b)
+		{
+			return a.Equals(b);
+		}
+
+		public static bool operator !=(OptionalDouble a, OptionalDouble b)
+		{
+			return !a.Equals(b);
+		}
+
 		public override string ToString()
 		{
 			return IsSet ? Value.ToString() : "<unset>";
@@ -179,7 +287,7 @@ namespace Tekly.Common.Utils
 	}
 	
 	[Serializable]
-	public struct OptionalString
+	public struct OptionalString : IEquatable<OptionalString>
 	{
 		public bool IsSet;
 		public string Value;
@@ -204,6 +312,33 @@ namespace Tekly.Common.Utils
 		public static implicit operator OptionalString(string value)
 		{
 			return new OptionalString(value);
+		}
+
+		public bool Equals(OptionalString other)
+		{
+			return IsSet == other.IsSet && Value == other.Value;
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is OptionalString other && Equals(other);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked {
+				return (IsSet.GetHashCode() * 397) ^ (Value != null ? Value.GetHashCode() : 0);
+			}
+		}
+
+		public static bool operator ==(OptionalString a, OptionalString b)
+		{
+			return a.Equals(b);
+		}
+
+		public static bool operator !=(OptionalString a, OptionalString b)
+		{
+			return !a.Equals(b);
 		}
 
 		public override string ToString()
