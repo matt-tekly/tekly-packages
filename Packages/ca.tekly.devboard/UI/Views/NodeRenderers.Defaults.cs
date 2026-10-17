@@ -35,7 +35,7 @@ namespace Tekly.DevBoard.Views
 		private void RegisterDefaults()
 		{
 			Register<LabelNode, LabelWidget>((node, parent) => node.Kind == LabelKind.Heading ? WidgetPrefabs.Heading : WidgetPrefabs.Label,
-				(node, widget, view) => widget.Text = node.Kind == LabelKind.Error ? ErrorText(node.Text) : node.Text);
+				(node, widget, view) => widget.Text = LabelText(node.Kind == LabelKind.Error ? ErrorText(node.Text) : node.Text, node.Description));
 
 			Register<PropertyNode, PropertyWidget>(WidgetPrefabs.Property, (node, widget, view) => {
 				node.Accept(new PropertyBinder(widget, LabelText(node), node.Format));
@@ -189,12 +189,20 @@ namespace Tekly.DevBoard.Views
 		/// </summary>
 		public static string LabelText(Node node)
 		{
-			if (string.IsNullOrEmpty(node.Description)) {
-				return node.Label;
+			return LabelText(node.Label, node.Description);
+		}
+
+		/// <summary>
+		/// label with description under it in the "sublabel" style.
+		/// </summary>
+		public static string LabelText(string label, string description)
+		{
+			if (string.IsNullOrEmpty(description)) {
+				return label;
 			}
 
-			var description = $"<style=\"{DESCRIPTION_STYLE}\">{node.Description}</style>";
-			return string.IsNullOrEmpty(node.Label) ? description : $"{node.Label}\n{description}";
+			description = $"<style=\"{DESCRIPTION_STYLE}\">{description}</style>";
+			return string.IsNullOrEmpty(label) ? description : $"{label}\n{description}";
 		}
 
 		public static string ErrorText(string text)
