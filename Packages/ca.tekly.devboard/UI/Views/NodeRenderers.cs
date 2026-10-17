@@ -15,8 +15,8 @@ namespace Tekly.DevBoard.Views
 	///
 	/// A bind sets everything about the widget that the node decides, including settings left at their defaults,
 	/// rather than only what differs from the prefab. That keeps the door open to reusing widgets: a reused widget
-	/// keeps whatever the last bind set. Container layout overrides are the one exception so far, since only the
-	/// overrides a node sets are known.
+	/// keeps whatever the last bind set. Layout overrides, a container's and every node's flexible sizes, are the
+	/// one exception so far, since only the overrides a node sets are known.
 	/// </summary>
 	public sealed partial class NodeRenderers
 	{
@@ -89,6 +89,14 @@ namespace Tekly.DevBoard.Views
 
 			if (node.WidthGroup != null) {
 				widget.WithWidthGroup(node.WidthGroup);
+			}
+
+			if (node.FlexibleWidth is float flexibleWidth) {
+				widget.WithFlexibleWidth(flexibleWidth);
+			}
+
+			if (node.FlexibleHeight is float flexibleHeight) {
+				widget.WithFlexibleHeight(flexibleHeight);
 			}
 
 			if (node is ContainerNode container) {

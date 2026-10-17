@@ -119,20 +119,22 @@ namespace Tekly.DevBoard.Components
 		}
 
 		/// <summary>
-		/// How much of a parent layout's spare width this container takes. 1 fills it.
+		/// How much of a parent layout's spare width this container takes. 1 fills it. Set on the container itself,
+		/// not its content, which can be a child of it, e.g. in tabs and scroll views.
 		/// </summary>
-		public ContainerWidget WithFlexibleWidth(float flexible = 1f)
+		public new ContainerWidget WithFlexibleWidth(float flexible = 1f)
 		{
-			m_layout.FlexibleWidth = flexible;
+			base.WithFlexibleWidth(flexible);
 			return this;
 		}
 
 		/// <summary>
-		/// How much of a parent layout's spare height this container takes. 1 fills it.
+		/// How much of a parent layout's spare height this container takes. 1 fills it. Set on the container itself,
+		/// not its content.
 		/// </summary>
-		public ContainerWidget WithFlexibleHeight(float flexible = 1f)
+		public new ContainerWidget WithFlexibleHeight(float flexible = 1f)
 		{
-			m_layout.FlexibleHeight = flexible;
+			base.WithFlexibleHeight(flexible);
 			return this;
 		}
 

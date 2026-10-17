@@ -151,10 +151,7 @@ namespace Tekly.DevBoard.Views
 
 				var input = row.NumberInput(s_vectorAxes[i], binding).WithFormat(node.Format);
 				input.WithLabelWidthGroup(null);
-
-				if (input.TryGetComponent(out LayoutItem layoutItem)) {
-					layoutItem.FlexibleWidth = 1f;
-				}
+				input.WithFlexibleWidth();
 			}
 		}
 
@@ -254,14 +251,6 @@ namespace Tekly.DevBoard.Views
 
 			if (layout.CrossAlignment is { } crossAlignment) {
 				widget.WithCrossAlignment(crossAlignment);
-			}
-
-			if (layout.FlexibleWidth is float flexibleWidth) {
-				widget.WithFlexibleWidth(flexibleWidth);
-			}
-
-			if (layout.FlexibleHeight is float flexibleHeight) {
-				widget.WithFlexibleHeight(flexibleHeight);
 			}
 
 			if (layout.MaxHeight is float maxHeight) {

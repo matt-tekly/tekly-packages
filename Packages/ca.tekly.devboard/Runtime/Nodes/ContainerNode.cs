@@ -113,26 +113,6 @@ namespace Tekly.DevBoard.Nodes
 			return this;
 		}
 
-		/// <summary>
-		/// How much of a parent layout's spare width this container takes. 1 fills it.
-		/// </summary>
-		public ContainerNode WithFlexibleWidth(float flexible = 1f)
-		{
-			EnsureEditable();
-			Layout.FlexibleWidth = flexible;
-			return this;
-		}
-
-		/// <summary>
-		/// How much of a parent layout's spare height this container takes. 1 fills it.
-		/// </summary>
-		public ContainerNode WithFlexibleHeight(float flexible = 1f)
-		{
-			EnsureEditable();
-			Layout.FlexibleHeight = flexible;
-			return this;
-		}
-
 		public ContainerNode WithMaxHeight(float maxHeight)
 		{
 			EnsureEditable();
@@ -332,8 +312,6 @@ namespace Tekly.DevBoard.Nodes
 		public int? Spacing { get; internal set; }
 		public LayoutAlignment? Alignment { get; internal set; }
 		public CrossAlignment? CrossAlignment { get; internal set; }
-		public float? FlexibleWidth { get; internal set; }
-		public float? FlexibleHeight { get; internal set; }
 		public float? MaxHeight { get; internal set; }
 
 		/// <summary>

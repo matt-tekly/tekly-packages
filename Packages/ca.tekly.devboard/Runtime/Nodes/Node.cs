@@ -108,6 +108,16 @@ namespace Tekly.DevBoard.Nodes
 		public string WidthGroup { get; private set; }
 
 		/// <summary>
+		/// How much of a parent layout's spare width the node takes. Null keeps the prefab's.
+		/// </summary>
+		public float? FlexibleWidth { get; private set; }
+
+		/// <summary>
+		/// How much of a parent layout's spare height the node takes. Null keeps the prefab's.
+		/// </summary>
+		public float? FlexibleHeight { get; private set; }
+
+		/// <summary>
 		/// Extra words search matches this node by, besides its label.
 		/// </summary>
 		public string[] Keywords { get; private set; }
@@ -223,6 +233,18 @@ namespace Tekly.DevBoard.Nodes
 			WidthGroup = widthGroup;
 		}
 
+		internal void SetFlexibleWidth(float flexible)
+		{
+			EnsureEditable();
+			FlexibleWidth = flexible;
+		}
+
+		internal void SetFlexibleHeight(float flexible)
+		{
+			EnsureEditable();
+			FlexibleHeight = flexible;
+		}
+
 		internal void SetKeywords(string[] keywords)
 		{
 			EnsureEditable();
@@ -315,6 +337,25 @@ namespace Tekly.DevBoard.Nodes
 		public static T WithWidthGroup<T>(this T node, string widthGroup) where T : Node
 		{
 			node.SetWidthGroup(widthGroup);
+			return node;
+		}
+
+		/// <summary>
+		/// How much of a parent layout's spare width the node takes. 1 fills it: in a row it shares the room left
+		/// over with the other flexible nodes, and in a stack, card or form it stretches to the full width.
+		/// </summary>
+		public static T WithFlexibleWidth<T>(this T node, float flexible = 1f) where T : Node
+		{
+			node.SetFlexibleWidth(flexible);
+			return node;
+		}
+
+		/// <summary>
+		/// How much of a parent layout's spare height the node takes. 1 fills it, see WithFlexibleWidth.
+		/// </summary>
+		public static T WithFlexibleHeight<T>(this T node, float flexible = 1f) where T : Node
+		{
+			node.SetFlexibleHeight(flexible);
 			return node;
 		}
 
