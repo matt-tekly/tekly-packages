@@ -97,6 +97,10 @@ namespace Tekly.DevBoard.Views
 					return new ListWidgetElement(list, containerWidget, this, view);
 				}
 
+				if (container is TabsNode && containerWidget is TabsWidget tabsWidget) {
+					return new TabsWidgetElement(tabsWidget, this, view);
+				}
+
 				return new ContainerWidgetElement(containerWidget, this, view);
 			}
 

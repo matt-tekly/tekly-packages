@@ -117,6 +117,29 @@ namespace Tekly.DevBoard.Views
 	}
 
 	/// <summary>
+	/// A tabs node: the tab buttons and the tabs' contents, in a TabsWidget.
+	/// </summary>
+	internal sealed class TabsWidgetElement : ContainerWidgetElement, ITabsElement
+	{
+		private readonly TabsWidget m_widget;
+
+		public TabsWidgetElement(TabsWidget widget, NodeRenderers renderers, ViewContext context) : base(widget, renderers, context)
+		{
+			m_widget = widget;
+		}
+
+		public void ShowTabs(IReadOnlyList<string> labels, System.Action<int> select)
+		{
+			m_widget.SetTabs(labels, select);
+		}
+
+		public void ShowSelected(int index)
+		{
+			m_widget.SetSelected(index);
+		}
+	}
+
+	/// <summary>
 	/// A list node. A searchable one gets a search field over its rows and a line under them saying how the search
 	/// went, and with a scroll height its rows scroll on their own.
 	/// </summary>

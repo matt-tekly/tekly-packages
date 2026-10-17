@@ -167,6 +167,22 @@ namespace Tekly.DevBoard.Components
 			return this;
 		}
 
+		/// <summary>
+		/// Turns the button on or off, like a toggle, e.g. the selected tab. The prefab's color animator shows it
+		/// through its On layers. instant skips the color fade.
+		/// </summary>
+		public ButtonWidget WithOn(bool on, bool instant = false)
+		{
+			// Awake hasn't run yet when the button is created inside an inactive container
+			var button = m_button != null ? m_button : GetComponent<LeafButton>();
+
+			if (button != null) {
+				button.SetIsOn(on, instant);
+			}
+
+			return this;
+		}
+
 		public void Activate()
 		{
 			if (m_isInteractable) {

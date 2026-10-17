@@ -63,6 +63,8 @@ namespace Tekly.DevBoard.Views
 
 			if (node is ListNode list && element is IListElement listElement) {
 				mirror = new ListMirror(list, listElement, context);
+			} else if (node is TabsNode tabs && element is ITabsElement tabsElement) {
+				mirror = new TabsMirror(tabs, tabsElement, context);
 			} else if (node is ContainerNode container && element is IContainerElement containerElement) {
 				mirror = new ContainerMirror(container, containerElement, context);
 			} else {

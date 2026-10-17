@@ -112,6 +112,9 @@ namespace Tekly.DevBoard.Views
 				ApplyLayout(node, widget);
 			});
 
+			// The tabs' contents are plain stacks, from the ContainerNode registration
+			Register<TabsNode, TabsWidget>(WidgetPrefabs.Tabs, (node, widget, view) => ApplyLayout(node, widget));
+
 			// Scopes, list rows and dynamic scopes just group their content
 			RegisterFactory<ScopeNode, ContainerWidget>((node, parent) => ContainerWidget.CreatePlain(parent.Content, "Scope"),
 				(node, widget, view) => ApplyLayout(node, widget));

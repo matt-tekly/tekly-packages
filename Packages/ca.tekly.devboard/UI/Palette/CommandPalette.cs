@@ -321,13 +321,13 @@ namespace Tekly.DevBoard.Palette
 				}
 
 				foreach (var node in access.NodesOn(page)) {
-					// Titled segments and foldouts are sections to jump to
+					// Titled segments, foldouts and tabs are sections to jump to
 					if (node is Segment { Title: not null } segment) {
 						AddEntry(page, node, segment.Title, segment.Title, SECTION_KIND, null, Category.Pages);
 						continue;
 					}
 
-					var kind = node is FoldoutNode { Label: not null } ? SECTION_KIND : access.KindOf(node);
+					var kind = node is FoldoutNode { Label: not null } or TabNode { Label: not null } ? SECTION_KIND : access.KindOf(node);
 
 					// Labels have nothing to do, hidden nodes would be confusing to find, and searchable lists are
 					// searched with their own search

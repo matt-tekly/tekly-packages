@@ -61,6 +61,8 @@ namespace Tekly.DevBoard
 		public static readonly WidgetPrefab<ContainerWidget> SegmentedRow = "container_row_segmented";
 		public static readonly WidgetPrefab<ScrollViewWidget> ScrollView = "scrollview";
 		public static readonly WidgetPrefab<FoldoutWidget> Foldout = "foldout";
+		public static readonly WidgetPrefab<TabsWidget> Tabs = "tabs";
+		public static readonly WidgetPrefab<ButtonWidget> TabButton = "button_tab";
 		public static readonly WidgetPrefab<DividerWidget> DividerHorizontal = "divider_horizontal";
 		public static readonly WidgetPrefab<DividerWidget> DividerVertical = "divider_vertical";
 

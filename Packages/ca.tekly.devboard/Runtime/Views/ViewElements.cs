@@ -68,6 +68,24 @@ namespace Tekly.DevBoard.Views
 	}
 
 	/// <summary>
+	/// The element for a tabs node: a button per tab, with the selected tab's content under them. Only the selected
+	/// tab's child element is shown; the mirror hides the rest.
+	/// </summary>
+	public interface ITabsElement : IContainerElement
+	{
+		/// <summary>
+		/// Shows a button per tab, in order, replacing any shown before. select is called with a tab's index when
+		/// its button is clicked.
+		/// </summary>
+		void ShowTabs(IReadOnlyList<string> labels, System.Action<int> select);
+
+		/// <summary>
+		/// Marks the button at index as the selected tab.
+		/// </summary>
+		void ShowSelected(int index);
+	}
+
+	/// <summary>
 	/// How a search went, for the line under the results.
 	/// </summary>
 	public readonly struct ListSummary

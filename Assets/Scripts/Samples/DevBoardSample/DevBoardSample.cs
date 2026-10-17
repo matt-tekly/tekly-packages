@@ -329,6 +329,20 @@ namespace TeklySample.Samples.DevBoardSample
 			var nested = foldout.Foldout("Nested Foldout");
 			nested.Label("Foldouts can nest");
 
+			// Tabs show one tab's content at a time, remember which, and build each tab the first time it's shown
+			var tabs = page.Tabs();
+
+			var general = tabs.Tab("General").Form();
+			general.Toggle("Toggle", () => m_toggle, value => m_toggle = value);
+			general.Property("Clicks", () => m_clicks);
+
+			var audio = tabs.Tab("Audio").Form();
+			audio.Slider("Music", 0f, 1f, () => m_float, value => m_float = value).WithFormat("0.00");
+			audio.Label("Built the first time this tab was shown");
+
+			var advanced = tabs.Tab("Advanced");
+			advanced.Button("Click", () => m_clicks++);
+
 			// A card is a container with a background
 			var card = page.Card();
 			card.Heading("A card");
