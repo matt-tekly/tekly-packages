@@ -32,7 +32,7 @@ namespace Tekly.DevBoard
 				context.Error("nope");
 			}
 
-			[DevCommand("wait")]
+			[DevCommand("hold")]
 			private async Task<string> Wait(CommandContext context)
 			{
 				context.Log("waiting");
@@ -42,7 +42,7 @@ namespace Tekly.DevBoard
 				return value;
 			}
 
-			[DevCommand("wait void")]
+			[DevCommand("hold void")]
 			private async Task WaitVoid()
 			{
 				Pending = new TaskCompletionSource<string>();
@@ -86,14 +86,14 @@ namespace Tekly.DevBoard
 			Assert.IsTrue(task.Result.Succeeded);
 			Assert.AreEqual("hello", task.Result.Output.Single().Text);
 			Assert.IsFalse(m_registry.Find("sync").IsAsync);
-			Assert.IsTrue(m_registry.Find("wait").IsAsync);
+			Assert.IsTrue(m_registry.Find("hold").IsAsync);
 		}
 
 		[Test]
 		public async Task TaskCommandsWaitAndShowTheirResult()
 		{
 			var written = new List<string>();
-			var task = m_registry.RunAsync("wait", line => written.Add(line.Text));
+			var task = m_registry.RunAsync("hold", line => written.Add(line.Text));
 
 			// The command's output shows as it's written, before it's done
 			Assert.IsFalse(task.IsCompleted);
@@ -110,7 +110,7 @@ namespace Tekly.DevBoard
 		[Test]
 		public async Task TaskWithoutResultShowsNothing()
 		{
-			var task = m_registry.RunAsync("wait void");
+			var task = m_registry.RunAsync("hold void");
 			m_target.Pending.SetResult(null);
 			var result = await task;
 
@@ -146,7 +146,7 @@ namespace Tekly.DevBoard
 		[Test]
 		public async Task StepsRunInOrderEachAfterTheLast()
 		{
-			var task = m_registry.RunAsync("sync a; wait; sync b");
+			var task = m_registry.RunAsync("sync a; hold; sync b");
 
 			// The second step holds the third
 			CollectionAssert.AreEqual(new[] { "sync a" }, m_target.Calls);
@@ -187,11 +187,11 @@ namespace Tekly.DevBoard
 		[Test]
 		public void CompletionIsForTheStepAtTheCaret()
 		{
-			var line = "sync a; wa";
+			var line = "sync a; ho";
 			var completion = m_registry.Complete(line, line.Length);
 
-			var suggestion = completion.Suggestions.Single(s => s.Text == "wait");
-			Assert.AreEqual("sync a; wait", suggestion.Apply(line, out var caret));
+			var suggestion = completion.Suggestions.Single(s => s.Text == "hold");
+			Assert.AreEqual("sync a; hold", suggestion.Apply(line, out var caret));
 			Assert.AreEqual(line.Length + 2, caret);
 
 			// Back in the first step, it's that command
