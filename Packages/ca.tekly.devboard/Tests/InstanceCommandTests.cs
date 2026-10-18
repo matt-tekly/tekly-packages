@@ -72,7 +72,7 @@ namespace Tekly.DevBoard
 			LogAssert.Expect(LogType.Warning, "[DevBoard] There's already a command named 'test ping'. The newest one runs.");
 			m_registry.AddFrom(b);
 
-			Assert.IsTrue(m_registry.Run("item give sword 3").Succeeded);
+			Assert.IsTrue(m_registry.RunAsync("item give sword 3").Result.Succeeded);
 			Assert.AreEqual(3, b.Inventory.Counts["sword"]);
 			Assert.IsFalse(a.Inventory.Counts.ContainsKey("sword"));
 
@@ -85,7 +85,7 @@ namespace Tekly.DevBoard
 				command.Dispose();
 			}
 
-			Assert.IsTrue(m_registry.Run("item give sword").Succeeded);
+			Assert.IsTrue(m_registry.RunAsync("item give sword").Result.Succeeded);
 			Assert.AreEqual(1, a.Inventory.Counts["sword"]);
 			Assert.AreEqual(3, b.Inventory.Counts["sword"]);
 		}
@@ -96,7 +96,7 @@ namespace Tekly.DevBoard
 			var target = new InventoryCommands(new Inventory());
 			m_registry.AddFrom(target);
 
-			var result = m_registry.Run("item give shield");
+			var result = m_registry.RunAsync("item give shield").Result;
 
 			Assert.IsTrue(result.Succeeded);
 			Assert.AreEqual(1, target.Inventory.Counts["shield"]);
@@ -113,7 +113,7 @@ namespace Tekly.DevBoard
 
 			CollectionAssert.AreEquivalent(new[] { "item give", "item rarity", "test ping" }, commands.Select(c => c.Name));
 
-			Assert.IsTrue(m_registry.Run("test ping").Succeeded);
+			Assert.IsTrue(m_registry.RunAsync("test ping").Result.Succeeded);
 			Assert.AreEqual(1, target.Pings);
 		}
 
@@ -134,13 +134,13 @@ namespace Tekly.DevBoard
 
 			board.ReleaseOwner(ownerB);
 
-			Assert.IsTrue(board.Commands.Run("item give sword").Succeeded);
+			Assert.IsTrue(board.Commands.RunAsync("item give sword").Result.Succeeded);
 			Assert.AreEqual(1, a.Inventory.Counts["sword"]);
 			Assert.IsFalse(b.Inventory.Counts.ContainsKey("sword"));
 
 			board.ReleaseOwner(ownerA);
 
-			Assert.IsFalse(board.Commands.Run("item give sword").Succeeded);
+			Assert.IsFalse(board.Commands.RunAsync("item give sword").Result.Succeeded);
 			Assert.IsNull(board.Commands.Find("item give"));
 			Assert.IsNull(board.Commands.Find("test ping"));
 		}

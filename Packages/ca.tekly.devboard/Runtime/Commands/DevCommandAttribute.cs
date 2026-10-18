@@ -19,6 +19,20 @@ namespace Tekly.DevBoard.Commands
 	/// A CommandContext parameter isn't typed: it's handed in for logging output. A return value is shown as the
 	/// result.
 	///
+	/// A command that takes time returns a Task, Task&lt;T&gt;, Awaitable, Awaitable&lt;T&gt; or IEnumerator coroutine.
+	/// The console waits for it, showing what the context logs as it goes, and Escape cancels its
+	/// CommandContext.CancellationToken:
+	/// <code>
+	/// [DevCommand("scene load", "Loads a scene and waits for it")]
+	/// private static async Task Load(CommandContext context, string scene)
+	/// {
+	///     context.Log($"loading {scene}");
+	///     await SceneManager.LoadSceneAsync(scene);
+	/// }
+	/// </code>
+	/// Several commands run one after another when separated by ';': "scene load Arena; time scale 1". The line
+	/// stops at the first that fails.
+	///
 	/// Static methods are found on their own, in assemblies that reference DevBoard, the first time commands are
 	/// asked for. Instance methods are commands of a particular object, registered with DevBoard.CommandsFrom while
 	/// it's around:

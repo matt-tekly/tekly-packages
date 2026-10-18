@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using Tekly.Common.Ui.Fancy;
 using Tekly.DevBoard.Commands;
 using Tekly.DevBoard.Components;
@@ -23,6 +24,9 @@ namespace Tekly.DevBoard.Console
 	/// highlight, or go through history when there are no suggestions. Enter takes the highlighted suggestion if
 	/// there is one, otherwise runs the line. Escape closes the suggestions, then the console. Output is kept
 	/// between openings, history between sessions too.
+	///
+	/// A command that takes time (see Command.IsAsync) keeps the line until it's done, printing its output as it
+	/// comes, and Escape asks it to stop. Closing the console leaves it running.
 	/// </summary>
 	internal sealed class DevConsole
 	{
@@ -40,8 +44,14 @@ namespace Tekly.DevBoard.Console
 		private const string DIM = "<alpha=#80>{0}<alpha=#FF>";
 		private const string DIMMER = "<alpha=#55>{0}<alpha=#FF>";
 		private const string PICKED = "<color=#F6C050>{0}</color>";
+		private const string RUNNING = "<alpha=#80>Running <noparse>{0}</noparse>  Escape cancels<alpha=#FF>";
 
 		public bool IsOpen => m_root != null;
+
+		/// <summary>
+		/// True while a command runs. The line can't be typed in until it's done.
+		/// </summary>
+		public bool IsRunning => m_running != null;
 
 		private readonly DevBoardUI m_board;
 		private readonly CommandRegistry m_commands;
@@ -73,6 +83,10 @@ namespace Tekly.DevBoard.Console
 		private string m_draft;
 
 		private bool m_wasFocused;
+
+		// The line being run and how to cancel it, while one is. Kept while the console is closed
+		private string m_running;
+		private CancellationTokenSource m_cancel;
 
 		// Up and Down also move the field's caret to the start or end of the line, repeating while held, before or
 		// after this update runs. So while either is held, and the frame after, the caret is held where it was
@@ -122,7 +136,12 @@ namespace Tekly.DevBoard.Console
 
 			m_scrollToEndFrames = SCROLL_TO_END_FRAMES;
 			UpdateCompletion();
-			m_input.Focus(false);
+
+			if (IsRunning) {
+				ApplyRunning();
+			} else {
+				m_input.Focus(false);
+			}
 
 			// Turns the canvas on if DevBoard is hidden
 			m_board.ApplyVisibility();
@@ -177,6 +196,15 @@ namespace Tekly.DevBoard.Console
 			}
 
 			PlaceSuggestionBox();
+
+			// While a command runs the line is off. Escape asks the command to stop
+			if (IsRunning) {
+				if (KeyInput.Escape) {
+					m_cancel.Cancel();
+				}
+
+				return;
+			}
 
 			// Selecting output takes the keyboard from the line. Enter or Escape hands it back
 			if (m_outputField.isFocused && (KeyInput.Enter || KeyInput.Escape)) {
@@ -431,6 +459,10 @@ namespace Tekly.DevBoard.Console
 		/// </summary>
 		private string Hint()
 		{
+			if (IsRunning) {
+				return string.Format(RUNNING, m_running);
+			}
+
 			if (m_completion.Error != null) {
 				return string.Format(ERROR, $"<noparse>{m_completion.Error}</noparse>");
 			}
@@ -477,11 +509,11 @@ namespace Tekly.DevBoard.Console
 			SetLine(line, caret);
 		}
 
-		private void Run()
+		private async void Run()
 		{
 			var line = m_line.Trim();
 
-			if (line.Length == 0) {
+			if (line.Length == 0 || IsRunning) {
 				return;
 			}
 
@@ -489,13 +521,49 @@ namespace Tekly.DevBoard.Console
 
 			// Echoed first, so a command that clears the output clears its own line too
 			Print(string.Format(ECHO, line));
-			var result = m_commands.Run(line);
+			SetLine(string.Empty, 0);
 
-			foreach (var output in result.Output) {
-				Print(output.IsError ? string.Format(ERROR, output.Text) : output.Text);
+			// Output is printed as it's written, so the result's own copy isn't printed again
+			m_running = line;
+			m_cancel = new CancellationTokenSource();
+			ApplyRunning();
+
+			try {
+				await m_commands.RunAsync(line, Print, m_cancel.Token);
+			} finally {
+				m_cancel.Dispose();
+				m_cancel = null;
+				m_running = null;
+				ApplyRunning();
+			}
+		}
+
+		/// <summary>
+		/// Turns the line off while a command runs, with the hint saying which, and back on after. Nothing to do
+		/// while the console is closed: Open calls this too.
+		/// </summary>
+		private void ApplyRunning()
+		{
+			if (!IsOpen) {
+				return;
 			}
 
-			SetLine(string.Empty, 0);
+			var running = IsRunning;
+			m_input.InputField.interactable = !running;
+
+			if (running) {
+				m_refocusAfterFrame = -1;
+				m_hint.Text = Hint();
+				m_hint.gameObject.SetActive(true);
+			} else {
+				UpdateCompletion();
+				Refocus();
+			}
+		}
+
+		private void Print(CommandLine line)
+		{
+			Print(line.IsError ? string.Format(ERROR, line.Text) : line.Text);
 		}
 
 		private void Print(string line)

@@ -89,6 +89,37 @@ namespace Tekly.DevBoard.Commands
 		}
 
 		/// <summary>
+		/// The line split into its commands on each ';' outside quotes, as the text between them, untrimmed, and
+		/// where it is in line. A line with no ';' is one step. Blank steps are kept, so callers can skip them.
+		/// </summary>
+		public static List<Word> SplitSteps(string line)
+		{
+			var steps = new List<Word>();
+			var quoted = false;
+			var start = 0;
+
+			for (var i = 0; i < line.Length; i++) {
+				var c = line[i];
+
+				if (quoted) {
+					if (c == '\\' && i + 1 < line.Length && line[i + 1] == '"') {
+						i++;
+					} else if (c == '"') {
+						quoted = false;
+					}
+				} else if (c == '"') {
+					quoted = true;
+				} else if (c == ';') {
+					steps.Add(new Word(line.Substring(start, i - start), start, i));
+					start = i + 1;
+				}
+			}
+
+			steps.Add(new Word(line.Substring(start), start, line.Length));
+			return steps;
+		}
+
+		/// <summary>
 		/// A value as typed for a word: quoted when it holds spaces or quotes.
 		/// </summary>
 		public static string Quote(string value)

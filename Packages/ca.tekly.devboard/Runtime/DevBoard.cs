@@ -167,9 +167,10 @@ namespace Tekly.DevBoard
 		/// <code>
 		/// DevBoard.Command("give gold", (int amount) => m_wallet.Add(amount), "Adds gold", owner: this);
 		/// </code>
-		/// The return value is shown as the result. A method group keeps its optional parameters' defaults; a
-		/// lambda can't have any. See DevCommandAttribute for static methods, CommandsFrom for a whole object's worth
-		/// of [DevCommand] instance methods, and either for how arguments are typed.
+		/// The return value is shown as the result; a Task, Awaitable or coroutine is waited on first, so an async
+		/// lambda works. A method group keeps its optional parameters' defaults; a lambda can't have any. See
+		/// DevCommandAttribute for static methods, CommandsFrom for a whole object's worth of [DevCommand] instance
+		/// methods, and either for how arguments are typed.
 		///
 		/// suggest, when given, gives the values the console suggests as each argument is typed: it gets a
 		/// parameter's name and returns its values, or null for none (enums and bools are suggested anyway):

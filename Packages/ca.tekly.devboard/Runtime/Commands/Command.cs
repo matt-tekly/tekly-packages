@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Tekly.DevBoard.Commands
@@ -59,6 +61,21 @@ namespace Tekly.DevBoard.Commands
 				Debug.LogException(exception);
 				return null;
 			}
+		}
+
+		/// <summary>
+		/// How the parameter is shown in a usage hint: "&lt;amount:int&gt;", or when optional "[count=1]", whose
+		/// default shows the type, or just "[filter]" when the default is empty.
+		/// </summary>
+		public override string ToString()
+		{
+			if (!IsOptional) {
+				return $"<{Name}:{CommandArguments.TypeName(Type)}>";
+			}
+
+			return DefaultValue == null || DefaultValue is string { Length: 0 }
+				? $"[{Name}]"
+				: $"[{Name}={CommandArguments.Format(DefaultValue)}]";
 		}
 
 		internal void SetSuggestions(Func<IEnumerable<string>> values)
@@ -124,21 +141,6 @@ namespace Tekly.DevBoard.Commands
 				}
 			}
 		}
-
-		/// <summary>
-		/// How the parameter is shown in a usage hint: "&lt;amount:int&gt;", or when optional "[count=1]", whose
-		/// default shows the type, or just "[filter]" when the default is empty.
-		/// </summary>
-		public override string ToString()
-		{
-			if (!IsOptional) {
-				return $"<{Name}:{CommandArguments.TypeName(Type)}>";
-			}
-
-			return DefaultValue == null || DefaultValue is string { Length: 0 }
-				? $"[{Name}]"
-				: $"[{Name}={CommandArguments.Format(DefaultValue)}]";
-		}
 	}
 
 	/// <summary>
@@ -176,9 +178,66 @@ namespace Tekly.DevBoard.Commands
 		/// </summary>
 		public bool HasRequiredParameters { get; }
 
+		/// <summary>
+		/// True when the method returns something to wait on: a Task, an Awaitable or an IEnumerator coroutine.
+		/// The result is what it produces, once it's done.
+		/// </summary>
+		public bool IsAsync => m_awaiter != null;
+
+		/// <summary>
+		/// True once disposed, and so removed from its registry.
+		/// </summary>
 		public bool IsDisposed { get; private set; }
 
 		internal string[] Words { get; }
+
+		private readonly CommandRegistry m_registry;
+		private readonly MethodInfo m_method;
+		private readonly object m_target;
+
+		// Where the CommandContext goes in the method's arguments, or -1
+		private readonly int m_contextIndex = -1;
+		private readonly int m_argumentCount;
+
+		// Waits on what the method returns and gives back its value. Null when the return value is the result
+		private readonly Func<object, CancellationToken, Task<object>> m_awaiter;
+
+		internal Command(CommandRegistry registry, string name, string description, MethodInfo method, object target)
+		{
+			m_registry = registry;
+			m_method = method;
+			m_target = target;
+			m_awaiter = AwaiterFor(method.ReturnType);
+
+			Words = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+			Name = string.Join(" ", Words);
+			Description = string.IsNullOrEmpty(description) ? null : description;
+
+			var parameters = new List<CommandParameter>();
+			var methodParameters = method.GetParameters();
+			m_argumentCount = methodParameters.Length;
+
+			for (var i = 0; i < methodParameters.Length; i++) {
+				if (methodParameters[i].ParameterType == typeof(CommandContext)) {
+					m_contextIndex = i;
+					continue;
+				}
+
+				var parameter = new CommandParameter(methodParameters[i], target);
+				parameters.Add(parameter);
+				HasRequiredParameters |= !parameter.IsOptional;
+			}
+
+			Parameters = parameters;
+
+			var usage = new StringBuilder(Name);
+
+			foreach (var parameter in parameters) {
+				usage.Append(' ').Append(parameter);
+			}
+
+			Usage = usage.ToString();
+		}
 
 		/// <summary>
 		/// Sets the values the console suggests for the parameter named parameter, replacing any from [Suggest]
@@ -215,50 +274,6 @@ namespace Tekly.DevBoard.Commands
 			return last.Type == typeof(string) ? last : null;
 		}
 
-		private readonly CommandRegistry m_registry;
-		private readonly MethodInfo m_method;
-		private readonly object m_target;
-
-		// Where the CommandContext goes in the method's arguments, or -1
-		private readonly int m_contextIndex = -1;
-		private readonly int m_argumentCount;
-
-		internal Command(CommandRegistry registry, string name, string description, MethodInfo method, object target)
-		{
-			m_registry = registry;
-			m_method = method;
-			m_target = target;
-
-			Words = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-			Name = string.Join(" ", Words);
-			Description = string.IsNullOrEmpty(description) ? null : description;
-
-			var parameters = new List<CommandParameter>();
-			var methodParameters = method.GetParameters();
-			m_argumentCount = methodParameters.Length;
-
-			for (var i = 0; i < methodParameters.Length; i++) {
-				if (methodParameters[i].ParameterType == typeof(CommandContext)) {
-					m_contextIndex = i;
-					continue;
-				}
-
-				var parameter = new CommandParameter(methodParameters[i], target);
-				parameters.Add(parameter);
-				HasRequiredParameters |= !parameter.IsOptional;
-			}
-
-			Parameters = parameters;
-
-			var usage = new StringBuilder(Name);
-
-			foreach (var parameter in parameters) {
-				usage.Append(' ').Append(parameter);
-			}
-
-			Usage = usage.ToString();
-		}
-
 		public void Dispose()
 		{
 			if (IsDisposed) {
@@ -270,9 +285,11 @@ namespace Tekly.DevBoard.Commands
 		}
 
 		/// <summary>
-		/// Calls the method with the converted arguments, one per Parameter, in order.
+		/// Calls the method with the converted arguments, one per Parameter, in order, and waits on what it returns
+		/// when that's a Task, Awaitable or coroutine. The task holds the value to show as the result, or null.
+		/// Exceptions from the method, now or later, fault the task.
 		/// </summary>
-		internal object Invoke(object[] arguments, CommandContext context)
+		internal Task<object> InvokeAsync(object[] arguments, CommandContext context)
 		{
 			var all = new object[m_argumentCount];
 
@@ -280,7 +297,70 @@ namespace Tekly.DevBoard.Commands
 				all[i] = i == m_contextIndex ? context : arguments[next++];
 			}
 
-			return m_method.Invoke(m_target, all);
+			object value;
+
+			try {
+				value = m_method.Invoke(m_target, all);
+			} catch (TargetInvocationException exception) {
+				return Task.FromException<object>(exception.InnerException ?? exception);
+			}
+
+			if (m_awaiter == null || value == null) {
+				return Task.FromResult(value);
+			}
+
+			return m_awaiter(value, context.CancellationToken);
+		}
+
+		/// <summary>
+		/// How to wait on a value of returnType, or null when it's shown as it is.
+		/// </summary>
+		private static Func<object, CancellationToken, Task<object>> AwaiterFor(Type returnType)
+		{
+			if (returnType == typeof(Task)) {
+				return async (value, _) => {
+					await (Task) value;
+					return null;
+				};
+			}
+
+			if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>)) {
+				var result = returnType.GetProperty(nameof(Task<object>.Result));
+
+				return async (value, _) => {
+					await (Task) value;
+					return result.GetValue(value);
+				};
+			}
+
+			if (returnType == typeof(Awaitable)) {
+				return async (value, _) => {
+					await (Awaitable) value;
+					return null;
+				};
+			}
+
+			if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Awaitable<>)) {
+				var awaitTyped = typeof(Command)
+					.GetMethod(nameof(AwaitAwaitable), BindingFlags.Static | BindingFlags.NonPublic)
+					.MakeGenericMethod(returnType.GetGenericArguments());
+
+				return (value, _) => (Task<object>) awaitTyped.Invoke(null, new[] { value });
+			}
+
+			if (typeof(IEnumerator).IsAssignableFrom(returnType)) {
+				return async (value, cancellationToken) => {
+					await CommandCoroutines.Run((IEnumerator) value, cancellationToken);
+					return null;
+				};
+			}
+
+			return null;
+		}
+
+		private static async Task<object> AwaitAwaitable<T>(Awaitable<T> awaitable)
+		{
+			return await awaitable;
 		}
 	}
 }

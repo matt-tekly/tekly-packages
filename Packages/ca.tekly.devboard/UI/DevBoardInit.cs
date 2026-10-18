@@ -37,6 +37,8 @@ namespace Tekly.DevBoard
 
 		private void Awake()
 		{
+			Debug.Log($"[DevBoard] DevBoardInit awake. Toggle Key [{m_toggleKey}]");
+			
 			var devBoard = DevBoardUI.Instance;
 			devBoard.ToggleKey = m_toggleKey;
 			devBoard.ToggleTouchCount = m_toggleTouchCount;

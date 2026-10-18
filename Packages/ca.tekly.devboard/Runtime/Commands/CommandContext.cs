@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Tekly.DevBoard.Commands
 {
@@ -18,14 +20,21 @@ namespace Tekly.DevBoard.Commands
 	}
 
 	/// <summary>
-	/// Handed to a command that takes one as a parameter, for output beyond its return value.
+	/// Handed to a command that takes one as a parameter, for output beyond its return value, and for knowing when
+	/// a long-running command has been cancelled.
 	/// </summary>
 	public sealed class CommandContext
 	{
 		/// <summary>
-		/// The line that ran the command, as typed.
+		/// The line that ran the command, as typed. For one step of a "a; b" line, just that step.
 		/// </summary>
 		public string Line { get; }
+
+		/// <summary>
+		/// Cancelled when whoever ran the command wants it stopped, e.g. Escape in the console. An async command
+		/// checks it between steps or passes it on; what's already happened stays done.
+		/// </summary>
+		public CancellationToken CancellationToken { get; }
 
 		internal List<CommandLine> Output { get; } = new();
 
@@ -34,20 +43,31 @@ namespace Tekly.DevBoard.Commands
 		/// </summary>
 		public bool Failed { get; private set; }
 
-		internal CommandContext(string line)
+		// Told about each line as it's written, so a console can show an async command's output as it happens
+		private readonly Action<CommandLine> m_written;
+
+		internal CommandContext(string line, Action<CommandLine> written = null, CancellationToken cancellationToken = default)
 		{
 			Line = line;
+			CancellationToken = cancellationToken;
+			m_written = written;
 		}
 
 		public void Log(string text)
 		{
-			Output.Add(new CommandLine(text, false));
+			Write(new CommandLine(text, false));
 		}
 
 		public void Error(string text)
 		{
 			Failed = true;
-			Output.Add(new CommandLine(text, true));
+			Write(new CommandLine(text, true));
+		}
+
+		private void Write(CommandLine line)
+		{
+			Output.Add(line);
+			m_written?.Invoke(line);
 		}
 	}
 

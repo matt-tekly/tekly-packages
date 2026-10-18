@@ -48,6 +48,15 @@ namespace Tekly.DevBoard.Commands
 		}
 
 		/// <summary>
+		/// The same suggestion for a line that starts offset characters earlier, e.g. the whole line when this was
+		/// made for one step of it.
+		/// </summary>
+		internal CommandSuggestion Shifted(int offset)
+		{
+			return new CommandSuggestion(Text, Label, Detail, Start + offset, Length, Continues, Description);
+		}
+
+		/// <summary>
 		/// line with this suggestion in it, and where the caret goes after it.
 		/// </summary>
 		public string Apply(string line, out int caret)

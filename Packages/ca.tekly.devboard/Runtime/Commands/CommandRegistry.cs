@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Tekly.DevBoard.Commands
@@ -12,6 +14,8 @@ namespace Tekly.DevBoard.Commands
 	///
 	/// A line is a command's name followed by its arguments, separated by spaces: "give gold 100". The command
 	/// with the most of its words at the start of the line wins, so "spawn" and "spawn enemy" can both exist.
+	/// Several commands run in order when separated by ';', each once the one before is done, stopping at the
+	/// first that fails: "scene load Arena; time scale 1".
 	/// </summary>
 	public sealed class CommandRegistry
 	{
@@ -139,49 +143,138 @@ namespace Tekly.DevBoard.Commands
 		}
 
 		/// <summary>
-		/// Runs line: finds its command, converts the arguments, and calls it. Never throws: unknown commands, bad
-		/// arguments and exceptions from the command come back as a failed result.
+		/// Runs line: each ';'-separated command in turn, finding it, converting its arguments and calling it, and
+		/// waiting for it when it's async. Stops at the first that fails. Each line of output goes to output as
+		/// it's written, when given, and they're all in the result too. Synchronous commands finish before this
+		/// returns. Never throws: unknown commands, bad arguments, exceptions and cancellation come back as a failed
+		/// result.
 		/// </summary>
-		public CommandResult Run(string line)
+		public async Task<CommandResult> RunAsync(string line, Action<CommandLine> output = null, CancellationToken cancellationToken = default)
 		{
 			line = line?.Trim() ?? string.Empty;
 
-			if (!TryMatch(line, out var command, out var words)) {
-				return CommandResult.Fail(line, $"No command matches '{line}'");
+			var all = new List<CommandLine>();
+			var steps = CommandArguments.SplitSteps(line);
+			var succeeded = true;
+
+			void Write(CommandLine written)
+			{
+				all.Add(written);
+				output?.Invoke(written);
+			}
+
+			for (var i = 0; i < steps.Count; i++) {
+				var step = steps[i].Text.Trim();
+
+				// A blank step is nothing to run, except when the whole line is blank: that's reported
+				if (step.Length == 0 && steps.Count > 1) {
+					continue;
+				}
+
+				if (await RunStepAsync(step, Write, cancellationToken)) {
+					continue;
+				}
+
+				succeeded = false;
+				var remaining = CountRemaining(steps, i + 1);
+
+				if (remaining > 0) {
+					Write(new CommandLine($"Stopped: {remaining} more {(remaining == 1 ? "command" : "commands")} not run", true));
+				}
+
+				break;
+			}
+
+			return new CommandResult(line, succeeded, all);
+		}
+
+		/// <summary>
+		/// Runs one command and waits for it. True when it succeeded.
+		/// </summary>
+		private async Task<bool> RunStepAsync(string step, Action<CommandLine> output, CancellationToken cancellationToken)
+		{
+			if (!TryMatch(step, out var command, out var words)) {
+				output(new CommandLine($"No command matches '{step}'", true));
+				return false;
 			}
 
 			if (!TryConvert(command, words, out var arguments, out var error)) {
-				return CommandResult.Fail(line, $"{error}. Usage: {command.Usage}");
+				output(new CommandLine($"{error}. Usage: {command.Usage}", true));
+				return false;
 			}
 
-			var context = new CommandContext(line);
+			var context = new CommandContext(step, output, cancellationToken);
 
 			try {
-				var value = command.Invoke(arguments, context);
+				var value = await command.InvokeAsync(arguments, context);
 
 				if (value != null) {
-					context.Output.Add(new CommandLine(value.ToString(), false));
+					context.Log(value.ToString());
 				}
-			} catch (TargetInvocationException exception) {
-				var inner = exception.InnerException ?? exception;
-				Debug.LogException(inner);
-				context.Error($"{inner.GetType().Name}: {inner.Message}");
+			} catch (OperationCanceledException) {
+				context.Error($"'{command.Name}' was cancelled");
 			} catch (Exception exception) {
+				Debug.LogException(exception);
 				context.Error($"{exception.GetType().Name}: {exception.Message}");
 			}
 
-			return new CommandResult(line, !context.Failed, context.Output);
+			return !context.Failed;
+		}
+
+		private static int CountRemaining(List<Word> steps, int from)
+		{
+			var count = 0;
+
+			for (var i = from; i < steps.Count; i++) {
+				if (steps[i].Text.Trim().Length > 0) {
+					count++;
+				}
+			}
+
+			return count;
 		}
 
 		/// <summary>
 		/// What to offer for line as it's typed, with the caret at caret: commands whose names start with what's
 		/// typed (word by word, so "inv re" offers "inventory remove"), and once a name is complete, values for the
-		/// argument at the caret, from the parameter's suggestions. Also checks the arguments typed so far.
+		/// argument at the caret, from the parameter's suggestions. Also checks the arguments typed so far. In a
+		/// line of several ';'-separated commands, it's all about the one the caret is in.
 		/// </summary>
 		public CommandCompletion Complete(string line, int caret)
 		{
 			line ??= string.Empty;
 			caret = Mathf.Clamp(caret, 0, line.Length);
+
+			var steps = CommandArguments.SplitSteps(line);
+
+			if (steps.Count == 1) {
+				return CompleteStep(line, caret);
+			}
+
+			// The step the caret is in: the last one starting at or before it
+			var step = steps[0];
+
+			foreach (var candidate in steps) {
+				if (candidate.Start <= caret) {
+					step = candidate;
+				}
+			}
+
+			var completion = CompleteStep(step.Text, caret - step.Start);
+			var shifted = new List<CommandSuggestion>(completion.Suggestions.Count);
+
+			foreach (var suggestion in completion.Suggestions) {
+				shifted.Add(suggestion.Shifted(step.Start));
+			}
+
+			return new CommandCompletion(shifted, completion.Command, completion.Error, completion.ArgumentIndex);
+		}
+
+		/// <summary>
+		/// Complete for a line holding one command.
+		/// </summary>
+		private CommandCompletion CompleteStep(string line, int caret)
+		{
 
 			var words = CommandArguments.SplitWords(line.Substring(0, caret), out var open);
 
