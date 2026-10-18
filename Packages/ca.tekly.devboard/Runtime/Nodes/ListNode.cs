@@ -114,6 +114,11 @@ namespace Tekly.DevBoard.Nodes
 
 		internal override string DefaultId => "list";
 
+		/// <summary>
+		/// Always a level: each panel saves its search by its path, and its rows are ids under it.
+		/// </summary>
+		internal override bool AddsPathLevel => true;
+
 		// Set through the With extensions in ListNodeSettings, which keep the caller's list type for chaining
 
 		internal void SetMaxResults(int maxResults)

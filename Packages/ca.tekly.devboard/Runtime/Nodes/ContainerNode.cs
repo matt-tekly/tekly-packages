@@ -11,14 +11,16 @@ namespace Tekly.DevBoard.Nodes
 	/// </summary>
 	public enum ContainerKind
 	{
-		/// A plain vertical group with no background
+		/// A plain vertical group with no background. Its controls line up their labels with the rest of the
+		/// segment's
 		Column,
 
 		/// A group with a background, vertical unless its Layout.Axis says otherwise. Its controls line up their
 		/// labels with each other, not the rest of the segment
 		Card,
 
-		/// Side by side
+		/// Side by side. Its controls' labels are only as wide as they need to be, not the segment's label column;
+		/// WithWidthGroupScope(false) joins the column
 		Row
 	}
 
@@ -43,6 +45,9 @@ namespace Tekly.DevBoard.Nodes
 		public event Action<ContainerNode> ChildrenChanged;
 
 		private readonly List<Node> m_children = new();
+
+		// The ids taken at this container's path level, when it is one: those of every node under it that isn't
+		// under another level first. Unused on a container that adds no level, see IdScope
 		private readonly HashSet<string> m_ids = new();
 
 		private int m_changeDepth;
@@ -51,6 +56,10 @@ namespace Tekly.DevBoard.Nodes
 		public ContainerNode(ContainerKind kind = ContainerKind.Column, string label = null) : base(label)
 		{
 			Kind = kind;
+
+			// A card is visibly a box of its own, and a row's labels rarely want the width of a column of controls
+			// above and below it, so both keep their width groups to themselves. A column flows with the segment
+			Layout.WidthGroupScope = kind != ContainerKind.Column;
 		}
 
 		/// <summary>
@@ -120,15 +129,16 @@ namespace Tekly.DevBoard.Nodes
 		}
 
 		/// <summary>
-		/// Nodes inside with WithWidthGroup share widths here instead of with the rest of the nearest scope above:
-		/// the segment, a card, a tab, or another container with WithWidthGroupScope. Controls' labels are in a width group,
-		/// so this also keeps them out of the segment's label column, e.g. side by side columns of properties, or a
-		/// row whose input label should only be as wide as its text.
+		/// Whether nodes inside with WithWidthGroup share widths here instead of with the rest of the nearest scope
+		/// above: the segment, a card, a tab, or another container with a scope. Controls' labels are in a width
+		/// group, so a scope also keeps them out of the segment's label column, e.g. side by side columns of
+		/// properties. Cards and rows are scopes unless told otherwise; columns aren't, so a column of controls lines
+		/// up with the segment. Pass false for a row whose labels should join the segment's column.
 		/// </summary>
-		public ContainerNode WithWidthGroupScope()
+		public ContainerNode WithWidthGroupScope(bool scoped = true)
 		{
 			EnsureEditable();
-			Layout.WidthGroupScope = true;
+			Layout.WidthGroupScope = scoped;
 			return this;
 		}
 
@@ -136,6 +146,12 @@ namespace Tekly.DevBoard.Nodes
 		/// Whether children can be added right now, after the container is frozen. Scopes allow it while building.
 		/// </summary>
 		protected virtual bool CanAddChildren => !IsFrozen;
+
+		/// <summary>
+		/// A plain container is anonymous layout unless it's labelled or given an id. Kinds with identity of their
+		/// own, like foldouts and lists, say so themselves.
+		/// </summary>
+		internal override bool AddsPathLevel => Label != null || RequestedId != null;
 
 		/// <summary>
 		/// Called by the panels showing this container as they refresh, at most once a frame. Lists and dynamic
@@ -199,10 +215,7 @@ namespace Tekly.DevBoard.Nodes
 			}
 
 			m_children.RemoveAt(index);
-
-			if (child.Id != null) {
-				m_ids.Remove(child.Id);
-			}
+			ReleaseIds(child);
 
 			child.DisposeTree();
 			MarkChanged();
@@ -219,9 +232,9 @@ namespace Tekly.DevBoard.Nodes
 
 			var children = m_children.ToArray();
 			m_children.Clear();
-			m_ids.Clear();
 
 			foreach (var child in children) {
+				ReleaseIds(child);
 				child.DisposeTree();
 			}
 
@@ -254,12 +267,26 @@ namespace Tekly.DevBoard.Nodes
 		internal override string DefaultId => Kind.ToString().ToLowerInvariant();
 
 		/// <summary>
-		/// Gives every child without an id one: its requested id, label or kind as a slug, made unique among its
-		/// siblings.
+		/// Gives every node at this container's path level without an id one: its requested id, label or kind as a
+		/// slug, made unique at that level. Anonymous layout is walked through in tree order, so ids read top to
+		/// bottom; what's inside a child that is a level of its own is that child's to assign.
 		/// </summary>
 		internal void AssignIds()
 		{
+			AssignIds(IdScope().m_ids);
+		}
+
+		private void AssignIds(HashSet<string> ids)
+		{
 			foreach (var child in m_children) {
+				if (!child.AddsPathLevel) {
+					if (child is ContainerNode layout) {
+						layout.AssignIds(ids);
+					}
+
+					continue;
+				}
+
 				if (child.Id != null) {
 					continue;
 				}
@@ -267,12 +294,44 @@ namespace Tekly.DevBoard.Nodes
 				var baseId = NodePaths.Slug(child.RequestedId) ?? NodePaths.Slug(child.Label) ?? child.DefaultId;
 				var id = baseId;
 
-				for (var number = 2; m_ids.Contains(id); number++) {
+				for (var number = 2; ids.Contains(id); number++) {
 					id = $"{baseId}-{number}";
 				}
 
 				child.Id = id;
-				m_ids.Add(id);
+				ids.Add(id);
+			}
+		}
+
+		/// <summary>
+		/// The container whose path level this container's children are at: the nearest one from here up that adds
+		/// a level, or the root of the tree.
+		/// </summary>
+		private ContainerNode IdScope()
+		{
+			var scope = this;
+
+			while (!scope.AddsPathLevel && scope.Parent != null) {
+				scope = scope.Parent;
+			}
+
+			return scope;
+		}
+
+		/// <summary>
+		/// Frees the ids a removed child took at this level: its own, and through anonymous layout, its children's.
+		/// </summary>
+		private void ReleaseIds(Node child)
+		{
+			if (child.Id != null) {
+				IdScope().m_ids.Remove(child.Id);
+				return;
+			}
+
+			if (child is ContainerNode { AddsPathLevel: false } layout) {
+				foreach (var grandchild in layout.m_children) {
+					ReleaseIds(grandchild);
+				}
 			}
 		}
 
@@ -322,6 +381,7 @@ namespace Tekly.DevBoard.Nodes
 
 		/// <summary>
 		/// Whether nodes inside share their width groups here, see <see cref="ContainerNode.WithWidthGroupScope"/>.
+		/// On for cards and rows by default.
 		/// </summary>
 		public bool WidthGroupScope { get; internal set; }
 	}

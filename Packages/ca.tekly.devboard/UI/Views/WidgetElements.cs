@@ -181,7 +181,7 @@ namespace Tekly.DevBoard.Views
 				var frame = ContainerWidget.CreatePlain(widget.Content, "Rows");
 				frame.WithMaxHeight(maxHeight);
 
-				m_scroll = frame.ScrollView().WithoutSavedState();
+				m_scroll = frame.ScrollView();
 
 				// Rows are a vertical list whatever the scroll view prefab's content is set up as
 				m_scroll.WithAxis(Common.Utils.LayoutAxis.Vertical)
@@ -250,7 +250,7 @@ namespace Tekly.DevBoard.Views
 			var frame = ContainerWidget.CreatePlain(widget.Content, "Rows");
 			frame.WithMaxHeight(m_viewHeight);
 
-			m_scroll = frame.ScrollView().WithoutSavedState();
+			m_scroll = frame.ScrollView();
 
 			// The spacers and rows are placed by the scroll view's layout, so it owns the spacing and no padding
 			m_scroll.WithAxis(Common.Utils.LayoutAxis.Vertical)

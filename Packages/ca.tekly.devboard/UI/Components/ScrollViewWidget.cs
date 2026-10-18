@@ -5,9 +5,8 @@ using UnityEngine.UI;
 namespace Tekly.DevBoard.Components
 {
 	/// <summary>
-	/// A scrolling container that remembers where it was scrolled to. The position is saved in DevBoard.State
-	/// when the scroll view is hidden or destroyed, and restored after a rebuild once the content has grown back
-	/// to the size it was when saved (or after a short timeout).
+	/// A scrolling container. Its owner can capture where it's scrolled to and restore that later: the position is
+	/// put back once the content has grown back to the size it was when captured (or after a short timeout).
 	/// </summary>
 	public class ScrollViewWidget : ContainerWidget, IBeginDragHandler, IScrollHandler, ICanvasElement
 	{
@@ -31,13 +30,10 @@ namespace Tekly.DevBoard.Components
 		/// </summary>
 		internal float ViewportHeight => (m_scrollRect.viewport != null ? m_scrollRect.viewport : (RectTransform) m_scrollRect.transform).rect.height;
 
-		private const string DEFAULT_STATE_KEY = "scroll";
 		private const float RESTORE_TIMEOUT = 1f;
 
 		[SerializeField] private ScrollRect m_scrollRect;
 
-		private string m_stateKey;
-		private bool m_saveState = true;
 		private bool m_restorePending;
 		private ScrollState m_pendingState;
 		private float m_restoreDeadline;
@@ -46,23 +42,6 @@ namespace Tekly.DevBoard.Components
 		private Scrollbar m_frozenVertical;
 
 		private static readonly Vector3[] s_corners = new Vector3[4];
-		/// <summary>
-		/// Saves the scroll position under key instead of the default. Use it when one container holds two scroll views.
-		/// </summary>
-		public ScrollViewWidget WithStateKey(string key)
-		{
-			m_stateKey = WidgetState.KeyFor(this, key);
-			return this;
-		}
-
-		/// <summary>
-		/// Turns off saving the position in DevBoard.State, for scroll views whose owner tracks the position itself.
-		/// </summary>
-		public ScrollViewWidget WithoutSavedState()
-		{
-			m_saveState = false;
-			return this;
-		}
 
 		/// <summary>
 		/// Holds the scrollbars as they are, e.g. while the scroll view's container eases to a new size and the
@@ -123,24 +102,6 @@ namespace Tekly.DevBoard.Components
 		{
 			if (m_scrollRect == null) {
 				m_scrollRect = GetComponent<ScrollRect>();
-			}
-		}
-
-		private void Start()
-		{
-			if (!m_saveState) {
-				return;
-			}
-
-			// Start runs after the code building the board, so the key reflects where the scroll view ended up
-			m_stateKey ??= WidgetState.KeyFor(this, DEFAULT_STATE_KEY);
-
-			var state = DevBoard.Instance?.State;
-
-			if (state != null && state.TryGet(m_stateKey, out ScrollState saved)) {
-				m_pendingState = saved;
-				m_restorePending = true;
-				m_restoreDeadline = Time.realtimeSinceStartup + RESTORE_TIMEOUT;
 			}
 		}
 
@@ -327,16 +288,6 @@ namespace Tekly.DevBoard.Components
 			return 0f;
 		}
 
-		protected override void OnDisable()
-		{
-			base.OnDisable();
-
-			// If the restore never happened, keep the earlier saved position rather than saving the unrestored one
-			if (m_saveState && !m_restorePending) {
-				Save();
-			}
-		}
-
 		public void OnBeginDrag(PointerEventData eventData)
 		{
 			// The user is scrolling, so don't jump them somewhere else
@@ -346,22 +297,6 @@ namespace Tekly.DevBoard.Components
 		public void OnScroll(PointerEventData eventData)
 		{
 			m_restorePending = false;
-		}
-
-		private void Save()
-		{
-			var state = DevBoard.Instance?.State;
-
-			if (state == null || m_stateKey == null || m_scrollRect == null) {
-				return;
-			}
-
-			var content = m_scrollRect.content;
-
-			state.Set(m_stateKey, new ScrollState {
-				Position = content.anchoredPosition,
-				ContentSize = content.rect.size
-			});
 		}
 
 		internal struct ScrollState

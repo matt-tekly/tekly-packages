@@ -93,7 +93,6 @@ namespace Tekly.DevBoard.Components
 			m_optionPrefab = optionPrefab;
 			m_filter = filter;
 
-			m_list.WithoutSavedState();
 			m_scrollRect = m_list.GetComponent<ScrollRect>();
 			m_viewport = (RectTransform) m_list.Content.parent;
 			m_contentLayout = m_list.Content.GetComponent<FlowLayout>();

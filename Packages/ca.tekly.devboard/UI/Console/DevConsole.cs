@@ -289,7 +289,7 @@ namespace Tekly.DevBoard.Console
 				background.RoundedCorners = RectCorners.Top;
 			}
 
-			m_scroll = m_root.Scroll.WithoutSavedState();
+			m_scroll = m_root.Scroll;
 			m_outputField = m_root.Output;
 			m_hint = m_root.Hint;
 			m_hint.Monospaced = true;

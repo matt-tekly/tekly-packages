@@ -39,9 +39,6 @@ namespace Tekly.DevBoard.Panels
 			m_openPage = openPage;
 			m_currentPageRemoved = currentPageRemoved;
 
-			// The host remembers scroll positions per page itself
-			m_body.WithoutSavedState();
-
 			m_tree.SegmentAdded += OnSegmentAdded;
 			m_tree.SegmentRemoved += OnSegmentRemoved;
 			m_tree.PageRemoved += OnPageRemoved;
@@ -156,7 +153,6 @@ namespace Tekly.DevBoard.Panels
 
 			var root = ContainerWidget.CreatePlain(m_body.Content, page.IsRoot ? "Page (root)" : $"Page {page.Path}", 8);
 			root.WithFlexibleWidth();
-			root.StateScope = page.Path;
 
 			var links = ContainerWidget.CreatePlain(root.Content, "Links");
 

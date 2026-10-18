@@ -19,6 +19,11 @@ namespace Tekly.DevBoard.Nodes
 
 		public override string Path => m_path ??= string.IsNullOrEmpty(Source.Path) ? Id : $"{NodePaths.SlugPath(Source.Path)}/{Id}";
 
+		/// <summary>
+		/// Always a level, titled or not: a page's segments are told apart by it.
+		/// </summary>
+		internal override bool AddsPathLevel => true;
+
 		private readonly Action<Segment> m_build;
 		private string m_path;
 

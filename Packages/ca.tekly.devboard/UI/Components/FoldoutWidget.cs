@@ -3,8 +3,8 @@
 namespace Tekly.DevBoard.Components
 {
 	/// <summary>
-	/// A container that opens and closes. Whether it's open is saved in DevBoard.State under its label (or the key
-	/// set with WithStateKey), so a rebuilt foldout reopens the way the user left it.
+	/// A container that opens and closes. With a state key, whether it's open is saved in DevBoard.State so a
+	/// rebuilt foldout reopens the way the user left it; the renderer gives a foldout node's widget its key.
 	/// </summary>
 	public class FoldoutWidget : ContainerWidget
 	{
@@ -37,16 +37,20 @@ namespace Tekly.DevBoard.Components
 		public void Initialize(string label)
 		{
 			m_button.Label = label;
-			UseStateKey(label);
 		}
 
 		/// <summary>
-		/// Saves state under key instead of the label. Use it when two foldouts in the same container share a label.
-		/// Call it before adding widgets to the foldout, since their keys are scoped under this one.
+		/// Saves whether the foldout is open in DevBoard.State under key, and opens or closes it to match what's
+		/// saved. Without one the foldout forgets its state when it's destroyed.
 		/// </summary>
 		public FoldoutWidget WithStateKey(string key)
 		{
-			UseStateKey(key);
+			m_stateKey = key;
+
+			if (TryGetSavedExpanded(out var expanded)) {
+				ShowExpanded(expanded);
+			}
+
 			return this;
 		}
 
@@ -87,26 +91,6 @@ namespace Tekly.DevBoard.Components
 			if (m_collapsedIcon != null) {
 				m_collapsedIcon.SetActive(!expanded);
 			}
-		}
-
-		/// <summary>
-		/// Saves state under exactly key, rather than a key built from where the foldout is. For views that know
-		/// their own keys, like rendered nodes.
-		/// </summary>
-		internal void UseFullStateKey(string key)
-		{
-			m_stateKey = key;
-
-			if (TryGetSavedExpanded(out var expanded)) {
-				ShowExpanded(expanded);
-			}
-		}
-
-		private void UseStateKey(string key)
-		{
-			// Widgets inside this foldout get their state keys scoped under it
-			StateScope = key;
-			UseFullStateKey(WidgetState.KeyFor(this, key));
 		}
 
 		private bool TryGetSavedExpanded(out bool expanded)

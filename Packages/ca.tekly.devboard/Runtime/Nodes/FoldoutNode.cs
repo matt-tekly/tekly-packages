@@ -16,6 +16,11 @@ namespace Tekly.DevBoard.Nodes
 
 		internal override string DefaultId => "foldout";
 
+		/// <summary>
+		/// Always a level: each panel saves whether it's open by its path.
+		/// </summary>
+		internal override bool AddsPathLevel => true;
+
 		public FoldoutNode WithStartExpanded(bool expanded = true)
 		{
 			EnsureEditable();

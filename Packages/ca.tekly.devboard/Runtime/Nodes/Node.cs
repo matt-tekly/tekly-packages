@@ -29,15 +29,20 @@ namespace Tekly.DevBoard.Nodes
 		public ContainerNode Parent { get; internal set; }
 
 		/// <summary>
-		/// A slug unique among the node's siblings, see <see cref="NodePaths"/>. Assigned once its builder finishes:
-		/// the id set with WithId, or the label, or the kind of node, with "-2", "-3" and so on added when siblings
-		/// would otherwise share it.
+		/// A slug, see <see cref="NodePaths"/>, unique among the nodes that share the node's path level: those under
+		/// the same identity node (see <see cref="AddsPathLevel"/>) once anonymous layout is looked through. Assigned
+		/// once its builder finishes: the id set with WithId, or the label, or the kind of node, with "-2", "-3" and
+		/// so on added when two would otherwise share it. Null for a node that adds no path level.
 		/// </summary>
 		public string Id { get; internal set; }
 
 		/// <summary>
-		/// Where the node is: the page path, the segment, then the id of each node down to this one, all as slugs,
-		/// e.g. "game/economy/cheats/give-gold". Saved view state like foldouts is keyed by it.
+		/// Where the node is: the page path, the segment, then the id of each identity node down to this one, all as
+		/// slugs, e.g. "game/economy/cheats/give-gold". Saved view state like foldouts is keyed by it.
+		///
+		/// Anonymous layout isn't part of it: a column, row or card with no label or id, or a plain scope, adds no
+		/// level, so moving controls between such containers doesn't change their paths. A container with a label or
+		/// WithId is a level, and so are foldouts, tabs, lists and list rows.
 		/// </summary>
 		public virtual string Path {
 			get {
@@ -45,15 +50,16 @@ namespace Tekly.DevBoard.Nodes
 					return m_path;
 				}
 
-				// Null until this node and every one above it has its id: a nested scope's children are frozen
-				// before the builder around the scope finishes and gives the scope its id
-				if (Id == null) {
-					return null;
-				}
-
 				string path;
 
-				if (Parent == null) {
+				if (!AddsPathLevel) {
+					// Looked through: the path is the parent's
+					path = Parent?.Path;
+				} else if (Id == null) {
+					// Null until this node and every one above it has its id: a nested scope's children are frozen
+					// before the builder around the scope finishes and gives the scope its id
+					return null;
+				} else if (Parent == null) {
 					path = Id;
 				} else {
 					var parentPath = Parent.Path;
@@ -65,7 +71,7 @@ namespace Tekly.DevBoard.Nodes
 					path = $"{parentPath}/{Id}";
 				}
 
-				if (IsFrozen) {
+				if (IsFrozen && path != null) {
 					m_path = path;
 				}
 
@@ -128,6 +134,13 @@ namespace Tekly.DevBoard.Nodes
 		public bool IsFrozen { get; private set; }
 
 		internal string RequestedId { get; private set; }
+
+		/// <summary>
+		/// Whether the node is a level in paths: it has an id of its own, and its children's paths go through it.
+		/// Controls always are. Containers are when they have a label or a requested id, or are a kind with state or
+		/// identity of their own, like foldouts, tabs, lists and list rows; anonymous layout isn't.
+		/// </summary>
+		internal virtual bool AddsPathLevel => true;
 
 		/// <summary>
 		/// The id used when the node has no requested id or label, before it's made unique.
@@ -360,8 +373,9 @@ namespace Tekly.DevBoard.Nodes
 		}
 
 		/// <summary>
-		/// Identifies the node among its siblings instead of its label. Use it when the label changes between
-		/// builds, or two siblings share one and should keep separate state.
+		/// Identifies the node in paths instead of its label. Use it when the label changes between builds, or two
+		/// nodes at the same level share one and should keep separate state. On an anonymous container it also makes
+		/// the container a level in its children's paths.
 		/// </summary>
 		public static T WithId<T>(this T node, string id) where T : Node
 		{

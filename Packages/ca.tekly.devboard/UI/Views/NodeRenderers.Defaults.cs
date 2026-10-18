@@ -111,7 +111,7 @@ namespace Tekly.DevBoard.Views
 
 			Register<FoldoutNode, FoldoutWidget>(WidgetPrefabs.Foldout, (node, widget, view) => {
 				widget.Initialize(LabelText(node));
-				widget.UseFullStateKey(view.StateKey(node, "expanded"));
+				widget.WithStateKey(view.StateKey(node, "expanded"));
 				widget.StartExpanded(node.StartExpanded);
 				ApplyLayout(node, widget);
 			});
@@ -215,34 +215,23 @@ namespace Tekly.DevBoard.Views
 		}
 
 		/// <summary>
-		/// The prefab for a card, or a bare layout for a column or row. A node's Style overrides it.
-		///
-		/// A card is visibly a box of its own, so it's a width group scope: its controls line up their labels with
-		/// each other rather than with the segment, whose column they'd sit off from by the card's padding.
+		/// The prefab for a card, or a bare layout for a column or row. A node's Style overrides it. Whether the
+		/// container is a width group scope is the node's Layout's to say, applied with the rest of it.
 		/// </summary>
 		private static ContainerWidget CreateContainer(ContainerNode node, ContainerWidget parent)
 		{
-			ContainerWidget widget;
-
 			if (node.Style != null) {
-				widget = parent.Create(new WidgetPrefab<ContainerWidget>(node.Style));
-			} else {
-				switch (node.Kind) {
-					case ContainerKind.Card:
-						widget = parent.Create(IsNested(node) ? WidgetPrefabs.CardNested : WidgetPrefabs.Card);
-						break;
-					case ContainerKind.Row:
-						return ContainerWidget.CreatePlainRow(parent.Content);
-					default:
-						return ContainerWidget.CreatePlain(parent.Content, "Column");
-				}
+				return parent.Create(new WidgetPrefab<ContainerWidget>(node.Style));
 			}
 
-			if (node.Kind == ContainerKind.Card) {
-				widget.WithWidthGroupScope();
+			switch (node.Kind) {
+				case ContainerKind.Card:
+					return parent.Create(IsNested(node) ? WidgetPrefabs.CardNested : WidgetPrefabs.Card);
+				case ContainerKind.Row:
+					return ContainerWidget.CreatePlainRow(parent.Content);
+				default:
+					return ContainerWidget.CreatePlain(parent.Content, "Column");
 			}
-
-			return widget;
 		}
 
 		/// <summary>

@@ -6,8 +6,7 @@ namespace Tekly.DevBoard
 	/// View state that should survive a widget being destroyed and rebuilt, like whether a foldout is open, where
 	/// a scroll view was scrolled to, or what a list is searched for. Kept in memory for the play session.
 	///
-	/// Each front end makes its own keys: nodes' views use ViewContext.StateKey, and widgets built by hand use
-	/// WidgetState.KeyFor.
+	/// Each front end makes its own keys: nodes' views use ViewContext.StateKey.
 	/// </summary>
 	public class DevBoardState
 	{

@@ -24,9 +24,8 @@ namespace Tekly.DevBoard.BuiltIn
 		{
 			page.Heading("Time Scale");
 
-			// The number, pause and reset above the slider, which has the whole width to itself. A scope of their own
-			// keeps their labels out of the page's label column
-			var controls = page.Row().WithCrossAlignment(CrossAlignment.Center).WithWidthGroupScope();
+			// The number, pause and reset above the slider, which has the whole width to itself
+			var controls = page.Row().WithCrossAlignment(CrossAlignment.Center);
 			controls.FloatInput("Scale", () => Time.timeScale, SetScale).WithFormat("0.00");
 			controls.Toggle("Paused", () => Time.timeScale == 0f, SetPaused);
 			controls.Button("Reset", () => Time.timeScale = 1f).InteractiveOnly();

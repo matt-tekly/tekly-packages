@@ -18,6 +18,11 @@ namespace Tekly.DevBoard.Nodes
 
 		internal override string DefaultId => "tabs";
 
+		/// <summary>
+		/// Always a level: each panel saves the selected tab by its path.
+		/// </summary>
+		internal override bool AddsPathLevel => true;
+
 		public TabsNode WithStartTab(string label)
 		{
 			EnsureEditable();
@@ -36,6 +41,8 @@ namespace Tekly.DevBoard.Nodes
 		}
 
 		internal override string DefaultId => "tab";
+
+		internal override bool AddsPathLevel => true;
 	}
 
 	public static class TabsNodeFactory
