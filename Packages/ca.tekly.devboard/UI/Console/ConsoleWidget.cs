@@ -23,6 +23,12 @@ namespace Tekly.DevBoard.Console
 		public LabelWidget Hint => m_hint;
 
 		/// <summary>
+		/// The hint with what's drawn behind it, so it reads as part of the line rather than more output. Shown and
+		/// hidden with the hint. The hint itself when the prefab has no box.
+		/// </summary>
+		public RectTransform HintBox => m_hintBox != null ? m_hintBox : (RectTransform) m_hint.transform;
+
+		/// <summary>
 		/// The line typed into.
 		/// </summary>
 		public TextInputWidget Input => m_input;
@@ -40,6 +46,7 @@ namespace Tekly.DevBoard.Console
 		[SerializeField] private ScrollViewWidget m_scroll;
 		[SerializeField] private ConsoleOutput m_output;
 		[SerializeField] private LabelWidget m_hint;
+		[SerializeField] private RectTransform m_hintBox;
 		[SerializeField] private TextInputWidget m_input;
 		[SerializeField] private ContainerWidget m_suggestions;
 		[SerializeField] private LabelWidget[] m_suggestionLabels;

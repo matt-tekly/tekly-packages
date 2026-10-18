@@ -68,6 +68,7 @@ namespace Tekly.DevBoard.Console
 		private ContainerWidget m_suggestionBox;
 		private ConsoleOutput m_outputField;
 		private LabelWidget m_hint;
+		private RectTransform m_hintBox;
 		private TextInputWidget m_input;
 
 		private string m_line = string.Empty;
@@ -159,6 +160,7 @@ namespace Tekly.DevBoard.Console
 			m_suggestionBox = null;
 			m_outputField = null;
 			m_hint = null;
+			m_hintBox = null;
 			m_input = null;
 			m_suggestionLabels.Clear();
 			m_refocusAfterFrame = -1;
@@ -291,6 +293,7 @@ namespace Tekly.DevBoard.Console
 			m_outputField = m_root.Output;
 			m_hint = m_root.Hint;
 			m_hint.Monospaced = true;
+			m_hintBox = m_root.HintBox;
 			m_suggestionBox = m_root.Suggestions;
 
 			foreach (var label in m_root.SuggestionLabels) {
@@ -335,7 +338,7 @@ namespace Tekly.DevBoard.Console
 			}
 
 			var root = (RectTransform) m_root.transform;
-			var below = (RectTransform) (m_hint.gameObject.activeSelf ? m_hint.transform : m_input.transform);
+			var below = m_hintBox.gameObject.activeSelf ? m_hintBox : (RectTransform) m_input.transform;
 			below.GetWorldCorners(s_corners);
 			var topLeft = root.InverseTransformPoint(s_corners[1]);
 
@@ -450,7 +453,7 @@ namespace Tekly.DevBoard.Console
 			}
 
 			m_hint.Text = Hint();
-			m_hint.gameObject.SetActive(m_hint.Text.Length > 0);
+			m_hintBox.gameObject.SetActive(m_hint.Text.Length > 0);
 			m_suggestionBox.gameObject.SetActive(shown > 0);
 		}
 
@@ -554,7 +557,7 @@ namespace Tekly.DevBoard.Console
 			if (running) {
 				m_refocusAfterFrame = -1;
 				m_hint.Text = Hint();
-				m_hint.gameObject.SetActive(true);
+				m_hintBox.gameObject.SetActive(true);
 			} else {
 				UpdateCompletion();
 				Refocus();

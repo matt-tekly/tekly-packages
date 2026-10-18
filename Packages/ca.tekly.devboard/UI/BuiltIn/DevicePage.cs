@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Tekly.DevBoard.BuiltIn
 {
 	/// <summary>
-	/// What the app is running on and as: platform, hardware, graphics and build.
+	/// What the app is running on and as: platform, hardware, graphics and build. Read-only.
 	/// </summary>
 	internal static class DevicePage
 	{
@@ -28,8 +28,6 @@ namespace Tekly.DevBoard.BuiltIn
 #endif
 
 				section.Property("Network", () => Application.internetReachability.ToString());
-				section.Property("Focused", () => Application.isFocused ? "Yes" : "No");
-				section.Toggle("Run In Background", () => Application.runInBackground, value => Application.runInBackground = value);
 			});
 
 			Section(page, "Device", section => {

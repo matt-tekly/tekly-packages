@@ -216,21 +216,50 @@ namespace Tekly.DevBoard.Views
 
 		/// <summary>
 		/// The prefab for a card, or a bare layout for a column or row. A node's Style overrides it.
+		///
+		/// A card is visibly a box of its own, so it's a width group scope: its controls line up their labels with
+		/// each other rather than with the segment, whose column they'd sit off from by the card's padding.
 		/// </summary>
 		private static ContainerWidget CreateContainer(ContainerNode node, ContainerWidget parent)
 		{
+			ContainerWidget widget;
+
 			if (node.Style != null) {
-				return parent.Create(new WidgetPrefab<ContainerWidget>(node.Style));
+				widget = parent.Create(new WidgetPrefab<ContainerWidget>(node.Style));
+			} else {
+				switch (node.Kind) {
+					case ContainerKind.Card:
+						widget = parent.Create(IsNested(node) ? WidgetPrefabs.CardNested : WidgetPrefabs.Card);
+						break;
+					case ContainerKind.Row:
+						return ContainerWidget.CreatePlainRow(parent.Content);
+					default:
+						return ContainerWidget.CreatePlain(parent.Content, "Column");
+				}
 			}
 
-			switch (node.Kind) {
-				case ContainerKind.Card:
-					return parent.Create(WidgetPrefabs.Card);
-				case ContainerKind.Row:
-					return ContainerWidget.CreatePlainRow(parent.Content);
-				default:
-					return ContainerWidget.CreatePlain(parent.Content, "Column");
+			if (node.Kind == ContainerKind.Card) {
+				widget.WithWidthGroupScope();
 			}
+
+			return widget;
+		}
+
+		/// <summary>
+		/// Whether a card shows with the nested look: cards alternate looks by how many cards are around them,
+		/// counting the segment, which shows as a card. So a card in a segment is nested, and a card in that is plain.
+		/// </summary>
+		private static bool IsNested(ContainerNode card)
+		{
+			var depth = 0;
+
+			for (var parent = card.Parent; parent != null; parent = parent.Parent) {
+				if (parent is Segment || parent.Kind == ContainerKind.Card) {
+					depth++;
+				}
+			}
+
+			return depth % 2 == 1;
 		}
 
 		/// <summary>

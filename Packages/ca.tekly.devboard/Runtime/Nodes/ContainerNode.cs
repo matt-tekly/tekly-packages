@@ -14,7 +14,8 @@ namespace Tekly.DevBoard.Nodes
 		/// A plain vertical group with no background
 		Column,
 
-		/// A group with a background, vertical unless its Layout.Axis says otherwise
+		/// A group with a background, vertical unless its Layout.Axis says otherwise. Its controls line up their
+		/// labels with each other, not the rest of the segment
 		Card,
 
 		/// Side by side
@@ -120,7 +121,7 @@ namespace Tekly.DevBoard.Nodes
 
 		/// <summary>
 		/// Nodes inside with WithWidthGroup share widths here instead of with the rest of the nearest scope above:
-		/// the segment, a tab, or another container with WithWidthGroupScope. Controls' labels are in a width group,
+		/// the segment, a card, a tab, or another container with WithWidthGroupScope. Controls' labels are in a width group,
 		/// so this also keeps them out of the segment's label column, e.g. side by side columns of properties, or a
 		/// row whose input label should only be as wide as its text.
 		/// </summary>

@@ -332,7 +332,7 @@ namespace Tekly.DevBoard.Nodes
 		/// <summary>
 		/// Sizes the node with every other node of the same width group: they all take the widest one's width, e.g.
 		/// the buttons in a column of list rows. Widths only, and only under the same scope: the nearest container
-		/// with WithWidthGroupScope, tab, or the segment above them.
+		/// with WithWidthGroupScope, card, tab, or the segment above them.
 		/// </summary>
 		public static T WithWidthGroup<T>(this T node, string widthGroup) where T : Node
 		{

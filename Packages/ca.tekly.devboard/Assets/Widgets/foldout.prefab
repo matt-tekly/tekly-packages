@@ -437,8 +437,8 @@ MonoBehaviour:
     IsSet: 0
     Value: 0
   m_flexibleWidth:
-    IsSet: 0
-    Value: 0
+    IsSet: 1
+    Value: 1
   m_flexibleHeight:
     IsSet: 0
     Value: 0

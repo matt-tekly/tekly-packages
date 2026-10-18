@@ -60,6 +60,12 @@ namespace Tekly.DevBoard
 		public static readonly WidgetPrefab<BreadcrumbWidget> Breadcrumb = "breadcrumb";
 
 		public static readonly WidgetPrefab<ContainerWidget> Card = "container";
+
+		/// <summary>
+		/// A card inside a segment or another card: a lighter fill and a soft drop shadow, so it reads as sitting on
+		/// the card around it.
+		/// </summary>
+		public static readonly WidgetPrefab<ContainerWidget> CardNested = "container_nested";
 		public static readonly WidgetPrefab<ContainerWidget> SegmentedRow = "container_row_segmented";
 		public static readonly WidgetPrefab<ScrollViewWidget> ScrollView = "scrollview";
 		public static readonly WidgetPrefab<FoldoutWidget> Foldout = "foldout";

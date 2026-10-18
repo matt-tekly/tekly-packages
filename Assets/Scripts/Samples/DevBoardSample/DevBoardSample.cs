@@ -292,7 +292,7 @@ namespace TeklySample.Samples.DevBoardSample
 			row.Button("C", () => Debug.Log("C"));
 
 			// Nodes with the same width group take the widest one's width, here lining up buttons across rows. They
-			// share it under the nearest container with WithWidthGroupScope, tab, or the segment
+			// share it under the nearest container with WithWidthGroupScope, card, tab, or the segment
 			var column = page.Column().WithWidthGroupScope();
 			row = column.Row();
 			row.Button("Save", () => Debug.Log("Save")).WithWidthGroup("first");
@@ -325,10 +325,21 @@ namespace TeklySample.Samples.DevBoardSample
 			var advanced = tabs.Tab("Advanced");
 			advanced.Button("Click", () => m_clicks++);
 
-			// A card is a container with a background
+			// A card is a container with a background. Its labels line up with each other, not the rest of the page.
+			// The segment shows as a card, so a card in it is lighter and sits on it
 			var card = page.Card();
 			card.Heading("A card");
 			card.Property("Clicks", () => m_clicks);
+
+			// Looks alternate with depth, so a card in that is back to the plain card look
+			var raised = card.Card();
+			raised.Property("Inside a card", () => m_clicks);
+			raised.Toggle("Toggle", () => m_toggle, value => m_toggle = value);
+
+			// A horizontal card lays its children side by side
+			var strip = page.Card(Tekly.Common.Utils.LayoutAxis.Horizontal);
+			strip.Button("Left", () => Debug.Log("Left"));
+			strip.Button("Right", () => Debug.Log("Right"));
 
 			// InteractableWhen on a container greys out everything inside it. Values keep refreshing
 			page.Toggle("Lock the card below", () => m_locked, value => m_locked = value);
