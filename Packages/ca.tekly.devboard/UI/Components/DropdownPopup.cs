@@ -249,7 +249,7 @@ namespace Tekly.DevBoard.Components
 		/// </summary>
 		public ContainerWidget AddHeader()
 		{
-			var row = Instantiate(DevBoardUI.Instance.Get(WidgetPrefabs.Row), m_list.transform.parent, false);
+			var row = ContainerWidget.CreatePlainRow(m_list.transform.parent, "Header");
 			row.transform.SetSiblingIndex(m_list.transform.GetSiblingIndex());
 
 			return row;

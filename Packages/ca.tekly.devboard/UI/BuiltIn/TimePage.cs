@@ -27,8 +27,9 @@ namespace Tekly.DevBoard.BuiltIn
 		{
 			page.Heading("Time Scale");
 
-			// The number, pause and reset above the slider, which has the whole width to itself
-			var controls = page.Row().WithPadding(0).WithCrossAlignment(CrossAlignment.Center);
+			// The number, pause and reset above the slider, which has the whole width to itself. A scope of their own
+			// keeps their labels out of the page's label column
+			var controls = page.Row().WithCrossAlignment(CrossAlignment.Center).WithWidthGroupScope();
 			controls.FloatInput("Scale", () => Time.timeScale, SetScale).WithFormat("0.00");
 			controls.Toggle("Paused", () => Time.timeScale == 0f, SetPaused);
 			controls.Button("Reset", () => Time.timeScale = 1f).InteractiveOnly();
@@ -36,22 +37,20 @@ namespace Tekly.DevBoard.BuiltIn
 			page.Slider(null, 0f, 4f, () => Time.timeScale, SetScale).WithValueInput(false);
 
 			page.Heading("Clock");
-			var form = page.Form();
-			form.Property("Time", () => Time.time, 0.1f, "{0:F1} s").WithMonospaced();
-			form.Property("Unscaled", () => Time.unscaledTime, 0.1f, "{0:F1} s").WithMonospaced();
-			form.Property("Real", () => Time.realtimeSinceStartup, 0.1f, "{0:F1} s").WithMonospaced();
-			form.Property("Frame", () => Time.frameCount, "{0:N0}").WithMonospaced();
+			page.Property("Time", () => Time.time, 0.1f, "{0:F1} s").WithMonospaced();
+			page.Property("Unscaled", () => Time.unscaledTime, 0.1f, "{0:F1} s").WithMonospaced();
+			page.Property("Real", () => Time.realtimeSinceStartup, 0.1f, "{0:F1} s").WithMonospaced();
+			page.Property("Frame", () => Time.frameCount, "{0:N0}").WithMonospaced();
 
 			page.Heading("Frame Rate");
-			form = page.Form();
 			// A rate that isn't one of the choices, set by the game or typed in Custom, shows as no choice. Custom
 			// takes any rate, -1 for the platform default
-			form.Dropdown("Target", s_frameRates, rate => rate < 0 ? "Default" : rate.ToString(),
+			page.Dropdown("Target", s_frameRates, rate => rate < 0 ? "Default" : rate.ToString(),
 				() => Application.targetFrameRate, rate => Application.targetFrameRate = rate);
-			form.IntInput("Custom", () => Application.targetFrameRate, rate => Application.targetFrameRate = rate);
-			form.Dropdown("VSync", s_vSyncCounts, count => count == 0 ? "Off" : count == 1 ? "Every Frame" : "Every Second Frame",
+			page.IntInput("Custom", () => Application.targetFrameRate, rate => Application.targetFrameRate = rate);
+			page.Dropdown("VSync", s_vSyncCounts, count => count == 0 ? "Off" : count == 1 ? "Every Frame" : "Every Second Frame",
 				() => Mathf.Clamp(QualitySettings.vSyncCount, 0, 2), count => QualitySettings.vSyncCount = count);
-			form.Slider("Fixed Step", 0.005f, 0.05f, () => Time.fixedDeltaTime, value => Time.fixedDeltaTime = value)
+			page.Slider("Fixed Step", 0.005f, 0.05f, () => Time.fixedDeltaTime, value => Time.fixedDeltaTime = value)
 				.WithFormat("0.000");
 		}
 

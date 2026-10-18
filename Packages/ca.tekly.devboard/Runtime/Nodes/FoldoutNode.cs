@@ -10,7 +10,7 @@ namespace Tekly.DevBoard.Nodes
 		/// </summary>
 		public bool StartExpanded { get; private set; }
 
-		public FoldoutNode(string label) : base(ContainerKind.Stack, label)
+		public FoldoutNode(string label) : base(ContainerKind.Column, label)
 		{
 		}
 

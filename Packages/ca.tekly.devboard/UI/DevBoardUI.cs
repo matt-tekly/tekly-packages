@@ -709,10 +709,8 @@ namespace Tekly.DevBoard
 		private void RegisterOptionsPage()
 		{
 			DevBoard.Instance.AddPage(OPTIONS_PATH, page => {
-				var form = page.Form();
-
 				// The steps sit right after the input rather than on a row of their own
-				var scaleRow = form.Row().WithPadding(0).WithCrossAlignment(CrossAlignment.Center);
+				var scaleRow = page.Row().WithCrossAlignment(CrossAlignment.Center);
 				scaleRow.FloatInput("UI Scale", () => Settings.Scale, value => Settings.Scale = value)
 					.WithFormat("0.##")
 					.WithDescription($"Scales all of DevBoard, from {DevBoardSettings.MIN_SCALE}x to {DevBoardSettings.MAX_SCALE}x");
@@ -720,22 +718,22 @@ namespace Tekly.DevBoard
 				scaleRow.Button("+", () => Settings.Scale += DevBoardSettings.SCALE_STEP);
 				scaleRow.Button("1x", () => Settings.Scale = 1f);
 
-				form.Toggle("Animations", () => Settings.Animations, value => Settings.Animations = value)
+				page.Toggle("Animations", () => Settings.Animations, value => Settings.Animations = value)
 					.WithDescription("Ease panels between page sizes");
 				// The value shows under the label, where a description would go, so it has none: the most of the
 				// screen's height panels take before their pages scroll
-				form.Slider("Max Height", DevBoardSettings.MIN_PANEL_HEIGHT, DevBoardSettings.MAX_PANEL_HEIGHT,
+				page.Slider("Max Height", DevBoardSettings.MIN_PANEL_HEIGHT, DevBoardSettings.MAX_PANEL_HEIGHT,
 						() => Settings.MaxPanelHeight, value => Settings.MaxPanelHeight = value)
 					.WithFormat("0%")
 					.WithValueInput(false)
 					.WithValueInLabel(true);
 
 #if UNITY_EDITOR
-				form.Toggle("Physical Size", () => Settings.KeepPhysicalSizeInEditor, value => Settings.KeepPhysicalSizeInEditor = value)
+				page.Toggle("Physical Size", () => Settings.KeepPhysicalSizeInEditor, value => Settings.KeepPhysicalSizeInEditor = value)
 					.WithDescription("Scale by screen DPI. Editor only");
 #endif
 
-				var resetRow = page.Row().WithPadding(0).WithAlignment(LayoutAlignment.End);
+				var resetRow = page.Row().WithAlignment(LayoutAlignment.End);
 				resetRow.Button("Reset options", Settings.ResetToDefaults).InteractiveOnly();
 			}, "Display", int.MaxValue);
 		}

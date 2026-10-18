@@ -21,6 +21,8 @@ namespace Tekly.DevBoard.Components
 		/// </summary>
 		public Common.Utils.LayoutAxis Axis => m_layout.Axis;
 
+		private const float MIN_SHARED_WIDTH = 40f;
+
 		[SerializeField] protected RectTransform m_content;
 		[SerializeField] private FlowLayout m_layout;
 
@@ -43,6 +45,16 @@ namespace Tekly.DevBoard.Components
 			container.m_layout = layout;
 
 			return container;
+		}
+
+		/// <summary>
+		/// A container with no prefab laid out side by side, children aligned to the top.
+		/// </summary>
+		internal static ContainerWidget CreatePlainRow(Transform parent, string name = "Row")
+		{
+			return CreatePlain(parent, name)
+				.WithAxis(Common.Utils.LayoutAxis.Horizontal)
+				.WithCrossAlignment(CrossAlignment.Start);
 		}
 
 		/// <summary>
@@ -86,12 +98,14 @@ namespace Tekly.DevBoard.Components
 		}
 		
 		/// <summary>
-		/// Widgets inside with a width group share widths here instead of with the nearest scope above.
+		/// Widgets inside with a width group share widths here instead of with the nearest scope above. Shared widths
+		/// are at least MIN_SHARED_WIDTH, so a few short labels still make a tidy column.
 		/// </summary>
 		public ContainerWidget WithWidthGroupScope()
 		{
 			if (!TryGetComponent<WidthGroup>(out _)) {
-				gameObject.AddComponent<WidthGroup>();
+				var group = gameObject.AddComponent<WidthGroup>();
+				group.MinWidth = MIN_SHARED_WIDTH;
 			}
 
 			return this;
@@ -197,19 +211,11 @@ namespace Tekly.DevBoard.Components
 		}
 
 		/// <summary>
-		/// A vertical list of labelled controls, with their labels lined up.
-		/// </summary>
-		public static ContainerWidget Form(this ContainerWidget parent, WidgetPrefab<ContainerWidget> prefab = default)
-		{
-			return parent.Create(prefab.Or(WidgetPrefabs.Form));
-		}
-
-		/// <summary>
-		/// Lays widgets out side by side.
+		/// Lays widgets out side by side. Without a prefab it's a bare layout, with no padding or background.
 		/// </summary>
 		public static ContainerWidget Row(this ContainerWidget parent, WidgetPrefab<ContainerWidget> prefab = default)
 		{
-			return parent.Create(prefab.Or(WidgetPrefabs.Row));
+			return prefab.IsSet ? parent.Create(prefab) : ContainerWidget.CreatePlainRow(parent.Content);
 		}
 	}
 }

@@ -229,7 +229,7 @@ namespace Tekly.DevBoard.Nodes
 		}
 
 		/// <summary>
-		/// X, Y and Z inputs after the label, e.g. for a position. In a form the label lines up with the others.
+		/// X, Y and Z inputs after the label, e.g. for a position. The label lines up with the others in its scope.
 		/// </summary>
 		public static Vector3InputNode Vector3Input(this ContainerNode parent, string label, Func<Vector3> getValue,
 			Action<Vector3> setValue)

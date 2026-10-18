@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Tekly.Common.Utils;
 using Tekly.Trellis;
 using UnityEngine;
 
@@ -11,20 +12,17 @@ namespace Tekly.DevBoard.Nodes
 	public enum ContainerKind
 	{
 		/// A plain vertical group with no background
-		Stack,
+		Column,
 
-		/// A vertical group with a background
+		/// A group with a background, vertical unless its Layout.Axis says otherwise
 		Card,
-
-		/// A vertical list of labelled controls, with their labels lined up
-		Form,
 
 		/// Side by side
 		Row
 	}
 
 	/// <summary>
-	/// A node holding other nodes: a card, form, row or foldout, or a scope that builds its own content.
+	/// A node holding other nodes: a column, card, row or foldout, or a scope that builds its own content.
 	/// Panels listen to ChildrenChanged to keep their widgets in step.
 	/// </summary>
 	public class ContainerNode : Node
@@ -49,7 +47,7 @@ namespace Tekly.DevBoard.Nodes
 		private int m_changeDepth;
 		private bool m_changed;
 
-		public ContainerNode(ContainerKind kind = ContainerKind.Stack, string label = null) : base(label)
+		public ContainerNode(ContainerKind kind = ContainerKind.Column, string label = null) : base(label)
 		{
 			Kind = kind;
 		}
@@ -121,8 +119,10 @@ namespace Tekly.DevBoard.Nodes
 		}
 
 		/// <summary>
-		/// Nodes inside with WithWidthGroup share widths here instead of with the rest of the nearest scope above,
-		/// or at all outside a Form or tabs, which are scopes already.
+		/// Nodes inside with WithWidthGroup share widths here instead of with the rest of the nearest scope above:
+		/// the segment, a tab, or another container with WithWidthGroupScope. Controls' labels are in a width group,
+		/// so this also keeps them out of the segment's label column, e.g. side by side columns of properties, or a
+		/// row whose input label should only be as wide as its text.
 		/// </summary>
 		public ContainerNode WithWidthGroupScope()
 		{
@@ -315,6 +315,11 @@ namespace Tekly.DevBoard.Nodes
 		public float? MaxHeight { get; internal set; }
 
 		/// <summary>
+		/// Which way children are laid out. Set by the factories whose kind can go either way, e.g. Card.
+		/// </summary>
+		public LayoutAxis? Axis { get; internal set; }
+
+		/// <summary>
 		/// Whether nodes inside share their width groups here, see <see cref="ContainerNode.WithWidthGroupScope"/>.
 		/// </summary>
 		public bool WidthGroupScope { get; internal set; }
@@ -323,19 +328,15 @@ namespace Tekly.DevBoard.Nodes
 	public static class ContainerNodeFactory
 	{
 		/// <summary>
-		/// A container with a background, for grouping widgets.
+		/// A container with a background, for grouping widgets. Vertical, or side by side with LayoutAxis.Horizontal.
 		/// </summary>
-		public static ContainerNode Card(this ContainerNode parent, Style<ContainerNode> style = default)
+		public static ContainerNode Card(this ContainerNode parent, LayoutAxis axis = LayoutAxis.Vertical,
+			Style<ContainerNode> style = default)
 		{
-			return parent.Add(Container(ContainerKind.Card, style));
-		}
+			var card = Container(ContainerKind.Card, style);
+			card.Layout.Axis = axis;
 
-		/// <summary>
-		/// A vertical list of labelled controls, with their labels lined up.
-		/// </summary>
-		public static ContainerNode Form(this ContainerNode parent, Style<ContainerNode> style = default)
-		{
-			return parent.Add(Container(ContainerKind.Form, style));
+			return parent.Add(card);
 		}
 
 		/// <summary>
@@ -358,9 +359,9 @@ namespace Tekly.DevBoard.Nodes
 		/// <summary>
 		/// A plain vertical group, with no background.
 		/// </summary>
-		public static ContainerNode Stack(this ContainerNode parent, Style<ContainerNode> style = default)
+		public static ContainerNode Column(this ContainerNode parent, Style<ContainerNode> style = default)
 		{
-			return parent.Add(Container(ContainerKind.Stack, style));
+			return parent.Add(Container(ContainerKind.Column, style));
 		}
 
 		private static ContainerNode Container(ContainerKind kind, Style<ContainerNode> style)

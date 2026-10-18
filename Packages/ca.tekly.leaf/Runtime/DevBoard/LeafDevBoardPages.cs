@@ -37,17 +37,15 @@ namespace Tekly.Leaf.Integration
 
 		private void Build(Segment page)
 		{
-			// One form for the whole page, so every section's values line up in the same column
-			var form = page.Form();
-			form.Heading("Input");
-			form.Property("Disabled", () => LeafCore.Instance.IsInputDisabled ? "Yes" : "No");
+			page.Heading("Input");
+			page.Property("Disabled", () => LeafCore.Instance.IsInputDisabled ? "Yes" : "No");
 
-			form.Heading("Selection");
+			page.Heading("Selection");
 			// The last selection outside DevBoard, since clicking DevBoard selects its own controls
-			form.Property("Selected", () => Name(Selected())).WithValueWidth(VALUE_WIDTH);
+			page.Property("Selected", () => Name(Selected())).WithValueWidth(VALUE_WIDTH);
 
 			// The end of the path is the part that tells objects apart, so it's trimmed from the front
-			var pathRow = form.Row().WithPadding(0).WithCrossAlignment(CrossAlignment.Center);
+			var pathRow = page.Row().WithCrossAlignment(CrossAlignment.Center);
 			pathRow.Property("Path", () => TrimStart(Path(Selected()), VALUE_WIDTH))
 				.WithValueWidth(VALUE_WIDTH);
 #if UNITY_EDITOR
@@ -59,18 +57,18 @@ namespace Tekly.Leaf.Integration
 				() => GUIUtility.systemCopyBuffer = Path(Selected()));
 #endif
 
-			form.Property("EventSystem", () => EventSystem.current != null ? EventSystem.current.name : "None");
+			page.Property("EventSystem", () => EventSystem.current != null ? EventSystem.current.name : "None");
 
-			form.Heading("Cursor");
-			form.Property("Wanted", () => LeafCore.Instance.Cursor.Current);
-			form.Property("Asked By", () => OwnerName(LeafCore.Instance.Cursor.Owner)).WithValueWidth(VALUE_WIDTH);
-			form.Property("Requests", () => LeafCore.Instance.Cursor.RequestCount);
+			page.Heading("Cursor");
+			page.Property("Wanted", () => LeafCore.Instance.Cursor.Current);
+			page.Property("Asked By", () => OwnerName(LeafCore.Instance.Cursor.Owner)).WithValueWidth(VALUE_WIDTH);
+			page.Property("Requests", () => LeafCore.Instance.Cursor.RequestCount);
 
 			// Hide All hides every enabled canvas but DevBoard's, to see what's behind the UI
-			form.Heading("Canvases");
-			form.Property("Hidden", () => m_hiddenCanvases.Count);
+			page.Heading("Canvases");
+			page.Property("Hidden", () => m_hiddenCanvases.Count);
 
-			var canvasRow = form.ButtonRow();
+			var canvasRow = page.ButtonRow();
 			canvasRow.Button("Hide All", HideCanvases).InteractiveOnly();
 			canvasRow.Button("Show All", ShowCanvases)
 				.InteractableWhen(() => m_hiddenCanvases.Count > 0)

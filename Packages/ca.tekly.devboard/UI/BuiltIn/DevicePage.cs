@@ -17,45 +17,45 @@ namespace Tekly.DevBoard.BuiltIn
 
 		private static void Build(Segment page)
 		{
-			Section(page, "Application", form => {
-				Row(form, "Version", Application.version);
-				Row(form, "Platform", Application.platform.ToString());
-				Row(form, "Build", Debug.isDebugBuild ? "Development" : "Release");
+			Section(page, "Application", section => {
+				Row(section, "Version", Application.version);
+				Row(section, "Platform", Application.platform.ToString());
+				Row(section, "Build", Debug.isDebugBuild ? "Development" : "Release");
 
 #if UNITY_WEBGL && !UNITY_EDITOR
 				// The page the build is running on, for telling deployed builds apart
-				Row(form, "URL", Application.absoluteURL);
+				Row(section, "URL", Application.absoluteURL);
 #endif
 
-				form.Property("Network", () => Application.internetReachability.ToString());
-				form.Property("Focused", () => Application.isFocused ? "Yes" : "No");
-				form.Toggle("Run In Background", () => Application.runInBackground, value => Application.runInBackground = value);
+				section.Property("Network", () => Application.internetReachability.ToString());
+				section.Property("Focused", () => Application.isFocused ? "Yes" : "No");
+				section.Toggle("Run In Background", () => Application.runInBackground, value => Application.runInBackground = value);
 			});
 
-			Section(page, "Device", form => {
-				Row(form, "Model", SystemInfo.deviceModel);
-				Row(form, "OS", SystemInfo.operatingSystem);
-				Row(form, "CPU", $"{SystemInfo.processorType} ({SystemInfo.processorCount} threads)");
-				Row(form, "Memory", $"{SystemInfo.systemMemorySize:N0} MB");
-				Row(form, "Language", Application.systemLanguage.ToString());
+			Section(page, "Device", section => {
+				Row(section, "Model", SystemInfo.deviceModel);
+				Row(section, "OS", SystemInfo.operatingSystem);
+				Row(section, "CPU", $"{SystemInfo.processorType} ({SystemInfo.processorCount} threads)");
+				Row(section, "Memory", $"{SystemInfo.systemMemorySize:N0} MB");
+				Row(section, "Language", Application.systemLanguage.ToString());
 			});
 
-			Section(page, "Graphics", form => {
-				Row(form, "GPU", SystemInfo.graphicsDeviceName);
-				Row(form, "API", SystemInfo.graphicsDeviceType.ToString());
-				Row(form, "Memory", $"{SystemInfo.graphicsMemorySize:N0} MB");
-				Row(form, "Max Texture", SystemInfo.maxTextureSize.ToString());
+			Section(page, "Graphics", section => {
+				Row(section, "GPU", SystemInfo.graphicsDeviceName);
+				Row(section, "API", SystemInfo.graphicsDeviceType.ToString());
+				Row(section, "Memory", $"{SystemInfo.graphicsMemorySize:N0} MB");
+				Row(section, "Max Texture", SystemInfo.maxTextureSize.ToString());
 			});
 		}
 
 		private static void Section(Segment page, string heading, System.Action<ContainerNode> build)
 		{
-			build(page.Foldout(heading, Styles.SubtleFoldout).Form());
+			build(page.Foldout(heading, Styles.SubtleFoldout));
 		}
 
-		private static void Row(ContainerNode form, string label, string value)
+		private static void Row(ContainerNode section, string label, string value)
 		{
-			form.Property(label, () => value);
+			section.Property(label, () => value);
 		}
 	}
 }

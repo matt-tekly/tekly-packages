@@ -19,29 +19,27 @@ namespace Tekly.DevBoard.BuiltIn
 		private static void Build(Segment page)
 		{
 			page.Heading("Screen");
-			var form = page.Form();
-			form.Property("Window", () => $"{Screen.width} x {Screen.height}").WithMonospaced();
-			form.Property("DPI", () => Screen.dpi, 1f, "{0:F0}").WithMonospaced();
-			form.Property("Refresh", () => (float) Screen.currentResolution.refreshRateRatio.value, 0.5f, "{0:F0} Hz").WithMonospaced();
-			form.Dropdown("Mode", () => Screen.fullScreenMode, mode => Screen.fullScreenMode = mode);
+			page.Property("Window", () => $"{Screen.width} x {Screen.height}").WithMonospaced();
+			page.Property("DPI", () => Screen.dpi, 1f, "{0:F0}").WithMonospaced();
+			page.Property("Refresh", () => (float) Screen.currentResolution.refreshRateRatio.value, 0.5f, "{0:F0} Hz").WithMonospaced();
+			page.Dropdown("Mode", () => Screen.fullScreenMode, mode => Screen.fullScreenMode = mode);
 
 			var resolutions = Resolutions();
 
 			if (resolutions.Count > 1) {
-				form.Dropdown("Resolution", resolutions, size => $"{size.x} x {size.y}", CurrentResolution, SetResolution);
+				page.Dropdown("Resolution", resolutions, size => $"{size.x} x {size.y}", CurrentResolution, SetResolution);
 			}
 
 			page.Heading("Quality");
-			form = page.Form();
 			var levels = QualitySettings.names;
 
 			if (levels.Length > 0) {
-				form.Dropdown("Level", levels, () => levels[QualitySettings.GetQualityLevel()],
+				page.Dropdown("Level", levels, () => levels[QualitySettings.GetQualityLevel()],
 					name => QualitySettings.SetQualityLevel(System.Array.IndexOf(levels, name), true));
 			}
 
-			form.Slider("LOD Bias", 0.1f, 4f, () => QualitySettings.lodBias, value => QualitySettings.lodBias = value).WithFormat("0.00");
-			form.Dropdown("Anti-Aliasing", AntiAliasingLevels, level => level == 0 ? "Off" : $"{level}x",
+			page.Slider("LOD Bias", 0.1f, 4f, () => QualitySettings.lodBias, value => QualitySettings.lodBias = value).WithFormat("0.00");
+			page.Dropdown("Anti-Aliasing", AntiAliasingLevels, level => level == 0 ? "Off" : $"{level}x",
 				() => QualitySettings.antiAliasing, level => QualitySettings.antiAliasing = level);
 		}
 

@@ -289,7 +289,7 @@ namespace Tekly.DevBoard.Nodes
 
 		/// <summary>
 		/// Greys the node out while interactable returns false, e.g. a scene load button while a scene is loading.
-		/// On a container it covers everything inside, e.g. a whole form of cheats. Clicks, typing, the command
+		/// On a container it covers everything inside, e.g. a whole card of cheats. Clicks, typing, the command
 		/// palette and NodeAccess leave it alone then, but its values keep refreshing. Panels poll it as they
 		/// refresh, like VisibleWhen.
 		/// </summary>
@@ -331,8 +331,8 @@ namespace Tekly.DevBoard.Nodes
 
 		/// <summary>
 		/// Sizes the node with every other node of the same width group: they all take the widest one's width, e.g.
-		/// the buttons in a column of list rows. Widths only, and only under the same scope: the nearest Form, tabs,
-		/// or container with WithWidthGroupScope above them.
+		/// the buttons in a column of list rows. Widths only, and only under the same scope: the nearest container
+		/// with WithWidthGroupScope, tab, or the segment above them.
 		/// </summary>
 		public static T WithWidthGroup<T>(this T node, string widthGroup) where T : Node
 		{
@@ -342,7 +342,7 @@ namespace Tekly.DevBoard.Nodes
 
 		/// <summary>
 		/// How much of a parent layout's spare width the node takes. 1 fills it: in a row it shares the room left
-		/// over with the other flexible nodes, and in a stack, card or form it stretches to the full width.
+		/// over with the other flexible nodes, and in a column or card it stretches to the full width.
 		/// </summary>
 		public static T WithFlexibleWidth<T>(this T node, float flexible = 1f) where T : Node
 		{

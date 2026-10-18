@@ -23,7 +23,7 @@ namespace Tekly.DevBoard.Nodes
 		private bool m_building;
 		private bool m_built;
 
-		public ScopeNode(string label, Action<ScopeNode> build) : base(ContainerKind.Stack, label)
+		public ScopeNode(string label, Action<ScopeNode> build) : base(ContainerKind.Column, label)
 		{
 			m_build = build;
 		}

@@ -514,7 +514,7 @@ namespace Tekly.DevBoard.Palette
 		private void AddChips()
 		{
 			// Tight, so all the chips fit the palette's width
-			var row = m_popup.AddHeader().WithPadding(0).WithSpacing(2);
+			var row = m_popup.AddHeader().WithSpacing(2);
 
 			foreach (var category in s_categories) {
 				m_chips[(int) category] = row.Button(category.ToString(), () => PickCategory(category));

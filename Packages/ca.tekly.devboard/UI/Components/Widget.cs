@@ -21,7 +21,7 @@ namespace Tekly.DevBoard.Components
 
 		/// <summary>
 		/// How much of a parent layout's spare width this widget takes. 1 fills it: in a row it shares the room left
-		/// over, and across a stack it stretches to the full width. Adds a LayoutItem if the widget has none.
+		/// over, and across a column it stretches to the full width. Adds a LayoutItem if the widget has none.
 		/// </summary>
 		public Widget WithFlexibleWidth(float flexible = 1f)
 		{

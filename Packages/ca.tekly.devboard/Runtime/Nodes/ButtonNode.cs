@@ -172,7 +172,7 @@ namespace Tekly.DevBoard.Nodes
 
 		/// <summary>
 		/// A positive On (a check) and a negative Off (a cross) button, joined as one bar after the label,
-		/// e.g. <c>form.OnOffButtons("Canvases", SetCanvasesEnabled)</c>.
+		/// e.g. <c>page.OnOffButtons("Canvases", SetCanvasesEnabled)</c>.
 		/// For turning something on or off that has no single state to show; use a toggle when there's a value
 		/// to read.
 		/// </summary>

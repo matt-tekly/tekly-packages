@@ -41,91 +41,94 @@ namespace Tekly.DevBoard.BuiltIn
 		/// </summary>
 		private static void FramesAndRendering(Segment page)
 		{
-			var row = page.Row().WithPadding(0);
+			var row = page.Row();
 			Frames(page, Column(row, "Frames"));
 			Rendering(page, Column(row, "Rendering"));
 		}
 
+		/// <summary>
+		/// A scope of its own, so each column's labels line up with each other rather than across both.
+		/// </summary>
 		private static ContainerNode Column(ContainerNode row, string heading)
 		{
-			var column = row.Stack().WithFlexibleWidth();
+			var column = row.Column().WithFlexibleWidth().WithWidthGroupScope();
 			column.Heading(heading);
 
-			return column.Form();
+			return column;
 		}
 
-		private static void Frames(Segment page, ContainerNode form)
+		private static void Frames(Segment page, ContainerNode column)
 		{
 			var frames = new FrameStats();
 
 			LifeCycle.Instance.Update += frames.Tick;
 			page.OnDispose(() => LifeCycle.Instance.Update -= frames.Tick);
 
-			form.Property("FPS", () => frames.Fps, 0.5f, "{0:F0}").WithMonospaced().WithValueWidth(FRAME_WIDTH);
-			form.Property("Frame", () => frames.FrameMs, 0.05f, "{0:F1} ms").WithMonospaced().WithValueWidth(FRAME_WIDTH);
-			form.Property("1% Low", () => frames.OnePercentLow, 0.5f, "{0:F0}").WithMonospaced().WithValueWidth(FRAME_WIDTH);
-			form.Button("Reset", frames.Reset).InteractiveOnly();
+			column.Property("FPS", () => frames.Fps, 0.5f, "{0:F0}").WithMonospaced().WithValueWidth(FRAME_WIDTH);
+			column.Property("Frame", () => frames.FrameMs, 0.05f, "{0:F1} ms").WithMonospaced().WithValueWidth(FRAME_WIDTH);
+			column.Property("1% Low", () => frames.OnePercentLow, 0.5f, "{0:F0}").WithMonospaced().WithValueWidth(FRAME_WIDTH);
+			column.Button("Reset", frames.Reset).InteractiveOnly();
 		}
 
-		private static void Rendering(Segment page, ContainerNode form)
+		private static void Rendering(Segment page, ContainerNode column)
 		{
-			Counter(page, form, "SetPass Calls", ProfilerCategory.Render, "SetPass Calls Count");
-			Counter(page, form, "Batches", ProfilerCategory.Render, "Batches Count");
-			Counter(page, form, "Draw Calls", ProfilerCategory.Render, "Draw Calls Count");
-			Counter(page, form, "Vertices", ProfilerCategory.Render, "Vertices Count");
-			Counter(page, form, "Triangles", ProfilerCategory.Render, "Triangles Count");
+			Counter(page, column, "SetPass Calls", ProfilerCategory.Render, "SetPass Calls Count");
+			Counter(page, column, "Batches", ProfilerCategory.Render, "Batches Count");
+			Counter(page, column, "Draw Calls", ProfilerCategory.Render, "Draw Calls Count");
+			Counter(page, column, "Vertices", ProfilerCategory.Render, "Vertices Count");
+			Counter(page, column, "Triangles", ProfilerCategory.Render, "Triangles Count");
 		}
 
 		private static void Memory(Segment page)
 		{
-			var form = page.Foldout("Memory", Styles.SubtleFoldout).Form();
-			Bytes(page, form, "Total Used", "Total Used Memory", BYTES_PER_MB, "{0:N1} MB");
-			Bytes(page, form, "Total Reserved", "Total Reserved Memory", BYTES_PER_MB, "{0:N1} MB");
-			Bytes(page, form, "GC Used", "GC Used Memory", BYTES_PER_MB, "{0:N1} MB");
-			Bytes(page, form, "GC Reserved", "GC Reserved Memory", BYTES_PER_MB, "{0:N1} MB");
-			Bytes(page, form, "GC Alloc / Frame", "GC Allocated In Frame", BYTES_PER_KB, "{0:N1} KB", AVERAGED_FRAMES);
+			var foldout = page.Foldout("Memory", Styles.SubtleFoldout);
+			Bytes(page, foldout, "Total Used", "Total Used Memory", BYTES_PER_MB, "{0:N1} MB");
+			Bytes(page, foldout, "Total Reserved", "Total Reserved Memory", BYTES_PER_MB, "{0:N1} MB");
+			Bytes(page, foldout, "GC Used", "GC Used Memory", BYTES_PER_MB, "{0:N1} MB");
+			Bytes(page, foldout, "GC Reserved", "GC Reserved Memory", BYTES_PER_MB, "{0:N1} MB");
+			Bytes(page, foldout, "GC Alloc / Frame", "GC Allocated In Frame", BYTES_PER_KB, "{0:N1} KB", AVERAGED_FRAMES);
 
 #if UNITY_EDITOR
 			// These read 0 outside the editor
-			Counter(page, form, "Textures", ProfilerCategory.Memory, "Texture Count");
-			Bytes(page, form, "Texture Memory", "Texture Memory", BYTES_PER_MB, "{0:N1} MB");
-			Counter(page, form, "Meshes", ProfilerCategory.Memory, "Mesh Count");
-			Bytes(page, form, "Mesh Memory", "Mesh Memory", BYTES_PER_MB, "{0:N1} MB");
-			Counter(page, form, "Materials", ProfilerCategory.Memory, "Material Count");
-			Counter(page, form, "GameObjects", ProfilerCategory.Memory, "Game Object Count");
+			Counter(page, foldout, "Textures", ProfilerCategory.Memory, "Texture Count");
+			Bytes(page, foldout, "Texture Memory", "Texture Memory", BYTES_PER_MB, "{0:N1} MB");
+			Counter(page, foldout, "Meshes", ProfilerCategory.Memory, "Mesh Count");
+			Bytes(page, foldout, "Mesh Memory", "Mesh Memory", BYTES_PER_MB, "{0:N1} MB");
+			Counter(page, foldout, "Materials", ProfilerCategory.Memory, "Material Count");
+			Counter(page, foldout, "GameObjects", ProfilerCategory.Memory, "Game Object Count");
 #endif
 		}
 
 		/// <summary>
 		/// Shows a per-frame profiler counter, averaged over AVERAGED_FRAMES.
 		/// </summary>
-		private static void Counter(Segment page, ContainerNode form, string label, ProfilerCategory category, string counter)
+		private static void Counter(Segment page, ContainerNode parent, string label, ProfilerCategory category, string counter)
 		{
-			Show(page, form, label, category, counter, AVERAGED_FRAMES, Compact, COUNTER_WIDTH);
+			Show(page, parent, label, category, counter, AVERAGED_FRAMES, Compact, COUNTER_WIDTH);
 		}
 
 		/// <summary>
 		/// Shows a memory counter in bytes, divided by unit. With frames above 1, shows the average of that many
 		/// frames, for counters that jump around from frame to frame.
 		/// </summary>
-		private static void Bytes(Segment page, ContainerNode form, string label, string counter, float unit, string format,
+		private static void Bytes(Segment page, ContainerNode parent, string label, string counter, float unit, string format,
 			int frames = 1)
 		{
-			Show(page, form, label, ProfilerCategory.Memory, counter, frames, value => string.Format(format, value / unit), BYTES_WIDTH);
+			Show(page, parent, label, ProfilerCategory.Memory, counter, frames, value => string.Format(format, value / unit), BYTES_WIDTH);
 		}
 
 		/// <summary>
 		/// Shows a profiler counter as text, read every READ_INTERVAL. Hidden if this player doesn't have the
 		/// counter.
 		/// </summary>
-		private static void Show(Segment page, ContainerNode form, string label, ProfilerCategory category, string counter,
+		private static void Show(Segment page, ContainerNode parent, string label, ProfilerCategory category, string counter,
 			int frames, Func<float, string> toText, int width)
 		{
 			var recorder = Record(page, category, counter, frames);
 			var text = string.Empty;
 			var nextRead = 0f;
 			
-			form.Property(label, () => {
+			parent.Property(label, () => {
 					if (Time.unscaledTime >= nextRead) {
 						nextRead = Time.unscaledTime + READ_INTERVAL;
 						text = toText(recorder.Valid ? Average(recorder) : 0f);

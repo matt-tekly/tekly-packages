@@ -5,7 +5,7 @@ namespace Tekly.DevBoard
 {
 	/// <summary>
 	/// Bindings over a PlayerPrefs key, so a control's value is kept between sessions, e.g.
-	/// <code>form.TextInput("Path", PrefBinding.String("game.debug.path"));</code>
+	/// <code>page.TextInput("Path", PrefBinding.String("game.debug.path"));</code>
 	/// The value is read from PlayerPrefs once, when the binding is made, and saved on every write. Read the
 	/// binding from code for the current value. onChanged runs after each write with the new value.
 	/// </summary>

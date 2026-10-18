@@ -12,7 +12,7 @@ namespace Tekly.DevBoard.Nodes
 		/// </summary>
 		public string StartTab { get; private set; }
 
-		public TabsNode() : base(ContainerKind.Stack)
+		public TabsNode() : base(ContainerKind.Column)
 		{
 		}
 
@@ -31,7 +31,7 @@ namespace Tekly.DevBoard.Nodes
 	/// </summary>
 	public sealed class TabNode : ContainerNode
 	{
-		public TabNode(string label) : base(ContainerKind.Stack, label)
+		public TabNode(string label) : base(ContainerKind.Column, label)
 		{
 		}
 
@@ -49,7 +49,7 @@ namespace Tekly.DevBoard.Nodes
 		}
 
 		/// <summary>
-		/// Adds a tab. Its children are laid out like a Stack's.
+		/// Adds a tab. Its children are laid out like a Column's.
 		/// </summary>
 		public static TabNode Tab(this TabsNode tabs, string label)
 		{

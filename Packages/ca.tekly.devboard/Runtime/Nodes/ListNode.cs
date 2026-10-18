@@ -108,7 +108,7 @@ namespace Tekly.DevBoard.Nodes
 		/// </summary>
 		internal int ItemsVersion { get; private protected set; }
 
-		protected ListNode() : base(ContainerKind.Stack)
+		protected ListNode() : base(ContainerKind.Column)
 		{
 		}
 

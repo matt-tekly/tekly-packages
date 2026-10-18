@@ -21,8 +21,10 @@ namespace Tekly.DevBoard.Views
 
 		private const string DESCRIPTION_STYLE = "sublabel";
 
-		// The width group a form lines its labels up with
+		// The width group controls line their labels up with, under the nearest scope: usually the segment
 		private const string LABEL_WIDTH_GROUP = "label";
+
+		private const int SEGMENT_SPACING = 2;
 
 		private static readonly string[] s_vectorAxes = { "X", "Y", "Z" };
 
@@ -75,7 +77,7 @@ namespace Tekly.DevBoard.Views
 			});
 
 			RegisterFactory<OnOffButtonsNode, ContainerWidget>(
-				(node, parent) => parent.Row().WithPadding(0).WithCrossAlignment(CrossAlignment.Center),
+				(node, parent) => parent.Row().WithCrossAlignment(CrossAlignment.Center),
 				(node, row, view) => {
 					FieldLabel(row, LabelText(node));
 
@@ -86,7 +88,7 @@ namespace Tekly.DevBoard.Views
 				});
 
 			RegisterFactory<Vector3InputNode, ContainerWidget>(
-				(node, parent) => parent.Row().WithPadding(0).WithCrossAlignment(CrossAlignment.Center),
+				(node, parent) => parent.Row().WithCrossAlignment(CrossAlignment.Center),
 				(node, row, view) => BindVector3(node, row));
 
 			Register<SliderNode, SliderWidget>(WidgetPrefabs.Slider, (node, widget, view) => {
@@ -114,18 +116,21 @@ namespace Tekly.DevBoard.Views
 				ApplyLayout(node, widget);
 			});
 
-			// The tabs' contents are plain stacks, from the ContainerNode registration
+			// The tabs' contents are plain columns, from the ContainerNode registration
 			Register<TabsNode, TabsWidget>(WidgetPrefabs.Tabs, (node, widget, view) => ApplyLayout(node, widget));
 
 			// Scopes, list rows and dynamic scopes just group their content
 			RegisterFactory<ScopeNode, ContainerWidget>((node, parent) => ContainerWidget.CreatePlain(parent.Content, "Scope"),
 				(node, widget, view) => ApplyLayout(node, widget));
 
+			// A segment is a width group scope, so the labels of the controls in it line up, spaced like a list of
+			// controls rather than the card's usual spacing
 			Register<Segment, ContainerWidget>(WidgetPrefabs.Card, (node, widget, view) => {
 				if (node.Title != null) {
 					widget.Heading(node.Title);
 				}
 
+				widget.WithWidthGroupScope().WithSpacing(SEGMENT_SPACING);
 				ApplyLayout(node, widget);
 			});
 
@@ -134,7 +139,7 @@ namespace Tekly.DevBoard.Views
 		}
 
 		/// <summary>
-		/// The label in the form's label column, then an input per axis sharing the rest of the row. The axis labels
+		/// The label in the label column, then an input per axis sharing the rest of the row. The axis labels
 		/// stay out of the column, so they're only as wide as their letter.
 		/// </summary>
 		private static void BindVector3(Vector3InputNode node, ContainerWidget row)
@@ -170,7 +175,7 @@ namespace Tekly.DevBoard.Views
 
 		/// <summary>
 		/// A label for controls built from several widgets, looking like an input's label: the same color, and in
-		/// a form's label column. Nothing for an empty label.
+		/// the label column. Nothing for an empty label.
 		/// </summary>
 		private static void FieldLabel(ContainerWidget row, string label)
 		{
@@ -210,7 +215,7 @@ namespace Tekly.DevBoard.Views
 		}
 
 		/// <summary>
-		/// The prefab for each kind of container, or a bare layout for a stack. A node's Prefab overrides it.
+		/// The prefab for a card, or a bare layout for a column or row. A node's Style overrides it.
 		/// </summary>
 		private static ContainerWidget CreateContainer(ContainerNode node, ContainerWidget parent)
 		{
@@ -221,12 +226,10 @@ namespace Tekly.DevBoard.Views
 			switch (node.Kind) {
 				case ContainerKind.Card:
 					return parent.Create(WidgetPrefabs.Card);
-				case ContainerKind.Form:
-					return parent.Create(WidgetPrefabs.Form);
 				case ContainerKind.Row:
-					return parent.Create(WidgetPrefabs.Row);
+					return ContainerWidget.CreatePlainRow(parent.Content);
 				default:
-					return ContainerWidget.CreatePlain(parent.Content, "Stack");
+					return ContainerWidget.CreatePlain(parent.Content, "Column");
 			}
 		}
 
@@ -236,6 +239,10 @@ namespace Tekly.DevBoard.Views
 		public static void ApplyLayout(ContainerNode node, ContainerWidget widget)
 		{
 			var layout = node.Layout;
+
+			if (layout.Axis is { } axis) {
+				widget.WithAxis(axis);
+			}
 
 			if (layout.Padding is { } padding) {
 				widget.WithPadding(padding);
