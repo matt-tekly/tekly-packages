@@ -561,7 +561,8 @@ namespace Tekly.DevBoard.Console
 			}
 		}
 
-		private void Print(CommandLine line)
+		// Qualified: projects often have a global CommandLine namespace (CommandLineParser) that would win here
+		private void Print(Commands.CommandLine line)
 		{
 			Print(line.IsError ? string.Format(ERROR, line.Text) : line.Text);
 		}
