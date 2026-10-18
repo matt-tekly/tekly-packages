@@ -14,19 +14,14 @@ namespace Tekly.DevBoard.Nodes
 
 	public static class ToggleNodeFactory
 	{
-		public static ToggleNode Toggle(this ContainerNode parent, string label, Func<bool> getValue, Action<bool> setValue,
-			Style<ToggleNode> style = default)
+		public static ToggleNode Toggle(this ContainerNode parent, string label, Func<bool> getValue, Action<bool> setValue)
 		{
-			return parent.Toggle(label, new Binding<bool>(getValue, setValue), style);
+			return parent.Toggle(label, new Binding<bool>(getValue, setValue));
 		}
 
-		public static ToggleNode Toggle(this ContainerNode parent, string label, Binding<bool> binding,
-			Style<ToggleNode> style = default)
+		public static ToggleNode Toggle(this ContainerNode parent, string label, Binding<bool> binding)
 		{
-			var node = parent.Add(new ToggleNode(label, binding));
-			node.SetStyle(style.Name);
-
-			return node;
+			return parent.Add(new ToggleNode(label, binding));
 		}
 	}
 }

@@ -1,9 +1,10 @@
 namespace Tekly.DevBoard.Nodes
 {
 	/// <summary>
-	/// A named look for a kind of node, instead of its usual one, e.g. a button shown as a page button. Typed with
-	/// the node it's for, so a slider's style can't be given to a button. Panels show a node with the registered
-	/// widget prefab of that name; other front ends can map it however suits them, or ignore it.
+	/// A named look for a kind of node, instead of its usual one, e.g. a button shown as a page button. Given with
+	/// WithStyle: <c>page.Button("Go", Go).WithStyle(Styles.PageButton)</c>. Typed with the node it's for, so a
+	/// slider's style can't be given to a button. Panels show a node with the registered widget prefab of that
+	/// name; other front ends can map it however suits them, or ignore it.
 	///
 	/// Built-in ones are in <see cref="Styles"/>. A game with its own prefabs can declare its own the same way:
 	/// <code>public static readonly Style&lt;ButtonNode&gt; BigButton = "button_big";</code>

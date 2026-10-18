@@ -152,12 +152,9 @@ namespace Tekly.DevBoard.Nodes
 
 	public static class ButtonNodeFactory
 	{
-		public static ButtonNode Button(this ContainerNode parent, string label, Action action, Style<ButtonNode> style = default)
+		public static ButtonNode Button(this ContainerNode parent, string label, Action action)
 		{
-			var node = parent.Add(new ButtonNode(label, action));
-			node.SetStyle(style.Name);
-
-			return node;
+			return parent.Add(new ButtonNode(label, action));
 		}
 
 		/// <summary>
@@ -167,7 +164,7 @@ namespace Tekly.DevBoard.Nodes
 		/// </summary>
 		public static ButtonNode IconButton(this ContainerNode parent, string label, string icon, Action action)
 		{
-			return parent.Button(label, action, Styles.IconButton).WithIcon(icon).IconOnly().Plain();
+			return parent.Button(label, action).WithStyle(Styles.IconButton).WithIcon(icon).IconOnly().Plain();
 		}
 
 		/// <summary>
@@ -184,12 +181,9 @@ namespace Tekly.DevBoard.Nodes
 		/// <summary>
 		/// A button that opens the page at path in the panel it's clicked in.
 		/// </summary>
-		public static LinkNode Link(this ContainerNode parent, string label, string path, Style<LinkNode> style = default)
+		public static LinkNode Link(this ContainerNode parent, string label, string path)
 		{
-			var node = parent.Add(new LinkNode(label, path));
-			node.SetStyle(style.Name);
-
-			return node;
+			return parent.Add(new LinkNode(label, path));
 		}
 	}
 

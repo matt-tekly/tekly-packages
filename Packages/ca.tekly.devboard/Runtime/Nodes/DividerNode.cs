@@ -12,12 +12,9 @@ namespace Tekly.DevBoard.Nodes
 
 	public static class DividerNodeFactory
 	{
-		public static DividerNode Divider(this ContainerNode parent, Style<DividerNode> style = default)
+		public static DividerNode Divider(this ContainerNode parent)
 		{
-			var node = parent.Add(new DividerNode());
-			node.SetStyle(style.Name);
-
-			return node;
+			return parent.Add(new DividerNode());
 		}
 	}
 }

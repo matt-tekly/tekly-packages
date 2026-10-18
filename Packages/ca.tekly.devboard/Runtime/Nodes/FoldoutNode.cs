@@ -31,12 +31,9 @@ namespace Tekly.DevBoard.Nodes
 
 	public static class FoldoutNodeFactory
 	{
-		public static FoldoutNode Foldout(this ContainerNode parent, string label, Style<FoldoutNode> style = default)
+		public static FoldoutNode Foldout(this ContainerNode parent, string label)
 		{
-			var node = parent.Add(new FoldoutNode(label));
-			node.SetStyle(style.Name);
-
-			return node;
+			return parent.Add(new FoldoutNode(label));
 		}
 	}
 }

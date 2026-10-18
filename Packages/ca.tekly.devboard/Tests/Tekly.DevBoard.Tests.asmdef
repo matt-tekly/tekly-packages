@@ -4,6 +4,7 @@
     "references": [
         "Tekly.DevBoard",
         "Tekly.Common.Runtime",
+        "Tekly.Trellis.Runtime",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

@@ -83,63 +83,42 @@ namespace Tekly.DevBoard.Nodes
 			return child;
 		}
 
-		public ContainerNode WithPadding(float all)
-		{
-			return WithPadding(Edges.All(all));
-		}
+		// Set through the With extensions in ContainerNodeSettings, which keep the caller's container type for chaining
 
-		public ContainerNode WithPadding(float left, float top, float right, float bottom)
-		{
-			return WithPadding(new Edges(left, right, top, bottom));
-		}
-
-		public ContainerNode WithPadding(Edges padding)
+		internal void SetPadding(Edges padding)
 		{
 			EnsureEditable();
 			Layout.Padding = padding;
-			return this;
 		}
 
-		public ContainerNode WithSpacing(int spacing)
+		internal void SetSpacing(int spacing)
 		{
 			EnsureEditable();
 			Layout.Spacing = spacing;
-			return this;
 		}
 
-		public ContainerNode WithAlignment(LayoutAlignment alignment)
+		internal void SetAlignment(LayoutAlignment alignment)
 		{
 			EnsureEditable();
 			Layout.Alignment = alignment;
-			return this;
 		}
 
-		public ContainerNode WithCrossAlignment(CrossAlignment crossAlignment)
+		internal void SetCrossAlignment(CrossAlignment crossAlignment)
 		{
 			EnsureEditable();
 			Layout.CrossAlignment = crossAlignment;
-			return this;
 		}
 
-		public ContainerNode WithMaxHeight(float maxHeight)
+		internal void SetMaxHeight(float maxHeight)
 		{
 			EnsureEditable();
 			Layout.MaxHeight = maxHeight;
-			return this;
 		}
 
-		/// <summary>
-		/// Whether nodes inside with WithWidthGroup share widths here instead of with the rest of the nearest scope
-		/// above: the segment, a card, a tab, or another container with a scope. Controls' labels are in a width
-		/// group, so a scope also keeps them out of the segment's label column, e.g. side by side columns of
-		/// properties. Cards and rows are scopes unless told otherwise; columns aren't, so a column of controls lines
-		/// up with the segment. Pass false for a row whose labels should join the segment's column.
-		/// </summary>
-		public ContainerNode WithWidthGroupScope(bool scoped = true)
+		internal void SetWidthGroupScope(bool scoped)
 		{
 			EnsureEditable();
 			Layout.WidthGroupScope = scoped;
-			return this;
 		}
 
 		/// <summary>
@@ -386,15 +365,74 @@ namespace Tekly.DevBoard.Nodes
 		public bool WidthGroupScope { get; internal set; }
 	}
 
+	/// <summary>
+	/// Layout settings for every kind of container. Extensions rather than methods so they hand back the caller's own
+	/// container type, so a foldout's or list's own settings can still follow them.
+	/// </summary>
+	public static class ContainerNodeSettings
+	{
+		public static T WithPadding<T>(this T container, float all) where T : ContainerNode
+		{
+			return container.WithPadding(Edges.All(all));
+		}
+
+		public static T WithPadding<T>(this T container, float left, float top, float right, float bottom) where T : ContainerNode
+		{
+			return container.WithPadding(new Edges(left, right, top, bottom));
+		}
+
+		public static T WithPadding<T>(this T container, Edges padding) where T : ContainerNode
+		{
+			container.SetPadding(padding);
+			return container;
+		}
+
+		public static T WithSpacing<T>(this T container, int spacing) where T : ContainerNode
+		{
+			container.SetSpacing(spacing);
+			return container;
+		}
+
+		public static T WithAlignment<T>(this T container, LayoutAlignment alignment) where T : ContainerNode
+		{
+			container.SetAlignment(alignment);
+			return container;
+		}
+
+		public static T WithCrossAlignment<T>(this T container, CrossAlignment crossAlignment) where T : ContainerNode
+		{
+			container.SetCrossAlignment(crossAlignment);
+			return container;
+		}
+
+		public static T WithMaxHeight<T>(this T container, float maxHeight) where T : ContainerNode
+		{
+			container.SetMaxHeight(maxHeight);
+			return container;
+		}
+
+		/// <summary>
+		/// Whether nodes inside with WithWidthGroup share widths here instead of with the rest of the nearest scope
+		/// above: the segment, a card, a tab, or another container with a scope. Controls' labels are in a width
+		/// group, so a scope also keeps them out of the segment's label column, e.g. side by side columns of
+		/// properties. Cards and rows are scopes unless told otherwise; columns aren't, so a column of controls lines
+		/// up with the segment. Pass false for a row whose labels should join the segment's column.
+		/// </summary>
+		public static T WithWidthGroupScope<T>(this T container, bool scoped = true) where T : ContainerNode
+		{
+			container.SetWidthGroupScope(scoped);
+			return container;
+		}
+	}
+
 	public static class ContainerNodeFactory
 	{
 		/// <summary>
 		/// A container with a background, for grouping widgets. Vertical, or side by side with LayoutAxis.Horizontal.
 		/// </summary>
-		public static ContainerNode Card(this ContainerNode parent, LayoutAxis axis = LayoutAxis.Vertical,
-			Style<ContainerNode> style = default)
+		public static ContainerNode Card(this ContainerNode parent, LayoutAxis axis = LayoutAxis.Vertical)
 		{
-			var card = Container(ContainerKind.Card, style);
+			var card = new ContainerNode(ContainerKind.Card);
 			card.Layout.Axis = axis;
 
 			return parent.Add(card);
@@ -403,34 +441,26 @@ namespace Tekly.DevBoard.Nodes
 		/// <summary>
 		/// Lays nodes out side by side.
 		/// </summary>
-		public static ContainerNode Row(this ContainerNode parent, Style<ContainerNode> style = default)
+		public static ContainerNode Row(this ContainerNode parent)
 		{
-			return parent.Add(Container(ContainerKind.Row, style));
+			return parent.Add(new ContainerNode(ContainerKind.Row));
 		}
 
 		/// <summary>
 		/// A row whose buttons sit edge to edge as one bar, with only its outer corners rounded. Short for
-		/// Row(Styles.SegmentedRow).
+		/// Row().WithStyle(Styles.SegmentedRow).
 		/// </summary>
 		public static ContainerNode ButtonRow(this ContainerNode parent)
 		{
-			return parent.Row(Styles.SegmentedRow);
+			return parent.Row().WithStyle(Styles.SegmentedRow);
 		}
 
 		/// <summary>
 		/// A plain vertical group, with no background.
 		/// </summary>
-		public static ContainerNode Column(this ContainerNode parent, Style<ContainerNode> style = default)
+		public static ContainerNode Column(this ContainerNode parent)
 		{
-			return parent.Add(Container(ContainerKind.Column, style));
-		}
-
-		private static ContainerNode Container(ContainerKind kind, Style<ContainerNode> style)
-		{
-			var container = new ContainerNode(kind);
-			container.SetStyle(style.Name);
-
-			return container;
+			return parent.Add(new ContainerNode(ContainerKind.Column));
 		}
 	}
 }

@@ -63,7 +63,8 @@ namespace Tekly.DevBoard
 			var root = Build(page => {
 				page.Column().WithId("left").Button("Reset", null);
 				page.Add(new ContainerNode(ContainerKind.Card, "Cheats")).Button("Reset", null);
-				page.Foldout("More").Button("Reset", null);
+				// A container setter keeps the foldout's type, so its own settings can follow
+				page.Foldout("More").WithPadding(4).WithStartExpanded().Button("Reset", null);
 				page.Tabs().Tab("Audio").Button("Reset", null);
 			});
 

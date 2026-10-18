@@ -184,48 +184,37 @@ namespace Tekly.DevBoard.Nodes
 
 	public static class InputNodeFactory
 	{
-		public static TextInputNode TextInput(this ContainerNode parent, string label, Func<string> getValue, Action<string> setValue,
-			Style<TextInputNode> style = default)
+		public static TextInputNode TextInput(this ContainerNode parent, string label, Func<string> getValue, Action<string> setValue)
 		{
-			return parent.TextInput(label, new Binding<string>(getValue, setValue), style);
+			return parent.TextInput(label, new Binding<string>(getValue, setValue));
 		}
 
-		public static TextInputNode TextInput(this ContainerNode parent, string label, Binding<string> binding,
-			Style<TextInputNode> style = default)
+		public static TextInputNode TextInput(this ContainerNode parent, string label, Binding<string> binding)
 		{
-			var node = parent.Add(new TextInputNode(label, binding));
-			node.SetStyle(style.Name);
-
-			return node;
+			return parent.Add(new TextInputNode(label, binding));
 		}
 
 		public static NumberInputNode NumberInput(this ContainerNode parent, string label, Func<double> getValue,
-			Action<double> setValue, Style<NumberInputNode> style = default)
+			Action<double> setValue)
 		{
-			return parent.NumberInput(label, new Binding<double>(getValue, setValue), style);
+			return parent.NumberInput(label, new Binding<double>(getValue, setValue));
 		}
 
-		public static NumberInputNode NumberInput(this ContainerNode parent, string label, Binding<double> binding,
-			Style<NumberInputNode> style = default)
+		public static NumberInputNode NumberInput(this ContainerNode parent, string label, Binding<double> binding)
 		{
-			var node = parent.Add(new NumberInputNode(label, binding));
-			node.SetStyle(style.Name);
-
-			return node;
+			return parent.Add(new NumberInputNode(label, binding));
 		}
 
-		public static NumberInputNode IntInput(this ContainerNode parent, string label, Func<int> getValue, Action<int> setValue,
-			Style<NumberInputNode> style = default)
+		public static NumberInputNode IntInput(this ContainerNode parent, string label, Func<int> getValue, Action<int> setValue)
 		{
 			var binding = new Binding<int>(getValue, setValue).Convert(value => (double) value, ToInt);
-			return parent.NumberInput(label, binding, style).WithWholeNumbers(true);
+			return parent.NumberInput(label, binding).WithWholeNumbers(true);
 		}
 
-		public static NumberInputNode FloatInput(this ContainerNode parent, string label, Func<float> getValue, Action<float> setValue,
-			Style<NumberInputNode> style = default)
+		public static NumberInputNode FloatInput(this ContainerNode parent, string label, Func<float> getValue, Action<float> setValue)
 		{
 			var binding = new Binding<float>(getValue, setValue).Convert(value => (double) value, value => (float) value);
-			return parent.NumberInput(label, binding, style);
+			return parent.NumberInput(label, binding);
 		}
 
 		/// <summary>

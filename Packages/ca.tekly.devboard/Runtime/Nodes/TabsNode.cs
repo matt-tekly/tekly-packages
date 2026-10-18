@@ -47,12 +47,9 @@ namespace Tekly.DevBoard.Nodes
 
 	public static class TabsNodeFactory
 	{
-		public static TabsNode Tabs(this ContainerNode parent, Style<TabsNode> style = default)
+		public static TabsNode Tabs(this ContainerNode parent)
 		{
-			var node = parent.Add(new TabsNode());
-			node.SetStyle(style.Name);
-
-			return node;
+			return parent.Add(new TabsNode());
 		}
 
 		/// <summary>

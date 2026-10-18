@@ -48,7 +48,7 @@ namespace Tekly.DevBoard.BuiltIn
 
 		private static void Section(Segment page, string heading, System.Action<ContainerNode> build)
 		{
-			build(page.Foldout(heading, Styles.SubtleFoldout));
+			build(page.Foldout(heading).WithStyle(Styles.SubtleFoldout));
 		}
 
 		private static void Row(ContainerNode section, string label, string value)

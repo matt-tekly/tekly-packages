@@ -27,25 +27,22 @@ namespace Tekly.DevBoard.Nodes
 
 	public static class LabelNodeFactory
 	{
-		public static LabelNode Label(this ContainerNode parent, string text, Style<LabelNode> style = default)
+		public static LabelNode Label(this ContainerNode parent, string text)
 		{
-			return parent.Label(text, LabelKind.Normal, style);
+			return parent.Label(text, LabelKind.Normal);
 		}
 
 		/// <summary>
 		/// A label styled as a heading, for titling a group of nodes.
 		/// </summary>
-		public static LabelNode Heading(this ContainerNode parent, string text, Style<LabelNode> style = default)
+		public static LabelNode Heading(this ContainerNode parent, string text)
 		{
-			return parent.Label(text, LabelKind.Heading, style);
+			return parent.Label(text, LabelKind.Heading);
 		}
 
-		public static LabelNode Label(this ContainerNode parent, string text, LabelKind kind, Style<LabelNode> style = default)
+		public static LabelNode Label(this ContainerNode parent, string text, LabelKind kind)
 		{
-			var node = parent.Add(new LabelNode(text, kind));
-			node.SetStyle(style.Name);
-
-			return node;
+			return parent.Add(new LabelNode(text, kind));
 		}
 	}
 }

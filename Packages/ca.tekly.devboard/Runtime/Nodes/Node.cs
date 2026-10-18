@@ -292,6 +292,16 @@ namespace Tekly.DevBoard.Nodes
 	public static class NodeExtensions
 	{
 		/// <summary>
+		/// Shows the node in a named look instead of its usual one, e.g. <c>page.Button("Go", Go).WithStyle(Styles.PageButton)</c>.
+		/// Styles are typed with the node they're for, see <see cref="Style{TNode}"/> and <see cref="Styles"/>.
+		/// </summary>
+		public static TNode WithStyle<TNode>(this TNode node, Style<TNode> style) where TNode : Node
+		{
+			node.SetStyle(style.Name);
+			return node;
+		}
+
+		/// <summary>
 		/// Shows the node only while visible returns true. Panels poll it as they refresh.
 		/// </summary>
 		public static T VisibleWhen<T>(this T node, Func<bool> visible) where T : Node

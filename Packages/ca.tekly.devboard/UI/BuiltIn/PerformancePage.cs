@@ -81,7 +81,7 @@ namespace Tekly.DevBoard.BuiltIn
 
 		private static void Memory(Segment page)
 		{
-			var foldout = page.Foldout("Memory", Styles.SubtleFoldout);
+			var foldout = page.Foldout("Memory").WithStyle(Styles.SubtleFoldout);
 			Bytes(page, foldout, "Total Used", "Total Used Memory", BYTES_PER_MB, "{0:N1} MB");
 			Bytes(page, foldout, "Total Reserved", "Total Reserved Memory", BYTES_PER_MB, "{0:N1} MB");
 			Bytes(page, foldout, "GC Used", "GC Used Memory", BYTES_PER_MB, "{0:N1} MB");

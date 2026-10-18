@@ -62,31 +62,24 @@ namespace Tekly.DevBoard.Nodes
 	public static class SliderNodeFactory
 	{
 		public static SliderNode Slider(this ContainerNode parent, string label, float min, float max, Func<float> getValue,
-			Action<float> setValue, Style<SliderNode> style = default)
+			Action<float> setValue)
 		{
-			return parent.Slider(label, min, max, new Binding<float>(getValue, setValue), style);
+			return parent.Slider(label, min, max, new Binding<float>(getValue, setValue));
 		}
 
-		public static SliderNode Slider(this ContainerNode parent, string label, float min, float max, Binding<float> binding,
-			Style<SliderNode> style = default)
+		public static SliderNode Slider(this ContainerNode parent, string label, float min, float max, Binding<float> binding)
 		{
-			var node = parent.Add(new SliderNode(label, min, max, false, binding));
-			node.SetStyle(style.Name);
-
-			return node;
+			return parent.Add(new SliderNode(label, min, max, false, binding));
 		}
 
 		/// <summary>
 		/// A slider that snaps to whole numbers.
 		/// </summary>
 		public static SliderNode SliderInt(this ContainerNode parent, string label, int min, int max, Func<int> getValue,
-			Action<int> setValue, Style<SliderNode> style = default)
+			Action<int> setValue)
 		{
 			var binding = new Binding<int>(getValue, setValue).Convert(value => (float) value, Mathf.RoundToInt);
-			var node = parent.Add(new SliderNode(label, min, max, true, binding));
-			node.SetStyle(style.Name);
-
-			return node;
+			return parent.Add(new SliderNode(label, min, max, true, binding));
 		}
 	}
 }
