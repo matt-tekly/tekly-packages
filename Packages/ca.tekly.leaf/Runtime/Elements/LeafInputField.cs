@@ -188,6 +188,116 @@ namespace Tekly.Leaf.Elements
 			}
 		}
 
+		/// <summary>
+		/// Ctrl+Backspace and Ctrl+Delete (Option on a Mac) delete a whole word, as they do in most apps. TMP's
+		/// event loop can't be stepped into, so this watches what it did: when the modifier is held and TMP removed
+		/// exactly one character at the caret with nothing selected, the deletion is widened to the word boundary.
+		/// </summary>
+		public override void OnUpdateSelected(BaseEventData eventData)
+		{
+			if (!isFocused || readOnly || !LeafTabInput.IsWordModifierHeld()) {
+				base.OnUpdateSelected(eventData);
+				return;
+			}
+
+			var before = text;
+			var caretBefore = stringPositionInternal;
+			var hadSelection = stringPositionInternal != stringSelectPositionInternal;
+
+			base.OnUpdateSelected(eventData);
+
+			if (hadSelection || before == null || text.Length != before.Length - 1) {
+				return;
+			}
+
+			var caret = stringPositionInternal;
+
+			if (caret == caretBefore - 1 && IsRemovedAt(before, text, caret)) {
+				// Backspace: the character before the old caret went. Take the rest of the word, and the spaces before it
+				var start = WordStartBefore(before, caretBefore);
+				SetTextKeepingCaret(before.Remove(start, caretBefore - start), start);
+			} else if (caret == caretBefore && IsRemovedAt(before, text, caret)) {
+				// Delete: the character after the caret went. Take the rest of the word, and the spaces after it
+				var end = WordEndAfter(before, caretBefore);
+				SetTextKeepingCaret(before.Remove(caretBefore, end - caretBefore), caretBefore);
+			}
+		}
+
+		/// <summary>
+		/// Whether after is before with the character at index removed.
+		/// </summary>
+		private static bool IsRemovedAt(string before, string after, int index)
+		{
+			return index >= 0 && index < before.Length
+				&& string.CompareOrdinal(before, 0, after, 0, index) == 0
+				&& string.CompareOrdinal(before, index + 1, after, index, before.Length - index - 1) == 0;
+		}
+
+		/// <summary>
+		/// Where a backwards word deletion from index stops: back over spaces, then over a word, or over a run of
+		/// punctuation when no word follows the spaces.
+		/// </summary>
+		private static int WordStartBefore(string value, int index)
+		{
+			var start = index;
+
+			while (start > 0 && IsSpace(value[start - 1])) {
+				start--;
+			}
+
+			if (start > 0 && IsWordCharacter(value, start - 1)) {
+				while (start > 0 && IsWordCharacter(value, start - 1)) {
+					start--;
+				}
+			} else {
+				while (start > 0 && !IsWordCharacter(value, start - 1) && !IsSpace(value[start - 1])) {
+					start--;
+				}
+			}
+
+			return start;
+		}
+
+		/// <summary>
+		/// Where a forwards word deletion from index stops: over a word, or a run of punctuation, then over the
+		/// spaces after it.
+		/// </summary>
+		private static int WordEndAfter(string value, int index)
+		{
+			var end = index;
+
+			if (IsWordCharacter(value, end)) {
+				while (IsWordCharacter(value, end)) {
+					end++;
+				}
+			} else {
+				while (end < value.Length && !IsWordCharacter(value, end) && !IsSpace(value[end])) {
+					end++;
+				}
+			}
+
+			while (end < value.Length && IsSpace(value[end])) {
+				end++;
+			}
+
+			return end;
+		}
+
+		/// <summary>
+		/// Horizontal whitespace of any kind, including non-breaking and ideographic spaces. Not line breaks: a
+		/// word deletion stops at the end of its line.
+		/// </summary>
+		private static bool IsSpace(char c)
+		{
+			return c != '\n' && c != '\r' && char.IsWhiteSpace(c);
+		}
+
+		private void SetTextKeepingCaret(string value, int caret)
+		{
+			text = value;
+			stringPosition = caret;
+		}
+
 		protected override void Append(char input)
 		{
 			// TMP can read the key before the scope moves the selection away this frame, so a typed tab is
@@ -313,8 +423,23 @@ namespace Tekly.Leaf.Elements
 				return false;
 			}
 
+			// Letters in any script, plus the marks that attach to them (a decomposed accent, a vowel sign in
+			// Devanagari or Thai), so a word written with combining characters isn't cut at one. Scripts that don't
+			// separate words with spaces, like Chinese, are one word per run; segmenting them needs a dictionary
 			var c = value[index];
-			return char.IsLetterOrDigit(c) || c == '_' || c == '\'';
+			return char.IsLetterOrDigit(c) || c == '_' || c == '\'' || IsCombiningMark(c);
+		}
+
+		private static bool IsCombiningMark(char c)
+		{
+			switch (char.GetUnicodeCategory(c)) {
+				case System.Globalization.UnicodeCategory.NonSpacingMark:
+				case System.Globalization.UnicodeCategory.SpacingCombiningMark:
+				case System.Globalization.UnicodeCategory.EnclosingMark:
+					return true;
+				default:
+					return false;
+			}
 		}
 
 		private static int GetCaretIndex(TMP_TextInfo textInfo, int stringIndex)
