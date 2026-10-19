@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using Tekly.Common.Ui.Fancy;
@@ -61,6 +61,9 @@ namespace Tekly.DevBoard.Console
 		private readonly List<string> m_history;
 
 		private readonly List<LabelWidget> m_suggestionLabels = new();
+
+		// Up and Down repeat while held, to walk through the history or suggestions
+		private readonly ArrowRepeat m_arrows = new();
 		private static readonly Vector3[] s_corners = new Vector3[4];
 
 		private ConsoleWidget m_root;
@@ -74,6 +77,9 @@ namespace Tekly.DevBoard.Console
 		private string m_line = string.Empty;
 		private int m_caret;
 		private CommandCompletion m_completion = CommandCompletion.Empty;
+
+		// The width of the current completion's widest row, measured once per completion. Negative until it is
+		private float m_widestRow = -1f;
 
 		// -1 while nothing's picked: Enter then runs the line
 		private int m_picked = -1;
@@ -102,6 +108,15 @@ namespace Tekly.DevBoard.Console
 			m_history = LoadHistory();
 
 			m_commands.Add("clear", (Action) Clear, "Clears the console");
+			m_board.Settings.Changed += OnSettingsChanged;
+		}
+
+		private void OnSettingsChanged()
+		{
+			// The suggestion count option shows or hides the footer straight away
+			if (IsOpen) {
+				ShowCompletion();
+			}
 		}
 
 		public void Toggle()
@@ -246,13 +261,13 @@ namespace Tekly.DevBoard.Console
 				return;
 			}
 
-			if (KeyInput.Up) {
+			if (m_arrows.Up()) {
 				if (HasSuggestions) {
 					MovePick(-1);
 				} else {
 					BrowseHistory(1);
 				}
-			} else if (KeyInput.Down) {
+			} else if (m_arrows.Down()) {
 				if (HasSuggestions) {
 					MovePick(1);
 				} else {
@@ -345,7 +360,19 @@ namespace Tekly.DevBoard.Console
 			var box = (RectTransform) m_suggestionBox.transform;
 			var bounds = root.rect;
 			var x = topLeft.x - bounds.xMin;
-			var width = Mathf.Min(LayoutUtility.GetPreferredWidth(box), bounds.width - x);
+
+			// As wide as the widest of every suggestion, not just those in view, so the box doesn't change size as
+			// the view scrolls: the box's preferred width is for the rows shown, so the difference is added
+			var shownWidest = 0f;
+
+			foreach (var label in m_suggestionLabels) {
+				if (label.gameObject.activeSelf) {
+					shownWidest = Mathf.Max(shownWidest, label.TextComponent.preferredWidth);
+				}
+			}
+
+			var preferred = LayoutUtility.GetPreferredWidth(box) + Mathf.Max(0f, m_widestRow - shownWidest);
+			var width = Mathf.Min(preferred, bounds.width - x);
 
 			box.sizeDelta = new Vector2(width, LayoutUtility.GetPreferredHeight(box));
 			box.anchoredPosition = new Vector2(x, topLeft.y - bounds.yMin + SUGGESTION_GAP);
@@ -399,13 +426,18 @@ namespace Tekly.DevBoard.Console
 		{
 			m_completion = m_line.Length == 0 ? CommandCompletion.Empty : m_commands.Complete(m_line, m_caret);
 			m_picked = -1;
+			m_widestRow = -1f;
 			ShowCompletion();
 		}
 
 		private void ShowCompletion()
 		{
 			var suggestions = m_completion.Suggestions;
-			var shown = HasSuggestions ? Mathf.Min(suggestions.Count, m_suggestionLabels.Count) : 0;
+			var slots = m_suggestionLabels.Count;
+
+			// More than fit: the last slot says how many there are instead of showing one more, unless turned off
+			var overflow = HasSuggestions && suggestions.Count > slots && m_board.Settings.ShowSuggestionCount;
+			var shown = HasSuggestions ? Mathf.Min(suggestions.Count, overflow ? slots - 1 : slots) : 0;
 
 			// Keeps the pick in view when it's past the first few
 			var first = m_picked >= shown ? m_picked - shown + 1 : 0;
@@ -413,48 +445,102 @@ namespace Tekly.DevBoard.Console
 			// Tab takes the picked suggestion, or the first, so that one looks picked
 			var target = Mathf.Max(0, m_picked);
 
-			// Names and arguments padded to the longest shown, so each lines up in a column (the text is monospace)
+			// Names and arguments padded to the longest of every suggestion, not just those in view, so the columns
+			// (the text is monospace) and the box's width stay put while the view scrolls through them
 			var nameWidth = 0;
 			var detailWidth = 0;
 
-			for (var i = 0; i < shown; i++) {
-				nameWidth = Mathf.Max(nameWidth, suggestions[first + i].Label.Length);
-				detailWidth = Mathf.Max(detailWidth, suggestions[first + i].Detail?.Length ?? 0);
+			foreach (var suggestion in suggestions) {
+				nameWidth = Mathf.Max(nameWidth, suggestion.Label.Length);
+				detailWidth = Mathf.Max(detailWidth, suggestion.Detail?.Length ?? 0);
 			}
 
-			for (var i = 0; i < m_suggestionLabels.Count; i++) {
+			// Trailing spaces don't count towards a text's width, so the widest row is measured as well, for
+			// PlaceSuggestionBox to hold the box at
+			if (m_widestRow < 0f) {
+				m_widestRow = WidestRow(nameWidth, detailWidth);
+			}
+
+			for (var i = 0; i < slots; i++) {
 				var label = m_suggestionLabels[i];
-				label.gameObject.SetActive(i < shown);
+				var isFooter = overflow && i == slots - 1;
+				label.gameObject.SetActive(i < shown || isFooter);
 
-				if (i < shown) {
+				if (isFooter) {
+					label.Text = string.Format(DIMMER, Footer(suggestions.Count, shown));
+				} else if (i < shown) {
 					var index = first + i;
-					var suggestion = suggestions[index];
-					var hasMore = suggestion.Detail != null || suggestion.Description != null;
-					var name = hasMore ? suggestion.Label.PadRight(nameWidth) : suggestion.Label;
-					var text = $"<noparse>{name}</noparse>";
-
-					if (index == target) {
-						text = string.Format(PICKED, text);
-					}
-
-					if (suggestion.Description != null && detailWidth > 0) {
-						var detail = (suggestion.Detail ?? string.Empty).PadRight(detailWidth);
-						text += "  " + string.Format(DIM, $"<noparse>{detail}</noparse>");
-					} else if (suggestion.Detail != null) {
-						text += "  " + string.Format(DIM, $"<noparse>{suggestion.Detail}</noparse>");
-					}
-
-					if (suggestion.Description != null) {
-						text += "  " + string.Format(DIMMER, $"<noparse>{suggestion.Description}</noparse>");
-					}
-
-					label.Text = text;
+					label.Text = RowText(suggestions[index], nameWidth, detailWidth, index == target);
 				}
 			}
 
 			m_hint.Text = Hint();
 			m_hintBox.gameObject.SetActive(m_hint.Text.Length > 0);
 			m_suggestionBox.gameObject.SetActive(shown > 0);
+		}
+
+		/// <summary>
+		/// The last line of a box that couldn't fit every suggestion: how many more there are, or while stepping
+		/// through them with the arrows, where the pick is. The registry stops counting at its most suggestions, so
+		/// that many shows as a lower bound.
+		/// </summary>
+		private string Footer(int count, int shown)
+		{
+			var capped = count >= CommandRegistry.MAX_SUGGESTIONS;
+
+			if (m_picked < 0) {
+				var more = count - shown;
+				return capped ? $"{more}+ more" : $"{more} more";
+			}
+
+			return capped ? $"{m_picked + 1} of {count}+" : $"{m_picked + 1} of {count}";
+		}
+
+		/// <summary>
+		/// One suggestion as a line of the box: its name, then its arguments and description dimmed, each padded to
+		/// its column.
+		/// </summary>
+		private static string RowText(CommandSuggestion suggestion, int nameWidth, int detailWidth, bool picked)
+		{
+			var hasMore = suggestion.Detail != null || suggestion.Description != null;
+			var name = hasMore ? suggestion.Label.PadRight(nameWidth) : suggestion.Label;
+			var text = $"<noparse>{name}</noparse>";
+
+			if (picked) {
+				text = string.Format(PICKED, text);
+			}
+
+			if (suggestion.Description != null && detailWidth > 0) {
+				var detail = (suggestion.Detail ?? string.Empty).PadRight(detailWidth);
+				text += "  " + string.Format(DIM, $"<noparse>{detail}</noparse>");
+			} else if (suggestion.Detail != null) {
+				text += "  " + string.Format(DIM, $"<noparse>{suggestion.Detail}</noparse>");
+			}
+
+			if (suggestion.Description != null) {
+				text += "  " + string.Format(DIMMER, $"<noparse>{suggestion.Description}</noparse>");
+			}
+
+			return text;
+		}
+
+		/// <summary>
+		/// The width of the widest row the current suggestions would make, measured with a suggestion label's text.
+		/// </summary>
+		private float WidestRow(int nameWidth, int detailWidth)
+		{
+			if (m_suggestionLabels.Count == 0) {
+				return 0f;
+			}
+
+			var text = m_suggestionLabels[0].TextComponent;
+			var widest = 0f;
+
+			foreach (var suggestion in m_completion.Suggestions) {
+				widest = Mathf.Max(widest, text.GetPreferredValues(RowText(suggestion, nameWidth, detailWidth, false)).x);
+			}
+
+			return widest;
 		}
 
 		/// <summary>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 namespace Tekly.DevBoard
@@ -28,6 +28,9 @@ namespace Tekly.DevBoard
 		[SerializeField] private bool m_keepPhysicalSizeInEditor = true;
 		[SerializeField] private bool m_animations = true;
 		[SerializeField] private float m_maxPanelHeight = DEFAULT_PANEL_HEIGHT;
+
+		// Named for the off state so settings saved before it existed load it as on
+		[SerializeField] private bool m_hideSuggestionCount;
 
 		/// <summary>
 		/// The scale factor of the DevBoard canvas. 1 is the size the widgets were designed at.
@@ -63,6 +66,15 @@ namespace Tekly.DevBoard
 			set => Set(ref m_maxPanelHeight, Mathf.Clamp(value, MIN_PANEL_HEIGHT, MAX_PANEL_HEIGHT));
 		}
 
+		/// <summary>
+		/// Whether the console's suggestion box ends with a line saying how many suggestions didn't fit, or which
+		/// one is picked, when there are more than it can show.
+		/// </summary>
+		public bool ShowSuggestionCount {
+			get => !m_hideSuggestionCount;
+			set => Set(ref m_hideSuggestionCount, !value);
+		}
+
 		public static DevBoardSettings Load()
 		{
 			var json = PlayerPrefs.GetString(PREFS_KEY, null);
@@ -94,6 +106,7 @@ namespace Tekly.DevBoard
 			m_keepPhysicalSizeInEditor = true;
 			m_animations = true;
 			m_maxPanelHeight = DEFAULT_PANEL_HEIGHT;
+			m_hideSuggestionCount = false;
 			OnChanged();
 		}
 

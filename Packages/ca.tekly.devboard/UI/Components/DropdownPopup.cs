@@ -37,6 +37,9 @@ namespace Tekly.DevBoard.Components
 		private readonly SearchQuery m_searchQuery = new();
 		private readonly List<Row> m_rows = new();
 
+		// Up and Down repeat while held, to run through the options
+		private readonly ArrowRepeat m_arrows = new();
+
 		private DropdownChoice[] m_choices;
 		private int m_selectedIndex = -1;
 		private Action<int> m_onSelect;
@@ -208,9 +211,9 @@ namespace Tekly.DevBoard.Components
 				return;
 			}
 
-			if (KeyInput.Up) {
+			if (m_arrows.Up()) {
 				MoveSelection(-1);
-			} else if (KeyInput.Down) {
+			} else if (m_arrows.Down()) {
 				MoveSelection(1);
 			} else if (KeyInput.Enter) {
 				ActivateSelected();

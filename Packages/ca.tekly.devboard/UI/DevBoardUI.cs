@@ -720,6 +720,8 @@ namespace Tekly.DevBoard
 
 				page.Toggle("Animations", () => Settings.Animations, value => Settings.Animations = value)
 					.WithDescription("Ease panels between page sizes");
+				page.Toggle("Suggestion Count", () => Settings.ShowSuggestionCount, value => Settings.ShowSuggestionCount = value)
+					.WithDescription("The console says how many suggestions didn't fit");
 				// The value shows under the label, where a description would go, so it has none: the most of the
 				// screen's height panels take before their pages scroll
 				page.Slider("Max Height", DevBoardSettings.MIN_PANEL_HEIGHT, DevBoardSettings.MAX_PANEL_HEIGHT,
@@ -734,9 +736,8 @@ namespace Tekly.DevBoard
 #endif
 
 				var resetRow = page.Row().WithAlignment(LayoutAlignment.End);
-				resetRow.Button("Forget foldouts and tabs", DevBoard.Instance.State.ClearSaved)
-					.WithDescription("Which foldouts are open and tabs selected are kept between sessions")
-					.InteractiveOnly();
+				// Which foldouts are open and tabs selected are kept between sessions; this forgets them
+				resetRow.Button("Forget foldouts and tabs", DevBoard.Instance.State.ClearSaved).InteractiveOnly();
 				resetRow.Button("Reset options", Settings.ResetToDefaults).InteractiveOnly();
 			}, "Display", int.MaxValue);
 		}

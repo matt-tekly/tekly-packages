@@ -34,7 +34,10 @@ namespace Tekly.DevBoard.Commands
 		/// </summary>
 		public event Action Changed;
 
-		private const int MAX_SUGGESTIONS = 50;
+		/// <summary>
+		/// The most suggestions Complete returns. A completion with this many may have had more.
+		/// </summary>
+		public const int MAX_SUGGESTIONS = 50;
 		private const BindingFlags INSTANCE_FLAGS = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 
 		private readonly List<Command> m_commands = new();
