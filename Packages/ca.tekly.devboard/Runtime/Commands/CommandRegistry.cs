@@ -35,7 +35,7 @@ namespace Tekly.DevBoard.Commands
 		public event Action Changed;
 
 		/// <summary>
-		/// The most suggestions Complete returns. A completion with this many may have had more.
+		/// The most suggestions Complete builds. CommandCompletion.Total still counts every match.
 		/// </summary>
 		public const int MAX_SUGGESTIONS = 50;
 		private const BindingFlags INSTANCE_FLAGS = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
@@ -270,7 +270,7 @@ namespace Tekly.DevBoard.Commands
 				shifted.Add(suggestion.Shifted(step.Start));
 			}
 
-			return new CommandCompletion(shifted, completion.Command, completion.Error, completion.ArgumentIndex);
+			return new CommandCompletion(shifted, completion.Command, completion.Error, completion.ArgumentIndex, completion.Total);
 		}
 
 		/// <summary>
@@ -307,6 +307,7 @@ namespace Tekly.DevBoard.Commands
 
 			var command = LongestMatch(done);
 			var suggestions = new List<CommandSuggestion>();
+			var total = 0;
 			string error = null;
 			var argumentIndex = -1;
 
@@ -318,7 +319,7 @@ namespace Tekly.DevBoard.Commands
 
 				if (parameter != null) {
 					var continues = argumentIndex + 1 < command.Parameters.Count;
-					AddValues(suggestions, parameter, current.Text, current.Start, end - current.Start, continues);
+					total += AddValues(suggestions, parameter, current.Text, current.Start, end - current.Start, continues);
 				} else if (error == null) {
 					error = command.Parameters.Count == 0 ? $"'{command.Name}' doesn't take arguments" : "Too many arguments";
 				}
@@ -328,13 +329,13 @@ namespace Tekly.DevBoard.Commands
 			// after "spawn"
 			var nameStart = words.Count > 0 ? words[0].Start : current.Start;
 			done.Add(current.Text);
-			AddNames(suggestions, done, nameStart, end - nameStart, command);
+			total += AddNames(suggestions, done, nameStart, end - nameStart, command);
 
 			if (command == null && suggestions.Count == 0 && line.Trim().Length > 0) {
 				error = $"No command starts with '{line.Trim()}'";
 			}
 
-			return new CommandCompletion(suggestions, command, error, argumentIndex);
+			return new CommandCompletion(suggestions, command, error, argumentIndex, total);
 		}
 
 		/// <summary>
@@ -376,27 +377,30 @@ namespace Tekly.DevBoard.Commands
 		}
 
 		/// <summary>
-		/// The parameter's suggested values that start with typed, then those that contain it.
+		/// The parameter's suggested values that start with typed, then those that contain it. Only the first
+		/// MAX_SUGGESTIONS are built; every match is counted, and the count returned.
 		/// </summary>
-		private static void AddValues(List<CommandSuggestion> suggestions, CommandParameter parameter, string typed, int start, int length,
+		private static int AddValues(List<CommandSuggestion> suggestions, CommandParameter parameter, string typed, int start, int length,
 			bool continues)
 		{
 			var values = parameter.GetSuggestions();
 
 			if (values == null) {
-				return;
+				return 0;
 			}
 
 			var containing = new List<string>();
+			var matches = 0;
 
 			foreach (var value in values) {
-				if (suggestions.Count >= MAX_SUGGESTIONS) {
-					break;
-				}
-
 				if (value.StartsWith(typed, StringComparison.OrdinalIgnoreCase)) {
-					suggestions.Add(Value(value));
+					matches++;
+
+					if (suggestions.Count < MAX_SUGGESTIONS) {
+						suggestions.Add(Value(value));
+					}
 				} else if (value.IndexOf(typed, StringComparison.OrdinalIgnoreCase) >= 0) {
+					matches++;
 					containing.Add(value);
 				}
 			}
@@ -409,6 +413,8 @@ namespace Tekly.DevBoard.Commands
 				suggestions.Add(Value(value));
 			}
 
+			return matches;
+
 			CommandSuggestion Value(string value)
 			{
 				return new CommandSuggestion(CommandArguments.Quote(value), value, null, start, length, continues);
@@ -417,9 +423,10 @@ namespace Tekly.DevBoard.Commands
 
 		/// <summary>
 		/// Commands with a word for every typed word, each starting with it, shortest names first. skip is left out,
-		/// being the command already typed.
+		/// being the command already typed. Only the first MAX_SUGGESTIONS are built; every match is counted, and
+		/// the count returned.
 		/// </summary>
-		private void AddNames(List<CommandSuggestion> suggestions, List<string> typed, int start, int length, Command skip)
+		private int AddNames(List<CommandSuggestion> suggestions, List<string> typed, int start, int length, Command skip)
 		{
 			var names = new List<Command>();
 
@@ -441,6 +448,8 @@ namespace Tekly.DevBoard.Commands
 				suggestions.Add(new CommandSuggestion(command.Name, command.Name, command.ArgumentsUsage, start, length,
 					command.Parameters.Count > 0, command.Description));
 			}
+
+			return names.Count;
 		}
 
 		/// <summary>

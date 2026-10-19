@@ -84,9 +84,14 @@ namespace Tekly.DevBoard.Commands
 		public static readonly CommandCompletion Empty = new(new List<CommandSuggestion>(), null, null);
 
 		/// <summary>
-		/// Best first.
+		/// Best first. At most CommandRegistry.MAX_SUGGESTIONS of the Total that matched.
 		/// </summary>
 		public IReadOnlyList<CommandSuggestion> Suggestions { get; }
+
+		/// <summary>
+		/// How many suggestions matched, counting those past the limit that weren't built.
+		/// </summary>
+		public int Total { get; }
 
 		/// <summary>
 		/// The command being typed, once its name is complete. Null before.
@@ -103,12 +108,14 @@ namespace Tekly.DevBoard.Commands
 		/// </summary>
 		public string Error { get; }
 
-		public CommandCompletion(IReadOnlyList<CommandSuggestion> suggestions, Command command, string error, int argumentIndex = -1)
+		public CommandCompletion(IReadOnlyList<CommandSuggestion> suggestions, Command command, string error, int argumentIndex = -1,
+			int total = -1)
 		{
 			Suggestions = suggestions;
 			Command = command;
 			Error = error;
 			ArgumentIndex = argumentIndex;
+			Total = total < 0 ? suggestions.Count : total;
 		}
 	}
 }

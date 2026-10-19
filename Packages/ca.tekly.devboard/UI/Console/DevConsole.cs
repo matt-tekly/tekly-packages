@@ -467,7 +467,7 @@ namespace Tekly.DevBoard.Console
 				label.gameObject.SetActive(i < shown || isFooter);
 
 				if (isFooter) {
-					label.Text = string.Format(DIMMER, Footer(suggestions.Count, shown));
+					label.Text = string.Format(DIMMER, Footer(shown));
 				} else if (i < shown) {
 					var index = first + i;
 					label.Text = RowText(suggestions[index], nameWidth, detailWidth, index == target);
@@ -481,19 +481,13 @@ namespace Tekly.DevBoard.Console
 
 		/// <summary>
 		/// The last line of a box that couldn't fit every suggestion: how many more there are, or while stepping
-		/// through them with the arrows, where the pick is. The registry stops counting at its most suggestions, so
-		/// that many shows as a lower bound.
+		/// through them with the arrows, where the pick is. Every match counts, including those past the registry's
+		/// limit on how many it builds.
 		/// </summary>
-		private string Footer(int count, int shown)
+		private string Footer(int shown)
 		{
-			var capped = count >= CommandRegistry.MAX_SUGGESTIONS;
-
-			if (m_picked < 0) {
-				var more = count - shown;
-				return capped ? $"{more}+ more" : $"{more} more";
-			}
-
-			return capped ? $"{m_picked + 1} of {count}+" : $"{m_picked + 1} of {count}";
+			var total = m_completion.Total;
+			return m_picked < 0 ? $"{total - shown} more" : $"{m_picked + 1} of {total}";
 		}
 
 		/// <summary>
