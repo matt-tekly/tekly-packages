@@ -40,7 +40,7 @@ namespace Tekly.DevBoard.Views
 				(node, widget, view) => widget.Text = LabelText(node.Kind == LabelKind.Error ? ErrorText(node.Text) : node.Text, node.Description));
 
 			Register<PropertyNode, PropertyWidget>(WidgetPrefabs.Property, (node, widget, view) => {
-				node.Accept(new PropertyBinder(widget, LabelText(node), node.Format));
+				node.Accept(new PropertyBinder(widget, LabelText(node), node.Format, node.Tolerance));
 				widget.WithMonospaced(node.Monospaced);
 				widget.WithValueWidth(node.ValueWidth);
 			});
@@ -295,16 +295,24 @@ namespace Tekly.DevBoard.Views
 			private readonly PropertyWidget m_widget;
 			private readonly string m_label;
 			private readonly string m_format;
+			private readonly float? m_tolerance;
 
-			public PropertyBinder(PropertyWidget widget, string label, string format)
+			public PropertyBinder(PropertyWidget widget, string label, string format, float? tolerance)
 			{
 				m_widget = widget;
 				m_label = label;
 				m_format = format;
+				m_tolerance = tolerance;
 			}
 
 			public void Visit<T>(Binding<T> binding)
 			{
+				// A tolerance only means something for floats: values within it of the one shown aren't redrawn
+				if (m_tolerance is float tolerance && binding is Binding<float> floats) {
+					m_widget.Initialize(m_label, floats.Convert(value => value, null, BindingCompare.Within(tolerance)), m_format);
+					return;
+				}
+
 				m_widget.Initialize(m_label, binding, m_format);
 			}
 		}

@@ -38,9 +38,9 @@ namespace Tekly.DevBoard.BuiltIn
 			page.Toggle("Run In Background", () => Application.runInBackground, value => Application.runInBackground = value);
 
 			page.Heading("Clock");
-			page.Property("Time", () => Time.time, 0.1f, "{0:F1} s").WithMonospaced();
-			page.Property("Unscaled", () => Time.unscaledTime, 0.1f, "{0:F1} s").WithMonospaced();
-			page.Property("Real", () => Time.realtimeSinceStartup, 0.1f, "{0:F1} s").WithMonospaced();
+			page.Property("Time", () => Time.time, "{0:F1} s").WithTolerance(0.1f).WithMonospaced();
+			page.Property("Unscaled", () => Time.unscaledTime, "{0:F1} s").WithTolerance(0.1f).WithMonospaced();
+			page.Property("Real", () => Time.realtimeSinceStartup, "{0:F1} s").WithTolerance(0.1f).WithMonospaced();
 			page.Property("Frame", () => Time.frameCount, "{0:N0}").WithMonospaced();
 
 			page.Heading("Physics");

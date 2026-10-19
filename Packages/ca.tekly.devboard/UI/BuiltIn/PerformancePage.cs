@@ -64,9 +64,9 @@ namespace Tekly.DevBoard.BuiltIn
 			LifeCycle.Instance.Update += frames.Tick;
 			page.OnDispose(() => LifeCycle.Instance.Update -= frames.Tick);
 
-			column.Property("FPS", () => frames.Fps, 0.5f, "{0:F0}").WithMonospaced().WithValueWidth(FRAME_WIDTH);
-			column.Property("Frame", () => frames.FrameMs, 0.05f, "{0:F1} ms").WithMonospaced().WithValueWidth(FRAME_WIDTH);
-			column.Property("1% Low", () => frames.OnePercentLow, 0.5f, "{0:F0}").WithMonospaced().WithValueWidth(FRAME_WIDTH);
+			column.Property("FPS", () => frames.Fps, "{0:F0}").WithTolerance(0.5f).WithMonospaced().WithValueWidth(FRAME_WIDTH);
+			column.Property("Frame", () => frames.FrameMs, "{0:F1} ms").WithTolerance(0.05f).WithMonospaced().WithValueWidth(FRAME_WIDTH);
+			column.Property("1% Low", () => frames.OnePercentLow, "{0:F0}").WithTolerance(0.5f).WithMonospaced().WithValueWidth(FRAME_WIDTH);
 			column.Button("Reset", frames.Reset).InteractiveOnly();
 		}
 

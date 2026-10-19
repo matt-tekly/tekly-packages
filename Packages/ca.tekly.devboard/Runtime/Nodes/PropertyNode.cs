@@ -24,6 +24,12 @@ namespace Tekly.DevBoard.Nodes
 		/// </summary>
 		public int ValueWidth { get; private set; }
 
+		/// <summary>
+		/// For a float value: how far it can drift from the value shown before it's redrawn. Null redraws on any
+		/// change.
+		/// </summary>
+		public float? Tolerance { get; private set; }
+
 		protected PropertyNode(string label, string format) : base(label)
 		{
 			Format = format ?? "{0}";
@@ -47,6 +53,19 @@ namespace Tekly.DevBoard.Nodes
 		{
 			EnsureEditable();
 			ValueWidth = characters;
+			return this;
+		}
+
+		/// <summary>
+		/// Skips the redraw while a float value stays within tolerance of the last one shown, so a value that
+		/// jitters doesn't flicker, e.g. <c>page.Property("FPS", () => fps, "{0:F0}").WithTolerance(0.5f)</c>.
+		/// Compared against the value shown, not the last one read, so slow drift still adds up to a change. Only
+		/// floats are compared this way; other types redraw on any change.
+		/// </summary>
+		public PropertyNode WithTolerance(float tolerance)
+		{
+			EnsureEditable();
+			Tolerance = tolerance;
 			return this;
 		}
 
@@ -79,15 +98,6 @@ namespace Tekly.DevBoard.Nodes
 		public static PropertyNode Property<T>(this ContainerNode parent, string label, Func<T> getValue, string format = "{0}")
 		{
 			return parent.Property(label, new Binding<T>(getValue), format);
-		}
-
-		/// <summary>
-		/// Shows a float, skipping the redraw while it stays within epsilon of the last value shown.
-		/// </summary>
-		public static PropertyNode Property(this ContainerNode parent, string label, Func<float> getValue, float epsilon,
-			string format = "{0}")
-		{
-			return parent.Property(label, new Binding<float>(getValue, isSame: BindingCompare.Within(epsilon)), format);
 		}
 
 		public static PropertyNode Property<T>(this ContainerNode parent, string label, Binding<T> binding, string format = "{0}")

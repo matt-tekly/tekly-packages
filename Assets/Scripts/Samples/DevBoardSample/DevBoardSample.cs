@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Tekly.DevBoard;
 using Tekly.DevBoard.Commands;
 using Tekly.DevBoard.Components;
 using Tekly.DevBoard.Components.Inputs;
 using Tekly.DevBoard.Nodes;
-using Tekly.Leaf;
 using Tekly.Trellis;
+using Tekly.Leaf;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -97,6 +97,7 @@ namespace TeklySample.Samples.DevBoardSample
 			DevBoard.Page(CONTROLS, Layout, "Layout", 7, owner: gameObject);
 			DevBoard.Page(CONTROLS, Search, "Search", 8, owner: gameObject);
 			DevBoard.Page(CONTROLS, Data, "Data", 9, owner: gameObject);
+			DevBoard.Page(CONTROLS, StylesPage, "Styles", 10, owner: gameObject);
 
 			// Commands for the console (F2), removed with this GameObject like the pages. An object's [DevCommand]
 			// instance methods are registered together (see InventoryCommands); a one-off can be a lambda, whose
@@ -127,7 +128,7 @@ namespace TeklySample.Samples.DevBoardSample
 
 			// With an epsilon, small float changes don't redraw the text
 			page.Property("Frame", () => Time.frameCount).WithMonospaced();
-			page.Property("Epsilon 0.5", () => Time.time, 0.5f, "{0:N1}").WithMonospaced();
+			page.Property("Tolerance 0.5", () => Time.time, "{0:N1}").WithTolerance(0.5f).WithMonospaced();
 		}
 
 		private void Buttons(Segment page)
@@ -435,6 +436,31 @@ namespace TeklySample.Samples.DevBoardSample
 
 			// A link opens another page in the panel it's clicked in
 			page.Link("Leaf options", "Sample/Leaf");
+		}
+
+		/// <summary>
+		/// A style is another look for a kind of node, given with WithStyle. The built-in ones are in Styles; a
+		/// game with its own widget prefabs declares its own the same way, typed with the node they're for.
+		/// </summary>
+		private void StylesPage(Segment page)
+		{
+			// Looks like the buttons that open pages, for an action that reads as navigation
+			page.Button("Page button", () => m_clicks++).WithStyle(Styles.PageButton);
+
+			// A quieter foldout: no bar, just the expand icon and its label
+			var foldout = page.Foldout("Subtle foldout").WithStyle(Styles.SubtleFoldout);
+			foldout.Label("For optional detail that shouldn't stand out");
+
+			// Inputs: a search field with its icon, and a tall field for several lines
+			page.TextInput("Search", () => m_text, value => m_text = value).WithStyle(Styles.SearchInput)
+				.WithPlaceholder("Looks like a search");
+			page.TextInput("Notes", () => m_text, value => m_text = value).WithStyle(Styles.VerticalTextInput);
+
+			// Buttons joined into one bar. ButtonRow is short for Row().WithStyle(Styles.SegmentedRow)
+			var row = page.Row().WithStyle(Styles.SegmentedRow);
+			row.Button("Day", () => m_clicks++);
+			row.Button("Week", () => m_clicks++);
+			row.Button("Month", () => m_clicks++);
 		}
 
 		private void OnDestroy()

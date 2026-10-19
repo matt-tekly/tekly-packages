@@ -24,8 +24,8 @@ namespace Tekly.DevBoard.BuiltIn
 		{
 			page.Heading("Screen");
 			page.Property("Window", () => $"{Screen.width} x {Screen.height}").WithMonospaced();
-			page.Property("DPI", () => Screen.dpi, 1f, "{0:F0}").WithMonospaced();
-			page.Property("Refresh", () => (float) Screen.currentResolution.refreshRateRatio.value, 0.5f, "{0:F0} Hz").WithMonospaced();
+			page.Property("DPI", () => Screen.dpi, "{0:F0}").WithTolerance(1f).WithMonospaced();
+			page.Property("Refresh", () => (float) Screen.currentResolution.refreshRateRatio.value, "{0:F0} Hz").WithTolerance(0.5f).WithMonospaced();
 			page.Dropdown("Mode", () => Screen.fullScreenMode, mode => Screen.fullScreenMode = mode);
 
 			var resolutions = Resolutions();
