@@ -1,13 +1,13 @@
 ﻿using System;
 using Tekly.DevBoard.Nodes;
-using UnityEngine;
 
 namespace Tekly.DevBoard.Pages
 {
 	/// <summary>
 	/// A piece of content on a page, returned by DevBoard.AddPage. Several segments can share a path: they appear one
 	/// after another on the same page. Dispose it to remove it, e.g. when the part of the game that registered it
-	/// unloads. Disposing more than once, or after DevBoard has shut down, does nothing.
+	/// unloads; segments added with DevBoard.Page and an owner are removed with DevBoard.Release instead. Disposing
+	/// more than once, or after DevBoard has shut down, does nothing.
 	/// </summary>
 	public sealed class PageSegment : IDisposable
 	{
@@ -85,24 +85,6 @@ namespace Tekly.DevBoard.Pages
 			var root = m_root;
 			m_root = null;
 			root?.DisposeTree();
-		}
-
-		/// <summary>
-		/// Disposes this segment when owner is destroyed.
-		/// </summary>
-		public PageSegment BindTo(GameObject owner)
-		{
-			if (IsDisposed) {
-				return this;
-			}
-
-			if (owner == null) {
-				Dispose();
-				return this;
-			}
-
-			PageSegmentBinding.Get(owner).Add(this);
-			return this;
 		}
 	}
 }

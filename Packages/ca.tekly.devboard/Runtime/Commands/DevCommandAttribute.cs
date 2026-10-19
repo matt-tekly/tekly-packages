@@ -45,7 +45,7 @@ namespace Tekly.DevBoard.Commands
 	/// // on start
 	/// DevBoard.CommandsFrom(new InventoryCommands(inventory), owner: this);
 	/// // on stop
-	/// DevBoard.RemovePages(this);
+	/// DevBoard.Release(this);
 	/// </code>
 	///
 	/// In builds with DevBoard it derives from PreserveAttribute, so IL2CPP keeps the method even though nothing

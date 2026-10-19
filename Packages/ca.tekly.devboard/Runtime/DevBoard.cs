@@ -25,7 +25,7 @@ namespace Tekly.DevBoard
 	/// Register pages with the static Page methods. In builds without DevBoard every call to them is removed by
 	/// the compiler, arguments and all, so nothing runs and the builders they'd have called can be stripped:
 	/// <code>
-	/// DevBoard.Page("Ads", BuildAdsPage, owner: this);   // removed again with RemovePages(this)
+	/// DevBoard.Page("Ads", BuildAdsPage, owner: this);   // removed again with Release(this)
 	/// DevBoard.Page(ref m_page, "Ads", BuildAdsPage);    // removed again with m_page.Dispose()
 	/// </code>
 	/// </summary>
@@ -78,7 +78,7 @@ namespace Tekly.DevBoard
 
 		private readonly ObservableValue<bool> m_focused = new();
 
-		// Segments and commands registered with an owner, to remove with RemovePages
+		// Segments and commands registered with an owner, to remove with Release
 		private readonly Dictionary<object, List<IDisposable>> m_owned = new();
 
 		// Scopes waiting for the end of the frame to rebuild
@@ -124,7 +124,7 @@ namespace Tekly.DevBoard
 		/// panel shows the same nodes; it runs again only when the segment is rebuilt. Values that change go
 		/// through getters and setters, and anything it hooks up can be undone with Segment.OnDispose.
 		///
-		/// owner, when given, removes the segment with RemovePages(owner). A GameObject owner, or a component's,
+		/// owner, when given, removes the segment with Release(owner). A GameObject owner, or a component's,
 		/// also removes it when destroyed.
 		///
 		/// Removed by the compiler in builds without DevBoard.
@@ -178,7 +178,7 @@ namespace Tekly.DevBoard
 		/// DevBoard.Command("inventory remove", (string item) => Remove(item), owner: this, suggest: _ => m_inventory);
 		/// </code>
 		///
-		/// owner, when given, removes the command with RemovePages(owner), or when a GameObject owner is destroyed.
+		/// owner, when given, removes the command with Release(owner), or when a GameObject owner is destroyed.
 		/// Removed by the compiler in builds without DevBoard.
 		/// </summary>
 #if !DEVBOARD_ACTIVE
@@ -273,12 +273,12 @@ namespace Tekly.DevBoard
 		/// // on start
 		/// DevBoard.CommandsFrom(new InventoryCommands(inventory), owner: this);
 		/// // on stop
-		/// DevBoard.RemovePages(this);
+		/// DevBoard.Release(this);
 		/// </code>
 		/// A [Suggest] on a parameter can name an instance method of target's type. Two objects of the same type
 		/// register the same names: the newest runs, and removing one object's commands leaves the other's.
 		///
-		/// owner, when given, removes the commands with RemovePages(owner), or when a GameObject owner is destroyed.
+		/// owner, when given, removes the commands with Release(owner), or when a GameObject owner is destroyed.
 		/// Removed by the compiler in builds without DevBoard.
 		/// </summary>
 #if !DEVBOARD_ACTIVE
@@ -298,7 +298,7 @@ namespace Tekly.DevBoard
 #if !DEVBOARD_ACTIVE
 		[System.Diagnostics.Conditional("__UNDEFINED__")]
 #endif
-		public static void RemovePages(object owner)
+		public static void Release(object owner)
 		{
 			if (Enabled && owner != null && Instance != null) {
 				Instance.ReleaseOwner(owner);
@@ -369,7 +369,7 @@ namespace Tekly.DevBoard
 				registrations = new List<IDisposable>();
 				m_owned.Add(owner, registrations);
 
-				// Destroying a GameObject owner removes its segments, so MonoBehaviours don't need RemovePages
+				// Destroying a GameObject owner removes its segments, so MonoBehaviours don't need Release
 				var gameObject = owner as GameObject ?? (owner as Component)?.gameObject;
 
 				if (gameObject != null) {

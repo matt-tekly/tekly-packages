@@ -118,7 +118,7 @@ namespace Tekly.DevBoard
 		}
 
 		[Test]
-		public void RemovePagesRemovesAnOwnersCommandsOnly()
+		public void ReleaseRemovesAnOwnersCommandsOnly()
 		{
 			var board = new DevBoard();
 			var ownerA = new object();

@@ -6,7 +6,7 @@ namespace Tekly.DevBoard.BuiltIn
 	public static class BuiltInPages
 	{
 		/// <summary>
-		/// Adds the pages, removed again with DevBoard.RemovePages(owner), or when owner is destroyed if it's a
+		/// Adds the pages, removed again with DevBoard.Release(owner), or when owner is destroyed if it's a
 		/// GameObject or component.
 		/// </summary>
 		public static void Register(object owner)
