@@ -3,8 +3,9 @@
 namespace Tekly.DevBoard.Components
 {
 	/// <summary>
-	/// A container that opens and closes. With a state key, whether it's open is saved in DevBoard.State so a
-	/// rebuilt foldout reopens the way the user left it; the renderer gives a foldout node's widget its key.
+	/// A container that opens and closes. With a state key, whether it's open is saved in DevBoard.State, between
+	/// sessions too, so a foldout reopens the way the user left it; the renderer gives a foldout node's widget
+	/// its key.
 	/// </summary>
 	public class FoldoutWidget : ContainerWidget
 	{
@@ -74,7 +75,9 @@ namespace Tekly.DevBoard.Components
 		private void SetExpanded(bool expanded)
 		{
 			ShowExpanded(expanded);
-			DevBoard.Instance?.State.Set(m_stateKey, expanded);
+
+			// Kept between sessions, so a foldout opened once stays open the next time the game runs
+			DevBoard.Instance?.State.Set(m_stateKey, expanded, persistent: true);
 		}
 
 		/// <summary>

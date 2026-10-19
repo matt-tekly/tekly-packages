@@ -2,8 +2,8 @@ namespace Tekly.DevBoard.Nodes
 {
 	/// <summary>
 	/// A strip of tabs with one tab's content showing at a time. Add tabs with Tab; anything else added to it isn't
-	/// shown. Each panel remembers which tab is selected, keyed by the tab set's path, and only builds a tab's
-	/// widgets the first time it's selected.
+	/// shown. Each panel remembers which tab is selected, between sessions too, keyed by the tab set's path, and
+	/// only builds a tab's widgets the first time it's selected.
 	/// </summary>
 	public sealed class TabsNode : ContainerNode
 	{

@@ -6,7 +6,8 @@ namespace Tekly.DevBoard.Views
 	/// <summary>
 	/// One host's view of a tabs node. Only the selected tab is shown, and a tab's element is only created the first
 	/// time it's selected, so tabs nobody opens cost nothing. Tabs that were shown keep their elements, hidden. The
-	/// selected tab is the host's own, kept in DevBoard.State by the tab's id so it survives tabs being reordered.
+	/// selected tab is the host's own, kept in DevBoard.State between sessions by the tab's id, so it survives tabs
+	/// being reordered.
 	/// </summary>
 	public sealed class TabsMirror : ContainerMirror
 	{
@@ -42,7 +43,9 @@ namespace Tekly.DevBoard.Views
 			}
 
 			m_selectedId = id;
-			DevBoard.Instance.State.Set(m_stateKey, id);
+
+			// Kept between sessions, so the tab last looked at is the one shown next time
+			DevBoard.Instance.State.Set(m_stateKey, id, persistent: true);
 
 			SyncChildren();
 		}

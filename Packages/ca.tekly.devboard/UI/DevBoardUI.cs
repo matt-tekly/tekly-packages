@@ -734,6 +734,9 @@ namespace Tekly.DevBoard
 #endif
 
 				var resetRow = page.Row().WithAlignment(LayoutAlignment.End);
+				resetRow.Button("Forget foldouts and tabs", DevBoard.Instance.State.ClearSaved)
+					.WithDescription("Which foldouts are open and tabs selected are kept between sessions")
+					.InteractiveOnly();
 				resetRow.Button("Reset options", Settings.ResetToDefaults).InteractiveOnly();
 			}, "Display", int.MaxValue);
 		}

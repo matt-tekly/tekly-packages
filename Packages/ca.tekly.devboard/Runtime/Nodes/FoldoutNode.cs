@@ -1,7 +1,8 @@
 namespace Tekly.DevBoard.Nodes
 {
 	/// <summary>
-	/// A container that opens and closes. Each panel remembers whether it's open, keyed by the foldout's path.
+	/// A container that opens and closes. Each panel remembers whether it's open, between sessions too, keyed by
+	/// the foldout's path.
 	/// </summary>
 	public sealed class FoldoutNode : ContainerNode
 	{
