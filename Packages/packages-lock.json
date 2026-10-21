@@ -242,10 +242,7 @@
       "version": "file:ca.tekly.superserial",
       "depth": 0,
       "source": "embedded",
-      "dependencies": {
-        "ca.tekly.nsubstitute": "0.0.1",
-        "com.unity.mathematics": "1.1.0"
-      }
+      "dependencies": {}
     },
     "ca.tekly.thunk": {
       "version": "file:ca.tekly.thunk",
