@@ -68,3 +68,6 @@ crashlytics-build.properties
 
 # Tekly favorites (per-user)
 UserSettings/TeklyFavorites.asset
+
+# The SuperSerial generator is a real project, not a Unity generated one
+!Packages/ca.tekly.superserial/Generator~/*.csproj

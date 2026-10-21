@@ -42,7 +42,7 @@ namespace Tekly.SuperSerial.Serialization
 
 		private static decimal ReadDecimal(TokenInputStream stream)
 		{
-			if (!SerialConverterUnity.ExpectLength(stream, sizeof(int) * 4)) {
+			if (!stream.ExpectLength(sizeof(int) * 4)) {
 				return default;
 			}
 
@@ -58,7 +58,7 @@ namespace Tekly.SuperSerial.Serialization
 
 		private static Guid ReadGuid(TokenInputStream stream)
 		{
-			if (!SerialConverterUnity.ExpectLength(stream, 16)) {
+			if (!stream.ExpectLength(16)) {
 				return default;
 			}
 

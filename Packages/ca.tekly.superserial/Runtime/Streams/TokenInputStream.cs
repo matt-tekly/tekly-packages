@@ -302,6 +302,49 @@ namespace Tekly.SuperSerial.Streams
 		}
 
 		/// <summary>
+		/// Reads a Bytes payload's length and returns true if it is the expected one. Otherwise the payload is
+		/// skipped with a warning and false is returned so the caller can keep its current value.
+		/// </summary>
+		public bool ExpectLength(int expected)
+		{
+			var length = (long) ReadVarUInt();
+
+			if (length == expected) {
+				return true;
+			}
+
+			Debug.LogWarning($"[SuperSerial] Expected a {expected} byte payload but found {length}. Using default.");
+			SkipBytes(length);
+			return false;
+		}
+
+		/// <summary>
+		/// Reads a Block's length prefix and returns the position the block ends at. Read the value, then pass
+		/// that position to EndBlock.
+		/// </summary>
+		public long BeginBlock()
+		{
+			var length = ReadBlockLength();
+			return Position + length;
+		}
+
+		/// <summary>
+		/// Finishes a block started with BeginBlock. Anything the reader didn't consume is skipped, so a writer
+		/// that put more in the block than this reader understands still lands on the next field. Reading past
+		/// the end of the block throws.
+		/// </summary>
+		public void EndBlock(long end)
+		{
+			if (Position > end) {
+				throw new SuperSerialException($"Read {Position - end} bytes past the end of a block");
+			}
+
+			if (Position < end) {
+				SkipBytes(end - Position);
+			}
+		}
+
+		/// <summary>
 		/// Skips a complete value, including its wire type byte.
 		/// </summary>
 		public void SkipValue()

@@ -8,6 +8,7 @@ namespace Tekly.SuperSerial.Serialization
 	public class SuperSerializer
 	{
 		private readonly SuperSerializerSettings m_settings;
+		private int m_registriesApplied;
 
 		public SuperSerializerSettings Settings => m_settings;
 
@@ -16,6 +17,7 @@ namespace Tekly.SuperSerial.Serialization
 		public SuperSerializer(SuperSerializerSettings settings)
 		{
 			m_settings = settings ?? throw new ArgumentNullException(nameof(settings));
+			ApplyPendingRegistries();
 		}
 
 		/// <summary>
@@ -103,6 +105,25 @@ namespace Tekly.SuperSerial.Serialization
 		}
 
 		/// <summary>
+		/// Writes [WireType][payload] for a value whose declared type is T. Generated code uses this for every
+		/// field it has no inline path for.
+		/// </summary>
+		public void WriteValue<T>(TokenOutputStream output, T value)
+		{
+			WriteValue(output, typeof(T), value);
+		}
+
+		/// <summary>
+		/// Reads a value of declared type T whose wire type has already been consumed. A Null payload gives
+		/// default(T), and a payload that can't be read as T is skipped and existing is returned.
+		/// </summary>
+		public T ReadPayload<T>(TokenInputStream input, WireType wireType, T existing)
+		{
+			var value = ReadPayload(input, wireType, typeof(T), existing);
+			return value == null ? default : (T) value;
+		}
+
+		/// <summary>
 		/// Reads a tagged value. If the data can't be read as the declared type it is skipped and existing is
 		/// returned.
 		/// </summary>
@@ -141,9 +162,12 @@ namespace Tekly.SuperSerial.Serialization
 				case WireType.TypedObject: {
 					var typeHash = input.ReadUInt();
 
-					if (!m_settings.Converters.TryGetType(typeHash, out var actualType)) {
+					if (!m_settings.Converters.TryGetType(typeHash, out var actualType)
+					    && !(ApplyPendingRegistries() && m_settings.Converters.TryGetType(typeHash, out actualType))) {
 						throw new SuperSerialException($"Unknown type hash {typeHash} for a value declared as [{declaredType}]. " +
-						                               "The concrete type must be registered on the reading side with RegisterType before loading.");
+						                               "The concrete type must be registered on the reading side before loading: call the generated " +
+						                               "Tekly.SuperSerial.Generated.SuperSerialRegistry_<Assembly>.RegisterAll(serializer) for the assembly that declares it, " +
+						                               "or RegisterType<T>() by hand. Generated registries apply themselves unless Settings.AutoRegister is off.");
 					}
 
 					if (existing != null && existing.GetType() != actualType) {
@@ -217,6 +241,23 @@ namespace Tekly.SuperSerial.Serialization
 		public void RegisterType(Type type)
 		{
 			m_settings.Converters.RegisterType(type);
+		}
+
+		/// <summary>
+		/// Registers how to create a T when reading, so the ObjectFactory isn't consulted. The generated registry
+		/// registers every [SuperSerializable] class's CreateForSerialization here.
+		/// </summary>
+		public void RegisterFactory<T>(Func<T> factory) where T : class
+		{
+			m_settings.Converters.RegisterFactory(typeof(T), factory);
+		}
+
+		/// <summary>
+		/// Applies any generated registries that have appeared since the last call. Returns true if there were any.
+		/// </summary>
+		public bool ApplyPendingRegistries()
+		{
+			return m_settings.AutoRegister && SuperSerialRegistries.Apply(this, ref m_registriesApplied);
 		}
 
 		public object CreateInstance(Type type)

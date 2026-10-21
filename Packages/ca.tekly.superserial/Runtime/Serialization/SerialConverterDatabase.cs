@@ -12,6 +12,7 @@ namespace Tekly.SuperSerial.Serialization
 		private readonly Dictionary<Type, SerialConverter> m_converters = new Dictionary<Type, SerialConverter>();
 		private readonly Dictionary<Type, uint> m_typeHashes = new Dictionary<Type, uint>();
 		private readonly Dictionary<uint, Type> m_typesByHash = new Dictionary<uint, Type>();
+		private readonly Dictionary<Type, Func<object>> m_factories = new Dictionary<Type, Func<object>>();
 
 		public SerialConverterDatabase()
 		{
@@ -65,6 +66,19 @@ namespace Tekly.SuperSerial.Serialization
 			return hash;
 		}
 
+		/// <summary>
+		/// Registers a way to create a type without reflection. Used by generated code.
+		/// </summary>
+		public void RegisterFactory(Type type, Func<object> factory)
+		{
+			m_factories[type] = factory;
+		}
+
+		public bool TryGetFactory(Type type, out Func<object> factory)
+		{
+			return m_factories.TryGetValue(type, out factory);
+		}
+
 		public bool TryGetType(uint hash, out Type type)
 		{
 			return m_typesByHash.TryGetValue(hash, out type);
@@ -73,7 +87,7 @@ namespace Tekly.SuperSerial.Serialization
 		private SerialConverter CreateConverter(Type type)
 		{
 			if (typeof(ISuperSerialize).IsAssignableFrom(type)) {
-				return new SerialConverterSuperSerialize(type);
+				return new SerialConverterSuperSerialize(this, type);
 			}
 
 			if (type.IsEnum) {

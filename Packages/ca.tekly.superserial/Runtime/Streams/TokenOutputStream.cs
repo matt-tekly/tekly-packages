@@ -246,6 +246,41 @@ namespace Tekly.SuperSerial.Streams
 			WriteVarUInt(value ? 1u : 0u);
 		}
 
+		public void WriteField(uint hash, sbyte value)
+		{
+			WriteFieldHash(hash);
+			WriteWireType(WireType.Varint);
+			WriteVarInt(value);
+		}
+
+		public void WriteField(uint hash, byte value)
+		{
+			WriteFieldHash(hash);
+			WriteWireType(WireType.Varint);
+			WriteVarUInt(value);
+		}
+
+		public void WriteField(uint hash, short value)
+		{
+			WriteFieldHash(hash);
+			WriteWireType(WireType.Varint);
+			WriteVarInt(value);
+		}
+
+		public void WriteField(uint hash, ushort value)
+		{
+			WriteFieldHash(hash);
+			WriteWireType(WireType.Varint);
+			WriteVarUInt(value);
+		}
+
+		public void WriteField(uint hash, char value)
+		{
+			WriteFieldHash(hash);
+			WriteWireType(WireType.Varint);
+			WriteVarUInt(value);
+		}
+
 		public void WriteField(uint hash, int value)
 		{
 			WriteFieldHash(hash);
@@ -330,6 +365,16 @@ namespace Tekly.SuperSerial.Streams
 			WriteWireType(WireType.Bytes);
 			WriteVarUInt(sizeof(float) * 4);
 			Write(value);
+		}
+
+		/// <summary>
+		/// Starts a field whose value is a Block: [hash][WireType.Block][length]. Write the value, then EndBlock.
+		/// </summary>
+		public void BeginBlockField(uint hash)
+		{
+			WriteFieldHash(hash);
+			WriteWireType(WireType.Block);
+			BeginBlock();
 		}
 
 		/// <summary>

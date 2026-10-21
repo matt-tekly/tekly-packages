@@ -73,7 +73,9 @@ namespace Tekly.SuperSerial.Tests
 		{
 			using var memory = Serial.Write(new Drawing { Main = new Circle { Id = 1 } });
 
-			var exception = Assert.Throws<SuperSerialException>(() => Serial.Read<Drawing>(memory, new SuperSerializer()));
+			// The generated registry for this assembly knows Circle, so keep it out of the reader.
+			var reader = new SuperSerializer(new SuperSerializerSettings { AutoRegister = false });
+			var exception = Assert.Throws<SuperSerialException>(() => Serial.Read<Drawing>(memory, reader));
 
 			StringAssert.Contains("Unknown type hash", exception.Message);
 			StringAssert.Contains(nameof(Shape), exception.Message);

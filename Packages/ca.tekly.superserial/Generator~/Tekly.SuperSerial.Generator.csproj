@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <RootNamespace>Tekly.SuperSerial.Generator</RootNamespace>
+    <AssemblyName>Tekly.SuperSerial.Generator</AssemblyName>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <Deterministic>true</Deterministic>
+    <NoWarn>RS2008</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 4.3 matches the Roslyn that ships with Unity 6000.3 (DotNetSdkRoslyn is 4.3.1). Don't go newer. -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- The built generator is what Unity loads. Copy it next door so a plain `dotnet build` is the whole install. -->
+  <Target Name="CopyToAnalyzers" AfterTargets="Build">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(MSBuildProjectDirectory)/../Analyzers" />
+  </Target>
+
+</Project>
