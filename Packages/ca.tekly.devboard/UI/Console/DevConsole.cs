@@ -579,9 +579,10 @@ namespace Tekly.DevBoard.Console
 				return;
 			}
 
-			m_picked = m_picked < 0
-				? delta > 0 ? 0 : count - 1
-				: (m_picked + delta + count) % count;
+			// With nothing picked the first suggestion already looks picked (Tab takes it), so the arrows step
+			// from there, or the first press wouldn't appear to do anything
+			var from = Mathf.Max(0, m_picked);
+			m_picked = (from + delta + count) % count;
 
 			ShowCompletion();
 		}

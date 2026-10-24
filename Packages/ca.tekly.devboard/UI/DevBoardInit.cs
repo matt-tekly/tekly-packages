@@ -17,9 +17,15 @@ namespace Tekly.DevBoard
 #if ENABLE_INPUT_SYSTEM
 		[Tooltip("Shows and hides DevBoard. None turns the shortcut off")]
 		[SerializeField] private Key m_toggleKey = Key.Backquote;
+
+		[Tooltip("Opens and closes the console. None turns the shortcut off")]
+		[SerializeField] private Key m_consoleKey = Key.F2;
 #else
 		[Tooltip("Shows and hides DevBoard. None turns the shortcut off")]
 		[SerializeField] private KeyCode m_toggleKey = KeyCode.BackQuote;
+
+		[Tooltip("Opens and closes the console. None turns the shortcut off")]
+		[SerializeField] private KeyCode m_consoleKey = KeyCode.F2;
 #endif
 
 		[Tooltip("Shows and hides DevBoard when this many fingers touch the screen together, e.g. 4 on mobile. 0 turns the gesture off")]
@@ -37,10 +43,11 @@ namespace Tekly.DevBoard
 
 		private void Awake()
 		{
-			Debug.Log($"[DevBoard] DevBoardInit awake. Toggle Key [{m_toggleKey}]");
-			
+			Debug.Log($"[DevBoard] DevBoardInit awake. Toggle Key [{m_toggleKey}] Console Key [{m_consoleKey}]");
+
 			var devBoard = DevBoardUI.Instance;
 			devBoard.ToggleKey = m_toggleKey;
+			devBoard.ConsoleKey = m_consoleKey;
 			devBoard.ToggleTouchCount = m_toggleTouchCount;
 			devBoard.SetVisible(!m_startHidden);
 			devBoard.AddAssets(m_assets);
