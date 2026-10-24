@@ -25,7 +25,6 @@ namespace Tekly.Sheets.Processing
 
 		private void OnEnable()
 		{
-			m_googleSheetObjects = AssetDatabaseExt.FindAndLoad<GoogleSheetObject>();
 			m_linkIcon = EditorGUIUtility.IconContent("d_Linked");
 			m_linkIcon.tooltip = "Open in Google Sheets";
 			
@@ -33,8 +32,25 @@ namespace Tekly.Sheets.Processing
 			m_downloadIcon.tooltip = "Download";
 		}
 
+		private void OnProjectChange()
+		{
+			m_googleSheetObjects = null;
+			Repaint();
+		}
+
 		public void OnGUI()
 		{
+			// OnEnable runs during layout restore while the domain is still reloading. Searching the
+			// AssetDatabase then loads ScriptedImporter assets too early and Unity logs them as corrupted.
+			if (m_googleSheetObjects == null) {
+				if (EditorApplication.isCompiling || EditorApplication.isUpdating) {
+					Repaint();
+					return;
+				}
+
+				m_googleSheetObjects = AssetDatabaseExt.FindAndLoad<GoogleSheetObject>();
+			}
+
 			GUI.enabled = !(SheetFetcher.IsActive || EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling);
 
 			using (EditorGuiExt.LargeContainer(m_outerContainerColor)) {
