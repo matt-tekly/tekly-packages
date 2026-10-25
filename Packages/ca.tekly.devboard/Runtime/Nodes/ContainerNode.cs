@@ -197,6 +197,7 @@ namespace Tekly.DevBoard.Nodes
 			ReleaseIds(child);
 
 			child.DisposeTree();
+			child.Parent = null;
 			MarkChanged();
 		}
 
@@ -215,6 +216,7 @@ namespace Tekly.DevBoard.Nodes
 			foreach (var child in children) {
 				ReleaseIds(child);
 				child.DisposeTree();
+				child.Parent = null;
 			}
 
 			MarkChanged();

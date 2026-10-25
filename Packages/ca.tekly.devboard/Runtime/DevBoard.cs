@@ -47,7 +47,7 @@ namespace Tekly.DevBoard
 		/// it is selected, like an input being typed in. For game code to ignore its own input then, like moving the
 		/// player while typing in the console. Always false in builds without DevBoard.
 		/// </summary>
-		public static bool IsFocused => Enabled && Instance.Focused.Value;
+		public static bool IsFocused => Enabled && Instance != null && Instance.Focused.Value;
 
 		/// <summary>
 		/// <see cref="IsFocused"/> as a value to subscribe to.

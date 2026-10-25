@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 using Tekly.DevBoard.Nodes;
 using Tekly.DevBoard.Pages;
@@ -126,6 +127,48 @@ namespace Tekly.DevBoard
 
 			Assert.IsInstanceOf<SliderNode>(access.Find("game/segment/volume"));
 			Assert.IsNull(access.Find("game/segment/row/volume"));
+		}
+
+		[Test]
+		public void UntitledSegmentsOnOnePageGetTheirOwnPaths()
+		{
+			var first = m_tree.Add("Game", page => page.Button("Reset", null));
+			var second = m_tree.Add("Game", page => page.Button("Reset", null));
+			var titled = m_tree.Add("Game", page => page.Button("Reset", null), "Cheats");
+
+			// Built out of order: the paths follow the order on the page, not who was looked at first
+			Assert.AreEqual("game/segment-2/reset", Find(second.Root, "Reset").Path);
+			Assert.AreEqual("game/segment/reset", Find(first.Root, "Reset").Path);
+			Assert.AreEqual("game/cheats/reset", Find(titled.Root, "Reset").Path);
+		}
+
+		[Test]
+		public void ASegmentAddedAfterOneWasRemovedSkipsIdsStillInUse()
+		{
+			var first = m_tree.Add("Game", page => page.Button("Reset", null));
+			var second = m_tree.Add("Game", page => page.Button("Reset", null));
+			Assert.AreEqual("game/segment/reset", Find(first.Root, "Reset").Path);
+			Assert.AreEqual("game/segment-2/reset", Find(second.Root, "Reset").Path);
+
+			first.Dispose();
+			var third = m_tree.Add("Game", page => page.Button("Reset", null));
+
+			Assert.AreEqual("game/segment-3/reset", Find(third.Root, "Reset").Path);
+		}
+
+		[Test]
+		public void RemovedChildrenLeaveTheirContainer()
+		{
+			ListNode<string, string> list = null;
+			var items = new List<string> { "alice", "bob", "carol" };
+			Build(page => list = page.List(() => items, name => name, (row, name) => row.Button(name, null)));
+
+			var row = list.Children[1];
+			items.RemoveAt(1);
+			TestSupport.PollFresh(list);
+
+			Assert.IsNull(row.Parent);
+			Assert.AreEqual(-1, list.IndexOfRow(row));
 		}
 
 		private Segment Build(System.Action<Segment> build)

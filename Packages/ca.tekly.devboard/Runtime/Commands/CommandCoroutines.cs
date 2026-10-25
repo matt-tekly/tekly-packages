@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -14,9 +15,12 @@ namespace Tekly.DevBoard.Commands
 	{
 		private static CommandCoroutines s_instance;
 
+		// Still running, so they can be faulted if this object is destroyed under them
+		private readonly HashSet<TaskCompletionSource<bool>> m_running = new();
+
 		/// <summary>
 		/// Runs routine as a coroutine and completes when it finishes. Cancelling stops it where it is. An exception
-		/// from the routine itself faults the task; one from a routine it yields is logged by Unity and ends it.
+		/// from the routine, or from any routine it yields, faults the task.
 		/// </summary>
 		public static Task Run(IEnumerator routine, CancellationToken cancellationToken)
 		{
@@ -31,12 +35,15 @@ namespace Tekly.DevBoard.Commands
 			}
 
 			var completion = new TaskCompletionSource<bool>();
-			var coroutine = s_instance.StartCoroutine(s_instance.Drive(routine, completion));
+			var instance = s_instance;
+			instance.m_running.Add(completion);
+			var coroutine = instance.StartCoroutine(instance.Drive(routine, completion));
 
 			if (cancellationToken.CanBeCanceled) {
 				cancellationToken.Register(() => {
-					if (s_instance != null && completion.TrySetCanceled(cancellationToken)) {
-						s_instance.StopCoroutine(coroutine);
+					if (instance != null && completion.TrySetCanceled(cancellationToken)) {
+						instance.m_running.Remove(completion);
+						instance.StopCoroutine(coroutine);
 					}
 				});
 			}
@@ -44,25 +51,41 @@ namespace Tekly.DevBoard.Commands
 			return completion.Task;
 		}
 
+		/// <summary>
+		/// Steps the routine, and any routine it yields, itself: Unity would run a nested one, but then an exception
+		/// in it ends the coroutine without a word to the task. Anything else yielded is left to Unity.
+		/// </summary>
 		private IEnumerator Drive(IEnumerator routine, TaskCompletionSource<bool> completion)
 		{
-			while (true) {
+			var routines = new Stack<IEnumerator>();
+			routines.Push(routine);
+
+			while (routines.Count > 0) {
+				var top = routines.Peek();
 				object current;
 
 				try {
-					if (!routine.MoveNext()) {
-						break;
+					if (!top.MoveNext()) {
+						routines.Pop();
+						continue;
 					}
 
-					current = routine.Current;
+					current = top.Current;
 				} catch (Exception exception) {
+					m_running.Remove(completion);
 					completion.TrySetException(exception);
 					yield break;
+				}
+
+				if (current is IEnumerator nested) {
+					routines.Push(nested);
+					continue;
 				}
 
 				yield return current;
 			}
 
+			m_running.Remove(completion);
 			completion.TrySetResult(true);
 		}
 
@@ -71,6 +94,13 @@ namespace Tekly.DevBoard.Commands
 			if (s_instance == this) {
 				s_instance = null;
 			}
+
+			// Unity drops the coroutines without a word, so their tasks would wait forever
+			foreach (var completion in m_running) {
+				completion.TrySetException(new OperationCanceledException("Command coroutines were destroyed before the command finished"));
+			}
+
+			m_running.Clear();
 		}
 	}
 }

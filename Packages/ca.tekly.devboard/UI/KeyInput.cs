@@ -1,4 +1,6 @@
+using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -11,6 +13,18 @@ namespace Tekly.DevBoard
 	/// </summary>
 	internal static class KeyInput
 	{
+		/// <summary>
+		/// True while a text field has the keyboard: the selected object is an input field being edited, DevBoard's
+		/// or the game's. Shortcuts on printable keys stay out of the way then.
+		/// </summary>
+		public static bool IsTyping {
+			get {
+				var selected = EventSystem.current != null ? EventSystem.current.currentSelectedGameObject : null;
+
+				return selected != null && selected.TryGetComponent<TMP_InputField>(out var field) && field.isFocused;
+			}
+		}
+
 #if ENABLE_INPUT_SYSTEM
 		public static bool Escape => WasPressed(Keyboard.current?.escapeKey);
 		public static bool Up => WasPressed(Keyboard.current?.upArrowKey);

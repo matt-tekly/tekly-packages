@@ -351,14 +351,11 @@ namespace Tekly.DevBoard.Nodes
 		/// </summary>
 		private void Sync()
 		{
-			m_synced = true;
-
-			if (m_getVersion != null) {
-				m_version = m_getVersion();
-			}
-
+			// Read before anything is committed: a getter that throws leaves the list as it was, to be tried again
+			var version = m_getVersion?.Invoke() ?? 0;
 			var items = m_getItems();
 			var itemsChanged = false;
+			var committed = false;
 
 			// Pooled, since a list without a version syncs every frame it's shown
 			using (ListPool<ListItem<TItem>>.Get(out var added))
@@ -389,7 +386,7 @@ namespace Tekly.DevBoard.Nodes
 									}
 								}
 							} else {
-								entry = new Entry(key, item);
+								entry = new Entry(key, item, m_syncCount);
 								m_byKey.Add(key, entry);
 								itemsChanged = true;
 
@@ -410,6 +407,9 @@ namespace Tekly.DevBoard.Nodes
 
 					(m_entries, m_nextEntries) = (m_nextEntries, m_entries);
 					m_nextEntries.Clear();
+					m_synced = true;
+					m_version = version;
+					committed = true;
 
 					using (ListPool<Node>.Get(out var order)) {
 						for (var i = 0; i < m_entries.Count; i++) {
@@ -440,8 +440,41 @@ namespace Tekly.DevBoard.Nodes
 						row.RebuildNow();
 					}
 				} finally {
+					if (!committed) {
+						DiscardSync(changed);
+					}
+
 					EndChanges();
 				}
+			}
+		}
+
+		/// <summary>
+		/// Undoes a sync that threw partway: the items it added go, with their rows, so the next sync starts from the
+		/// last good one. Rows whose item it had already changed are rebuilt, as a finished sync would have.
+		/// </summary>
+		private void DiscardSync(List<ListItem<TItem>> changed)
+		{
+			using (ListPool<Entry>.Get(out var created)) {
+				foreach (var entry in m_byKey.Values) {
+					if (entry.CreatedSync == m_syncCount) {
+						created.Add(entry);
+					}
+				}
+
+				foreach (var entry in created) {
+					if (entry.Row != null) {
+						RemoveChild(entry.Row);
+					}
+
+					m_byKey.Remove(entry.Key);
+				}
+			}
+
+			m_nextEntries.Clear();
+
+			foreach (var row in changed) {
+				row.RebuildNow();
 			}
 		}
 
@@ -513,10 +546,14 @@ namespace Tekly.DevBoard.Nodes
 			// The last sync that saw it, to spot duplicate keys and items that have gone
 			public int LastSync;
 
-			public Entry(TKey key, TItem item)
+			// The sync that added it, so one that throws can take back what it added
+			public readonly int CreatedSync;
+
+			public Entry(TKey key, TItem item, int createdSync)
 			{
 				Key = key;
 				Item = item;
+				CreatedSync = createdSync;
 			}
 		}
 	}

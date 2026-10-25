@@ -515,12 +515,15 @@ namespace Tekly.DevBoard
 		/// </summary>
 		internal void UpdateKeys()
 		{
-			if (WasPressed(ToggleKey) || WasToggleTouched()) {
+			// Not while typing: the toggle key is a backtick by default, and that's a character too
+			var typing = KeyInput.IsTyping;
+
+			if (WasToggleTouched() || (!typing && WasPressed(ToggleKey))) {
 				ToggleVisible();
 			}
 
-			// The same key closes it again
-			if (WasPressed(ConsoleKey)) {
+			// The same key closes it again, even from the console's own line
+			if (WasPressed(ConsoleKey) && (!typing || m_console.IsTyping)) {
 				if (m_console.IsOpen) {
 					CloseConsole();
 				} else {

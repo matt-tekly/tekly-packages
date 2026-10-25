@@ -51,6 +51,11 @@ namespace Tekly.DevBoard.Pages
 			}
 		}
 
+		/// <summary>
+		/// The content if it has been built, without building it.
+		/// </summary>
+		internal Segment BuiltRoot => m_root;
+
 		internal long Sequence { get; }
 
 		private readonly PageTree m_tree;

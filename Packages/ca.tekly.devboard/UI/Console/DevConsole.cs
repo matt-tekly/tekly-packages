@@ -49,6 +49,11 @@ namespace Tekly.DevBoard.Console
 		public bool IsOpen => m_root != null;
 
 		/// <summary>
+		/// True while the console's line is being typed in.
+		/// </summary>
+		public bool IsTyping => m_input != null && m_input.IsFocused;
+
+		/// <summary>
 		/// True while a command runs. The line can't be typed in until it's done.
 		/// </summary>
 		public bool IsRunning => m_running != null;
@@ -149,9 +154,19 @@ namespace Tekly.DevBoard.Console
 			Build(layer);
 
 			RefreshOutput();
+			UpdateCompletion();
+
+			// Sized now rather than over the next frames, with the hint already shown or hidden: the output is placed
+			// at its real width first, since TMP measuring it at the prefab's width would wrap every line and put the
+			// console at its cap, then measured, and the console's height follows from that
+			var root = (RectTransform) m_root.transform;
+			LayoutRebuilder.ForceRebuildLayoutImmediate(root);
+			m_outputField.FitToText();
+			LayoutRebuilder.ForceRebuildLayoutImmediate(root);
+			FitHeight();
+			ScrollToEnd();
 
 			m_scrollToEndFrames = SCROLL_TO_END_FRAMES;
-			UpdateCompletion();
 
 			if (IsRunning) {
 				ApplyRunning();

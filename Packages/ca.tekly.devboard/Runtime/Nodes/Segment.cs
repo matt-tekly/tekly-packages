@@ -31,7 +31,63 @@ namespace Tekly.DevBoard.Nodes
 		{
 			Source = source;
 			m_build = build;
-			Id = NodePaths.Slug(source.Title) ?? "segment";
+			Id = UniqueId(source);
+		}
+
+		/// <summary>
+		/// The segment's slug, made unique among its page's segments. Ones with the same slug are numbered in the
+		/// order they're on the page, so a path means the same segment from one run to the next, and then past any
+		/// id a sibling built earlier already took.
+		/// </summary>
+		private static string UniqueId(PageSegment source)
+		{
+			var baseId = BaseId(source);
+			var page = source.Node;
+
+			if (page == null) {
+				return baseId;
+			}
+
+			var number = 1;
+
+			foreach (var sibling in page.Segments) {
+				if (sibling == source) {
+					break;
+				}
+
+				if (BaseId(sibling) == baseId) {
+					number++;
+				}
+			}
+
+			var id = Numbered(baseId, number);
+
+			while (IsTaken(page, source, id)) {
+				id = Numbered(baseId, ++number);
+			}
+
+			return id;
+		}
+
+		private static string BaseId(PageSegment segment)
+		{
+			return NodePaths.Slug(segment.Title) ?? "segment";
+		}
+
+		private static string Numbered(string baseId, int number)
+		{
+			return number == 1 ? baseId : $"{baseId}-{number}";
+		}
+
+		private static bool IsTaken(PageNode page, PageSegment source, string id)
+		{
+			foreach (var sibling in page.Segments) {
+				if (sibling != source && sibling.BuiltRoot?.Id == id) {
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		/// <summary>

@@ -27,6 +27,7 @@ namespace Tekly.DevBoard.Console
 		private ScrollRect m_scrollParent;
 		private PointerEventData m_drag;
 		private bool m_styled;
+		private bool m_textChanged;
 		private float m_shownHeight = -1f;
 		private float m_shownWidth = -1f;
 
@@ -43,27 +44,30 @@ namespace Tekly.DevBoard.Console
 			}
 
 			SetTextWithoutNotify(string.Join("\n", lines));
+			m_textChanged = true;
 		}
 
 		/// <summary>
-		/// Matches the field's height to its text. Called each frame: it only does work when the text or width changed.
+		/// Matches the field's height to its text. Called each frame: it only measures, which is a full TMP layout
+		/// of the text, when the text or the width changed.
 		/// </summary>
 		public void FitToText()
 		{
 			var width = ((RectTransform) transform).rect.width;
 
-			if (width <= 0f) {
+			if (width <= 0f || (!m_textChanged && Mathf.Approximately(width, m_shownWidth))) {
 				return;
 			}
 
 			var height = textComponent.GetPreferredValues(text, width, 0f).y;
+			m_textChanged = false;
+			m_shownWidth = width;
 
-			if (Mathf.Approximately(height, m_shownHeight) && Mathf.Approximately(width, m_shownWidth)) {
+			if (Mathf.Approximately(height, m_shownHeight)) {
 				return;
 			}
 
 			m_shownHeight = height;
-			m_shownWidth = width;
 			m_layout.PreferredHeight = height;
 		}
 
