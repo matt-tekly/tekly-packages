@@ -20,7 +20,7 @@
 
 		public override string ToString()
 		{
-			return $"{Key.Path} count={Count} amount={Amount} (Δ count={CountDelta}, Δ amount={AmountDelta}";
+			return $"{Key.Path} count={Count} amount={Amount} (Δ count={CountDelta}, Δ amount={AmountDelta})";
 		}
 	}
 }

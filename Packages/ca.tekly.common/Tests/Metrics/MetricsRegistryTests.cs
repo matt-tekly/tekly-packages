@@ -1,4 +1,10 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.TestTools;
+using UnityEngine.TestTools.Constraints;
+using AssertionException = UnityEngine.Assertions.AssertionException;
+using Is = UnityEngine.TestTools.Constraints.Is;
 
 namespace Tekly.Common.Metrics
 {
@@ -176,6 +182,179 @@ namespace Tekly.Common.Metrics
 			var player = restored.Get("player");
 			Assert.AreEqual(3, player.Count);
 			Assert.AreEqual(9, player.Amount);
+		}
+
+		[TestCase(null)]
+		[TestCase("   ")]
+		[TestCase("player..run")]
+		public void ConstructFromSave_MalformedKey_Throws(string key)
+		{
+			var save = new MetricsRegistrySave();
+			save.Entries.Add(new MetricNodeSave { Key = "player.jump", Count = 2, Amount = 2 });
+			save.Entries.Add(new MetricNodeSave { Key = key, Count = 1, Amount = 1 });
+
+			Assert.Throws<ArgumentException>(() => new MetricsRegistry(save));
+		}
+
+		[Test]
+		public void Emit_ThrowingSubscriber_DoesNotStrandOtherNodes()
+		{
+			var metrics = new MetricsRegistry();
+
+			var jumpEmits = 0;
+
+			metrics.Subscribe("player.actions.collect_coin", _ => throw new InvalidOperationException("boom"));
+			metrics.Subscribe("player.actions.jump", _ => jumpEmits++);
+
+			// collect_coin is recorded first so it is emitted before jump.
+			metrics.Record("player.actions.collect_coin", 1);
+			metrics.Record("player.actions.jump", 1);
+
+			LogAssert.Expect(LogType.Exception, "InvalidOperationException: boom");
+			metrics.EmitModifiedNodes();
+
+			Assert.AreEqual(1, jumpEmits);
+
+			// Both nodes must still emit on later records.
+			metrics.Record("player.actions.collect_coin", 1);
+			metrics.Record("player.actions.jump", 1);
+
+			LogAssert.Expect(LogType.Exception, "InvalidOperationException: boom");
+			metrics.EmitModifiedNodes();
+
+			Assert.AreEqual(2, jumpEmits);
+		}
+
+		[Test]
+		public void Emit_ReentrantCall_IsIgnored()
+		{
+			var metrics = new MetricsRegistry();
+
+			var emits = 0;
+
+			metrics.Subscribe("player.actions", _ => {
+				emits++;
+				metrics.EmitModifiedNodes();
+			});
+
+			metrics.Record("player.actions.jump", 1);
+
+			// The nested call trips the re-entrancy assertion, which is expected here.
+			LogAssert.ignoreFailingMessages = true;
+
+			try {
+				metrics.EmitModifiedNodes();
+				Assert.AreEqual(1, emits);
+
+				metrics.Record("player.actions.jump", 1);
+				metrics.EmitModifiedNodes();
+				Assert.AreEqual(2, emits);
+			} finally {
+				LogAssert.ignoreFailingMessages = false;
+			}
+		}
+
+		[Test]
+		public void Record_ToNodeWithChildren_Asserts()
+		{
+			var metrics = new MetricsRegistry();
+			metrics.Record("player.actions.jump", 1);
+
+			Assert.Throws<AssertionException>(() => metrics.Record("player.actions", 1));
+		}
+
+		[Test]
+		public void Record_ChildOfRecordedLeaf_Asserts()
+		{
+			var metrics = new MetricsRegistry();
+			metrics.Record("player.actions", 1);
+
+			Assert.Throws<AssertionException>(() => metrics.Record("player.actions.jump", 1));
+		}
+
+		[Test]
+		public void MetricKey_WellFormed_KeepsPath()
+		{
+			const string path = "player.actions.jump";
+			var key = new MetricKey(path);
+
+			Assert.AreSame(path, key.Path);
+		}
+
+		[Test]
+		public void MetricKey_TryGetParent_WalksUpToRoot()
+		{
+			var key = new MetricKey("player.actions.jump");
+
+			Assert.IsTrue(key.TryGetParent(out var actions));
+			Assert.AreEqual(new MetricKey("player.actions"), actions);
+
+			Assert.IsTrue(actions.TryGetParent(out var player));
+			Assert.AreEqual(new MetricKey("player"), player);
+
+			Assert.IsFalse(player.TryGetParent(out _));
+		}
+
+		[Test]
+		public void MetricKey_Append_BuildsChild()
+		{
+			Assert.AreEqual(new MetricKey("player.jump"), new MetricKey("player").Append("jump"));
+			Assert.AreEqual(new MetricKey("player"), default(MetricKey).Append("player"));
+			Assert.Throws<ArgumentException>(() => new MetricKey("player").Append(""));
+			Assert.Throws<ArgumentException>(() => new MetricKey("player").Append(" jump"));
+		}
+
+		/// <summary>
+		/// Covers the whole hot path: building a key from a literal, the node lookup, the parent walk, the dirty list
+		/// and emitting.
+		/// </summary>
+		[Test]
+		public void RecordAndEmit_ExistingMetric_DoesNotAllocate()
+		{
+			var metrics = new MetricsRegistry();
+
+			TestDelegate recordAndEmit = () => {
+				metrics.Record("player.actions.jump", 1);
+				metrics.EmitModifiedNodes();
+			};
+
+			// The warm-up call creates the nodes. It also JIT-compiles the delegate and resolves its string literal,
+			// both of which allocate under Mono. Emitting each time means the measured call takes the
+			// first-record-since-emit path that adds nodes to the dirty list.
+			recordAndEmit();
+
+			Assert.That(recordAndEmit, Is.Not.AllocatingGCMemory());
+		}
+
+		[Test]
+		public void DefaultKey_Throws()
+		{
+			var metrics = new MetricsRegistry();
+
+			Assert.Throws<ArgumentException>(() => metrics.Record(default, 1));
+			Assert.Throws<ArgumentException>(() => metrics.Get(default));
+		}
+
+		[TestCase("")]
+		[TestCase("   ")]
+		[TestCase(".")]
+		[TestCase("player..jump")]
+		[TestCase(".player.jump")]
+		[TestCase("player.jump.")]
+		[TestCase("player. jump")]
+		[TestCase("player .jump")]
+		[TestCase(" player.jump")]
+		[TestCase("player.jump ")]
+		public void MetricKey_Malformed_Throws(string path)
+		{
+			Assert.Throws<ArgumentException>(() => new MetricKey(path));
+		}
+
+		[Test]
+		public void MetricKey_Default_HashesWithoutThrowing()
+		{
+			Assert.AreEqual(0, default(MetricKey).GetHashCode());
+			Assert.IsTrue(default(MetricKey).IsEmpty);
 		}
 	}
 }

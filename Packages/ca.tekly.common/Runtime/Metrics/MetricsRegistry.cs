@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Tekly.Common.Observables;
 using UnityEngine.Assertions;
+using Debug = UnityEngine.Debug;
 
 namespace Tekly.Common.Metrics
 {
@@ -19,13 +21,13 @@ namespace Tekly.Common.Metrics
 		public long Count;
 		public double Amount;
 	}
-	
+
 	public interface IMetricNode
 	{
 		MetricKey Key { get; }
 		long Count { get; }
 		double Amount{ get; }
-		IDisposable Subscribe(Action<MetricUpdate> snapshot);
+		IDisposable Subscribe(Action<MetricUpdate> onChanged);
 	}
 
 	/// <summary>
@@ -45,13 +47,17 @@ namespace Tekly.Common.Metrics
 	/// You MUST call EmitModifiedNodes() if you want subscriptions to work. Recommended to be called at the start of
 	/// your frame.
 	///
-	/// It is invalid usage to record to part of a path, you can only record values to leaves.
+	/// It is invalid usage to record to part of a path, you can only record values to leaves. This is asserted in
+	/// development builds.
+	///
+	/// Recording to a metric that already exists does not allocate. The first record to a new path allocates its node
+	/// and any missing parent nodes.
 	///
 	/// See the tests for example API usage.
 	/// </summary>
 	public sealed class MetricsRegistry
 	{
-		private readonly MetricNode m_root;
+		private readonly Dictionary<string, MetricNode> m_nodes = new Dictionary<string, MetricNode>(StringComparer.Ordinal);
 
 		private List<MetricNode> m_dirtyCurrent;
 		private List<MetricNode> m_dirtyNext;
@@ -60,19 +66,18 @@ namespace Tekly.Common.Metrics
 
 		public MetricsRegistry(int initialDirtyCapacity = 64)
 		{
-			m_root = MetricNode.CreateRoot();
-
 			m_dirtyCurrent = new List<MetricNode>(Math.Max(8, initialDirtyCapacity));
 			m_dirtyNext = new List<MetricNode>(Math.Max(8, initialDirtyCapacity));
 		}
 
+		/// <summary>
+		/// Restores a registry from a save. A save with a malformed key throws an ArgumentException, as a corrupt save
+		/// can't be trusted and restoring only part of it would hide the problem. Recovery is up to the save system.
+		/// </summary>
 		public MetricsRegistry(MetricsRegistrySave save, int initialDirtyCapacity = 64) : this(initialDirtyCapacity)
 		{
 			for (var i = 0; i < save.Entries.Count; i++) {
 				var entry = save.Entries[i];
-				if (entry == null || string.IsNullOrEmpty(entry.Key)) {
-					continue;
-				}
 
 				var count = entry.Count;
 				var amount = entry.Amount;
@@ -81,28 +86,27 @@ namespace Tekly.Common.Metrics
 					continue;
 				}
 
-				var leafKey = new MetricKey(entry.Key);
-				var node = m_root;
-				var segments = leafKey.Segments;
+				var leaf = GetOrCreateNode(new MetricKey(entry.Key));
 
-				for (var segmentIndex = 0; segmentIndex < segments.Length; segmentIndex++) {
-					node = node.GetOrCreateChild(segments[segmentIndex]);
+				for (var node = leaf; node != null; node = node.Parent) {
 					node.Apply(count, amount);
 				}
+
+				leaf.MarkAsLeaf();
 			}
 		}
 
 		public void Record(MetricKey key, double amount)
 		{
-			var node = m_root;
-			var segments = key.Segments;
+			AssertFinite(key, amount);
 
-			for (var i = 0; i < segments.Length; i++) {
-				node = node.GetOrCreateChild(segments[i]);
-				node.ApplyRecord(amount, m_dirtyCurrent);
-			}
+			var leaf = GetOrCreateNode(key);
+			AssertNoChildren(leaf);
+
+			RecordToNodeAndParents(leaf, amount);
+			leaf.MarkAsLeaf();
 		}
-		
+
 		public IMetricNode GetNode(MetricKey key)
 		{
 			return GetOrCreateNode(key);
@@ -110,7 +114,7 @@ namespace Tekly.Common.Metrics
 
 		public MetricSnapshot Get(MetricKey key)
 		{
-			if (GetNodeOrNull(key, out var node)) {
+			if (TryGetNode(key, out var node)) {
 				return node.GetSnapshot();
 			}
 
@@ -132,10 +136,15 @@ namespace Tekly.Common.Metrics
 
 		/// <summary>
 		/// You must call this to have subscription events fire.
+		/// Exceptions thrown by subscribers are logged and do not prevent other nodes from emitting.
 		/// </summary>
 		public void EmitModifiedNodes()
 		{
 			Assert.IsFalse(m_isEmitting, "EmitModifiedNodes() called re-entrantly");
+
+			if (m_isEmitting) {
+				return;
+			}
 
 			try {
 				m_isEmitting = true;
@@ -144,11 +153,14 @@ namespace Tekly.Common.Metrics
 				m_dirtyCurrent.Clear();
 
 				for (var i = 0; i < m_dirtyNext.Count; i++) {
-					m_dirtyNext[i].EmitIfDirty();
+					try {
+						m_dirtyNext[i].EmitIfDirty();
+					} catch (Exception e) {
+						Debug.LogException(e);
+					}
 				}
-
-				m_dirtyNext.Clear();
 			} finally {
+				m_dirtyNext.Clear();
 				m_isEmitting = false;
 			}
 		}
@@ -160,25 +172,8 @@ namespace Tekly.Common.Metrics
 		{
 			var snapshot = new MetricsRegistrySave();
 
-			if (!m_root.HasChildren) {
-				return snapshot;
-			}
-			
-			var stack = new Stack<MetricNode>();
-			stack.Push(m_root);
-
-			while (stack.Count > 0) {
-				var node = stack.Pop();
-				
-				if (node.HasChildren) {
-					foreach (var kvp in node.Children) {
-						stack.Push(kvp.Value);
-					}
-
-					continue;
-				}
-
-				if (node.Count == 0) {
+			foreach (var node in m_nodes.Values) {
+				if (node.HasChildren || node.Count == 0) {
 					continue;
 				}
 
@@ -194,44 +189,93 @@ namespace Tekly.Common.Metrics
 			return snapshot;
 		}
 
+		/// <summary>
+		/// Applies root first so parents are dirtied, and therefore emitted, before their children.
+		/// </summary>
+		private void RecordToNodeAndParents(MetricNode node, double amount)
+		{
+			if (node.Parent != null) {
+				RecordToNodeAndParents(node.Parent, amount);
+			}
+
+			node.ApplyRecord(amount, m_dirtyCurrent);
+		}
+
 		private MetricNode GetOrCreateNode(MetricKey key)
 		{
-			var node = m_root;
-			var segments = key.Segments;
+			ThrowIfEmpty(key);
 
-			for (var i = 0; i < segments.Length; i++) {
-				node = node.GetOrCreateChild(segments[i]);
+			if (m_nodes.TryGetValue(key.Path, out var node)) {
+				return node;
 			}
+
+			MetricNode parent = null;
+
+			if (key.TryGetParent(out var parentKey)) {
+				parent = GetOrCreateNode(parentKey);
+				AssertNotLeaf(parent, key);
+			}
+
+			node = new MetricNode(key, parent);
+			m_nodes.Add(key.Path, node);
 
 			return node;
 		}
 
-		private bool GetNodeOrNull(MetricKey key, out MetricNode metricNode)
+		private bool TryGetNode(MetricKey key, out MetricNode node)
 		{
-			metricNode = m_root;
-			var segments = key.Segments;
-
-			for (var i = 0; i < segments.Length; i++) {
-				if (!metricNode.TryGetChild(segments[i], out var next)) {
-					return false;
-				}
-
-				metricNode = next;
-			}
-
-			return true;
+			ThrowIfEmpty(key);
+			return m_nodes.TryGetValue(key.Path, out node);
 		}
-		
+
+		private static void ThrowIfEmpty(MetricKey key)
+		{
+			if (key.IsEmpty) {
+				throw new ArgumentException("MetricKey is empty. Use a non-default MetricKey.", nameof(key));
+			}
+		}
+
+		[Conditional("UNITY_ASSERTIONS")]
+		private static void AssertFinite(MetricKey key, double amount)
+		{
+			if (!double.IsFinite(amount)) {
+				Assert.IsTrue(false, $"Recording a non-finite amount to [{key}] would poison every parent metric.");
+			}
+		}
+
+		[Conditional("UNITY_ASSERTIONS")]
+		private static void AssertNoChildren(MetricNode node)
+		{
+			if (node.HasChildren) {
+				Assert.IsTrue(false, $"Recording to [{node.Key}] which has child metrics. Only leaves can be recorded to.");
+			}
+		}
+
+		[Conditional("UNITY_ASSERTIONS")]
+		private static void AssertNotLeaf(MetricNode parent, MetricKey childKey)
+		{
+			if (parent.IsLeaf) {
+				Assert.IsTrue(false, $"Creating child metric [{childKey}] under [{parent.Key}] which has been recorded to. Only leaves can be recorded to.");
+			}
+		}
+
 		private sealed class MetricNode : IMetricNode
 		{
 			public MetricKey Key => m_key;
 			public long Count { get; private set; }
 			public double Amount { get; private set; }
-			
-			public Dictionary<string, MetricNode> Children;
-			public bool HasChildren => Children != null && Children.Count > 0;
-			
+
+			public MetricNode Parent { get; }
+			public bool HasChildren => m_childCount > 0;
+
+			/// <summary>
+			/// True once a value has been recorded directly to this node. Such a node must never gain children.
+			/// </summary>
+			public bool IsLeaf { get; private set; }
+
 			private readonly MetricKey m_key;
+
+			private int m_childCount;
 
 			private long m_startCount;
 			private double m_startAmount;
@@ -239,59 +283,33 @@ namespace Tekly.Common.Metrics
 
 			private Triggerable<MetricUpdate> m_changed;
 
-			private MetricNode(MetricKey key)
+			public MetricNode(MetricKey key, MetricNode parent)
 			{
 				m_key = key;
+				Parent = parent;
 
-				Count = 0;
-				Amount = 0;
-
-				m_startCount = 0;
-				m_startAmount = 0.0;
-
-				m_changed = null;
-			}
-
-			public static MetricNode CreateRoot()
-			{
-				return new MetricNode(default);
-			}
-
-			public bool TryGetChild(string segment, out MetricNode child)
-			{
-				if (Children == null) {
-					child = null;
-					return false;
+				if (parent != null) {
+					parent.m_childCount++;
 				}
-
-				return Children.TryGetValue(segment, out child!);
 			}
 
-			public MetricNode GetOrCreateChild(string segment)
+			public void MarkAsLeaf()
 			{
-				if (Children == null) {
-					Children = new Dictionary<string, MetricNode>(StringComparer.Ordinal);
-				} else if (Children.TryGetValue(segment, out var existing)) {
-					return existing;
-				}
-				
-				var child = new MetricNode(Key.Append(segment));
-				Children.Add(segment, child);
-				return child;
+				IsLeaf = true;
 			}
 
 			public MetricSnapshot GetSnapshot()
 			{
 				return new MetricSnapshot(m_key, Count, Amount);
 			}
-			
-			public IDisposable Subscribe(Action<MetricUpdate> handler)
+
+			public IDisposable Subscribe(Action<MetricUpdate> onChanged)
 			{
 				if (m_changed == null) {
 					m_changed = new Triggerable<MetricUpdate>();
 				}
 
-				return m_changed.Subscribe(handler);
+				return m_changed.Subscribe(onChanged);
 			}
 
 			public void ApplyRecord(double amountDelta, List<MetricNode> dirtyList)
@@ -331,16 +349,12 @@ namespace Tekly.Common.Metrics
 				Count += count;
 				Amount += amount;
 			}
-			
+
 			public override string ToString()
 			{
-				if (m_key.Path == null) {
-					return $"<Root> count={Count} amount={Amount}";
-				}
-
 				return $"{m_key.Path} count={Count} amount={Amount}" +
 				       (m_dirty ? " [DIRTY]" : "") +
-				       (HasChildren ? $" children={Children.Count}" : "");
+				       (HasChildren ? $" children={m_childCount}" : "");
 			}
 		}
 	}
