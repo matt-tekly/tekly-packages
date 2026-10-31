@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using AssertionException = UnityEngine.Assertions.AssertionException;
 
 namespace Tekly.Common.Utils
@@ -22,7 +23,7 @@ namespace Tekly.Common.Utils
 			Assert.Throws<AssertionException>(() => new RandomSelector64(0, RandomSelectMode.NonRepeating));
 			Assert.Throws<AssertionException>(() => new RandomSelector64(0, RandomSelectMode.Exhaustive));
 
-			Assert.Throws<AssertionException>(() => new RandomSelector64(65, RandomSelectMode.Exhaustive));
+			Assert.Throws<ArgumentOutOfRangeException>(() => new RandomSelector64(65, RandomSelectMode.Exhaustive));
 		}
 
 		[TestCase(1, 10)]
@@ -84,6 +85,41 @@ namespace Tekly.Common.Utils
 			
 			var firstRepeat = selector.Select();
 			Assert.That(firstRepeat, Is.GreaterThanOrEqualTo(0).And.LessThan(size));
+		}
+
+		[TestCase(2)]
+		[TestCase(3)]
+		[TestCase(4)]
+		[TestCase(32)]
+		[TestCase(64)]
+		public void Select_ExhaustiveMode_EveryRoundSelectsAllValues(int size)
+		{
+			var selector = new RandomSelector64(size, RandomSelectMode.Exhaustive);
+
+			for (var round = 0; round < 20; round++) {
+				var seen = new bool[size];
+
+				for (var i = 0; i < size; i++) {
+					var value = selector.Select();
+					Assert.IsFalse(seen[value], $"Value [{value}] repeated within round [{round}].");
+					seen[value] = true;
+				}
+			}
+		}
+
+		[TestCase(2)]
+		[TestCase(3)]
+		[TestCase(64)]
+		public void Select_ExhaustiveMode_DoesNotRepeatAcrossRounds(int size)
+		{
+			var selector = new RandomSelector64(size, RandomSelectMode.Exhaustive);
+
+			var previous = selector.Select();
+			for (var i = 0; i < size * 20; i++) {
+				var next = selector.Select();
+				Assert.AreNotEqual(previous, next, $"Exhaustive mode selected [{next}] twice in a row at pick [{i}].");
+				previous = next;
+			}
 		}
 	}
 }

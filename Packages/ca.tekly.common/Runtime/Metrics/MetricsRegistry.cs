@@ -321,7 +321,6 @@ namespace Tekly.Common.Metrics
 					dirtyList.Add(this);
 				}
 
-				// Apply the delta.
 				Count += 1;
 				Amount += amountDelta;
 			}
