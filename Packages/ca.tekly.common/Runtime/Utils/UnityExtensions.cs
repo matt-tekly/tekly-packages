@@ -70,16 +70,23 @@ namespace Tekly.Common.Utils
 #endif
         }
         
+        /// <summary>
+        /// Int id for an Object. GetInstanceID before Unity 6.5, a hash of GetEntityId after.
+        /// The hash is lossy once EntityId outgrows an int, so don't rely on it being unique.
+        /// Prefer GetEntityId directly when the id doesn't have to be an int.
+        /// </summary>
+        public static int GetObjectId(this Object obj)
+        {
+#if UNITY_6000_5_OR_NEWER
+            return obj.GetEntityId().GetHashCode();
+#else
+            return obj.GetInstanceID();
+#endif
+        }
+
         public static T FindResource<T>(int instanceId) where T : Object
         {
-            return Resources.FindObjectsOfTypeAll<T>().FirstOrDefault(resource => {
-#if UNITY_6000_5_OR_NEWER
-	            return resource.GetEntityId().GetHashCode() == instanceId;
-#else
-	            return resource.GetInstanceID() == instanceId;
-#endif
-	            
-            });
+            return Resources.FindObjectsOfTypeAll<T>().FirstOrDefault(resource => resource.GetObjectId() == instanceId);
         }
 		
         public static T FindResource<T>(string name) where T : Object

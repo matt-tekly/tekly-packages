@@ -130,7 +130,12 @@ namespace Tekly.Trellis
 		private static string LinkKey(SerializedProperty property)
 		{
 			var target = property.serializedObject.targetObject;
-			return LINK_KEY_PREFIX + target.GetInstanceID() + "." + property.propertyPath;
+#if UNITY_6000_5_OR_NEWER
+			var id = target.GetEntityId().ToString();
+#else
+			var id = target.GetInstanceID().ToString();
+#endif
+			return LINK_KEY_PREFIX + id + "." + property.propertyPath;
 		}
 
 		private static void EnsureStyles()

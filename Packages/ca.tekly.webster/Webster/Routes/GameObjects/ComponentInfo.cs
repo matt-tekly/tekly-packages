@@ -5,6 +5,7 @@
 using System;
 using System.Text;
 using Tekly.Webster.Utility;
+using Tekly.Common.Utils;
 using UnityEngine;
 
 namespace Tekly.Webster.Routes.GameObjects
@@ -24,7 +25,7 @@ namespace Tekly.Webster.Routes.GameObjects
 		{
 			Type = component.GetType().Name;
 
-			InstanceId = component.GetInstanceID();
+			InstanceId = component.GetObjectId();
 
 			if (component is Behaviour) {
 				var beh = component as Behaviour;

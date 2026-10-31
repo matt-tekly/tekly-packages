@@ -3,6 +3,7 @@
 //=============================================================================
 
 using System.Linq;
+using Tekly.Common.Utils;
 using UnityEditor;
 using UnityEngine;
 
@@ -23,14 +24,14 @@ namespace Tekly.Webster.Utility
 		{
 			return Resources
 				.FindObjectsOfTypeAll<Component>()
-				.FirstOrDefault(component => component.GetInstanceID() == instanceId && IsNotPrefab(component.gameObject));
+				.FirstOrDefault(component => component.GetObjectId() == instanceId && IsNotPrefab(component.gameObject));
 		}
 
 		public static GameObject FindGameObjectByInstanceId(int instanceId)
 		{
 			return Resources
 				.FindObjectsOfTypeAll<GameObject>()
-				.FirstOrDefault(go => go.GetInstanceID() == instanceId && IsNotPrefab(go));
+				.FirstOrDefault(go => go.GetObjectId() == instanceId && IsNotPrefab(go));
 		}
 
 		public static bool IsNotPrefab(GameObject go)
@@ -40,7 +41,7 @@ namespace Tekly.Webster.Utility
 		
 		public static T FindResource<T>(int instanceId) where T : Object
 		{
-			return Resources.FindObjectsOfTypeAll<T>().FirstOrDefault(resource => resource.GetInstanceID() == instanceId);
+			return Resources.FindObjectsOfTypeAll<T>().FirstOrDefault(resource => resource.GetObjectId() == instanceId);
 		}
 		
 		public static T FindResource<T>(string name) where T : Object

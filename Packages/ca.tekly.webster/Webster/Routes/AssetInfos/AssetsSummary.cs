@@ -4,6 +4,7 @@
 
 using System;
 using System.Linq;
+using Tekly.Common.Utils;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -64,7 +65,7 @@ namespace Tekly.Webster.Routes.AssetInfos
 		{
 			Type = obj.GetType().Name;
 			Name = obj.name;
-			InstanceId = obj.GetInstanceID();
+			InstanceId = obj.GetObjectId();
 
 			switch (obj) {
 				case AudioClip audioClip: {
@@ -98,7 +99,7 @@ namespace Tekly.Webster.Routes.AssetInfos
 					Width = Mathf.RoundToInt(textureRect.width);
 					Height = Mathf.RoundToInt(textureRect.height);
 
-					TextureInstanceId = sprite.texture.GetInstanceID();
+					TextureInstanceId = sprite.texture.GetObjectId();
 					
 					break;
 				}

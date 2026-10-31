@@ -5,6 +5,7 @@
 using System;
 using System.Text;
 using Tekly.Webster.Utility;
+using Tekly.Common.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -54,7 +55,7 @@ namespace Tekly.Webster.Routes.GameObjects
 		{
 			Name = go.name;
 			Path = path;
-			InstanceId = go.GetInstanceID();
+			InstanceId = go.GetObjectId();
 
 			Active = go.activeInHierarchy;
 			ActiveSelf = go.activeSelf;

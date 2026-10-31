@@ -11,9 +11,18 @@ namespace Tekly.Tinker.Http
 			return GetSpriteBytes(sprite);
 		}
 		
+		public static int GetObjectId(Object obj)
+		{
+#if UNITY_6000_5_OR_NEWER
+			return obj.GetEntityId().GetHashCode();
+#else
+			return obj.GetInstanceID();
+#endif
+		}
+
 		public static T FindResource<T>(int instanceId) where T : Object
 		{
-			return Resources.FindObjectsOfTypeAll<T>().FirstOrDefault(resource => resource.GetInstanceID() == instanceId);
+			return Resources.FindObjectsOfTypeAll<T>().FirstOrDefault(resource => GetObjectId(resource) == instanceId);
 		}
 		
 		public static T FindResource<T>(string name) where T : Object

@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Tekly.Tinker.Http;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -59,7 +60,7 @@ namespace Tekly.Tinker.Routes
 		{
 			Type = obj.GetType().Name;
 			Name = obj.name;
-			InstanceId = obj.GetInstanceID();
+			InstanceId = TextureUtils.GetObjectId(obj);
 
 			switch (obj) {
 				case AudioClip audioClip: {
@@ -93,7 +94,7 @@ namespace Tekly.Tinker.Routes
 					Width = Mathf.RoundToInt(textureRect.width);
 					Height = Mathf.RoundToInt(textureRect.height);
 
-					TextureInstanceId = sprite.texture.GetInstanceID();
+					TextureInstanceId = TextureUtils.GetObjectId(sprite.texture);
 					
 					break;
 				}
