@@ -537,7 +537,12 @@ namespace Tekly.DevBoard
 			}
 
 			NoteUsedPanel();
-			DevBoard.Instance.SetFocused(IsFocused);
+
+			var focused = IsFocused;
+			DevBoard.Instance.SetFocused(focused);
+
+			// Set ahead of the key press: on WebGL the browser decides whether Ctrl+F is its own before Unity sees it
+			BrowserKeys.SetBlockFind(focused);
 			m_palette.Update();
 			m_console.Update();
 		}
