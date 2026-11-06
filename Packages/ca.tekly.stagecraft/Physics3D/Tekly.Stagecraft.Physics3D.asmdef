@@ -1,0 +1,16 @@
+{
+    "name": "Tekly.Stagecraft.Physics3D",
+    "rootNamespace": "Tekly.Stagecraft.Physics3D",
+    "references": [
+        "Tekly.Stagecraft.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

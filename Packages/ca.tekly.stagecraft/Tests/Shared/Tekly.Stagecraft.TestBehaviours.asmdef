@@ -1,0 +1,20 @@
+{
+    "name": "Tekly.Stagecraft.TestBehaviours",
+    "rootNamespace": "Tekly.Stagecraft.Tests",
+    "references": [
+        "Tekly.Stagecraft.Runtime",
+        "Tekly.Stagecraft.PhysicsCore2D",
+        "Tekly.Injectors.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

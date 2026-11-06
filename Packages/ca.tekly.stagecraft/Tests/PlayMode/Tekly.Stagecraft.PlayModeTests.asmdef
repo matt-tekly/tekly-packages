@@ -1,0 +1,25 @@
+{
+    "name": "Tekly.Stagecraft.PlayModeTests",
+    "rootNamespace": "Tekly.Stagecraft",
+    "references": [
+        "Tekly.Stagecraft.Runtime",
+        "Tekly.Stagecraft.TestBehaviours",
+        "Tekly.Injectors.Runtime",
+        "Tekly.Common.Runtime",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

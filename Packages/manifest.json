@@ -1,7 +1,6 @@
 {
   "dependencies": {
     "com.unity.2d.sprite": "1.0.0",
-    "com.unity.ai.assistant": "2.20.0-pre.2",
     "com.unity.ai.navigation": "2.0.14",
     "com.unity.burst": "1.8.30",
     "com.unity.ide.rider": "3.1.0",
@@ -38,6 +37,7 @@
     "com.unity.modules.vectorgraphics": "1.0.0",
     "com.unity.modules.vehicles": "1.0.0",
     "com.unity.modules.video": "1.0.0",
-    "com.unity.modules.xr": "1.0.0"
+    "com.unity.modules.xr": "1.0.0",
+    "com.unity.pipeline": "0.10.0-exp.1"
   }
 }

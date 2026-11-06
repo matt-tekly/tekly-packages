@@ -1,0 +1,26 @@
+{
+    "name": "Tekly.Stagecraft.DevBoard",
+    "rootNamespace": "Tekly.Stagecraft.Integration",
+    "references": [
+        "Tekly.Stagecraft.Runtime",
+        "GUID:ddc00dd6ba7be9d489842d055df28ffd",
+        "GUID:b9160372c6c55a741932d482673e3abb"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "TEKLY_STAGECRAFT_DEVBOARD"
+    ],
+    "versionDefines": [
+        {
+            "name": "ca.tekly.devboard",
+            "expression": "",
+            "define": "TEKLY_STAGECRAFT_DEVBOARD"
+        }
+    ],
+    "noEngineReferences": false
+}

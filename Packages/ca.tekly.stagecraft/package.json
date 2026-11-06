@@ -1,0 +1,19 @@
+{
+  "name": "ca.tekly.stagecraft",
+  "version": "0.1.0",
+  "displayName": "Tekly Stagecraft",
+  "description": "Actor runtime: pooled GameObject actors with explicit lifecycle, deferred despawn, generation handles, ordered ticking and batch systems.",
+  "unity": "6000.5",
+  "author": {
+    "name": "Matt King",
+    "email": "matt@tekly.ca"
+  },
+  "hideInEditor": false,
+  "type": "library",
+  "dependencies": {
+    "ca.tekly.common": "0.0.1",
+    "ca.tekly.injectors": "1.0.0",
+    "ca.tekly.logger": "1.0.0",
+    "ca.tekly.devboard": "0.0.1"
+  }
+}
