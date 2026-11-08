@@ -25,11 +25,6 @@ namespace Tekly.Stagecraft
 			m_slot = slot;
 		}
 
-		public bool Contains(T behaviour)
-		{
-			return GetIndex(behaviour) >= 0;
-		}
-
 		public void Add(T behaviour)
 		{
 			if (Count == Items.Length) {
@@ -55,16 +50,6 @@ namespace Tekly.Stagecraft
 			Items[last] = null;
 			Count = last;
 			SetIndex(behaviour, -1);
-		}
-
-		public void Clear()
-		{
-			for (var i = 0; i < Count; i++) {
-				SetIndex(Items[i], -1);
-				Items[i] = null;
-			}
-
-			Count = 0;
 		}
 
 		private int GetIndex(T behaviour)

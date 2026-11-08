@@ -62,7 +62,6 @@ namespace Tekly.Stagecraft
 		public override bool HasSystem => m_system != null;
 
 		public ActorList<T> All => new ActorList<T>(m_all);
-		public ActorSystem<T> System => m_system;
 
 		private readonly ActorCollection<T> m_all = new ActorCollection<T>(ListSlot.All);
 		private readonly ActorCollection<T> m_tick = new ActorCollection<T>(ListSlot.Tick);

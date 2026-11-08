@@ -3,9 +3,10 @@
 namespace Tekly.Stagecraft
 {
 	/// <summary>
-	/// A component of an <see cref="Actor"/>. Override OnSpawned/OnDespawned for lifecycle, Tick/FixedTick to be
-	/// ticked (only types that override them are scheduled), or leave both alone and let an ActorSystem drive it.
-	/// Never add Update methods: the stage owns time.
+	/// A component of an <see cref="Actor"/>. Override OnCreated for once-per-instance setup, OnSpawned/OnDespawned
+	/// for per-spawn lifecycle, Tick/FixedTick to be ticked (only types that override them are scheduled), or leave
+	/// the ticks alone and let an ActorSystem drive it. Don't use Awake, OnEnable, OnDisable or Update: the stage
+	/// owns the lifecycle and the clock, and Unity's messages fire at times it doesn't control.
 	/// </summary>
 	public abstract class ActorBehaviour : MonoBehaviour
 	{
@@ -22,6 +23,12 @@ namespace Tekly.Stagecraft
 		internal int AllIndex = -1;
 		internal int TickIndex = -1;
 		internal int FixedIndex = -1;
+
+		/// <summary>
+		/// Called once, when the pooled instance is created: after injection, before the first spawn, on the inactive
+		/// object. Cache components and resolve services here instead of in Awake.
+		/// </summary>
+		public virtual void OnCreated() { }
 
 		/// <summary>Called inside Spawn/Activate, after spawn args. The actor is alive. Raw references handed out here are valid until the next sync.</summary>
 		public virtual void OnSpawned() { }

@@ -1,7 +1,4 @@
 ﻿using System.Collections.Generic;
-using Tekly.Injectors;
-using Tekly.Injectors.Utils;
-using Tekly.Logging;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -24,8 +21,6 @@ namespace Tekly.Stagecraft
 		private readonly Transform m_staging;
 		private readonly Stack<Actor> m_free = new Stack<Actor>();
 		private readonly List<Actor> m_all = new List<Actor>();
-
-		private static readonly TkLogger s_logger = TkLogger.Get<ActorPool>();
 
 		public ActorPool(Stage stage, Actor prefab, Transform stageRoot, Transform staging)
 		{
@@ -134,8 +129,6 @@ namespace Tekly.Stagecraft
 		private readonly Transform m_root;
 		private readonly Transform m_staging;
 		private readonly Dictionary<Actor, ActorPool> m_pools = new Dictionary<Actor, ActorPool>();
-
-		private static readonly TkLogger s_logger = TkLogger.Get<ActorPools>();
 
 		public ActorPools(Stage stage, Transform root)
 		{

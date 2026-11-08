@@ -193,6 +193,28 @@ namespace Tekly.Stagecraft.Tests
 		}
 
 		[Test]
+		public void OnCreated_RunsOncePerInstance_BeforeTheFirstSpawn()
+		{
+			var prefab = CreatePrefab<TickBehaviour>();
+
+			var instance = Stage.Spawn(prefab);
+			Assert.AreEqual(1, instance.Created);
+			Assert.IsFalse(instance.WasActiveInCreated, "created on the inactive object");
+			Assert.IsFalse(instance.SpawnedBeforeCreated, "before the first OnSpawned");
+
+			instance.Despawn();
+			Stage.Tick(0f);
+			var again = Stage.Spawn(prefab);
+
+			Assert.AreSame(instance, again);
+			Assert.AreEqual(1, again.Created, "not again on reuse");
+			Assert.AreEqual(2, again.Spawned);
+
+			var acquired = Stage.Acquire(prefab);
+			Assert.AreEqual(1, acquired.Created, "Acquire creates the instance, so OnCreated has run before Activate");
+		}
+
+		[Test]
 		public void Activate_WithRestoredReason_IsVisibleInOnSpawned()
 		{
 			var prefab = CreatePrefab<TickBehaviour>();

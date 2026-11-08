@@ -54,6 +54,37 @@ namespace Tekly.Stagecraft.PlayModeTests
 			Assert.AreEqual(2, again.Spawns);
 		}
 
+		[Test]
+		public void Args_AreSetBeforeAwakeAndOnEnable()
+		{
+			var prefab = new GameObject("args-prefab");
+			prefab.SetActive(false);
+			prefab.AddComponent<Actor>();
+			var prefabBehaviour = prefab.AddComponent<ArgsOrderCounter>();
+
+			var stage = new Stage(new StageConfig().Register<ArgsOrderCounter>());
+			try {
+				var instance = stage.Spawn(prefabBehaviour, Pose.identity, new TestArgs { Number = 9 });
+
+				Assert.IsFalse(instance.WasActiveInInitialize, "Initialize runs on the inactive object");
+				Assert.IsTrue(instance.HadArgsInAwake, "first-spawn Awake already sees the args");
+				Assert.IsTrue(instance.HadArgsInEnable, "OnEnable never sees a previous spawn's state");
+				Assert.IsTrue(instance.HadArgsInSpawned);
+
+				// Second spawn of the same instance: still true for OnEnable
+				instance.Despawn();
+				stage.Tick(0f);
+				instance.Number = 0;
+				instance.HadArgsInEnable = false;
+				var again = stage.Spawn(prefabBehaviour, Pose.identity, new TestArgs { Number = 3 });
+				Assert.AreSame(instance, again);
+				Assert.IsTrue(again.HadArgsInEnable);
+			} finally {
+				stage.Dispose();
+				Object.Destroy(prefab);
+			}
+		}
+
 		[UnityTest]
 		public IEnumerator ExternalDestroy_OfActiveActor_IsCleanedUpAtNextSync()
 		{

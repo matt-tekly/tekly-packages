@@ -51,7 +51,8 @@ sync. `Dispose` = `Clear` + destroy pools; no-op while the app is quitting.
 
 | | When |
 |---|---|
-| `ISpawnArgs.Initialize` | inside `Spawn`/`Activate`, after `SetActive(true)` (`Awake` has run), before any `OnSpawned` |
+| `OnCreated` | once per pooled instance, when the pool creates it: after injection, on the inactive object, before any spawn. Component caching and service lookup go here, not in `Awake` |
+| `ISpawnArgs.Initialize` | inside `Spawn`/`Activate`, on the still-inactive object: before `Awake`/`OnEnable` and before any `OnSpawned`. Store args here; set up in `OnSpawned` |
 | `OnSpawned`, `Stage.Spawned` | inside `Spawn`/`Activate`. Alive and resolvable from here |
 | `ActorSystem.OnAdded` | the next sync (start of the next tick), i.e. before that tick's loops |
 | `Tick`/`FixedTick`/system ticks | between the two syncs of a stage tick, groups in registration order, per-object before the group's system |
@@ -63,6 +64,17 @@ opens. The 16-pass bound turns an infinite spawn↔despawn loop into one error a
 
 ## Decisions and why
 
+- **Behaviours don't use Unity messages.** `OnCreated` (once per instance), `Initialize` (args), `OnSpawned`,
+  `OnDespawned` and the ticks cover everything `Awake`/`OnEnable`/`OnDisable`/`Update` would, at times the stage
+  controls. The runtime itself needs exactly one Unity message, `Actor.OnDestroy`, to notice external destruction;
+  the PhysX stub's collision messages are the engine's, and they only record.
+- **Args arrive before the object wakes.** `Initialize` runs on the inactive instance so `OnEnable` (animators,
+  particle systems, anything Unity-driven) never sees the previous spawn's state. The cost is that `Initialize`
+  can't use components cached in `Awake` on the first spawn, which is why it is defined as "store the args".
+- **One args struct, one receiver.** The behaviour you spawn by takes the prefab's args; if siblings need some of
+  that data it hands it on in `Initialize` through the references it already has (`m_healthBar.Max = args.Health`).
+  The behaviours on a prefab are co-designed, so that isn't coupling worth engineering away, and the alternatives
+  (multi-arg `Spawn` overloads, an args bag) cost more than they return.
 - **`OnSpawned` runs immediately; list insertion is what's deferred.** A spawner nearly always wants to talk to
   what it just spawned. Deferring the callback would force an `ActorRef` round-trip for no gain; deferring the
   insertion is what protects running loops.

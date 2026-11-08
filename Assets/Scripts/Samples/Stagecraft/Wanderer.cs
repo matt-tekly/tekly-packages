@@ -31,14 +31,15 @@ namespace TeklySample.Samples.Stagecraft
 			m_args = args;
 		}
 
+		public override void OnCreated()
+		{
+			m_body = Actor.Get<ActorBody2D>();
+			m_renderer = GetComponent<SpriteRenderer>();
+			m_colour = m_renderer.color;
+		}
+
 		public override void OnSpawned()
 		{
-			if (m_body == null) {
-				m_body = Actor.Get<ActorBody2D>();
-				m_renderer = GetComponent<SpriteRenderer>();
-				m_colour = m_renderer.color;
-			}
-
 			m_dies = Stage.Time.FixedElapsed + m_args.Lifetime;
 			m_turnAt = 0f;
 		}

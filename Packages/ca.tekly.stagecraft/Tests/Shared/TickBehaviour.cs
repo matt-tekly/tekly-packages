@@ -5,6 +5,9 @@ namespace Tekly.Stagecraft.Tests
 	// One MonoBehaviour per file, named after the class, or Unity can't add it as a component
 	public class TickBehaviour : ActorBehaviour
 	{
+		public int Created;
+		public bool WasActiveInCreated;
+		public bool SpawnedBeforeCreated;
 		public int Spawned;
 		public int Despawned;
 		public int Ticks;
@@ -14,6 +17,13 @@ namespace Tekly.Stagecraft.Tests
 
 		[NonSerialized] public Action<TickBehaviour> OnTick;
 		[NonSerialized] public Action<TickBehaviour> OnDespawn;
+
+		public override void OnCreated()
+		{
+			Created++;
+			WasActiveInCreated = gameObject.activeInHierarchy;
+			SpawnedBeforeCreated = Spawned > 0;
+		}
 
 		public override void OnSpawned()
 		{

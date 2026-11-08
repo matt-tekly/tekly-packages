@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Tekly.Logging;
 using Unity.U2D.Physics;
 
 namespace Tekly.Stagecraft.PhysicsCore2D
@@ -53,7 +52,6 @@ namespace Tekly.Stagecraft.PhysicsCore2D
 
 		private readonly PhysicsWorld m_world;
 		private readonly PhysicsWorld.SimulationType m_previousSimulationType;
-		private readonly TkLogger m_logger = TkLogger.Get<PhysicsCore2DAdapter>();
 
 		private readonly List<PairEvent> m_contactBegin = new List<PairEvent>(256);
 		private readonly List<PairEvent> m_contactEnd = new List<PairEvent>(256);
@@ -124,7 +122,6 @@ namespace Tekly.Stagecraft.PhysicsCore2D
 			m_triggerEnd.Clear();
 		}
 
-		// ----- Bodies ---------------------------------------------------------------------------------------------
 
 		internal void Register(ActorBody2D body)
 		{
@@ -165,7 +162,6 @@ namespace Tekly.Stagecraft.PhysicsCore2D
 			return actor.State == ActorState.Active && actor.Id == id ? body : null;
 		}
 
-		// ----- Recording ------------------------------------------------------------------------------------------
 
 		private void OnPostSimulate(PhysicsWorld world, float deltaTime)
 		{
@@ -219,7 +215,6 @@ namespace Tekly.Stagecraft.PhysicsCore2D
 			return ActorId.Unpack(body.userData.int64Value);
 		}
 
-		// ----- Delivery -------------------------------------------------------------------------------------------
 
 		private enum EventKind
 		{
@@ -231,7 +226,7 @@ namespace Tekly.Stagecraft.PhysicsCore2D
 
 		private void Deliver(List<PairEvent> events, EventKind kind)
 		{
-			// Index loop: listeners may step the world? No, but they may despawn, which doesn't touch this list.
+			// Listeners may despawn actors, which only queues work for the next sync; nothing here mutates this list
 			for (var i = 0; i < events.Count; i++) {
 				var evt = events[i];
 

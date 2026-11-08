@@ -64,20 +64,25 @@ namespace Tekly.Stagecraft.PhysicsCore2D
 		private static readonly TkLogger s_logger = TkLogger.Get<ActorBody2D>();
 		private static bool s_loggedNoAdapter;
 
+		public override void OnCreated()
+		{
+			m_adapter = Stage.Physics as PhysicsCore2DAdapter;
+			if (m_adapter == null) {
+				if (!s_loggedNoAdapter) {
+					s_loggedNoAdapter = true;
+					s_logger.Error("ActorBody2D on [{actor}] but the stage has no PhysicsCore2DAdapter; attach one before spawning. (Logged once)", ("actor", Actor.name));
+				}
+
+				return;
+			}
+
+			CollectListeners();
+		}
+
 		public override void OnSpawned()
 		{
 			if (ReferenceEquals(m_adapter, null)) {
-				m_adapter = Stage.Physics as PhysicsCore2DAdapter;
-				if (m_adapter == null) {
-					if (!s_loggedNoAdapter) {
-						s_loggedNoAdapter = true;
-						s_logger.Error("ActorBody2D on [{actor}] but the stage has no PhysicsCore2DAdapter. (Logged once)", ("actor", Actor.name));
-					}
-
-					return;
-				}
-
-				CollectListeners();
+				return;
 			}
 
 			var definition = PhysicsBodyDefinition.defaultDefinition;

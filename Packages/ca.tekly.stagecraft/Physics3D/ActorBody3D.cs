@@ -6,8 +6,8 @@ namespace Tekly.Stagecraft.Physics3D
 {
 	/// <summary>
 	/// The 3D counterpart of ActorBody2D. PhysX has no user data, so the actor id lives here: a contact finds the
-	/// other actor through the other collider's ActorBody3D and its id at the time of the event. The Rigidbody is
-	/// kept on the pooled object (PhysX bodies are components, not handles) and enabled only while alive.
+	/// other actor through the other collider's ActorBody3D and its id at the time of the event. The Rigidbody stays
+	/// on the pooled object (PhysX bodies are components, not handles); the inactive GameObject keeps it out of the world.
 	/// </summary>
 	[RequireComponent(typeof(Rigidbody))]
 	public sealed class ActorBody3D : ActorBehaviour
@@ -19,14 +19,15 @@ namespace Tekly.Stagecraft.Physics3D
 		private IContactListener3D[] m_contactListeners;
 		private ITriggerListener3D[] m_triggerListeners;
 
+		public override void OnCreated()
+		{
+			m_adapter = Stage.Physics as Physics3DAdapter;
+			m_rigidbody = GetComponent<Rigidbody>();
+			CollectListeners();
+		}
+
 		public override void OnSpawned()
 		{
-			if (ReferenceEquals(m_adapter, null)) {
-				m_adapter = Stage.Physics as Physics3DAdapter;
-				m_rigidbody = GetComponent<Rigidbody>();
-				CollectListeners();
-			}
-
 			m_adapter?.Register(this);
 		}
 

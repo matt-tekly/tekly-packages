@@ -32,11 +32,9 @@ namespace TeklySample.Samples.Stagecraft
 			Dies = Stage.Time.FixedElapsed + args.Lifetime;
 		}
 
-		public override void OnSpawned()
+		public override void OnCreated()
 		{
-			if (Body == null) {
-				Body = Actor.Get<ActorBody2D>();
-			}
+			Body = Actor.Get<ActorBody2D>();
 		}
 	}
 

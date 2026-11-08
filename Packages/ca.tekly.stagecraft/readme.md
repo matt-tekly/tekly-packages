@@ -53,6 +53,7 @@ public class Enemy : ActorBehaviour, ISpawnArgs<EnemyArgs>, IContactListener2D
     [Inject] private Combat m_combat;                 // injected once per pooled instance
 
     public void Initialize(in EnemyArgs args) { m_health = args.Health; }
+    public override void OnCreated() { }              // once per pooled instance; cache components here, not in Awake
     public override void OnSpawned() { }              // alive, resolvable, not yet in the tick lists
     public override void FixedTick(float dt) { }      // gameplay (only scheduled because it's overridden)
     public override void OnDespawned() { }            // at the sync point after Despawn

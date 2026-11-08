@@ -45,6 +45,14 @@ namespace Tekly.Stagecraft
 		/// <summary>Fires at the sync point, after OnDespawned (or after an external destroy). The actor is not alive but still has its id.</summary>
 		public ITriggerable<Actor> Despawned => m_despawned;
 
+		// For the DevBoard page and the tests
+		internal IReadOnlyList<TickGroup> Groups => m_groups;
+		internal TickGroup FallbackGroup => m_fallbackGroup;
+		internal IReadOnlyCollection<ActorPool> Pools => m_pools.Pools;
+		internal int PendingAddCount => m_pendingAdd.Count;
+		internal int PendingRemoveCount => m_pendingRemove.Count;
+		internal int RegisteredCount => m_registry.Count;
+
 		private readonly TkLogger m_logger = TkLogger.Get<Stage>();
 		private readonly Transform m_root;
 		private readonly ActorRegistry m_registry = new ActorRegistry(256);
@@ -88,7 +96,6 @@ namespace Tekly.Stagecraft
 			}
 		}
 
-		// ----- Spawning -------------------------------------------------------------------------------------------
 
 		public Actor Spawn(Actor prefab)
 		{
@@ -127,7 +134,10 @@ namespace Tekly.Stagecraft
 			return Spawn(ResolvePrefab(prefabId), pose);
 		}
 
-		/// <summary>Spawns by prefab id with args, delivered to the first behaviour that accepts TArgs.</summary>
+		/// <summary>
+		/// Spawns by prefab id with args, delivered to the prefab's entry behaviour: the first one implementing
+		/// ISpawnArgs&lt;TArgs&gt;, which is expected to be the only one, handing sibling data on itself.
+		/// </summary>
 		public Actor Spawn<TArgs>(ActorPrefabId prefabId, in Pose pose, in TArgs args) where TArgs : struct
 		{
 			var actor = Acquire(ResolvePrefab(prefabId));
@@ -222,9 +232,11 @@ namespace Tekly.Stagecraft
 			actor.SpawnReason = reason;
 			AliveCount++;
 
-			actor.gameObject.SetActive(true);
-
+			// Args land before the object wakes, so Awake/OnEnable and OnSpawned all see this spawn's data.
+			// Initialize therefore runs on an inactive object: it stores, it doesn't set up.
 			argsTarget?.Initialize(args);
+
+			actor.gameObject.SetActive(true);
 
 			var behaviours = actor.Behaviours;
 			for (var i = 0; i < behaviours.Length; i++) {
@@ -247,7 +259,6 @@ namespace Tekly.Stagecraft
 			return prefab;
 		}
 
-		// ----- Despawning -----------------------------------------------------------------------------------------
 
 		/// <summary>
 		/// Marks the actor dead now (not alive, not ticked, refs null); OnDespawned and the return to the pool happen
@@ -291,7 +302,6 @@ namespace Tekly.Stagecraft
 			return true;
 		}
 
-		// ----- Queries --------------------------------------------------------------------------------------------
 
 		public bool TryGet(ActorId id, out Actor actor)
 		{
@@ -324,7 +334,6 @@ namespace Tekly.Stagecraft
 			return ActorList<T>.Empty;
 		}
 
-		// ----- Ticking --------------------------------------------------------------------------------------------
 
 		/// <summary>Presentation tick. Sync → Tick groups → Sync.</summary>
 		public void Tick(float deltaTime)
@@ -441,7 +450,6 @@ namespace Tekly.Stagecraft
 			}
 		}
 
-		// ----- Sync -----------------------------------------------------------------------------------------------
 
 		/// <summary>
 		/// Applies pending removes and adds, repeating for anything spawned or despawned by the callbacks, up to
@@ -542,7 +550,6 @@ namespace Tekly.Stagecraft
 			}
 		}
 
-		// ----- Teardown -------------------------------------------------------------------------------------------
 
 		/// <summary>
 		/// Despawns everything, including actors spawned this frame and by OnDespawned callbacks, and returns
@@ -613,9 +620,8 @@ namespace Tekly.Stagecraft
 			IsDisposed = true;
 		}
 
-		// ----- Internals ------------------------------------------------------------------------------------------
 
-		/// <summary>Called once per pooled instance when it is created: injection and tick-group lookup.</summary>
+		/// <summary>Called once per pooled instance when it is created: injection, tick-group lookup, then OnCreated.</summary>
 		internal void InitializeInstance(Actor actor)
 		{
 			var behaviours = actor.Behaviours;
@@ -647,6 +653,10 @@ namespace Tekly.Stagecraft
 
 			for (var i = 0; i < behaviours.Length; i++) {
 				behaviours[i].TypeInfo = GetTypeInfo(behaviours[i].GetType());
+			}
+
+			for (var i = 0; i < behaviours.Length; i++) {
+				behaviours[i].OnCreated();
 			}
 		}
 
@@ -724,13 +734,5 @@ namespace Tekly.Stagecraft
 			}
 		}
 
-		// ----- Diagnostics (for the DevBoard page and tests) -----------------------------------------------------
-
-		internal IReadOnlyList<TickGroup> Groups => m_groups;
-		internal TickGroup FallbackGroup => m_fallbackGroup;
-		internal IReadOnlyCollection<ActorPool> Pools => m_pools.Pools;
-		internal int PendingAddCount => m_pendingAdd.Count;
-		internal int PendingRemoveCount => m_pendingRemove.Count;
-		internal int RegisteredCount => m_registry.Count;
 	}
 }
