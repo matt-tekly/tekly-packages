@@ -22,7 +22,8 @@ catch it.
 5. **Every behaviour is in exactly one tick group.** Its own registration, or the nearest registered base type,
    else the fallback group (error logged once per type). Hence ticked at most once per tick.
 6. **Nothing per spawn is reflective or allocating.** Injection and tick-override detection happen once per
-   pooled instance / once per type. Spawn, despawn, sync and ticks allocate nothing after warm-up.
+   pooled instance / once per type. Injection goes through the prefab's `HierarchyInjector` and only through
+   it: one path, edit-time discovery, and the stage adds no injection logic of its own. Spawn, despawn, sync and ticks allocate nothing after warm-up.
 7. **The stage never steps time on its own.** `Tick(dt)`/`FixedTick(dt)` are called by a driver (`StageRunner`,
    or a netcode tick); there is no accumulator, and `FixedTickBegin/End` exist so someone else can own the
    physics step in between.
@@ -30,8 +31,9 @@ catch it.
    `FixedTickEnd`, before the closing sync. Fixed step order: logic → step → deliver → sync. Bodies carry the
    owning `ActorId` as user data, so an event about a dead or reused actor resolves to nothing.
 9. **Pooled instances are asleep.** Instantiated under an inactive parent, deactivated, then reparented: no
-   `Awake`/`OnEnable` until the first activation. `Actor.EnsureInitialized` rebuilds the behaviour array if
-   `OnValidate` never ran.
+   `Awake`/`OnEnable` until the first activation. The serialized behaviour array (filled by `OnValidate`, or
+   `Actor.Collect()` for actors built in code) is authoritative: the pool validates it when it is created and logs
+   an error on a mismatch rather than rescanning.
 
 ## State × operation
 

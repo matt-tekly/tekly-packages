@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using Tekly.Injectors;
+using Tekly.Injectors.Utils;
 using Tekly.Logging;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -68,8 +69,20 @@ namespace Tekly.Stagecraft.Tests
 				.Register<PhaseLogger>();
 		}
 
-		/// <summary>An inactive GameObject with an Actor and the given behaviours, standing in for a prefab asset.</summary>
+		/// <summary>
+		/// An inactive GameObject with an Actor, the given behaviours and a HierarchyInjector, standing in for a
+		/// prefab asset.
+		/// </summary>
 		protected Actor CreatePrefab(string name, params Type[] behaviours)
+		{
+			var actor = CreatePrefabWithoutInjector(name, behaviours);
+			actor.gameObject.AddComponent<HierarchyInjector>().FindInjectables();
+			actor.Collect();
+			return actor;
+		}
+
+		/// <summary>Like <see cref="CreatePrefab(string, Type[])"/> but with no HierarchyInjector, so nothing is injected.</summary>
+		protected Actor CreatePrefabWithoutInjector(string name, params Type[] behaviours)
 		{
 			var go = new GameObject(name);
 			go.SetActive(false);
@@ -79,8 +92,12 @@ namespace Tekly.Stagecraft.Tests
 				go.AddComponent(type);
 			}
 
+			// Stands in for the editor's OnValidate: the stage trusts the serialized data
+			var actor = go.GetComponent<Actor>();
+			actor.Collect();
+
 			m_prefabs.Add(go);
-			return go.GetComponent<Actor>();
+			return actor;
 		}
 
 		protected T CreatePrefab<T>(string name = null) where T : ActorBehaviour

@@ -14,7 +14,12 @@ namespace Tekly.Injectors.Utils
 	
 	public class HierarchyInjector : MonoBehaviour
 	{
-		
+		/// <summary>The container the last <see cref="Inject"/> created, or null before it has run.</summary>
+		public InjectorContainer Container => m_container;
+
+		/// <summary>True when this injector injects itself from Awake or OnEnable instead of being driven by code.</summary>
+		public bool SelfInjects => m_injectOnAwake || m_injectOnEnable;
+
 		[SerializeField] protected bool m_injectOnAwake;
 		[SerializeField] protected bool m_injectOnEnable;
 		[SerializeField] protected HierarchyInjector m_parent;
@@ -50,6 +55,13 @@ namespace Tekly.Injectors.Utils
 		private void InjectSelf()
 		{
 			Inject(m_parent != null ? m_parent.m_container : null);
+		}
+
+		/// <summary>Turns off injecting from Awake and OnEnable, for an injector that code drives through <see cref="Inject"/>.</summary>
+		public void DisableAutoInject()
+		{
+			m_injectOnAwake = false;
+			m_injectOnEnable = false;
 		}
 
 		public void Inject(InjectorContainer container)

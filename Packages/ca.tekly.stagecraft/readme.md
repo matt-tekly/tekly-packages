@@ -50,7 +50,7 @@ public struct EnemyArgs { public int Health; }
 
 public class Enemy : ActorBehaviour, ISpawnArgs<EnemyArgs>, IContactListener2D
 {
-    [Inject] private Combat m_combat;                 // injected once per pooled instance
+    [Inject] private Combat m_combat;                 // injected once per pooled instance, via the prefab's HierarchyInjector
 
     public void Initialize(in EnemyArgs args) { m_health = args.Health; }
     public override void OnCreated() { }              // once per pooled instance; cache components here, not in Awake
@@ -90,4 +90,14 @@ as `(ActorPrefabId, Pose, args struct)` through `stage.Prefabs`. See "Netcode se
 ticked per object (`Wanderer`), one by a system (`Drifter`), blasts despawning through trigger events, a profiler
 marker per tick group and a DevBoard page ("Sample/Stagecraft"). The actor prefabs next to the scene show the
 inspector side: an `Actor`, an `ActorBody2D` with its shapes, and the behaviour. `Blast` takes a shared
-`SampleStats` service with `[Inject]`, registered once on the container the stage was built with.
+`SampleStats` service with `[Inject]`, registered once on the container the stage was built with; its prefab
+carries the `HierarchyInjector` that makes that happen.
+
+## Injection
+
+An actor is injected only if its root has a `HierarchyInjector` (from `ca.tekly.injectors`). The stage drives
+it once per pooled instance, before `OnCreated`, with the stage's container as parent, so the injector's usual
+rules apply: every `[Inject]` MonoBehaviour it found at edit time is injected, `IInjectionProvider`s on the root
+provide into the per-actor container, and components can be registered from the inspector. Leave its
+"inject on Awake / OnEnable" flags off; the stage logs an error if they are set. A prefab without an injector is
+never injected.

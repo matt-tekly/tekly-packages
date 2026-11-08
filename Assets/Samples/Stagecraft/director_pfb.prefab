@@ -45,7 +45,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e0fe39003e83364694693fa6a6a2cfb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_behaviours: []
+  m_behaviours:
+  - {fileID: 105}
+  m_injector: {fileID: 0}
 --- !u!114 &105
 MonoBehaviour:
   m_ObjectHideFlags: 0

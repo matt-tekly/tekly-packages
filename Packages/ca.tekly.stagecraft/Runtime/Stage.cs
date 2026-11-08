@@ -173,19 +173,18 @@ namespace Tekly.Stagecraft
 				throw new ArgumentNullException(nameof(prefab));
 			}
 
+			// prefab.Actor is set once the pool for the prefab exists and has bound it; until then walk up
 			var prefabActor = prefab.Actor;
 			if (ReferenceEquals(prefabActor, null)) {
 				prefabActor = prefab.GetComponentInParent<Actor>(true);
 				if (prefabActor == null) {
-					throw new ArgumentException($"{prefab.name} has no Actor", nameof(prefab));
+					throw new ArgumentException($"[{prefab.name}] has no Actor", nameof(prefab));
 				}
-
-				prefabActor.EnsureInitialized();
 			}
 
 			var index = Array.IndexOf(prefabActor.Behaviours, prefab);
 			if (index < 0) {
-				throw new ArgumentException($"{prefab.name} is not a behaviour of actor {prefabActor.name} (nested actor?)", nameof(prefab));
+				throw new ArgumentException($"[{prefab.name}] is not a serialized behaviour of actor [{prefabActor.name}] (nested actor, or Actor.Collect() never ran?)", nameof(prefab));
 			}
 
 			var instance = Acquire(prefabActor);
@@ -621,34 +620,19 @@ namespace Tekly.Stagecraft
 		}
 
 
-		/// <summary>Called once per pooled instance when it is created: injection, tick-group lookup, then OnCreated.</summary>
+		/// <summary>
+		/// Called once per pooled instance when it is created: injection, tick-group lookup, then OnCreated.
+		/// Injection only happens through a <see cref="HierarchyInjector"/> on the actor's root, driven here with the
+		/// stage's container as parent; a prefab without one is not injected.
+		/// </summary>
 		internal void InitializeInstance(Actor actor)
 		{
 			var behaviours = actor.Behaviours;
-			var container = Container;
 
-			if (container != null) {
-				for (var i = 0; i < behaviours.Length; i++) {
-					if (behaviours[i] is IInjectionProvider) {
-						actor.Container = new InjectorContainer(container, actor.name);
-						container = actor.Container;
-						break;
-					}
-				}
-
-				if (actor.Container != null) {
-					for (var i = 0; i < behaviours.Length; i++) {
-						if (behaviours[i] is IInjectionProvider provider) {
-							provider.Provide(actor.Container);
-						}
-					}
-				}
-
-				for (var i = 0; i < behaviours.Length; i++) {
-					if (TypeUtils.IsInjectable(behaviours[i])) {
-						container.Inject(behaviours[i]);
-					}
-				}
+			var injector = actor.Injector;
+			if (Container != null && injector != null) {
+				injector.Inject(Container);
+				actor.Container = injector.Container;
 			}
 
 			for (var i = 0; i < behaviours.Length; i++) {

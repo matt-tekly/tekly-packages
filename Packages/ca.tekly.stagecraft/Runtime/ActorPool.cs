@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
+using Tekly.Logging;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -22,11 +24,18 @@ namespace Tekly.Stagecraft
 		private readonly Stack<Actor> m_free = new Stack<Actor>();
 		private readonly List<Actor> m_all = new List<Actor>();
 
+		private static readonly TkLogger s_logger = TkLogger.Get<ActorPool>();
+
 		public ActorPool(Stage stage, Actor prefab, Transform stageRoot, Transform staging)
 		{
 			m_stage = stage;
 			m_staging = staging;
 			Prefab = prefab;
+
+			Validate(prefab);
+
+			// Binding the prefab makes behaviour.Actor usable on the asset, which Stage.Spawn<T>(prefabBehaviour) relies on
+			prefab.Bind();
 
 			Root = new GameObject($"[Pool] {prefab.name}").transform;
 			Root.SetParent(stageRoot, false);
@@ -90,6 +99,21 @@ namespace Tekly.Stagecraft
 			}
 		}
 
+		/// <summary>The serialized data is authoritative: a mismatch is reported, not repaired. Editor and development builds only.</summary>
+		[Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
+		private static void Validate(Actor prefab)
+		{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+			if (!prefab.HasValidBehaviours(out var problem)) {
+				s_logger.ErrorContext("Prefab [{prefab}] has stale serialized behaviours: [{problem}]. Select it in the editor so OnValidate runs, or call Actor.Collect() on an actor built in code", prefab, ("prefab", prefab.name), ("problem", problem));
+			}
+
+			if (prefab.Injector != null && prefab.Injector.SelfInjects) {
+				s_logger.ErrorContext("Prefab [{prefab}] has a HierarchyInjector set to inject on Awake or OnEnable. The stage injects it and they must be off", prefab, ("prefab", prefab.name));
+			}
+#endif
+		}
+
 		private Actor Create()
 		{
 			// Instantiating under an inactive parent keeps Awake/OnEnable from running. The instance is then made
@@ -102,7 +126,7 @@ namespace Tekly.Stagecraft
 			instance.Pool = this;
 			instance.Stage = m_stage;
 			instance.State = ActorState.Pooled;
-			instance.EnsureInitialized();
+			instance.Bind();
 
 			m_stage.InitializeInstance(instance);
 			instance.PoolIndex = m_all.Count;

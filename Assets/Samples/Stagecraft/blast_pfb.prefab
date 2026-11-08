@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 103}
   - component: {fileID: 104}
   - component: {fileID: 105}
+  - component: {fileID: 106}
   m_Layer: 0
   m_Name: Blast
   m_TagString: Untagged
@@ -37,6 +38,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &102
 SpriteRenderer:
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -55,6 +57,8 @@ SpriteRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -76,9 +80,11 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: d47a6588ece0860f9b738e404de616ce, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 0.4}
   m_FlipX: 0
@@ -88,8 +94,8 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+  m_BlendShapeWeights: []
 --- !u!114 &103
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -102,7 +108,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e0fe39003e83364694693fa6a6a2cfb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_behaviours: []
+  m_behaviours:
+  - {fileID: 104}
+  - {fileID: 105}
+  m_injector: {fileID: 106}
 --- !u!114 &104
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -142,3 +151,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be97a88fc4a4faa8703f3fb5b09d47d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2bb16accec048b79ec282c22ebd6da0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_injectOnAwake: 0
+  m_injectOnEnable: 0
+  m_parent: {fileID: 0}
+  m_behaviours:
+  - {fileID: 105}
+  m_childInjectors: []
+  m_componentsToRegister: []

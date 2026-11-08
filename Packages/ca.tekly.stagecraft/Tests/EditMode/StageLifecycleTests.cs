@@ -407,6 +407,33 @@ namespace Tekly.Stagecraft.Tests
 		}
 
 		[Test]
+		public void StaleSerializedBehaviours_LogOnceWhenThePoolIsCreated_AndAreNotRepaired()
+		{
+			ExpectErrors();
+
+			// Collect ran with one behaviour; a second was added afterwards, as if OnValidate never saw it
+			var prefab = CreatePrefab("Stale", typeof(TickBehaviour));
+			prefab.gameObject.AddComponent<PlainBehaviour>();
+
+			var instance = Stage.Spawn(prefab);
+			Assert.AreEqual(1, Errors);
+			StringAssert.Contains("Stale", LastError);
+			Assert.AreEqual(1, instance.Behaviours.Length, "the stage trusts the serialized data");
+
+			Stage.Spawn(prefab);
+			Assert.AreEqual(1, Errors, "once per pool, not per instance");
+		}
+
+		[Test]
+		public void Injection_RequiresHierarchyInjector()
+		{
+			var prefab = CreatePrefabWithoutInjector("NoInjector", typeof(InjectedBehaviour));
+			var instance = Stage.Spawn(prefab).Get<InjectedBehaviour>();
+			Assert.IsNull(instance.Service);
+			Assert.AreEqual(0, Errors);
+		}
+
+		[Test]
 		public void Time_ScalesAndPauses()
 		{
 			var prefab = CreatePrefab<TickBehaviour>();
