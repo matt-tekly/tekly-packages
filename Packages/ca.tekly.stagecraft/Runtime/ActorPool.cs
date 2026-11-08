@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
-using Tekly.Logging;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -24,15 +22,13 @@ namespace Tekly.Stagecraft
 		private readonly Stack<Actor> m_free = new Stack<Actor>();
 		private readonly List<Actor> m_all = new List<Actor>();
 
-		private static readonly TkLogger s_logger = TkLogger.Get<ActorPool>();
-
 		public ActorPool(Stage stage, Actor prefab, Transform stageRoot, Transform staging)
 		{
 			m_stage = stage;
 			m_staging = staging;
 			Prefab = prefab;
 
-			Validate(prefab);
+			stage.ValidateActorData(prefab);
 
 			// Binding the prefab makes behaviour.Actor usable on the asset, which Stage.Spawn<T>(prefabBehaviour) relies on
 			prefab.Bind();
@@ -97,21 +93,6 @@ namespace Tekly.Stagecraft
 			if (Root != null) {
 				DestroyObject(Root.gameObject);
 			}
-		}
-
-		/// <summary>The serialized data is authoritative: a mismatch is reported, not repaired. Editor and development builds only.</summary>
-		[Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
-		private static void Validate(Actor prefab)
-		{
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-			if (!prefab.HasValidBehaviours(out var problem)) {
-				s_logger.ErrorContext("Prefab [{prefab}] has stale serialized behaviours: [{problem}]. Select it in the editor so OnValidate runs, or call Actor.Collect() on an actor built in code", prefab, ("prefab", prefab.name), ("problem", problem));
-			}
-
-			if (prefab.Injector != null && prefab.Injector.SelfInjects) {
-				s_logger.ErrorContext("Prefab [{prefab}] has a HierarchyInjector set to inject on Awake or OnEnable. The stage injects it and they must be off", prefab, ("prefab", prefab.name));
-			}
-#endif
 		}
 
 		private Actor Create()
@@ -205,6 +186,72 @@ namespace Tekly.Stagecraft
 			if (m_staging != null) {
 				ActorPool.DestroyObject(m_staging.gameObject);
 			}
+		}
+	}
+
+	/// <summary>
+	/// The stage's bookkeeping for actors it adopted rather than instantiated (scene-placed actors). They have no
+	/// pool: when the stage is finished with one it is destroyed. Membership is tracked the same way a pool tracks
+	/// its instances, through <see cref="Actor.PoolIndex"/>, so a scene unload of thousands stays linear.
+	/// </summary>
+	internal sealed class AdoptedActors
+	{
+		public int Count => m_all.Count;
+		public IReadOnlyList<Actor> All => m_all;
+
+		private readonly List<Actor> m_all = new List<Actor>();
+
+		public void Add(Actor actor)
+		{
+			actor.PoolIndex = m_all.Count;
+			m_all.Add(actor);
+		}
+
+		/// <summary>Drops the actor without touching it, O(1). For an actor destroyed from outside.</summary>
+		public void Forget(Actor actor)
+		{
+			var index = actor.PoolIndex;
+			if (index < 0 || index >= m_all.Count || !ReferenceEquals(m_all[index], actor)) {
+				return;
+			}
+
+			var last = m_all.Count - 1;
+			var moved = m_all[last];
+			m_all[index] = moved;
+			moved.PoolIndex = index;
+			m_all.RemoveAt(last);
+			actor.PoolIndex = -1;
+		}
+
+		/// <summary>The stage is finished with the actor: forget it and destroy its object. Nothing is called on it.</summary>
+		public void Destroy(Actor actor)
+		{
+			Forget(actor);
+			DestroyObject(actor);
+		}
+
+		public void DestroyAll()
+		{
+			for (var i = 0; i < m_all.Count; i++) {
+				var actor = m_all[i];
+				if (actor != null) {
+					actor.PoolIndex = -1;
+					DestroyObject(actor);
+				}
+			}
+
+			m_all.Clear();
+		}
+
+		private static void DestroyObject(Actor actor)
+		{
+			actor.Container?.Dispose();
+			actor.Container = null;
+			actor.State = ActorState.Destroyed;
+
+			// The stage is doing the destroying, so Actor.OnDestroy has nothing to report
+			actor.Stage = null;
+			ActorPool.DestroyObject(actor.gameObject);
 		}
 	}
 }

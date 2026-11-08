@@ -16,11 +16,8 @@ namespace TeklySample.Samples.Stagecraft
 	/// </summary>
 	public class StagecraftSample : MonoBehaviour
 	{
-		[SerializeField] private Director m_directorPrefab;
-		[SerializeField] private int m_wanderers = 1500;
-		[SerializeField] private int m_drifters = 1500;
-		[SerializeField] private Vector2 m_arena = new Vector2(60f, 34f);
-		[SerializeField] private float m_blastInterval = 0.5f;
+		[Tooltip("The scene's placed actors (the Director among them), activated once the stage exists")]
+		[SerializeField] private StageScene m_stageScene;
 
 		private readonly SampleStats m_stats = new SampleStats();
 		private InjectorContainer m_container;
@@ -46,12 +43,9 @@ namespace TeklySample.Samples.Stagecraft
 			m_physics = new PhysicsCore2DAdapter(m_stage);
 			m_runner = StageRunner.Create(m_stage);
 
-			m_stage.Spawn(m_directorPrefab, Pose.identity, new DirectorArgs {
-				Wanderers = m_wanderers,
-				Drifters = m_drifters,
-				Arena = m_arena,
-				BlastInterval = m_blastInterval
-			});
+			// The Director and any other placed actors join the stage here; StageScene put them to sleep in its Awake
+			m_stageScene.Adopt(m_stage);
+			m_stageScene.Activate();
 
 			StageDevPage.Register(m_stage, "Sample/Stagecraft", gameObject);
 			DevBoard.Page("Sample/Stagecraft", page => {

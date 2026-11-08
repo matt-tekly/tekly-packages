@@ -12,7 +12,8 @@ using UnityEngine.Scripting;
 namespace Tekly.Stagecraft
 {
 	/// <summary>
-	/// Owns every actor: pools, ids, lifecycle, ticking and teardown. Driven from outside through
+	/// Owns every actor, instantiated from a prefab or adopted from a scene: pools, ids, lifecycle, ticking and
+	/// teardown. Driven from outside through
 	/// <see cref="Tick"/> and <see cref="FixedTick"/> (see <see cref="StageRunner"/> for the default driver).
 	/// Changes to the set of actors are applied only at sync points, which sit at the start and end of each tick.
 	/// </summary>
@@ -52,11 +53,13 @@ namespace Tekly.Stagecraft
 		internal int PendingAddCount => m_pendingAdd.Count;
 		internal int PendingRemoveCount => m_pendingRemove.Count;
 		internal int RegisteredCount => m_registry.Count;
+		internal int AdoptedCount => m_adopted.Count;
 
 		private readonly TkLogger m_logger = TkLogger.Get<Stage>();
 		private readonly Transform m_root;
 		private readonly ActorRegistry m_registry = new ActorRegistry(256);
 		private readonly ActorPools m_pools;
+		private readonly AdoptedActors m_adopted = new AdoptedActors();
 		private readonly Triggerable<Actor> m_spawned = new Triggerable<Actor>();
 		private readonly Triggerable<Actor> m_despawned = new Triggerable<Actor>();
 
@@ -75,6 +78,7 @@ namespace Tekly.Stagecraft
 		private bool m_clearRequested;
 		private bool m_disposing;
 		private bool m_loggedPooledDespawn;
+		private bool m_loggedActiveAdopt;
 
 		private static readonly ProfilerMarker s_syncMarker = new ProfilerMarker("Stage.Sync");
 		private static readonly ProfilerMarker s_physicsStepMarker = new ProfilerMarker("Stage.Physics.Step");
@@ -192,6 +196,47 @@ namespace Tekly.Stagecraft
 		}
 
 		/// <summary>
+		/// Takes ownership of an actor the stage did not instantiate: a scene-placed one. Validates its serialized
+		/// data, injects it, runs OnCreated and leaves it Acquired and inactive, so Activate, Despawn, TryGet and refs
+		/// work on it as on a pooled instance. It has no pool: despawning it destroys it. Normally called by
+		/// <see cref="StageScene"/>, which has already deactivated the object before its Awake could run; adopting an
+		/// active object works but its Awake/OnEnable have run, so it is warned about.
+		/// </summary>
+		public Actor Adopt(Actor actor)
+		{
+			ThrowIfDisposed();
+
+			if (actor == null) {
+				throw new ArgumentNullException(nameof(actor));
+			}
+
+			if (actor.Stage != null) {
+				m_logger.Error("Adopt on actor [{actor}] that already belongs to stage [{stage}]", ("actor", actor.name), ("stage", actor.Stage.Name));
+				return actor;
+			}
+
+			ValidateActorData(actor);
+
+			if (actor.gameObject.activeSelf) {
+				if (!m_loggedActiveAdopt) {
+					m_loggedActiveAdopt = true;
+					m_logger.Warning("Adopt on active actor [{actor}]: its Awake/OnEnable already ran. A StageScene deactivates its actors first. (Logged once)", ("actor", actor.name));
+				}
+
+				actor.gameObject.SetActive(false);
+			}
+
+			actor.Stage = this;
+			actor.Pool = null;
+			actor.State = ActorState.Acquired;
+			actor.Bind();
+
+			InitializeInstance(actor);
+			m_adopted.Add(actor);
+			return actor;
+		}
+
+		/// <summary>
 		/// Acquired → Active: applies the pose, allocates the id, activates the object, runs OnSpawned.
 		/// <paramref name="reason"/> is visible as Actor.SpawnReason; pass Restored when the instance's state was
 		/// set up between Acquire and Activate (a save game, a replicated spawn) so behaviours can skip spawn-only work.
@@ -278,7 +323,7 @@ namespace Tekly.Stagecraft
 
 				case ActorState.Acquired:
 					// Never activated: nothing was called on it, so nothing to undo
-					actor.Pool.Release(actor);
+					ReleaseOrDestroy(actor);
 					break;
 
 				case ActorState.Pooled:
@@ -529,7 +574,7 @@ namespace Tekly.Stagecraft
 
 					actor.gameObject.SetActive(false);
 					m_registry.Free(id);
-					actor.Pool.Release(actor);
+					ReleaseOrDestroy(actor);
 					break;
 
 				case ActorState.Destroyed:
@@ -540,7 +585,7 @@ namespace Tekly.Stagecraft
 						actor.Id = ActorId.None;
 					}
 
-					actor.Pool.Forget(actor);
+					ForgetDestroyed(actor);
 					break;
 
 				default:
@@ -567,6 +612,16 @@ namespace Tekly.Stagecraft
 
 			for (var pass = 0; pass < MAX_SYNC_PASSES; pass++) {
 				var any = m_pools.ReleaseAcquired();
+
+				// Adopted actors have no pool to go back to
+				var adopted = m_adopted.All;
+				for (var i = adopted.Count - 1; i >= 0; i--) {
+					var actor = adopted[i];
+					if (actor.State == ActorState.Acquired) {
+						m_adopted.Destroy(actor);
+						any = true;
+					}
+				}
 
 				for (var i = 0; i < m_registry.Capacity; i++) {
 					var actor = m_registry.GetAt(i);
@@ -609,6 +664,7 @@ namespace Tekly.Stagecraft
 
 			m_disposing = true;
 			m_pools.DestroyAll();
+			m_adopted.DestroyAll();
 
 			if (m_root != null) {
 				ActorPool.DestroyObject(m_root.gameObject);
@@ -696,9 +752,43 @@ namespace Tekly.Stagecraft
 
 				case ActorState.Pooled:
 				case ActorState.Acquired:
-					actor.Pool.Forget(actor);
+					ForgetDestroyed(actor);
 					break;
 			}
+		}
+
+		/// <summary>The stage is finished with an inactive actor: back to its pool, or destroyed if it was adopted.</summary>
+		private void ReleaseOrDestroy(Actor actor)
+		{
+			if (actor.Pool != null) {
+				actor.Pool.Release(actor);
+			} else {
+				m_adopted.Destroy(actor);
+			}
+		}
+
+		private void ForgetDestroyed(Actor actor)
+		{
+			if (actor.Pool != null) {
+				actor.Pool.Forget(actor);
+			} else {
+				m_adopted.Forget(actor);
+			}
+		}
+
+		/// <summary>The serialized data is authoritative: a mismatch is reported, not repaired. Editor and development builds only.</summary>
+		[System.Diagnostics.Conditional("UNITY_EDITOR"), System.Diagnostics.Conditional("DEVELOPMENT_BUILD")]
+		internal void ValidateActorData(Actor actor)
+		{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+			if (!actor.HasValidBehaviours(out var problem)) {
+				m_logger.ErrorContext("Actor [{actor}] has stale serialized behaviours: [{problem}]. Select it in the editor so OnValidate runs, or call Actor.Collect() on an actor built in code", actor, ("actor", actor.name), ("problem", problem));
+			}
+
+			if (actor.Injector != null && actor.Injector.SelfInjects) {
+				m_logger.ErrorContext("Actor [{actor}] has a HierarchyInjector set to inject on Awake or OnEnable. The stage injects it and they must be off", actor, ("actor", actor.name));
+			}
+#endif
 		}
 
 		private bool CheckOwned(Actor actor)

@@ -7,8 +7,9 @@ using UnityEngine.Pool;
 namespace Tekly.Stagecraft
 {
 	/// <summary>
-	/// The root of a pooled gameplay object: a GameObject made of <see cref="ActorBehaviour"/>s. The stage owns its
-	/// state; game code holds it through <see cref="ActorRef"/> or <see cref="ActorId"/>.
+	/// The root of a gameplay object: a GameObject made of <see cref="ActorBehaviour"/>s, instantiated by the stage
+	/// from a prefab or placed in a scene and adopted through a <see cref="StageScene"/>. The stage owns its state;
+	/// game code holds it through <see cref="ActorRef"/> or <see cref="ActorId"/>.
 	/// </summary>
 	[DisallowMultipleComponent]
 	public sealed class Actor : MonoBehaviour

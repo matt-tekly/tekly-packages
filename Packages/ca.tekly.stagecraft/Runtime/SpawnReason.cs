@@ -11,6 +11,9 @@
 		Spawned,
 
 		/// <summary>An actor whose state is being restored (save game, late join). Its behaviours' state has been set before Activate.</summary>
-		Restored
+		Restored,
+
+		/// <summary>An actor placed in the scene, activated by its StageScene.</summary>
+		Placed
 	}
 }

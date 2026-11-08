@@ -15,9 +15,14 @@ namespace TeklySample.Samples.Stagecraft
 	/// Random-walks for a while, then despawns. Ticked per object:
 	/// FixedTick steers the body and checks the lifetime
 	/// Tick fades the sprite. Fine for a handful of actors; for a crowd, see <see cref="Drifter"/>.
+	/// Spawned by the Director with args, or placed in the scene, in which case the inspector values stand in for them.
 	/// </summary>
 	public class Wanderer : ActorBehaviour, ISpawnArgs<WandererArgs>
 	{
+		[Header("When placed in the scene")]
+		[SerializeField] private float m_placedSpeed = 2f;
+		[SerializeField] private float m_placedLifetime = 30f;
+
 		private WandererArgs m_args;
 		private float m_dies;
 		private float m_turnAt;
@@ -40,6 +45,11 @@ namespace TeklySample.Samples.Stagecraft
 
 		public override void OnSpawned()
 		{
+			// A placed actor gets no args: a scene actor is activated by its StageScene, not spawned by a creator
+			if (SpawnReason == SpawnReason.Placed) {
+				m_args = new WandererArgs { Speed = m_placedSpeed, Lifetime = m_placedLifetime };
+			}
+
 			m_dies = Stage.Time.FixedElapsed + m_args.Lifetime;
 			m_turnAt = 0f;
 		}

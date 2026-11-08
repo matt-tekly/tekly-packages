@@ -21,6 +21,9 @@ namespace Tekly.Stagecraft.PlayModeTests
 			m_prefab.SetActive(false);
 			m_prefab.AddComponent<Actor>();
 			m_prefab.AddComponent<LifeCounter>();
+
+			// Stands in for the editor's OnValidate: the stage trusts the serialized data
+			m_prefab.GetComponent<Actor>().Collect();
 		}
 
 		[TearDown]
@@ -61,6 +64,7 @@ namespace Tekly.Stagecraft.PlayModeTests
 			prefab.SetActive(false);
 			prefab.AddComponent<Actor>();
 			var prefabBehaviour = prefab.AddComponent<ArgsOrderCounter>();
+			prefab.GetComponent<Actor>().Collect();
 
 			var stage = new Stage(new StageConfig().Register<ArgsOrderCounter>());
 			try {

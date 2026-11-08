@@ -78,6 +78,28 @@ public class EnemyMovementSystem : ActorSystem<Enemy>
 }
 ```
 
+## Scene actors
+
+Actors can be placed in a scene instead of spawned. Add a `StageScene` to the scene (one per scene) and drop actor
+prefabs in; saving the scene bakes the list of actors, so nothing is searched for at runtime. On load the
+`StageScene` runs before everything else and deactivates them, so, like pooled instances, they get no `Awake` or
+`OnEnable` until the stage activates them. Then, once the stage exists:
+
+```csharp
+stageScene.Adopt(stage);        // injected, OnCreated, Acquired and inactive
+stageScene.Activate();          // Activate at the placed pose, SpawnReason.Placed, OnSpawned
+```
+
+From there they are ordinary actors: ticked, in `All<T>()`, held through refs, despawned from anywhere. They have
+no pool, so despawning one destroys it, and a level reset is a scene reload. Nothing passes them spawn args, so a
+behaviour that can be placed carries inspector defaults and uses them when `SpawnReason == SpawnReason.Placed`
+(the sample's `Wanderer` does this); a behaviour that only ever sees args would otherwise run on zeros. Each baked entry carries a
+`SceneActorId`, a random id that survives rebakes for as long as the actor exists; that is what a save stores
+(`ActorId` is per run). To restore, skip `Activate()` and drive them one by one: `stageScene.TryGet(id, out var
+actor)`, then `stage.Activate(actor, pose, SpawnReason.Restored)` or `stage.Despawn(actor)` for the dead ones;
+`stageScene.Activate()` afterwards only touches what is still waiting. Save the scene after adding actors, or they
+stay unbaked, awake and unowned.
+
 ## Netcode
 
 Call `stage.FixedTickBegin(dt)` from the tick, step physics yourself (adapter in `PhysicsStepping.External`),
@@ -88,7 +110,8 @@ as `(ActorPrefabId, Pose, args struct)` through `stage.Prefabs`. See "Netcode se
 
 `Assets/Samples/Stagecraft/stagecraft_scn.unity`: ~3000 actors spawning and despawning continuously, one type
 ticked per object (`Wanderer`), one by a system (`Drifter`), blasts despawning through trigger events, a profiler
-marker per tick group and a DevBoard page ("Sample/Stagecraft"). The actor prefabs next to the scene show the
+marker per tick group and a DevBoard page ("Sample/Stagecraft"). The `Director` that spawns them is placed in the
+scene with its counts on its inspector, activated through the scene's `StageScene`. The actor prefabs next to the scene show the
 inspector side: an `Actor`, an `ActorBody2D` with its shapes, and the behaviour. Each shape carries its contact
 filter, so the blast's shape sits in its own category and excludes it from its contacts: two blasts never pair in
 the physics step, instead of being filtered out in the listener. `Blast` takes a shared

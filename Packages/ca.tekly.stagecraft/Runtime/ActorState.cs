@@ -2,14 +2,15 @@
 {
 	/// <summary>
 	/// The one lifecycle state of an actor. Only the Stage and its pools change it.
-	/// Pooled → Acquired → Active → Despawning → Pooled, with Destroyed reachable from anywhere.
+	/// Pooled → Acquired → Active → Despawning → Pooled, with Destroyed reachable from anywhere. An actor adopted
+	/// from a scene has no pool: it starts at Acquired and ends at Destroyed instead of returning to Pooled.
 	/// </summary>
 	public enum ActorState
 	{
 		/// <summary>In a pool, inactive, no id.</summary>
 		Pooled,
 
-		/// <summary>Taken from the pool but not yet activated. Inactive, no id, not ticked.</summary>
+		/// <summary>Taken from the pool, or adopted from a scene, but not yet activated. Inactive, no id, not ticked.</summary>
 		Acquired,
 
 		/// <summary>Alive: has an id, is ticked, resolves through handles.</summary>

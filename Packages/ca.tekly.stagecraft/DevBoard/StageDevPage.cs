@@ -53,6 +53,7 @@ namespace Tekly.Stagecraft.Integration
 
 				return $"{total} total, {free} free";
 			}).WithMonospaced();
+			pools.Property("Scene actors", () => stage.AdoptedCount).WithMonospaced();
 		}
 	}
 }

@@ -9,6 +9,8 @@ catch it.
 1. **An actor has one state, and only `Stage`/`ActorPool` change it.** `Pooled → Acquired → Active → Despawning
    → Pooled`; `Destroyed` from anywhere. `IsAlive` means `State == Active` and nothing else. There is no separate
    "in pool" or "registered" flag to drift out of step; the pool pushes an instance exactly when it sets `Pooled`.
+   An adopted (scene-placed) actor has `Pool == null` and walks `Acquired → Active → Despawning → Destroyed`: where
+   a pooled instance would go back to its pool, it is destroyed.
 2. **Only `Sync` touches the tick lists.** Spawning pushes to a pending-add queue, despawning to a pending-remove
    queue; `Sync` drains both at the start and end of every `Tick`/`FixedTick`. So no loop over a list ever sees
    it change, and code can spawn/despawn from anywhere (ticks, physics events, `OnDespawned`) without guards.
@@ -31,29 +33,32 @@ catch it.
    `FixedTickEnd`, before the closing sync. Fixed step order: logic → step → deliver → sync. Bodies carry the
    owning `ActorId` as user data, so an event about a dead or reused actor resolves to nothing.
 9. **Pooled instances are asleep.** Instantiated under an inactive parent, deactivated, then reparented: no
-   `Awake`/`OnEnable` until the first activation. The serialized behaviour array (filled by `OnValidate`, or
-   `Actor.Collect()` for actors built in code) is authoritative: the pool validates it when it is created and logs
-   an error on a mismatch rather than rescanning.
+   `Awake`/`OnEnable` until the first activation. Scene actors get the same treatment from `StageScene.Awake`,
+   which runs at execution order −9000 and deactivates every baked actor before its own components' `Awake`.
+   The serialized behaviour array (filled by `OnValidate`, or `Actor.Collect()` for actors built in code) is
+   authoritative: the stage validates it when a pool is created or an actor adopted and logs an error on a
+   mismatch rather than rescanning.
 
 ## State × operation
 
 | State \ Op | `Activate` | `Despawn` | `TryGet` / refs | `Sync` does | `Object.Destroy` |
 |---|---|---|---|---|---|
 | Pooled | error | no-op (warned once) | null | – | → Destroyed, pool forgets |
-| Acquired | → Active: pose, id, args, `OnSpawned`, queue add | → Pooled now, no callbacks | null (no id yet) | – | → Destroyed, pool forgets |
+| Acquired | → Active: pose, id, args, `OnSpawned`, queue add | → Pooled now, no callbacks (adopted: destroyed) | null (no id yet) | – | → Destroyed, pool forgets |
 | Active | no-op | → Despawning, queue remove | value | add to lists, `OnAdded` | → Destroyed, queued (no `OnDespawned`) |
-| Despawning | no-op | no-op | null | `OnRemoved` → `OnDespawned` → `Despawned` event → deactivate → free id → pool | → Destroyed |
+| Despawning | no-op | no-op | null | `OnRemoved` → `OnDespawned` → `Despawned` event → deactivate → free id → pool (adopted: destroy) | → Destroyed |
 | Destroyed | error | no-op | null | remove from lists, free id, pool forgets | – |
 
-`Clear` = despawn every Active + release every Acquired + `Sync`, repeated until the registry is empty (≤16 passes),
-so it catches actors spawned this frame and by `OnDespawned`. From inside a tick it defers to that tick's closing
-sync. `Dispose` = `Clear` + destroy pools; no-op while the app is quitting.
+`Clear` = despawn every Active + release every Acquired (destroy every adopted Acquired) + `Sync`, repeated until
+the registry is empty (≤16 passes), so it catches actors spawned this frame and by `OnDespawned`. From inside a
+tick it defers to that tick's closing sync. `Dispose` = `Clear` + destroy pools and adopted actors; no-op while the
+app is quitting.
 
 ## Callback timing
 
 | | When |
 |---|---|
-| `OnCreated` | once per pooled instance, when the pool creates it: after injection, on the inactive object, before any spawn. Component caching and service lookup go here, not in `Awake` |
+| `OnCreated` | once per instance, when the pool creates it or the stage adopts it: after injection, on the inactive object, before any spawn. Component caching and service lookup go here, not in `Awake` |
 | `ISpawnArgs.Initialize` | inside `Spawn`/`Activate`, on the still-inactive object: before `Awake`/`OnEnable` and before any `OnSpawned`. Store args here; set up in `OnSpawned` |
 | `OnSpawned`, `Stage.Spawned` | inside `Spawn`/`Activate`. Alive and resolvable from here |
 | `ActorSystem.OnAdded` | the next sync (start of the next tick), i.e. before that tick's loops |
@@ -107,6 +112,19 @@ opens. The 16-pass bound turns an infinite spawn↔despawn loop into one error a
   user data = `ActorId`, callbacks record, delivery in `FixedTickEnd`. Core exposes only `IStagePhysics`.
   What the low-level 2D API actually does (simulation modes, event spans, callback timing) is documented at
   the top of `PhysicsCore2DAdapter.cs`, next to the code that depends on it.
+- **Scene actors are baked, not found.** `StageScene` implements `ISceneBaker`: saving the scene writes the list
+  of actors into it, so loading does no scene walk, and the list is authoritative in the same way the behaviour
+  array is. The bake only writes `StageScene`'s own data; it never touches the actors. Putting them to sleep is a
+  runtime job (`StageScene.Awake`, execution order −9000), because a bake that deactivated objects would leave a
+  designer opening the scene with everything switched off.
+- **Scene actors are destroyed, not pooled.** They have no prefab and no pool to return to, and keeping a dead one
+  around only pays off for an in-place level reset, which a scene reload already does correctly for everything,
+  including non-stage objects. So `Pool == null` means "destroy where a pooled instance would be released", and
+  nothing else in the stage changes. If a fast reset is ever wanted, those branches are the only place it goes.
+- **The persistent id lives in `StageScene`, not on `Actor`.** A `SceneActorId` is minted at bake and kept for
+  as long as the same `Actor` reference is still in the scene. Keeping it in the baked list means the prefab and
+  the instance carry no id field, a duplicated actor gets a fresh id on the next save (a field would be copied
+  with it), and the hierarchy can be reordered freely (an index would not survive that). `ActorId` stays per run.
 - **DevBoard is a separate optional assembly** compiled only when `ca.tekly.devboard` is present
   (`versionDefines`). The core never references a debug UI.
 - **Test behaviours live in `Tests/Shared`, an all-platform assembly.** Unity refuses `AddComponent` for a

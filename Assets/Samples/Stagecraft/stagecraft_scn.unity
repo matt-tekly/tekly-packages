@@ -221,6 +221,7 @@ GameObject:
   m_Component:
   - component: {fileID: 201}
   - component: {fileID: 202}
+  - component: {fileID: 203}
   m_Layer: 0
   m_Name: Stagecraft Sample
   m_TagString: Untagged
@@ -255,11 +256,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af8c504d47b83f5c231e47ff59aa2008, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_directorPrefab: {fileID: 105, guid: 519df3877d46f9f6c1ec8c1b38581b1f, type: 3}
-  m_wanderers: 1500
-  m_drifters: 1500
-  m_arena: {x: 60, y: 34}
-  m_blastInterval: 0.5
+  m_sceneStage: {fileID: 203}
+--- !u!114 &203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e59867c8c3f691246ad0086ce929cfe1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Tekly.Stagecraft.Runtime::Tekly.Stagecraft.SceneStage
+  m_entries:
+  - Actor: {fileID: 1612178523}
+    Id:
+      m_value: 4892780614401437957
 --- !u!1 &106987967
 GameObject:
   m_ObjectHideFlags: 0
@@ -396,11 +409,80 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b1218ac790dff4b418533a8f0d2a915b, type: 3}
+--- !u!1001 &1612178522
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 100, guid: 519df3877d46f9f6c1ec8c1b38581b1f, type: 3}
+      propertyPath: m_Name
+      value: director_pfb
+      objectReference: {fileID: 0}
+    - target: {fileID: 101, guid: 519df3877d46f9f6c1ec8c1b38581b1f, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 101, guid: 519df3877d46f9f6c1ec8c1b38581b1f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 101, guid: 519df3877d46f9f6c1ec8c1b38581b1f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 101, guid: 519df3877d46f9f6c1ec8c1b38581b1f, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 101, guid: 519df3877d46f9f6c1ec8c1b38581b1f, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 101, guid: 519df3877d46f9f6c1ec8c1b38581b1f, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 101, guid: 519df3877d46f9f6c1ec8c1b38581b1f, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 101, guid: 519df3877d46f9f6c1ec8c1b38581b1f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 101, guid: 519df3877d46f9f6c1ec8c1b38581b1f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 101, guid: 519df3877d46f9f6c1ec8c1b38581b1f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 519df3877d46f9f6c1ec8c1b38581b1f, type: 3}
+--- !u!114 &1612178523 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 103, guid: 519df3877d46f9f6c1ec8c1b38581b1f, type: 3}
+  m_PrefabInstance: {fileID: 1612178522}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e0fe39003e83364694693fa6a6a2cfb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 101}
-  - {fileID: 201}
   - {fileID: 1170588465}
   - {fileID: 106987970}
+  - {fileID: 201}
+  - {fileID: 1612178522}
