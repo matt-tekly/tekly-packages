@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Tekly.Logging;
 using Unity.U2D.Physics;
 using UnityEngine;
@@ -48,6 +49,9 @@ namespace Tekly.Stagecraft.PhysicsCore2D
 			set => m_shapes = value;
 		}
 
+		/// <summary>The shapes created from <see cref="Shapes"/>, in the same order. Valid while the actor is alive.</summary>
+		public ReadOnlySpan<PhysicsShape> CreatedShapes => m_createdShapes;
+
 		[SerializeField] private PhysicsBody.BodyType m_bodyType = PhysicsBody.BodyType.Dynamic;
 		[SerializeField] private bool m_fixedRotation = true;
 		[SerializeField] private float m_gravityScale;
@@ -56,6 +60,7 @@ namespace Tekly.Stagecraft.PhysicsCore2D
 		[SerializeField] private ShapeDefinition2D[] m_shapes = { new ShapeDefinition2D() };
 
 		private PhysicsBody m_body;
+		private PhysicsShape[] m_createdShapes = Array.Empty<PhysicsShape>();
 		private int m_ownerKey;
 		private PhysicsCore2DAdapter m_adapter;
 		private IContactListener2D[] m_contactListeners;
@@ -99,8 +104,12 @@ namespace Tekly.Stagecraft.PhysicsCore2D
 			m_body.userData = new PhysicsUserData { int64Value = Id.Pack() };
 			m_body.transformObject = transform;
 
+			if (m_createdShapes.Length != m_shapes.Length) {
+				m_createdShapes = new PhysicsShape[m_shapes.Length];
+			}
+
 			for (var i = 0; i < m_shapes.Length; i++) {
-				m_shapes[i].Create(m_body);
+				m_createdShapes[i] = m_shapes[i].Create(m_body);
 			}
 
 			m_adapter.Register(this);
@@ -119,6 +128,7 @@ namespace Tekly.Stagecraft.PhysicsCore2D
 			}
 
 			m_body = default;
+			Array.Clear(m_createdShapes, 0, m_createdShapes.Length);
 		}
 
 		internal void Deliver(bool isContact, bool isBegin, in Contact2D contact)

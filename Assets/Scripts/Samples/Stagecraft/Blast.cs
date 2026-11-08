@@ -12,7 +12,8 @@ namespace TeklySample.Samples.Stagecraft
 	/// <summary>
 	/// A short-lived trigger. Whatever it overlaps is despawned, from the buffered trigger event the stage delivers
 	/// after the physics step, never from inside the physics system. A mass despawn in one fixed step is what
-	/// the sync point and swap-remove lists are for.
+	/// the sync point and swap-remove lists are for. The prefab's shape is in its own contact category and excludes
+	/// it from its contacts, so two blasts never pair in the physics step at all.
 	/// </summary>
 	public class Blast : ActorBehaviour, ISpawnArgs<BlastArgs>, ITriggerListener2D
 	{
@@ -41,7 +42,7 @@ namespace TeklySample.Samples.Stagecraft
 		public void OnTriggerBegin(in Contact2D contact)
 		{
 			// OtherBody is null when the other actor is already gone (despawned earlier this delivery, or reused)
-			if (contact.OtherBody != null && contact.OtherBody.Actor.Get<Blast>() == null) {
+			if (contact.OtherBody != null) {
 				contact.OtherBody.Despawn();
 				m_stats.Kills++;
 			}

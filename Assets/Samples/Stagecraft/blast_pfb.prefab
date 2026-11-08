@@ -139,6 +139,12 @@ MonoBehaviour:
     ContactEvents: 0
     TriggerEvents: 1
     Density: 1
+    ContactFilter:
+      m_Categories:
+        bitMask: 2
+      m_Contacts:
+        bitMask: 18446744073709551613
+      m_GroupIndex: 0
 --- !u!114 &105
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -89,7 +89,9 @@ as `(ActorPrefabId, Pose, args struct)` through `stage.Prefabs`. See "Netcode se
 `Assets/Samples/Stagecraft/stagecraft_scn.unity`: ~3000 actors spawning and despawning continuously, one type
 ticked per object (`Wanderer`), one by a system (`Drifter`), blasts despawning through trigger events, a profiler
 marker per tick group and a DevBoard page ("Sample/Stagecraft"). The actor prefabs next to the scene show the
-inspector side: an `Actor`, an `ActorBody2D` with its shapes, and the behaviour. `Blast` takes a shared
+inspector side: an `Actor`, an `ActorBody2D` with its shapes, and the behaviour. Each shape carries its contact
+filter, so the blast's shape sits in its own category and excludes it from its contacts: two blasts never pair in
+the physics step, instead of being filtered out in the listener. `Blast` takes a shared
 `SampleStats` service with `[Inject]`, registered once on the container the stage was built with; its prefab
 carries the `HierarchyInjector` that makes that happen.
 

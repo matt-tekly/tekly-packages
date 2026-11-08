@@ -12,8 +12,9 @@ namespace Tekly.Stagecraft.PhysicsCore2D
 	}
 
 	/// <summary>
-	/// A shape to create on an <see cref="ActorBody2D"/>'s body each time it spawns. Anything beyond this (contact
-	/// filters, materials) is set on the created <see cref="PhysicsShape"/> from game code.
+	/// A shape to create on an <see cref="ActorBody2D"/>'s body each time it spawns. Anything beyond this (surface
+	/// material, callbacks) is set on the created <see cref="PhysicsShape"/>, reachable through
+	/// <see cref="ActorBody2D.CreatedShapes"/> while the actor is alive.
 	/// </summary>
 	[Serializable]
 	public sealed class ShapeDefinition2D
@@ -40,9 +41,13 @@ namespace Tekly.Stagecraft.PhysicsCore2D
 
 		public float Density = 1f;
 
+		[Tooltip("Which categories this shape is in, and which it may touch. Two shapes pair only if each is in a category the other contacts")]
+		public PhysicsShape.ContactFilter ContactFilter = PhysicsShape.ContactFilter.defaultFilter;
+
 		public PhysicsShape Create(PhysicsBody body)
 		{
 			var definition = PhysicsShapeDefinition.defaultDefinition;
+			definition.contactFilter = ContactFilter;
 			definition.isTrigger = IsTrigger;
 			definition.contactEvents = ContactEvents;
 			definition.triggerEvents = TriggerEvents;

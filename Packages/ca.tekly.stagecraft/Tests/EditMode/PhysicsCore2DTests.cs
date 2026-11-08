@@ -85,6 +85,33 @@ namespace Tekly.Stagecraft.Tests
 		}
 
 		[Test]
+		public void ShapesWhoseFiltersExcludeEachOther_NeverPair()
+		{
+			// a and b are in category 1 and contact everything but category 1; c is a default shape
+			var filtered = new PhysicsShape.ContactFilter {
+				categories = PhysicsMask.One << 1,
+				contacts = ~(PhysicsMask.One << 1)
+			};
+
+			var prefabA = CreateBall("a");
+			var prefabB = CreateBall("b");
+			prefabA.GetComponent<ActorBody2D>().Shapes[0].ContactFilter = filtered;
+			prefabB.GetComponent<ActorBody2D>().Shapes[0].ContactFilter = filtered;
+
+			var a = Stage.Spawn(prefabA, Pose.identity);
+			var b = Stage.Spawn(prefabB, new Pose(new Vector3(0.25f, 0, 0), Quaternion.identity));
+			var c = Stage.Spawn(CreateBall("c"), new Pose(new Vector3(-0.8f, 0, 0), Quaternion.identity)); // overlaps a, not b
+
+			Assert.AreEqual(filtered.categories, a.Actor.Get<ActorBody2D>().CreatedShapes[0].contactFilter.categories, "the filter reached the created shape");
+
+			Stage.FixedTick(0.02f);
+
+			Assert.AreEqual(new[] { c.Id }, a.Begins, "a pairs with the default shape only");
+			Assert.AreEqual(0, b.Begins.Count, "b overlaps a only, and they exclude each other");
+			Assert.AreEqual(new[] { a.Id }, c.Begins);
+		}
+
+		[Test]
 		public void ContactWithActorDespawnedByTheOtherSide_ResolvesToNothing()
 		{
 			var a = Stage.Spawn(CreateBall("a"), Pose.identity);
