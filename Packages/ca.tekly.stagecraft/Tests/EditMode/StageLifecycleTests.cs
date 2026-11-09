@@ -331,8 +331,13 @@ namespace Tekly.Stagecraft.Tests
 			var prefab = CreatePrefab<TickBehaviour>();
 
 			// Every despawn spawns one that despawns itself immediately: an infinite spawn/despawn loop
+			var looping = true;
 			var instance = Stage.Spawn(prefab);
 			instance.OnDespawn = self => {
+				if (!looping) {
+					return;
+				}
+
 				var next = Stage.Spawn(prefab);
 				next.OnDespawn = self.OnDespawn;
 				next.Despawn();
@@ -343,6 +348,9 @@ namespace Tekly.Stagecraft.Tests
 
 			Assert.GreaterOrEqual(Errors, 1);
 			Assert.IsTrue(Stage.PendingRemoveCount > 0 || Stage.PendingAddCount > 0, "leftovers are kept, not lost");
+
+			// Stop the loop so TearDown's Dispose drains the leftovers instead of hitting the bound again
+			looping = false;
 		}
 
 		[Test]

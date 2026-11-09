@@ -19,6 +19,9 @@ namespace Tekly.Logging.LogDestinations
         private static Thread s_mainThread;
         private static bool s_isUpdateQueued;
         
+        // Both run on the main thread. Without the editor one, nothing sets the thread until the first play session, so
+        // every edit mode log would take the queued path and surface a frame late: invisible to EditMode tests.
+        [InitializeOnLoadMethod]
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Initialize()
         {

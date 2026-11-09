@@ -51,12 +51,33 @@ namespace Tekly.Common.LifeCycles
 		[RuntimeInitializeOnLoadMethod]
 		private static void Initialize()
 		{
+			var lifeCycle = (LifeCycle) Instance;
+
+			// With domain reload disabled the instance survives from the previous play session, which ended by quitting
+			lifeCycle.IsQuitting = false;
+
 			var gameObject = new GameObject("[TK] LifeCycle");
 			Object.DontDestroyOnLoad(gameObject);
 
 			s_listener = gameObject.AddComponent<LifeCycleListener>();
-			s_listener.LifeCycle = Instance as LifeCycle;
+			s_listener.LifeCycle = lifeCycle;
 		}
+
+#if UNITY_EDITOR
+		/// <summary>
+		/// Exiting play mode quits the application, but the editor lives on: without a domain reload the instance would
+		/// report quitting until the next play session, and edit mode code (EditMode tests among it) would see it.
+		/// </summary>
+		[UnityEditor.InitializeOnLoadMethod]
+		private static void ResetWhenPlayModeEnds()
+		{
+			UnityEditor.EditorApplication.playModeStateChanged += change => {
+				if (change == UnityEditor.PlayModeStateChange.EnteredEditMode) {
+					((LifeCycle) Instance).IsQuitting = false;
+				}
+			};
+		}
+#endif
 
 		public void Updated()
 		{
