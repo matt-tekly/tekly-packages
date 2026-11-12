@@ -16,6 +16,11 @@ namespace Tekly.Common.Utils
 			set => Set(value);
 		}
 
+		/// <summary>
+		/// True when a value is saved, false when Value is only the default.
+		/// </summary>
+		public bool HasValue => PlayerPrefs.HasKey(Key);
+
 		private T m_value;
 		private bool m_loaded;
 
