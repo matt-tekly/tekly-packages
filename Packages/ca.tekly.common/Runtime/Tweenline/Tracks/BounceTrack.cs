@@ -72,7 +72,6 @@ namespace Tekly.Common.Tweenlines.Tracks
     public class BounceTrack : TweenTrack, ILayeredTrack
     {
         private const int MAX_HOPS = 32;
-        private const float OFF_SCREEN_MARGIN = 0.05f;
 
         public Transform Target {
             get => m_target;
@@ -110,8 +109,6 @@ namespace Tekly.Common.Tweenlines.Tracks
 
         // Per clip drop offset from the landing position, worked out when the animation starts. Zero uses Height
         [NonSerialized] private Vector3[] m_dropVectors;
-        [NonSerialized] private Vector3[] m_corners;
-        [NonSerialized] private List<Renderer> m_renderers;
 
         /// <summary>
         /// UI heights are in pixels, 3D heights in units, so new clips pick defaults to match.
@@ -270,212 +267,11 @@ namespace Tekly.Common.Tweenlines.Tracks
                     continue;
                 }
 
-                var landing = LandingPosition(clip.End);
+                var landing = OffScreen.LandingPosition(m_target, m_anchoredSlot, m_positionSlot, clip.End);
                 var scale = m_scaleSlot.SampleBase(clip.End);
 
-                m_dropVectors[i] = IsUi
-                    ? OffCanvasVector(AreaRect(clip), landing, scale)
-                    : OffCameraVector(AreaCamera(clip), landing, scale);
+                m_dropVectors[i] = OffScreen.Vector(m_target, clip.OffScreenArea, Direction, landing, scale);
             }
-        }
-
-        /// <summary>
-        /// Where the target rests at a time in its parent's space, from the base track or the start value.
-        /// </summary>
-        private Vector3 LandingPosition(float time)
-        {
-            if (m_anchoredSlot != null) {
-                // Anchored and local positions differ by a constant, so convert through the current pair
-                var anchored = m_anchoredSlot.SampleBase(time);
-                var rectTransform = (RectTransform) m_target;
-                return m_target.localPosition + (Vector3) (anchored - rectTransform.anchoredPosition);
-            }
-
-            return m_positionSlot.SampleBase(time);
-        }
-
-        /// <summary>
-        /// The rect the element must leave: the clip's area (a RectTransform, or a Canvas's rect) or the root canvas.
-        /// </summary>
-        private RectTransform AreaRect(BounceClip clip)
-        {
-            switch (clip.OffScreenArea) {
-                case RectTransform rectTransform:
-                    return rectTransform;
-                case Canvas areaCanvas:
-                    return (RectTransform) areaCanvas.transform;
-            }
-
-            var canvas = m_target.GetComponentInParent<Canvas>();
-            return canvas != null ? (RectTransform) canvas.rootCanvas.transform : null;
-        }
-
-        private static Camera AreaCamera(BounceClip clip)
-        {
-            return clip.OffScreenArea is Camera camera ? camera : Camera.main;
-        }
-
-        /// <summary>
-        /// Distance along Direction that puts the element fully outside the area rect, with a small margin.
-        /// The element is measured at its landing position and scale, not its current pose, so a previous
-        /// animation that shrank or moved it doesn't change the result.
-        /// </summary>
-        private Vector3 OffCanvasVector(RectTransform area, Vector3 landing, Vector3 scale)
-        {
-            if (area == null) {
-                return Vector3.zero;
-            }
-
-            var direction = Direction;
-            m_corners ??= new Vector3[4];
-
-            area.GetWorldCorners(m_corners);
-            var areaMax = float.MinValue;
-            foreach (var corner in m_corners) {
-                areaMax = Mathf.Max(areaMax, Vector3.Dot(ToParent(corner), direction));
-            }
-
-            var rect = ((RectTransform) m_target).rect;
-            var rotation = m_target.localRotation;
-            var elementMin = float.MaxValue;
-            var elementMax = float.MinValue;
-
-            for (var i = 0; i < 4; i++) {
-                var local = new Vector3(i < 2 ? rect.xMin : rect.xMax, i % 2 == 0 ? rect.yMin : rect.yMax, 0);
-                var projected = Vector3.Dot(landing + rotation * Vector3.Scale(local, scale), direction);
-
-                elementMin = Mathf.Min(elementMin, projected);
-                elementMax = Mathf.Max(elementMax, projected);
-            }
-
-            var margin = (elementMax - elementMin) * OFF_SCREEN_MARGIN;
-            var distance = areaMax - elementMin + margin;
-
-            return distance > 0 ? direction * distance : Vector3.zero;
-        }
-
-        /// <summary>
-        /// Distance along Direction that puts the object's renderers fully outside the camera's view, measured
-        /// at the landing position and scale.
-        /// </summary>
-        private Vector3 OffCameraVector(Camera camera, Vector3 landing, Vector3 scale)
-        {
-            if (camera == null) {
-                return Vector3.zero;
-            }
-
-            var direction = Direction;
-            var bounds = LandingBounds(landing, scale);
-
-            // Grow until hidden, then narrow down to the closest hidden distance
-            var far = Mathf.Max(0.1f, bounds.extents.magnitude);
-            var steps = 0;
-
-            while (!IsHidden(camera, bounds, direction, far)) {
-                far *= 2;
-
-                if (++steps > 30) {
-                    return Vector3.zero;
-                }
-            }
-
-            var near = 0f;
-            for (var i = 0; i < 20; i++) {
-                var middle = (near + far) * 0.5f;
-
-                if (IsHidden(camera, bounds, direction, middle)) {
-                    far = middle;
-                } else {
-                    near = middle;
-                }
-            }
-
-            return direction * (far * (1 + OFF_SCREEN_MARGIN));
-        }
-
-        /// <summary>
-        /// World bounds of the target's renderers as if it were at the landing position and scale.
-        /// </summary>
-        private Bounds LandingBounds(Vector3 landing, Vector3 scale)
-        {
-            var parent = m_target.parent;
-            var parentMatrix = parent != null ? parent.localToWorldMatrix : Matrix4x4.identity;
-            var targetMatrix = parentMatrix * Matrix4x4.TRS(landing, m_target.localRotation, scale);
-            var bounds = new Bounds(targetMatrix.MultiplyPoint3x4(Vector3.zero), Vector3.zero);
-
-            m_renderers ??= new List<Renderer>();
-            m_target.GetComponentsInChildren(m_renderers);
-
-            foreach (var renderer in m_renderers) {
-                var matrix = targetMatrix * RelativeMatrix(renderer.transform);
-                var local = renderer.localBounds;
-                var min = local.min;
-                var max = local.max;
-
-                for (var i = 0; i < 8; i++) {
-                    var corner = new Vector3((i & 1) == 0 ? min.x : max.x, (i & 2) == 0 ? min.y : max.y, (i & 4) == 0 ? min.z : max.z);
-                    bounds.Encapsulate(matrix.MultiplyPoint3x4(corner));
-                }
-            }
-
-            return bounds;
-        }
-
-        /// <summary>
-        /// A child's transform relative to the target, built from local values so a zero target scale works.
-        /// </summary>
-        private Matrix4x4 RelativeMatrix(Transform child)
-        {
-            var matrix = Matrix4x4.identity;
-
-            while (child != null && child != m_target) {
-                matrix = Matrix4x4.TRS(child.localPosition, child.localRotation, child.localScale) * matrix;
-                child = child.parent;
-            }
-
-            return matrix;
-        }
-
-        private bool IsHidden(Camera camera, Bounds bounds, Vector3 direction, float distance)
-        {
-            bounds.center += ToWorldVector(direction * distance);
-            return IsOutsideView(camera, bounds);
-        }
-
-        private static bool IsOutsideView(Camera camera, Bounds bounds)
-        {
-            var min = bounds.min;
-            var max = bounds.max;
-            var left = true;
-            var right = true;
-            var below = true;
-            var above = true;
-            var behind = true;
-
-            for (var i = 0; i < 8; i++) {
-                var corner = new Vector3((i & 1) == 0 ? min.x : max.x, (i & 2) == 0 ? min.y : max.y, (i & 4) == 0 ? min.z : max.z);
-                var viewport = camera.WorldToViewportPoint(corner);
-
-                left &= viewport.x < 0;
-                right &= viewport.x > 1;
-                below &= viewport.y < 0;
-                above &= viewport.y > 1;
-                behind &= viewport.z < 0;
-            }
-
-            return left || right || below || above || behind;
-        }
-
-        private Vector3 ToParent(Vector3 world)
-        {
-            var parent = m_target.parent;
-            return parent != null ? parent.InverseTransformPoint(world) : world;
-        }
-
-        private Vector3 ToWorldVector(Vector3 local)
-        {
-            var parent = m_target.parent;
-            return parent != null ? parent.TransformVector(local) : local;
         }
 
         /// <summary>
@@ -650,21 +446,17 @@ namespace Tekly.Common.Tweenlines.Tracks
                 }
 
                 if (clip.DropFrom == BounceDropFrom.OffScreen) {
-                    var area = clip.OffScreenArea;
+                    var areaWarning = OffScreen.GetAreaWarning(m_target, clip.OffScreenArea);
 
-                    if (IsUi && area != null && !(area is RectTransform) && !(area is Canvas)) {
-                        return $"Clip [{i + 1}] Off Screen Area [{area.GetType().Name}] should be a RectTransform or Canvas for UI";
+                    if (areaWarning != null) {
+                        return $"Clip [{i + 1}] {areaWarning}";
                     }
 
-                    if (!IsUi && area != null && !(area is Camera)) {
-                        return $"Clip [{i + 1}] Off Screen Area [{area.GetType().Name}] should be a Camera for 3D objects";
-                    }
-
-                    if (IsUi && AreaRect(clip) == null) {
+                    if (IsUi && OffScreen.AreaRect(m_target, clip.OffScreenArea) == null) {
                         return $"Clip [{i + 1}] drops from off screen but the target isn't under a Canvas, so it uses Height";
                     }
 
-                    if (!IsUi && AreaCamera(clip) == null) {
+                    if (!IsUi && OffScreen.AreaCamera(clip.OffScreenArea) == null) {
                         return $"Clip [{i + 1}] drops from off screen but there is no Main Camera, so it uses Height";
                     }
                 }

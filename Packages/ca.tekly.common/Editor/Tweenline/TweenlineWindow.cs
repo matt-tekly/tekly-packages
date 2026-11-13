@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Tekly.Common.Tweenlines.Tracks;
 using UnityEditor;
 using UnityEngine;
 
@@ -15,6 +16,9 @@ namespace Tekly.Common.Tweenlines
         private const float ROW_HEIGHT = 24;
         private const float TRACK_INDENT = 18;
         private const float DETAILS_HEIGHT = 190;
+        private const float MIN_DETAILS_HEIGHT = 60;
+        private const float MIN_BODY_HEIGHT = 80;
+        private const float SPLITTER_GRAB = 6;
         private const float SCROLLBAR_WIDTH = 13;
         private const float EDGE_GRAB = 6;
         private const float MIN_CLIP_WIDTH = 6;
@@ -54,6 +58,7 @@ namespace Tekly.Common.Tweenlines
         [SerializeField] private float m_pixelsPerSecond = 200;
         [SerializeField] private float m_offset = -0.05f;
         [SerializeField] private float m_snap = 0.05f;
+        [SerializeField] private float m_detailsHeight = DETAILS_HEIGHT;
 
         private SerializedObject m_serializedObject;
         private readonly List<Row> m_rows = new List<Row>();
@@ -254,8 +259,14 @@ namespace Tekly.Common.Tweenlines
             DrawToolbar();
 
             var top = EditorStyles.toolbar.fixedHeight;
-            var body = new Rect(0, top, position.width, Mathf.Max(0, position.height - top - DETAILS_HEIGHT));
-            var details = new Rect(0, body.yMax, position.width, DETAILS_HEIGHT);
+            var maxDetailsHeight = Mathf.Max(MIN_DETAILS_HEIGHT, position.height - top - MIN_BODY_HEIGHT);
+            m_detailsHeight = Mathf.Clamp(m_detailsHeight, MIN_DETAILS_HEIGHT, maxDetailsHeight);
+
+            var body = new Rect(0, top, position.width, Mathf.Max(0, position.height - top - m_detailsHeight));
+            var details = new Rect(0, body.yMax, position.width, m_detailsHeight);
+
+            // Handled before the timeline so the timeline doesn't take drags that start on the divider
+            HandleDetailsSplitter(new Rect(0, details.y - SPLITTER_GRAB * 0.5f, position.width, SPLITTER_GRAB), maxDetailsHeight);
 
             if (Animation != null) {
                 DrawTimeline(body);
@@ -652,10 +663,9 @@ namespace Tekly.Common.Tweenlines
                 var clipLabelRect = new Rect(clipRect.x + 3, clipRect.y, Mathf.Max(0, clipRect.width - 6), clipRect.height);
                 var fromModeProperty = clip.FindPropertyRelative("FromMode");
 
-                // Clips that aren't from/to tweens, like bounces, label with their hop count or nothing
+                // Clips that aren't from/to tweens label with their hop count, slide mode or nothing
                 if (fromModeProperty == null) {
-                    var hops = clip.FindPropertyRelative("Hops");
-                    GUI.Label(clipLabelRect, hops != null ? $"{hops.intValue} hops" : string.Empty, EditorStyles.whiteMiniLabel);
+                    GUI.Label(clipLabelRect, CustomClipLabel(clip), EditorStyles.whiteMiniLabel);
                     continue;
                 }
 
@@ -668,6 +678,25 @@ namespace Tekly.Common.Tweenlines
             }
 
             GUI.EndClip();
+        }
+
+        private static string CustomClipLabel(SerializedProperty clip)
+        {
+            var hops = clip.FindPropertyRelative("Hops");
+
+            if (hops != null) {
+                return $"{hops.intValue} hops";
+            }
+
+            var slideMode = clip.FindPropertyRelative("Mode");
+            var direction = clip.FindPropertyRelative("Direction");
+
+            if (slideMode != null && direction != null) {
+                var preposition = slideMode.intValue == (int) SlideMode.In ? "from" : "to";
+                return $"{slideMode.enumDisplayNames[slideMode.enumValueIndex]} {preposition} {direction.enumDisplayNames[direction.enumValueIndex]}";
+            }
+
+            return string.Empty;
         }
 
         /// <summary>
@@ -719,6 +748,33 @@ namespace Tekly.Common.Tweenlines
             if (x >= rect.x && x <= rect.xMax) {
                 EditorGUI.DrawRect(new Rect(x, rect.y, 1, rect.height), s_playheadColor);
                 EditorGUI.DrawRect(new Rect(x - 4, rect.y, 9, 6), s_playheadColor);
+            }
+        }
+
+        /// <summary>
+        /// Drags the divider above the details pane to resize it. The height is kept with the window.
+        /// </summary>
+        private void HandleDetailsSplitter(Rect rect, float maxHeight)
+        {
+            var id = GUIUtility.GetControlID(FocusType.Passive);
+            var e = Event.current;
+
+            EditorGUIUtility.AddCursorRect(rect, MouseCursor.ResizeVertical, id);
+
+            switch (e.GetTypeForControl(id)) {
+                case EventType.MouseDown when e.button == 0 && rect.Contains(e.mousePosition):
+                    GUIUtility.hotControl = id;
+                    e.Use();
+                    break;
+                case EventType.MouseDrag when GUIUtility.hotControl == id:
+                    m_detailsHeight = Mathf.Clamp(position.height - e.mousePosition.y, MIN_DETAILS_HEIGHT, maxHeight);
+                    e.Use();
+                    Repaint();
+                    break;
+                case EventType.MouseUp when GUIUtility.hotControl == id:
+                    GUIUtility.hotControl = 0;
+                    e.Use();
+                    break;
             }
         }
 
