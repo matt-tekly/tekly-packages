@@ -13,16 +13,19 @@ namespace Tekly.Common.Tweenlines
     }
 
     /// <summary>
-    /// A track whose clips are instant switches. Each clip sets a value at its start and holds it until
-    /// the next clip. Before the first clip the track holds the target's rest value.
+    /// Lets the timeline window draw step clips without knowing the track's target type.
     /// </summary>
     public interface IStepTrack
     {
         bool GetClipValue(int index);
     }
 
+    /// <summary>
+    /// A base track whose clips are instant switches. Each clip sets a value at its start and holds it until
+    /// the next clip. Before the first clip the track holds the value the target had when the animation started.
+    /// </summary>
     [Serializable]
-    public abstract class StepTrack<TTarget> : TweenTrack, IStepTrack where TTarget : Object
+    public abstract class StepTrack<TTarget> : TweenTrack, IStepTrack, IChannelSource<bool> where TTarget : Object
     {
         public TTarget Target {
             get => m_target;
@@ -46,17 +49,13 @@ namespace Tekly.Common.Tweenlines
             }
         }
 
-        protected abstract string Channel { get; }
+        protected abstract TweenChannel<bool> Channel { get; }
 
         [SerializeField] protected TTarget m_target;
         [SerializeField] private List<StepClip> m_clips = new List<StepClip>();
 
         [NonSerialized] private int[] m_order;
-        [NonSerialized] private bool m_origin;
-        [NonSerialized] private bool m_prepared;
-
-        protected abstract bool Read();
-        protected abstract void Write(bool value);
+        [NonSerialized] private ChannelSlot<bool> m_slot;
 
         public bool GetClipValue(int index)
         {
@@ -68,7 +67,7 @@ namespace Tekly.Common.Tweenlines
         /// </summary>
         public override int AddClip(float start)
         {
-            var current = m_target != null && Read();
+            var current = m_target != null && Channel.Read(m_target);
             var latest = float.MinValue;
 
             foreach (var clip in m_clips) {
@@ -88,56 +87,47 @@ namespace Tekly.Common.Tweenlines
             duration = 0;
         }
 
-        public override void CaptureOrigin(TweenOrigins origins)
+        public override void CaptureOrigins(TweenOrigins origins)
         {
-            if (m_target != null && !origins.Contains(m_target, Channel)) {
-                origins.Set(m_target, Channel, Read());
+            if (m_target != null) {
+                origins.GetOrCapture(m_target, Channel);
             }
         }
 
-        public override void Prepare(TweenOrigins origins, bool readCurrent)
+        public override void Prepare(TweenMixer mixer)
         {
-            m_prepared = false;
+            m_slot = null;
 
-            if (m_target == null || m_clips.Count == 0) {
+            if (!m_enabled || m_target == null || m_clips.Count == 0) {
                 return;
             }
 
-            CaptureOrigin(origins);
-            origins.TryGet(m_target, Channel, out m_origin);
+            m_slot = mixer.Get(m_target, Channel);
+            m_slot.SetSource(this);
 
-            var count = m_clips.Count;
-            if (m_order == null || m_order.Length != count) {
-                m_order = new int[count];
+            if (m_order == null || m_order.Length != m_clips.Count) {
+                m_order = new int[m_clips.Count];
             }
 
-            for (var i = 0; i < count; i++) {
-                m_order[i] = i;
-            }
-
-            for (var i = 1; i < count; i++) {
-                var index = m_order[i];
-                var start = m_clips[index].Start;
-                var j = i - 1;
-
-                while (j >= 0 && m_clips[m_order[j]].Start > start) {
-                    m_order[j + 1] = m_order[j];
-                    j--;
-                }
-
-                m_order[j + 1] = index;
-            }
-
-            m_prepared = true;
+            ClipOrder.Sort(m_clips, m_order, clip => clip.Start);
         }
 
         public override void Evaluate(float time)
         {
-            if (!m_enabled || !m_prepared || m_target == null || m_order.Length != m_clips.Count) {
-                return;
+            if (m_slot != null && TrySample(time, out var value)) {
+                m_slot.SetBase(value);
+            }
+        }
+
+        public bool TrySample(float time, out bool value)
+        {
+            value = false;
+
+            if (m_slot == null || m_target == null || m_order.Length != m_clips.Count) {
+                return false;
             }
 
-            var value = m_origin;
+            value = m_slot.Start;
 
             for (var i = 0; i < m_order.Length; i++) {
                 var clip = m_clips[m_order[i]];
@@ -149,10 +139,16 @@ namespace Tekly.Common.Tweenlines
                 value = clip.Value;
             }
 
-            // Only touch the target when the value changes since SetActive and enabled have side effects
-            if (Read() != value) {
-                Write(value);
+            return true;
+        }
+
+#if UNITY_EDITOR
+        public override void CollectDrivenProperties(List<DrivenProperty> properties)
+        {
+            if (m_target != null) {
+                Channel.CollectDrivenProperties(m_target, properties);
             }
         }
+#endif
     }
 }

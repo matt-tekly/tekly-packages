@@ -38,7 +38,9 @@ namespace Tekly.Common.Tweenlines
         private TweenOrigins m_origins;
         private TweenAnimation m_current;
         private float m_time;
+        private float m_duration;
         private float m_delay;
+        private bool m_startMarkersPending;
         private float m_direction = 1;
         private bool m_playing;
         private int m_playId;
@@ -67,6 +69,10 @@ namespace Tekly.Common.Tweenlines
 
                 deltaTime = -m_delay;
                 m_delay = 0;
+            }
+
+            if (m_startMarkersPending && !FireStartMarkers()) {
+                return;
             }
 
             Advance(deltaTime);
@@ -112,18 +118,25 @@ namespace Tekly.Common.Tweenlines
         {
             m_playId++;
             m_current = animation;
+            m_duration = animation.Duration;
             m_direction = reverse ? -1 : 1;
-            m_time = reverse ? animation.Duration : 0;
+            m_time = reverse ? m_duration : 0;
             m_delay = m_stagger * transform.GetSiblingIndex();
             m_playing = true;
 
-            var playId = m_playId;
+            // Reversing plays back towards the start, so it keeps the start values of the last forward play
+            // instead of reading the end pose as the start
+            animation.Prepare(Origins, !reverse);
 
-            animation.Prepare(Origins, true);
+            // The start pose shows straight away, but markers wait for the stagger delay
             animation.Evaluate(m_time);
-            animation.FireMarkers(m_time, m_time, true);
+            m_startMarkersPending = true;
 
-            if (playId == m_playId && animation.Duration <= 0 && m_delay <= 0) {
+            if (m_delay > 0 || !FireStartMarkers()) {
+                return;
+            }
+
+            if (m_duration <= 0) {
                 Finish();
             }
         }
@@ -135,6 +148,7 @@ namespace Tekly.Common.Tweenlines
         {
             m_playId++;
             m_playing = false;
+            m_startMarkersPending = false;
         }
 
         /// <summary>
@@ -146,8 +160,12 @@ namespace Tekly.Common.Tweenlines
                 return;
             }
 
+            if (m_startMarkersPending && !FireStartMarkers()) {
+                return;
+            }
+
             var playId = m_playId;
-            var edge = m_direction > 0 ? m_current.Duration : 0;
+            var edge = m_direction > 0 ? m_duration : 0;
 
             m_current.FireMarkers(m_time, edge);
 
@@ -178,6 +196,10 @@ namespace Tekly.Common.Tweenlines
         public void Prepare(TweenAnimation animation, bool readCurrent)
         {
             animation.Prepare(Origins, readCurrent);
+
+            if (animation == m_current) {
+                m_duration = animation.Duration;
+            }
         }
 
         /// <summary>
@@ -200,10 +222,24 @@ namespace Tekly.Common.Tweenlines
             Play(animation, reverse);
         }
 
+        /// <summary>
+        /// Fires markers at the starting time once the stagger delay has passed. False when a marker started
+        /// another animation or stopped this one.
+        /// </summary>
+        private bool FireStartMarkers()
+        {
+            var playId = m_playId;
+
+            m_startMarkersPending = false;
+            m_current.FireMarkers(m_time, m_time, true);
+
+            return playId == m_playId;
+        }
+
         private void Advance(float deltaTime)
         {
             var playId = m_playId;
-            var duration = m_current.Duration;
+            var duration = m_duration;
             var previous = m_time;
             var finished = false;
 

@@ -20,19 +20,20 @@ namespace Tekly.Common.Tweenlines
         [SerializeField] protected bool m_enabled = true;
 
         /// <summary>
-        /// Resolves clip values before playback. readCurrent reads the live value used by ClipFrom.Current.
+        /// Resolves clip values before playback and gets the mixer slots the track drives.
         /// </summary>
-        public abstract void Prepare(TweenOrigins origins, bool readCurrent);
+        public abstract void Prepare(TweenMixer mixer);
 
         /// <summary>
-        /// Writes the track's value at the given time. Only depends on time so it can be scrubbed.
+        /// Sets, offsets or multiplies the track's slots for the given time. Only depends on time so it can
+        /// be scrubbed. The mixer writes the results.
         /// </summary>
         public abstract void Evaluate(float time);
 
         /// <summary>
-        /// Stores the target's current value as its origin if no origin is stored yet.
+        /// Stores the current value of every channel the track drives as its origin, if none is stored yet.
         /// </summary>
-        public abstract void CaptureOrigin(TweenOrigins origins);
+        public abstract void CaptureOrigins(TweenOrigins origins);
 
         /// <summary>
         /// Points the track at the matching component on the GameObject. Returns false when there is none.
@@ -44,8 +45,6 @@ namespace Tekly.Common.Tweenlines
         public abstract void GetClipRange(int index, out float start, out float duration);
 
 #if UNITY_EDITOR
-        public virtual bool Previewable => true;
-
         public abstract void CollectDrivenProperties(System.Collections.Generic.List<DrivenProperty> properties);
 
         /// <summary>

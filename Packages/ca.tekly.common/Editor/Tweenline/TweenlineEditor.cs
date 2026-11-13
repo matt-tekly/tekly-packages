@@ -29,6 +29,17 @@ namespace Tekly.Common.Tweenlines
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
+
+            if (TweenlineEditorUtils.HasMissingTypes(m_tweenline)) {
+                EditorGUILayout.HelpBox($"Some tracks use classes that no longer exist [{TweenlineEditorUtils.MissingTypeNames(m_tweenline)}]", MessageType.Warning);
+
+                if (GUILayout.Button("Remove Missing Tracks")) {
+                    TweenlineEditorUtils.RemoveAllMissingTypes(m_tweenline);
+                    serializedObject.Update();
+                    GUIUtility.ExitGUI();
+                }
+            }
+
             EditorGUI.BeginChangeCheck();
 
             DrawPlayOnEnable();

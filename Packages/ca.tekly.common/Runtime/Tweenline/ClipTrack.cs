@@ -6,10 +6,10 @@ using Object = UnityEngine.Object;
 namespace Tekly.Common.Tweenlines
 {
     /// <summary>
-    /// A track that drives one channel of one target through a series of clips.
+    /// A base track that sets one channel of one target through a series of from/to clips.
     /// </summary>
     [Serializable]
-    public abstract class ClipTrack<TTarget, TValue> : TweenTrack where TTarget : Component
+    public abstract class ClipTrack<TTarget, TValue> : TweenTrack, IChannelSource<TValue> where TTarget : Component
     {
         public TTarget Target {
             get => m_target;
@@ -33,10 +33,7 @@ namespace Tekly.Common.Tweenlines
             }
         }
 
-        /// <summary>
-        /// Identifies the channel for shared origins. Tracks writing the same property must use the same channel.
-        /// </summary>
-        protected abstract string Channel { get; }
+        protected abstract TweenChannel<TValue> Channel { get; }
 
         [SerializeField] protected TTarget m_target;
         [SerializeField] private List<TweenClip<TValue>> m_clips = new List<TweenClip<TValue>>();
@@ -44,12 +41,9 @@ namespace Tekly.Common.Tweenlines
         [NonSerialized] private int[] m_order;
         [NonSerialized] private TValue[] m_from;
         [NonSerialized] private TValue[] m_to;
-        [NonSerialized] private TValue m_current;
-        [NonSerialized] private bool m_hasCurrent;
+        [NonSerialized] private ChannelSlot<TValue> m_slot;
         [NonSerialized] private bool m_prepared;
 
-        protected abstract TValue Read();
-        protected abstract void Write(TValue value);
         protected abstract TValue Lerp(TValue a, TValue b, float t);
 
         /// <summary>
@@ -78,37 +72,35 @@ namespace Tekly.Common.Tweenlines
             duration = clip.Duration;
         }
 
-        public override void CaptureOrigin(TweenOrigins origins)
+        public override void CaptureOrigins(TweenOrigins origins)
         {
-            if (m_target != null && !origins.Contains(m_target, Channel)) {
-                origins.Set(m_target, Channel, Read());
+            if (m_target != null) {
+                origins.GetOrCapture(m_target, Channel);
             }
         }
 
-        public override void Prepare(TweenOrigins origins, bool readCurrent)
+        public override void Prepare(TweenMixer mixer)
         {
             m_prepared = false;
+            m_slot = null;
 
-            if (m_target == null || m_clips.Count == 0) {
+            if (!m_enabled || m_target == null || m_clips.Count == 0) {
                 return;
             }
 
-            CaptureOrigin(origins);
-            origins.TryGet<TValue>(m_target, Channel, out var origin);
+            m_slot = mixer.Get(m_target, Channel);
+            m_slot.SetSource(this);
 
-            if (readCurrent || !m_hasCurrent) {
-                m_current = readCurrent ? Read() : origin;
-                m_hasCurrent = true;
-            }
-
+            var origin = m_slot.Origin;
             var count = m_clips.Count;
+
             if (m_order == null || m_order.Length != count) {
                 m_order = new int[count];
                 m_from = new TValue[count];
                 m_to = new TValue[count];
             }
 
-            SortByStart();
+            ClipOrder.Sort(m_clips, m_order, clip => clip.Start);
 
             var previous = origin;
 
@@ -118,7 +110,7 @@ namespace Tekly.Common.Tweenlines
 
                 m_from[index] = clip.FromMode switch {
                     ClipFrom.Previous => previous,
-                    ClipFrom.Current => m_current,
+                    ClipFrom.Current => m_slot.Start,
                     ClipFrom.Origin => origin,
                     _ => Resolve(clip.Space, origin, clip.From)
                 };
@@ -132,8 +124,20 @@ namespace Tekly.Common.Tweenlines
 
         public override void Evaluate(float time)
         {
-            if (!m_enabled || !m_prepared || m_target == null || m_order.Length != m_clips.Count) {
-                return;
+            if (m_slot != null && TrySample(time, out var value)) {
+                m_slot.SetBase(value);
+            }
+        }
+
+        /// <summary>
+        /// Computes the track's value at a time without writing it. False when the track isn't prepared.
+        /// </summary>
+        public bool TrySample(float time, out TValue value)
+        {
+            value = default;
+
+            if (!m_prepared || m_target == null || m_order.Length != m_clips.Count) {
+                return false;
             }
 
             var active = -1;
@@ -147,14 +151,15 @@ namespace Tekly.Common.Tweenlines
             }
 
             if (active < 0) {
-                Write(m_from[m_order[0]]);
-                return;
+                value = m_from[m_order[0]];
+                return true;
             }
 
             var clip = m_clips[active];
             var ratio = clip.Duration > 0 ? Mathf.Clamp01((time - clip.Start) / clip.Duration) : 1f;
 
-            Write(Lerp(m_from[active], m_to[active], clip.Ease.Evaluate(ratio)));
+            value = Lerp(m_from[active], m_to[active], clip.Ease.Evaluate(ratio));
+            return true;
         }
 
         private TValue Resolve(ClipSpace space, TValue origin, TValue value)
@@ -162,24 +167,39 @@ namespace Tekly.Common.Tweenlines
             return space == ClipSpace.RelativeToOrigin ? Add(origin, value) : value;
         }
 
-        private void SortByStart()
+#if UNITY_EDITOR
+        public override void CollectDrivenProperties(List<DrivenProperty> properties)
         {
-            for (var i = 0; i < m_order.Length; i++) {
-                m_order[i] = i;
+            if (m_target != null) {
+                Channel.CollectDrivenProperties(m_target, properties);
+            }
+        }
+#endif
+    }
+
+    /// <summary>
+    /// Orders clips by start time without allocating. Clip counts are small, so an insertion sort is used,
+    /// which also keeps clips with equal starts in list order.
+    /// </summary>
+    public static class ClipOrder
+    {
+        public static void Sort<TClip>(List<TClip> clips, int[] order, Func<TClip, float> start)
+        {
+            for (var i = 0; i < order.Length; i++) {
+                order[i] = i;
             }
 
-            // Insertion sort: stable, allocation free and clip counts are small
-            for (var i = 1; i < m_order.Length; i++) {
-                var index = m_order[i];
-                var start = m_clips[index].Start;
+            for (var i = 1; i < order.Length; i++) {
+                var index = order[i];
+                var value = start(clips[index]);
                 var j = i - 1;
 
-                while (j >= 0 && m_clips[m_order[j]].Start > start) {
-                    m_order[j + 1] = m_order[j];
+                while (j >= 0 && start(clips[order[j]]) > value) {
+                    order[j + 1] = order[j];
                     j--;
                 }
 
-                m_order[j + 1] = index;
+                order[j + 1] = index;
             }
         }
     }

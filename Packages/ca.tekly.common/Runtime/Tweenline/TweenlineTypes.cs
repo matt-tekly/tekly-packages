@@ -38,37 +38,45 @@ namespace Tekly.Common.Tweenlines
     }
 
     /// <summary>
+    /// A track that offsets or multiplies channels instead of setting them. Layered tracks are prepared and
+    /// evaluated after every base track in the animation, so they can see which channels have a base track.
+    /// </summary>
+    public interface ILayeredTrack { }
+
+    /// <summary>
+    /// A base track that can report its value at any time, so layered tracks can work out where the target
+    /// will be, like where a drop lands.
+    /// </summary>
+    public interface IChannelSource<T>
+    {
+        bool TrySample(float time, out T value);
+    }
+
+    /// <summary>
     /// The rest values of every target and channel driven by a Tweenline. Animations driving the same
     /// channel share one origin so interrupting an animation never captures a half animated value.
     /// </summary>
     public class TweenOrigins
     {
-        private readonly Dictionary<(Object, string), object> m_values = new Dictionary<(Object, string), object>();
+        private readonly Dictionary<(Object, TweenChannel), object> m_values = new Dictionary<(Object, TweenChannel), object>();
 
         public void Clear()
         {
             m_values.Clear();
         }
 
-        public bool TryGet<T>(Object target, string channel, out T value)
+        /// <summary>
+        /// The stored origin, capturing the current value first if there is none.
+        /// </summary>
+        public T GetOrCapture<T>(Object target, TweenChannel<T> channel)
         {
             if (m_values.TryGetValue((target, channel), out var boxed)) {
-                value = (T) boxed;
-                return true;
+                return (T) boxed;
             }
 
-            value = default;
-            return false;
-        }
-
-        public void Set<T>(Object target, string channel, T value)
-        {
+            var value = channel.Read(target);
             m_values[(target, channel)] = value;
-        }
-
-        public bool Contains(Object target, string channel)
-        {
-            return m_values.ContainsKey((target, channel));
+            return value;
         }
     }
 

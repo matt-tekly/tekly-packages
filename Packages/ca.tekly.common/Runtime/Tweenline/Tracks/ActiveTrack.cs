@@ -10,10 +10,7 @@ namespace Tekly.Common.Tweenlines.Tracks
     [Serializable]
     public class ActiveTrack : StepTrack<GameObject>
     {
-        protected override string Channel => "active";
-
-        protected override bool Read() => m_target.activeSelf;
-        protected override void Write(bool value) => m_target.SetActive(value);
+        protected override TweenChannel<bool> Channel => TweenChannels.Active;
 
         public override bool Bind(GameObject gameObject)
         {
@@ -22,13 +19,6 @@ namespace Tekly.Common.Tweenlines.Tracks
         }
 
 #if UNITY_EDITOR
-        public override void CollectDrivenProperties(System.Collections.Generic.List<DrivenProperty> properties)
-        {
-            if (m_target != null) {
-                properties.Add(new DrivenProperty(m_target, "m_IsActive"));
-            }
-        }
-
         public override string GetWarning(Tweenline owner)
         {
             if (m_target != null && owner != null && owner.transform.IsChildOf(m_target.transform)) {

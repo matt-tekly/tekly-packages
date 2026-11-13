@@ -44,7 +44,7 @@ namespace Tekly.Common.Tweenlines
             return IsActive && Target == tweenline;
         }
 
-        public static void Start(Tweenline target, int animationIndex)
+        public static void Start(Tweenline target, int animationIndex, float time = 0)
         {
             if (Application.isPlaying || target == null) {
                 return;
@@ -71,7 +71,7 @@ namespace Tekly.Common.Tweenlines
 
             var animation = Animation;
             if (animation != null) {
-                Time = Mathf.Clamp(Time, 0, animation.Duration);
+                Time = Mathf.Clamp(time, 0, animation.Duration);
                 Target.Prepare(animation, true);
             }
 
@@ -177,8 +177,7 @@ namespace Tekly.Common.Tweenlines
                 var playing = IsPlaying;
 
                 Stop();
-                Time = time;
-                Start(target, index);
+                Start(target, index, time);
 
                 if (playing) {
                     Play();
@@ -234,7 +233,7 @@ namespace Tekly.Common.Tweenlines
         {
             foreach (var animation in Target.Animations) {
                 foreach (var track in animation.Tracks) {
-                    if (track != null && track.Previewable) {
+                    if (track != null) {
                         track.CollectDrivenProperties(properties);
                     }
                 }
@@ -283,7 +282,7 @@ namespace Tekly.Common.Tweenlines
             if (IsActive && animation != null) {
                 AnimationMode.BeginSampling();
                 AddModifications();
-                SampleTracks(animation);
+                animation.Evaluate(Time);
                 AnimationMode.EndSampling();
             }
 
@@ -291,18 +290,10 @@ namespace Tekly.Common.Tweenlines
             Changed?.Invoke();
         }
 
-        private static void SampleTracks(TweenAnimation animation)
-        {
-            foreach (var track in animation.Tracks) {
-                if (track != null && track.Previewable) {
-                    track.Evaluate(Time);
-                }
-            }
-        }
-
         private static void Tick()
         {
-            if (Target == null) {
+            // Stop when the target is gone or another tool like Timeline took over AnimationMode
+            if (Target == null || !IsActive) {
                 Stop();
                 return;
             }
@@ -365,6 +356,7 @@ namespace Tekly.Common.Tweenlines
             AssemblyReloadEvents.beforeAssemblyReload += Stop;
             EditorSceneManager.sceneSaving += OnSceneSaving;
             PrefabStage.prefabStageClosing += OnPrefabStageClosing;
+            PrefabStage.prefabSaving += OnPrefabSaving;
             Undo.undoRedoPerformed += Refresh;
         }
 
@@ -375,6 +367,7 @@ namespace Tekly.Common.Tweenlines
             AssemblyReloadEvents.beforeAssemblyReload -= Stop;
             EditorSceneManager.sceneSaving -= OnSceneSaving;
             PrefabStage.prefabStageClosing -= OnPrefabStageClosing;
+            PrefabStage.prefabSaving -= OnPrefabSaving;
             Undo.undoRedoPerformed -= Refresh;
         }
 
@@ -386,6 +379,12 @@ namespace Tekly.Common.Tweenlines
         }
 
         private static void OnSceneSaving(UnityEngine.SceneManagement.Scene scene, string path)
+        {
+            Stop();
+        }
+
+        // Saving a prefab during preview would write the previewed pose into the asset
+        private static void OnPrefabSaving(GameObject prefab)
         {
             Stop();
         }

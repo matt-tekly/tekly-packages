@@ -55,6 +55,8 @@ namespace Tekly.Common.Tweenlines
         [SerializeReference] private List<TweenTrack> m_tracks = new List<TweenTrack>();
         [SerializeField] private List<TweenMarker> m_markers = new List<TweenMarker>();
 
+        [NonSerialized] private TweenMixer m_mixer;
+
         public TweenAnimation() { }
 
         public TweenAnimation(string name)
@@ -65,22 +67,57 @@ namespace Tekly.Common.Tweenlines
         public void CaptureOrigins(TweenOrigins origins)
         {
             foreach (var track in m_tracks) {
-                track?.CaptureOrigin(origins);
+                track?.CaptureOrigins(origins);
             }
         }
 
+        /// <summary>
+        /// Resolves every track before playback. readCurrent reads each channel's live value as the start
+        /// value used by ClipFrom.Current and by step tracks before their first switch.
+        /// </summary>
         public void Prepare(TweenOrigins origins, bool readCurrent)
         {
+            m_mixer ??= new TweenMixer();
+            m_mixer.BeginPrepare(origins, readCurrent);
+
+            // Base tracks first so layered tracks can see which channels have a base track
             foreach (var track in m_tracks) {
-                track?.Prepare(origins, readCurrent);
+                if (track != null && !(track is ILayeredTrack)) {
+                    track.Prepare(m_mixer);
+                }
+            }
+
+            foreach (var track in m_tracks) {
+                if (track is ILayeredTrack) {
+                    track.Prepare(m_mixer);
+                }
             }
         }
 
+        /// <summary>
+        /// Samples every track at a time and writes each driven channel once. Call Prepare first.
+        /// </summary>
         public void Evaluate(float time)
         {
-            foreach (var track in m_tracks) {
-                track?.Evaluate(time);
+            if (m_mixer == null) {
+                return;
             }
+
+            m_mixer.BeginEvaluate();
+
+            foreach (var track in m_tracks) {
+                if (track != null && track.Enabled && !(track is ILayeredTrack)) {
+                    track.Evaluate(time);
+                }
+            }
+
+            foreach (var track in m_tracks) {
+                if (track != null && track.Enabled && track is ILayeredTrack) {
+                    track.Evaluate(time);
+                }
+            }
+
+            m_mixer.Flush();
         }
 
         /// <summary>

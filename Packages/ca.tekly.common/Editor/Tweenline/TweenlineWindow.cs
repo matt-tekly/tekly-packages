@@ -403,13 +403,24 @@ namespace Tekly.Common.Tweenlines
             GUI.EndClip();
         }
 
+        /// <summary>
+        /// A track whose class was deleted or renamed. Its data is kept by Unity until removed here.
+        /// </summary>
+        private void DrawMissingRow(Rect rowRect)
+        {
+            var typeNames = TweenlineEditorUtils.MissingTypeNames(m_target);
+            var label = new GUIContent($"⚠ Missing track type [{typeNames}]. Use Remove All below", "The class for this track no longer exists");
+
+            GUI.Label(new Rect(rowRect.x + 6, rowRect.y + 3, rowRect.width - 12, 18), label, EditorStyles.miniBoldLabel);
+        }
+
         private void DrawRow(Rect rowRect, int index, TweenTrack track)
         {
             var selectedRow = m_selectedTrack == index && m_selected != Selected.None && m_selected != Selected.Marker;
             EditorGUI.DrawRect(rowRect, selectedRow ? s_rowSelectedColor : index % 2 == 0 ? s_rowColor : Color.clear);
 
             if (track == null) {
-                GUI.Label(rowRect, "Missing track type", EditorStyles.miniLabel);
+                DrawMissingRow(rowRect);
                 return;
             }
 
@@ -455,12 +466,22 @@ namespace Tekly.Common.Tweenlines
                 EditorGUI.DrawRect(new Rect(clipRect.xMax - 2, clipRect.y, 2, clipRect.height), new Color(1, 1, 1, 0.35f));
 
                 var clip = clips.GetArrayElementAtIndex(c);
-                var fromMode = (ClipFrom) clip.FindPropertyRelative("FromMode").enumValueIndex;
+                var clipLabelRect = new Rect(clipRect.x + 3, clipRect.y, Mathf.Max(0, clipRect.width - 6), clipRect.height);
+                var fromModeProperty = clip.FindPropertyRelative("FromMode");
+
+                // Clips that aren't from/to tweens, like bounces, label with their hop count or nothing
+                if (fromModeProperty == null) {
+                    var hops = clip.FindPropertyRelative("Hops");
+                    GUI.Label(clipLabelRect, hops != null ? $"{hops.intValue} hops" : string.Empty, EditorStyles.whiteMiniLabel);
+                    continue;
+                }
+
+                var fromMode = (ClipFrom) fromModeProperty.intValue;
                 var ease = clip.FindPropertyRelative("Ease");
                 var easeLabel = ease.FindPropertyRelative("UseCurve").boolValue ? "Curve" : ease.FindPropertyRelative("Ease").enumDisplayNames[ease.FindPropertyRelative("Ease").enumValueIndex];
                 var prefix = fromMode == ClipFrom.Previous ? "↳ " : fromMode == ClipFrom.Current ? "● " : string.Empty;
 
-                GUI.Label(new Rect(clipRect.x + 3, clipRect.y, Mathf.Max(0, clipRect.width - 6), clipRect.height), prefix + easeLabel, EditorStyles.whiteMiniLabel);
+                GUI.Label(clipLabelRect, prefix + easeLabel, EditorStyles.whiteMiniLabel);
             }
 
             GUI.EndClip();
@@ -525,6 +546,19 @@ namespace Tekly.Common.Tweenlines
             GUILayout.BeginArea(new Rect(rect.x + 6, rect.y + 4, rect.width - 12, rect.height - 8));
             m_detailsScroll = EditorGUILayout.BeginScrollView(m_detailsScroll);
 
+            if (TweenlineEditorUtils.HasMissingTypes(m_target)) {
+                using (new EditorGUILayout.HorizontalScope()) {
+                    EditorGUILayout.HelpBox($"Some tracks use classes that no longer exist [{TweenlineEditorUtils.MissingTypeNames(m_target)}]", MessageType.Warning);
+
+                    if (GUILayout.Button("Remove All", GUILayout.Width(80), GUILayout.Height(38))) {
+                        TweenlineEditorUtils.RemoveAllMissingTypes(m_target);
+                        m_serializedObject.Update();
+                        ClearSelection();
+                        GUIUtility.ExitGUI();
+                    }
+                }
+            }
+
             if (Animation == null) {
                 EditorGUILayout.LabelField("Add an animation to start", EditorStyles.centeredGreyMiniLabel);
             } else {
@@ -580,6 +614,16 @@ namespace Tekly.Common.Tweenlines
             EditorGUILayout.PropertyField(property.FindPropertyRelative("m_target"));
             EditorGUILayout.PropertyField(property.FindPropertyRelative("m_enabled"));
 
+            // Any other track settings, like a bounce's direction
+            var end = property.GetEndProperty();
+            var child = property.Copy();
+
+            for (var enter = true; child.NextVisible(enter) && !SerializedProperty.EqualContents(child, end); enter = false) {
+                if (child.name != "m_target" && child.name != "m_enabled" && child.name != "m_clips") {
+                    EditorGUILayout.PropertyField(child, true);
+                }
+            }
+
             using (new EditorGUILayout.HorizontalScope()) {
                 if (GUILayout.Button("Add Clip at Playhead")) {
                     AddClip(m_selectedTrack, PlayheadTime);
@@ -587,6 +631,7 @@ namespace Tekly.Common.Tweenlines
 
                 if (GUILayout.Button("Remove Track")) {
                     RemoveTrack(m_selectedTrack);
+                    GUIUtility.ExitGUI();
                 }
             }
         }
@@ -608,6 +653,19 @@ namespace Tekly.Common.Tweenlines
 
             var fromMode = clip.FindPropertyRelative("FromMode");
 
+            // Clips that aren't from/to tweens, like bounces, show all their fields
+            if (fromMode == null) {
+                var end = clip.GetEndProperty();
+                var child = clip.Copy();
+
+                for (var enter = true; child.NextVisible(enter) && !SerializedProperty.EqualContents(child, end); enter = false) {
+                    EditorGUILayout.PropertyField(child, true);
+                }
+
+                DrawClipButtons();
+                return;
+            }
+
             using (new EditorGUILayout.HorizontalScope()) {
                 EditorGUILayout.PropertyField(clip.FindPropertyRelative("Start"));
                 EditorGUILayout.PropertyField(clip.FindPropertyRelative("Duration"));
@@ -616,7 +674,7 @@ namespace Tekly.Common.Tweenlines
             EditorGUILayout.PropertyField(clip.FindPropertyRelative("Ease"));
             EditorGUILayout.PropertyField(fromMode, new GUIContent("From"));
 
-            if ((ClipFrom) fromMode.enumValueIndex == ClipFrom.Value) {
+            if ((ClipFrom) fromMode.intValue == ClipFrom.Value) {
                 EditorGUILayout.PropertyField(clip.FindPropertyRelative("From"), new GUIContent("From Value"));
             }
 
@@ -961,7 +1019,6 @@ namespace Tekly.Common.Tweenlines
             TweenlineEditorUtils.Modify(m_target, "Remove Track", () => Animation.Tracks.RemoveAt(trackIndex));
             m_serializedObject.Update();
             ClearSelection();
-            GUIUtility.ExitGUI();
         }
 
         private void MoveTrack(int trackIndex, int direction)
@@ -999,11 +1056,7 @@ namespace Tekly.Common.Tweenlines
             menu.AddItem(new GUIContent("Move Up"), false, () => MoveTrack(trackIndex, -1));
             menu.AddItem(new GUIContent("Move Down"), false, () => MoveTrack(trackIndex, 1));
             menu.AddSeparator(string.Empty);
-            menu.AddItem(new GUIContent("Remove Track"), false, () => {
-                TweenlineEditorUtils.Modify(m_target, "Remove Track", () => Animation.Tracks.RemoveAt(trackIndex));
-                m_serializedObject.Update();
-                ClearSelection();
-            });
+            menu.AddItem(new GUIContent("Remove Track"), false, () => RemoveTrack(trackIndex));
             menu.ShowAsContext();
         }
 
