@@ -93,14 +93,33 @@ namespace Tekly.Common.Tweenlines
                 return;
             }
 
-            foreach (var animation in m_tweenline.Animations) {
-                using (new EditorGUILayout.HorizontalScope(EditorStyles.helpBox)) {
-                    EditorGUILayout.LabelField(animation.Name, GUILayout.MinWidth(80));
-                    EditorGUILayout.LabelField($"{animation.Tracks.Count} tracks  {animation.Duration:0.##}s  {animation.Wrap}", EditorStyles.miniLabel);
+            for (var i = 0; i < m_tweenline.Animations.Count; i++) {
+                var animation = m_tweenline.Animations[i];
 
-                    if (Application.isPlaying && GUILayout.Button("Play", EditorStyles.miniButton, GUILayout.Width(40))) {
-                        m_tweenline.Play(animation, false);
+                using (new EditorGUILayout.HorizontalScope(EditorStyles.helpBox)) {
+                    // Buttons are placed from the right edge first so the labels can never push them out of view
+                    var rect = EditorGUILayout.GetControlRect();
+                    var deleteRect = new Rect(rect.xMax - 22, rect.y, 22, rect.height);
+                    var right = deleteRect.x - 2;
+
+                    if (GUI.Button(deleteRect, new GUIContent("✕", $"Delete {animation.Name}"), EditorStyles.miniButton)) {
+                        TweenlineEditorUtils.DeleteAnimation(m_tweenline, i);
+                        serializedObject.Update();
+                        GUIUtility.ExitGUI();
                     }
+
+                    if (Application.isPlaying) {
+                        var playRect = new Rect(right - 40, rect.y, 40, rect.height);
+                        right = playRect.x - 2;
+
+                        if (GUI.Button(playRect, "Play", EditorStyles.miniButton)) {
+                            m_tweenline.Play(animation, false);
+                        }
+                    }
+
+                    var nameWidth = Mathf.Min(EditorGUIUtility.labelWidth, (right - rect.x) * 0.5f);
+                    GUI.Label(new Rect(rect.x, rect.y, nameWidth, rect.height), animation.Name);
+                    GUI.Label(new Rect(rect.x + nameWidth, rect.y, right - rect.x - nameWidth, rect.height), $"{animation.Tracks.Count} tracks  {animation.Duration:0.##}s  {animation.Wrap}", EditorStyles.miniLabel);
                 }
             }
         }

@@ -22,6 +22,25 @@ namespace Tekly.Common.Tweenlines
         }
 
         /// <summary>
+        /// Removes an animation with undo. Stops the edit mode preview, and the animation itself when it is
+        /// playing in play mode, so nothing keeps sampling it.
+        /// </summary>
+        public static void DeleteAnimation(Tweenline tweenline, int index)
+        {
+            var animation = tweenline.Animations[index];
+
+            if (TweenlinePreview.IsPreviewing(tweenline)) {
+                TweenlinePreview.Stop();
+            }
+
+            if (Application.isPlaying && tweenline.Current == animation) {
+                tweenline.Stop();
+            }
+
+            Modify(tweenline, $"Delete Animation {animation.Name}", () => tweenline.Animations.RemoveAt(index));
+        }
+
+        /// <summary>
         /// Picks up an edit: refreshes the edit mode preview, or in play mode resolves the playing animation
         /// again so added, moved or changed clips take effect straight away.
         /// </summary>
@@ -91,16 +110,16 @@ namespace Tekly.Common.Tweenlines
         }
 
         /// <summary>
-        /// Shows every concrete track type. Types whose target exists on the GameObject come first, most
-        /// specific target type first, so a RectTransform lists Anchored Position above Position.
+        /// Shows every concrete track type for a target object. Types whose target exists on the object come
+        /// first, most specific target type first, so a RectTransform lists Anchored Position above Position.
         /// </summary>
-        public static void ShowAddTrackMenu(Tweenline tweenline, TweenAnimation animation, Action<int> added)
+        public static void ShowAddTrackMenu(Tweenline tweenline, TweenAnimation animation, GameObject target, Action<int> added)
         {
             var entries = TypeCache.GetTypesDerivedFrom<TweenTrack>()
                 .Where(type => !type.IsAbstract && !type.IsGenericTypeDefinition && type.GetConstructor(Type.EmptyTypes) != null)
                 .Select(type => {
                     var targetType = ((TweenTrack) Activator.CreateInstance(type)).TargetType;
-                    return (type, targetType, available: IsAvailable(tweenline.gameObject, targetType), depth: Depth(targetType));
+                    return (type, targetType, available: IsAvailable(target, targetType), depth: Depth(targetType));
                 })
                 .OrderByDescending(entry => entry.available)
                 .ThenByDescending(entry => entry.depth)
@@ -125,12 +144,12 @@ namespace Tekly.Common.Tweenlines
                     var undoGroup = Undo.GetCurrentGroup();
 
                     if (addComponent != null) {
-                        Undo.AddComponent(tweenline.gameObject, addComponent);
+                        Undo.AddComponent(target, addComponent);
                     }
 
                     Modify(tweenline, "Add Track", () => {
                         var track = (TweenTrack) Activator.CreateInstance(type);
-                        track.Bind(tweenline.gameObject);
+                        track.Bind(target);
                         track.AddClip(0);
 
                         animation.Tracks.Add(track);

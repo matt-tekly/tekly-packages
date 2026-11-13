@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -12,6 +13,7 @@ namespace Tekly.Common.Tweenlines
         private const float HEADER_WIDTH = 220;
         private const float RULER_HEIGHT = 22;
         private const float ROW_HEIGHT = 24;
+        private const float TRACK_INDENT = 18;
         private const float DETAILS_HEIGHT = 190;
         private const float SCROLLBAR_WIDTH = 13;
         private const float EDGE_GRAB = 6;
@@ -35,6 +37,18 @@ namespace Tekly.Common.Tweenlines
             Pan
         }
 
+        /// <summary>
+        /// A timeline row. Tracks are shown grouped under their target object, which is display only: the
+        /// animation still holds one flat list of tracks.
+        /// </summary>
+        private struct Row
+        {
+            public GameObject Object;
+            public int Track;
+
+            public bool IsHeader => Track < 0;
+        }
+
         [SerializeField] private Tweenline m_target;
         [SerializeField] private int m_animationIndex;
         [SerializeField] private float m_pixelsPerSecond = 200;
@@ -42,6 +56,9 @@ namespace Tekly.Common.Tweenlines
         [SerializeField] private float m_snap = 0.05f;
 
         private SerializedObject m_serializedObject;
+        private readonly List<Row> m_rows = new List<Row>();
+        private readonly List<GameObject> m_rowObjects = new List<GameObject>();
+        private readonly HashSet<GameObject> m_collapsed = new HashSet<GameObject>();
         private Selected m_selected;
         private int m_selectedTrack = -1;
         private int m_selectedClip = -1;
@@ -61,6 +78,8 @@ namespace Tekly.Common.Tweenlines
         private static readonly Color s_playheadColor = new Color(1f, 0.3f, 0.25f);
         private static readonly Color s_markerColor = new Color(1f, 0.8f, 0.2f);
         private static readonly Color s_rowColor = new Color(0, 0, 0, 0.12f);
+        private static readonly Color s_objectRowColor = new Color(0, 0, 0, 0.28f);
+        private static readonly Color s_summaryColor = new Color(0.27f, 0.52f, 0.78f, 0.5f);
         private static readonly Color s_rowSelectedColor = new Color(0.3f, 0.5f, 0.8f, 0.2f);
         private static readonly Color s_stepOnColor = new Color(0.3f, 0.65f, 0.35f);
         private static readonly Color s_stepOffColor = new Color(0.35f, 0.35f, 0.35f, 0.6f);
@@ -139,6 +158,58 @@ namespace Tekly.Common.Tweenlines
             if (tweenline != null && tweenline != m_target) {
                 SetTarget(tweenline);
             }
+
+            // The Add Track button follows the Hierarchy selection
+            Repaint();
+        }
+
+        /// <summary>
+        /// The object Add Track adds to: a child of the Tweenline picked in the Hierarchy, else the object of the
+        /// track or clip selected in the window, else the Tweenline's own object. Objects outside the Tweenline's
+        /// hierarchy are never picked automatically.
+        /// </summary>
+        private GameObject AddTrackTarget()
+        {
+            var selected = Selection.activeGameObject;
+
+            if (selected != null && selected != m_target.gameObject && IsInHierarchy(selected)) {
+                return selected;
+            }
+
+            if ((m_selected == Selected.Track || m_selected == Selected.Clip) && m_selectedTrack >= 0 && m_selectedTrack < Animation.Tracks.Count) {
+                var trackObject = TargetGameObject(Animation.Tracks[m_selectedTrack]);
+
+                if (trackObject != null) {
+                    return trackObject;
+                }
+            }
+
+            return m_target.gameObject;
+        }
+
+        private bool IsInHierarchy(GameObject gameObject)
+        {
+            return gameObject.transform.IsChildOf(m_target.transform);
+        }
+
+        /// <summary>
+        /// The track's own warning, else a warning when it targets an object outside the Tweenline's hierarchy.
+        /// </summary>
+        private string TrackWarning(TweenTrack track)
+        {
+            var warning = track.GetWarning(m_target);
+
+            if (warning != null) {
+                return warning;
+            }
+
+            var gameObject = TargetGameObject(track);
+
+            if (gameObject != null && !IsInHierarchy(gameObject)) {
+                return $"Targets [{gameObject.name}], which is outside this Tweenline's hierarchy. Prefabs lose the reference, the object can be destroyed while the Tweenline still uses it, and another Tweenline animating it will fight this one.";
+            }
+
+            return null;
         }
 
         private void OnUndoRedo()
@@ -235,14 +306,11 @@ namespace Tekly.Common.Tweenlines
                 EditorGUIUtility.PingObject(m_target);
             }
 
-            var names = m_target.Animations.Select(x => x.Name).ToArray();
+            var current = Animation;
+            var animationLabel = new GUIContent(current != null ? current.Name : "No Animation", "Switch, add or delete animations");
 
-            if (names.Length > 0) {
-                var index = EditorGUILayout.Popup(m_animationIndex, names, EditorStyles.toolbarPopup, GUILayout.Width(120));
-
-                if (index != m_animationIndex) {
-                    SelectAnimation(index);
-                }
+            if (EditorGUILayout.DropdownButton(animationLabel, FocusType.Passive, EditorStyles.toolbarDropDown, GUILayout.Width(120))) {
+                ShowAnimationMenu();
             }
 
             if (GUILayout.Button(new GUIContent("+", "Add animation"), EditorStyles.toolbarButton, GUILayout.Width(22))) {
@@ -317,7 +385,9 @@ namespace Tekly.Common.Tweenlines
         {
             var animation = Animation;
             var tracks = animation.Tracks;
-            var contentHeight = tracks.Count * ROW_HEIGHT;
+            BuildRows(tracks);
+
+            var contentHeight = m_rows.Count * ROW_HEIGHT;
             var rowsHeight = body.height - RULER_HEIGHT;
             var hasScrollbar = contentHeight > rowsHeight;
             var width = body.width - (hasScrollbar ? SCROLLBAR_WIDTH : 0);
@@ -333,27 +403,38 @@ namespace Tekly.Common.Tweenlines
             var headerRect = new Rect(0, body.y, HEADER_WIDTH, RULER_HEIGHT);
             EditorGUI.DrawRect(headerRect, new Color(0, 0, 0, 0.1f));
 
-            if (GUI.Button(new Rect(4, body.y + 2, 90, RULER_HEIGHT - 4), "Add Track", EditorStyles.miniButton)) {
-                TweenlineEditorUtils.ShowAddTrackMenu(m_target, animation, index => {
+            var addTarget = AddTrackTarget();
+            var addLabel = new GUIContent($"Add Track to {addTarget.name}", "Adds to the child of this Tweenline selected in the Hierarchy, else the selected track's object, else this Tweenline's object");
+
+            if (GUI.Button(new Rect(4, body.y + 2, HEADER_WIDTH - 60, RULER_HEIGHT - 4), addLabel, EditorStyles.miniButton)) {
+                m_collapsed.Remove(addTarget);
+
+                TweenlineEditorUtils.ShowAddTrackMenu(m_target, animation, addTarget, index => {
                     m_serializedObject.Update();
                     SelectTrack(index);
                 });
             }
 
-            GUI.Label(new Rect(98, body.y + 3, HEADER_WIDTH - 102, RULER_HEIGHT), $"{animation.Duration:0.###}s", EditorStyles.miniLabel);
+            GUI.Label(new Rect(HEADER_WIDTH - 52, body.y + 3, 50, RULER_HEIGHT), $"{animation.Duration:0.##}s", EditorStyles.miniLabel);
 
             DrawRuler(rulerRect, animation);
 
             GUI.BeginGroup(rowsRect);
 
-            for (var i = 0; i < tracks.Count; i++) {
+            for (var i = 0; i < m_rows.Count; i++) {
                 var rowRect = new Rect(0, i * ROW_HEIGHT - m_rowScroll, rowsRect.width, ROW_HEIGHT);
 
                 if (rowRect.yMax < 0 || rowRect.y > rowsRect.height) {
                     continue;
                 }
 
-                DrawRow(rowRect, i, tracks[i]);
+                var row = m_rows[i];
+
+                if (row.IsHeader) {
+                    DrawObjectRow(rowRect, row.Object, tracks);
+                } else {
+                    DrawRow(rowRect, row.Track, tracks[row.Track]);
+                }
             }
 
             var endX = TimeToX(animation.Duration);
@@ -404,6 +485,109 @@ namespace Tekly.Common.Tweenlines
         }
 
         /// <summary>
+        /// Groups tracks under the object they animate, objects in the order their first track appears.
+        /// Tracks with no target or a missing type go under an empty object row.
+        /// </summary>
+        private void BuildRows(List<TweenTrack> tracks)
+        {
+            m_rows.Clear();
+            m_rowObjects.Clear();
+
+            foreach (var track in tracks) {
+                var gameObject = TargetGameObject(track);
+
+                if (!m_rowObjects.Contains(gameObject)) {
+                    m_rowObjects.Add(gameObject);
+                }
+            }
+
+            foreach (var gameObject in m_rowObjects) {
+                m_rows.Add(new Row { Object = gameObject, Track = -1 });
+
+                if (m_collapsed.Contains(gameObject)) {
+                    continue;
+                }
+
+                for (var t = 0; t < tracks.Count; t++) {
+                    if (TargetGameObject(tracks[t]) == gameObject) {
+                        m_rows.Add(new Row { Object = gameObject, Track = t });
+                    }
+                }
+            }
+        }
+
+        private static GameObject TargetGameObject(TweenTrack track)
+        {
+            return track?.TargetObject switch {
+                GameObject gameObject => gameObject,
+                Component component => component.gameObject,
+                _ => null
+            };
+        }
+
+        private void DrawObjectRow(Rect rowRect, GameObject gameObject, List<TweenTrack> tracks)
+        {
+            EditorGUI.DrawRect(rowRect, s_objectRowColor);
+
+            var collapsed = gameObject != null && m_collapsed.Contains(gameObject);
+            var foldoutRect = new Rect(rowRect.x + 4, rowRect.y + 3, 14, 18);
+
+            if (gameObject != null && GUI.Button(foldoutRect, collapsed ? "\u25b6" : "\u25bc", EditorStyles.miniLabel)) {
+                if (collapsed) {
+                    m_collapsed.Remove(gameObject);
+                } else {
+                    m_collapsed.Add(gameObject);
+                }
+            }
+
+            var name = gameObject != null ? gameObject.name : "No target";
+            var labelRect = new Rect(rowRect.x + 20, rowRect.y + 3, HEADER_WIDTH - 50, 18);
+
+            if (GUI.Button(labelRect, name, EditorStyles.boldLabel) && gameObject != null) {
+                EditorGUIUtility.PingObject(gameObject);
+            }
+
+            if (gameObject != null) {
+                var addRect = new Rect(HEADER_WIDTH - 26, rowRect.y + 3, 22, 18);
+
+                if (GUI.Button(addRect, new GUIContent("+", $"Add a track for [{gameObject.name}]"), EditorStyles.miniButton)) {
+                    m_collapsed.Remove(gameObject);
+
+                    TweenlineEditorUtils.ShowAddTrackMenu(m_target, Animation, gameObject, index => {
+                        m_serializedObject.Update();
+                        SelectTrack(index);
+                    });
+                }
+            }
+
+            EditorGUI.DrawRect(new Rect(HEADER_WIDTH - 1, rowRect.y, 1, rowRect.height), new Color(0, 0, 0, 0.3f));
+
+            if (!collapsed) {
+                return;
+            }
+
+            // A collapsed object still shows a thin bar for each of its clips
+            GUI.BeginClip(new Rect(HEADER_WIDTH, rowRect.y, rowRect.width - HEADER_WIDTH, rowRect.height));
+
+            foreach (var track in tracks) {
+                if (TargetGameObject(track) != gameObject) {
+                    continue;
+                }
+
+                for (var c = 0; c < track.ClipCount; c++) {
+                    var clipRect = ClipRect(track, c, 0);
+                    clipRect.x -= HEADER_WIDTH;
+                    clipRect.y = ROW_HEIGHT * 0.5f - 2;
+                    clipRect.height = 4;
+
+                    EditorGUI.DrawRect(clipRect, s_summaryColor);
+                }
+            }
+
+            GUI.EndClip();
+        }
+
+        /// <summary>
         /// A track whose class was deleted or renamed. Its data is kept by Unity until removed here.
         /// </summary>
         private void DrawMissingRow(Rect rowRect)
@@ -411,7 +595,7 @@ namespace Tekly.Common.Tweenlines
             var typeNames = TweenlineEditorUtils.MissingTypeNames(m_target);
             var label = new GUIContent($"⚠ Missing track type [{typeNames}]. Use Remove All below", "The class for this track no longer exists");
 
-            GUI.Label(new Rect(rowRect.x + 6, rowRect.y + 3, rowRect.width - 12, 18), label, EditorStyles.miniBoldLabel);
+            GUI.Label(new Rect(rowRect.x + TRACK_INDENT + 6, rowRect.y + 3, rowRect.width - TRACK_INDENT - 12, 18), label, EditorStyles.miniBoldLabel);
         }
 
         private void DrawRow(Rect rowRect, int index, TweenTrack track)
@@ -427,13 +611,12 @@ namespace Tekly.Common.Tweenlines
             var trackProperty = TrackProperty(index);
             var enabled = trackProperty.FindPropertyRelative("m_enabled");
 
-            var toggleRect = new Rect(rowRect.x + 4, rowRect.y + 4, 16, 16);
+            var toggleRect = new Rect(rowRect.x + TRACK_INDENT, rowRect.y + 4, 16, 16);
             enabled.boolValue = EditorGUI.Toggle(toggleRect, enabled.boolValue);
 
-            var targetName = track.TargetObject != null ? track.TargetObject.name : "None";
-            var labelRect = new Rect(rowRect.x + 22, rowRect.y + 3, HEADER_WIDTH - 50, 18);
-            var warning = track.GetWarning(m_target);
-            var label = new GUIContent($"{(warning != null ? "⚠ " : string.Empty)}{TweenlineEditorUtils.TrackName(track.GetType())}  <{targetName}>", warning);
+            var labelRect = new Rect(rowRect.x + TRACK_INDENT + 18, rowRect.y + 3, HEADER_WIDTH - TRACK_INDENT - 46, 18);
+            var warning = TrackWarning(track);
+            var label = new GUIContent($"{(warning != null ? "⚠ " : string.Empty)}{TweenlineEditorUtils.TrackName(track.GetType())}", warning);
 
             if (GUI.Button(labelRect, label, EditorStyles.label)) {
                 SelectTrack(index);
@@ -590,14 +773,8 @@ namespace Tekly.Common.Tweenlines
             EditorGUILayout.PropertyField(animation.FindPropertyRelative("m_name"));
             EditorGUILayout.PropertyField(animation.FindPropertyRelative("m_wrap"));
 
-            using (new EditorGUILayout.HorizontalScope()) {
-                if (GUILayout.Button("Add Marker at Playhead")) {
-                    AddMarker(PlayheadTime);
-                }
-
-                if (GUILayout.Button("Delete Animation")) {
-                    DeleteAnimation();
-                }
+            if (GUILayout.Button("Add Marker at Playhead")) {
+                AddMarker(PlayheadTime);
             }
 
             EditorGUILayout.HelpBox("Double click a track row to add a clip. Drag clips to move them and their right edge to resize. "
@@ -685,7 +862,7 @@ namespace Tekly.Common.Tweenlines
 
         private void DrawWarning(TweenTrack track)
         {
-            var warning = track.GetWarning(m_target);
+            var warning = TrackWarning(track);
 
             if (warning != null) {
                 EditorGUILayout.HelpBox(warning, MessageType.Warning);
@@ -824,10 +1001,10 @@ namespace Tekly.Common.Tweenlines
 
         private void HandleRowsMouseDown(Event e, int controlId, float mouseTime, Rect timelineRect)
         {
-            var row = Mathf.FloorToInt((e.mousePosition.y - timelineRect.y + m_rowScroll) / ROW_HEIGHT);
+            var rowIndex = Mathf.FloorToInt((e.mousePosition.y - timelineRect.y + m_rowScroll) / ROW_HEIGHT);
             var tracks = Animation.Tracks;
 
-            if (row < 0 || row >= tracks.Count || tracks[row] == null) {
+            if (rowIndex < 0 || rowIndex >= m_rows.Count || m_rows[rowIndex].IsHeader || tracks[m_rows[rowIndex].Track] == null) {
                 if (e.button == 0) {
                     ClearSelection();
                     e.Use();
@@ -836,8 +1013,9 @@ namespace Tekly.Common.Tweenlines
                 return;
             }
 
+            var row = m_rows[rowIndex].Track;
             var track = tracks[row];
-            var rowY = timelineRect.y + row * ROW_HEIGHT - m_rowScroll;
+            var rowY = timelineRect.y + rowIndex * ROW_HEIGHT - m_rowScroll;
 
             for (var c = track.ClipCount - 1; c >= 0; c--) {
                 var clipRect = ClipRect(track, c, rowY);
@@ -971,18 +1149,36 @@ namespace Tekly.Common.Tweenlines
             SelectAnimation(index);
         }
 
-        private void DeleteAnimation()
+        private void ShowAnimationMenu()
         {
-            var index = m_animationIndex;
+            var menu = new GenericMenu();
+            var animations = m_target.Animations;
 
-            if (IsPreviewing) {
-                TweenlinePreview.Stop();
+            for (var i = 0; i < animations.Count; i++) {
+                var index = i;
+                menu.AddItem(new GUIContent(animations[i].Name), i == m_animationIndex, () => SelectAnimation(index));
             }
 
-            TweenlineEditorUtils.Modify(m_target, "Delete Animation", () => m_target.Animations.RemoveAt(index));
+            if (animations.Count > 0) {
+                menu.AddSeparator(string.Empty);
+            }
+
+            menu.AddItem(new GUIContent("New Animation"), false, AddAnimation);
+
+            if (Animation != null) {
+                var index = m_animationIndex;
+                menu.AddItem(new GUIContent($"Delete {Animation.Name}"), false, () => DeleteAnimation(index));
+            }
+
+            menu.ShowAsContext();
+        }
+
+        private void DeleteAnimation(int index)
+        {
+            TweenlineEditorUtils.DeleteAnimation(m_target, index);
             m_serializedObject.Update();
-            SelectAnimation(Mathf.Max(0, index - 1));
-            GUIUtility.ExitGUI();
+            SelectAnimation(index < m_animationIndex || index == m_target.Animations.Count ? Mathf.Max(0, m_animationIndex - 1) : m_animationIndex);
+            Repaint();
         }
 
         private void AddClip(int trackIndex, float time)
