@@ -302,6 +302,7 @@ GameObject:
   - component: {fileID: 475690242}
   - component: {fileID: 475690241}
   - component: {fileID: 475690240}
+  - component: {fileID: 475690244}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -385,7 +386,6 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1398758868}
   - {fileID: 1464532257}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -394,6 +394,164 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &475690244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 475690239}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 846e89a1ea3966d46a3f363e7a44fbe3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Tekly.Common.Runtime::Tekly.Common.Tweenlines.Tweenline
+  m_playOnEnable: Show
+  m_useUnscaledTime: 0
+  m_speed: 1
+  m_stagger: 0
+  m_animations:
+  - m_name: Show
+    m_wrap: 1
+    m_tracks:
+    - rid: 6958351992983912546
+    - rid: 6958351992983912547
+    - rid: 6958351992983912548
+    - rid: 6958352011480006745
+    m_markers:
+    - Time: 2.4
+      Name: Marker
+      Event:
+        m_PersistentCalls:
+          m_Calls: []
+  - m_name: Scale
+    m_wrap: 0
+    m_tracks:
+    - rid: 6958351992983912538
+    m_markers: []
+  m_completed:
+    m_PersistentCalls:
+      m_Calls: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 6958351992983912538
+      type: {class: ScaleTrack, ns: Tekly.Common.Tweenlines.Tracks, asm: Tekly.Common.Runtime}
+      data:
+        m_enabled: 1
+        m_target: {fileID: 2029996961}
+        m_clips:
+        - Start: 0.35
+          Duration: 0.5
+          Ease:
+            UseCurve: 0
+            Ease: 29
+            Curve:
+              serializedVersion: 2
+              m_Curve: []
+              m_PreInfinity: 2
+              m_PostInfinity: 2
+              m_RotationOrder: 4
+          FromMode: 0
+          Space: 1
+          From: {x: 1, y: 1, z: 1}
+          To: {x: 1, y: 2, z: 1}
+        - Start: 1
+          Duration: 0.5
+          Ease:
+            UseCurve: 0
+            Ease: 0
+            Curve:
+              serializedVersion: 2
+              m_Curve: []
+              m_PreInfinity: 2
+              m_PostInfinity: 2
+              m_RotationOrder: 4
+          FromMode: 0
+          Space: 1
+          From: {x: 1, y: 1, z: 1}
+          To: {x: 1, y: 1, z: 1}
+    - rid: 6958351992983912546
+      type: {class: BounceTrack, ns: Tekly.Common.Tweenlines.Tracks, asm: Tekly.Common.Runtime}
+      data:
+        m_enabled: 1
+        m_target: {fileID: 2029996961}
+        m_direction: {x: 0, y: 1, z: 0}
+        m_preserve: 0
+        m_clips:
+        - Start: 0.85
+          Duration: 0.95
+          Drop: 1
+          DropFrom: 1
+          OffScreenArea: {fileID: 1464532257}
+          Height: 500
+          Hops: 4
+          Decay: 0.214
+          Stretch: 0.15
+          Squash: 0.25
+          ImpactTime: 0.08
+          Anticipation: 0.2
+    - rid: 6958351992983912547
+      type: {class: BounceTrack, ns: Tekly.Common.Tweenlines.Tracks, asm: Tekly.Common.Runtime}
+      data:
+        m_enabled: 1
+        m_target: {fileID: 1218971504}
+        m_direction: {x: 0, y: 1, z: 0}
+        m_preserve: 0
+        m_clips:
+        - Start: 1.3000001
+          Duration: 1
+          Drop: 1
+          DropFrom: 1
+          OffScreenArea: {fileID: 1464532257}
+          Height: 100
+          Hops: 3
+          Decay: 0.1458
+          Stretch: 0.15
+          Squash: 0.25
+          ImpactTime: 0.08
+          Anticipation: 0
+    - rid: 6958351992983912548
+      type: {class: BounceTrack, ns: Tekly.Common.Tweenlines.Tracks, asm: Tekly.Common.Runtime}
+      data:
+        m_enabled: 1
+        m_target: {fileID: 846708573}
+        m_direction: {x: 0, y: 1, z: 0}
+        m_preserve: 0
+        m_clips:
+        - Start: 1.1
+          Duration: 0.7
+          Drop: 1
+          DropFrom: 1
+          OffScreenArea: {fileID: 1464532257}
+          Height: 100
+          Hops: 3
+          Decay: 0.45
+          Stretch: 0.15
+          Squash: 0.25
+          ImpactTime: 0.08
+          Anticipation: 0
+    - rid: 6958352011480006745
+      type: {class: SlideTrack, ns: Tekly.Common.Tweenlines.Tracks, asm: Tekly.Common.Runtime}
+      data:
+        m_enabled: 1
+        m_target: {fileID: 1464532257}
+        m_clips:
+        - Start: 0
+          Duration: 0.5
+          Ease:
+            UseCurve: 0
+            Ease: 26
+            Curve:
+              serializedVersion: 2
+              m_Curve: []
+              m_PreInfinity: 2
+              m_PostInfinity: 2
+              m_RotationOrder: 4
+          Mode: 0
+          Direction: 2
+          CustomDirection: {x: -1, y: 0, z: 0}
+          OffScreenArea: {fileID: 0}
 --- !u!1 &523118781
 GameObject:
   m_ObjectHideFlags: 0
@@ -678,178 +836,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1218971503}
   m_CullTransparentMesh: 1
---- !u!1 &1398758867
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1398758868}
-  - component: {fileID: 1398758869}
-  m_Layer: 5
-  m_Name: Tweenline
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1398758868
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1398758867}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 475690243}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1398758869
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1398758867}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 846e89a1ea3966d46a3f363e7a44fbe3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Tekly.Common.Runtime::Tekly.Common.Tweenlines.Tweenline
-  m_playOnEnable: Show
-  m_useUnscaledTime: 0
-  m_speed: 1
-  m_stagger: 0
-  m_animations:
-  - m_name: Show
-    m_wrap: 1
-    m_tracks:
-    - rid: 6958351992983912546
-    - rid: 6958351992983912547
-    - rid: 6958351992983912548
-    m_markers:
-    - Time: 1.7
-      Name: Marker
-      Event:
-        m_PersistentCalls:
-          m_Calls: []
-  - m_name: Scale
-    m_wrap: 0
-    m_tracks:
-    - rid: 6958351992983912538
-    m_markers: []
-  m_completed:
-    m_PersistentCalls:
-      m_Calls: []
-  references:
-    version: 2
-    RefIds:
-    - rid: 6958351992983912538
-      type: {class: ScaleTrack, ns: Tekly.Common.Tweenlines.Tracks, asm: Tekly.Common.Runtime}
-      data:
-        m_enabled: 1
-        m_target: {fileID: 2029996961}
-        m_clips:
-        - Start: 0.35
-          Duration: 0.5
-          Ease:
-            UseCurve: 0
-            Ease: 29
-            Curve:
-              serializedVersion: 2
-              m_Curve: []
-              m_PreInfinity: 2
-              m_PostInfinity: 2
-              m_RotationOrder: 4
-          FromMode: 0
-          Space: 1
-          From: {x: 1, y: 1, z: 1}
-          To: {x: 1, y: 2, z: 1}
-        - Start: 1
-          Duration: 0.5
-          Ease:
-            UseCurve: 0
-            Ease: 0
-            Curve:
-              serializedVersion: 2
-              m_Curve: []
-              m_PreInfinity: 2
-              m_PostInfinity: 2
-              m_RotationOrder: 4
-          FromMode: 0
-          Space: 1
-          From: {x: 1, y: 1, z: 1}
-          To: {x: 1, y: 1, z: 1}
-    - rid: 6958351992983912546
-      type: {class: BounceTrack, ns: Tekly.Common.Tweenlines.Tracks, asm: Tekly.Common.Runtime}
-      data:
-        m_enabled: 1
-        m_target: {fileID: 2029996961}
-        m_direction: {x: 0, y: 1, z: 0}
-        m_preserve: 0
-        m_clips:
-        - Start: 0.45000002
-          Duration: 0.95
-          Drop: 0
-          DropFrom: 0
-          OffScreenArea: {fileID: 0}
-          Height: 500
-          Hops: 4
-          Decay: 0.214
-          Stretch: 0.15
-          Squash: 0.25
-          ImpactTime: 0.08
-          Anticipation: 0
-    - rid: 6958351992983912547
-      type: {class: BounceTrack, ns: Tekly.Common.Tweenlines.Tracks, asm: Tekly.Common.Runtime}
-      data:
-        m_enabled: 1
-        m_target: {fileID: 1218971504}
-        m_direction: {x: 0, y: 1, z: 0}
-        m_preserve: 0
-        m_clips:
-        - Start: 0
-          Duration: 1
-          Drop: 1
-          DropFrom: 2
-          OffScreenArea: {fileID: 0}
-          Height: 100
-          Hops: 3
-          Decay: 0.1458
-          Stretch: 0.15
-          Squash: 0.25
-          ImpactTime: 0.08
-          Anticipation: 0
-    - rid: 6958351992983912548
-      type: {class: BounceTrack, ns: Tekly.Common.Tweenlines.Tracks, asm: Tekly.Common.Runtime}
-      data:
-        m_enabled: 1
-        m_target: {fileID: 846708573}
-        m_direction: {x: 0, y: 1, z: 0}
-        m_preserve: 0
-        m_clips:
-        - Start: 0.2
-          Duration: 0.7
-          Drop: 0
-          DropFrom: 0
-          OffScreenArea: {fileID: 0}
-          Height: 100
-          Hops: 3
-          Decay: 0.45
-          Stretch: 0.15
-          Squash: 0.25
-          ImpactTime: 0.08
-          Anticipation: 0
 --- !u!1 &1464532256
 GameObject:
   m_ObjectHideFlags: 0
@@ -863,7 +849,7 @@ GameObject:
   - component: {fileID: 1464532259}
   - component: {fileID: 1464532258}
   m_Layer: 5
-  m_Name: Dialogue
+  m_Name: Content
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -876,7 +862,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1464532256}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1120,5 +1106,5 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1095935}
-  - {fileID: 475690243}
   - {fileID: 385097017}
+  - {fileID: 475690243}

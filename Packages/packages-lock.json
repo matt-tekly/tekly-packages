@@ -303,6 +303,12 @@
         "com.unity.ugui": "2.0.0"
       }
     },
+    "ca.tekly.tweenline": {
+      "version": "file:ca.tekly.tweenline",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "ca.tekly.twod": {
       "version": "file:ca.tekly.twod",
       "depth": 0,

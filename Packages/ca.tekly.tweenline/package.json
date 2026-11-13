@@ -1,0 +1,14 @@
+{
+  "name": "ca.tekly.tweenline",
+  "displayName": "Tekly Tweenline",
+  "version": "0.0.1",
+  "unity": "2019.4",
+  "description": "Timeline tweens: named animations of tracks and clips with edit mode preview and a timeline window",
+  "dependencies": {},
+  "author": {
+    "name": "Matt King",
+    "email": "matt@tekly.ca"
+  },
+  "hideInEditor": false,
+  "type": "library"
+}
