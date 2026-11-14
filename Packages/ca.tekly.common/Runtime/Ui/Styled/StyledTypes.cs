@@ -237,8 +237,51 @@ namespace Tekly.Common.Ui.Styled
 	}
 
 	/// <summary>
+	/// What only a stroke layer uses: where it sits against the shape's edge, its dashes and its own wobble.
+	/// </summary>
+	[Serializable]
+	public struct StyledStrokeStyle
+	{
+		[Tooltip("Which side of the shape's edge the stroke sits on.")]
+		public StyledStrokeAlign Align;
+
+		[Tooltip("Distance from the start of one dash to the next. 0 draws a solid stroke. Adjusted slightly so the dashes meet evenly around the edge.")]
+		public float DashSpacing;
+
+		[Tooltip("How much of each step is dash. 0 with Round Caps gives dots.")]
+		[Range(0, 1)]
+		public float DashLength;
+
+		[Tooltip("Moves the dashes along the edge, in units per second. Clockwise when positive. Uses game time.")]
+		public float DashSpeed;
+
+		[Tooltip("How much the stroke's width varies along the edge, for a hand-drawn look.")]
+		public float WobbleWidth;
+
+		[Tooltip("How far the stroke drifts in and out from its position along the edge.")]
+		public float WobbleDrift;
+
+		[Tooltip("Distance between this stroke's wobbles along the edge. 0 uses the shape's Lobe Length. Adjusted slightly so the wobble loops evenly.")]
+		public float WobbleLength;
+
+		[Tooltip("Picks a different wobble pattern for this stroke, so two strokes do not move together.")]
+		public float WobbleSeed;
+
+		[Tooltip("Round the ends of each dash. The caps fit inside the dash length.")]
+		public bool DashRoundCaps;
+
+		/// <summary>How far the stroke's own wobble can push it past its band.</summary>
+		public float WobbleReach => Mathf.Max(0, WobbleWidth) + Mathf.Max(0, WobbleDrift);
+
+		/// <summary>Whether the stroke is dashed or wobbles, which needs the position along the shape's edge.</summary>
+		public bool UsesEdgePosition => DashSpacing > 0 || WobbleWidth > 0 || WobbleDrift > 0;
+	}
+
+	/// <summary>
 	/// One layer of a StyledRect. A rect draws its layers as an ordered list where the first is in front.
-	/// Every kind shares this one flat struct, and fields a kind does not use are ignored.
+	/// Every kind shares this one struct, and fields a kind does not use are ignored. What only one kind
+	/// uses is named for it or grouped: a stroke's StrokeStyle, a shadow's ShadowOffset. EdgeOffset is shared: it is
+	/// a fill's inset, a stroke's offset and a shadow's spread.
 	/// </summary>
 	[Serializable]
 	public struct StyledLayer
@@ -253,45 +296,17 @@ namespace Tekly.Common.Ui.Styled
 		[Tooltip("Stroke and bevel. How wide the stroke is, or how far into the shape the bevel reaches.")]
 		public float Width;
 
-		[Tooltip("Stroke only. Which side of the shape's edge the stroke sits on.")]
-		public StyledStrokeAlign Align;
+		[Tooltip("Moves the layer's edge. Fill: how far it is pulled in from the shape's edge. Stroke: extra distance from the shape's edge, in the direction of the alignment. Shadow: how much it grows before blurring, or how much further in an inner shadow is pushed. Not used by bevels.")]
+		public float EdgeOffset;
 
-		[Tooltip("Stroke: extra distance from the shape's edge, in the direction of the alignment. Fill: how far the fill's edge is pulled in from the shape's edge.")]
-		public float Offset;
-
-		[Tooltip("Stroke only. Distance from the start of one dash to the next. 0 draws a solid stroke. Adjusted slightly so the dashes meet evenly around the edge.")]
-		public float DashSpacing;
-
-		[Tooltip("Stroke only. How much of each step is dash. 0 with Round Caps gives dots.")]
-		[Range(0, 1)]
-		public float DashLength;
-
-		[Tooltip("Stroke only. Moves the dashes along the edge, in units per second. Clockwise when positive. Uses game time.")]
-		public float DashSpeed;
-
-		[Tooltip("Stroke only. Round the ends of each dash. The caps fit inside the dash length.")]
-		public bool DashRoundCaps;
-
-		[Tooltip("Stroke only. How much the stroke's width varies along the edge, for a hand-drawn look.")]
-		public float WobbleWidth;
-
-		[Tooltip("Stroke only. How far the stroke drifts in and out from its position along the edge.")]
-		public float WobbleDrift;
-
-		[Tooltip("Stroke only. Distance between this stroke's wobbles along the edge. 0 uses the shape's Lobe Length. Adjusted slightly so the wobble loops evenly.")]
-		public float WobbleLength;
-
-		[Tooltip("Stroke only. Picks a different wobble pattern for this stroke, so two strokes do not move together.")]
-		public float WobbleSeed;
+		[Tooltip("Stroke only. Where the stroke sits, its dashes and its wobble.")]
+		public StyledStrokeStyle StrokeStyle;
 
 		[Tooltip("Shadows only. How far the shadow is moved from the shape.")]
 		public Vector2 ShadowOffset;
 
 		[Tooltip("Everything but strokes. How far the layer's edge is blurred: a shadow's or fill's edge, or a bevel's inner edge. The same value as a blur in CSS or a design tool.")]
 		public float Blur;
-
-		[Tooltip("Shadows only. Grows a shadow, or pushes an inner shadow further in, before blurring.")]
-		public float Spread;
 
 		[Tooltip("Shadow only. Also draw the shadow under the shape, where a see-through fill would show it. Off matches CSS.")]
 		public bool ShowBehind;
@@ -307,14 +322,20 @@ namespace Tekly.Common.Ui.Styled
 
 		public bool IsShadow => Kind == StyledLayerKind.Shadow || Kind == StyledLayerKind.InnerShadow;
 
+		/// <summary>A shadow's spread, which is its EdgeOffset. 0 for everything else.</summary>
+		public float Spread => IsShadow ? EdgeOffset : 0f;
+
+		/// <summary>A fill's inset, which is its EdgeOffset. 0 for everything else.</summary>
+		public float Inset => Kind == StyledLayerKind.Fill ? EdgeOffset : 0f;
+
 		/// <summary>How far a stroke's own wobble can push it past its band. 0 for everything else.</summary>
-		public float WobbleReach => Kind == StyledLayerKind.Stroke ? Mathf.Max(0, WobbleWidth) + Mathf.Max(0, WobbleDrift) : 0f;
+		public float WobbleReach => Kind == StyledLayerKind.Stroke ? StrokeStyle.WobbleReach : 0f;
 
 		/// <summary>
 		/// Whether the layer needs the position along the shape's edge, which only the Extended shader works
 		/// out: a dashed stroke, or a stroke that wobbles.
 		/// </summary>
-		public bool UsesEdgePosition => Draws && Kind == StyledLayerKind.Stroke && (DashSpacing > 0 || WobbleWidth > 0 || WobbleDrift > 0);
+		public bool UsesEdgePosition => Draws && Kind == StyledLayerKind.Stroke && StrokeStyle.UsesEdgePosition;
 
 		/// <summary>Whether the layer puts anything on screen.</summary>
 		public bool Draws => Enabled && (!UsesWidth || Width > 0);
@@ -343,7 +364,7 @@ namespace Tekly.Common.Ui.Styled
 				Kind = StyledLayerKind.Stroke,
 				Paint = paint,
 				Width = width,
-				Align = align
+				StrokeStyle = new StyledStrokeStyle { Align = align }
 			};
 		}
 
@@ -351,10 +372,10 @@ namespace Tekly.Common.Ui.Styled
 		public StyledLayer WithDashes(float spacing, float length = 0.55f, bool roundCaps = true, float speed = 0)
 		{
 			var layer = this;
-			layer.DashSpacing = spacing;
-			layer.DashLength = length;
-			layer.DashRoundCaps = roundCaps;
-			layer.DashSpeed = speed;
+			layer.StrokeStyle.DashSpacing = spacing;
+			layer.StrokeStyle.DashLength = length;
+			layer.StrokeStyle.DashRoundCaps = roundCaps;
+			layer.StrokeStyle.DashSpeed = speed;
 			return layer;
 		}
 
@@ -366,10 +387,10 @@ namespace Tekly.Common.Ui.Styled
 		public StyledLayer WithWobble(float width, float drift, float length = 0, float seed = 0)
 		{
 			var layer = this;
-			layer.WobbleWidth = width;
-			layer.WobbleDrift = drift;
-			layer.WobbleLength = length;
-			layer.WobbleSeed = seed;
+			layer.StrokeStyle.WobbleWidth = width;
+			layer.StrokeStyle.WobbleDrift = drift;
+			layer.StrokeStyle.WobbleLength = length;
+			layer.StrokeStyle.WobbleSeed = seed;
 			return layer;
 		}
 
@@ -392,7 +413,7 @@ namespace Tekly.Common.Ui.Styled
 				Enabled = true,
 				Kind = StyledLayerKind.Fill,
 				Paint = paint,
-				Offset = inset,
+				EdgeOffset = inset,
 				Blur = blur
 			};
 		}
@@ -406,7 +427,7 @@ namespace Tekly.Common.Ui.Styled
 				Paint = paint,
 				ShadowOffset = offset,
 				Blur = blur,
-				Spread = spread
+				EdgeOffset = spread
 			};
 		}
 
@@ -419,7 +440,7 @@ namespace Tekly.Common.Ui.Styled
 				Paint = paint,
 				ShadowOffset = offset,
 				Blur = blur,
-				Spread = spread
+				EdgeOffset = spread
 			};
 		}
 
@@ -437,7 +458,7 @@ namespace Tekly.Common.Ui.Styled
 
 		/// <summary>
 		/// The band of signed distance (negative inside the shape) that the layer covers: x is its inner edge,
-		/// y its outer edge. Only strokes and bevels have an inner edge. A fill's outer edge moves in by its Offset.
+		/// y its outer edge. Only strokes and bevels have an inner edge. A fill's outer edge moves in by its EdgeOffset.
 		/// </summary>
 		public Vector2 GetBand()
 		{
@@ -448,17 +469,19 @@ namespace Tekly.Common.Ui.Styled
 			}
 
 			if (Kind == StyledLayerKind.Fill) {
-				return new Vector2(NO_INNER_EDGE, -Offset);
+				return new Vector2(NO_INNER_EDGE, -EdgeOffset);
 			}
 
 			if (Kind != StyledLayerKind.Stroke) {
 				return new Vector2(NO_INNER_EDGE, 0);
 			}
 
-			return Align switch {
-				StyledStrokeAlign.Inside => new Vector2(-Offset - width, -Offset),
-				StyledStrokeAlign.Center => new Vector2(Offset - width * 0.5f, Offset + width * 0.5f),
-				_ => new Vector2(Offset, Offset + width)
+			var offset = EdgeOffset;
+
+			return StrokeStyle.Align switch {
+				StyledStrokeAlign.Inside => new Vector2(-offset - width, -offset),
+				StyledStrokeAlign.Center => new Vector2(offset - width * 0.5f, offset + width * 0.5f),
+				_ => new Vector2(offset, offset + width)
 			};
 		}
 
@@ -480,12 +503,17 @@ namespace Tekly.Common.Ui.Styled
 				return false;
 			}
 
+			// Under a slide reveal a layer that follows the reveal is drawn without a hole.
+			if (a.IgnoreReveal != b.IgnoreReveal) {
+				return false;
+			}
+
 			// A layer with a soft edge reaches as far as its blur.
 			if (a.SoftWidth != b.SoftWidth) {
 				return false;
 			}
 
-			return !a.IsShadow || (a.ShadowOffset == b.ShadowOffset && a.Blur == b.Blur && a.Spread == b.Spread && a.ShowBehind == b.ShowBehind);
+			return !a.IsShadow || (a.ShadowOffset == b.ShadowOffset && a.Blur == b.Blur && a.EdgeOffset == b.EdgeOffset && a.ShowBehind == b.ShowBehind);
 		}
 	}
 
@@ -506,20 +534,19 @@ namespace Tekly.Common.Ui.Styled
 	///   7  texture uv limits: min x, min y, max x, max y. Keeps a Cover sprite inside its own part of an atlas.
 	///
 	/// Layer texels:
-	///   0  kind, flags (1 = underlay: ends the layer a pixel early, see StyledRect.WriteRows.
+	///   0  kind plus 8 times the flags (1 = underlay: ends the layer a pixel early, see StyledRect.WriteRows.
 	///      2 = show behind: a shadow is not cut out under the shape. 4 = textured. 8 = ignore tint.
 	///      16 = ignore reveal),
+	///      soft rounding: the least radius the corners have for an inner shadow, a blurred fill or an Edge
+	///      gradient, 0 for none (see StyledRect.SoftRounding),
 	///      band start, band end
 	///   1  offset x, offset y, soft width (twice the blur), spread. Offset and spread are for shadows.
 	///   2  color A (gamma, straight alpha)
 	///   3  color B (gamma, straight alpha)
 	///   4  gradient type, angle in radians, range start, range end
-	///   5  gradient exponent (1 leaves the gradient straight, see StyledPaint.BiasExponent), then three unused
-	///   6  soft radii: the corner radii an inner shadow, a blurred fill or an Edge gradient measures against
-	///      (see StyledRect.SoftRadii)
-	///   7  stroke dashes: spacing (0 = solid), dash length as a fraction of the spacing plus 2 for round
-	///      caps, speed, unused
-	///   8  stroke wobble: width variation, drift, length (0 = the shape's lobe length), seed
+	///   5  gradient exponent (1 leaves the gradient straight, see StyledPaint.BiasExponent), then a stroke's
+	///      dashes: spacing (0 = solid), dash length as a fraction of the spacing plus 2 for round caps, speed
+	///   6  stroke wobble: width variation, drift, length (0 = the shape's lobe length), seed
 	/// </summary>
 	public static class StyledRows
 	{
@@ -533,16 +560,17 @@ namespace Tekly.Common.Ui.Styled
 		public const int SHAPE_TEXTURE_OFFSET = 6;
 		public const int SHAPE_TEXTURE_LIMITS = 7;
 
-		public const int LAYER_TEXELS = 9;
+		public const int LAYER_TEXELS = 7;
 		public const int LAYER_HEADER = 0;
 		public const int LAYER_SHADOW = 1;
 		public const int LAYER_COLOR_A = 2;
 		public const int LAYER_COLOR_B = 3;
 		public const int LAYER_GRADIENT = 4;
-		public const int LAYER_GRADIENT_CURVE = 5;
-		public const int LAYER_SOFT_RADII = 6;
-		public const int LAYER_STROKE_DASHES = 7;
-		public const int LAYER_STROKE_WOBBLE = 8;
+		public const int LAYER_CURVE_DASHES = 5;
+		public const int LAYER_STROKE_WOBBLE = 6;
+
+		// The flags share the header's first value with the layer kind, which stays below this.
+		public const int FLAG_SCALE = 8;
 
 		public const int FLAG_UNDERLAY = 1;
 		public const int FLAG_SHOW_BEHIND = 2;

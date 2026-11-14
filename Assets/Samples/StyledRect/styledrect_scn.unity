@@ -490,19 +490,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -606,19 +606,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -634,19 +634,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -8}
     Blur: 24
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -850,19 +850,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 1
     IgnoreReveal: 0
@@ -1337,19 +1337,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -2229,19 +2229,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 8
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 8
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 8
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -3095,19 +3095,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 1
     IgnoreReveal: 0
@@ -3955,19 +3955,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -3983,19 +3983,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 1
@@ -4182,19 +4182,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 1
     IgnoreReveal: 0
@@ -5208,19 +5208,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0.8
     Width: 12
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -5236,19 +5236,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -5835,19 +5835,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -6161,19 +6161,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -6686,19 +6686,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 10
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -6714,19 +6714,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 10
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 1
@@ -6988,19 +6988,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -7287,19 +7287,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 3
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -7315,19 +7315,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 7
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 3
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -7343,19 +7343,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -7691,19 +7691,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -8107,19 +8107,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 8
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 2
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -8135,19 +8135,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -8666,19 +8666,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0.8
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -9217,19 +9217,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 4
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -9245,19 +9245,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 7
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 2
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -9273,19 +9273,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -9301,19 +9301,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -5}
     Blur: 6
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -10004,19 +10004,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: -0.8
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -10429,19 +10429,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 8
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -11051,19 +11051,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 4
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -11079,19 +11079,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 2
-    Align: 0
-    Offset: 4
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 4
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -11107,19 +11107,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -11323,19 +11323,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 4
-    Align: 0
-    Offset: 0
-    DashSpacing: 16
-    DashLength: 0.55
-    DashSpeed: 0
-    DashRoundCaps: 1
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 16
+      DashLength: 0.55
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 1
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -11351,19 +11351,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -11759,19 +11759,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -12127,19 +12127,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 2
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -12155,19 +12155,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -12271,19 +12271,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 4
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -12299,19 +12299,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 7
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 2
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -12327,19 +12327,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -12355,19 +12355,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -5}
     Blur: 6
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -12680,19 +12680,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 6
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 2
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -12708,19 +12708,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -12736,19 +12736,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -5}
     Blur: 6
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -13522,19 +13522,19 @@ MonoBehaviour:
       RangeEndInset: 0.19999999
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -13838,19 +13838,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -14306,19 +14306,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 5
-    Align: 0
-    Offset: 0
-    DashSpacing: 12
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 1
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 12
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 1
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -14334,19 +14334,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -14550,19 +14550,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -14849,19 +14849,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 4
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -14877,19 +14877,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 1
     IgnoreReveal: 0
@@ -14905,19 +14905,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -5}
     Blur: 6
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -15021,19 +15021,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 8
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -15049,19 +15049,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -15273,19 +15273,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -15460,19 +15460,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -15576,19 +15576,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -15604,19 +15604,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 1
@@ -15803,19 +15803,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -16806,19 +16806,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -17314,19 +17314,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: -0.436
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -18157,19 +18157,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -18751,19 +18751,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 10
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 10
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 5
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -18779,19 +18779,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -19371,19 +19371,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 5
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -19399,19 +19399,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 3
-    Align: 0
-    Offset: 5
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 5
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -19427,19 +19427,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -19726,19 +19726,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 5
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -19754,19 +19754,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 1
     IgnoreReveal: 0
@@ -20205,19 +20205,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 3
-    Align: 0
-    Offset: 0
-    DashSpacing: 12
-    DashLength: 0.6
-    DashSpeed: 0
-    DashRoundCaps: 1
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 12
+      DashLength: 0.6
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 1
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -20404,19 +20404,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 4
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -20432,19 +20432,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 7
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 2
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -20460,19 +20460,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -20488,19 +20488,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -5}
     Blur: 6
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -20813,19 +20813,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 4
-    Align: 2
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 2
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -20841,19 +20841,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -21209,19 +21209,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -21325,19 +21325,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -21353,19 +21353,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 8, y: -8}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -22232,19 +22232,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -22419,19 +22419,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -23179,19 +23179,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 4
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -23207,19 +23207,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 1
     IgnoreReveal: 0
@@ -23235,19 +23235,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -4}
     Blur: 5
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -23351,19 +23351,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -23379,19 +23379,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 10, y: -10}
     Blur: 6
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -23578,19 +23578,19 @@ MonoBehaviour:
       RangeEndInset: 0.5
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -23794,19 +23794,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -24010,19 +24010,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -24126,19 +24126,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -24154,19 +24154,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -24522,19 +24522,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -24550,19 +24550,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 2
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 14
-    Spread: 2
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -24666,19 +24666,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 1
     IgnoreReveal: 0
@@ -25148,19 +25148,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 1
     IgnoreReveal: 0
@@ -25825,19 +25825,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 1
     IgnoreReveal: 0
@@ -26962,19 +26962,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -27078,19 +27078,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 6
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 2.5
-    WobbleDrift: 0
-    WobbleLength: 40
-    WobbleSeed: 5
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 2.5
+      WobbleDrift: 0
+      WobbleLength: 40
+      WobbleSeed: 5
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -27106,19 +27106,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -27322,19 +27322,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 3
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -27350,19 +27350,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -5}
     Blur: 3
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -27378,19 +27378,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -27406,19 +27406,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -5}
     Blur: 5
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -27522,19 +27522,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 5}
     Blur: 4
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -27550,19 +27550,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -27666,19 +27666,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 14
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -27694,19 +27694,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -27910,19 +27910,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -27938,19 +27938,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: -6
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: -6
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 6
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -28955,19 +28955,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 8
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -28983,19 +28983,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -29099,19 +29099,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 5
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 3
-    WobbleLength: 40
-    WobbleSeed: 2
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 3
+      WobbleLength: 40
+      WobbleSeed: 2
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -29127,19 +29127,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -29243,19 +29243,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -29359,19 +29359,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -29387,19 +29387,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 1
@@ -29503,19 +29503,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -29531,19 +29531,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -2}
     Blur: 2
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -29559,19 +29559,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -10}
     Blur: 18
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -29675,19 +29675,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 3
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -29703,19 +29703,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 6
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 6
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 1.5
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -29731,19 +29731,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -29847,19 +29847,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -31233,19 +31233,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -31601,19 +31601,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 8
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -31629,19 +31629,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -31745,19 +31745,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 5
-    Align: 0
-    Offset: 0
-    DashSpacing: 18
-    DashLength: 0.6
-    DashSpeed: 0
-    DashRoundCaps: 1
-    WobbleWidth: 1.5
-    WobbleDrift: 2.5
-    WobbleLength: 45
-    WobbleSeed: 6
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 18
+      DashLength: 0.6
+      DashSpeed: 0
+      WobbleWidth: 1.5
+      WobbleDrift: 2.5
+      WobbleLength: 45
+      WobbleSeed: 6
+      DashRoundCaps: 1
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -31773,19 +31773,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -32690,19 +32690,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 4
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -32718,19 +32718,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -6}
     Blur: 6
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -32746,19 +32746,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -33254,19 +33254,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 5
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -33282,19 +33282,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -33398,19 +33398,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -33923,19 +33923,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -34122,19 +34122,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 10
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 10
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 5
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -34150,19 +34150,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -34784,19 +34784,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 5
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 1.5
-    WobbleDrift: 1.5
-    WobbleLength: 14
-    WobbleSeed: 1
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 1.5
+      WobbleDrift: 1.5
+      WobbleLength: 14
+      WobbleSeed: 1
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -34812,19 +34812,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -35111,19 +35111,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 6
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 2.5
-    WobbleDrift: 0
-    WobbleLength: 40
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 2.5
+      WobbleDrift: 0
+      WobbleLength: 40
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -35139,19 +35139,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -35255,19 +35255,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 4
-    Align: 0
-    Offset: 0
-    DashSpacing: 18
-    DashLength: 0.5
-    DashSpeed: 30
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 18
+      DashLength: 0.5
+      DashSpeed: 30
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -35283,19 +35283,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -35651,19 +35651,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -36033,19 +36033,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -37032,19 +37032,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 4
-    Align: 2
-    Offset: 0
-    DashSpacing: 14
-    DashLength: 0.5
-    DashSpeed: 0
-    DashRoundCaps: 1
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 2
+      DashSpacing: 14
+      DashLength: 0.5
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 1
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -37060,19 +37060,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -37176,19 +37176,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 4
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -37204,19 +37204,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -38697,19 +38697,19 @@ MonoBehaviour:
       RangeEndInset: 0.49
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -38896,19 +38896,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -39112,19 +39112,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 10
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 10
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -39140,19 +39140,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -39791,19 +39791,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -39819,19 +39819,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -39935,19 +39935,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -40051,19 +40051,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -41213,19 +41213,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 8
-    Align: 2
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 2
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -41241,19 +41241,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -41583,19 +41583,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 1
     IgnoreReveal: 0
@@ -41699,19 +41699,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -41941,19 +41941,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 1
     IgnoreReveal: 0
@@ -42183,19 +42183,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -42508,19 +42508,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 3
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -42536,19 +42536,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -43061,19 +43061,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -44136,19 +44136,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 1
     IgnoreReveal: 0
@@ -44164,19 +44164,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 1
@@ -44569,19 +44569,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 5
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -44597,19 +44597,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -44965,19 +44965,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 8
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 2
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -44993,19 +44993,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -45180,19 +45180,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -45296,19 +45296,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -45664,19 +45664,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -46324,19 +46324,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -46352,19 +46352,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -4}
     Blur: 5
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -46568,19 +46568,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -46684,19 +46684,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -4}
     Blur: 6
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -46712,19 +46712,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -47080,19 +47080,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 1
     IgnoreReveal: 0
@@ -47396,19 +47396,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -47424,19 +47424,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -6}
     Blur: 10
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -47984,19 +47984,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -49153,19 +49153,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -49352,19 +49352,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 10
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -49380,19 +49380,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -49596,19 +49596,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -50347,19 +50347,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -50375,19 +50375,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 8
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 8
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -50840,19 +50840,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 1
     IgnoreReveal: 0
@@ -50956,19 +50956,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -4}
     Blur: 5
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -50984,19 +50984,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -51012,19 +51012,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -6}
     Blur: 8
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -51311,19 +51311,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -51427,19 +51427,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 4
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -51743,19 +51743,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -51985,19 +51985,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -53617,19 +53617,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 4
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -53645,19 +53645,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 7
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 2
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -53673,19 +53673,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -53701,19 +53701,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -5}
     Blur: 6
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -55032,19 +55032,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 6
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 3
-    WobbleDrift: 3
-    WobbleLength: 120
-    WobbleSeed: 4
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 3
+      WobbleDrift: 3
+      WobbleLength: 120
+      WobbleSeed: 4
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -55060,19 +55060,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -56418,19 +56418,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 5
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 2
-    WobbleDrift: 3
-    WobbleLength: 40
-    WobbleSeed: 2
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 2
+      WobbleDrift: 3
+      WobbleLength: 40
+      WobbleSeed: 2
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -56446,19 +56446,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -56562,19 +56562,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 10
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -56590,19 +56590,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -56806,19 +56806,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 1
     IgnoreReveal: 0
@@ -56834,19 +56834,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -57176,19 +57176,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -57601,19 +57601,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -57717,19 +57717,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 2
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 1
@@ -57745,19 +57745,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -57773,19 +57773,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 1
@@ -58015,19 +58015,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -58615,19 +58615,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 14
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 1
     IgnoreReveal: 0
@@ -58643,19 +58643,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -59403,19 +59403,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -59431,19 +59431,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: -4
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -8}
     Blur: 10
-    Spread: -4
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -59630,19 +59630,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -59658,19 +59658,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 10, y: -10}
     Blur: 6
-    Spread: 0
     ShowBehind: 1
     Textured: 0
     IgnoreReveal: 0
@@ -59874,19 +59874,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -59902,19 +59902,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 6
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 4
-    Spread: 6
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -60436,19 +60436,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -60778,19 +60778,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 6
-    Align: 2
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 2
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -60806,19 +60806,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -61257,19 +61257,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 20
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -61285,19 +61285,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -61701,19 +61701,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -62100,19 +62100,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 4
-    Align: 2
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 1.5
-    WobbleDrift: 2.5
-    WobbleLength: 50
-    WobbleSeed: 3
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 2
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 1.5
+      WobbleDrift: 2.5
+      WobbleLength: 50
+      WobbleSeed: 3
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -62128,19 +62128,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 3
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 1
-    WobbleDrift: 2.5
-    WobbleLength: 35
-    WobbleSeed: 9
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 1
+      WobbleDrift: 2.5
+      WobbleLength: 35
+      WobbleSeed: 9
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -62156,19 +62156,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -62272,19 +62272,19 @@ MonoBehaviour:
       RangeEndInset: 0.49
       Bias: 0.937
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -63973,19 +63973,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 4
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -64001,19 +64001,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 7
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 2
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -64029,19 +64029,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -64057,19 +64057,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -5}
     Blur: 6
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -64173,19 +64173,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 6
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 6
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -64201,19 +64201,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -64417,19 +64417,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 6
-    Align: 1
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 1
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -64445,19 +64445,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -64561,19 +64561,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 4
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -64589,19 +64589,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -65392,19 +65392,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -65927,19 +65927,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -66043,19 +66043,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 12
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -66071,19 +66071,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -66396,19 +66396,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 1
     IgnoreReveal: 0
@@ -66595,19 +66595,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 6
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -66623,19 +66623,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -66822,19 +66822,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -67147,19 +67147,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -67755,19 +67755,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 4
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -67783,19 +67783,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 7
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 2
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -67811,19 +67811,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -67839,19 +67839,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -5}
     Blur: 6
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -67955,19 +67955,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 6
-    Align: 2
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 2
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0
@@ -67983,19 +67983,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
-    DashSpacing: 0
-    DashLength: 0
-    DashSpeed: 0
-    DashRoundCaps: 0
-    WobbleWidth: 0
-    WobbleDrift: 0
-    WobbleLength: 0
-    WobbleSeed: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreReveal: 0

@@ -470,11 +470,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 1
-    Align: 0
-    Offset: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreTint: 0
@@ -568,11 +576,19 @@ MonoBehaviour:
       RangeEndInset: 0.48192775
       Bias: 1
     Width: 1
-    Align: 2
-    Offset: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 2
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreTint: 1
@@ -587,11 +603,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 1
-    Align: 0
-    Offset: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 4
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreTint: 1
@@ -606,11 +630,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreTint: 0
@@ -625,11 +657,19 @@ MonoBehaviour:
       RangeEndInset: 0
       Bias: 0
     Width: 0
-    Align: 0
-    Offset: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -1}
     Blur: 4
-    Spread: 0
     ShowBehind: 0
     Textured: 0
     IgnoreTint: 0

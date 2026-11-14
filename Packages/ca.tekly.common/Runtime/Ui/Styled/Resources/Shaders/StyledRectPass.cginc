@@ -19,6 +19,7 @@ float _BlendAlphaOutput;
 float4 _ClipRect;
 float _UIMaskSoftnessX;
 float _UIMaskSoftnessY;
+float _UIVertexColorAlwaysGammaSpace;
 
 struct Attributes
 {
@@ -76,15 +77,17 @@ Varyings vert(Attributes IN)
     float layer = round(IN.uv0.w);
 
     float2 halfSize = StyledLoad(shape + STYLED_SHAPE_SIZE).xy;
-    float4 header = StyledLoad(layer + STYLED_LAYER_HEADER); // kind, flags, band start, band end
+    float4 header = StyledLoad(layer + STYLED_LAYER_HEADER); // kind + 8 * flags, soft rounding, band start, band end
     float4 gradient = StyledLoad(layer + STYLED_LAYER_GRADIENT); // type, angle, range start, range end
-    float layerKind = round(header.x);
+
+    // The kind and the flags share one value: the kind is what is left under a multiple of 8.
+    float flags = floor(round(header.x) / 8.0);
+    float layerKind = round(header.x) - flags * 8.0;
 
     OUT.shape = float4(halfSize, header.zw);
     OUT.radii = StyledLoad(shape + STYLED_SHAPE_RADII);
 
     // Flags: 1 = underlay, 2 = show behind, 4 = textured, 8 = ignore tint, 16 = ignore reveal.
-    float flags = round(header.y);
     float ignoreReveal = floor(flags / 16.0);
     flags -= ignoreReveal * 16.0;
     float ignoreTint = floor(flags / 8.0);
@@ -96,7 +99,15 @@ Varyings vert(Attributes IN)
 
     // The vertex color is the rect's tint times whatever colors the whole graphic. A layer that
     // ignores the tint keeps its own colors but still fades with the tint's alpha.
-    float4 tint = float4(ignoreTint > 0.5 ? float3(1, 1, 1) : IN.color.rgb, IN.color.a);
+    // The layer colors are linear by now in a linear project, so a vertex color the canvas keeps in
+    // gamma (its Vertex Color Always In Gamma Color Space option) is brought to linear too.
+    float3 tintRgb = IN.color.rgb;
+
+    if (_UIVertexColorAlwaysGammaSpace > 0.5 && !IsGammaSpace()) {
+        tintRgb = GammaToLinearSpace(tintRgb);
+    }
+
+    float4 tint = float4(ignoreTint > 0.5 ? float3(1, 1, 1) : tintRgb, IN.color.a);
 
     OUT.colorA = StyledPrepareColor(StyledLoad(layer + STYLED_LAYER_COLOR_A), tint);
     OUT.colorB = StyledPrepareColor(StyledLoad(layer + STYLED_LAYER_COLOR_B), tint);
@@ -107,16 +118,15 @@ Varyings vert(Attributes IN)
     float2 scaledDirection = direction / max(2.0 * extent, 1e-4);
 
     // A row that never had an exponent written reads as 0, which means a straight gradient.
-    float exponent = StyledLoad(layer + STYLED_LAYER_GRADIENT_CURVE).x;
+    float4 curveDashes = StyledLoad(layer + STYLED_LAYER_CURVE_DASHES); // gradient exponent, then a stroke's dashes
+    float exponent = curveDashes.x;
     exponent = exponent > 0.0 ? exponent : 1.0;
 
     OUT.gradient = float4(layerKind > STYLED_KIND_BEVEL - 0.5 ? direction : scaledDirection, round(gradient.x), exponent);
     OUT.soft = StyledLoad(layer + STYLED_LAYER_SHADOW);
 
-    // Soft radii are the radii raised to a least value, so that least value is all the fragment needs.
-    float4 softRadii = StyledLoad(layer + STYLED_LAYER_SOFT_RADII);
-    float4 raised = softRadii > OUT.radii ? softRadii : float4(0, 0, 0, 0);
-    float softRounding = max(max(raised.x, raised.y), max(raised.z, raised.w));
+    // Soft radii are the radii raised to a least value, so that least value is all that is stored.
+    float softRounding = header.y;
 
     // Reveal: mode, then by mode. A layer that ignores the reveal draws whole.
     float4 revealRow = StyledLoad(shape + STYLED_SHAPE_REVEAL);
@@ -140,7 +150,7 @@ Varyings vert(Attributes IN)
 
 #ifdef STYLED_EXTENDED
     OUT.wobble = StyledLoad(shape + STYLED_SHAPE_WOBBLE);
-    OUT.stroke = StyledLoad(layer + STYLED_LAYER_STROKE_DASHES);
+    OUT.stroke = float4(curveDashes.yzw, 0.0);
 
     if (layerKind > STYLED_KIND_STROKE - 0.5 && layerKind < STYLED_KIND_SHADOW - 0.5) {
         float4 strokeWobble = StyledLoad(layer + STYLED_LAYER_STROKE_WOBBLE); // width, drift, length, seed

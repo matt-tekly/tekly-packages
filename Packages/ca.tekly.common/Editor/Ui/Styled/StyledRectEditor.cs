@@ -19,6 +19,7 @@ namespace Tekly.Common.Ui.Styled
 		private const string PAINT_COLOR = nameof(StyledLayer.Paint) + "." + nameof(StyledPaint.Color);
 		private const string PAINT_COLOR2 = nameof(StyledLayer.Paint) + "." + nameof(StyledPaint.Color2);
 		private const string PAINT_ANGLE = nameof(StyledLayer.Paint) + "." + nameof(StyledPaint.Angle);
+		private const string STROKE = nameof(StyledLayer.StrokeStyle) + ".";
 
 		/// <summary>A field of a layer shown when it is unfolded: its path inside the layer, and a label when the field's own name does not fit.</summary>
 		private readonly struct LayerField
@@ -38,24 +39,25 @@ namespace Tekly.Common.Ui.Styled
 		// Every field a layer row can show. A row builds all of them once and shows the ones its kind uses.
 		private static readonly LayerField s_kind = new LayerField(nameof(StyledLayer.Kind));
 		private static readonly LayerField s_width = new LayerField(nameof(StyledLayer.Width));
-		private static readonly LayerField s_align = new LayerField(nameof(StyledLayer.Align));
-		private static readonly LayerField s_offset = new LayerField(nameof(StyledLayer.Offset), "Offset",
+		private static readonly LayerField s_align = new LayerField(STROKE + nameof(StyledStrokeStyle.Align));
+		private static readonly LayerField s_offset = new LayerField(nameof(StyledLayer.EdgeOffset), "Offset",
 			"Extra distance from the shape's edge, in the direction of the alignment.");
-		private static readonly LayerField s_inset = new LayerField(nameof(StyledLayer.Offset), "Inset",
+		private static readonly LayerField s_inset = new LayerField(nameof(StyledLayer.EdgeOffset), "Inset",
 			"How far the fill's edge is pulled in from the shape's edge.");
-		private static readonly LayerField s_dashSpacing = new LayerField(nameof(StyledLayer.DashSpacing));
-		private static readonly LayerField s_dashLength = new LayerField(nameof(StyledLayer.DashLength));
-		private static readonly LayerField s_dashSpeed = new LayerField(nameof(StyledLayer.DashSpeed));
-		private static readonly LayerField s_dashRoundCaps = new LayerField(nameof(StyledLayer.DashRoundCaps), "Round Caps",
+		private static readonly LayerField s_dashSpacing = new LayerField(STROKE + nameof(StyledStrokeStyle.DashSpacing));
+		private static readonly LayerField s_dashLength = new LayerField(STROKE + nameof(StyledStrokeStyle.DashLength));
+		private static readonly LayerField s_dashSpeed = new LayerField(STROKE + nameof(StyledStrokeStyle.DashSpeed));
+		private static readonly LayerField s_dashRoundCaps = new LayerField(STROKE + nameof(StyledStrokeStyle.DashRoundCaps), "Round Caps",
 			"Round the ends of each dash. The caps fit inside the dash length.");
-		private static readonly LayerField s_wobbleWidth = new LayerField(nameof(StyledLayer.WobbleWidth));
-		private static readonly LayerField s_wobbleDrift = new LayerField(nameof(StyledLayer.WobbleDrift));
-		private static readonly LayerField s_wobbleLength = new LayerField(nameof(StyledLayer.WobbleLength));
-		private static readonly LayerField s_wobbleSeed = new LayerField(nameof(StyledLayer.WobbleSeed));
+		private static readonly LayerField s_wobbleWidth = new LayerField(STROKE + nameof(StyledStrokeStyle.WobbleWidth));
+		private static readonly LayerField s_wobbleDrift = new LayerField(STROKE + nameof(StyledStrokeStyle.WobbleDrift));
+		private static readonly LayerField s_wobbleLength = new LayerField(STROKE + nameof(StyledStrokeStyle.WobbleLength));
+		private static readonly LayerField s_wobbleSeed = new LayerField(STROKE + nameof(StyledStrokeStyle.WobbleSeed));
 		private static readonly LayerField s_shadowOffset = new LayerField(nameof(StyledLayer.ShadowOffset), "Offset",
 			"How far the shadow is moved from the shape. Y is up, so (0, -6) is below the shape.");
 		private static readonly LayerField s_blur = new LayerField(nameof(StyledLayer.Blur));
-		private static readonly LayerField s_spread = new LayerField(nameof(StyledLayer.Spread));
+		private static readonly LayerField s_spread = new LayerField(nameof(StyledLayer.EdgeOffset), "Spread",
+			"Grows a shadow, or pushes an inner shadow further in, before blurring.");
 		private static readonly LayerField s_showBehind = new LayerField(nameof(StyledLayer.ShowBehind));
 		private static readonly LayerField s_paint = new LayerField(nameof(StyledLayer.Paint));
 		private static readonly LayerField s_textured = new LayerField(nameof(StyledLayer.Textured), "Use Texture", "Multiply this layer by the rect's sprite.");
@@ -437,8 +439,8 @@ namespace Tekly.Common.Ui.Styled
 			switch ((StyledLayerKind)layer.FindPropertyRelative(nameof(StyledLayer.Kind)).intValue) {
 				case StyledLayerKind.Stroke: {
 					var width = layer.FindPropertyRelative(nameof(StyledLayer.Width)).floatValue;
-					var align = (StyledStrokeAlign)layer.FindPropertyRelative(nameof(StyledLayer.Align)).intValue;
-					var dashes = layer.FindPropertyRelative(nameof(StyledLayer.DashSpacing)).floatValue > 0f ? "   dashed" : "";
+					var align = (StyledStrokeAlign)layer.FindPropertyRelative(STROKE + nameof(StyledStrokeStyle.Align)).intValue;
+					var dashes = layer.FindPropertyRelative(STROKE + nameof(StyledStrokeStyle.DashSpacing)).floatValue > 0f ? "   dashed" : "";
 					return $"Stroke   {width:0.##} {align.ToString().ToLowerInvariant()}{dashes}{paint}";
 				}
 				case StyledLayerKind.Shadow:
@@ -448,7 +450,7 @@ namespace Tekly.Common.Ui.Styled
 				case StyledLayerKind.Bevel:
 					return $"Bevel   {layer.FindPropertyRelative(nameof(StyledLayer.Width)).floatValue:0.##}";
 				default: {
-					var inset = layer.FindPropertyRelative(nameof(StyledLayer.Offset)).floatValue;
+					var inset = layer.FindPropertyRelative(nameof(StyledLayer.EdgeOffset)).floatValue;
 					return inset == 0f ? $"Fill{paint}" : $"Fill   inset {inset:0.##}{paint}";
 				}
 			}
@@ -458,7 +460,7 @@ namespace Tekly.Common.Ui.Styled
 		{
 			var offset = layer.FindPropertyRelative(nameof(StyledLayer.ShadowOffset)).vector2Value;
 			var blur = layer.FindPropertyRelative(nameof(StyledLayer.Blur)).floatValue;
-			var spread = layer.FindPropertyRelative(nameof(StyledLayer.Spread)).floatValue;
+			var spread = layer.FindPropertyRelative(nameof(StyledLayer.EdgeOffset)).floatValue;
 			var text = $"{offset.x:0.##}, {offset.y:0.##}   blur {blur:0.##}";
 
 			return spread == 0f ? text : $"{text}   spread {spread:0.##}";
@@ -592,9 +594,9 @@ namespace Tekly.Common.Ui.Styled
 				SetVisible(m_body, m_layer.isExpanded);
 				m_body.SetEnabled(enabled);
 
-				var dashed = m_layer.FindPropertyRelative(nameof(StyledLayer.DashSpacing)).floatValue > 0f;
-				var wobbles = m_layer.FindPropertyRelative(nameof(StyledLayer.WobbleWidth)).floatValue > 0f
-				              || m_layer.FindPropertyRelative(nameof(StyledLayer.WobbleDrift)).floatValue > 0f;
+				var dashed = m_layer.FindPropertyRelative(STROKE + nameof(StyledStrokeStyle.DashSpacing)).floatValue > 0f;
+				var wobbles = m_layer.FindPropertyRelative(STROKE + nameof(StyledStrokeStyle.WobbleWidth)).floatValue > 0f
+				              || m_layer.FindPropertyRelative(STROKE + nameof(StyledStrokeStyle.WobbleDrift)).floatValue > 0f;
 
 				for (var i = 0; i < s_allFields.Length; i++) {
 					var visible = Array.IndexOf(shown, s_allFields[i]) >= 0;

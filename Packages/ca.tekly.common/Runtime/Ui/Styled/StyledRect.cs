@@ -101,7 +101,7 @@ namespace Tekly.Common.Ui.Styled
 		/// </summary>
 		public StyledReveal Reveal {
 			get => m_reveal;
-			set => SetTextureValue(ref m_reveal, value);
+			set => SetRevealValue(ref m_reveal, value);
 		}
 
 		/// <summary>How much of the rect shows: 0 hides it, 1 shows all of it. Never rebuilds the mesh.</summary>
@@ -113,7 +113,7 @@ namespace Tekly.Common.Ui.Styled
 		/// <summary>Linear reveals only: whether the growing end has the rect's own shape or is cut straight.</summary>
 		public StyledRevealCap RevealCap {
 			get => m_revealCap;
-			set => SetTextureValue(ref m_revealCap, value);
+			set => SetRevealValue(ref m_revealCap, value);
 		}
 
 		/// <summary>Radial reveals only: where the sweep starts.</summary>
@@ -344,11 +344,17 @@ namespace Tekly.Common.Ui.Styled
 			SetMaterialDirty();
 		}
 
-		/// <summary>Paints the frontmost fill, or adds a fill behind everything when there is none.</summary>
+		/// <summary>
+		/// Paints the rect's body: the frontmost fill that reaches the shape's edge and has no blur. A fill that
+		/// is inset or blurred is a gloss or a highlight and is left alone. Adds a fill behind everything when
+		/// there is no body.
+		/// </summary>
 		public void SetFill(StyledPaint paint)
 		{
 			for (var i = 0; i < m_layers.Count; i++) {
-				if (m_layers[i].Kind == StyledLayerKind.Fill) {
+				var layer = m_layers[i];
+
+				if (layer.Kind == StyledLayerKind.Fill && layer.Inset <= 0f && layer.Blur <= 0f) {
 					SetLayerPaint(i, paint);
 					return;
 				}
@@ -508,7 +514,7 @@ namespace Tekly.Common.Ui.Styled
 
 				var layerAddress = StyledRows.LayerAddress(m_address, i);
 
-				if (IsHoleWorthIt(min, max, holeMin, holeMax)) {
+				if (AllowsHole(layer) && IsHoleWorthIt(min, max, holeMin, holeMax)) {
 					EmitRing(vh, center, min, max, holeMin, holeMax, layerAddress);
 				} else {
 					EmitRect(vh, center, min, max, layerAddress);
@@ -586,6 +592,16 @@ namespace Tekly.Common.Ui.Styled
 		/// </summary>
 		private static Vector4 SoftRadii(in StyledLayer layer, Vector2 halfSize, Vector4 radii)
 		{
+			return Vector4.Max(radii, Vector4.one * SoftRounding(layer, halfSize, radii));
+		}
+
+		/// <summary>
+		/// The least radius a layer's soft radii have: they are the corner radii raised to at least this.
+		/// 0 for a layer with nothing soft, which measures against the corner radii as they are. This one
+		/// value is all the shader is given.
+		/// </summary>
+		private static float SoftRounding(in StyledLayer layer, Vector2 halfSize, Vector4 radii)
+		{
 			var smallest = Mathf.Min(halfSize.x, halfSize.y);
 			var depth = 0f;
 
@@ -596,7 +612,7 @@ namespace Tekly.Common.Ui.Styled
 				case StyledLayerKind.Fill:
 					// A blurred fill is soft as deep as its inset plus half its soft edge.
 					if (layer.SoftWidth > 0) {
-						depth = Mathf.Max(layer.Offset, 0) + layer.SoftWidth * 0.5f;
+						depth = Mathf.Max(layer.Inset, 0) + layer.SoftWidth * 0.5f;
 					}
 
 					// An Edge gradient only as deep as it still changes. Past its range end it is flat.
@@ -614,13 +630,12 @@ namespace Tekly.Common.Ui.Styled
 			}
 
 			if (depth <= 0) {
-				return radii;
+				return 0f;
 			}
 
 			var largest = Mathf.Max(Mathf.Max(radii.x, radii.y), Mathf.Max(radii.z, radii.w));
-			var rounding = Mathf.Max(0, Mathf.Min(depth, Mathf.Min(smallest, 2f * smallest - largest)));
 
-			return Vector4.Max(radii, Vector4.one * rounding);
+			return Mathf.Max(0, Mathf.Min(depth, Mathf.Min(smallest, 2f * smallest - largest)));
 		}
 
 		/// <summary>
@@ -741,6 +756,45 @@ namespace Tekly.Common.Ui.Styled
 		}
 
 		/// <summary>
+		/// Sets a field that picks the kind of reveal. A slide reveal draws its layers without holes, so the
+		/// mesh is rebuilt when the rect moves into or out of one. Anything else only writes the rect's texels.
+		/// </summary>
+		private void SetRevealValue<T>(ref T field, T value)
+		{
+			if (EqualityComparer<T>.Default.Equals(field, value)) {
+				return;
+			}
+
+			var wasSlide = IsSlideReveal();
+			field = value;
+
+			if (wasSlide != IsSlideReveal() && HasHoledLayer()) {
+				SetVerticesDirty();
+			} else {
+				WriteRows();
+			}
+		}
+
+		/// <summary>
+		/// Whether the reveal is a slide: a linear reveal with a Shape cap, which moves the shape's edge into
+		/// the middle of the rect. It does not look at the amount, so changing the amount never rebuilds the mesh.
+		/// </summary>
+		private bool IsSlideReveal()
+		{
+			return m_reveal != StyledReveal.None && m_reveal != StyledReveal.Radial && m_revealCap == StyledRevealCap.Shape;
+		}
+
+		/// <summary>
+		/// Whether a layer may be drawn as a ring around its empty middle. Holes are cut from the whole shape.
+		/// Under a slide reveal the growing end's stroke, bevel and shadows run across that middle, so a layer
+		/// that follows the reveal is drawn whole.
+		/// </summary>
+		private bool AllowsHole(in StyledLayer layer)
+		{
+			return layer.IgnoreReveal || !IsSlideReveal();
+		}
+
+		/// <summary>
 		/// Whether the rect needs the Extended shader: its shape wobbles, or a stroke is dashed or wobbles.
 		/// Everything else draws with the Core shader.
 		/// </summary>
@@ -826,15 +880,19 @@ namespace Tekly.Common.Ui.Styled
 			m_store.Write(m_address + StyledRows.SHAPE_WOBBLE, new Vector4(Mathf.Max(0, m_wobbleAmount), Mathf.Max(1, m_wobbleLength), m_wobbleSeed, m_wobbleSpeed));
 			WriteTextureRows(halfSize);
 
-			// Front to back. A fill under an opaque stroke that sits on the shape's edge ends a pixel early.
+			// Front to back. A fill under an opaque layer that sits on the shape's edge ends a pixel early.
 			// Both edges are anti-aliased in the same place, and without this the fill would show through
-			// the stroke as a fringe.
-			var edgeCovered = false;
+			// the layer above as a fringe. A layer that follows the reveal only covers the edge where it is
+			// revealed, so it does not cover for a fill behind it that ignores the reveal.
+			var revealing = m_reveal != StyledReveal.None;
+			var coveredEverywhere = false;
+			var coveredWhereRevealed = false;
 
 			for (var i = 0; i < m_layers.Count; i++) {
 				var layer = m_layers[i];
 				var band = layer.GetBand();
-				var underlay = edgeCovered && layer.Kind == StyledLayerKind.Fill;
+				var underlay = layer.Kind == StyledLayerKind.Fill
+				               && (coveredEverywhere || (coveredWhereRevealed && !layer.IgnoreReveal));
 				var flags = (underlay ? StyledRows.FLAG_UNDERLAY : 0)
 				            | (layer.ShowBehind ? StyledRows.FLAG_SHOW_BEHIND : 0)
 				            | (IsTextured(layer) ? StyledRows.FLAG_TEXTURED : 0)
@@ -842,9 +900,9 @@ namespace Tekly.Common.Ui.Styled
 				            | (layer.IgnoreReveal ? StyledRows.FLAG_IGNORE_REVEAL : 0);
 				var address = StyledRows.LayerAddress(m_address, i);
 
-				m_store.Write(address + StyledRows.LAYER_HEADER, new Vector4((int)layer.Kind, flags, band.x, band.y));
+				m_store.Write(address + StyledRows.LAYER_HEADER,
+					new Vector4((int)layer.Kind + flags * StyledRows.FLAG_SCALE, SoftRounding(layer, halfSize, radii), band.x, band.y));
 				m_store.Write(address + StyledRows.LAYER_SHADOW, new Vector4(layer.ShadowOffset.x, layer.ShadowOffset.y, layer.SoftWidth, layer.Spread));
-				m_store.Write(address + StyledRows.LAYER_SOFT_RADII, SoftRadii(layer, halfSize, radii));
 				m_store.Write(address + StyledRows.LAYER_COLOR_A, layer.Paint.Color);
 				// A bevel always uses both colors: its highlight and its shadow.
 				var usesColor2 = layer.Kind == StyledLayerKind.Bevel || layer.Paint.Gradient != StyledGradient.None;
@@ -854,13 +912,18 @@ namespace Tekly.Common.Ui.Styled
 				m_store.Write(address + StyledRows.LAYER_COLOR_B, usesColor2 ? layer.Paint.Color2 : layer.Paint.Color);
 				m_store.Write(address + StyledRows.LAYER_GRADIENT, new Vector4((int)layer.Paint.Gradient, layer.Paint.Angle * Mathf.Deg2Rad,
 					Mathf.Min(rangeStart, rangeEnd), Mathf.Max(rangeStart, rangeEnd)));
-				m_store.Write(address + StyledRows.LAYER_GRADIENT_CURVE, new Vector4(layer.Paint.BiasExponent, 0, 0, 0));
-				m_store.Write(address + StyledRows.LAYER_STROKE_DASHES, new Vector4(Mathf.Max(0, layer.DashSpacing),
-					Mathf.Clamp01(layer.DashLength) + (layer.DashRoundCaps ? 2f : 0f), layer.DashSpeed, 0));
-				m_store.Write(address + StyledRows.LAYER_STROKE_WOBBLE, new Vector4(Mathf.Max(0, layer.WobbleWidth), Mathf.Max(0, layer.WobbleDrift),
-					Mathf.Max(0, layer.WobbleLength), layer.WobbleSeed));
+				m_store.Write(address + StyledRows.LAYER_CURVE_DASHES, new Vector4(layer.Paint.BiasExponent, Mathf.Max(0, layer.StrokeStyle.DashSpacing),
+					Mathf.Clamp01(layer.StrokeStyle.DashLength) + (layer.StrokeStyle.DashRoundCaps ? 2f : 0f), layer.StrokeStyle.DashSpeed));
+				m_store.Write(address + StyledRows.LAYER_STROKE_WOBBLE, new Vector4(Mathf.Max(0, layer.StrokeStyle.WobbleWidth), Mathf.Max(0, layer.StrokeStyle.WobbleDrift),
+					Mathf.Max(0, layer.StrokeStyle.WobbleLength), layer.StrokeStyle.WobbleSeed));
 
-				edgeCovered |= CoversEdge(layer, band);
+				if (CoversEdge(layer, band)) {
+					if (revealing && !layer.IgnoreReveal) {
+						coveredWhereRevealed = true;
+					} else {
+						coveredEverywhere = true;
+					}
+				}
 			}
 		}
 
@@ -987,14 +1050,22 @@ namespace Tekly.Common.Ui.Styled
 		}
 
 		/// <summary>
-		/// Whether a layer is an opaque stroke that sits on the shape's edge and reaches at least a unit inside it.
-		/// A textured layer never counts, since the sprite can be transparent.
+		/// Whether a layer hides the shape's edge from the fills behind it: an opaque solid stroke that sits on
+		/// the edge and reaches at least a unit inside it, or an opaque fill out to the edge with no blur.
+		/// A textured layer never counts, since the sprite can be transparent. Nor does a dashed or wobbling
+		/// stroke, which leaves parts of the edge open.
 		/// </summary>
 		private bool CoversEdge(in StyledLayer layer, Vector2 band)
 		{
-			return layer.Draws && layer.Kind == StyledLayerKind.Stroke
-			       && color.a >= 1f && layer.Paint.IsOpaque && !IsTextured(layer)
-			       && band.x <= -1f && band.y >= 0f;
+			if (!layer.Draws || color.a < 1f || !layer.Paint.IsOpaque || IsTextured(layer) || band.y < 0f) {
+				return false;
+			}
+
+			return layer.Kind switch {
+				StyledLayerKind.Stroke => band.x <= -1f && !layer.UsesEdgePosition,
+				StyledLayerKind.Fill => layer.SoftWidth <= 0f,
+				_ => false
+			};
 		}
 
 		/// <summary>The superellipse exponent of the corners: 2 with no smoothing, 4 at full smoothing.</summary>
@@ -1057,10 +1128,10 @@ namespace Tekly.Common.Ui.Styled
 				var layer = m_layers[i];
 				layer.Width = Mathf.Max(0, layer.Width);
 				layer.Blur = Mathf.Max(0, layer.Blur);
-				layer.DashSpacing = Mathf.Max(0, layer.DashSpacing);
-				layer.WobbleWidth = Mathf.Max(0, layer.WobbleWidth);
-				layer.WobbleDrift = Mathf.Max(0, layer.WobbleDrift);
-				layer.WobbleLength = Mathf.Max(0, layer.WobbleLength);
+				layer.StrokeStyle.DashSpacing = Mathf.Max(0, layer.StrokeStyle.DashSpacing);
+				layer.StrokeStyle.WobbleWidth = Mathf.Max(0, layer.StrokeStyle.WobbleWidth);
+				layer.StrokeStyle.WobbleDrift = Mathf.Max(0, layer.StrokeStyle.WobbleDrift);
+				layer.StrokeStyle.WobbleLength = Mathf.Max(0, layer.StrokeStyle.WobbleLength);
 				m_layers[i] = layer;
 			}
 

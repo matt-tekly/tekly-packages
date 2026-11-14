@@ -83,22 +83,51 @@ namespace Tekly.Common.Ui.Styled
 				slider.SetValueWithoutNotify(new Vector2(start, end));
 				startBox.SetValueWithoutNotify(start);
 				endBox.SetValueWithoutNotify(end);
+
+				// With several objects selected the numbers are the first one's. Mark the ends that differ.
+				startBox.showMixedValue = rangeStart.hasMultipleDifferentValues;
+				endBox.showMixedValue = rangeEndInset.hasMultipleDifferentValues;
+				slider.showMixedValue = startBox.showMixedValue || endBox.showMixedValue;
 			}
 
-			void Store(float start, float end)
+			// Each end is written on its own, so with several objects selected, moving one end leaves the
+			// other end of every object as it was.
+			void StoreStart(float start)
 			{
-				start = Mathf.Clamp01(start);
-				end = Mathf.Clamp(end, start, 1f);
-
-				rangeStart.floatValue = start;
-				rangeEndInset.floatValue = 1f - end;
+				rangeStart.floatValue = Mathf.Clamp(start, 0f, 1f - rangeEndInset.floatValue);
 				rangeStart.serializedObject.ApplyModifiedProperties();
 				Show();
 			}
 
-			slider.RegisterValueChangedCallback(evt => Store(evt.newValue.x, evt.newValue.y));
-			startBox.RegisterValueChangedCallback(evt => Store(evt.newValue, 1f - rangeEndInset.floatValue));
-			endBox.RegisterValueChangedCallback(evt => Store(rangeStart.floatValue, evt.newValue));
+			void StoreEnd(float end)
+			{
+				rangeEndInset.floatValue = 1f - Mathf.Clamp(end, rangeStart.floatValue, 1f);
+				rangeEndInset.serializedObject.ApplyModifiedProperties();
+				Show();
+			}
+
+			slider.RegisterValueChangedCallback(evt => {
+				// Compared with what is stored, since a mixed slider has no previous value to trust.
+				var startMoved = !Mathf.Approximately(evt.newValue.x, rangeStart.floatValue);
+				var endMoved = !Mathf.Approximately(evt.newValue.y, 1f - rangeEndInset.floatValue);
+
+				// Dragging the whole range moves both. The end goes first when it moves up, so neither is
+				// clamped against the other's old place.
+				if (endMoved && evt.newValue.y > 1f - rangeEndInset.floatValue) {
+					StoreEnd(evt.newValue.y);
+					endMoved = false;
+				}
+
+				if (startMoved) {
+					StoreStart(evt.newValue.x);
+				}
+
+				if (endMoved) {
+					StoreEnd(evt.newValue.y);
+				}
+			});
+			startBox.RegisterValueChangedCallback(evt => StoreStart(evt.newValue));
+			endBox.RegisterValueChangedCallback(evt => StoreEnd(evt.newValue));
 
 			row.TrackPropertyValue(rangeStart, _ => Show());
 			row.TrackPropertyValue(rangeEndInset, _ => Show());

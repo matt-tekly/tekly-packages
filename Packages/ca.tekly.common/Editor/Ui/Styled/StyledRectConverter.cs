@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using Tekly.Common.Ui.Fancy;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,6 +22,8 @@ namespace Tekly.Common.Ui.Styled
 	/// on it would lose them, since the overrides point at a component that is gone. ConvertPrefabs therefore
 	/// works in three passes: plan every overridden occurrence, convert the owning prefabs, then set the
 	/// planned result on the outer prefabs, where whatever differs is saved as overrides on the new component.
+	/// Scenes that hold instances of those prefabs are outer users in the same way, so they go through the
+	/// first and last pass too. FancyRects a scene owns itself are left for Convert Selected.
 	/// </summary>
 	public static class StyledRectConverter
 	{
@@ -60,17 +63,30 @@ namespace Tekly.Common.Ui.Styled
 		[MenuItem(MENU + "Convert All Prefabs In Project")]
 		private static void ConvertProjectMenu()
 		{
+			if (EditorApplication.isPlayingOrWillChangePlaymode) {
+				Debug.LogWarning("[StyledRectConverter] Leave Play mode before converting");
+				return;
+			}
+
 			var paths = FindPrefabsWithFancyRects();
+			var scenes = FindScenesUsingPrefabs(paths);
 
 			if (!EditorUtility.DisplayDialog("Convert FancyRects",
-				    $"Replaces every FancyRect in {paths.Count} prefabs with a StyledRect and saves them. Scenes are not touched. Commit first, so this can be undone.",
+				    $"Replaces every FancyRect in {paths.Count} prefabs with a StyledRect and saves them. "
+				    + $"{scenes.Count} scenes use those prefabs. Each one is opened, and saved if it overrides values on a converted FancyRect or refers to one. "
+				    + "FancyRects that a scene owns itself are not converted. Commit first, so this can be undone.",
 				    "Convert", "Cancel")) {
 				return;
 			}
 
+			// The scenes are opened one at a time in place of the ones that are open now.
+			if (scenes.Count > 0 && !EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) {
+				return;
+			}
+
 			var log = new StringBuilder();
-			var converted = ConvertPrefabs(paths, log);
-			Debug.Log($"[StyledRectConverter] Converted [{converted}] FancyRects in [{paths.Count}] prefabs\n{log}");
+			var converted = ConvertPrefabs(paths, log, scenes);
+			Debug.Log($"[StyledRectConverter] Converted [{converted}] FancyRects in [{paths.Count}] prefabs, checked [{scenes.Count}] scenes\n{log}");
 		}
 
 		[MenuItem(MENU + "Convert Selected FancyRects")]
@@ -152,7 +168,7 @@ namespace Tekly.Common.Ui.Styled
 
 			var sceneLines = CountInScenes();
 
-			return $"[StyledRectConverter] [{total}] FancyRects in [{prefabCount}] prefabs, [{withNotes}] with notes\n{report}\nScenes (not inspected, open one and convert its selection):\n{sceneLines}";
+			return $"[StyledRectConverter] [{total}] FancyRects in [{prefabCount}] prefabs, [{withNotes}] with notes\n{report}\nScenes, counting the FancyRects each one owns itself (open it and convert its selection):\n{sceneLines}";
 		}
 
 		/// <summary>A FancyRect seen through a nested prefab or variant, with what this prefab wants it to be.</summary>
@@ -194,12 +210,34 @@ namespace Tekly.Common.Ui.Styled
 			return paths;
 		}
 
+		/// <summary>Every scene in the project that holds an instance of one of the prefabs, directly or nested.</summary>
+		public static List<string> FindScenesUsingPrefabs(IReadOnlyList<string> prefabPaths)
+		{
+			var prefabs = new HashSet<string>(prefabPaths);
+			var scenes = new List<string>();
+
+			foreach (var guid in AssetDatabase.FindAssets("t:Scene", new[] { "Assets", "Packages" })) {
+				var path = AssetDatabase.GUIDToAssetPath(guid);
+
+				foreach (var dependency in AssetDatabase.GetDependencies(path, true)) {
+					if (prefabs.Contains(dependency)) {
+						scenes.Add(path);
+						break;
+					}
+				}
+			}
+
+			return scenes;
+		}
+
 		/// <summary>
-		/// Converts the FancyRects in a set of prefabs and keeps what variants and outer prefabs override on
-		/// them. Give it every prefab that shows the FancyRects being converted: an outer prefab left out
-		/// loses its overrides. Returns how many FancyRects were replaced.
+		/// Converts the FancyRects in a set of prefabs and keeps what variants, outer prefabs and scenes
+		/// override on them. Give it every prefab that shows the FancyRects being converted and every scene
+		/// that uses those prefabs: an outer prefab or a scene left out loses its overrides and its references
+		/// to the converted FancyRects. The scenes are opened in place of the open ones, which are restored
+		/// at the end, so save first. Returns how many FancyRects were replaced.
 		/// </summary>
-		public static int ConvertPrefabs(IReadOnlyList<string> paths, StringBuilder log)
+		public static int ConvertPrefabs(IReadOnlyList<string> paths, StringBuilder log, IReadOnlyList<string> scenePaths = null)
 		{
 			// Prefabs that nest others come after the ones they nest, so an outer prefab sets its values
 			// against sources that are already final.
@@ -212,8 +250,25 @@ namespace Tekly.Common.Ui.Styled
 
 			foreach (var path in ordered) {
 				var root = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-				occurrences[path] = PlanOccurrences(root);
-				outerReferences[path] = FindOuterReferences(root);
+				occurrences[path] = PlanOccurrences(new[] { root }, root.transform);
+				outerReferences[path] = FindOuterReferences(new[] { root }, root.transform);
+			}
+
+			// A scene is an outer user as well: its prefab instances carry overrides and its objects refer
+			// into them.
+			var scenes = new List<string>();
+			var sceneSetup = scenePaths != null && scenePaths.Count > 0 ? EditorSceneManager.GetSceneManagerSetup() : null;
+
+			if (scenePaths != null) {
+				foreach (var path in scenePaths) {
+					var roots = EditorSceneManager.OpenScene(path, OpenSceneMode.Single).GetRootGameObjects();
+					occurrences[path] = PlanOccurrences(roots, null);
+					outerReferences[path] = FindOuterReferences(roots, null);
+
+					if (occurrences[path].Count > 0 || outerReferences[path].Count > 0) {
+						scenes.Add(path);
+					}
+				}
 			}
 
 			// Pass 2: replace each FancyRect in the prefab that owns it.
@@ -233,38 +288,57 @@ namespace Tekly.Common.Ui.Styled
 			}
 
 			AssetDatabase.SaveAssets();
+
+			foreach (var path in scenes) {
+				ApplySceneOccurrences(path, occurrences[path], outerReferences[path], log);
+			}
+
+			// Back to the scenes that were open. An untitled scene is not part of a setup and cannot be restored.
+			if (sceneSetup != null && sceneSetup.Length > 0) {
+				EditorSceneManager.RestoreSceneManagerSetup(sceneSetup);
+			}
+
 			return converted;
 		}
 
-		private static List<Occurrence> PlanOccurrences(GameObject root)
+		/// <param name="pathRoot">The prefab's root, or null for a scene, where paths start at the scene's roots.</param>
+		private static List<Occurrence> PlanOccurrences(IReadOnlyList<GameObject> roots, Transform pathRoot)
 		{
 			var occurrences = new List<Occurrence>();
 
-			foreach (var fancy in root.GetComponentsInChildren<FancyRect>(true)) {
-				if (!IsInNestedPrefab(fancy) || GetOverriddenProperties(fancy).Count == 0) {
-					continue;
-				}
+			foreach (var root in roots) {
+				foreach (var fancy in root.GetComponentsInChildren<FancyRect>(true)) {
+					if (!IsInNestedPrefab(fancy) || GetOverriddenProperties(fancy).Count == 0) {
+						continue;
+					}
 
-				occurrences.Add(new Occurrence {
-					Name = GetPath(fancy.transform, root.transform),
-					ObjectPath = GetIndexPath(fancy.transform, root.transform),
-					Plan = BuildPlan(fancy),
-					Enabled = fancy.enabled,
-					Color = fancy.color,
-					RaycastTarget = fancy.raycastTarget,
-					RaycastPadding = fancy.raycastPadding,
-					Maskable = fancy.maskable
-				});
+					occurrences.Add(new Occurrence {
+						Name = GetPath(fancy.transform, pathRoot),
+						ObjectPath = GetIndexPath(fancy.transform, pathRoot),
+						Plan = BuildPlan(fancy),
+						Enabled = fancy.enabled,
+						Color = fancy.color,
+						RaycastTarget = fancy.raycastTarget,
+						RaycastPadding = fancy.raycastPadding,
+						Maskable = fancy.maskable
+					});
+				}
 			}
 
 			return occurrences;
 		}
 
-		private static List<OuterReference> FindOuterReferences(GameObject root)
+		/// <param name="pathRoot">The prefab's root, or null for a scene, where paths start at the scene's roots.</param>
+		private static List<OuterReference> FindOuterReferences(IReadOnlyList<GameObject> roots, Transform pathRoot)
 		{
 			var references = new List<OuterReference>();
+			var components = new List<Component>();
 
-			foreach (var component in root.GetComponentsInChildren<Component>(true)) {
+			foreach (var root in roots) {
+				components.AddRange(root.GetComponentsInChildren<Component>(true));
+			}
+
+			foreach (var component in components) {
 				if (component == null) {
 					continue;
 				}
@@ -284,10 +358,10 @@ namespace Tekly.Common.Ui.Styled
 					}
 
 					references.Add(new OuterReference {
-						OwnerPath = GetIndexPath(component.transform, root.transform),
+						OwnerPath = GetIndexPath(component.transform, pathRoot),
 						OwnerComponentIndex = System.Array.IndexOf(component.GetComponents<Component>(), component),
 						PropertyPath = property.propertyPath,
-						TargetPath = GetIndexPath(target.transform, root.transform)
+						TargetPath = GetIndexPath(target.transform, pathRoot)
 					});
 				}
 			}
@@ -300,54 +374,102 @@ namespace Tekly.Common.Ui.Styled
 			var root = PrefabUtility.LoadPrefabContents(path);
 
 			try {
-				foreach (var occurrence in occurrences) {
-					var target = FindByIndexPath(root.transform, occurrence.ObjectPath);
-					var styled = target != null ? target.GetComponent<StyledRect>() : null;
-
-					if (styled == null) {
-						log?.AppendLine($"{path} :: {occurrence.Name}: overrides not restored, no StyledRect was found there. Was its source prefab in the set?");
-						continue;
-					}
-
-					styled.color = occurrence.Color;
-					styled.raycastTarget = occurrence.RaycastTarget;
-					styled.raycastPadding = occurrence.RaycastPadding;
-					styled.maskable = occurrence.Maskable;
-					Apply(occurrence.Plan, styled);
-					styled.enabled = occurrence.Enabled;
-
-					log?.AppendLine($"{path} :: {occurrence.Name}: overrides restored");
-
-					foreach (var note in occurrence.Plan.Notes) {
-						log?.AppendLine($"    - {note}");
-					}
-				}
-
-				foreach (var reference in references) {
-					var owner = FindByIndexPath(root.transform, reference.OwnerPath);
-					var target = FindByIndexPath(root.transform, reference.TargetPath);
-					var styled = target != null ? target.GetComponent<StyledRect>() : null;
-					var components = owner != null ? owner.GetComponents<Component>() : null;
-
-					if (styled == null || components == null || reference.OwnerComponentIndex >= components.Length) {
-						log?.AppendLine($"{path}: a reference [{reference.PropertyPath}] could not be restored");
-						continue;
-					}
-
-					var component = components[reference.OwnerComponentIndex];
-					var serialized = new SerializedObject(component);
-					var property = serialized.FindProperty(reference.PropertyPath);
-					property.objectReferenceValue = styled;
-					serialized.ApplyModifiedPropertiesWithoutUndo();
-
-					if (property.objectReferenceValue != styled) {
-						log?.AppendLine($"{path}: reference lost, [{component.GetType().Name}.{reference.PropertyPath}] on [{component.name}] is typed FancyRect and cannot hold a StyledRect");
-					}
-				}
-
+				RestoreOccurrences(path, indexes => FindByIndexPath(root.transform, indexes), occurrences, references, log);
+				RemoveUnusedOverrides(new[] { root });
 				PrefabUtility.SaveAsPrefabAsset(root, path);
 			} finally {
 				PrefabUtility.UnloadPrefabContents(root);
+			}
+		}
+
+		private static void ApplySceneOccurrences(string path, List<Occurrence> occurrences, List<OuterReference> references, StringBuilder log)
+		{
+			var scene = EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
+			var roots = scene.GetRootGameObjects();
+
+			RestoreOccurrences(path, indexes => FindInScene(roots, indexes), occurrences, references, log);
+			RemoveUnusedOverrides(roots);
+			EditorSceneManager.MarkSceneDirty(scene);
+
+			if (!EditorSceneManager.SaveScene(scene)) {
+				log?.AppendLine($"[{path}]: the scene could not be saved, so what it overrides on converted FancyRects is lost");
+			}
+		}
+
+		/// <summary>
+		/// Sets what an outer prefab or a scene made of the FancyRects it does not own on the StyledRects that
+		/// replaced them, and points its references at them.
+		/// </summary>
+		private static void RestoreOccurrences(string path, System.Func<int[], Transform> find, List<Occurrence> occurrences,
+			List<OuterReference> references, StringBuilder log)
+		{
+			foreach (var occurrence in occurrences) {
+				var target = find(occurrence.ObjectPath);
+				var styled = target != null ? target.GetComponent<StyledRect>() : null;
+
+				if (styled == null) {
+					log?.AppendLine($"{path} :: {occurrence.Name}: overrides not restored, no StyledRect was found there. Was its source prefab in the set?");
+					continue;
+				}
+
+				styled.color = occurrence.Color;
+				styled.raycastTarget = occurrence.RaycastTarget;
+				styled.raycastPadding = occurrence.RaycastPadding;
+				styled.maskable = occurrence.Maskable;
+				Apply(occurrence.Plan, styled);
+				styled.enabled = occurrence.Enabled;
+
+				// In a scene, values set from code on a prefab instance are only kept when they are recorded.
+				PrefabUtility.RecordPrefabInstancePropertyModifications(styled);
+
+				log?.AppendLine($"{path} :: {occurrence.Name}: overrides restored");
+
+				foreach (var note in occurrence.Plan.Notes) {
+					log?.AppendLine($"    - {note}");
+				}
+			}
+
+			foreach (var reference in references) {
+				var owner = find(reference.OwnerPath);
+				var target = find(reference.TargetPath);
+				var styled = target != null ? target.GetComponent<StyledRect>() : null;
+				var components = owner != null ? owner.GetComponents<Component>() : null;
+
+				if (styled == null || components == null || reference.OwnerComponentIndex >= components.Length) {
+					log?.AppendLine($"{path}: a reference [{reference.PropertyPath}] could not be restored");
+					continue;
+				}
+
+				var component = components[reference.OwnerComponentIndex];
+				var serialized = new SerializedObject(component);
+				var property = serialized.FindProperty(reference.PropertyPath);
+				property.objectReferenceValue = styled;
+				serialized.ApplyModifiedPropertiesWithoutUndo();
+
+				if (property.objectReferenceValue != styled) {
+					log?.AppendLine($"{path}: reference lost, [{component.GetType().Name}.{reference.PropertyPath}] on [{component.name}] is typed FancyRect and cannot hold a StyledRect");
+				}
+			}
+		}
+
+		/// <summary>
+		/// Drops the overrides that prefab instances under the roots still hold for components that no longer
+		/// exist, which is what an override on a converted FancyRect turns into.
+		/// </summary>
+		private static void RemoveUnusedOverrides(IReadOnlyList<GameObject> roots)
+		{
+			var instances = new List<GameObject>();
+
+			foreach (var root in roots) {
+				foreach (var transform in root.GetComponentsInChildren<Transform>(true)) {
+					if (PrefabUtility.IsAnyPrefabInstanceRoot(transform.gameObject)) {
+						instances.Add(transform.gameObject);
+					}
+				}
+			}
+
+			if (instances.Count > 0) {
+				PrefabUtility.RemoveUnusedOverrides(instances.ToArray(), InteractionMode.AutomatedAction);
 			}
 		}
 
@@ -364,7 +486,10 @@ namespace Tekly.Common.Ui.Styled
 			return count;
 		}
 
-		/// <summary>Where a transform sits under a root, as the sibling index at each level. Survives duplicate names.</summary>
+		/// <summary>
+		/// Where a transform sits under a root, as the sibling index at each level. Survives duplicate names.
+		/// With no root the path is for a scene and starts with the index of the scene root it is under.
+		/// </summary>
 		private static int[] GetIndexPath(Transform transform, Transform root)
 		{
 			var indexes = new List<int>();
@@ -374,7 +499,23 @@ namespace Tekly.Common.Ui.Styled
 				transform = transform.parent;
 			}
 
+			if (root == null) {
+				indexes.Insert(0, transform.GetSiblingIndex());
+			}
+
 			return indexes.ToArray();
+		}
+
+		private static Transform FindInScene(IReadOnlyList<GameObject> roots, int[] indexes)
+		{
+			if (indexes.Length == 0 || indexes[0] >= roots.Count) {
+				return null;
+			}
+
+			var rest = new int[indexes.Length - 1];
+			System.Array.Copy(indexes, 1, rest, 0, rest.Length);
+
+			return FindByIndexPath(roots[indexes[0]].transform, rest);
 		}
 
 		private static Transform FindByIndexPath(Transform root, int[] indexes)
@@ -669,7 +810,7 @@ namespace Tekly.Common.Ui.Styled
 				var outline = fancy.GetOutline(i);
 				var layer = StyledLayer.Stroke(outline.Width, ToPaint(outline.Paint, plan), (StyledStrokeAlign)(int)outline.Alignment);
 				layer.Enabled = outline.Enabled;
-				layer.Offset = outline.Offset;
+				layer.EdgeOffset = outline.Offset;
 				layer.Textured = outline.UseTexture;
 
 				switch (outline.Style) {
@@ -720,7 +861,7 @@ namespace Tekly.Common.Ui.Styled
 			}
 
 			var layer = StyledLayer.Fill(paint);
-			layer.Offset = inset;
+			layer.EdgeOffset = inset;
 			layer.Blur = gloss.Softness * 0.5f;
 			return layer;
 		}
