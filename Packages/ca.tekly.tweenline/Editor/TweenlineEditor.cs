@@ -13,6 +13,7 @@ namespace Tekly.Tweenlines
         private SerializedProperty m_useUnscaledTime;
         private SerializedProperty m_speed;
         private SerializedProperty m_stagger;
+        private SerializedProperty m_hurrySpeed;
         private SerializedProperty m_completed;
         private Tweenline m_tweenline;
 
@@ -23,6 +24,7 @@ namespace Tekly.Tweenlines
             m_useUnscaledTime = serializedObject.FindProperty("m_useUnscaledTime");
             m_speed = serializedObject.FindProperty("m_speed");
             m_stagger = serializedObject.FindProperty("m_stagger");
+            m_hurrySpeed = serializedObject.FindProperty("m_hurrySpeed");
             m_completed = serializedObject.FindProperty("m_completed");
         }
 
@@ -54,6 +56,7 @@ namespace Tekly.Tweenlines
             EditorGUILayout.PropertyField(m_useUnscaledTime);
             EditorGUILayout.PropertyField(m_speed);
             EditorGUILayout.PropertyField(m_stagger);
+            EditorGUILayout.PropertyField(m_hurrySpeed);
 
             EditorGUILayout.Space();
             DrawAnimations();
@@ -133,7 +136,7 @@ namespace Tekly.Tweenlines
                     }
 
                     var details = playing
-                        ? $"playing  {m_tweenline.Time:0.00}s / {animation.Duration:0.##}s"
+                        ? $"{(m_tweenline.IsHurried ? "hurried" : "playing")}  {m_tweenline.Time:0.00}s / {animation.Duration:0.##}s"
                         : $"{animation.Tracks.Count} tracks  {animation.Duration:0.##}s  {animation.Wrap}";
 
                     var nameWidth = Mathf.Min(EditorGUIUtility.labelWidth, (right - rect.x) * 0.5f);
@@ -153,6 +156,12 @@ namespace Tekly.Tweenlines
             using (new EditorGUI.DisabledScope(!m_tweenline.IsPlaying)) {
                 if (GUILayout.Button(new GUIContent("Stop", "Stop where it is"), EditorStyles.miniButtonLeft)) {
                     m_tweenline.Stop();
+                }
+
+                using (new EditorGUI.DisabledScope(m_tweenline.IsHurried)) {
+                    if (GUILayout.Button(new GUIContent("Hurry", "Speed up the current play by Hurry Speed, like a tap to skip"), EditorStyles.miniButtonMid)) {
+                        m_tweenline.Hurry();
+                    }
                 }
 
                 if (GUILayout.Button(new GUIContent("Complete", "Jump to the end and fire the remaining markers"), EditorStyles.miniButtonRight)) {

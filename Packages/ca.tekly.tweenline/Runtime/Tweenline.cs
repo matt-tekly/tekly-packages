@@ -14,6 +14,9 @@ namespace Tekly.Tweenlines
         public event Action<Tweenline, TweenAnimation> Completed;
 
         public bool IsPlaying => m_playing;
+
+        /// <summary>Whether the current play was hurried. Cleared by the next Play</summary>
+        public bool IsHurried => m_hurried;
         public float Time => m_time;
         public TweenAnimation Current => m_current;
         public List<TweenAnimation> Animations => m_animations;
@@ -24,6 +27,11 @@ namespace Tekly.Tweenlines
             set => m_speed = Mathf.Max(0, value);
         }
 
+        public float HurrySpeed {
+            get => m_hurrySpeed;
+            set => m_hurrySpeed = Mathf.Max(1, value);
+        }
+
         [Tooltip("Animation to play when enabled. Leave empty to not play anything")]
         [SerializeField] private string m_playOnEnable;
         [SerializeField] private bool m_useUnscaledTime;
@@ -32,8 +40,14 @@ namespace Tekly.Tweenlines
         [Tooltip("Start delay in seconds multiplied by the sibling index")]
         [SerializeField] [Min(0)] private float m_stagger;
 
+        [Tooltip("Speed multiplier Hurry applies to the current play, like when the player taps to skip")]
+        [SerializeField] [Min(1)] private float m_hurrySpeed = 4;
+
         [SerializeField] private List<TweenAnimation> m_animations = new List<TweenAnimation>();
         [SerializeField] private UnityEvent<string> m_completed = new UnityEvent<string>();
+
+        private static readonly List<Tweenline> s_hurryBuffer = new List<Tweenline>();
+        private static bool s_hurrying;
 
         private TweenOrigins m_origins;
         private TweenAnimation m_current;
@@ -43,6 +57,7 @@ namespace Tekly.Tweenlines
         private bool m_startMarkersPending;
         private float m_direction = 1;
         private bool m_playing;
+        private bool m_hurried;
         private int m_playId;
 
         private void OnEnable()
@@ -60,6 +75,10 @@ namespace Tekly.Tweenlines
 
             var deltaTime = (m_useUnscaledTime ? UnityEngine.Time.unscaledDeltaTime : UnityEngine.Time.deltaTime) * m_speed;
 
+            if (m_hurried) {
+                deltaTime *= m_hurrySpeed;
+            }
+
             if (m_delay > 0) {
                 m_delay -= deltaTime;
 
@@ -76,6 +95,54 @@ namespace Tekly.Tweenlines
             }
 
             Advance(deltaTime);
+        }
+
+        /// <summary>
+        /// Hurries every Tweenline playing under a root, including the root, for example when the player taps
+        /// to skip. With completeIfHurried, ones already hurried complete instead, so a second tap finishes.
+        /// </summary>
+        public static void HurryAll(Component root, bool completeIfHurried = false)
+        {
+            if (root == null) {
+                return;
+            }
+
+            // A marker fired by Complete could hurry again, so a nested call gets its own list
+            var tweenlines = s_hurrying ? new List<Tweenline>() : s_hurryBuffer;
+            var nested = s_hurrying;
+
+            root.GetComponentsInChildren(tweenlines);
+            s_hurrying = true;
+
+            try {
+                foreach (var tweenline in tweenlines) {
+                    if (completeIfHurried && tweenline.IsHurried) {
+                        tweenline.Complete();
+                    } else {
+                        tweenline.Hurry();
+                    }
+                }
+            } finally {
+                tweenlines.Clear();
+                s_hurrying = nested;
+            }
+        }
+
+        /// <summary>
+        /// Speeds up the current play by Hurry Speed until it ends, including any stagger delay still waiting.
+        /// Markers still fire in order, unlike Complete. Looping animations are left alone since they never
+        /// end. Returns true when the play was already hurried, so a caller can complete it on a second tap.
+        /// </summary>
+        public bool Hurry()
+        {
+            if (!m_playing || m_current.Wrap != TweenWrap.Once) {
+                return false;
+            }
+
+            var wasHurried = m_hurried;
+            m_hurried = true;
+
+            return wasHurried;
         }
 
         public bool Has(string animationName)
@@ -121,6 +188,7 @@ namespace Tekly.Tweenlines
             m_duration = animation.Duration;
             m_direction = reverse ? -1 : 1;
             m_time = reverse ? m_duration : 0;
+            m_hurried = false;
             m_delay = m_stagger * transform.GetSiblingIndex();
             m_playing = true;
 
@@ -148,6 +216,7 @@ namespace Tekly.Tweenlines
         {
             m_playId++;
             m_playing = false;
+            m_hurried = false;
             m_startMarkersPending = false;
         }
 
@@ -293,6 +362,7 @@ namespace Tekly.Tweenlines
         private void Finish()
         {
             m_playing = false;
+            m_hurried = false;
 
             var animation = m_current;
             Completed?.Invoke(this, animation);
