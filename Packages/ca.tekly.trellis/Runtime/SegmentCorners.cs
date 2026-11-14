@@ -1,14 +1,17 @@
 using System.Collections.Generic;
 using Tekly.Common.Ui.Fancy;
+using Tekly.Common.Ui.Styled;
 using Tekly.Common.Utils;
 using UnityEngine;
 
 namespace Tekly.Trellis
 {
 	/// <summary>
-	/// Put next to a FlowLayout to round only the outer corners of its children's FancyRects, like a
+	/// Put next to a FlowLayout to round only the outer corners of its children's StyledRects, like a
 	/// segmented button row or a stack of panels. Re-evaluated whenever the layout rebuilds, so it follows
 	/// Axis, Reverse, wrapping and children being added, removed or hidden.
+	///
+	/// Children that still use a FancyRect are handled too, until FancyRect is removed.
 	/// </summary>
 	[ExecuteAlways]
 	[DisallowMultipleComponent]
@@ -17,15 +20,16 @@ namespace Tekly.Trellis
 	public class SegmentCorners : MonoBehaviour
 	{
 		[Tooltip("Corners allowed to round at all, e.g. Top for tabs")]
-		[SerializeField] private RectCorners m_allowed = RectCorners.All;
+		[SerializeField] private StyledCorners m_allowed = StyledCorners.All;
 
 		[Tooltip("Round every corner when there is only one child")]
 		[SerializeField] private bool m_roundWhenAlone = true;
 
 		private FlowLayout m_layout;
 
-		private HashSet<FancyRect> m_applied = new HashSet<FancyRect>();
-		private HashSet<FancyRect> m_previous = new HashSet<FancyRect>();
+		// The rect component on each child whose corners were set: a StyledRect, or a FancyRect.
+		private HashSet<Component> m_applied = new HashSet<Component>();
+		private HashSet<Component> m_previous = new HashSet<Component>();
 
 		private void OnEnable()
 		{
@@ -65,15 +69,15 @@ namespace Tekly.Trellis
 				for (var i = 0; i < line.Count; i++) {
 					var child = layout.GetArrangedChild(line.Start + i);
 
-					if (!child.TryGetComponent(out FancyRect rect)) {
+					if (!TryGetRect(child, out var rect)) {
 						continue;
 					}
 
 					var corners = alone && m_roundWhenAlone
-						? RectCorners.All
+						? StyledCorners.All
 						: OuterCorners(horizontal, l == 0, l == lineCount - 1, i == 0, i == line.Count - 1);
 
-					rect.RoundedCorners = corners & m_allowed;
+					SetCorners(rect, corners & m_allowed);
 
 					m_applied.Add(rect);
 					m_previous.Remove(rect);
@@ -84,38 +88,65 @@ namespace Tekly.Trellis
 			ResetAll(m_previous);
 		}
 
+		/// <summary>The component on a child whose corners this sets: its StyledRect, or failing that its FancyRect.</summary>
+		private static bool TryGetRect(Component child, out Component rect)
+		{
+			if (child.TryGetComponent(out StyledRect styled)) {
+				rect = styled;
+				return true;
+			}
+
+			if (child.TryGetComponent(out FancyRect fancy)) {
+				rect = fancy;
+				return true;
+			}
+
+			rect = null;
+			return false;
+		}
+
+		private static void SetCorners(Component rect, StyledCorners corners)
+		{
+			if (rect is StyledRect styled) {
+				styled.RoundedCorners = corners;
+			} else if (rect is FancyRect fancy) {
+				// The two corner enums use the same values.
+				fancy.RoundedCorners = (RectCorners)(int)corners;
+			}
+		}
+
 		/// <summary>
 		/// Lines are rows when horizontal, columns when vertical. With wrapping the group is one block:
 		/// only the ends of the first and last lines are outer.
 		/// </summary>
-		private static RectCorners OuterCorners(bool horizontal, bool firstLine, bool lastLine, bool first, bool last)
+		private static StyledCorners OuterCorners(bool horizontal, bool firstLine, bool lastLine, bool first, bool last)
 		{
-			var corners = RectCorners.None;
+			var corners = StyledCorners.None;
 
 			if (firstLine && first) {
-				corners |= RectCorners.TopLeft;
+				corners |= StyledCorners.TopLeft;
 			}
 
 			if (lastLine && last) {
-				corners |= RectCorners.BottomRight;
+				corners |= StyledCorners.BottomRight;
 			}
 
 			if (horizontal ? firstLine && last : lastLine && first) {
-				corners |= RectCorners.TopRight;
+				corners |= StyledCorners.TopRight;
 			}
 
 			if (horizontal ? lastLine && first : firstLine && last) {
-				corners |= RectCorners.BottomLeft;
+				corners |= StyledCorners.BottomLeft;
 			}
 
 			return corners;
 		}
 
-		private static void ResetAll(HashSet<FancyRect> rects)
+		private static void ResetAll(HashSet<Component> rects)
 		{
 			foreach (var rect in rects) {
 				if (rect != null) {
-					rect.RoundedCorners = RectCorners.All;
+					SetCorners(rect, StyledCorners.All);
 				}
 			}
 

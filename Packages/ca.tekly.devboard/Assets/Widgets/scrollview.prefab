@@ -80,6 +80,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
   m_fitWidth: 0
   m_fitHeight: 2
   m_axis: 1
@@ -212,6 +214,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
   m_fitWidth: 2
   m_fitHeight: 2
   m_source: {fileID: 1853186824319880763}
@@ -256,7 +260,7 @@ GameObject:
   m_Component:
   - component: {fileID: 582095355360051127}
   - component: {fileID: 6139599190995048255}
-  - component: {fileID: 4760322323625545308}
+  - component: {fileID: 7391805507164530636}
   m_Layer: 5
   m_Name: Handle
   m_TagString: Untagged
@@ -291,7 +295,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2541974832914373445}
   m_CullTransparentMesh: 1
---- !u!114 &4760322323625545308
+--- !u!114 &7391805507164530636
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -300,9 +304,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2541974832914373445}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0726bdc3d2691034cba5eb683bf2f33e, type: 3}
+  m_Script: {fileID: 11500000, guid: bd2ec1839fd864b498281c816ce77109, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Tekly.Common.Runtime::Tekly.Common.Ui.Fancy.FancyRect
+  m_EditorClassIdentifier: Tekly.Common.Runtime::Tekly.Common.Ui.Styled.StyledRect
   m_Material: {fileID: 0}
   m_Color: {r: 0.48627454, g: 0.43529415, b: 0.3921569, a: 1}
   m_RaycastTarget: 1
@@ -314,62 +318,36 @@ MonoBehaviour:
   m_radiusMode: 0
   m_radius: 16
   m_cornerRadii: {x: 16, y: 16, z: 16, w: 16}
-  m_cornerType: 0
-  m_cornerTypes:
-    TopLeft: 0
-    TopRight: 0
-    BottomRight: 0
-    BottomLeft: 0
   m_roundedCorners: 15
-  m_bulge: {x: 0, y: 0, z: 0, w: 0}
-  m_containBulge: 0
+  m_cornerSmoothing: 0
   m_sprite: {fileID: 0}
   m_textureMode: 0
   m_textureScale: {x: 1, y: 1}
   m_textureOffset: {x: 0, y: 0}
   m_textureRotation: 0
   m_textureScroll: {x: 0, y: 0}
-  m_fillEnabled: 1
-  m_fill:
-    Color: {r: 1, g: 1, b: 1, a: 1}
-    Gradient: 0
-    Color2: {r: 1, g: 1, b: 1, a: 1}
-    Angle: 0
-    RangeStart: 0
-    RangeEndInset: 0
-    Bias: 0
-  m_backgroundEnabled: 0
-  m_background:
-    Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Gradient: 0
-    Color2: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Angle: 0
-    RangeStart: 0
-    RangeEndInset: 0
-    Bias: 0
-  m_outlines: []
-  m_shadows: []
   m_blendMode: 0
-  m_bevel:
-    Enabled: 0
-    Width: 0
-    Softness: 0
-    LightAngle: 0
-    Highlight: {r: 0, g: 0, b: 0, a: 0}
-    Shadow: {r: 0, g: 0, b: 0, a: 0}
-  m_gloss:
-    Enabled: 0
-    Color: {r: 0, g: 0, b: 0, a: 0}
-    Inset: 0
-    Height: 0
-    Fade: 0
-    Softness: 0
-  m_revealMethod: 0
-  m_revealOrigin: 3
-  m_revealAmount: 1
-  m_revealClockwise: 1
   m_raycastUsesShape: 0
-  m_rendererTintLayers: 127
+  m_layers:
+  - Enabled: 1
+    Kind: 0
+    Paint:
+      Color: {r: 1, g: 1, b: 1, a: 1}
+      Gradient: 0
+      Color2: {r: 1, g: 1, b: 1, a: 1}
+      Angle: 0
+      RangeStart: 0
+      RangeEndInset: 0
+      Bias: 0
+    Width: 0
+    Align: 0
+    Offset: 0
+    ShadowOffset: {x: 0, y: 0}
+    Blur: 0
+    Spread: 0
+    ShowBehind: 0
+    Textured: 0
+    IgnoreTint: 0
 --- !u!1 &4158838138318591105
 GameObject:
   m_ObjectHideFlags: 0
@@ -380,7 +358,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9131342845694144976}
   - component: {fileID: 3394201488118599355}
-  - component: {fileID: 2141785622426467643}
+  - component: {fileID: 3778081023511452883}
   m_Layer: 5
   m_Name: Sliding Area
   m_TagString: Untagged
@@ -416,7 +394,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4158838138318591105}
   m_CullTransparentMesh: 1
---- !u!114 &2141785622426467643
+--- !u!114 &3778081023511452883
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -425,9 +403,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 4158838138318591105}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0726bdc3d2691034cba5eb683bf2f33e, type: 3}
+  m_Script: {fileID: 11500000, guid: bd2ec1839fd864b498281c816ce77109, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Tekly.Common.Runtime::Tekly.Common.Ui.Fancy.FancyRect
+  m_EditorClassIdentifier: Tekly.Common.Runtime::Tekly.Common.Ui.Styled.StyledRect
   m_Material: {fileID: 0}
   m_Color: {r: 0.23529413, g: 0.21960786, b: 0.21176472, a: 1}
   m_RaycastTarget: 1
@@ -439,62 +417,36 @@ MonoBehaviour:
   m_radiusMode: 0
   m_radius: 16
   m_cornerRadii: {x: 16, y: 16, z: 16, w: 16}
-  m_cornerType: 0
-  m_cornerTypes:
-    TopLeft: 0
-    TopRight: 0
-    BottomRight: 0
-    BottomLeft: 0
   m_roundedCorners: 15
-  m_bulge: {x: 0, y: 0, z: 0, w: 0}
-  m_containBulge: 0
+  m_cornerSmoothing: 0
   m_sprite: {fileID: 0}
   m_textureMode: 0
   m_textureScale: {x: 1, y: 1}
   m_textureOffset: {x: 0, y: 0}
   m_textureRotation: 0
   m_textureScroll: {x: 0, y: 0}
-  m_fillEnabled: 1
-  m_fill:
-    Color: {r: 1, g: 1, b: 1, a: 1}
-    Gradient: 0
-    Color2: {r: 1, g: 1, b: 1, a: 1}
-    Angle: 0
-    RangeStart: 0
-    RangeEndInset: 0
-    Bias: 0
-  m_backgroundEnabled: 0
-  m_background:
-    Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Gradient: 0
-    Color2: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Angle: 0
-    RangeStart: 0
-    RangeEndInset: 0
-    Bias: 0
-  m_outlines: []
-  m_shadows: []
   m_blendMode: 0
-  m_bevel:
-    Enabled: 0
-    Width: 0
-    Softness: 0
-    LightAngle: 0
-    Highlight: {r: 0, g: 0, b: 0, a: 0}
-    Shadow: {r: 0, g: 0, b: 0, a: 0}
-  m_gloss:
-    Enabled: 0
-    Color: {r: 0, g: 0, b: 0, a: 0}
-    Inset: 0
-    Height: 0
-    Fade: 0
-    Softness: 0
-  m_revealMethod: 0
-  m_revealOrigin: 3
-  m_revealAmount: 1
-  m_revealClockwise: 1
   m_raycastUsesShape: 1
-  m_rendererTintLayers: 127
+  m_layers:
+  - Enabled: 1
+    Kind: 0
+    Paint:
+      Color: {r: 1, g: 1, b: 1, a: 1}
+      Gradient: 0
+      Color2: {r: 1, g: 1, b: 1, a: 1}
+      Angle: 0
+      RangeStart: 0
+      RangeEndInset: 0
+      Bias: 0
+    Width: 0
+    Align: 0
+    Offset: 0
+    ShadowOffset: {x: 0, y: 0}
+    Blur: 0
+    Spread: 0
+    ShowBehind: 0
+    Textured: 0
+    IgnoreTint: 0
 --- !u!1 &5408926985130750107
 GameObject:
   m_ObjectHideFlags: 0
@@ -506,7 +458,7 @@ GameObject:
   - component: {fileID: 7833072462044953216}
   - component: {fileID: 7620015579182163087}
   - component: {fileID: 4407353304567295013}
-  - component: {fileID: 2491960370761964544}
+  - component: {fileID: 5973734470700345535}
   m_Layer: 5
   m_Name: Scrollbar Horizontal
   m_TagString: Untagged
@@ -582,7 +534,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 4760322323625545308}
+  m_TargetGraphic: {fileID: 7391805507164530636}
   m_HandleRect: {fileID: 582095355360051127}
   m_Direction: 0
   m_Value: 0
@@ -592,7 +544,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_animator: {fileID: 0}
---- !u!114 &2491960370761964544
+  m_cursor: 1
+--- !u!114 &5973734470700345535
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -601,9 +554,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 5408926985130750107}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0726bdc3d2691034cba5eb683bf2f33e, type: 3}
+  m_Script: {fileID: 11500000, guid: bd2ec1839fd864b498281c816ce77109, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Tekly.Common.Runtime::Tekly.Common.Ui.Fancy.FancyRect
+  m_EditorClassIdentifier: Tekly.Common.Runtime::Tekly.Common.Ui.Styled.StyledRect
   m_Material: {fileID: 0}
   m_Color: {r: 0.19607845, g: 0.18823531, b: 0.18431373, a: 1}
   m_RaycastTarget: 1
@@ -615,62 +568,36 @@ MonoBehaviour:
   m_radiusMode: 0
   m_radius: 16
   m_cornerRadii: {x: 16, y: 16, z: 16, w: 16}
-  m_cornerType: 0
-  m_cornerTypes:
-    TopLeft: 0
-    TopRight: 0
-    BottomRight: 0
-    BottomLeft: 0
   m_roundedCorners: -1
-  m_bulge: {x: 0, y: 0, z: 0, w: 0}
-  m_containBulge: 0
+  m_cornerSmoothing: 0
   m_sprite: {fileID: 0}
   m_textureMode: 0
   m_textureScale: {x: 1, y: 1}
   m_textureOffset: {x: 0, y: 0}
   m_textureRotation: 0
   m_textureScroll: {x: 0, y: 0}
-  m_fillEnabled: 1
-  m_fill:
-    Color: {r: 1, g: 1, b: 1, a: 1}
-    Gradient: 0
-    Color2: {r: 1, g: 1, b: 1, a: 1}
-    Angle: 0
-    RangeStart: 0
-    RangeEndInset: 0
-    Bias: 0
-  m_backgroundEnabled: 0
-  m_background:
-    Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Gradient: 0
-    Color2: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Angle: 0
-    RangeStart: 0
-    RangeEndInset: 0
-    Bias: 0
-  m_outlines: []
-  m_shadows: []
   m_blendMode: 0
-  m_bevel:
-    Enabled: 0
-    Width: 0
-    Softness: 0
-    LightAngle: 0
-    Highlight: {r: 0, g: 0, b: 0, a: 0}
-    Shadow: {r: 0, g: 0, b: 0, a: 0}
-  m_gloss:
-    Enabled: 0
-    Color: {r: 0, g: 0, b: 0, a: 0}
-    Inset: 0
-    Height: 0
-    Fade: 0
-    Softness: 0
-  m_revealMethod: 0
-  m_revealOrigin: 3
-  m_revealAmount: 1
-  m_revealClockwise: 1
   m_raycastUsesShape: 1
-  m_rendererTintLayers: -1
+  m_layers:
+  - Enabled: 1
+    Kind: 0
+    Paint:
+      Color: {r: 1, g: 1, b: 1, a: 1}
+      Gradient: 0
+      Color2: {r: 1, g: 1, b: 1, a: 1}
+      Angle: 0
+      RangeStart: 0
+      RangeEndInset: 0
+      Bias: 0
+    Width: 0
+    Align: 0
+    Offset: 0
+    ShadowOffset: {x: 0, y: 0}
+    Blur: 0
+    Spread: 0
+    ShowBehind: 0
+    Textured: 0
+    IgnoreTint: 0
 --- !u!1 &5854044106046646897
 GameObject:
   m_ObjectHideFlags: 0
@@ -848,7 +775,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 4201715111048744441}
+  m_TargetGraphic: {fileID: 4206651482536831163}
   m_HandleRect: {fileID: 5044990560436365489}
   m_Direction: 2
   m_Value: 0
@@ -858,6 +785,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_animator: {fileID: 0}
+  m_cursor: 1
 --- !u!114 &4092603190923428381
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -884,7 +812,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5044990560436365489}
   - component: {fileID: 2918395659781419892}
-  - component: {fileID: 4201715111048744441}
+  - component: {fileID: 4206651482536831163}
   m_Layer: 5
   m_Name: Handle
   m_TagString: Untagged
@@ -919,7 +847,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8297368629207087239}
   m_CullTransparentMesh: 1
---- !u!114 &4201715111048744441
+--- !u!114 &4206651482536831163
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -928,9 +856,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 8297368629207087239}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0726bdc3d2691034cba5eb683bf2f33e, type: 3}
+  m_Script: {fileID: 11500000, guid: bd2ec1839fd864b498281c816ce77109, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Tekly.Common.Runtime::Tekly.Common.Ui.Fancy.FancyRect
+  m_EditorClassIdentifier: Tekly.Common.Runtime::Tekly.Common.Ui.Styled.StyledRect
   m_Material: {fileID: 0}
   m_Color: {r: 0.48627454, g: 0.43529415, b: 0.3921569, a: 1}
   m_RaycastTarget: 1
@@ -942,62 +870,36 @@ MonoBehaviour:
   m_radiusMode: 0
   m_radius: 16
   m_cornerRadii: {x: 16, y: 16, z: 16, w: 16}
-  m_cornerType: 0
-  m_cornerTypes:
-    TopLeft: 0
-    TopRight: 0
-    BottomRight: 0
-    BottomLeft: 0
   m_roundedCorners: 15
-  m_bulge: {x: 0, y: 0, z: 0, w: 0}
-  m_containBulge: 0
+  m_cornerSmoothing: 0
   m_sprite: {fileID: 0}
   m_textureMode: 0
   m_textureScale: {x: 1, y: 1}
   m_textureOffset: {x: 0, y: 0}
   m_textureRotation: 0
   m_textureScroll: {x: 0, y: 0}
-  m_fillEnabled: 1
-  m_fill:
-    Color: {r: 1, g: 1, b: 1, a: 1}
-    Gradient: 0
-    Color2: {r: 1, g: 1, b: 1, a: 1}
-    Angle: 0
-    RangeStart: 0
-    RangeEndInset: 0
-    Bias: 0
-  m_backgroundEnabled: 0
-  m_background:
-    Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Gradient: 0
-    Color2: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Angle: 0
-    RangeStart: 0
-    RangeEndInset: 0
-    Bias: 0
-  m_outlines: []
-  m_shadows: []
   m_blendMode: 0
-  m_bevel:
-    Enabled: 0
-    Width: 0
-    Softness: 0
-    LightAngle: 0
-    Highlight: {r: 0, g: 0, b: 0, a: 0}
-    Shadow: {r: 0, g: 0, b: 0, a: 0}
-  m_gloss:
-    Enabled: 0
-    Color: {r: 0, g: 0, b: 0, a: 0}
-    Inset: 0
-    Height: 0
-    Fade: 0
-    Softness: 0
-  m_revealMethod: 0
-  m_revealOrigin: 3
-  m_revealAmount: 1
-  m_revealClockwise: 1
   m_raycastUsesShape: 0
-  m_rendererTintLayers: 127
+  m_layers:
+  - Enabled: 1
+    Kind: 0
+    Paint:
+      Color: {r: 1, g: 1, b: 1, a: 1}
+      Gradient: 0
+      Color2: {r: 1, g: 1, b: 1, a: 1}
+      Angle: 0
+      RangeStart: 0
+      RangeEndInset: 0
+      Bias: 0
+    Width: 0
+    Align: 0
+    Offset: 0
+    ShadowOffset: {x: 0, y: 0}
+    Blur: 0
+    Spread: 0
+    ShowBehind: 0
+    Textured: 0
+    IgnoreTint: 0
 --- !u!1 &8672374916414766499
 GameObject:
   m_ObjectHideFlags: 0
@@ -1008,7 +910,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4625345456022220085}
   - component: {fileID: 1072460027558348076}
-  - component: {fileID: 5090795675069623317}
+  - component: {fileID: 6130468876924321890}
   m_Layer: 5
   m_Name: Sliding Area
   m_TagString: Untagged
@@ -1044,7 +946,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8672374916414766499}
   m_CullTransparentMesh: 1
---- !u!114 &5090795675069623317
+--- !u!114 &6130468876924321890
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1053,9 +955,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 8672374916414766499}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0726bdc3d2691034cba5eb683bf2f33e, type: 3}
+  m_Script: {fileID: 11500000, guid: bd2ec1839fd864b498281c816ce77109, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Tekly.Common.Runtime::Tekly.Common.Ui.Fancy.FancyRect
+  m_EditorClassIdentifier: Tekly.Common.Runtime::Tekly.Common.Ui.Styled.StyledRect
   m_Material: {fileID: 0}
   m_Color: {r: 0.23529413, g: 0.21960786, b: 0.21176472, a: 1}
   m_RaycastTarget: 1
@@ -1067,59 +969,33 @@ MonoBehaviour:
   m_radiusMode: 0
   m_radius: 16
   m_cornerRadii: {x: 16, y: 16, z: 16, w: 16}
-  m_cornerType: 0
-  m_cornerTypes:
-    TopLeft: 0
-    TopRight: 0
-    BottomRight: 0
-    BottomLeft: 0
   m_roundedCorners: 15
-  m_bulge: {x: 0, y: 0, z: 0, w: 0}
-  m_containBulge: 0
+  m_cornerSmoothing: 0
   m_sprite: {fileID: 0}
   m_textureMode: 0
   m_textureScale: {x: 1, y: 1}
   m_textureOffset: {x: 0, y: 0}
   m_textureRotation: 0
   m_textureScroll: {x: 0, y: 0}
-  m_fillEnabled: 1
-  m_fill:
-    Color: {r: 1, g: 1, b: 1, a: 1}
-    Gradient: 0
-    Color2: {r: 1, g: 1, b: 1, a: 1}
-    Angle: 0
-    RangeStart: 0
-    RangeEndInset: 0
-    Bias: 0
-  m_backgroundEnabled: 0
-  m_background:
-    Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Gradient: 0
-    Color2: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Angle: 0
-    RangeStart: 0
-    RangeEndInset: 0
-    Bias: 0
-  m_outlines: []
-  m_shadows: []
   m_blendMode: 0
-  m_bevel:
-    Enabled: 0
-    Width: 0
-    Softness: 0
-    LightAngle: 0
-    Highlight: {r: 0, g: 0, b: 0, a: 0}
-    Shadow: {r: 0, g: 0, b: 0, a: 0}
-  m_gloss:
-    Enabled: 0
-    Color: {r: 0, g: 0, b: 0, a: 0}
-    Inset: 0
-    Height: 0
-    Fade: 0
-    Softness: 0
-  m_revealMethod: 0
-  m_revealOrigin: 3
-  m_revealAmount: 1
-  m_revealClockwise: 1
   m_raycastUsesShape: 1
-  m_rendererTintLayers: 127
+  m_layers:
+  - Enabled: 1
+    Kind: 0
+    Paint:
+      Color: {r: 1, g: 1, b: 1, a: 1}
+      Gradient: 0
+      Color2: {r: 1, g: 1, b: 1, a: 1}
+      Angle: 0
+      RangeStart: 0
+      RangeEndInset: 0
+      Bias: 0
+    Width: 0
+    Align: 0
+    Offset: 0
+    ShadowOffset: {x: 0, y: 0}
+    Blur: 0
+    Spread: 0
+    ShowBehind: 0
+    Textured: 0
+    IgnoreTint: 0

@@ -120,6 +120,8 @@ MonoBehaviour:
     Bottom: 0
   m_layoutPriority: 1
   m_widthGroup: 
+  m_sizeTransition: 0
+  m_sizeTransitionEase: 5
 --- !u!1001 &7788012659884724211
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -190,6 +192,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2845060793314300960, guid: 98ae9185e74df18458e16ea144ef6e4f, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3106118744237637957, guid: 98ae9185e74df18458e16ea144ef6e4f, type: 3}
+      propertyPath: m_RaycastTarget
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3285702006404110583, guid: 98ae9185e74df18458e16ea144ef6e4f, type: 3}

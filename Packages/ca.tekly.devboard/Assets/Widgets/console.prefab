@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2624842251052506003}
   - component: {fileID: 1878334526606109942}
-  - component: {fileID: 2095927814299769932}
+  - component: {fileID: 2602008615602907026}
   - component: {fileID: 2146802543049630746}
   m_Layer: 5
   m_Name: hint
@@ -47,7 +47,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3543435923578652117}
   m_CullTransparentMesh: 1
---- !u!114 &2095927814299769932
+--- !u!114 &2602008615602907026
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -56,9 +56,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 3543435923578652117}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0726bdc3d2691034cba5eb683bf2f33e, type: 3}
+  m_Script: {fileID: 11500000, guid: bd2ec1839fd864b498281c816ce77109, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Tekly.Common.Runtime::Tekly.Common.Ui.Fancy.FancyRect
+  m_EditorClassIdentifier: Tekly.Common.Runtime::Tekly.Common.Ui.Styled.StyledRect
   m_Material: {fileID: 0}
   m_Color: {r: 0.8352942, g: 0.7686275, b: 0.6313726, a: 1}
   m_RaycastTarget: 0
@@ -70,44 +70,19 @@ MonoBehaviour:
   m_radiusMode: 0
   m_radius: 4
   m_cornerRadii: {x: 16, y: 16, z: 16, w: 16}
-  m_cornerType: 2
-  m_cornerTypes:
-    TopLeft: 0
-    TopRight: 0
-    BottomRight: 0
-    BottomLeft: 0
   m_roundedCorners: 15
-  m_bulge: {x: 0, y: 0, z: 0, w: 0}
-  m_containBulge: 0
+  m_cornerSmoothing: 1
   m_sprite: {fileID: 21300000, guid: 4b2250ecbcbb650418b23535f1e69cd0, type: 3}
   m_textureMode: 1
   m_textureScale: {x: 1, y: 1}
   m_textureOffset: {x: 0, y: 0}
   m_textureRotation: 0
   m_textureScroll: {x: 0, y: 0}
-  m_fillEnabled: 1
-  m_fill:
-    Color: {r: 0.21960784, g: 0.21960784, b: 0.21960784, a: 1}
-    Gradient: 0
-    Color2: {r: 1, g: 1, b: 1, a: 1}
-    Angle: 0
-    RangeStart: 0
-    RangeEndInset: 0
-    Bias: 0
-  m_backgroundEnabled: 0
-  m_background:
-    Color: {r: 0.15686275, g: 0.15686275, b: 0.15686275, a: 1}
-    Gradient: 0
-    Color2: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Angle: 0
-    RangeStart: 0
-    RangeEndInset: 0
-    Bias: 0
-  m_outlines:
+  m_blendMode: 0
+  m_raycastUsesShape: 1
+  m_layers:
   - Enabled: 1
-    Width: 1
-    Offset: 0
-    Alignment: 0
+    Kind: 1
     Paint:
       Color: {r: 0.4, g: 0.4, b: 0.4, a: 1}
       Gradient: 0
@@ -116,44 +91,53 @@ MonoBehaviour:
       RangeStart: 0
       RangeEndInset: 0
       Bias: 0
-    UseTexture: 0
-  m_shadows:
+    Width: 1
+    Align: 0
+    Offset: 0
+    ShadowOffset: {x: 0, y: 0}
+    Blur: 0
+    Spread: 0
+    ShowBehind: 0
+    Textured: 0
+    IgnoreTint: 0
+  - Enabled: 1
+    Kind: 0
+    Paint:
+      Color: {r: 0.21960784, g: 0.21960784, b: 0.21960784, a: 1}
+      Gradient: 0
+      Color2: {r: 1, g: 1, b: 1, a: 1}
+      Angle: 0
+      RangeStart: 0
+      RangeEndInset: 0
+      Bias: 0
+    Width: 0
+    Align: 0
+    Offset: 0
+    ShadowOffset: {x: 0, y: 0}
+    Blur: 0
+    Spread: 0
+    ShowBehind: 0
+    Textured: 1
+    IgnoreTint: 0
   - Enabled: 0
-    Inset: 0
-    Offset: {x: 0, y: 0}
-    Tuck: 0
-    Spread: 2
-    Softness: 0
+    Kind: 2
     Paint:
       Color: {r: 0.4, g: 0.4, b: 0.4, a: 0.28235295}
-      Gradient: 4
+      Gradient: 3
       Color2: {r: 0, g: 0, b: 0, a: 0.35}
       Angle: 0
       RangeStart: 0
       RangeEndInset: 0
       Bias: 0
-    UseTexture: 0
-  m_blendMode: 0
-  m_bevel:
-    Enabled: 0
-    Width: 6
-    Softness: 4
-    LightAngle: 315
-    Highlight: {r: 1, g: 1, b: 1, a: 0.5}
-    Shadow: {r: 0, g: 0, b: 0, a: 0.3}
-  m_gloss:
-    Enabled: 0
-    Color: {r: 0, g: 0, b: 0, a: 0}
-    Inset: 0
-    Height: 0
-    Fade: 0
-    Softness: 0
-  m_revealMethod: 0
-  m_revealOrigin: 3
-  m_revealAmount: 1
-  m_revealClockwise: 1
-  m_raycastUsesShape: 1
-  m_rendererTintLayers: -1
+    Width: 0
+    Align: 0
+    Offset: 0
+    ShadowOffset: {x: 0, y: 0}
+    Blur: 0
+    Spread: 2
+    ShowBehind: 1
+    Textured: 0
+    IgnoreTint: 0
 --- !u!114 &2146802543049630746
 MonoBehaviour:
   m_ObjectHideFlags: 0

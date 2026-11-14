@@ -19,7 +19,14 @@ namespace Tekly.Tweenlines
 
         private void OnEnable()
         {
-            m_tweenline = (Tweenline) target;
+            // An inspector that outlives its Tweenline is re-enabled after a domain reload with a placeholder
+            // target that is not a Tweenline, so a hard cast throws on every reload.
+            m_tweenline = target as Tweenline;
+
+            if (m_tweenline == null) {
+                return;
+            }
+
             m_playOnEnable = serializedObject.FindProperty("m_playOnEnable");
             m_useUnscaledTime = serializedObject.FindProperty("m_useUnscaledTime");
             m_speed = serializedObject.FindProperty("m_speed");
@@ -33,11 +40,15 @@ namespace Tekly.Tweenlines
         /// </summary>
         public override bool RequiresConstantRepaint()
         {
-            return Application.isPlaying && m_tweenline.IsPlaying;
+            return Application.isPlaying && m_tweenline != null && m_tweenline.IsPlaying;
         }
 
         public override void OnInspectorGUI()
         {
+            if (m_tweenline == null) {
+                return;
+            }
+
             serializedObject.Update();
 
             if (TweenlineEditorUtils.HasMissingTypes(m_tweenline)) {

@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Tekly.Common.Utils;
-using Tekly.Common.Ui.Fancy;
+using Tekly.Common.Ui.Styled;
 using Tekly.DevBoard.Components;
 using Tekly.DevBoard.Nodes;
 using Tekly.DevBoard.Pages;
@@ -270,20 +270,20 @@ namespace Tekly.DevBoard.Panels
 		/// </summary>
 		private void ApplyDockCorners()
 		{
-			if (!TryGetComponent(out FancyRect rect)) {
+			if (!TryGetComponent(out StyledRect rect)) {
 				return;
 			}
 
 			var square = Dock switch {
-				DockSlot.TopLeft => RectCorners.TopLeft | RectCorners.TopRight | RectCorners.BottomLeft,
-				DockSlot.Top => RectCorners.Top,
-				DockSlot.TopRight => RectCorners.TopLeft | RectCorners.TopRight | RectCorners.BottomRight,
-				DockSlot.BottomRight => RectCorners.BottomLeft | RectCorners.BottomRight | RectCorners.TopRight,
-				DockSlot.Bottom => RectCorners.Bottom,
-				_ => RectCorners.BottomLeft | RectCorners.BottomRight | RectCorners.TopLeft
+				DockSlot.TopLeft => StyledCorners.TopLeft | StyledCorners.TopRight | StyledCorners.BottomLeft,
+				DockSlot.Top => StyledCorners.Top,
+				DockSlot.TopRight => StyledCorners.TopLeft | StyledCorners.TopRight | StyledCorners.BottomRight,
+				DockSlot.BottomRight => StyledCorners.BottomLeft | StyledCorners.BottomRight | StyledCorners.TopRight,
+				DockSlot.Bottom => StyledCorners.Bottom,
+				_ => StyledCorners.BottomLeft | StyledCorners.BottomRight | StyledCorners.TopLeft
 			};
 
-			rect.RoundedCorners = RectCorners.All & ~square;
+			rect.RoundedCorners = StyledCorners.All & ~square;
 		}
 
 		/// <summary>

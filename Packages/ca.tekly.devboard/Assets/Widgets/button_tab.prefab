@@ -132,7 +132,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5085617418491831455}
   - component: {fileID: 558416461575291630}
-  - component: {fileID: 1636814726531491864}
+  - component: {fileID: 3362884936110407331}
   - component: {fileID: 996164124684349914}
   - component: {fileID: 8846877831763874475}
   - component: {fileID: 8140774208369928806}
@@ -173,7 +173,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4689742477341966278}
   m_CullTransparentMesh: 1
---- !u!114 &1636814726531491864
+--- !u!114 &3362884936110407331
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -182,9 +182,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 4689742477341966278}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0726bdc3d2691034cba5eb683bf2f33e, type: 3}
+  m_Script: {fileID: 11500000, guid: bd2ec1839fd864b498281c816ce77109, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Tekly.Common.Runtime::Tekly.Common.Ui.Fancy.FancyRect
+  m_EditorClassIdentifier: Tekly.Common.Runtime::Tekly.Common.Ui.Styled.StyledRect
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
@@ -196,44 +196,19 @@ MonoBehaviour:
   m_radiusMode: 1
   m_radius: 8
   m_cornerRadii: {x: 8, y: 8, z: 0, w: 0}
-  m_cornerType: 2
-  m_cornerTypes:
-    TopLeft: 0
-    TopRight: 0
-    BottomRight: 0
-    BottomLeft: 0
   m_roundedCorners: 15
-  m_bulge: {x: 0, y: 0, z: 0, w: 0}
-  m_containBulge: 0
+  m_cornerSmoothing: 0
   m_sprite: {fileID: 0}
   m_textureMode: 0
   m_textureScale: {x: 1, y: 1}
   m_textureOffset: {x: 0, y: 0}
   m_textureRotation: 0
   m_textureScroll: {x: 0, y: 0}
-  m_fillEnabled: 1
-  m_fill:
-    Color: {r: 1, g: 1, b: 1, a: 1}
-    Gradient: 0
-    Color2: {r: 0.2735849, g: 0.2735849, b: 0.2735849, a: 1}
-    Angle: 180
-    RangeStart: 0.6708861
-    RangeEndInset: 0
-    Bias: -0.48
-  m_backgroundEnabled: 0
-  m_background:
-    Color: {r: 0, g: 0, b: 0, a: 1}
-    Gradient: 1
-    Color2: {r: 1, g: 1, b: 1, a: 1}
-    Angle: 0
-    RangeStart: 0
-    RangeEndInset: 0
-    Bias: 0
-  m_outlines:
+  m_blendMode: 0
+  m_raycastUsesShape: 1
+  m_layers:
   - Enabled: 0
-    Width: 1
-    Offset: 0
-    Alignment: 0
+    Kind: 1
     Paint:
       Color: {r: 0, g: 0, b: 0, a: 0.09803922}
       Gradient: 0
@@ -242,29 +217,34 @@ MonoBehaviour:
       RangeStart: 0
       RangeEndInset: 0
       Bias: 0
-    UseTexture: 0
-  m_shadows: []
-  m_blendMode: 0
-  m_bevel:
-    Enabled: 0
     Width: 1
-    Softness: 0
-    LightAngle: 315
-    Highlight: {r: 1, g: 1, b: 1, a: 0.0627451}
-    Shadow: {r: 0, g: 0, b: 0, a: 0.101960786}
-  m_gloss:
-    Enabled: 0
-    Color: {r: 0, g: 0, b: 0, a: 0}
-    Inset: 0
-    Height: 0
-    Fade: 0
-    Softness: 0
-  m_revealMethod: 0
-  m_revealOrigin: 3
-  m_revealAmount: 1
-  m_revealClockwise: 1
-  m_raycastUsesShape: 1
-  m_rendererTintLayers: 111
+    Align: 0
+    Offset: 0
+    ShadowOffset: {x: 0, y: 0}
+    Blur: 0
+    Spread: 0
+    ShowBehind: 0
+    Textured: 0
+    IgnoreTint: 0
+  - Enabled: 1
+    Kind: 0
+    Paint:
+      Color: {r: 1, g: 1, b: 1, a: 1}
+      Gradient: 0
+      Color2: {r: 0.2735849, g: 0.2735849, b: 0.2735849, a: 1}
+      Angle: 180
+      RangeStart: 0.6708861
+      RangeEndInset: 0
+      Bias: 0
+    Width: 0
+    Align: 0
+    Offset: 0
+    ShadowOffset: {x: 0, y: 0}
+    Blur: 0
+    Spread: 0
+    ShowBehind: 0
+    Textured: 0
+    IgnoreTint: 0
 --- !u!114 &996164124684349914
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -367,7 +347,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 1636814726531491864}
+  m_TargetGraphic: {fileID: 3362884936110407331}
   m_onSelected:
     m_PersistentCalls:
       m_Calls: []
@@ -391,7 +371,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Tekly.Leaf::Tekly.Leaf.Elements.Animators.LeafAnimatorColors
   m_targets:
-  - m_target: {fileID: 1636814726531491864}
+  - m_target: {fileID: 3362884936110407331}
     m_colors:
       Normal: {r: 0.2, g: 0.1882353, b: 0.18039216, a: 0}
       Highlighted: {r: 0.2, g: 0.1882353, b: 0.18039216, a: 0.6}
@@ -469,7 +449,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Tekly.DevBoard::Tekly.DevBoard.Components.ButtonWidget
   m_label: {fileID: 3140544319832857563}
   m_icon: {fileID: 258284058931928341}
-  m_background: {fileID: 1636814726531491864}
+  m_background: {fileID: 3362884936110407331}
 --- !u!1001 &1585884360786715385
 PrefabInstance:
   m_ObjectHideFlags: 0

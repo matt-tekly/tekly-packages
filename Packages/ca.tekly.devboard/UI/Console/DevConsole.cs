@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Tekly.Common.Ui.Fancy;
+using Tekly.Common.Ui.Styled;
 using Tekly.DevBoard.Commands;
 using Tekly.DevBoard.Components;
 using Tekly.DevBoard.Components.Inputs;
@@ -313,10 +313,10 @@ namespace Tekly.DevBoard.Console
 			FitHeight();
 
 			// Docked to the bottom edge of the screen, so only the top corners are rounded
-			var background = m_root.GetComponentInChildren<FancyRect>();
+			var background = m_root.GetComponentInChildren<StyledRect>();
 
 			if (background != null) {
-				background.RoundedCorners = RectCorners.Top;
+				background.RoundedCorners = StyledCorners.Top;
 			}
 
 			m_scroll = m_root.Scroll;

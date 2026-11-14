@@ -108,6 +108,54 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6107508112547332488, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
+      propertyPath: m_radius
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 6107508112547332488, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
+      propertyPath: m_layers.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6107508112547332488, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
+      propertyPath: m_layers.Array.data[1].Kind
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6107508112547332488, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
+      propertyPath: m_layers.Array.data[1].Width
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6107508112547332488, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
+      propertyPath: m_layers.Array.data[1].IgnoreTint
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6107508112547332488, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
+      propertyPath: m_layers.Array.data[1].Paint.Angle
+      value: 180
+      objectReference: {fileID: 0}
+    - target: {fileID: 6107508112547332488, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
+      propertyPath: m_layers.Array.data[1].Paint.Color.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6107508112547332488, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
+      propertyPath: m_layers.Array.data[1].Paint.Color2.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6107508112547332488, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
+      propertyPath: m_layers.Array.data[1].Paint.Color2.b
+      value: 0.2735849
+      objectReference: {fileID: 0}
+    - target: {fileID: 6107508112547332488, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
+      propertyPath: m_layers.Array.data[1].Paint.Color2.g
+      value: 0.2735849
+      objectReference: {fileID: 0}
+    - target: {fileID: 6107508112547332488, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
+      propertyPath: m_layers.Array.data[1].Paint.Color2.r
+      value: 0.2735849
+      objectReference: {fileID: 0}
+    - target: {fileID: 6107508112547332488, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
+      propertyPath: m_layers.Array.data[1].Paint.RangeStart
+      value: 0.6708861
+      objectReference: {fileID: 0}
     - target: {fileID: 6981274037336636507, guid: 0a23f25a9d053b04ea2ec939f4538db8, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -262,4 +310,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Tekly.DevBoard::Tekly.DevBoard.Components.DropdownOption
   m_label: {fileID: 618933821272599978}
+  m_icon: {fileID: 0}
+  m_background: {fileID: 0}
   m_subtitleStyle: sublabel

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Tekly.Common.Ui.Fancy;
+using Tekly.Common.Ui.Styled;
 using UnityEngine;
 
 namespace Tekly.DevBoard.Components
@@ -19,7 +19,7 @@ namespace Tekly.DevBoard.Components
 		[SerializeField] private string m_tabPrefab;
 
 		[Tooltip("Optional. The content's background. Its top left corner is square while the first tab, which sits on it, is selected")]
-		[SerializeField] private FancyRect m_contentBackground;
+		[SerializeField] private StyledRect m_contentBackground;
 
 		[Tooltip("The radius of the content background's corners")]
 		[SerializeField] private float m_contentRadius = 8f;

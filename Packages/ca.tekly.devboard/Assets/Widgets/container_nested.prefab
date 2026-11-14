@@ -52,6 +52,38 @@ PrefabInstance:
       propertyPath: m_shadows.Array.data[0].Paint.Color2.a
       value: 0.3
       objectReference: {fileID: 0}
+    - target: {fileID: 3597854745156188546, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
+      propertyPath: m_radius
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3597854745156188546, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
+      propertyPath: m_layers.Array.data[2].Blur
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3597854745156188546, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
+      propertyPath: m_layers.Array.data[1].Paint.Color.b
+      value: 0.21
+      objectReference: {fileID: 0}
+    - target: {fileID: 3597854745156188546, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
+      propertyPath: m_layers.Array.data[1].Paint.Color.g
+      value: 0.21
+      objectReference: {fileID: 0}
+    - target: {fileID: 3597854745156188546, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
+      propertyPath: m_layers.Array.data[1].Paint.Color.r
+      value: 0.21
+      objectReference: {fileID: 0}
+    - target: {fileID: 3597854745156188546, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
+      propertyPath: m_layers.Array.data[2].Paint.Color.a
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3597854745156188546, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
+      propertyPath: m_layers.Array.data[2].Paint.Color2.a
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3597854745156188546, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
+      propertyPath: m_layers.Array.data[2].ShadowOffset.y
+      value: -2
+      objectReference: {fileID: 0}
     - target: {fileID: 3800044106018391679, guid: 21ba55dccc15328499f7d3350c92eb3e, type: 3}
       propertyPath: m_Name
       value: container_nested

@@ -1,0 +1,451 @@
+using System;
+using UnityEngine;
+
+namespace Tekly.Common.Ui.Styled
+{
+	public enum StyledRadiusMode
+	{
+		Uniform,
+		PerCorner,
+		Pill
+	}
+
+	/// <summary>
+	/// Which corners of a rect. Used to square off corners that touch a neighbour, like the inner corners of a
+	/// segmented button row.
+	/// </summary>
+	[Flags]
+	public enum StyledCorners
+	{
+		None = 0,
+		TopLeft = 1 << 0,
+		TopRight = 1 << 1,
+		BottomRight = 1 << 2,
+		BottomLeft = 1 << 3,
+		Top = TopLeft | TopRight,
+		Bottom = BottomLeft | BottomRight,
+		Left = TopLeft | BottomLeft,
+		Right = TopRight | BottomRight,
+		All = TopLeft | TopRight | BottomRight | BottomLeft
+	}
+
+	/// <summary>
+	/// How the whole rect combines with what is already drawn behind it (other UI and the scene). This is GPU
+	/// blend state, so it applies to the rect and not to one layer, and each mode in use is its own batch.
+	/// Transparent pixels always leave what is behind them unchanged.
+	/// </summary>
+	public enum StyledBlendMode
+	{
+		Normal = 0,
+
+		/// <summary>Adds to what is behind: glows and light.</summary>
+		Additive = 1,
+
+		/// <summary>Darkens what is behind by the rect's color: tints and shading.</summary>
+		Multiply = 2,
+
+		/// <summary>Lightens what is behind without blowing out: soft highlights.</summary>
+		Screen = 3
+	}
+
+	/// <summary>How the rect's sprite is placed in the shape.</summary>
+	public enum StyledTextureMode
+	{
+		/// <summary>
+		/// Keeps the sprite's aspect ratio and covers the whole shape. The overflow is cropped. For photos,
+		/// portraits and item art. Works with atlased sprites.
+		/// </summary>
+		Cover = 0,
+
+		/// <summary>
+		/// Repeats the sprite at its own size, and can scroll. For patterns. Needs a sprite that uses its whole,
+		/// non-atlased texture with Wrap Mode set to Repeat.
+		/// </summary>
+		Tile = 1
+	}
+
+	/// <summary>What a layer draws. Values are what the shader reads.</summary>
+	public enum StyledLayerKind
+	{
+		Fill = 0,
+		Stroke = 1,
+
+		/// <summary>A blurred copy of the shape behind it, as in CSS box-shadow.</summary>
+		Shadow = 2,
+
+		/// <summary>A shadow cast onto the inside of the shape, as in CSS box-shadow with inset.</summary>
+		InnerShadow = 3,
+
+		/// <summary>
+		/// A lit edge just inside the shape: the paint's Color where the edge faces the light, its Color 2 where
+		/// it faces away. The paint's Angle is where the light comes from.
+		/// </summary>
+		Bevel = 4
+	}
+
+	public enum StyledStrokeAlign
+	{
+		Inside,
+		Center,
+		Outside
+	}
+
+	/// <summary>Values are what the shader reads.</summary>
+	public enum StyledGradient
+	{
+		None = 0,
+
+		/// <summary>Runs across the shape toward the angle, from Color to Color 2.</summary>
+		Linear = 1,
+
+		/// <summary>Color at the center, reaching Color 2 at the corners.</summary>
+		Radial = 2,
+
+		/// <summary>Follows the shape: Color at the layer's outer edge, Color 2 at its inner edge or deepest point.</summary>
+		Edge = 3
+	}
+
+	/// <summary>How a layer is colored: a solid color, or a two-color gradient.</summary>
+	[Serializable]
+	public struct StyledPaint
+	{
+		public Color Color;
+		public StyledGradient Gradient;
+		public Color Color2;
+
+		[Tooltip("As in CSS: 0 points up and the angle turns clockwise. The gradient runs toward it, from Color to Color 2.")]
+		[Range(0, 360)]
+		public float Angle;
+
+		[Tooltip("Where the gradient starts (0-1). Before this it is solid Color.")]
+		[Range(0, 1)]
+		public float RangeStart;
+
+		// Stored as an inset so that a paint created without setting it still has a full gradient.
+		[Tooltip("How far before the far end the gradient stops (0-1). After that it is solid Color 2.")]
+		[Range(0, 1)]
+		public float RangeEndInset;
+
+		[Tooltip("Bends the gradient: pushes the halfway point toward Color (negative) or toward Color 2 (positive). The same idea as a color hint in CSS.")]
+		[Range(-1, 1)]
+		public float Bias;
+
+		/// <summary>Where the gradient ends (0-1). After this it is solid Color 2.</summary>
+		public float RangeEnd {
+			get => 1f - RangeEndInset;
+			set => RangeEndInset = 1f - value;
+		}
+
+		/// <summary>
+		/// Position in the gradient (0-1) where the two colors are mixed half and half: 0.5 with no bias,
+		/// from 0.9 at a bias of -1 to 0.1 at a bias of 1.
+		/// </summary>
+		public float Midpoint => 0.5f - Mathf.Clamp(Bias, -1f, 1f) * 0.4f;
+
+		/// <summary>
+		/// The power the gradient position is raised to so that the halfway mix lands on the Midpoint.
+		/// 1 with no bias. This is how CSS bends a gradient around a color hint.
+		/// </summary>
+		public float BiasExponent => Bias == 0f ? 1f : Mathf.Log(0.5f) / Mathf.Log(Midpoint);
+
+		/// <summary>Whether the paint hides everything under it.</summary>
+		public bool IsOpaque => Color.a >= 1f && (Gradient == StyledGradient.None || Color2.a >= 1f);
+
+		public static StyledPaint Solid(Color color)
+		{
+			return new StyledPaint {
+				Color = color,
+				Gradient = StyledGradient.None,
+				Color2 = color
+			};
+		}
+
+		/// <param name="angle">As in CSS: 0 points up (Color at the bottom, Color 2 at the top) and it turns clockwise.</param>
+		public static StyledPaint Linear(Color color, Color color2, float angle = 0)
+		{
+			return new StyledPaint {
+				Color = color,
+				Gradient = StyledGradient.Linear,
+				Color2 = color2,
+				Angle = angle
+			};
+		}
+
+		/// <summary>Color at the center, Color 2 at the corners.</summary>
+		public static StyledPaint Radial(Color color, Color color2)
+		{
+			return new StyledPaint {
+				Color = color,
+				Gradient = StyledGradient.Radial,
+				Color2 = color2
+			};
+		}
+
+		/// <summary>Color at the layer's outer edge, Color 2 at its inner edge or deepest point.</summary>
+		public static StyledPaint Edge(Color color, Color color2)
+		{
+			return new StyledPaint {
+				Color = color,
+				Gradient = StyledGradient.Edge,
+				Color2 = color2
+			};
+		}
+
+		public static implicit operator StyledPaint(Color color)
+		{
+			return Solid(color);
+		}
+	}
+
+	/// <summary>
+	/// One layer of a StyledRect. A rect draws its layers as an ordered list where the first is in front.
+	/// Every kind shares this one flat struct, and fields a kind does not use are ignored.
+	/// </summary>
+	[Serializable]
+	public struct StyledLayer
+	{
+		/// <summary>Band start of a layer with no inner edge, such as a fill. The shader checks for it.</summary>
+		public const float NO_INNER_EDGE = -1e9f;
+
+		public bool Enabled;
+		public StyledLayerKind Kind;
+		public StyledPaint Paint;
+
+		[Tooltip("Stroke and bevel. How wide the stroke is, or how far into the shape the bevel reaches.")]
+		public float Width;
+
+		[Tooltip("Stroke only. Which side of the shape's edge the stroke sits on.")]
+		public StyledStrokeAlign Align;
+
+		[Tooltip("Stroke: extra distance from the shape's edge, in the direction of the alignment. Fill: how far the fill's edge is pulled in from the shape's edge.")]
+		public float Offset;
+
+		[Tooltip("Shadows only. How far the shadow is moved from the shape.")]
+		public Vector2 ShadowOffset;
+
+		[Tooltip("Everything but strokes. How far the layer's edge is blurred: a shadow's or fill's edge, or a bevel's inner edge. The same value as a blur in CSS or a design tool.")]
+		public float Blur;
+
+		[Tooltip("Shadows only. Grows a shadow, or pushes an inner shadow further in, before blurring.")]
+		public float Spread;
+
+		[Tooltip("Shadow only. Also draw the shadow under the shape, where a see-through fill would show it. Off matches CSS.")]
+		public bool ShowBehind;
+
+		[Tooltip("Multiply this layer by the rect's sprite. Not used by bevels.")]
+		public bool Textured;
+
+		[Tooltip("Keep this layer's own colors when the rect is tinted, by its Tint or by anything that colors the whole graphic such as a Button's color transition. The layer still fades with the tint's alpha.")]
+		public bool IgnoreTint;
+
+		public bool IsShadow => Kind == StyledLayerKind.Shadow || Kind == StyledLayerKind.InnerShadow;
+
+		/// <summary>Whether the layer puts anything on screen.</summary>
+		public bool Draws => Enabled && (!UsesWidth || Width > 0);
+
+		private bool UsesWidth => Kind == StyledLayerKind.Stroke || Kind == StyledLayerKind.Bevel;
+
+		/// <summary>
+		/// Width of the layer's soft edge, which fades like a Gaussian blur: four standard deviations, twice the Blur.
+		/// Strokes have none.
+		/// </summary>
+		public float SoftWidth => Kind == StyledLayerKind.Stroke ? 0f : Mathf.Max(0, Blur) * 2f;
+
+		public static StyledLayer Fill(StyledPaint paint)
+		{
+			return new StyledLayer {
+				Enabled = true,
+				Kind = StyledLayerKind.Fill,
+				Paint = paint
+			};
+		}
+
+		public static StyledLayer Stroke(float width, StyledPaint paint, StyledStrokeAlign align = StyledStrokeAlign.Inside)
+		{
+			return new StyledLayer {
+				Enabled = true,
+				Kind = StyledLayerKind.Stroke,
+				Paint = paint,
+				Width = width,
+				Align = align
+			};
+		}
+
+		/// <summary>
+		/// A glossy highlight across the top of the shape: a fill pulled in from the edge that fades out downward.
+		/// It is an ordinary fill, so everything about it can be changed afterwards.
+		/// </summary>
+		/// <param name="inset">Gap between the gloss and the shape's edge.</param>
+		/// <param name="blur">Blur of the gloss's edge.</param>
+		/// <param name="height">How far down the gloss reaches, as a fraction of the shape's height.</param>
+		public static StyledLayer Gloss(Color color, float inset, float blur, float height = 0.5f)
+		{
+			var faded = color;
+			faded.a = 0f;
+
+			var paint = StyledPaint.Linear(faded, color, 0);
+			paint.RangeStart = 1f - Mathf.Clamp01(height);
+
+			return new StyledLayer {
+				Enabled = true,
+				Kind = StyledLayerKind.Fill,
+				Paint = paint,
+				Offset = inset,
+				Blur = blur
+			};
+		}
+
+		/// <param name="offset">As in CSS, but with y up: (0, -6) is a shadow below the shape.</param>
+		public static StyledLayer DropShadow(Vector2 offset, float blur, StyledPaint paint, float spread = 0)
+		{
+			return new StyledLayer {
+				Enabled = true,
+				Kind = StyledLayerKind.Shadow,
+				Paint = paint,
+				ShadowOffset = offset,
+				Blur = blur,
+				Spread = spread
+			};
+		}
+
+		/// <param name="offset">With y up: (0, -4) shades the top inside edge.</param>
+		public static StyledLayer InnerShadow(Vector2 offset, float blur, StyledPaint paint, float spread = 0)
+		{
+			return new StyledLayer {
+				Enabled = true,
+				Kind = StyledLayerKind.InnerShadow,
+				Paint = paint,
+				ShadowOffset = offset,
+				Blur = blur,
+				Spread = spread
+			};
+		}
+
+		/// <param name="lightAngle">Where the light comes from. As in CSS: 0 is straight above and it turns clockwise, so 315 is top-left.</param>
+		public static StyledLayer Bevel(float width, float blur, Color highlight, Color shadow, float lightAngle = 315)
+		{
+			return new StyledLayer {
+				Enabled = true,
+				Kind = StyledLayerKind.Bevel,
+				Paint = new StyledPaint { Color = highlight, Color2 = shadow, Angle = lightAngle },
+				Width = width,
+				Blur = blur
+			};
+		}
+
+		/// <summary>
+		/// The band of signed distance (negative inside the shape) that the layer covers: x is its inner edge,
+		/// y its outer edge. Only strokes and bevels have an inner edge. A fill's outer edge moves in by its Offset.
+		/// </summary>
+		public Vector2 GetBand()
+		{
+			var width = Mathf.Max(0, Width);
+
+			if (Kind == StyledLayerKind.Bevel) {
+				return new Vector2(-width, 0);
+			}
+
+			if (Kind == StyledLayerKind.Fill) {
+				return new Vector2(NO_INNER_EDGE, -Offset);
+			}
+
+			if (Kind != StyledLayerKind.Stroke) {
+				return new Vector2(NO_INNER_EDGE, 0);
+			}
+
+			return Align switch {
+				StyledStrokeAlign.Inside => new Vector2(-Offset - width, -Offset),
+				StyledStrokeAlign.Center => new Vector2(Offset - width * 0.5f, Offset + width * 0.5f),
+				_ => new Vector2(Offset, Offset + width)
+			};
+		}
+
+		/// <summary>
+		/// Whether two versions of a layer cover the same pixels, so that going from one to the other only
+		/// needs new values in the data texture and not a new mesh.
+		/// </summary>
+		public static bool SameGeometry(in StyledLayer a, in StyledLayer b)
+		{
+			if (a.Draws != b.Draws) {
+				return false;
+			}
+
+			if (!a.Draws) {
+				return true;
+			}
+
+			if (a.Kind != b.Kind || a.GetBand() != b.GetBand()) {
+				return false;
+			}
+
+			// A layer with a soft edge reaches as far as its blur.
+			if (a.SoftWidth != b.SoftWidth) {
+				return false;
+			}
+
+			return !a.IsShadow || (a.ShadowOffset == b.ShadowOffset && a.Blur == b.Blur && a.Spread == b.Spread && a.ShowBehind == b.ShowBehind);
+		}
+	}
+
+	/// <summary>
+	/// Where a StyledRect's values sit in the data texture. A rect owns one run of texels: its shape, then each
+	/// of its layers. Every texel is four floats. The shader include StyledRectCore.cginc reads the same layout,
+	/// so change both together.
+	///
+	/// Shape texels:
+	///   0  half size x, half size y, unused, unused
+	///   1  corner radii: top-left, top-right, bottom-right, bottom-left (already fitted to the size)
+	///   2  corner exponents, one per corner in the order of the radii: 2 is a circular corner, 4 a squircle
+	///   3  reserved: shape wobble (amount, lobe length, seed, drift speed)
+	///   4  reserved: reveal
+	///   5  texture matrix: uv.x = dot(xy, position), uv.y = dot(zw, position)
+	///   6  texture offset x, y, then scroll x, y in tiles per second
+	///   7  texture uv limits: min x, min y, max x, max y. Keeps a Cover sprite inside its own part of an atlas.
+	///
+	/// Layer texels:
+	///   0  kind, flags (1 = underlay: ends the layer a pixel early, see StyledRect.WriteRows.
+	///      2 = show behind: a shadow is not cut out under the shape. 4 = textured. 8 = ignore tint),
+	///      band start, band end
+	///   1  offset x, offset y, soft width (twice the blur), spread. Offset and spread are for shadows.
+	///   2  color A (gamma, straight alpha)
+	///   3  color B (gamma, straight alpha)
+	///   4  gradient type, angle in radians, range start, range end
+	///   5  gradient exponent (1 leaves the gradient straight, see StyledPaint.BiasExponent), then three unused
+	///   6  soft radii: the corner radii an inner shadow, a blurred fill or an Edge gradient measures against
+	///      (see StyledRect.SoftRadii)
+	/// </summary>
+	public static class StyledRows
+	{
+		public const int SHAPE_TEXELS = 8;
+		public const int SHAPE_SIZE = 0;
+		public const int SHAPE_RADII = 1;
+		public const int SHAPE_CORNER_EXPONENTS = 2;
+		public const int SHAPE_TEXTURE_MATRIX = 5;
+		public const int SHAPE_TEXTURE_OFFSET = 6;
+		public const int SHAPE_TEXTURE_LIMITS = 7;
+
+		public const int LAYER_TEXELS = 7;
+		public const int LAYER_HEADER = 0;
+		public const int LAYER_SHADOW = 1;
+		public const int LAYER_COLOR_A = 2;
+		public const int LAYER_COLOR_B = 3;
+		public const int LAYER_GRADIENT = 4;
+		public const int LAYER_GRADIENT_CURVE = 5;
+		public const int LAYER_SOFT_RADII = 6;
+
+		public const int FLAG_UNDERLAY = 1;
+		public const int FLAG_SHOW_BEHIND = 2;
+		public const int FLAG_TEXTURED = 4;
+		public const int FLAG_IGNORE_TINT = 8;
+
+		public static int SpanTexels(int layerCount)
+		{
+			return SHAPE_TEXELS + layerCount * LAYER_TEXELS;
+		}
+
+		public static int LayerAddress(int spanAddress, int layerIndex)
+		{
+			return spanAddress + SHAPE_TEXELS + layerIndex * LAYER_TEXELS;
+		}
+	}
+}
