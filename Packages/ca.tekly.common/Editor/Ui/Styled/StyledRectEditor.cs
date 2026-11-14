@@ -43,6 +43,15 @@ namespace Tekly.Common.Ui.Styled
 			"Extra distance from the shape's edge, in the direction of the alignment.");
 		private static readonly LayerField s_inset = new LayerField(nameof(StyledLayer.Offset), "Inset",
 			"How far the fill's edge is pulled in from the shape's edge.");
+		private static readonly LayerField s_dashSpacing = new LayerField(nameof(StyledLayer.DashSpacing));
+		private static readonly LayerField s_dashLength = new LayerField(nameof(StyledLayer.DashLength));
+		private static readonly LayerField s_dashSpeed = new LayerField(nameof(StyledLayer.DashSpeed));
+		private static readonly LayerField s_dashRoundCaps = new LayerField(nameof(StyledLayer.DashRoundCaps), "Round Caps",
+			"Round the ends of each dash. The caps fit inside the dash length.");
+		private static readonly LayerField s_wobbleWidth = new LayerField(nameof(StyledLayer.WobbleWidth));
+		private static readonly LayerField s_wobbleDrift = new LayerField(nameof(StyledLayer.WobbleDrift));
+		private static readonly LayerField s_wobbleLength = new LayerField(nameof(StyledLayer.WobbleLength));
+		private static readonly LayerField s_wobbleSeed = new LayerField(nameof(StyledLayer.WobbleSeed));
 		private static readonly LayerField s_shadowOffset = new LayerField(nameof(StyledLayer.ShadowOffset), "Offset",
 			"How far the shadow is moved from the shape. Y is up, so (0, -6) is below the shape.");
 		private static readonly LayerField s_blur = new LayerField(nameof(StyledLayer.Blur));
@@ -57,12 +66,21 @@ namespace Tekly.Common.Ui.Styled
 			"Where the light comes from. As in CSS: 0 is straight above and it turns clockwise, so 315 is top-left.");
 
 		private static readonly LayerField[] s_allFields = {
-			s_kind, s_width, s_align, s_offset, s_inset, s_shadowOffset, s_blur, s_spread, s_showBehind, s_paint, s_textured, s_highlight, s_shadow, s_lightAngle, s_ignoreTint
+			s_kind, s_width, s_align, s_offset, s_dashSpacing, s_dashLength, s_dashSpeed, s_dashRoundCaps, s_wobbleWidth, s_wobbleDrift, s_wobbleLength, s_wobbleSeed, s_inset, s_shadowOffset, s_blur, s_spread, s_showBehind, s_paint, s_textured, s_highlight, s_shadow, s_lightAngle, s_ignoreTint
 		};
 
 		// The fields each layer kind shows when unfolded.
 		private static readonly LayerField[] s_fillFields = { s_kind, s_paint, s_inset, s_blur, s_textured, s_ignoreTint };
-		private static readonly LayerField[] s_strokeFields = { s_kind, s_width, s_align, s_offset, s_paint, s_textured, s_ignoreTint };
+		private static readonly LayerField[] s_strokeFields = {
+			s_kind, s_width, s_align, s_offset, s_paint, s_dashSpacing, s_dashLength, s_dashSpeed, s_dashRoundCaps,
+			s_wobbleWidth, s_wobbleDrift, s_wobbleLength, s_wobbleSeed, s_textured, s_ignoreTint
+		};
+
+		// Shown only on a stroke that has a dash spacing.
+		private static readonly LayerField[] s_dashDetailFields = { s_dashLength, s_dashSpeed, s_dashRoundCaps };
+
+		// Shown only on a stroke that wobbles.
+		private static readonly LayerField[] s_wobbleDetailFields = { s_wobbleLength, s_wobbleSeed };
 		private static readonly LayerField[] s_shadowFields = { s_kind, s_shadowOffset, s_blur, s_spread, s_showBehind, s_paint, s_textured, s_ignoreTint };
 		private static readonly LayerField[] s_innerShadowFields = { s_kind, s_shadowOffset, s_blur, s_spread, s_paint, s_textured, s_ignoreTint };
 		private static readonly LayerField[] s_bevelFields = { s_kind, s_width, s_blur, s_highlight, s_shadow, s_lightAngle, s_ignoreTint };
@@ -114,6 +132,7 @@ namespace Tekly.Common.Ui.Styled
 			shape.Add(cornerRadii);
 			shape.Add(new PropertyField(serializedObject.FindProperty("m_roundedCorners")));
 			shape.Add(new PropertyField(serializedObject.FindProperty("m_cornerSmoothing")));
+			shape.Add(CreateWobble());
 
 			void Refresh()
 			{
@@ -128,6 +147,32 @@ namespace Tekly.Common.Ui.Styled
 			Refresh();
 
 			return shape;
+		}
+
+		/// <summary>The shape's wobble: the amount, and once there is one, the lobes' length, seed and speed.</summary>
+		private VisualElement CreateWobble()
+		{
+			var amount = serializedObject.FindProperty("m_wobbleAmount");
+
+			var wobble = new VisualElement();
+			wobble.Add(new PropertyField(amount, "Wobble"));
+
+			var details = new VisualElement();
+			details.style.marginLeft = 15f;
+			details.Add(new PropertyField(serializedObject.FindProperty("m_wobbleLength"), "Lobe Length"));
+			details.Add(new PropertyField(serializedObject.FindProperty("m_wobbleSeed"), "Seed"));
+			details.Add(new PropertyField(serializedObject.FindProperty("m_wobbleSpeed"), "Speed"));
+			wobble.Add(details);
+
+			void Refresh()
+			{
+				SetVisible(details, amount.hasMultipleDifferentValues || amount.floatValue > 0f);
+			}
+
+			wobble.TrackPropertyValue(amount, _ => Refresh());
+			Refresh();
+
+			return wobble;
 		}
 
 		/// <summary>The four corner radii laid out the way the corners sit: top-left and top-right above bottom-left and bottom-right.</summary>
@@ -352,7 +397,8 @@ namespace Tekly.Common.Ui.Styled
 				case StyledLayerKind.Stroke: {
 					var width = layer.FindPropertyRelative(nameof(StyledLayer.Width)).floatValue;
 					var align = (StyledStrokeAlign)layer.FindPropertyRelative(nameof(StyledLayer.Align)).intValue;
-					return $"Stroke   {width:0.##} {align.ToString().ToLowerInvariant()}{paint}";
+					var dashes = layer.FindPropertyRelative(nameof(StyledLayer.DashSpacing)).floatValue > 0f ? "   dashed" : "";
+					return $"Stroke   {width:0.##} {align.ToString().ToLowerInvariant()}{dashes}{paint}";
 				}
 				case StyledLayerKind.Shadow:
 					return $"Shadow   {SummarizeShadow(layer)}{paint}";
@@ -505,8 +551,22 @@ namespace Tekly.Common.Ui.Styled
 				SetVisible(m_body, m_layer.isExpanded);
 				m_body.SetEnabled(enabled);
 
+				var dashed = m_layer.FindPropertyRelative(nameof(StyledLayer.DashSpacing)).floatValue > 0f;
+				var wobbles = m_layer.FindPropertyRelative(nameof(StyledLayer.WobbleWidth)).floatValue > 0f
+				              || m_layer.FindPropertyRelative(nameof(StyledLayer.WobbleDrift)).floatValue > 0f;
+
 				for (var i = 0; i < s_allFields.Length; i++) {
-					SetVisible(m_fields[i], Array.IndexOf(shown, s_allFields[i]) >= 0);
+					var visible = Array.IndexOf(shown, s_allFields[i]) >= 0;
+
+					if (visible && !dashed && Array.IndexOf(s_dashDetailFields, s_allFields[i]) >= 0) {
+						visible = false;
+					}
+
+					if (visible && !wobbles && Array.IndexOf(s_wobbleDetailFields, s_allFields[i]) >= 0) {
+						visible = false;
+					}
+
+					SetVisible(m_fields[i], visible);
 				}
 			}
 		}

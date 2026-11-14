@@ -661,6 +661,10 @@ MonoBehaviour:
   m_cornerRadii: {x: 16, y: 16, z: 16, w: 16}
   m_roundedCorners: 15
   m_cornerSmoothing: 0
+  m_wobbleAmount: 0
+  m_wobbleLength: 80
+  m_wobbleSeed: 0
+  m_wobbleSpeed: 0
   m_sprite: {fileID: 0}
   m_textureMode: 0
   m_textureScale: {x: 1, y: 1}
@@ -683,6 +687,11 @@ MonoBehaviour:
     Width: 0
     Align: 0
     Offset: 0
+    DashSpacing: 0
+    DashLength: 0
+    DashSpeed: 0
+    DashRoundCaps: 0
+    WobbleWidth: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
     Spread: 0
@@ -759,6 +768,10 @@ MonoBehaviour:
   m_cornerRadii: {x: 16, y: 16, z: 16, w: 16}
   m_roundedCorners: 15
   m_cornerSmoothing: 0
+  m_wobbleAmount: 0
+  m_wobbleLength: 80
+  m_wobbleSeed: 0
+  m_wobbleSpeed: 0
   m_sprite: {fileID: 0}
   m_textureMode: 0
   m_textureScale: {x: 1, y: 1}
@@ -781,6 +794,11 @@ MonoBehaviour:
     Width: 0
     Align: 0
     Offset: 0
+    DashSpacing: 0
+    DashLength: 0
+    DashSpeed: 0
+    DashRoundCaps: 0
+    WobbleWidth: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
     Spread: 0
@@ -797,7 +815,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1464532257}
   - component: {fileID: 1464532260}
-  - component: {fileID: 1464532259}
+  - component: {fileID: 1464532261}
   - component: {fileID: 1464532258}
   m_Layer: 5
   m_Name: Content
@@ -841,7 +859,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
   m_ShowMaskGraphic: 1
---- !u!114 &1464532259
+--- !u!222 &1464532260
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1464532256}
+  m_CullTransparentMesh: 1
+--- !u!114 &1464532261
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -850,9 +876,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1464532256}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0726bdc3d2691034cba5eb683bf2f33e, type: 3}
+  m_Script: {fileID: 11500000, guid: bd2ec1839fd864b498281c816ce77109, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Tekly.Common.Runtime::Tekly.Common.Ui.Fancy.FancyRect
+  m_EditorClassIdentifier: Tekly.Common.Runtime::Tekly.Common.Ui.Styled.StyledRect
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
@@ -864,44 +890,23 @@ MonoBehaviour:
   m_radiusMode: 0
   m_radius: 160.5
   m_cornerRadii: {x: 16, y: 16, z: 16, w: 16}
-  m_cornerType: 2
-  m_cornerTypes:
-    TopLeft: 0
-    TopRight: 0
-    BottomRight: 0
-    BottomLeft: 0
   m_roundedCorners: 15
-  m_bulge: {x: 0, y: 0, z: 0, w: 0}
-  m_containBulge: 0
+  m_cornerSmoothing: 1
+  m_wobbleAmount: 0
+  m_wobbleLength: 80
+  m_wobbleSeed: 0
+  m_wobbleSpeed: 0
   m_sprite: {fileID: 0}
   m_textureMode: 0
   m_textureScale: {x: 1, y: 1}
   m_textureOffset: {x: 0, y: 0}
   m_textureRotation: 0
   m_textureScroll: {x: 0, y: 0}
-  m_fillEnabled: 1
-  m_fill:
-    Color: {r: 0.5188679, g: 0.5188679, b: 0.5188679, a: 1}
-    Gradient: 0
-    Color2: {r: 1, g: 1, b: 1, a: 1}
-    Angle: 0
-    RangeStart: 0
-    RangeEndInset: 0
-    Bias: 0
-  m_backgroundEnabled: 0
-  m_background:
-    Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Gradient: 0
-    Color2: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Angle: 0
-    RangeStart: 0
-    RangeEndInset: 0
-    Bias: 0
-  m_outlines:
+  m_blendMode: 0
+  m_raycastUsesShape: 1
+  m_layers:
   - Enabled: 1
-    Width: 11
-    Offset: 0
-    Alignment: 0
+    Kind: 1
     Paint:
       Color: {r: 1, g: 1, b: 1, a: 1}
       Gradient: 0
@@ -910,55 +915,44 @@ MonoBehaviour:
       RangeStart: 0
       RangeEndInset: 0
       Bias: 0
-    UseTexture: 0
-    Style: 1
-    Dashes:
-      Spacing: 114
-      Length: 0.745
-      Speed: 99
-      RoundCaps: 0
-    Notches:
-      Count: 17
-      Width: 63
-      Depth: 0.469
-      Shape: 0
-      Side: 0
-      Jitter: 1
-    Wobble:
-      Wavelength: 40
-      Thickness: 1
-      Drift: 2
-      Seed: 0
-  m_shadows: []
-  m_blendMode: 0
-  m_bevel:
-    Enabled: 0
+    Width: 11
+    Align: 0
+    Offset: 0
+    DashSpacing: 114
+    DashLength: 0.745
+    DashSpeed: 99
+    DashRoundCaps: 0
+    WobbleWidth: 0
+    ShadowOffset: {x: 0, y: 0}
+    Blur: 0
+    Spread: 0
+    ShowBehind: 0
+    Textured: 0
+    IgnoreTint: 0
+  - Enabled: 1
+    Kind: 0
+    Paint:
+      Color: {r: 0.5188679, g: 0.5188679, b: 0.5188679, a: 1}
+      Gradient: 0
+      Color2: {r: 1, g: 1, b: 1, a: 1}
+      Angle: 0
+      RangeStart: 0
+      RangeEndInset: 0
+      Bias: 0
     Width: 0
-    Softness: 0
-    LightAngle: 0
-    Highlight: {r: 0, g: 0, b: 0, a: 0}
-    Shadow: {r: 0, g: 0, b: 0, a: 0}
-  m_gloss:
-    Enabled: 0
-    Color: {r: 0, g: 0, b: 0, a: 0}
-    Inset: 0
-    Height: 0
-    Fade: 0
-    Softness: 0
-  m_revealMethod: 0
-  m_revealOrigin: 3
-  m_revealAmount: 1
-  m_revealClockwise: 1
-  m_raycastUsesShape: 1
-  m_rendererTintLayers: 127
---- !u!222 &1464532260
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1464532256}
-  m_CullTransparentMesh: 1
+    Align: 0
+    Offset: 0
+    DashSpacing: 0
+    DashLength: 0
+    DashSpeed: 0
+    DashRoundCaps: 0
+    WobbleWidth: 0
+    ShadowOffset: {x: 0, y: 0}
+    Blur: 0
+    Spread: 0
+    ShowBehind: 0
+    Textured: 0
+    IgnoreTint: 0
 --- !u!1 &2029996960
 GameObject:
   m_ObjectHideFlags: 0
@@ -1029,6 +1023,10 @@ MonoBehaviour:
   m_cornerRadii: {x: 16, y: 16, z: 16, w: 16}
   m_roundedCorners: 15
   m_cornerSmoothing: 0
+  m_wobbleAmount: 0
+  m_wobbleLength: 80
+  m_wobbleSeed: 0
+  m_wobbleSpeed: 0
   m_sprite: {fileID: 0}
   m_textureMode: 0
   m_textureScale: {x: 1, y: 1}
@@ -1051,6 +1049,11 @@ MonoBehaviour:
     Width: 0
     Align: 0
     Offset: 0
+    DashSpacing: 0
+    DashLength: 0
+    DashSpeed: 0
+    DashRoundCaps: 0
+    WobbleWidth: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
     Spread: 0

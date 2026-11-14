@@ -25,6 +25,7 @@ namespace Tekly.Common.Ui.Styled
 
 		private const int START_HEIGHT = 16;
 		private const string SHADER_RESOURCE = "Shaders/StyledRect";
+		private const string EXTENDED_SHADER_RESOURCE = "Shaders/StyledRectExtended";
 
 		private static readonly int s_dataId = Shader.PropertyToID("_TeklyStyledData");
 		private static readonly int s_dataWidthId = Shader.PropertyToID("_TeklyStyledDataWidth");
@@ -55,7 +56,10 @@ namespace Tekly.Common.Ui.Styled
 		private readonly Dictionary<int, Stack<int>> m_freeSpans = new Dictionary<int, Stack<int>>();
 		private readonly Texture2D m_texture;
 		private readonly Shader m_shader;
-		private readonly Material[] m_materials = new Material[BLEND_MODE_COUNT];
+		private readonly Shader m_extendedShader;
+
+		// One per blend mode for the Core shader, then one per blend mode for the Extended shader.
+		private readonly Material[] m_materials = new Material[BLEND_MODE_COUNT * 2];
 		// Native, not managed: Texture2D.SetPixelData allocates on every call when given a managed array.
 		private NativeArray<Vector4> m_data;
 		private int m_nextAddress;
@@ -78,6 +82,7 @@ namespace Tekly.Common.Ui.Styled
 			m_data = new NativeArray<Vector4>(WIDTH * START_HEIGHT, Allocator.Persistent);
 
 			m_shader = Resources.Load<Shader>(SHADER_RESOURCE);
+			m_extendedShader = Resources.Load<Shader>(EXTENDED_SHADER_RESOURCE);
 
 			m_dirty = true;
 
@@ -89,20 +94,22 @@ namespace Tekly.Common.Ui.Styled
 		}
 
 		/// <summary>
-		/// The shared material for a blend mode, created the first time that mode is used. Every rect with the
-		/// same mode uses the same material, so they batch.
+		/// The shared material for a blend mode, created the first time it is used. Every rect with the same
+		/// mode and the same shader tier uses the same material, so they batch.
 		/// </summary>
-		public Material GetMaterial(StyledBlendMode blendMode)
+		/// <param name="extended">Use the Extended shader, for rects with dashes or wobble.</param>
+		public Material GetMaterial(StyledBlendMode blendMode, bool extended = false)
 		{
 			var index = Mathf.Clamp((int)blendMode, 0, BLEND_MODE_COUNT - 1);
-			var material = m_materials[index];
+			var slot = index + (extended ? BLEND_MODE_COUNT : 0);
+			var material = m_materials[slot];
 
 			if (material != null) {
 				return material;
 			}
 
-			material = new Material(m_shader) {
-				name = $"Styled Rect ({(StyledBlendMode)index})",
+			material = new Material(extended ? m_extendedShader : m_shader) {
+				name = $"Styled Rect ({(StyledBlendMode)index}{(extended ? ", Extended" : "")})",
 				hideFlags = HideFlags.HideAndDontSave
 			};
 
@@ -122,7 +129,7 @@ namespace Tekly.Common.Ui.Styled
 			material.SetFloat(s_blendColorOutputId, colorOutput);
 			material.SetFloat(s_blendAlphaOutputId, alphaOutput);
 
-			m_materials[index] = material;
+			m_materials[slot] = material;
 			return material;
 		}
 

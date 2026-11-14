@@ -646,11 +646,23 @@ namespace Tekly.Common.Ui.Styled
 				layer.Enabled = outline.Enabled;
 				layer.Offset = outline.Offset;
 				layer.Textured = outline.UseTexture;
-				layers.Add(WithTint(layer, FancyRectLayers.Outlines, tinted, tint));
 
-				if (outline.Enabled && outline.Style != OutlineStyle.Solid) {
-					plan.Notes.Add($"An outline used the [{outline.Style}] style, which has no equivalent yet. It becomes a solid stroke");
+				switch (outline.Style) {
+					case OutlineStyle.Dashes:
+						layer = layer.WithDashes(outline.Dashes.Spacing, outline.Dashes.Length, outline.Dashes.RoundCaps, outline.Dashes.Speed);
+						break;
+					case OutlineStyle.Wobble:
+						layer = layer.WithWobble(outline.Wobble.Thickness, outline.Wobble.Drift, outline.Wobble.Wavelength, outline.Wobble.Seed);
+						break;
+					case OutlineStyle.Notches:
+						if (outline.Enabled) {
+							plan.Notes.Add("An outline used the Notches style, which has no equivalent. It becomes a solid stroke");
+						}
+
+						break;
 				}
+
+				layers.Add(WithTint(layer, FancyRectLayers.Outlines, tinted, tint));
 			}
 
 			layers.Reverse();

@@ -220,6 +220,31 @@ namespace Tekly.Common.Ui.Styled
 		[Tooltip("Stroke: extra distance from the shape's edge, in the direction of the alignment. Fill: how far the fill's edge is pulled in from the shape's edge.")]
 		public float Offset;
 
+		[Tooltip("Stroke only. Distance from the start of one dash to the next. 0 draws a solid stroke. Adjusted slightly so the dashes meet evenly around the edge.")]
+		public float DashSpacing;
+
+		[Tooltip("Stroke only. How much of each step is dash. 0 with Round Caps gives dots.")]
+		[Range(0, 1)]
+		public float DashLength;
+
+		[Tooltip("Stroke only. Moves the dashes along the edge, in units per second. Clockwise when positive. Uses game time.")]
+		public float DashSpeed;
+
+		[Tooltip("Stroke only. Round the ends of each dash. The caps fit inside the dash length.")]
+		public bool DashRoundCaps;
+
+		[Tooltip("Stroke only. How much the stroke's width varies along the edge, for a hand-drawn look.")]
+		public float WobbleWidth;
+
+		[Tooltip("Stroke only. How far the stroke drifts in and out from its position along the edge.")]
+		public float WobbleDrift;
+
+		[Tooltip("Stroke only. Distance between this stroke's wobbles along the edge. 0 uses the shape's Lobe Length. Adjusted slightly so the wobble loops evenly.")]
+		public float WobbleLength;
+
+		[Tooltip("Stroke only. Picks a different wobble pattern for this stroke, so two strokes do not move together.")]
+		public float WobbleSeed;
+
 		[Tooltip("Shadows only. How far the shadow is moved from the shape.")]
 		public Vector2 ShadowOffset;
 
@@ -239,6 +264,15 @@ namespace Tekly.Common.Ui.Styled
 		public bool IgnoreTint;
 
 		public bool IsShadow => Kind == StyledLayerKind.Shadow || Kind == StyledLayerKind.InnerShadow;
+
+		/// <summary>How far a stroke's own wobble can push it past its band. 0 for everything else.</summary>
+		public float WobbleReach => Kind == StyledLayerKind.Stroke ? Mathf.Max(0, WobbleWidth) + Mathf.Max(0, WobbleDrift) : 0f;
+
+		/// <summary>
+		/// Whether the layer needs the position along the shape's edge, which only the Extended shader works
+		/// out: a dashed stroke, or a stroke that wobbles.
+		/// </summary>
+		public bool UsesEdgePosition => Draws && Kind == StyledLayerKind.Stroke && (DashSpacing > 0 || WobbleWidth > 0 || WobbleDrift > 0);
 
 		/// <summary>Whether the layer puts anything on screen.</summary>
 		public bool Draws => Enabled && (!UsesWidth || Width > 0);
@@ -269,6 +303,32 @@ namespace Tekly.Common.Ui.Styled
 				Width = width,
 				Align = align
 			};
+		}
+
+		/// <summary>A copy of this stroke with dashes. A length of 0 with round caps gives dots.</summary>
+		public StyledLayer WithDashes(float spacing, float length = 0.55f, bool roundCaps = true, float speed = 0)
+		{
+			var layer = this;
+			layer.DashSpacing = spacing;
+			layer.DashLength = length;
+			layer.DashRoundCaps = roundCaps;
+			layer.DashSpeed = speed;
+			return layer;
+		}
+
+		/// <summary>
+		/// A copy of this stroke with a wobble of its own: its width varies and it drifts in and out along
+		/// the edge. Give two strokes different seeds and they move independently.
+		/// </summary>
+		/// <param name="length">Distance between wobbles. 0 uses the shape's Lobe Length.</param>
+		public StyledLayer WithWobble(float width, float drift, float length = 0, float seed = 0)
+		{
+			var layer = this;
+			layer.WobbleWidth = width;
+			layer.WobbleDrift = drift;
+			layer.WobbleLength = length;
+			layer.WobbleSeed = seed;
+			return layer;
 		}
 
 		/// <summary>
@@ -374,7 +434,7 @@ namespace Tekly.Common.Ui.Styled
 				return true;
 			}
 
-			if (a.Kind != b.Kind || a.GetBand() != b.GetBand()) {
+			if (a.Kind != b.Kind || a.GetBand() != b.GetBand() || a.WobbleReach != b.WobbleReach) {
 				return false;
 			}
 
@@ -396,7 +456,7 @@ namespace Tekly.Common.Ui.Styled
 	///   0  half size x, half size y, unused, unused
 	///   1  corner radii: top-left, top-right, bottom-right, bottom-left (already fitted to the size)
 	///   2  corner exponents, one per corner in the order of the radii: 2 is a circular corner, 4 a squircle
-	///   3  reserved: shape wobble (amount, lobe length, seed, drift speed)
+	///   3  shape wobble: amount, lobe length, seed, changes per second
 	///   4  reserved: reveal
 	///   5  texture matrix: uv.x = dot(xy, position), uv.y = dot(zw, position)
 	///   6  texture offset x, y, then scroll x, y in tiles per second
@@ -413,6 +473,9 @@ namespace Tekly.Common.Ui.Styled
 	///   5  gradient exponent (1 leaves the gradient straight, see StyledPaint.BiasExponent), then three unused
 	///   6  soft radii: the corner radii an inner shadow, a blurred fill or an Edge gradient measures against
 	///      (see StyledRect.SoftRadii)
+	///   7  stroke dashes: spacing (0 = solid), dash length as a fraction of the spacing plus 2 for round
+	///      caps, speed, unused
+	///   8  stroke wobble: width variation, drift, length (0 = the shape's lobe length), seed
 	/// </summary>
 	public static class StyledRows
 	{
@@ -420,11 +483,12 @@ namespace Tekly.Common.Ui.Styled
 		public const int SHAPE_SIZE = 0;
 		public const int SHAPE_RADII = 1;
 		public const int SHAPE_CORNER_EXPONENTS = 2;
+		public const int SHAPE_WOBBLE = 3;
 		public const int SHAPE_TEXTURE_MATRIX = 5;
 		public const int SHAPE_TEXTURE_OFFSET = 6;
 		public const int SHAPE_TEXTURE_LIMITS = 7;
 
-		public const int LAYER_TEXELS = 7;
+		public const int LAYER_TEXELS = 9;
 		public const int LAYER_HEADER = 0;
 		public const int LAYER_SHADOW = 1;
 		public const int LAYER_COLOR_A = 2;
@@ -432,6 +496,8 @@ namespace Tekly.Common.Ui.Styled
 		public const int LAYER_GRADIENT = 4;
 		public const int LAYER_GRADIENT_CURVE = 5;
 		public const int LAYER_SOFT_RADII = 6;
+		public const int LAYER_STROKE_DASHES = 7;
+		public const int LAYER_STROKE_WOBBLE = 8;
 
 		public const int FLAG_UNDERLAY = 1;
 		public const int FLAG_SHOW_BEHIND = 2;

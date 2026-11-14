@@ -54,6 +54,47 @@ namespace Tekly.Common.Ui.Styled
 			set => SetShapeValue(ref m_cornerSmoothing, Mathf.Clamp01(value));
 		}
 
+		/// <summary>
+		/// How far the shape's edge wobbles in and out, for a soft, hand-made outline. Every layer follows it.
+		/// 0 turns it off. A rect with a wobble draws with the Extended shader.
+		/// </summary>
+		public float WobbleAmount {
+			get => m_wobbleAmount;
+			set {
+				value = Mathf.Max(0, value);
+
+				if (m_wobbleAmount == value) {
+					return;
+				}
+
+				// The wobble reaches past the shape, so the layers' quads change, and it can change the shader.
+				m_wobbleAmount = value;
+				SetVerticesDirty();
+				SetMaterialDirty();
+			}
+		}
+
+		/// <summary>Length of one lobe along the edge. Adjusted slightly so a whole number fits around the shape.</summary>
+		public float WobbleLength {
+			get => m_wobbleLength;
+			set => SetTextureValue(ref m_wobbleLength, Mathf.Max(1, value));
+		}
+
+		/// <summary>Picks a different set of lobes.</summary>
+		public float WobbleSeed {
+			get => m_wobbleSeed;
+			set => SetTextureValue(ref m_wobbleSeed, value);
+		}
+
+		/// <summary>
+		/// How many times a second the lobes change into a new set. The edge morphs in place and does not
+		/// travel around the shape. 0 keeps it still. Runs in the shader from game time.
+		/// </summary>
+		public float WobbleSpeed {
+			get => m_wobbleSpeed;
+			set => SetTextureValue(ref m_wobbleSpeed, value);
+		}
+
 		/// <summary>Optional sprite. Multiplies every layer that has Textured on. See TextureMode for how it is placed.</summary>
 		public Sprite Sprite {
 			get => m_sprite;
@@ -122,7 +163,7 @@ namespace Tekly.Common.Ui.Styled
 		/// <summary>Layers are ordered front to back: index 0 is drawn on top.</summary>
 		public int LayerCount => m_layers.Count;
 
-		public override Material defaultMaterial => StyledRectStore.Instance.GetMaterial(m_blendMode);
+		public override Material defaultMaterial => StyledRectStore.Instance.GetMaterial(m_blendMode, UsesExtendedShader());
 
 		public override Texture mainTexture => m_sprite != null ? m_sprite.texture : s_WhiteTexture;
 
@@ -157,6 +198,18 @@ namespace Tekly.Common.Ui.Styled
 
 		[Tooltip("How much the corners ease into the sides. 0 is a circular corner, 1 is a squircle like an app icon's.")]
 		[SerializeField, Range(0, 1)] private float m_cornerSmoothing;
+
+		[Tooltip("How far the shape's edge wobbles in and out, for a soft, hand-made outline. Every layer follows it. 0 turns it off.")]
+		[SerializeField] private float m_wobbleAmount;
+
+		[Tooltip("Length of one lobe along the edge. Adjusted slightly so a whole number fits around the shape.")]
+		[SerializeField] private float m_wobbleLength = 80;
+
+		[Tooltip("Picks a different set of lobes.")]
+		[SerializeField] private float m_wobbleSeed;
+
+		[Tooltip("How many times a second the lobes change into a new set. The edge morphs in place. 0 keeps it still. Uses game time.")]
+		[SerializeField] private float m_wobbleSpeed;
 
 		[Tooltip("Multiplies every layer that has Use Texture on.")]
 		[SerializeField] private Sprite m_sprite;
@@ -204,6 +257,11 @@ namespace Tekly.Common.Ui.Styled
 			} else {
 				SetVerticesDirty();
 			}
+
+			// Dashes or a wobbling width move the rect to the Extended shader.
+			if (previous.UsesEdgePosition != layer.UsesEdgePosition) {
+				SetMaterialDirty();
+			}
 		}
 
 		/// <summary>Changes a layer's paint. Never rebuilds the mesh.</summary>
@@ -225,12 +283,14 @@ namespace Tekly.Common.Ui.Styled
 		{
 			m_layers.Insert(index, layer);
 			SetVerticesDirty();
+			SetMaterialDirty();
 		}
 
 		public void RemoveLayer(int index)
 		{
 			m_layers.RemoveAt(index);
 			SetVerticesDirty();
+			SetMaterialDirty();
 		}
 
 		/// <summary>Paints the frontmost fill, or adds a fill behind everything when there is none.</summary>
@@ -355,6 +415,13 @@ namespace Tekly.Common.Ui.Styled
 				}
 
 				GetLayerBounds(layer, halfSize, radii, out var min, out var max, out var holeMin, out var holeMax);
+
+				// A wobble moves edges either way, so the layer reaches further out and its hole is smaller.
+				var wobble = Vector2.one * (Mathf.Max(0, m_wobbleAmount) + layer.WobbleReach);
+				min -= wobble;
+				max += wobble;
+				holeMin += wobble;
+				holeMax -= wobble;
 
 				// A hole can reach past a layer that is offset from the shape.
 				holeMin = Vector2.Max(holeMin, min);
@@ -594,6 +661,25 @@ namespace Tekly.Common.Ui.Styled
 			WriteRows();
 		}
 
+		/// <summary>
+		/// Whether the rect needs the Extended shader: its shape wobbles, or a stroke is dashed or wobbles.
+		/// Everything else draws with the Core shader.
+		/// </summary>
+		private bool UsesExtendedShader()
+		{
+			if (m_wobbleAmount > 0) {
+				return true;
+			}
+
+			foreach (var layer in m_layers) {
+				if (layer.UsesEdgePosition) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		private bool HasHoledLayer()
 		{
 			foreach (var layer in m_layers) {
@@ -657,6 +743,7 @@ namespace Tekly.Common.Ui.Styled
 			m_store.Write(m_address + StyledRows.SHAPE_SIZE, new Vector4(halfSize.x, halfSize.y, 0, 0));
 			m_store.Write(m_address + StyledRows.SHAPE_RADII, radii);
 			m_store.Write(m_address + StyledRows.SHAPE_CORNER_EXPONENTS, Vector4.one * CornerExponent());
+			m_store.Write(m_address + StyledRows.SHAPE_WOBBLE, new Vector4(Mathf.Max(0, m_wobbleAmount), Mathf.Max(1, m_wobbleLength), m_wobbleSeed, m_wobbleSpeed));
 			WriteTextureRows(halfSize);
 
 			// Front to back. A fill under an opaque stroke that sits on the shape's edge ends a pixel early.
@@ -687,6 +774,10 @@ namespace Tekly.Common.Ui.Styled
 				m_store.Write(address + StyledRows.LAYER_GRADIENT, new Vector4((int)layer.Paint.Gradient, layer.Paint.Angle * Mathf.Deg2Rad,
 					Mathf.Min(rangeStart, rangeEnd), Mathf.Max(rangeStart, rangeEnd)));
 				m_store.Write(address + StyledRows.LAYER_GRADIENT_CURVE, new Vector4(layer.Paint.BiasExponent, 0, 0, 0));
+				m_store.Write(address + StyledRows.LAYER_STROKE_DASHES, new Vector4(Mathf.Max(0, layer.DashSpacing),
+					Mathf.Clamp01(layer.DashLength) + (layer.DashRoundCaps ? 2f : 0f), layer.DashSpeed, 0));
+				m_store.Write(address + StyledRows.LAYER_STROKE_WOBBLE, new Vector4(Mathf.Max(0, layer.WobbleWidth), Mathf.Max(0, layer.WobbleDrift),
+					Mathf.Max(0, layer.WobbleLength), layer.WobbleSeed));
 
 				edgeCovered |= CoversEdge(layer, band);
 			}
@@ -831,11 +922,17 @@ namespace Tekly.Common.Ui.Styled
 		{
 			m_radius = Mathf.Max(0, m_radius);
 			m_cornerRadii = Vector4.Max(m_cornerRadii, Vector4.zero);
+			m_wobbleAmount = Mathf.Max(0, m_wobbleAmount);
+			m_wobbleLength = Mathf.Max(1, m_wobbleLength);
 
 			for (var i = 0; i < m_layers.Count; i++) {
 				var layer = m_layers[i];
 				layer.Width = Mathf.Max(0, layer.Width);
 				layer.Blur = Mathf.Max(0, layer.Blur);
+				layer.DashSpacing = Mathf.Max(0, layer.DashSpacing);
+				layer.WobbleWidth = Mathf.Max(0, layer.WobbleWidth);
+				layer.WobbleDrift = Mathf.Max(0, layer.WobbleDrift);
+				layer.WobbleLength = Mathf.Max(0, layer.WobbleLength);
 				m_layers[i] = layer;
 			}
 
