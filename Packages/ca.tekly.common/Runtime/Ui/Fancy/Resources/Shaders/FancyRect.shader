@@ -1,6 +1,8 @@
 // Fancy Rect: a UI shape from one signed distance field, drawn as a stack of layers.
 // FancyRect emits one quad per layer (shadows, fill, inner shadows, bevel, gloss, outlines), so every layer
 // is a single cheap pass over its own quad and the whole element still batches with one material.
+// Everything that is constant across a quad is decoded in the vertex shader, so the fragment shader only
+// does the per-pixel work.
 //
 // Vertex layout (all packed values are integers below 2^24, which float32 stores exactly):
 //   uv0.xy  local position relative to the shape center (unshifted)
@@ -15,13 +17,16 @@
 //   uv2.z   offset x | y           (12-bit signed)
 //           or, for styled outlines (layer type 3), the packed outline style (see FancyRect.PackOutlineStyle)
 //   uv2.w   flags: layer type (2 bits: band, inner shadow, bevel, styled band) | gradient type (3 bits) | corner types (4 x 2 bits) | textured (1 bit)
-//           | channel check (1 bit, always set; draws magenta if the canvas drops the data)
+//           | underlay (1 bit: an opaque layer above covers this layer's outer edge, so it ends a pixel early)
 //           | gradient bias (8 bits, 0-255 = -1 to 1) | solid (1 bit: band is the whole shape, uv2.x is scroll)
 //   uv3.x   other color RGB (8 bits each); see color / tangent.w
 //   uv3.y   other color alpha, relative to the anchor's | range start | range end   (8 bits each)
-//   uv3.z   shape half size x | y   (12-bit each, 0.5 unit steps)
+//   uv3.z   shape half size x | y   (12-bit each: 3-bit exponent | 9-bit mantissa, 1/8 unit steps * 2^exponent).
+//           Never zero, so a zero here means the canvas dropped the data and the shape draws magenta.
+//           uv0.xy is scaled so the rect edge lands exactly on this rounded half size.
 //   uv3.w   reveal: method (2 bits) | origin (2 bits) | clockwise / from-far-side (1 bit)
-//           | value (16 bits: radial amount, or linear cut position in 1/16 units from -2048) | offset space (1 bit) | ignore renderer tint (1 bit) | anchor is color 2 (1 bit)
+//           | value (16 bits: radial amount, or linear cut position as sign | 15 bits: 1/16 unit steps up to 1024,
+//             then 0.5 unit steps) | offset space (1 bit) | ignore renderer tint (1 bit) | anchor is color 2 (1 bit)
 //   color   white with the anchor's alpha, so the CanvasRenderer color arrives untouched in rgb
 //   tangent.w  anchor color RGB (8 bits each). The anchor is whichever gradient color has more alpha.
 Shader "UI/Fancy Rect"
@@ -144,17 +149,21 @@ Shader "UI/Fancy Rect"
             struct Varyings
             {
                 float4 positionCS : SV_POSITION;
-                fixed4 color      : COLOR;
+                half4 color       : COLOR;     // premultiplied
                 float4 local      : TEXCOORD0; // xy = position, zw = texture uv
-                float4 radii      : TEXCOORD1; // TL, TR, BR, BL
-                float4 bulge      : TEXCOORD2; // top, right, bottom, left
-                float4 band       : TEXCOORD3; // start, end, softness, gradient angle (radians)
-                // Packed integers must reach the fragment exactly; interpolation error at ~2^23 could flip low bits.
-                nointerpolation float4 offset : TEXCOORD4; // xy = offset, z = flags, w = channel check ok
-                float4 color2     : TEXCOORD5;
+                // Everything below except the mask is constant across a quad.
+                nointerpolation float4 radii    : TEXCOORD1; // TL, TR, BR, BL
+                nointerpolation float4 bulge    : TEXCOORD2; // top, right, bottom, left
+                nointerpolation float4 band     : TEXCOORD3; // start, end, softness, gradient angle (radians)
+                nointerpolation float4 offset   : TEXCOORD4; // xy = offset, z = channel check ok, w = reveal in offset space
+                half4 color2      : TEXCOORD5; // premultiplied
                 float4 mask       : TEXCOORD6;
-                float4 halfSize   : TEXCOORD7; // xy = half size, zw = gradient range start, end
-                nointerpolation float4 extra : TEXCOORD8; // x = packed reveal, y = packed outline style
+                nointerpolation float4 halfSize : TEXCOORD7; // xy = half size, zw = gradient range start, end
+                nointerpolation float4 extra    : TEXCOORD8; // x = reveal method (4 = radial past 180 degrees), y = packed outline style, z = linear reveal cut, w = underlay
+                nointerpolation float4 corners  : TEXCOORD9; // corner types TL, TR, BR, BL
+                nointerpolation float4 layer    : TEXCOORD10; // x = layer type, y = gradient type, z = textured, w = gradient bias exponent
+                // Radial reveal: xy = start ray, zw = end ray, signed so cross(ray, point) > 0 is revealed. Linear: x = side.
+                nointerpolation float4 rays     : TEXCOORD11;
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
@@ -181,35 +190,90 @@ Shader "UI/Fancy Rect"
                 return fmod(floor(value / exp2(shift)), exp2(count));
             }
 
+            // One axis of the half size: 3-bit exponent | 9-bit mantissa.
+            float DecodeHalfSize(float code)
+            {
+                float exponent = floor(code / 512.0);
+                return (code - exponent * 512.0) * 0.125 * exp2(exponent);
+            }
+
             // Pushes the domain toward the center by the bulge amount. The push follows a cosine,
             // so it is largest mid-edge and zero at the corners, which keeps the corner shapes intact.
+            // Each side's push fades out close to the shape's own center line and never carries a point across it,
+            // so two sides with different bulges still meet without a seam.
+            // `warp` returns how the push changes along the edge: x = d(new x)/dy, y = d(new y)/dx.
+            float2 ApplyBulge(float2 p, float2 halfSize, float4 bulge, out float2 warp)
+            {
+                float2 side = float2(p.x >= 0.0 ? 1.0 : -1.0, p.y >= 0.0 ? 1.0 : -1.0);
+                float2 amount = float2(p.x >= 0.0 ? bulge.y : bulge.w, p.y >= 0.0 ? bulge.x : bulge.z);
+                float2 safeHalf = max(halfSize, 1e-4);
+                float2 fromCenter = abs(p);
+
+                // The left/right push varies along y and the top/bottom push along x.
+                float2 along = saturate(fromCenter.yx / safeHalf.yx);
+                float2 sine;
+                float2 cosine;
+                sincos(1.5707963 * along, sine, cosine);
+
+                // Inward bulges stop at 90% of the half size, so the edge itself is always past the fade.
+                float2 strength = amount * saturate(fromCenter / (safeHalf * 0.1));
+
+                float2 inRange = float2(fromCenter.y < safeHalf.y ? 1.0 : 0.0, fromCenter.x < safeHalf.x ? 1.0 : 0.0);
+                warp = side.x * side.y * strength * sine * inRange * (1.5707963 / safeHalf.yx);
+
+                return side * max(fromCenter - strength * cosine, 0.0);
+            }
+
             float2 ApplyBulge(float2 p, float2 halfSize, float4 bulge)
             {
-                float2 t = saturate(abs(p) / max(halfSize, 1e-4));
-                float edgeX = cos(1.5707963 * t.y); // left/right push varies along y
-                float edgeY = cos(1.5707963 * t.x); // top/bottom push varies along x
+                float2 warp;
+                return ApplyBulge(p, halfSize, bulge, warp);
+            }
 
-                float pushX = (p.x >= 0.0 ? bulge.y : bulge.w) * edgeX;
-                float pushY = (p.y >= 0.0 ? bulge.x : bulge.z) * edgeY;
-
-                return p - float2(p.x >= 0.0 ? pushX : -pushX, p.y >= 0.0 ? pushY : -pushY);
+            // Which way the nearest side faces inside a box corner (both of `a` negative). Fans smoothly from one
+            // side to the other around the corner instead of flipping on the diagonal.
+            float2 NearestSide(float2 a)
+            {
+                return normalize(max(-a.yx, 1e-4));
             }
 
             // Signed distance (negative inside) for one quadrant. `a` = abs(p) - halfSize.
-            float CornerDistance(float2 a, float radius, float cornerType)
+            // `slope` returns the field's gradient: its direction, and for squircles its length too, since their
+            // norm is not a true distance.
+            // `mitre` is how far outside the shape a square corner stays square, the way a stroke or a shadow's
+            // spread keeps a sharp corner sharp. Past that the field rounds off, which is what a blur does.
+            float CornerDistance(float2 a, float radius, float cornerType, float mitre, out float2 slope)
             {
-                float boxDistance = length(max(a, 0.0)) + min(max(a.x, a.y), 0.0);
-
                 if (radius <= 0.0) {
-                    return boxDistance;
+                    float2 past = max(a - mitre, 0.0);
+                    float pastLength = length(past);
+
+                    if (pastLength > 0.0) {
+                        slope = past / pastLength;
+                        return pastLength + min(max(a.x, a.y) - mitre, 0.0) + mitre;
+                    }
+
+                    float nearest = max(a.x, a.y);
+                    slope = nearest > 0.0 ? (a.x > a.y ? float2(1, 0) : float2(0, 1)) : NearestSide(a);
+                    return nearest;
                 }
 
+                float2 beyond = max(a, 0.0);
+                float beyondLength = length(beyond);
+                float boxDistance = beyondLength + min(max(a.x, a.y), 0.0);
+                float2 boxSlope = beyondLength > 0.0 ? beyond / beyondLength : NearestSide(a);
+
                 if (cornerType == CORNER_CHAMFER) {
-                    return max(boxDistance, (a.x + a.y + radius) * 0.70710678);
+                    float chamfer = (a.x + a.y + radius) * 0.70710678;
+                    slope = chamfer > boxDistance ? float2(0.70710678, 0.70710678) : boxSlope;
+                    return max(boxDistance, chamfer);
                 }
 
                 if (cornerType == CORNER_INVERTED) {
-                    return max(boxDistance, radius - length(a));
+                    float fromCorner = length(a);
+                    float bite = radius - fromCorner;
+                    slope = bite > boxDistance ? -a / max(fromCorner, 1e-5) : boxSlope;
+                    return max(boxDistance, bite);
                 }
 
                 float2 q = a + radius;
@@ -218,10 +282,14 @@ Shader "UI/Fancy Rect"
 
                 if (cornerType == CORNER_SQUIRCLE) {
                     float2 o2 = outside * outside;
-                    return sqrt(sqrt(dot(o2, o2))) + inside - radius;
+                    float norm = sqrt(sqrt(dot(o2, o2)));
+                    slope = norm > 0.0 ? outside * o2 / (norm * norm * norm) : NearestSide(q);
+                    return norm + inside - radius;
                 }
 
-                return length(outside) + inside - radius;
+                float outsideLength = length(outside);
+                slope = outsideLength > 0.0 ? outside / outsideLength : NearestSide(q);
+                return outsideLength + inside - radius;
             }
 
             // Pick the corner by splitting between neighbouring corners at the midpoint of their circle centers
@@ -234,9 +302,10 @@ Shader "UI/Fancy Rect"
                 right = p.x >= splitX;
             }
 
-            float ShapeDistance(float2 p, float2 halfSize, float4 radii, float4 bulge, float4 cornerTypes)
+            float ShapeDistance(float2 p, float2 halfSize, float4 radii, float4 bulge, float4 cornerTypes, float mitre)
             {
-                p = ApplyBulge(p, halfSize, bulge);
+                float2 warp;
+                p = ApplyBulge(p, halfSize, bulge, warp);
 
                 bool top;
                 bool right;
@@ -246,15 +315,62 @@ Shader "UI/Fancy Rect"
                 float cornerType = top ? (right ? cornerTypes.y : cornerTypes.x) : (right ? cornerTypes.z : cornerTypes.w);
 
                 // Mirror into the chosen corner (not abs(p)): near a shifted split the point can be on the other side.
-                float2 mirrored = float2(right ? p.x : -p.x, top ? p.y : -p.y);
-                return CornerDistance(mirrored - halfSize, radius, cornerType);
+                float2 mirror = float2(right ? 1.0 : -1.0, top ? 1.0 : -1.0);
+                float2 slope;
+                float sd = CornerDistance(p * mirror - halfSize, radius, cornerType, mitre, slope);
+                slope *= mirror;
+
+                // The bulge warp and the squircle norm stretch the field, which would make outlines thinner or
+                // thicker along those edges. Dividing by the field's slope gives true distances along each side.
+                // Through a corner the two sides' slopes are blended without their cross term: the exact slope
+                // overshoots there, because a tight corner arc is far from the flat edge it assumes.
+                float2 stretch = warp * slope;
+                return sd / max(sqrt(dot(slope, slope) + dot(stretch, stretch)), 0.25);
             }
 
-            // 0-1 ramp across `width`, centered on the edge. Wider (soft) ramps are eased.
+            // Deeper than a corner's radius the distance field turns that corner into a sharp mitre, which anything
+            // soft that reaches that deep (an inner shadow, an Edge gradient) shows as a diagonal crease. A blur
+            // rounds its corners instead, so those layers measure against corners at least as round as they are
+            // deep. Bites stay as they are, and a square corner has no type of its own, so it rounds like a round one.
+            void RoundDeepCorners(inout float4 radii, inout float4 cornerTypes, float2 halfSize, float depth)
+            {
+                float smallest = min(halfSize.x, halfSize.y);
+                float largest = max(max(radii.x, radii.y), max(radii.z, radii.w));
+                float rounding = min(depth, min(smallest, 2.0 * smallest - largest));
+
+                bool4 bite = bool4(
+                    radii.x > 0.0 && cornerTypes.x == CORNER_INVERTED,
+                    radii.y > 0.0 && cornerTypes.y == CORNER_INVERTED,
+                    radii.z > 0.0 && cornerTypes.z == CORNER_INVERTED,
+                    radii.w > 0.0 && cornerTypes.w == CORNER_INVERTED);
+
+                cornerTypes = radii > 0.0 ? cornerTypes : CORNER_ROUND;
+                radii = bite ? radii : max(radii, rounding);
+            }
+
+            float ShapeDistance(float2 p, float2 halfSize, float4 radii, float4 bulge, float4 cornerTypes)
+            {
+                return ShapeDistance(p, halfSize, radii, bulge, cornerTypes, 0.0);
+            }
+
+            // 0-1 ramp centered on the edge. A sharp edge is a linear ramp one pixel wide. A soft edge has the
+            // profile of a Gaussian blur, the falloff CSS and design tools use: `width` is four standard deviations,
+            // which holds nearly all of the fade, with faint tails running another quarter of it past each end.
             float Ramp(float x, float width, float pixel)
             {
-                float t = saturate(x / width + 0.5);
-                return width > pixel * 1.5 ? t * t * (3.0 - 2.0 * t) : t;
+                if (width <= pixel * 1.5) {
+                    return saturate(x / width + 0.5);
+                }
+
+                // erf(x / (sigma * sqrt(2))) with sigma = width / 4, approximated to within 0.0005.
+                float z = x * 2.8284271 / width;
+                float a = abs(z);
+                float d = 1.0 + a * (0.278393 + a * (0.230389 + a * (0.000972 + a * 0.078108)));
+                d *= d;
+                d *= d;
+                float erf = 1.0 - 1.0 / d;
+
+                return 0.5 + 0.5 * (z < 0.0 ? -erf : erf);
             }
 
             float Wrap(float x, float m)
@@ -289,8 +405,11 @@ Shader "UI/Fancy Rect"
 
                 // Per corner: how far the centerline's straight sides stop short of the shape's corner, and the
                 // radius of the centerline's corner arc (0 for a mitered corner).
-                float4 inset = max(radii, -centerline);
-                float4 curve = max(radii + centerline, 0.0);
+                // A square corner stays square outside the shape too: the line's sides run on past the corner
+                // (a negative inset) and meet on the diagonal.
+                float4 square = step(radii, 0.0);
+                float4 inset = lerp(max(radii, -centerline), -centerline, square);
+                float4 curve = lerp(max(radii + centerline, 0.0), 0.0, square);
 
                 float4 arcs = float4(
                     CornerArcLength(curve.x, cornerTypes.x),
@@ -452,17 +571,21 @@ Shader "UI/Fancy Rect"
             float GradientT(float gradientType, float2 q, float2 halfSize, float angle, float sd, float bandStart, float bandEnd)
             {
                 if (gradientType == GRADIENT_LINEAR) {
-                    float2 dir = float2(cos(angle), sin(angle));
+                    // Angles follow CSS: 0 points up and they turn clockwise.
+                    float2 dir = float2(sin(angle), cos(angle));
                     float extent = abs(dir.x) * halfSize.x + abs(dir.y) * halfSize.y;
                     return saturate(0.5 + dot(q, dir) / max(2.0 * extent, 1e-4));
                 }
 
                 if (gradientType == GRADIENT_RADIAL) {
-                    return saturate(length(q / max(halfSize, 1e-4)));
+                    // An ellipse that reaches Color 2 at the rect's corners, so no part of the shape is left flat.
+                    // Range End pulls it in: an inset of 0.29 ends it where it touches the sides.
+                    return saturate(length(q / max(halfSize, 1e-4)) * 0.70710678);
                 }
 
                 if (gradientType == GRADIENT_ANGULAR) {
-                    return frac(atan2(q.y, q.x) / 6.2831853 - angle / 6.2831853 + 1.0);
+                    // Starts at the angle and sweeps clockwise, like a CSS conic gradient.
+                    return frac((atan2(q.x, q.y) - angle) / 6.2831853);
                 }
 
                 if (gradientType == GRADIENT_EDGE) {
@@ -475,47 +598,38 @@ Shader "UI/Fancy Rect"
             }
 
             // Remaps a 0-1 gradient position into [start, end] (solid colors outside it), then bends it so the
-            // 50/50 mix lands at the midpoint. bias 0 = even, -1/1 = heavily favor Color / Color 2.
-            float ShapeGradient(float t, float rangeStart, float rangeEnd, float bias)
+            // 50/50 mix lands at the midpoint. The bend's exponent comes from the vertex shader.
+            float ShapeGradient(float t, float rangeStart, float rangeEnd, float exponent)
             {
                 t = saturate((t - rangeStart) / max(rangeEnd - rangeStart, 1e-4));
+                return pow(t, exponent);
+            }
 
+            // bias 0 = even, -1/1 = heavily favor Color / Color 2.
+            float GradientExponent(float bias)
+            {
                 float midpoint = 0.5 - bias * 0.4;
-                return pow(t, log(0.5) / log(midpoint));
+                return log(0.5) / log(midpoint);
             }
 
             // How much of the element the Reveal setting shows at point c, 0-1 with a one-pixel anti-aliased edge.
-            // Linear reveals arrive as a cut position already baked on the CPU (1/16 unit steps); radial reveals sweep
-            // a pie around the center using two half-planes, intersected up to 180 degrees and unioned beyond.
-            float RevealCoverage(float2 c, float packed, float pixel)
+            // Decoded in the vertex shader: linear reveals are a cut position, radial reveals sweep a pie around
+            // the center using two half-planes, intersected up to 180 degrees and unioned beyond.
+            float RevealCoverage(float2 c, float method, float cut, float4 rays, float pixel)
             {
-                float method = Bits(packed, 0, 2);
-                if (method == REVEAL_NONE) {
+                if (method < 0.5) {
                     return 1.0;
                 }
 
-                float origin = Bits(packed, 2, 2);
-                float flip = Bits(packed, 4, 1); // linear: reveal from the far side; radial: clockwise
-                float value = Bits(packed, 5, 16);
                 float s;
 
-                if (method == REVEAL_HORIZONTAL || method == REVEAL_VERTICAL) {
-                    float cut = value / 16.0 - 2048.0;
-                    float coord = method == REVEAL_HORIZONTAL ? c.x : c.y;
-                    s = flip > 0.5 ? coord - cut : cut - coord;
+                if (method < 2.5) {
+                    float coord = method < 1.5 ? c.x : c.y;
+                    s = rays.x * (cut - coord);
                 } else {
-                    // Origin: 0 top, 1 right, 2 bottom, 3 left.
-                    float startAngle = origin < 0.5 ? 1.5707963 : (origin < 1.5 ? 0.0 : (origin < 2.5 ? 4.712389 : 3.1415927));
-                    float sweep = value / 65535.0 * 6.2831853;
-                    float endAngle = flip > 0.5 ? startAngle - sweep : startAngle + sweep;
-
-                    float2 d0 = float2(cos(startAngle), sin(startAngle));
-                    float2 d1 = float2(cos(endAngle), sin(endAngle));
-
-                    // Signed distances to the start and end rays' lines, positive on the revealed side.
-                    float s0 = flip > 0.5 ? c.x * d0.y - c.y * d0.x : d0.x * c.y - d0.y * c.x;
-                    float s1 = flip > 0.5 ? d1.x * c.y - d1.y * c.x : c.x * d1.y - c.y * d1.x;
-                    s = sweep <= 3.1415927 ? min(s0, s1) : max(s0, s1);
+                    float s0 = rays.x * c.y - rays.y * c.x;
+                    float s1 = rays.z * c.y - rays.w * c.x;
+                    s = method < 3.5 ? min(s0, s1) : max(s0, s1);
                 }
 
                 return saturate(s / pixel + 0.5);
@@ -529,19 +643,22 @@ Shader "UI/Fancy Rect"
 
                 OUT.positionCS = UnityObjectToClipPos(IN.positionOS);
                 float flags = round(IN.uv2.w);
+                float layerType = Bits(flags, 0, 2);
                 bool solid = Bits(flags, 23, 1) > 0.5;
-                bool styled = Bits(flags, 0, 2) == LAYER_STYLED_BAND;
+                bool styled = layerType == LAYER_STYLED_BAND;
+
+                OUT.corners = float4(Bits(flags, 5, 2), Bits(flags, 7, 2), Bits(flags, 9, 2), Bits(flags, 11, 2));
+                OUT.layer = float4(layerType, Bits(flags, 2, 3), Bits(flags, 13, 1), GradientExponent(Bits(flags, 15, 8) / 255.0 * 2.0 - 1.0));
 
                 // Solid layers (fill, gloss, zero-spread shadows) cover the whole shape, so their band slot carries
                 // the texture scroll instead. Scrolling runs here in the vertex shader: no mesh rebuilds.
                 // frac() keeps the offset small; the jump by a whole tile is invisible on a repeating texture.
                 float2 scroll = solid ? (Unpack12(IN.uv2.x) - 2048.0) / 256.0 : float2(0, 0);
                 OUT.local = float4(IN.uv0.xy, IN.uv0.zw + frac(_Time.y * scroll));
-                float revealBits = round(IN.uv3.w);
-                // Strip the tint bits (22, 23) from the reveal. Styled outlines carry their style in place of an offset.
-                OUT.extra = float4(fmod(revealBits, 4194304.0), styled ? round(IN.uv2.z) : 0.0, 0, 0);
+
                 float gradientBits = round(IN.uv3.y);
-                OUT.halfSize = float4(Unpack12(IN.uv3.z) * 0.5, Bits(gradientBits, 8, 8) / 255.0, Bits(gradientBits, 16, 8) / 255.0);
+                float2 halfSizeCodes = Unpack12(IN.uv3.z);
+                OUT.halfSize = float4(DecodeHalfSize(halfSizeCodes.x), DecodeHalfSize(halfSizeCodes.y), Bits(gradientBits, 8, 8) / 255.0, Bits(gradientBits, 16, 8) / 255.0);
 
                 OUT.radii = float4(UnpackUnsigned(IN.uv1.x), UnpackUnsigned(IN.uv1.y));
 
@@ -553,7 +670,36 @@ Shader "UI/Fancy Rect"
                 float2 softAngle = Unpack12(IN.uv2.y);
                 OUT.band = float4(bandRange, softAngle.x * 0.25, softAngle.y / 4095.0 * 6.2831853);
 
-                OUT.offset = float4(styled ? float2(0, 0) : UnpackSigned(IN.uv2.z), flags, Bits(flags, 14, 1));
+                // Reveal. Bits 22 and 23 of the same value are the tint bits, read further down.
+                float revealBits = round(IN.uv3.w);
+                float revealMethod = Bits(revealBits, 0, 2);
+                float revealOrigin = Bits(revealBits, 2, 2);
+                float revealFlip = Bits(revealBits, 4, 1) > 0.5 ? -1.0 : 1.0; // linear: reveal from the far side; radial: clockwise
+                float revealValue = Bits(revealBits, 5, 16);
+
+                // Linear cut: sign | 15 bits, 1/16 unit steps up to 1024 and 0.5 unit steps beyond.
+                float cutNegative = revealValue >= 32768.0 ? 1.0 : 0.0;
+                float cutCode = revealValue - 32768.0 * cutNegative;
+                float cut = cutCode <= 16384.0 ? cutCode / 16.0 : 1024.0 + (cutCode - 16384.0) * 0.5;
+                cut = cutNegative > 0.5 ? -cut : cut;
+
+                OUT.rays = float4(revealFlip, 0, 0, 0);
+
+                if (revealMethod == REVEAL_RADIAL) {
+                    // Origin: 0 top, 1 right, 2 bottom, 3 left.
+                    float startAngle = revealOrigin < 0.5 ? 1.5707963 : (revealOrigin < 1.5 ? 0.0 : (revealOrigin < 2.5 ? 4.712389 : 3.1415927));
+                    float sweep = revealValue / 65535.0 * 6.2831853;
+                    float endAngle = startAngle + revealFlip * sweep;
+
+                    OUT.rays = float4(
+                        revealFlip * float2(cos(startAngle), sin(startAngle)),
+                        -revealFlip * float2(cos(endAngle), sin(endAngle)));
+                    revealMethod = sweep <= 3.1415927 ? 3.0 : 4.0;
+                }
+
+                // Styled outlines carry their style in place of an offset.
+                OUT.extra = float4(revealMethod, styled ? round(IN.uv2.z) : 0.0, cut, Bits(flags, 14, 1));
+                OUT.offset = float4(styled ? float2(0, 0) : UnpackSigned(IN.uv2.z), IN.uv3.z > 0.5 ? 1.0 : 0.0, Bits(revealBits, 21, 1));
 
                 // The vertex color is white with the anchor's alpha, so after the canvas multiplies in the
                 // CanvasRenderer color, rgb is that color and a is anchor alpha * its alpha. Both layer colors are
@@ -576,12 +722,16 @@ Shader "UI/Fancy Rect"
 
                 // Layers opted out of the renderer tint keep their colors but still fade with its alpha.
                 float3 tintRgb = Bits(revealBits, 22, 1) > 0.5 ? float3(1, 1, 1) : rendererColor.rgb;
-                float4 anchor = float4(anchorRgb * tintRgb, rendererColor.a);
-                float4 other = float4(otherRgb * tintRgb, rendererColor.a * Bits(gradientBits, 0, 8) / 255.0);
+                float4 anchor = float4(anchorRgb * tintRgb, rendererColor.a) * _Color;
+                float4 other = float4(otherRgb * tintRgb, rendererColor.a * Bits(gradientBits, 0, 8) / 255.0) * _Color;
                 bool anchorIsColor2 = Bits(revealBits, 23, 1) > 0.5;
 
-                OUT.color = (anchorIsColor2 ? other : anchor) * _Color;
-                OUT.color2 = (anchorIsColor2 ? anchor : other) * _Color;
+                // Premultiplied, so a gradient to a transparent color fades out instead of mixing in that color's rgb.
+                anchor.rgb *= anchor.a;
+                other.rgb *= other.a;
+
+                OUT.color = anchorIsColor2 ? other : anchor;
+                OUT.color2 = anchorIsColor2 ? anchor : other;
 
                 float2 pixelSize = OUT.positionCS.w;
                 pixelSize /= abs(mul((float2x2)UNITY_MATRIX_P, _ScreenParams.xy));
@@ -597,7 +747,7 @@ Shader "UI/Fancy Rect"
 
             fixed4 frag(Varyings IN) : SV_Target
             {
-                if (IN.offset.w < 0.5) {
+                if (IN.offset.z < 0.5) {
                     // Canvas is missing TexCoord1-3 (or drops their zw); make it obvious rather than subtly wrong.
                     return fixed4(1, 0, 1, 1);
                 }
@@ -605,22 +755,33 @@ Shader "UI/Fancy Rect"
                 float2 p = IN.local.xy;
                 float2 halfSize = IN.halfSize.xy;
 
-                float flags = round(IN.offset.z);
-                float layerType = Bits(flags, 0, 2);
-                float gradientType = Bits(flags, 2, 3);
-                float4 cornerTypes = float4(Bits(flags, 5, 2), Bits(flags, 7, 2), Bits(flags, 9, 2), Bits(flags, 11, 2));
-                float textured = Bits(flags, 13, 1);
+                float layerType = IN.layer.x;
+                float4 cornerTypes = IN.corners;
 
                 float bandStart = IN.band.x;
                 float bandEnd = IN.band.y;
                 float softness = IN.band.z;
 
                 // Size of one screen pixel in local units, so edges stay ~1px wide at any canvas scale.
-                float pixel = max(length(fwidth(p)) * 0.70710678, 1e-4);
+                // The root mean square of the two screen axes gives the same width at any rotation.
+                float2 perPixelX = ddx(p);
+                float2 perPixelY = ddy(p);
+                float pixel = max(sqrt(0.5 * (dot(perPixelX, perPixelX) + dot(perPixelY, perPixelY))), 1e-4);
                 float width = max(softness, pixel);
 
                 float2 q = p - IN.offset.xy;
-                float sd = ShapeDistance(q, halfSize, IN.radii, IN.bulge, cornerTypes);
+
+                float4 fieldRadii = IN.radii;
+                float4 fieldTypes = cornerTypes;
+
+                if (layerType == LAYER_INNER_SHADOW) {
+                    RoundDeepCorners(fieldRadii, fieldTypes, halfSize, bandEnd + softness * 0.5);
+                }
+
+                // Outlines and drop shadows keep square corners square out to their outer edge (the spread, for a shadow).
+                float mitre = layerType == LAYER_BAND || layerType == LAYER_STYLED_BAND ? max(bandEnd, 0.0) : 0.0;
+
+                float sd = ShapeDistance(q, halfSize, fieldRadii, IN.bulge, fieldTypes, mitre);
 
                 float coverage;
                 float t;
@@ -633,7 +794,8 @@ Shader "UI/Fancy Rect"
                         ShapeDistance(q + float2(e, 0), halfSize, IN.radii, IN.bulge, cornerTypes) - ShapeDistance(q - float2(e, 0), halfSize, IN.radii, IN.bulge, cornerTypes),
                         ShapeDistance(q + float2(0, e), halfSize, IN.radii, IN.bulge, cornerTypes) - ShapeDistance(q - float2(0, e), halfSize, IN.radii, IN.bulge, cornerTypes));
                     float2 normal = slope / max(length(slope), 1e-5);
-                    float facing = dot(normal, float2(cos(IN.band.w), sin(IN.band.w)));
+                    // The light angle follows CSS like the gradient angles: 0 is straight above, turning clockwise.
+                    float facing = dot(normal, float2(sin(IN.band.w), cos(IN.band.w)));
 
                     float insideShape = 1.0 - Ramp(sd, pixel, pixel);
                     float band = Ramp(sd - bandStart, width, pixel);
@@ -651,32 +813,46 @@ Shader "UI/Fancy Rect"
                         float s = EdgePosition(q, halfSize, IN.radii, IN.bulge, cornerTypes, bandEnd, perimeter);
                         coverage = StyledBandCoverage(sd, s, perimeter, bandStart, bandEnd, width, pixel, round(IN.extra.y));
                     } else {
-                        float outer = 1.0 - Ramp(sd - bandEnd, width, pixel);
+                        // An underlay stops a pixel short of its edge: an opaque layer above ends there too, and two
+                        // anti-aliased edges in the same place would let this layer's color show through as a fringe.
+                        float outer = 1.0 - Ramp(sd - bandEnd + IN.extra.w * pixel, width, pixel);
                         float inner = bandStart <= NO_INNER_EDGE ? 1.0 : Ramp(sd - bandStart, width, pixel);
                         coverage = outer * inner;
                     }
 
-                    t = GradientT(gradientType, q, halfSize, IN.band.w, sd, bandStart, bandEnd);
-                    t = ShapeGradient(t, IN.halfSize.z, IN.halfSize.w, Bits(flags, 15, 8) / 255.0 * 2.0 - 1.0);
+                    float gradientSd = sd;
+
+                    if (IN.layer.y == GRADIENT_EDGE && layerType != LAYER_INNER_SHADOW) {
+                        // The gradient runs into the shape, so it gets the same rounded corners as a soft inner
+                        // shadow, as deep as the layer reaches inside the edge. The layer's own edge stays as it is.
+                        float4 gradientRadii = IN.radii;
+                        float4 gradientTypes = cornerTypes;
+                        RoundDeepCorners(gradientRadii, gradientTypes, halfSize, max(-bandStart, 0.0));
+                        gradientSd = ShapeDistance(q, halfSize, gradientRadii, IN.bulge, gradientTypes, mitre);
+                    }
+
+                    t = GradientT(IN.layer.y, q, halfSize, IN.band.w, gradientSd, bandStart, bandEnd);
+                    t = ShapeGradient(t, IN.halfSize.z, IN.halfSize.w, IN.layer.w);
                 }
 
                 // Drop shadows are revealed in their own (offset) space so they stay the shadow of the revealed shape;
                 // every other layer, including the inset gloss, uses the element's own space.
-                float reveal = round(IN.extra.x);
-                float2 revealPoint = Bits(reveal, 21, 1) > 0.5 ? q : p;
-                coverage *= RevealCoverage(revealPoint, reveal, pixel);
+                float2 revealPoint = IN.offset.w > 0.5 ? q : p;
+                coverage *= RevealCoverage(revealPoint, IN.extra.x, IN.extra.z, IN.rays, pixel);
 
+                // Both colors are premultiplied.
                 half4 color = lerp(IN.color, IN.color2, t);
 
                 // Sampled for every layer and blended out when unused: the flag is constant per quad, and an
                 // unconditional sample keeps the texture derivatives valid on every platform.
                 half4 texel = tex2D(_MainTex, IN.local.zw) + _TextureSampleAdd;
-                color *= lerp(half4(1, 1, 1, 1), texel, textured);
-                color.a *= coverage;
+                texel = lerp(half4(1, 1, 1, 1), texel, IN.layer.z);
+                color *= half4(texel.rgb * texel.a, texel.a);
+                color *= coverage;
 
                 #ifdef UNITY_UI_CLIP_RECT
                 half2 maskFactor = saturate((_ClipRect.zw - _ClipRect.xy - abs(IN.mask.xy)) * IN.mask.zw);
-                color.a *= maskFactor.x * maskFactor.y;
+                color *= maskFactor.x * maskFactor.y;
                 #endif
 
                 #ifdef UNITY_UI_ALPHACLIP
@@ -684,7 +860,8 @@ Shader "UI/Fancy Rect"
                 #endif
 
                 // Shape each blend mode's output so that transparent pixels leave the destination unchanged.
-                float3 rgb = _BlendColorOutput > 0.5 ? lerp(float3(1, 1, 1), color.rgb, color.a) : color.rgb * color.a;
+                // Faded toward white is lerp(1, straight color, alpha), written here for a premultiplied color.
+                float3 rgb = _BlendColorOutput > 0.5 ? 1.0 - color.a + color.rgb : color.rgb;
                 float alpha = _BlendAlphaOutput > 1.5 ? 1.0 : (_BlendAlphaOutput > 0.5 ? 0.0 : color.a);
 
                 return fixed4(rgb, alpha);

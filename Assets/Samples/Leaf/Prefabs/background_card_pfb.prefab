@@ -123,7 +123,7 @@ MonoBehaviour:
     Color: {r: 0.15686275, g: 0.15686275, b: 0.15686275, a: 1}
     Gradient: 0
     Color2: {r: 1, g: 1, b: 1, a: 1}
-    Angle: 90
+    Angle: 0
     RangeStart: 0
     RangeEndInset: 0
     Bias: 0
@@ -132,7 +132,7 @@ MonoBehaviour:
     Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     Gradient: 0
     Color2: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Angle: 90
+    Angle: 0
     RangeStart: 0
     RangeEndInset: 0
     Bias: 0
@@ -145,7 +145,7 @@ MonoBehaviour:
       Color: {r: 0.3137255, g: 0.28627452, b: 0.27058825, a: 1}
       Gradient: 0
       Color2: {r: 1, g: 1, b: 1, a: 1}
-      Angle: 90
+      Angle: 0
       RangeStart: 0
       RangeEndInset: 0
       Bias: 0

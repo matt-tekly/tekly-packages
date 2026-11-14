@@ -466,7 +466,7 @@ MonoBehaviour:
     Color: {r: 1, g: 1, b: 1, a: 1}
     Gradient: 0
     Color2: {r: 1, g: 1, b: 1, a: 1}
-    Angle: 90
+    Angle: 0
     RangeStart: 0
     RangeEndInset: 0
     Bias: 0
@@ -475,7 +475,7 @@ MonoBehaviour:
     Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     Gradient: 0
     Color2: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Angle: 90
+    Angle: 0
     RangeStart: 0
     RangeEndInset: 0
     Bias: 0
@@ -488,7 +488,7 @@ MonoBehaviour:
       Color: {r: 1, g: 1, b: 1, a: 0.050980393}
       Gradient: 0
       Color2: {r: 1, g: 1, b: 1, a: 1}
-      Angle: 90
+      Angle: 0
       RangeStart: 0
       RangeEndInset: 0
       Bias: 0
@@ -603,7 +603,7 @@ MonoBehaviour:
     Color: {r: 1, g: 1, b: 1, a: 1}
     Gradient: 0
     Color2: {r: 1, g: 1, b: 1, a: 1}
-    Angle: 90
+    Angle: 0
     RangeStart: 0
     RangeEndInset: 0
     Bias: 0
@@ -612,7 +612,7 @@ MonoBehaviour:
     Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     Gradient: 0
     Color2: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Angle: 90
+    Angle: 0
     RangeStart: 0
     RangeEndInset: 0
     Bias: 0
@@ -625,7 +625,7 @@ MonoBehaviour:
       Color: {r: 1, g: 1, b: 1, a: 0.29803923}
       Gradient: 1
       Color2: {r: 0, g: 0, b: 0, a: 0}
-      Angle: 300
+      Angle: 150
       RangeStart: 0
       RangeEndInset: 0.48192775
       Bias: 1
@@ -641,7 +641,7 @@ MonoBehaviour:
       Color: {r: 0, g: 0, b: 0, a: 0.18039216}
       Gradient: 0
       Color2: {r: 0, g: 0, b: 0, a: 0.35}
-      Angle: 90
+      Angle: 0
       RangeStart: 0
       RangeEndInset: 0
       Bias: 0
@@ -651,7 +651,7 @@ MonoBehaviour:
     Enabled: 1
     Width: 1
     Softness: 8
-    LightAngle: 315
+    LightAngle: 135
     Highlight: {r: 1, g: 1, b: 1, a: 0.101960786}
     Shadow: {r: 0, g: 0, b: 0, a: 0.3}
   m_gloss:

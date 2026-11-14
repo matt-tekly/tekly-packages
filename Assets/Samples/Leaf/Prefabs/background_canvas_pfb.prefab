@@ -87,7 +87,7 @@ MonoBehaviour:
     Color: {r: 0.14117648, g: 0.13725491, b: 0.13333334, a: 1}
     Gradient: 4
     Color2: {r: 0.19607843, g: 0.1882353, b: 0.18431373, a: 1}
-    Angle: 90
+    Angle: 0
     RangeStart: 0
     RangeEndInset: 0.8734176
     Bias: 1
@@ -96,7 +96,7 @@ MonoBehaviour:
     Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     Gradient: 0
     Color2: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Angle: 90
+    Angle: 0
     RangeStart: 0
     RangeEndInset: 0
     Bias: 0

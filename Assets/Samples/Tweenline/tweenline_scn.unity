@@ -410,6 +410,7 @@ MonoBehaviour:
   m_useUnscaledTime: 0
   m_speed: 1
   m_stagger: 0
+  m_hurrySpeed: 4
   m_animations:
   - m_name: Show
     m_wrap: 0
@@ -670,7 +671,7 @@ MonoBehaviour:
     Color: {r: 1, g: 1, b: 1, a: 1}
     Gradient: 0
     Color2: {r: 1, g: 1, b: 1, a: 1}
-    Angle: 90
+    Angle: 0
     RangeStart: 0
     RangeEndInset: 0
     Bias: 0
@@ -679,7 +680,7 @@ MonoBehaviour:
     Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     Gradient: 0
     Color2: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Angle: 90
+    Angle: 0
     RangeStart: 0
     RangeEndInset: 0
     Bias: 0
@@ -794,7 +795,7 @@ MonoBehaviour:
     Color: {r: 1, g: 1, b: 1, a: 1}
     Gradient: 0
     Color2: {r: 1, g: 1, b: 1, a: 1}
-    Angle: 90
+    Angle: 0
     RangeStart: 0
     RangeEndInset: 0
     Bias: 0
@@ -803,7 +804,7 @@ MonoBehaviour:
     Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     Gradient: 0
     Color2: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Angle: 90
+    Angle: 0
     RangeStart: 0
     RangeEndInset: 0
     Bias: 0
@@ -935,7 +936,7 @@ MonoBehaviour:
     Color: {r: 0.5188679, g: 0.5188679, b: 0.5188679, a: 1}
     Gradient: 0
     Color2: {r: 1, g: 1, b: 1, a: 1}
-    Angle: 90
+    Angle: 0
     RangeStart: 0
     RangeEndInset: 0
     Bias: 0
@@ -944,11 +945,42 @@ MonoBehaviour:
     Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     Gradient: 0
     Color2: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Angle: 90
+    Angle: 0
     RangeStart: 0
     RangeEndInset: 0
     Bias: 0
-  m_outlines: []
+  m_outlines:
+  - Enabled: 1
+    Width: 11
+    Offset: 0
+    Alignment: 0
+    Paint:
+      Color: {r: 1, g: 1, b: 1, a: 1}
+      Gradient: 0
+      Color2: {r: 0.5566038, g: 0.5566038, b: 0.5566038, a: 1}
+      Angle: 0
+      RangeStart: 0
+      RangeEndInset: 0
+      Bias: 0
+    UseTexture: 0
+    Style: 1
+    Dashes:
+      Spacing: 114
+      Length: 0.745
+      Speed: 99
+      RoundCaps: 0
+    Notches:
+      Count: 17
+      Width: 63
+      Depth: 0.469
+      Shape: 0
+      Side: 0
+      Jitter: 1
+    Wobble:
+      Wavelength: 40
+      Thickness: 1
+      Drift: 2
+      Seed: 0
   m_shadows: []
   m_blendMode: 0
   m_bevel:
@@ -1059,7 +1091,7 @@ MonoBehaviour:
     Color: {r: 1, g: 1, b: 1, a: 1}
     Gradient: 0
     Color2: {r: 1, g: 1, b: 1, a: 1}
-    Angle: 90
+    Angle: 0
     RangeStart: 0
     RangeEndInset: 0
     Bias: 0
@@ -1068,7 +1100,7 @@ MonoBehaviour:
     Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     Gradient: 0
     Color2: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    Angle: 90
+    Angle: 0
     RangeStart: 0
     RangeEndInset: 0
     Bias: 0

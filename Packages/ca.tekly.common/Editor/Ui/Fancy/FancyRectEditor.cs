@@ -11,6 +11,8 @@ namespace Tekly.Common.Ui.Fancy
 	{
 		private static readonly GUIContent s_tintContent = new GUIContent("Tint", "Multiplies every layer.");
 		private static readonly GUIContent s_bulgeContent = new GUIContent("Bulge", "Positive bulges outward, negative curves inward.");
+		private static readonly GUIContent s_blurContent = new GUIContent("Blur",
+			"How far the shadow's edge is blurred. The same value as a blur in CSS or a design tool. Stored as Softness, which is twice this.");
 		private static readonly GUIContent s_raycastShapeContent = new GUIContent("Raycast Uses Shape",
 			"Ignore raycasts outside the shape instead of using the full rect.");
 
@@ -406,9 +408,27 @@ namespace Tekly.Common.Ui.Fancy
 			}
 
 			EditorGUILayout.PropertyField(shadow.FindPropertyRelative(nameof(ShapeShadow.Spread)));
-			EditorGUILayout.PropertyField(shadow.FindPropertyRelative(nameof(ShapeShadow.Softness)));
+			BlurGUI(shadow.FindPropertyRelative(nameof(ShapeShadow.Softness)));
 			EditorGUILayout.PropertyField(shadow.FindPropertyRelative(nameof(ShapeShadow.Paint)));
 			EditorGUILayout.PropertyField(shadow.FindPropertyRelative(nameof(ShapeShadow.UseTexture)));
+		}
+
+		/// <summary>
+		/// Edits a shadow's Softness as a blur, so a value from CSS or a design tool can be typed in as is.
+		/// Softness is the full width of the fade, which is twice that blur. Only the inspector converts.
+		/// </summary>
+		private static void BlurGUI(SerializedProperty softness)
+		{
+			var rect = EditorGUILayout.GetControlRect();
+			var label = EditorGUI.BeginProperty(rect, s_blurContent, softness);
+
+			EditorGUI.BeginChangeCheck();
+			var blur = EditorGUI.FloatField(rect, label, softness.floatValue * 0.5f);
+			if (EditorGUI.EndChangeCheck()) {
+				softness.floatValue = Mathf.Max(0f, blur) * 2f;
+			}
+
+			EditorGUI.EndProperty();
 		}
 
 		private static void InitOutline(SerializedProperty outline)
@@ -445,6 +465,11 @@ namespace Tekly.Common.Ui.Fancy
 			paint.FindPropertyRelative(nameof(ShapePaint.Gradient)).enumValueIndex = (int)defaults.Gradient;
 			paint.FindPropertyRelative(nameof(ShapePaint.Color2)).colorValue = defaults.Color2;
 			paint.FindPropertyRelative(nameof(ShapePaint.Angle)).floatValue = defaults.Angle;
+
+			// A new list element starts as a copy of the one before it, so every field needs resetting.
+			paint.FindPropertyRelative(nameof(ShapePaint.RangeStart)).floatValue = defaults.RangeStart;
+			paint.FindPropertyRelative(nameof(ShapePaint.RangeEndInset)).floatValue = defaults.RangeEndInset;
+			paint.FindPropertyRelative(nameof(ShapePaint.Bias)).floatValue = defaults.Bias;
 		}
 
 		/// <summary>

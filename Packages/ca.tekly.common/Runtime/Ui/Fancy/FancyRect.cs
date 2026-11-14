@@ -40,7 +40,9 @@ namespace Tekly.Common.Ui.Fancy
 		private const int LAYER_STYLED_BAND = 3;
 		private const int NO_INNER_EDGE_CODE = 0;
 		private const int FLAG_TEXTURED = 1 << 13;
-		private const int FLAG_CHANNEL_CHECK = 1 << 14;
+
+		// An opaque layer above covers this layer's outer edge, so the shader ends it a pixel early.
+		private const int FLAG_UNDERLAY = 1 << 14;
 
 		// Solid layers cover the whole shape (band from the center to the edge), so their band slot holds scroll.
 		private const int FLAG_SOLID = 1 << 23;
@@ -66,8 +68,17 @@ namespace Tekly.Common.Ui.Fancy
 		/// <summary>Largest texture scroll speed the vertex encoding can hold, in texture units per second.</summary>
 		public const float MAX_TEXTURE_SCROLL = 7.99f;
 
-		/// <summary>Largest half size the vertex encoding can hold (12 bits in 0.5 unit steps).</summary>
-		public const float MAX_HALF_SIZE = 2047.5f;
+		/// <summary>
+		/// Largest half size the vertex encoding can hold. A bigger element still fills its rect, but its radii,
+		/// outlines and other distances grow in proportion.
+		/// </summary>
+		public const float MAX_HALF_SIZE = 8176f;
+
+		private const float RAYCAST_TOLERANCE = 0.01f;
+
+		// A soft edge fades like a Gaussian blur whose 4 standard deviations span the softness. Its tails run
+		// past that, and three deviations each way is where they stop being visible.
+		private const float SOFTNESS_REACH = 0.75f;
 
 		[SerializeField] private RadiusMode m_radiusMode = RadiusMode.Uniform;
 		[SerializeField] private float m_radius = 16;
@@ -229,49 +240,34 @@ namespace Tekly.Common.Ui.Fancy
 
 		public ShapeTextureMode TextureMode {
 			get => m_textureMode;
-			set {
-				m_textureMode = value;
-				SetVerticesDirty();
-			}
+			set => SetField(ref m_textureMode, value);
 		}
 
 		/// <summary>Stretch: zooms the sprite. Tile: multiplies the tile size.</summary>
 		public Vector2 TextureScale {
 			get => m_textureScale;
-			set {
-				m_textureScale = value;
-				SetVerticesDirty();
-			}
+			set => SetField(ref m_textureScale, value);
 		}
 
 		/// <summary>Offset in texture space (1 = one full sprite / tile).</summary>
 		public Vector2 TextureOffset {
 			get => m_textureOffset;
-			set {
-				m_textureOffset = value;
-				SetVerticesDirty();
-			}
+			set => SetField(ref m_textureOffset, value);
 		}
 
-		/// <summary>Rotation of the texture in degrees, around the shape center.</summary>
 		/// <summary>
 		/// Tile mode only. Scroll speed in tiles per second along the texture's own axes, animated in the shader
 		/// from game time (_Time), so it stops when Time.timeScale is 0.
 		/// </summary>
 		public Vector2 TextureScroll {
 			get => m_textureScroll;
-			set {
-				m_textureScroll = value;
-				SetVerticesDirty();
-			}
+			set => SetField(ref m_textureScroll, value);
 		}
 
+		/// <summary>Rotation of the texture in degrees, around the shape center.</summary>
 		public float TextureRotation {
 			get => m_textureRotation;
-			set {
-				m_textureRotation = value;
-				SetVerticesDirty();
-			}
+			set => SetField(ref m_textureRotation, value);
 		}
 
 		public ShapeBlendMode BlendMode {
@@ -288,37 +284,25 @@ namespace Tekly.Common.Ui.Fancy
 
 		public RadiusMode RadiusMode {
 			get => m_radiusMode;
-			set {
-				m_radiusMode = value;
-				SetVerticesDirty();
-			}
+			set => SetField(ref m_radiusMode, value);
 		}
 
 		/// <summary>Radius used by RadiusMode.Uniform.</summary>
 		public float Radius {
 			get => m_radius;
-			set {
-				m_radius = Mathf.Max(0, value);
-				SetVerticesDirty();
-			}
+			set => SetField(ref m_radius, Mathf.Max(0, value));
 		}
 
 		/// <summary>Radii used by RadiusMode.PerCorner: top-left, top-right, bottom-right, bottom-left.</summary>
 		public Vector4 CornerRadii {
 			get => m_cornerRadii;
-			set {
-				m_cornerRadii = Vector4.Max(value, Vector4.zero);
-				SetVerticesDirty();
-			}
+			set => SetField(ref m_cornerRadii, Vector4.Max(value, Vector4.zero));
 		}
 
 		/// <summary>Corner type for Uniform and Pill modes.</summary>
 		public CornerType CornerType {
 			get => m_cornerType;
-			set {
-				m_cornerType = value;
-				SetVerticesDirty();
-			}
+			set => SetField(ref m_cornerType, value);
 		}
 
 		/// <summary>Corner types for RadiusMode.PerCorner.</summary>
@@ -335,43 +319,27 @@ namespace Tekly.Common.Ui.Fancy
 		/// </summary>
 		public RectCorners RoundedCorners {
 			get => m_roundedCorners;
-			set {
-				if (m_roundedCorners == value) {
-					return;
-				}
-
-				m_roundedCorners = value;
-				SetVerticesDirty();
-			}
+			set => SetField(ref m_roundedCorners, value);
 		}
 
-		/// <summary>Top, right, bottom, left.</summary>
 		/// <summary>
 		/// When true, the shape is inset by the outward bulge on each side so the bulged edges touch the rect
 		/// instead of spilling past it. Outside outlines and shadows still extend beyond the rect.
 		/// </summary>
 		public bool ContainBulge {
 			get => m_containBulge;
-			set {
-				m_containBulge = value;
-				SetVerticesDirty();
-			}
+			set => SetField(ref m_containBulge, value);
 		}
 
+		/// <summary>Top, right, bottom, left. Positive bulges outward, negative curves inward.</summary>
 		public Vector4 Bulge {
 			get => m_bulge;
-			set {
-				m_bulge = value;
-				SetVerticesDirty();
-			}
+			set => SetField(ref m_bulge, value);
 		}
 
 		public bool FillEnabled {
 			get => m_fillEnabled;
-			set {
-				m_fillEnabled = value;
-				SetVerticesDirty();
-			}
+			set => SetField(ref m_fillEnabled, value);
 		}
 
 		public ShapePaint Fill {
@@ -403,51 +371,31 @@ namespace Tekly.Common.Ui.Fancy
 		/// <summary>How the element is partially revealed (health bars, timers). None shows all of it.</summary>
 		public RevealMethod RevealMethod {
 			get => m_revealMethod;
-			set {
-				m_revealMethod = value;
-				SetVerticesDirty();
-			}
+			set => SetField(ref m_revealMethod, value);
 		}
 
 		/// <summary>Where the reveal starts: Left/Right for horizontal, Bottom/Top for vertical, any for radial.</summary>
 		public RevealOrigin RevealOrigin {
 			get => m_revealOrigin;
-			set {
-				m_revealOrigin = value;
-				SetVerticesDirty();
-			}
+			set => SetField(ref m_revealOrigin, value);
 		}
 
 		/// <summary>0 hides the element, 1 shows all of it.</summary>
 		public float RevealAmount {
 			get => m_revealAmount;
-			set {
-				var clamped = Mathf.Clamp01(value);
-				if (Mathf.Approximately(clamped, m_revealAmount)) {
-					return;
-				}
-
-				m_revealAmount = clamped;
-				SetVerticesDirty();
-			}
+			set => SetField(ref m_revealAmount, Mathf.Clamp01(value));
 		}
 
 		/// <summary>Radial reveals only: sweep clockwise from the origin.</summary>
 		public bool RevealClockwise {
 			get => m_revealClockwise;
-			set {
-				m_revealClockwise = value;
-				SetVerticesDirty();
-			}
+			set => SetField(ref m_revealClockwise, value);
 		}
 
 		/// <summary>Draw the untextured background layer under the fill.</summary>
 		public bool BackgroundEnabled {
 			get => m_backgroundEnabled;
-			set {
-				m_backgroundEnabled = value;
-				SetVerticesDirty();
-			}
+			set => SetField(ref m_backgroundEnabled, value);
 		}
 
 		public ShapePaint Background {
@@ -466,14 +414,20 @@ namespace Tekly.Common.Ui.Fancy
 		/// <summary>Layers the CanvasRenderer color tints. Others keep their colors but still fade with its alpha.</summary>
 		public FancyRectLayers RendererTintLayers {
 			get => m_rendererTintLayers;
-			set {
-				if (m_rendererTintLayers == value) {
-					return;
-				}
+			set => SetField(ref m_rendererTintLayers, value);
+		}
 
-				m_rendererTintLayers = value;
-				SetVerticesDirty();
+		/// <summary>
+		/// Sets a field and rebuilds the mesh, but only when the value changed. For floats, bools, enums and vectors.
+		/// </summary>
+		private void SetField<T>(ref T field, T value)
+		{
+			if (EqualityComparer<T>.Default.Equals(field, value)) {
+				return;
 			}
+
+			field = value;
+			SetVerticesDirty();
 		}
 
 		public int OutlineCount => m_outlines.Count;
@@ -568,7 +522,13 @@ namespace Tekly.Common.Ui.Fancy
 		private struct ShapeData
 		{
 			public Vector2 Center;
+
+			/// <summary>
+			/// Half size as the shader sees it: rounded to what the vertex data can encode. The layer's geometry is
+			/// built in this space and InvScale maps it back onto the rect, so the edges land exactly on the rect.
+			/// </summary>
 			public Vector2 HalfSize;
+			public Vector2 InvScale;
 			public Vector4 Radii;
 			public Vector4 Bulge;
 			public int CornerBits;
@@ -584,7 +544,8 @@ namespace Tekly.Common.Ui.Fancy
 			public float TextureSin;
 			public float PackedScroll;
 
-			// Reveal: header bits (method, origin, clockwise/reverse) and the 16-bit value (amount or cut position).
+			// Reveal: header bits (method, origin, clockwise/reverse), the radial amount, and the linear cut position
+			// in the rect's own units.
 			public RevealMethod RevealMethod;
 			public int RevealHeader;
 			public int RevealValue;
@@ -628,12 +589,18 @@ namespace Tekly.Common.Ui.Fancy
 				}
 			}
 
+			// Layers under an opaque layer that shares their edge end a pixel early, so they can't show through
+			// where both edges are anti-aliased.
+			var edgeCovered = IsEdgeCoveredByOutline();
+
 			if (m_backgroundEnabled) {
-				AddLayer(vh, FancyRectLayers.Background, shape, LAYER_BAND, NO_INNER_EDGE_CODE, 0, 0, Vector2.zero, m_background, false);
+				var underFill = m_fillEnabled && IsOpaque(m_fill, true);
+				AddLayer(vh, FancyRectLayers.Background, shape, LAYER_BAND, NO_INNER_EDGE_CODE, 0, 0, Vector2.zero, m_background, false,
+					underlay: edgeCovered || underFill);
 			}
 
 			if (m_fillEnabled) {
-				AddLayer(vh, FancyRectLayers.Fill, shape, LAYER_BAND, NO_INNER_EDGE_CODE, 0, 0, Vector2.zero, m_fill, true);
+				AddLayer(vh, FancyRectLayers.Fill, shape, LAYER_BAND, NO_INNER_EDGE_CODE, 0, 0, Vector2.zero, m_fill, true, underlay: edgeCovered);
 			}
 
 			foreach (var shadow in m_shadows) {
@@ -661,6 +628,41 @@ namespace Tekly.Common.Ui.Fancy
 						outline.UseTexture, styleCode: styled ? PackOutlineStyle(outline) : 0, extraReach: outline.GetStyleReach());
 				}
 			}
+		}
+
+		/// <summary>
+		/// Whether an opaque, solid outline sits on the shape edge and reaches at least a unit inside it.
+		/// </summary>
+		private bool IsEdgeCoveredByOutline()
+		{
+			foreach (var outline in m_outlines) {
+				if (!outline.Enabled || outline.Style != OutlineStyle.Solid || !IsOpaque(outline.Paint, outline.UseTexture)) {
+					continue;
+				}
+
+				var band = outline.GetBand();
+				if (band.x <= -1f && band.y >= 0f) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Whether a layer hides everything under it. A textured layer never counts, since the sprite can be transparent.
+		/// </summary>
+		private bool IsOpaque(in ShapePaint paint, bool textured)
+		{
+			if (textured && m_sprite != null) {
+				return false;
+			}
+
+			if (color.a < 1f || paint.Color.a < 1f) {
+				return false;
+			}
+
+			return paint.Gradient == GradientType.None || paint.Color2.a >= 1f;
 		}
 
 		/// <summary>
@@ -741,24 +743,37 @@ namespace Tekly.Common.Ui.Fancy
 				return;
 			}
 
-			var edges = new Vector4(-inset, -inset, -(size.y - inset - glossHeight), -inset);
+			// Top corners are concentric with the shape's (radius minus inset), which is what keeps the gloss inside
+			// the fill. A corner needs a shape at least as tall as its radius, so a gloss shorter than that uses a
+			// taller shape and only draws the part above its cut line.
+			var topLeft = Mathf.Max(shape.Radii.x - inset, 0f);
+			var topRight = Mathf.Max(shape.Radii.y - inset, 0f);
+			var shapeHeight = Mathf.Max(glossHeight, Mathf.Max(topLeft, topRight));
 
-			// Top corners are concentric with the shape's (radius minus inset). The bottom corners sit mid-shape, so
-			// they mirror the top ones and give way when the gloss is too short for both; that keeps the top concentric
-			// instead of letting the radius fitting shrink all four corners evenly.
-			var topLeft = Mathf.Min(Mathf.Max(shape.Radii.x - inset, 0f), glossHeight);
-			var topRight = Mathf.Min(Mathf.Max(shape.Radii.y - inset, 0f), glossHeight);
-			var bottomRight = Mathf.Clamp(glossHeight - topRight, 0f, topRight);
-			var bottomLeft = Mathf.Clamp(glossHeight - topLeft, 0f, topLeft);
+			// The bottom corners sit mid-shape, so they mirror the top ones and give way when there isn't room for
+			// both; that keeps the top concentric instead of letting the radius fitting shrink all four evenly.
+			var bottomRight = Mathf.Clamp(shapeHeight - topRight, 0f, topRight);
+			var bottomLeft = Mathf.Clamp(shapeHeight - topLeft, 0f, topLeft);
 			var radii = new Vector4(topLeft, topRight, bottomRight, bottomLeft);
 
+			var edges = new Vector4(-inset, -inset, -(size.y - inset - shapeHeight), -inset);
 			var glossShape = WithEdgeOffsets(shape, edges, out var shift, radii);
 
 			var faded = m_gloss.Color;
 			faded.a *= 1f - Mathf.Clamp01(m_gloss.Fade);
 
-			var paint = ShapePaint.TwoColor(faded, m_gloss.Color, GradientType.Linear, 90f);
-			AddLayer(vh, FancyRectLayers.Gloss, glossShape, LAYER_BAND, NO_INNER_EDGE_CODE, 0f, m_gloss.Softness, shift, paint, false);
+			var paint = ShapePaint.TwoColor(faded, m_gloss.Color, GradientType.Linear, 0f);
+			var clipBottom = float.NegativeInfinity;
+
+			if (shapeHeight > glossHeight) {
+				// The fade still ends at the cut line, and the quad stops there. That edge is the quad's own, so it
+				// has no softness, which only shows when Fade leaves the bottom of the gloss visible.
+				paint.RangeStart = 1f - glossHeight / shapeHeight;
+				clipBottom = (shape.HalfSize.y * shape.InvScale.y - inset - glossHeight) / glossShape.InvScale.y;
+			}
+
+			AddLayer(vh, FancyRectLayers.Gloss, glossShape, LAYER_BAND, NO_INNER_EDGE_CODE, 0f, m_gloss.Softness, shift, paint, false,
+				clipBottom: clipBottom);
 		}
 
 		/// <summary>
@@ -808,7 +823,7 @@ namespace Tekly.Common.Ui.Fancy
 		private static Vector4 CalculateTuck(Vector2 offset, float spread, float softness)
 		{
 			// How far the soft edge reaches past the shape on a side, when the shadow sits `shift` toward it.
-			float Leak(float shift) => Mathf.Max(0f, shift + spread + softness * 0.5f + TUCK_MARGIN);
+			float Leak(float shift) => Mathf.Max(0f, shift + spread + softness * SOFTNESS_REACH + TUCK_MARGIN);
 
 			return new Vector4(
 				offset.y < 0f ? Leak(offset.y) : 0f,
@@ -833,42 +848,60 @@ namespace Tekly.Common.Ui.Fancy
 		/// </summary>
 		private static ShapeData WithEdgeOffsets(in ShapeData shape, Vector4 edges, out Vector2 shift, Vector4? radii = null)
 		{
-			shift = new Vector2((edges.y - edges.w) * 0.5f, (edges.x - edges.z) * 0.5f);
-
-			var halfSize = shape.HalfSize + new Vector2((edges.y + edges.w) * 0.5f, (edges.x + edges.z) * 0.5f);
-			halfSize = new Vector2(Mathf.Clamp(halfSize.x, 0.5f, MAX_HALF_SIZE), Mathf.Clamp(halfSize.y, 0.5f, MAX_HALF_SIZE));
+			var size = Vector2.Scale(shape.HalfSize, shape.InvScale) + new Vector2((edges.y + edges.w) * 0.5f, (edges.x + edges.z) * 0.5f);
 
 			var result = shape;
-			result.HalfSize = halfSize;
-			result.PackedHalfSize = Pack(HalfSize12(halfSize.x), HalfSize12(halfSize.y));
-			result.Radii = FitRadii(radii ?? shape.Radii, halfSize * 2f);
-			result.Bulge = ClampBulge(shape.Bulge, halfSize);
+			SetHalfSize(ref result, size);
+
+			// The shift is used as a layer offset, which is in the new shape's own space.
+			shift = new Vector2((edges.y - edges.w) * 0.5f / result.InvScale.x, (edges.x - edges.z) * 0.5f / result.InvScale.y);
+
+			result.Radii = FitRadii(radii ?? shape.Radii, result.HalfSize * 2f);
+			result.Bulge = ClampBulge(shape.Bulge, result.HalfSize);
 			result.Uv1 = PackShapeUv1(result.Radii, result.Bulge);
 
 			return result;
 		}
 
-		private ShapeData BuildShapeData(Vector2 center, Vector2 halfSize, Vector4 bulge)
+		/// <summary>
+		/// Sets a shape's half size from its real size in the rect: rounds it to what the vertex data can encode and
+		/// records the scale that maps the rounded shape back onto the real one.
+		/// </summary>
+		private static void SetHalfSize(ref ShapeData shape, Vector2 halfSize)
 		{
-			var radii = Vector4.Min(CalculateRadii(halfSize), Vector4.one * (MAX_DISTANCE * 2f));
-			var cornerTypes = GetCornerTypes();
+			halfSize = Vector2.Max(halfSize, new Vector2(0.5f, 0.5f));
 
-			var cornerBits = (int)cornerTypes.TopLeft
-			                 | ((int)cornerTypes.TopRight << 2)
-			                 | ((int)cornerTypes.BottomRight << 4)
-			                 | ((int)cornerTypes.BottomLeft << 6);
+			var codeX = HalfSizeCode(halfSize.x);
+			var codeY = HalfSizeCode(halfSize.y);
 
+			shape.HalfSize = new Vector2(DecodeHalfSize(codeX), DecodeHalfSize(codeY));
+			shape.InvScale = new Vector2(halfSize.x / shape.HalfSize.x, halfSize.y / shape.HalfSize.y);
+			shape.PackedHalfSize = Pack(codeX, codeY);
+		}
+
+		/// <param name="forMesh">False skips the texture mapping, which only the mesh needs.</param>
+		private ShapeData BuildShapeData(Vector2 center, Vector2 halfSize, Vector4 bulge, bool forMesh = true)
+		{
 			var shape = new ShapeData {
-				Center = center,
-				HalfSize = halfSize,
-				Radii = radii,
-				Bulge = bulge,
-				CornerBits = cornerBits,
-				Uv1 = PackShapeUv1(radii, bulge),
-				PackedHalfSize = Pack(HalfSize12(halfSize.x), HalfSize12(halfSize.y))
+				Center = center
 			};
 
-			SetupTextureMapping(ref shape);
+			SetHalfSize(ref shape, halfSize);
+
+			var cornerTypes = GetCornerTypes();
+
+			shape.Radii = Vector4.Min(CalculateRadii(shape.HalfSize), Vector4.one * (MAX_DISTANCE * 2f));
+			shape.Bulge = ClampBulge(bulge, shape.HalfSize);
+			shape.Uv1 = PackShapeUv1(shape.Radii, shape.Bulge);
+			shape.CornerBits = (int)cornerTypes.TopLeft
+			                   | ((int)cornerTypes.TopRight << 2)
+			                   | ((int)cornerTypes.BottomRight << 4)
+			                   | ((int)cornerTypes.BottomLeft << 6);
+
+			if (forMesh) {
+				SetupTextureMapping(ref shape);
+			}
+
 			SetupReveal(ref shape);
 			return shape;
 		}
@@ -927,7 +960,7 @@ namespace Tekly.Common.Ui.Fancy
 		}
 
 		/// <summary>
-		/// Precomputes the reveal. Linear reveals are baked into a cut position in the element's own space, so layers
+		/// Precomputes the reveal. Linear reveals are baked into a cut position in the rect's own units, so layers
 		/// drawn with a resized copy of the shape (gloss, tucked shadows) still cut in the same place.
 		/// </summary>
 		private void SetupReveal(ref ShapeData shape)
@@ -947,18 +980,16 @@ namespace Tekly.Common.Ui.Fancy
 					var min = -shape.HalfSize.x - outward.w;
 					var max = shape.HalfSize.x + outward.y;
 					var fromRight = origin == RevealOrigin.Right;
-					shape.RevealCut = fromRight ? Mathf.Lerp(max, min, amount) : Mathf.Lerp(min, max, amount);
+					shape.RevealCut = (fromRight ? Mathf.Lerp(max, min, amount) : Mathf.Lerp(min, max, amount)) * shape.InvScale.x;
 					shape.RevealHeader = (int)RevealMethod.Horizontal | (fromRight ? REVEAL_CLOCKWISE_BIT : 0);
-					shape.RevealValue = CutCode(shape.RevealCut);
 					break;
 				}
 				case RevealMethod.Vertical: {
 					var min = -shape.HalfSize.y - outward.z;
 					var max = shape.HalfSize.y + outward.x;
 					var fromTop = origin == RevealOrigin.Top;
-					shape.RevealCut = fromTop ? Mathf.Lerp(max, min, amount) : Mathf.Lerp(min, max, amount);
+					shape.RevealCut = (fromTop ? Mathf.Lerp(max, min, amount) : Mathf.Lerp(min, max, amount)) * shape.InvScale.y;
 					shape.RevealHeader = (int)RevealMethod.Vertical | (fromTop ? REVEAL_CLOCKWISE_BIT : 0);
-					shape.RevealValue = CutCode(shape.RevealCut);
 					break;
 				}
 				default:
@@ -968,10 +999,18 @@ namespace Tekly.Common.Ui.Fancy
 			}
 		}
 
-		/// <summary>A cut position (-2048 to 2048 local units) in 1/16 unit steps.</summary>
+		/// <summary>
+		/// A cut position as a sign bit and 15 bits: 1/16 unit steps up to 1024 units from the center, then 0.5 unit
+		/// steps, which reaches past the largest shape.
+		/// </summary>
 		private static int CutCode(float cut)
 		{
-			return Mathf.Clamp(Mathf.RoundToInt((cut + 2048f) * 16f), 0, 65535);
+			var distance = Mathf.Abs(cut);
+			var code = distance <= 1024f
+				? Mathf.RoundToInt(distance * 16f)
+				: 16384 + Mathf.RoundToInt((distance - 1024f) * 2f);
+
+			return Mathf.Min(code, 32767) | (cut < 0f ? 32768 : 0);
 		}
 
 		/// <param name="offsetSpace">Reveal in the layer's offset space (drop shadows).</param>
@@ -984,16 +1023,17 @@ namespace Tekly.Common.Ui.Fancy
 
 			var value = shape.RevealValue;
 
-			if (offsetSpace && shape.RevealMethod == RevealMethod.Horizontal) {
-				value = CutCode(shape.RevealCut - shapeShift.x);
-			} else if (offsetSpace && shape.RevealMethod == RevealMethod.Vertical) {
-				value = CutCode(shape.RevealCut - shapeShift.y);
+			// The cut is kept in the rect's units; each layer needs it in its own shape's space.
+			if (shape.RevealMethod == RevealMethod.Horizontal) {
+				value = CutCode(shape.RevealCut / shape.InvScale.x - (offsetSpace ? shapeShift.x : 0f));
+			} else if (shape.RevealMethod == RevealMethod.Vertical) {
+				value = CutCode(shape.RevealCut / shape.InvScale.y - (offsetSpace ? shapeShift.y : 0f));
 			}
 
 			return shape.RevealHeader | (value << REVEAL_VALUE_SHIFT) | (offsetSpace ? REVEAL_OFFSET_SPACE_BIT : 0);
 		}
 
-		/// <summary>Whether a point relative to the shape center is inside the revealed part. Matches the shader.</summary>
+		/// <summary>Whether a point relative to the shape center, in the rect's units, is inside the revealed part. Matches the shader.</summary>
 		private bool IsRevealed(Vector2 p, in ShapeData shape)
 		{
 			switch (shape.RevealMethod) {
@@ -1080,24 +1120,28 @@ namespace Tekly.Common.Ui.Fancy
 		/// <param name="end">Outer edge of the band (distance from the shape edge), or the spread for inner shadows.</param>
 		/// <param name="styleCode">Packed outline style, sent in place of the offset by LAYER_STYLED_BAND layers.</param>
 		/// <param name="extraReach">How far past the band end the layer can draw (wobble).</param>
+		/// <param name="underlay">An opaque layer above shares this layer's outer edge, so it ends a pixel early.</param>
+		/// <param name="clipBottom">Nothing is drawn below this height, relative to the shape center (a short gloss).</param>
 		private void AddLayer(VertexHelper vh, FancyRectLayers layerKind, in ShapeData shape, int layerType, int startCode, float end, float softness,
 			Vector2 offset, ShapePaint paint, bool textured, bool revealInOffsetSpace = false, Vector2 revealShapeShift = default,
-			int styleCode = 0, float extraReach = 0f)
+			int styleCode = 0, float extraReach = 0f, bool underlay = false, float clipBottom = float.NegativeInfinity)
 		{
 			softness = Mathf.Clamp(softness, 0, MAX_DISTANCE * 2f);
 			offset = new Vector2(Mathf.Clamp(offset.x, -MAX_DISTANCE, MAX_DISTANCE), Mathf.Clamp(offset.y, -MAX_DISTANCE, MAX_DISTANCE));
 
 			// How far past the shape edge this layer can draw. Inner shadows and bevels never leave the shape.
 			var insideOnly = layerType == LAYER_INNER_SHADOW || layerType == LAYER_BEVEL;
-			var reach = insideOnly ? EDGE_PADDING : Mathf.Max(end + extraReach, 0) + softness * 0.5f + EDGE_PADDING;
+			var reach = insideOnly ? EDGE_PADDING : (Mathf.Max(end + extraReach, 0) + softness * SOFTNESS_REACH) * BulgeStretch(shape) + EDGE_PADDING;
+
+			// The quad moves with the offset, so it only covers where the offset shape is.
 			var quadOffset = layerType == LAYER_INNER_SHADOW ? Vector2.zero : offset;
 
 			var h = shape.HalfSize;
 			var b = shape.Bulge;
-			var left = h.x + Mathf.Max(b.w, 0) + reach + Mathf.Max(-quadOffset.x, 0);
-			var right = h.x + Mathf.Max(b.y, 0) + reach + Mathf.Max(quadOffset.x, 0);
-			var top = h.y + Mathf.Max(b.x, 0) + reach + Mathf.Max(quadOffset.y, 0);
-			var bottom = h.y + Mathf.Max(b.z, 0) + reach + Mathf.Max(-quadOffset.y, 0);
+			var left = h.x + Mathf.Max(b.w, 0) + reach - quadOffset.x;
+			var right = h.x + Mathf.Max(b.y, 0) + reach + quadOffset.x;
+			var top = h.y + Mathf.Max(b.x, 0) + reach + quadOffset.y;
+			var bottom = h.y + Mathf.Max(b.z, 0) + reach - quadOffset.y;
 
 			var tint = color;
 			var color1 = (Color32)(paint.Color * tint);
@@ -1122,7 +1166,7 @@ namespace Tekly.Common.Ui.Fancy
 
 			var solid = layerType == LAYER_BAND && startCode == NO_INNER_EDGE_CODE && Signed12(end) == 2048;
 
-			var flags = layerType | ((int)paint.Gradient << 2) | (shape.CornerBits << 5) | FLAG_CHANNEL_CHECK | (gradientBiasCode << 15)
+			var flags = layerType | ((int)paint.Gradient << 2) | (shape.CornerBits << 5) | (underlay ? FLAG_UNDERLAY : 0) | (gradientBiasCode << 15)
 			            | (solid ? FLAG_SOLID : 0);
 			var angleCode = Mathf.Clamp(Mathf.RoundToInt(Mathf.Repeat(paint.Angle, 360f) / 360f * 4095f), 0, 4095);
 
@@ -1147,7 +1191,7 @@ namespace Tekly.Common.Ui.Fancy
 				Uv3 = uv3
 			};
 
-			var quadMin = new Vector2(-left, -bottom);
+			var quadMin = new Vector2(-left, Mathf.Max(-bottom, clipBottom));
 			var quadMax = new Vector2(right, top);
 
 			if (TryGetLayerHole(shape, layerType, startCode, end, softness, extraReach, offset, quadMin, quadMax, out var holeMin, out var holeMax)) {
@@ -1180,7 +1224,7 @@ namespace Tekly.Common.Ui.Fancy
 			}
 
 			// The anti-aliased edge and any wobble can reach past the inner edge, so stay clear of both.
-			var depth = Mathf.Max(0f, -innerEdge + extraReach + softness * 0.5f + EDGE_PADDING);
+			var depth = Mathf.Max(0f, (-innerEdge + extraReach + softness * SOFTNESS_REACH) * BulgeStretch(shape) + EDGE_PADDING);
 
 			if (!TryGetInnerRect(shape, depth, out holeMin, out holeMax)) {
 				return false;
@@ -1195,6 +1239,22 @@ namespace Tekly.Common.Ui.Fancy
 
 			return holeSize.x >= MIN_RING_HOLE_SIZE && holeSize.y >= MIN_RING_HOLE_SIZE
 			       && holeSize.x * holeSize.y >= quadSize.x * quadSize.y * MIN_RING_HOLE_FRACTION;
+		}
+
+		/// <summary>
+		/// The shader measures distances on a bulged side to first order, so far from the edge a layer can reach a
+		/// little further than its width. This is the factor that keeps quads and ring holes clear of that: 1 with
+		/// no bulge, growing with how steep the steepest bulge is.
+		/// </summary>
+		private static float BulgeStretch(in ShapeData shape)
+		{
+			var b = shape.Bulge;
+			var h = shape.HalfSize;
+
+			var topBottom = Mathf.Max(Mathf.Abs(b.x), Mathf.Abs(b.z)) / Mathf.Max(h.x, 0.0001f);
+			var leftRight = Mathf.Max(Mathf.Abs(b.y), Mathf.Abs(b.w)) / Mathf.Max(h.y, 0.0001f);
+
+			return 1f + Mathf.Max(topBottom, leftRight) * Mathf.PI * 0.5f;
 		}
 
 		/// <summary>
@@ -1355,7 +1415,7 @@ namespace Tekly.Common.Ui.Fancy
 			var textureUv = CalculateTextureUv(shape, local - layer.TextureOrigin);
 
 			var vertex = UIVertex.simpleVert;
-			vertex.position = shape.Center + local;
+			vertex.position = shape.Center + Vector2.Scale(local, shape.InvScale);
 			vertex.color = layer.Color;
 			vertex.uv0 = new Vector4(local.x, local.y, textureUv.x, textureUv.y);
 			vertex.uv1 = shape.Uv1;
@@ -1463,9 +1523,28 @@ namespace Tekly.Common.Ui.Fancy
 			return Mathf.Clamp(Mathf.RoundToInt(value * 256f) + 2048, 0, 4095);
 		}
 
-		private static int HalfSize12(float value)
+		/// <summary>
+		/// A half size in 12 bits: a 3-bit exponent above a 9-bit mantissa, in 1/8 unit steps doubled per exponent.
+		/// That keeps the rounding under 0.2% at any size, which InvScale then hides. Never zero.
+		/// </summary>
+		private static int HalfSizeCode(float value)
 		{
-			return Mathf.Clamp(Mathf.RoundToInt(value * 2f), 0, 4095);
+			value = Mathf.Clamp(value, 0.125f, MAX_HALF_SIZE);
+
+			var exponent = 0;
+			var step = 0.125f;
+
+			while (exponent < 7 && value > 511f * step) {
+				exponent++;
+				step *= 2f;
+			}
+
+			return (exponent << 9) | Mathf.Clamp(Mathf.RoundToInt(value / step), 1, 511);
+		}
+
+		private static float DecodeHalfSize(int code)
+		{
+			return (code & 511) * 0.125f * (1 << (code >> 9));
 		}
 
 		private static int Signed12(float value)
@@ -1483,28 +1562,49 @@ namespace Tekly.Common.Ui.Fancy
 				return false;
 			}
 
-			if (SignedDistance(localPoint) > 0f) {
+			if (!TryBuildShape(out var shape)) {
 				return false;
 			}
 
-			if (m_revealMethod == RevealMethod.None || !TryResolveShapeBounds(out var center, out var halfSize, out var bulge)) {
-				return true;
+			// Raycast Padding can extend the hit area past the rect. Out there, a point counts when the nearest
+			// point of the rect is inside the shape.
+			var rect = rectTransform.rect;
+			localPoint = new Vector2(Mathf.Clamp(localPoint.x, rect.xMin, rect.xMax), Mathf.Clamp(localPoint.y, rect.yMin, rect.yMax));
+
+			if (SignedDistance(localPoint, shape) > RAYCAST_TOLERANCE) {
+				return false;
 			}
 
-			return IsRevealed(localPoint - center, BuildShapeData(center, halfSize, bulge));
+			return IsRevealed(localPoint - shape.Center, shape);
 		}
 
 		/// <summary>
-		/// Signed distance from a local point to the shape edge (negative inside). Matches the shader.
+		/// Signed distance from a local point to the shape edge (negative inside). The edge matches the shader;
+		/// with a bulge or squircle corners the distance away from the edge is approximate.
 		/// </summary>
 		public float SignedDistance(Vector2 localPoint)
 		{
+			return TryBuildShape(out var shape) ? SignedDistance(localPoint, shape) : float.MaxValue;
+		}
+
+		private float SignedDistance(Vector2 localPoint, in ShapeData shape)
+		{
+			var p = localPoint - shape.Center;
+			p = new Vector2(p.x / shape.InvScale.x, p.y / shape.InvScale.y);
+
+			return ShapeDistanceField.Evaluate(p, shape.HalfSize, shape.Radii, shape.Bulge, GetCornerTypes());
+		}
+
+		/// <summary>The shape without its texture mapping, for hit tests.</summary>
+		private bool TryBuildShape(out ShapeData shape)
+		{
 			if (!TryResolveShapeBounds(out var center, out var halfSize, out var bulge)) {
-				return float.MaxValue;
+				shape = default;
+				return false;
 			}
 
-			var shape = BuildShapeData(center, halfSize, bulge);
-			return ShapeDistanceField.Evaluate(localPoint - center, halfSize, shape.Radii, shape.Bulge, GetCornerTypes());
+			shape = BuildShapeData(center, halfSize, bulge, false);
+			return true;
 		}
 
 #if UNITY_EDITOR
@@ -1542,6 +1642,8 @@ namespace Tekly.Common.Ui.Fancy
 
 	/// <summary>
 	/// C# copy of the shader's distance function, used for raycasts. Keep the two in sync.
+	/// The shader also divides by the field's slope to even out distances along bulged sides and squircle corners;
+	/// that never moves the edge, so it is left out here.
 	/// </summary>
 	public static class ShapeDistanceField
 	{
@@ -1569,13 +1671,21 @@ namespace Tekly.Common.Ui.Fancy
 
 		private static Vector2 ApplyBulge(Vector2 p, Vector2 halfSize, Vector4 bulge)
 		{
-			var tx = Mathf.Clamp01(Mathf.Abs(p.x) / Mathf.Max(halfSize.x, 1e-4f));
-			var ty = Mathf.Clamp01(Mathf.Abs(p.y) / Mathf.Max(halfSize.y, 1e-4f));
+			var halfX = Mathf.Max(halfSize.x, 1e-4f);
+			var halfY = Mathf.Max(halfSize.y, 1e-4f);
+			var fromCenterX = Mathf.Abs(p.x);
+			var fromCenterY = Mathf.Abs(p.y);
 
-			var pushX = (p.x >= 0f ? bulge.y : bulge.w) * Mathf.Cos(Mathf.PI * 0.5f * ty);
-			var pushY = (p.y >= 0f ? bulge.x : bulge.z) * Mathf.Cos(Mathf.PI * 0.5f * tx);
+			// Each side's push fades out close to the shape's own center line and never carries a point across it.
+			var strengthX = (p.x >= 0f ? bulge.y : bulge.w) * Mathf.Clamp01(fromCenterX / (halfX * 0.1f));
+			var strengthY = (p.y >= 0f ? bulge.x : bulge.z) * Mathf.Clamp01(fromCenterY / (halfY * 0.1f));
 
-			return new Vector2(p.x - (p.x >= 0f ? pushX : -pushX), p.y - (p.y >= 0f ? pushY : -pushY));
+			var pushX = strengthX * Mathf.Cos(Mathf.PI * 0.5f * Mathf.Clamp01(fromCenterY / halfY));
+			var pushY = strengthY * Mathf.Cos(Mathf.PI * 0.5f * Mathf.Clamp01(fromCenterX / halfX));
+
+			return new Vector2(
+				(p.x >= 0f ? 1f : -1f) * Mathf.Max(fromCenterX - pushX, 0f),
+				(p.y >= 0f ? 1f : -1f) * Mathf.Max(fromCenterY - pushY, 0f));
 		}
 
 		private static float CornerDistance(Vector2 a, float radius, CornerType cornerType)

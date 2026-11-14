@@ -281,6 +281,7 @@ namespace Tekly.Common.Ui.Fancy
 		public GradientType Gradient;
 		public Color Color2;
 
+		[Tooltip("As in CSS: 0 points up and the angle turns clockwise. A Linear gradient runs toward it. An Angular one starts there and sweeps clockwise.")]
 		[Range(0, 360)]
 		public float Angle;
 
@@ -310,11 +311,12 @@ namespace Tekly.Common.Ui.Fancy
 				Color = color,
 				Gradient = GradientType.None,
 				Color2 = color,
-				Angle = 90
+				Angle = 0
 			};
 		}
 
-		public static ShapePaint TwoColor(Color color, Color color2, GradientType gradient, float angle = 90)
+		/// <param name="angle">As in CSS: 0 points up (Color at the bottom, Color 2 at the top) and it turns clockwise.</param>
+		public static ShapePaint TwoColor(Color color, Color color2, GradientType gradient, float angle = 0)
 		{
 			return new ShapePaint {
 				Color = color,
@@ -400,6 +402,10 @@ namespace Tekly.Common.Ui.Fancy
 		[Tooltip("Grows (outer) or pushes inward (inset) the shadow shape before softening.")]
 		public float Spread;
 
+		/// <summary>
+		/// Width of the soft edge, which fades like a Gaussian blur. Twice the blur value in CSS or a design tool;
+		/// the inspector shows it as that Blur.
+		/// </summary>
 		public float Softness;
 		public ShapePaint Paint;
 
@@ -441,7 +447,7 @@ namespace Tekly.Common.Ui.Fancy
 		[Tooltip("Blur of the bevel's inner edge. 0 gives a crisp band.")]
 		public float Softness;
 
-		[Tooltip("Direction the light comes from, in degrees. 90 is straight above, 135 is top-left.")]
+		[Tooltip("Direction the light comes from, in degrees. As in CSS: 0 is straight above and it turns clockwise, so 315 is top-left.")]
 		[Range(0, 360)]
 		public float LightAngle;
 
@@ -452,7 +458,7 @@ namespace Tekly.Common.Ui.Fancy
 			Enabled = true,
 			Width = 6,
 			Softness = 4,
-			LightAngle = 135,
+			LightAngle = 315,
 			Highlight = new Color(1, 1, 1, 0.5f),
 			Shadow = new Color(0, 0, 0, 0.3f)
 		};
