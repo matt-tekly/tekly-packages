@@ -10,7 +10,8 @@ namespace Tekly.Common.Ui.Styled
 	/// <summary>
 	/// Holds every StyledRect's values in one float texture that the shader reads by address. Changing a value
 	/// is a write into an array, with no mesh rebuild, and at most one texture upload per frame, after the
-	/// canvas rebuild. Every rect shares one material so they batch.
+	/// canvas rebuild. Rects share one material per blend mode and shader tier, so rects that use the same
+	/// ones batch.
 	///
 	/// An address is a texel index counted row by row. The width never changes, so addresses survive growth.
 	/// Nothing here exists until the first StyledRect is enabled.

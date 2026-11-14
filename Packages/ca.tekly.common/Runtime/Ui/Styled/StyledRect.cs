@@ -6,16 +6,18 @@ namespace Tekly.Common.Ui.Styled
 {
 	/// <summary>
 	/// A resolution-independent UI rectangle drawn from a signed distance field: a shape (radius, per corner
-	/// radii, pill, corner mask) and an ordered list of layers (fills, strokes, drop and inner shadows, bevels)
-	/// where the first is in front.
+	/// radii, pill, corner mask, corner smoothing, wobble) and an ordered list of layers (fills, strokes, drop
+	/// and inner shadows, bevels) where the first is in front. A reveal can show only part of it, for progress
+	/// bars and cooldowns.
 	///
-	/// Its values live in the StyledRectStore's data texture and its vertices carry only a position and two
-	/// addresses into that texture, so the canvas needs no additional shader channels. Changing a value that
-	/// does not move where a layer can draw (a color, a gradient, a radius) only writes the texture. Changing
-	/// one that does (a stroke's width, the number of layers) rebuilds the mesh.
+	/// Its values live in the StyledRectStore's data texture and its vertices carry only a position, the tint
+	/// and two addresses into that texture, so the canvas needs no additional shader channels. Changing a value
+	/// that does not move where a layer can draw (a color, a gradient, the reveal amount) only writes the
+	/// texture. Changing one that does (a stroke's width, the number of layers) rebuilds the mesh.
 	///
-	/// Each layer is its own quad, or a ring of quads around its empty middle, tinted by the Graphic color.
-	/// An optional sprite is tiled across the shape and multiplies every layer that has Textured on.
+	/// Each layer is its own quad, or a ring of quads around its empty middle. The Graphic color tints every
+	/// layer that does not have Ignore Tint on. An optional sprite, covering the shape or tiled across it,
+	/// multiplies every layer that has Textured on.
 	/// </summary>
 	[AddComponentMenu("UI/Styled Rect")]
 	[RequireComponent(typeof(CanvasRenderer))] // Like Image: Graphic only adds one lazily, too late for a fresh component.
@@ -218,9 +220,6 @@ namespace Tekly.Common.Ui.Styled
 		private const float SQUIRCLE_EXPONENT = 4f;
 
 		private const float RAYCAST_TOLERANCE = 0.01f;
-
-		// A slide this far past the rect's size hides it entirely, with no sliver left where the two shapes meet.
-		private const float HIDDEN_SLIDE_MARGIN = 4f;
 
 		// Texture coordinate limits that never clamp anything, for a repeating texture.
 		private const float NO_UV_LIMIT = 1e6f;
