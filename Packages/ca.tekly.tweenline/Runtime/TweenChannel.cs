@@ -132,6 +132,51 @@ namespace Tekly.Tweenlines
 #endif
     }
 
+    /// <summary>
+    /// Local rotation as Euler degrees, so values past 360 spin and layered tracks can add degrees. Reads
+    /// come back between -180 and 180, so a slight tilt left reads as -10 rather than 350.
+    /// </summary>
+    public sealed class LocalRotationChannel : Vector3Channel
+    {
+        private const float SAME_DEGREES = 0.0001f;
+
+        public override string Name => "localRotation";
+
+        public override Vector3 Read(Object target)
+        {
+            var euler = ((Transform) target).localEulerAngles;
+            return new Vector3(Mathf.DeltaAngle(0, euler.x), Mathf.DeltaAngle(0, euler.y), Mathf.DeltaAngle(0, euler.z));
+        }
+
+        public override void Write(Object target, Vector3 value) => ((Transform) target).localRotation = Quaternion.Euler(value);
+
+        /// <summary>
+        /// Compares angles a whole number of turns apart as the same, so a held 370 isn't rewritten every
+        /// evaluation because the transform reads it back as 10.
+        /// </summary>
+        public override bool Same(Vector3 a, Vector3 b)
+        {
+            return Mathf.Abs(Mathf.DeltaAngle(a.x, b.x)) < SAME_DEGREES
+                && Mathf.Abs(Mathf.DeltaAngle(a.y, b.y)) < SAME_DEGREES
+                && Mathf.Abs(Mathf.DeltaAngle(a.z, b.z)) < SAME_DEGREES;
+        }
+
+#if UNITY_EDITOR
+        public override void CollectDrivenProperties(Object target, List<DrivenProperty> properties)
+        {
+            properties.Add(new DrivenProperty(target, "m_LocalRotation.x"));
+            properties.Add(new DrivenProperty(target, "m_LocalRotation.y"));
+            properties.Add(new DrivenProperty(target, "m_LocalRotation.z"));
+            properties.Add(new DrivenProperty(target, "m_LocalRotation.w"));
+
+            // The inspector shows this instead of converting the quaternion, so restore it too
+            properties.Add(new DrivenProperty(target, "m_LocalEulerAnglesHint.x"));
+            properties.Add(new DrivenProperty(target, "m_LocalEulerAnglesHint.y"));
+            properties.Add(new DrivenProperty(target, "m_LocalEulerAnglesHint.z"));
+        }
+#endif
+    }
+
     public sealed class CanvasGroupAlphaChannel : FloatChannel
     {
         public override string Name => "alpha";
@@ -215,6 +260,7 @@ namespace Tekly.Tweenlines
         public static readonly LocalPositionChannel LocalPosition = new LocalPositionChannel();
         public static readonly AnchoredPositionChannel AnchoredPosition = new AnchoredPositionChannel();
         public static readonly LocalScaleChannel LocalScale = new LocalScaleChannel();
+        public static readonly LocalRotationChannel LocalRotation = new LocalRotationChannel();
         public static readonly CanvasGroupAlphaChannel CanvasGroupAlpha = new CanvasGroupAlphaChannel();
         public static readonly ActiveChannel Active = new ActiveChannel();
         public static readonly EnabledChannel Enabled = new EnabledChannel();

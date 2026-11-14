@@ -47,7 +47,8 @@ namespace Tekly.Tweenlines.Tracks
     /// Slides a target in from off screen or out to off screen. It is layered, so the slide offsets whichever
     /// position channel a base track drives (or the position the target had when the animation started) and
     /// lands exactly on the base value. The off screen distance is worked out when the animation starts from
-    /// the screen area and where the target rests, so it works at any resolution.
+    /// the screen area and the target's pose while off screen, including any rotation or scale from base
+    /// tracks, so it works at any resolution.
     /// </summary>
     [Serializable]
     [MovedFrom(true, "Tekly.Common.Tweenlines.Tracks", "Tekly.Common.Runtime")]
@@ -144,7 +145,7 @@ namespace Tekly.Tweenlines.Tracks
                 m_positionSlot = mixer.Get(m_target, TweenChannels.LocalPosition);
             }
 
-            ResolveOffScreen(mixer.Get(m_target, TweenChannels.LocalScale));
+            ResolveOffScreen(mixer);
         }
 
         public override void Evaluate(float time)
@@ -210,8 +211,10 @@ namespace Tekly.Tweenlines.Tracks
             return m_offScreenVectors[index] * amount;
         }
 
-        private void ResolveOffScreen(ChannelSlot<Vector3> scaleSlot)
+        private void ResolveOffScreen(TweenMixer mixer)
         {
+            var scaleSlot = mixer.Get(m_target, TweenChannels.LocalScale);
+
             if (m_offScreenVectors == null || m_offScreenVectors.Length != m_clips.Count) {
                 m_offScreenVectors = new Vector3[m_clips.Count];
             }
@@ -225,12 +228,13 @@ namespace Tekly.Tweenlines.Tracks
                     continue;
                 }
 
-                // Measure where it rests: the end of a slide in, the start of a slide out
-                var restTime = clip.Mode == SlideMode.In ? clip.End : clip.Start;
-                var landing = OffScreen.LandingPosition(m_target, m_anchoredSlot, m_positionSlot, restTime);
-                var scale = scaleSlot.SampleBase(restTime);
+                // Measure the pose it has while off screen: the start of a slide in, the end of a slide out
+                var time = clip.Mode == SlideMode.In ? clip.Start : clip.End;
+                var position = OffScreen.PositionAt(m_target, m_anchoredSlot, m_positionSlot, time);
+                var rotation = OffScreen.RotationAt(mixer, m_target, time);
+                var scale = scaleSlot.SampleBase(time);
 
-                m_offScreenVectors[i] = OffScreen.Vector(m_target, clip.OffScreenArea, direction, landing, scale);
+                m_offScreenVectors[i] = OffScreen.Vector(m_target, clip.OffScreenArea, direction, position, rotation, scale);
             }
         }
 

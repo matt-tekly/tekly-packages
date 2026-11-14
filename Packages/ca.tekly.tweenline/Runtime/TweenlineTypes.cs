@@ -58,11 +58,11 @@ namespace Tekly.Tweenlines
     /// </summary>
     public class TweenOrigins
     {
-        private readonly Dictionary<(Object, TweenChannel), object> m_values = new Dictionary<(Object, TweenChannel), object>();
+        private readonly Dictionary<(Object, TweenChannel), object> m_records = new Dictionary<(Object, TweenChannel), object>();
 
         public void Clear()
         {
-            m_values.Clear();
+            m_records.Clear();
         }
 
         /// <summary>
@@ -70,13 +70,21 @@ namespace Tekly.Tweenlines
         /// </summary>
         public T GetOrCapture<T>(Object target, TweenChannel<T> channel)
         {
-            if (m_values.TryGetValue((target, channel), out var boxed)) {
-                return (T) boxed;
+            return GetRecord(target, channel).Origin;
+        }
+
+        /// <summary>
+        /// The shared record for a target and channel, capturing its origin first if there is none.
+        /// </summary>
+        internal ChannelRecord<T> GetRecord<T>(Object target, TweenChannel<T> channel)
+        {
+            if (m_records.TryGetValue((target, channel), out var record)) {
+                return (ChannelRecord<T>) record;
             }
 
-            var value = channel.Read(target);
-            m_values[(target, channel)] = value;
-            return value;
+            var created = new ChannelRecord<T>(channel.Read(target));
+            m_records[(target, channel)] = created;
+            return created;
         }
     }
 
@@ -96,4 +104,27 @@ namespace Tekly.Tweenlines
         }
     }
 #endif
+
+    /// <summary>
+    /// What every animation on a Tweenline knows about one target and channel: its origin and what was last
+    /// written to it. The last write lets the next animation tell its own leftover offsets apart from moves
+    /// made by other code.
+    /// </summary>
+    internal sealed class ChannelRecord<T>
+    {
+        public readonly T Origin;
+
+        public bool HasWritten;
+
+        /// <summary>The value last written, including layered offsets and multipliers</summary>
+        public T LastWritten;
+
+        /// <summary>The base value under the last write, without layered offsets and multipliers</summary>
+        public T LastBase;
+
+        public ChannelRecord(T origin)
+        {
+            Origin = origin;
+        }
+    }
 }

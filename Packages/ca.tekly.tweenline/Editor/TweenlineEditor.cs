@@ -26,6 +26,14 @@ namespace Tekly.Tweenlines
             m_completed = serializedObject.FindProperty("m_completed");
         }
 
+        /// <summary>
+        /// Keeps the playing time and highlight current while an animation runs in play mode.
+        /// </summary>
+        public override bool RequiresConstantRepaint()
+        {
+            return Application.isPlaying && m_tweenline.IsPlaying;
+        }
+
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
@@ -108,18 +116,47 @@ namespace Tekly.Tweenlines
                         GUIUtility.ExitGUI();
                     }
 
+                    var playing = Application.isPlaying && m_tweenline.IsPlaying && m_tweenline.Current == animation;
+
                     if (Application.isPlaying) {
-                        var playRect = new Rect(right - 40, rect.y, 40, rect.height);
+                        var reverseRect = new Rect(right - 24, rect.y, 24, rect.height);
+                        var playRect = new Rect(reverseRect.x - 26, rect.y, 24, rect.height);
                         right = playRect.x - 2;
 
-                        if (GUI.Button(playRect, "Play", EditorStyles.miniButton)) {
+                        if (GUI.Button(playRect, new GUIContent("▶", $"Play {animation.Name}"), EditorStyles.miniButtonLeft)) {
                             m_tweenline.Play(animation, false);
+                        }
+
+                        if (GUI.Button(reverseRect, new GUIContent("◀", $"Play {animation.Name} in reverse"), EditorStyles.miniButtonRight)) {
+                            m_tweenline.Play(animation, true);
                         }
                     }
 
+                    var details = playing
+                        ? $"playing  {m_tweenline.Time:0.00}s / {animation.Duration:0.##}s"
+                        : $"{animation.Tracks.Count} tracks  {animation.Duration:0.##}s  {animation.Wrap}";
+
                     var nameWidth = Mathf.Min(EditorGUIUtility.labelWidth, (right - rect.x) * 0.5f);
-                    GUI.Label(new Rect(rect.x, rect.y, nameWidth, rect.height), animation.Name);
-                    GUI.Label(new Rect(rect.x + nameWidth, rect.y, right - rect.x - nameWidth, rect.height), $"{animation.Tracks.Count} tracks  {animation.Duration:0.##}s  {animation.Wrap}", EditorStyles.miniLabel);
+                    GUI.Label(new Rect(rect.x, rect.y, nameWidth, rect.height), animation.Name, playing ? EditorStyles.boldLabel : EditorStyles.label);
+                    GUI.Label(new Rect(rect.x + nameWidth, rect.y, right - rect.x - nameWidth, rect.height), details, EditorStyles.miniLabel);
+                }
+            }
+
+            if (Application.isPlaying) {
+                DrawPlaybackButtons();
+            }
+        }
+
+        private void DrawPlaybackButtons()
+        {
+            using (new EditorGUILayout.HorizontalScope())
+            using (new EditorGUI.DisabledScope(!m_tweenline.IsPlaying)) {
+                if (GUILayout.Button(new GUIContent("Stop", "Stop where it is"), EditorStyles.miniButtonLeft)) {
+                    m_tweenline.Stop();
+                }
+
+                if (GUILayout.Button(new GUIContent("Complete", "Jump to the end and fire the remaining markers"), EditorStyles.miniButtonRight)) {
+                    m_tweenline.Complete();
                 }
             }
         }

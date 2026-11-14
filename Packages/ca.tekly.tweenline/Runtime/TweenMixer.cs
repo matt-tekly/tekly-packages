@@ -101,6 +101,7 @@ namespace Tekly.Tweenlines
         public bool HasSource => m_source != null;
 
         private IChannelSource<T> m_source;
+        private ChannelRecord<T> m_record;
         private bool m_hasStart;
         private T m_base;
         private bool m_hasBase;
@@ -157,12 +158,29 @@ namespace Tekly.Tweenlines
         {
             m_source = null;
             m_layeredLastEvaluate = false;
-            Origin = origins.GetOrCapture(Target, Channel);
+            m_record = origins.GetRecord(Target, Channel);
+            Origin = m_record.Origin;
 
             if (readCurrent || !m_hasStart) {
-                Start = readCurrent ? Channel.Read(Target) : Origin;
+                Start = readCurrent ? ReadStart() : Origin;
                 m_hasStart = true;
             }
+        }
+
+        /// <summary>
+        /// The live value, unless it is still what a Tweenline animation last wrote. Then it is the base under
+        /// that write, so an offset left by another animation, like a slide out, isn't taken as the new rest
+        /// value. Anything else that moved the target since wins.
+        /// </summary>
+        private T ReadStart()
+        {
+            var current = Channel.Read(Target);
+
+            if (m_record.HasWritten && Channel.Same(current, m_record.LastWritten)) {
+                return m_record.LastBase;
+            }
+
+            return current;
         }
 
         internal override void BeginEvaluate()
@@ -183,11 +201,16 @@ namespace Tekly.Tweenlines
                 return;
             }
 
-            var value = Channel.Add(Channel.Multiply(m_hasBase ? m_base : Start, m_multiplier), m_offset);
+            var baseValue = m_hasBase ? m_base : Start;
+            var value = Channel.Add(Channel.Multiply(baseValue, m_multiplier), m_offset);
 
             if (!Channel.Same(Channel.Read(Target), value)) {
                 Channel.Write(Target, value);
             }
+
+            m_record.HasWritten = true;
+            m_record.LastWritten = value;
+            m_record.LastBase = baseValue;
         }
     }
 }

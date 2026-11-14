@@ -185,7 +185,7 @@ namespace Tekly.Tweenlines.Tracks
 
             m_scaleSlot = mixer.Get(m_target, TweenChannels.LocalScale);
 
-            ResolveDrops();
+            ResolveDrops(mixer);
         }
 
         public override void Evaluate(float time)
@@ -255,7 +255,7 @@ namespace Tekly.Tweenlines.Tracks
             return result >= 0 && m_clips[result].Drop ? result : -1;
         }
 
-        private void ResolveDrops()
+        private void ResolveDrops(TweenMixer mixer)
         {
             if (m_dropVectors == null || m_dropVectors.Length != m_clips.Count) {
                 m_dropVectors = new Vector3[m_clips.Count];
@@ -269,10 +269,12 @@ namespace Tekly.Tweenlines.Tracks
                     continue;
                 }
 
-                var landing = OffScreen.LandingPosition(m_target, m_anchoredSlot, m_positionSlot, clip.End);
-                var scale = m_scaleSlot.SampleBase(clip.End);
+                // Measure the pose it has at the top of the drop, which is the start of the clip
+                var position = OffScreen.PositionAt(m_target, m_anchoredSlot, m_positionSlot, clip.Start);
+                var rotation = OffScreen.RotationAt(mixer, m_target, clip.Start);
+                var scale = m_scaleSlot.SampleBase(clip.Start);
 
-                m_dropVectors[i] = OffScreen.Vector(m_target, clip.OffScreenArea, Direction, landing, scale);
+                m_dropVectors[i] = OffScreen.Vector(m_target, clip.OffScreenArea, Direction, position, rotation, scale);
             }
         }
 

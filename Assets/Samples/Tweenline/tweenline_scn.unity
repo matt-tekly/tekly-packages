@@ -412,22 +412,23 @@ MonoBehaviour:
   m_stagger: 0
   m_animations:
   - m_name: Show
-    m_wrap: 1
+    m_wrap: 0
     m_tracks:
     - rid: 6958351992983912546
     - rid: 6958351992983912547
     - rid: 6958351992983912548
     - rid: 6958352011480006745
+    - rid: 6958352011480006827
     m_markers:
     - Time: 2.4
       Name: Marker
       Event:
         m_PersistentCalls:
           m_Calls: []
-  - m_name: Scale
+  - m_name: Hide
     m_wrap: 0
     m_tracks:
-    - rid: 6958351992983912538
+    - rid: 6958352011480006828
     m_markers: []
   m_completed:
     m_PersistentCalls:
@@ -435,51 +436,15 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 6958351992983912538
-      type: {class: ScaleTrack, ns: Tekly.Common.Tweenlines.Tracks, asm: Tekly.Common.Runtime}
-      data:
-        m_enabled: 1
-        m_target: {fileID: 2029996961}
-        m_clips:
-        - Start: 0.35
-          Duration: 0.5
-          Ease:
-            UseCurve: 0
-            Ease: 29
-            Curve:
-              serializedVersion: 2
-              m_Curve: []
-              m_PreInfinity: 2
-              m_PostInfinity: 2
-              m_RotationOrder: 4
-          FromMode: 0
-          Space: 1
-          From: {x: 1, y: 1, z: 1}
-          To: {x: 1, y: 2, z: 1}
-        - Start: 1
-          Duration: 0.5
-          Ease:
-            UseCurve: 0
-            Ease: 0
-            Curve:
-              serializedVersion: 2
-              m_Curve: []
-              m_PreInfinity: 2
-              m_PostInfinity: 2
-              m_RotationOrder: 4
-          FromMode: 0
-          Space: 1
-          From: {x: 1, y: 1, z: 1}
-          To: {x: 1, y: 1, z: 1}
     - rid: 6958351992983912546
-      type: {class: BounceTrack, ns: Tekly.Common.Tweenlines.Tracks, asm: Tekly.Common.Runtime}
+      type: {class: BounceTrack, ns: Tekly.Tweenlines.Tracks, asm: Tekly.Tweenline.Runtime}
       data:
         m_enabled: 1
         m_target: {fileID: 2029996961}
         m_direction: {x: 0, y: 1, z: 0}
         m_preserve: 0
         m_clips:
-        - Start: 0.85
+        - Start: 0.25
           Duration: 0.95
           Drop: 1
           DropFrom: 1
@@ -492,14 +457,14 @@ MonoBehaviour:
           ImpactTime: 0.08
           Anticipation: 0.2
     - rid: 6958351992983912547
-      type: {class: BounceTrack, ns: Tekly.Common.Tweenlines.Tracks, asm: Tekly.Common.Runtime}
+      type: {class: BounceTrack, ns: Tekly.Tweenlines.Tracks, asm: Tekly.Tweenline.Runtime}
       data:
         m_enabled: 1
         m_target: {fileID: 1218971504}
         m_direction: {x: 0, y: 1, z: 0}
         m_preserve: 0
         m_clips:
-        - Start: 1.3000001
+        - Start: 0.2
           Duration: 1
           Drop: 1
           DropFrom: 1
@@ -512,14 +477,14 @@ MonoBehaviour:
           ImpactTime: 0.08
           Anticipation: 0
     - rid: 6958351992983912548
-      type: {class: BounceTrack, ns: Tekly.Common.Tweenlines.Tracks, asm: Tekly.Common.Runtime}
+      type: {class: BounceTrack, ns: Tekly.Tweenlines.Tracks, asm: Tekly.Tweenline.Runtime}
       data:
         m_enabled: 1
         m_target: {fileID: 846708573}
         m_direction: {x: 0, y: 1, z: 0}
         m_preserve: 0
         m_clips:
-        - Start: 1.1
+        - Start: 0.3
           Duration: 0.7
           Drop: 1
           DropFrom: 1
@@ -532,23 +497,60 @@ MonoBehaviour:
           ImpactTime: 0.08
           Anticipation: 0
     - rid: 6958352011480006745
-      type: {class: SlideTrack, ns: Tekly.Common.Tweenlines.Tracks, asm: Tekly.Common.Runtime}
+      type: {class: SlideTrack, ns: Tekly.Tweenlines.Tracks, asm: Tekly.Tweenline.Runtime}
       data:
         m_enabled: 1
         m_target: {fileID: 1464532257}
         m_clips:
         - Start: 0
-          Duration: 0.5
+          Duration: 0.4
           Ease:
-            UseCurve: 0
-            Ease: 26
-            Curve:
-              serializedVersion: 2
-              m_Curve: []
-              m_PreInfinity: 2
-              m_PostInfinity: 2
-              m_RotationOrder: 4
+            Type: 6
+            Direction: 0
+            Overshoot: 0.1
+            Oscillations: 3
+            Bounces: 3
+            Bounciness: 0.25
           Mode: 0
+          Direction: 2
+          CustomDirection: {x: -1, y: 0, z: 0}
+          OffScreenArea: {fileID: 0}
+    - rid: 6958352011480006827
+      type: {class: RotationTrack, ns: Tekly.Tweenlines.Tracks, asm: Tekly.Tweenline.Runtime}
+      data:
+        m_enabled: 1
+        m_target: {fileID: 1464532257}
+        m_clips:
+        - Start: 0.1
+          Duration: 0.9
+          Ease:
+            Type: 9
+            Direction: 0
+            Overshoot: 0.3
+            Oscillations: 3
+            Bounces: 3
+            Bounciness: 0.25
+          FromMode: 3
+          Space: 1
+          From: {x: 0, y: 0, z: 25}
+          To: {x: 0, y: 0, z: 0}
+        m_interpolation: 0
+    - rid: 6958352011480006828
+      type: {class: SlideTrack, ns: Tekly.Tweenlines.Tracks, asm: Tekly.Tweenline.Runtime}
+      data:
+        m_enabled: 1
+        m_target: {fileID: 1464532257}
+        m_clips:
+        - Start: 0
+          Duration: 0.3
+          Ease:
+            Type: 8
+            Direction: 1
+            Overshoot: 0.1
+            Oscillations: 3
+            Bounces: 3
+            Bounciness: 0.25
+          Mode: 1
           Direction: 2
           CustomDirection: {x: -1, y: 0, z: 0}
           OffScreenArea: {fileID: 0}
@@ -862,7 +864,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1464532256}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0

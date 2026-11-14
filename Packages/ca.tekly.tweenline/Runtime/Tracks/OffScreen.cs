@@ -6,8 +6,9 @@ namespace Tekly.Tweenlines.Tracks
     /// <summary>
     /// Works out how far a target has to move along a direction to be fully outside a screen area, for
     /// tracks that move things in from or out to off screen. UI targets leave a RectTransform, 3D targets
-    /// leave a camera's view. Targets are measured at a landing position and scale instead of their current
-    /// pose, so the result doesn't depend on what a previous animation left behind.
+    /// leave a camera's view. Targets are measured at the pose they have at the off screen moment (position,
+    /// rotation and scale from the base tracks) instead of their current pose, so the result doesn't depend
+    /// on what a previous animation left behind and a target turned by a rotation track still clears the edge.
     /// </summary>
     internal static class OffScreen
     {
@@ -23,20 +24,35 @@ namespace Tekly.Tweenlines.Tracks
         /// <param name="target">The moving object</param>
         /// <param name="area">A RectTransform or Canvas for UI, a Camera for 3D. Null uses the root canvas or Main Camera</param>
         /// <param name="direction">Normalized direction in the target's parent space</param>
-        /// <param name="landing">The target's resting local position</param>
-        /// <param name="scale">The target's resting local scale</param>
-        public static Vector3 Vector(Transform target, Component area, Vector3 direction, Vector3 landing, Vector3 scale)
+        /// <param name="position">The target's base local position at the off screen moment</param>
+        /// <param name="rotation">The target's base local rotation at the off screen moment</param>
+        /// <param name="scale">The target's base local scale at the off screen moment</param>
+        public static Vector3 Vector(Transform target, Component area, Vector3 direction, Vector3 position, Quaternion rotation, Vector3 scale)
         {
             return target is RectTransform rectTransform
-                ? OffCanvasVector(rectTransform, AreaRect(target, area), direction, landing, scale)
-                : OffCameraVector(target, AreaCamera(area), direction, landing, scale);
+                ? OffCanvasVector(rectTransform, AreaRect(target, area), direction, position, rotation, scale)
+                : OffCameraVector(target, AreaCamera(area), direction, position, rotation, scale);
         }
 
         /// <summary>
-        /// Where the target rests at a time in its parent's space, from the anchored slot when it has one or
+        /// The target's base local rotation at a time, from a rotation track when one drives it or the current
+        /// rotation otherwise. Only reads the rotation slot when a base track drives it, so it adds nothing to
+        /// the mixer otherwise.
+        /// </summary>
+        public static Quaternion RotationAt(TweenMixer mixer, Transform target, float time)
+        {
+            if (mixer.HasSource(target, TweenChannels.LocalRotation)) {
+                return Quaternion.Euler(mixer.Get(target, TweenChannels.LocalRotation).SampleBase(time));
+            }
+
+            return target.localRotation;
+        }
+
+        /// <summary>
+        /// The target's base position at a time in its parent's space, from the anchored slot when it has one or
         /// the position slot otherwise.
         /// </summary>
-        public static Vector3 LandingPosition(Transform target, ChannelSlot<Vector2> anchoredSlot, ChannelSlot<Vector3> positionSlot, float time)
+        public static Vector3 PositionAt(Transform target, ChannelSlot<Vector2> anchoredSlot, ChannelSlot<Vector3> positionSlot, float time)
         {
             if (anchoredSlot != null) {
                 // Anchored and local positions differ by a constant, so convert through the current pair
@@ -92,7 +108,7 @@ namespace Tekly.Tweenlines.Tracks
         /// <summary>
         /// Distance along the direction that puts the element fully outside the area rect, with a small margin.
         /// </summary>
-        private static Vector3 OffCanvasVector(RectTransform target, RectTransform area, Vector3 direction, Vector3 landing, Vector3 scale)
+        private static Vector3 OffCanvasVector(RectTransform target, RectTransform area, Vector3 direction, Vector3 position, Quaternion rotation, Vector3 scale)
         {
             if (area == null) {
                 return Vector3.zero;
@@ -105,13 +121,12 @@ namespace Tekly.Tweenlines.Tracks
             }
 
             var rect = target.rect;
-            var rotation = target.localRotation;
             var elementMin = float.MaxValue;
             var elementMax = float.MinValue;
 
             for (var i = 0; i < 4; i++) {
                 var local = new Vector3(i < 2 ? rect.xMin : rect.xMax, i % 2 == 0 ? rect.yMin : rect.yMax, 0);
-                var projected = Vector3.Dot(landing + rotation * Vector3.Scale(local, scale), direction);
+                var projected = Vector3.Dot(position + rotation * Vector3.Scale(local, scale), direction);
 
                 elementMin = Mathf.Min(elementMin, projected);
                 elementMax = Mathf.Max(elementMax, projected);
@@ -126,13 +141,13 @@ namespace Tekly.Tweenlines.Tracks
         /// <summary>
         /// Distance along the direction that puts the object's renderers fully outside the camera's view.
         /// </summary>
-        private static Vector3 OffCameraVector(Transform target, Camera camera, Vector3 direction, Vector3 landing, Vector3 scale)
+        private static Vector3 OffCameraVector(Transform target, Camera camera, Vector3 direction, Vector3 position, Quaternion rotation, Vector3 scale)
         {
             if (camera == null) {
                 return Vector3.zero;
             }
 
-            var bounds = LandingBounds(target, landing, scale);
+            var bounds = PoseBounds(target, position, rotation, scale);
 
             // Grow until hidden, then narrow down to the closest hidden distance
             var far = Mathf.Max(0.1f, bounds.extents.magnitude);
@@ -161,13 +176,13 @@ namespace Tekly.Tweenlines.Tracks
         }
 
         /// <summary>
-        /// World bounds of the target's renderers as if it were at the landing position and scale.
+        /// World bounds of the target's renderers as if it had the given local pose.
         /// </summary>
-        private static Bounds LandingBounds(Transform target, Vector3 landing, Vector3 scale)
+        private static Bounds PoseBounds(Transform target, Vector3 position, Quaternion rotation, Vector3 scale)
         {
             var parent = target.parent;
             var parentMatrix = parent != null ? parent.localToWorldMatrix : Matrix4x4.identity;
-            var targetMatrix = parentMatrix * Matrix4x4.TRS(landing, target.localRotation, scale);
+            var targetMatrix = parentMatrix * Matrix4x4.TRS(position, rotation, scale);
             var bounds = new Bounds(targetMatrix.MultiplyPoint3x4(Vector3.zero), Vector3.zero);
 
             target.GetComponentsInChildren(s_renderers);

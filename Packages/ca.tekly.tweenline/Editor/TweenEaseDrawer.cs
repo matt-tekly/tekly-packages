@@ -60,11 +60,10 @@ namespace Tekly.Tweenlines
             var indent = EditorGUI.indentLevel;
             EditorGUI.indentLevel = 0;
 
+            // Direction always shows, greyed out for Linear, so it's clear every type has an In, Out and InOut
             var type = (EaseType) typeProperty.intValue;
-            var typeRect = HasDirection(type)
-                ? new Rect(fields.x, fields.y, fields.width - DIRECTION_WIDTH - 2, fields.height)
-                : fields;
-            var sideRect = new Rect(typeRect.xMax + 2, fields.y, fields.xMax - typeRect.xMax - 2, fields.height);
+            var typeRect = new Rect(fields.x, fields.y, fields.width - DIRECTION_WIDTH - 2, fields.height);
+            var sideRect = new Rect(typeRect.xMax + 2, fields.y, DIRECTION_WIDTH, fields.height);
 
             EditorGUI.BeginChangeCheck();
             var newType = (EaseType) EditorGUI.EnumPopup(typeRect, type);
@@ -75,7 +74,7 @@ namespace Tekly.Tweenlines
                 type = newType;
             }
 
-            if (HasDirection(type)) {
+            using (new EditorGUI.DisabledScope(!HasDirection(type))) {
                 EditorGUI.PropertyField(sideRect, directionProperty, GUIContent.none);
             }
 
