@@ -9,6 +9,7 @@ namespace Tekly.Common.Ui.Fancy
 	/// <summary>
 	/// A resolution-independent UI shape: per-corner radius and corner type, per-edge bulge, a fill,
 	/// any number of outlines and drop/inner shadows, each with solid or gradient paint.
+	/// Outlines can be styled along the edge with dashes, notches or a hand-drawn wobble.
 	///
 	/// Every layer is emitted as its own quad and evaluated against one shared signed distance field in
 	/// the shader, so the whole element batches with one material. An optional sprite multiplies the fill,
@@ -34,6 +35,9 @@ namespace Tekly.Common.Ui.Fancy
 		private const int LAYER_BAND = 0;
 		private const int LAYER_INNER_SHADOW = 1;
 		private const int LAYER_BEVEL = 2;
+
+		// An outline with a style: a band whose uv2.z carries the packed style instead of an offset.
+		private const int LAYER_STYLED_BAND = 3;
 		private const int NO_INNER_EDGE_CODE = 0;
 		private const int FLAG_TEXTURED = 1 << 13;
 		private const int FLAG_CHANNEL_CHECK = 1 << 14;
@@ -53,6 +57,11 @@ namespace Tekly.Common.Ui.Fancy
 
 		// Tucked shadow edges stop this far inside the shape edge, so the anti-aliased fringe can't show either.
 		private const float TUCK_MARGIN = 1f;
+
+		// Edge-only layers are drawn as a ring around their empty middle once the hole is at least this big on both
+		// sides and covers this much of the layer quad. Below that the extra quads cost more than the pixels saved.
+		private const float MIN_RING_HOLE_SIZE = 16f;
+		private const float MIN_RING_HOLE_FRACTION = 0.25f;
 
 		/// <summary>Largest texture scroll speed the vertex encoding can hold, in texture units per second.</summary>
 		public const float MAX_TEXTURE_SCROLL = 7.99f;
@@ -646,9 +655,61 @@ namespace Tekly.Common.Ui.Fancy
 				if (outline.Enabled && outline.Width > 0) {
 					var band = outline.GetBand();
 					var startCode = Signed12(Mathf.Max(band.x, -MAX_DISTANCE + 0.5f));
-					AddLayer(vh, FancyRectLayers.Outlines, shape, LAYER_BAND, startCode, band.y, 0, Vector2.zero, outline.Paint, outline.UseTexture);
+					var styled = outline.Style != OutlineStyle.Solid;
+
+					AddLayer(vh, FancyRectLayers.Outlines, shape, styled ? LAYER_STYLED_BAND : LAYER_BAND, startCode, band.y, 0, Vector2.zero, outline.Paint,
+						outline.UseTexture, styleCode: styled ? PackOutlineStyle(outline) : 0, extraReach: outline.GetStyleReach());
 				}
 			}
+		}
+
+		/// <summary>
+		/// Packs an outline's style into the 24 bits of uv2.z, low bits first. The shader decodes the same layouts.
+		/// Dashes: style 2 | spacing 10 (0.5 unit steps) | length 6 | speed 5 (8 units/s steps, biased by 16) | round caps 1.
+		/// Notches: style 2 | count 7 | width 6 | depth 4 | shape 2 | side 1 | jitter 2.
+		/// Wobble: style 2 | wavelength 8 | thickness 5 (0.5 unit steps) | drift 5 (0.5 unit steps) | seed 4.
+		/// </summary>
+		private static int PackOutlineStyle(in ShapeOutline outline)
+		{
+			var code = (int)outline.Style;
+			var shift = 2;
+
+			void Put(int value, int bitCount)
+			{
+				code |= Mathf.Clamp(value, 0, (1 << bitCount) - 1) << shift;
+				shift += bitCount;
+			}
+
+			switch (outline.Style) {
+				case OutlineStyle.Dashes: {
+					var dashes = outline.Dashes;
+					Put(Mathf.Max(2, Mathf.RoundToInt(dashes.Spacing * 2f)), 10);
+					Put(Mathf.RoundToInt(Mathf.Clamp01(dashes.Length) * 63f), 6);
+					Put(Mathf.RoundToInt(dashes.Speed / 8f) + 16, 5);
+					Put(dashes.RoundCaps ? 1 : 0, 1);
+					break;
+				}
+				case OutlineStyle.Notches: {
+					var notches = outline.Notches;
+					Put(Mathf.Max(1, notches.Count), 7);
+					Put(Mathf.Max(1, Mathf.RoundToInt(notches.Width)), 6);
+					Put(Mathf.RoundToInt(Mathf.Clamp01(notches.Depth) * 15f), 4);
+					Put((int)notches.Shape, 2);
+					Put((int)notches.Side, 1);
+					Put(Mathf.RoundToInt(Mathf.Clamp01(notches.Jitter) * 3f), 2);
+					break;
+				}
+				case OutlineStyle.Wobble: {
+					var wobble = outline.Wobble;
+					Put(Mathf.Max(1, Mathf.RoundToInt(wobble.Wavelength)), 8);
+					Put(Mathf.RoundToInt(wobble.Thickness * 2f), 5);
+					Put(Mathf.RoundToInt(wobble.Drift * 2f), 5);
+					Put(wobble.Seed, 4);
+					break;
+				}
+			}
+
+			return code;
 		}
 
 		private void AddBevel(VertexHelper vh, in ShapeData shape)
@@ -1017,15 +1078,18 @@ namespace Tekly.Common.Ui.Fancy
 
 		/// <param name="startCode">Encoded inner edge of the band; NO_INNER_EDGE_CODE for a solid layer.</param>
 		/// <param name="end">Outer edge of the band (distance from the shape edge), or the spread for inner shadows.</param>
+		/// <param name="styleCode">Packed outline style, sent in place of the offset by LAYER_STYLED_BAND layers.</param>
+		/// <param name="extraReach">How far past the band end the layer can draw (wobble).</param>
 		private void AddLayer(VertexHelper vh, FancyRectLayers layerKind, in ShapeData shape, int layerType, int startCode, float end, float softness,
-			Vector2 offset, ShapePaint paint, bool textured, bool revealInOffsetSpace = false, Vector2 revealShapeShift = default)
+			Vector2 offset, ShapePaint paint, bool textured, bool revealInOffsetSpace = false, Vector2 revealShapeShift = default,
+			int styleCode = 0, float extraReach = 0f)
 		{
 			softness = Mathf.Clamp(softness, 0, MAX_DISTANCE * 2f);
 			offset = new Vector2(Mathf.Clamp(offset.x, -MAX_DISTANCE, MAX_DISTANCE), Mathf.Clamp(offset.y, -MAX_DISTANCE, MAX_DISTANCE));
 
 			// How far past the shape edge this layer can draw. Inner shadows and bevels never leave the shape.
 			var insideOnly = layerType == LAYER_INNER_SHADOW || layerType == LAYER_BEVEL;
-			var reach = insideOnly ? EDGE_PADDING : Mathf.Max(end, 0) + softness * 0.5f + EDGE_PADDING;
+			var reach = insideOnly ? EDGE_PADDING : Mathf.Max(end + extraReach, 0) + softness * 0.5f + EDGE_PADDING;
 			var quadOffset = layerType == LAYER_INNER_SHADOW ? Vector2.zero : offset;
 
 			var h = shape.HalfSize;
@@ -1065,7 +1129,7 @@ namespace Tekly.Common.Ui.Fancy
 			var plainUv2 = new Vector4(
 				solid ? shape.PackedScroll : Pack(startCode, Signed12(end)),
 				Pack(Unsigned12(softness), angleCode),
-				Pack(Signed12(offset.x), Signed12(offset.y)),
+				layerType == LAYER_STYLED_BAND ? styleCode : Pack(Signed12(offset.x), Signed12(offset.y)),
 				flags);
 
 			var texturedUv2 = new Vector4(plainUv2.x, plainUv2.y, plainUv2.z, flags | FLAG_TEXTURED);
@@ -1086,12 +1150,120 @@ namespace Tekly.Common.Ui.Fancy
 			var quadMin = new Vector2(-left, -bottom);
 			var quadMax = new Vector2(right, top);
 
-			if (!textured) {
-				EmitRect(vh, shape, layer, quadMin, quadMax, plainUv2);
-			} else if (shape.TextureMode == ShapeTextureMode.Tile) {
-				EmitRect(vh, shape, layer, quadMin, quadMax, texturedUv2);
+			if (TryGetLayerHole(shape, layerType, startCode, end, softness, extraReach, offset, quadMin, quadMax, out var holeMin, out var holeMax)) {
+				EmitRing(vh, shape, layer, quadMin, quadMax, holeMin, holeMax, plainUv2, texturedUv2, textured);
 			} else {
-				EmitSplitByTexture(vh, shape, layer, quadMin, quadMax, plainUv2, texturedUv2);
+				EmitLayerRect(vh, shape, layer, quadMin, quadMax, plainUv2, texturedUv2, textured);
+			}
+		}
+
+		/// <summary>
+		/// Layers that only draw near the edge (outlines, bevels, inner shadows) leave the middle of the shape empty.
+		/// Finds that empty middle as a rect, so the layer can be drawn as a ring around it and the GPU never shades
+		/// those pixels. Returns false for layers that fill the shape, or when the hole is too small to be worth
+		/// the extra quads.
+		/// </summary>
+		private static bool TryGetLayerHole(in ShapeData shape, int layerType, int startCode, float end, float softness, float extraReach,
+			Vector2 offset, Vector2 quadMin, Vector2 quadMax, out Vector2 holeMin, out Vector2 holeMax)
+		{
+			holeMin = holeMax = Vector2.zero;
+
+			float innerEdge;
+			if (layerType == LAYER_INNER_SHADOW) {
+				// Shadowed where the offset shape, shrunk by the spread, is not.
+				innerEdge = -end;
+			} else if (startCode != NO_INNER_EDGE_CODE) {
+				// Decoded the way the shader decodes it, so the hole matches what is drawn.
+				innerEdge = (startCode - 2048) * 0.25f;
+			} else {
+				return false;
+			}
+
+			// The anti-aliased edge and any wobble can reach past the inner edge, so stay clear of both.
+			var depth = Mathf.Max(0f, -innerEdge + extraReach + softness * 0.5f + EDGE_PADDING);
+
+			if (!TryGetInnerRect(shape, depth, out holeMin, out holeMax)) {
+				return false;
+			}
+
+			// Band layers are drawn against the shape moved by the offset (only inner shadows have one).
+			holeMin = Vector2.Max(holeMin + offset, quadMin);
+			holeMax = Vector2.Min(holeMax + offset, quadMax);
+
+			var holeSize = holeMax - holeMin;
+			var quadSize = quadMax - quadMin;
+
+			return holeSize.x >= MIN_RING_HOLE_SIZE && holeSize.y >= MIN_RING_HOLE_SIZE
+			       && holeSize.x * holeSize.y >= quadSize.x * quadSize.y * MIN_RING_HOLE_FRACTION;
+		}
+
+		/// <summary>
+		/// The rect (relative to the shape center) whose every point is at least `depth` inside the shape.
+		/// Accounts for each corner's radius and type, and for sides bulging inward.
+		/// </summary>
+		private static bool TryGetInnerRect(in ShapeData shape, float depth, out Vector2 min, out Vector2 max)
+		{
+			var radii = shape.Radii;
+			var bits = shape.CornerBits;
+
+			var topLeft = CornerInset(radii.x, (CornerType)(bits & 3), depth);
+			var topRight = CornerInset(radii.y, (CornerType)((bits >> 2) & 3), depth);
+			var bottomRight = CornerInset(radii.z, (CornerType)((bits >> 4) & 3), depth);
+			var bottomLeft = CornerInset(radii.w, (CornerType)((bits >> 6) & 3), depth);
+
+			// An inward bulge moves the side in by at most its amount: top, right, bottom, left.
+			var inward = Vector4.Max(-shape.Bulge, Vector4.zero);
+
+			var h = shape.HalfSize;
+			min = new Vector2(-h.x + Mathf.Max(bottomLeft, topLeft) + inward.w, -h.y + Mathf.Max(bottomRight, bottomLeft) + inward.z);
+			max = new Vector2(h.x - Mathf.Max(topRight, bottomRight) - inward.y, h.y - Mathf.Max(topLeft, topRight) - inward.x);
+
+			return max.x > min.x && max.y > min.y;
+		}
+
+		/// <summary>
+		/// How far in from both of a corner's sides a point must be to sit `depth` inside the shape there.
+		/// Solved from each corner type's distance function at the point (-k, -k) from the corner.
+		/// </summary>
+		private static float CornerInset(float radius, CornerType cornerType, float depth)
+		{
+			const float invSqrt2 = 0.70710678f;
+
+			return cornerType switch {
+				CornerType.Chamfer => Mathf.Max(depth, 0.5f * radius + invSqrt2 * depth),
+				CornerType.Inverted => Mathf.Max(depth, invSqrt2 * (radius + depth)),
+				// Round. Squircles are fuller than circles, so the round bound is safe for them too.
+				_ => Mathf.Max(depth, (1f - invSqrt2) * radius + invSqrt2 * depth)
+			};
+		}
+
+		/// <summary>Draws a layer as four quads around a hole: full-width bottom and top, then left and right between them.</summary>
+		private static void EmitRing(VertexHelper vh, in ShapeData shape, in LayerVertexData layer, Vector2 quadMin, Vector2 quadMax,
+			Vector2 holeMin, Vector2 holeMax, Vector4 plainUv2, Vector4 texturedUv2, bool textured)
+		{
+			EmitLayerRectIfNotEmpty(vh, shape, layer, quadMin, new Vector2(quadMax.x, holeMin.y), plainUv2, texturedUv2, textured);
+			EmitLayerRectIfNotEmpty(vh, shape, layer, new Vector2(quadMin.x, holeMax.y), quadMax, plainUv2, texturedUv2, textured);
+			EmitLayerRectIfNotEmpty(vh, shape, layer, new Vector2(quadMin.x, holeMin.y), new Vector2(holeMin.x, holeMax.y), plainUv2, texturedUv2, textured);
+			EmitLayerRectIfNotEmpty(vh, shape, layer, new Vector2(holeMax.x, holeMin.y), new Vector2(quadMax.x, holeMax.y), plainUv2, texturedUv2, textured);
+		}
+
+		private static void EmitLayerRectIfNotEmpty(VertexHelper vh, in ShapeData shape, in LayerVertexData layer, Vector2 min, Vector2 max,
+			Vector4 plainUv2, Vector4 texturedUv2, bool textured)
+		{
+			if (max.x - min.x > 0.0001f && max.y - min.y > 0.0001f) {
+				EmitLayerRect(vh, shape, layer, min, max, plainUv2, texturedUv2, textured);
+			}
+		}
+
+		private static void EmitLayerRect(VertexHelper vh, in ShapeData shape, in LayerVertexData layer, Vector2 min, Vector2 max,
+			Vector4 plainUv2, Vector4 texturedUv2, bool textured)
+		{
+			if (!textured) {
+				EmitRect(vh, shape, layer, min, max, plainUv2);
+			} else if (shape.TextureMode == ShapeTextureMode.Tile) {
+				EmitRect(vh, shape, layer, min, max, texturedUv2);
+			} else {
+				EmitSplitByTexture(vh, shape, layer, min, max, plainUv2, texturedUv2);
 			}
 		}
 
@@ -1115,11 +1287,10 @@ namespace Tekly.Common.Ui.Fancy
 			var boundsMin = new Vector2(float.MaxValue, float.MaxValue);
 			var boundsMax = new Vector2(float.MinValue, float.MinValue);
 
-			foreach (var corner in new[] { quadMin, new Vector2(quadMin.x, quadMax.y), quadMax, new Vector2(quadMax.x, quadMin.y) }) {
-				var frame = ToTextureFrame(shape, corner - layer.TextureOrigin);
-				boundsMin = Vector2.Min(boundsMin, frame);
-				boundsMax = Vector2.Max(boundsMax, frame);
-			}
+			IncludeInFrameBounds(shape, layer, quadMin, ref boundsMin, ref boundsMax);
+			IncludeInFrameBounds(shape, layer, new Vector2(quadMin.x, quadMax.y), ref boundsMin, ref boundsMax);
+			IncludeInFrameBounds(shape, layer, quadMax, ref boundsMin, ref boundsMax);
+			IncludeInFrameBounds(shape, layer, new Vector2(quadMax.x, quadMin.y), ref boundsMin, ref boundsMax);
 
 			var innerMin = Vector2.Max(boundsMin, shape.TextureRegionMin);
 			var innerMax = Vector2.Min(boundsMax, shape.TextureRegionMax);
@@ -1136,6 +1307,13 @@ namespace Tekly.Common.Ui.Fancy
 			EmitFrameRect(vh, shape, layer, new Vector2(innerMax.x, boundsMin.y), boundsMax, plainUv2);
 			EmitFrameRect(vh, shape, layer, new Vector2(innerMin.x, boundsMin.y), new Vector2(innerMax.x, innerMin.y), plainUv2);
 			EmitFrameRect(vh, shape, layer, new Vector2(innerMin.x, innerMax.y), new Vector2(innerMax.x, boundsMax.y), plainUv2);
+		}
+
+		private static void IncludeInFrameBounds(in ShapeData shape, in LayerVertexData layer, Vector2 corner, ref Vector2 boundsMin, ref Vector2 boundsMax)
+		{
+			var frame = ToTextureFrame(shape, corner - layer.TextureOrigin);
+			boundsMin = Vector2.Min(boundsMin, frame);
+			boundsMax = Vector2.Max(boundsMax, frame);
 		}
 
 		/// <summary>Emits a rect given in the texture frame (skipped when empty).</summary>

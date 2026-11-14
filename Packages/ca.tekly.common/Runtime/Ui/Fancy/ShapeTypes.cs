@@ -123,6 +123,137 @@ namespace Tekly.Common.Ui.Fancy
 		Outside
 	}
 
+	/// <summary>
+	/// How an outline varies along the edge. Values are what the shader decodes.
+	/// </summary>
+	public enum OutlineStyle
+	{
+		Solid = 0,
+		Dashes = 1,
+		Notches = 2,
+		Wobble = 3
+	}
+
+	public enum NotchShape
+	{
+		V = 0,
+		Square = 1,
+		Round = 2
+	}
+
+	public enum NotchSide
+	{
+		OuterEdge = 0,
+		InnerEdge = 1
+	}
+
+	/// <summary>
+	/// Dashes along an outline. Spacing snaps so a whole number of dashes fits around the edge.
+	/// </summary>
+	[Serializable]
+	public struct OutlineDashes
+	{
+		public const float MAX_SPACING = 511.5f;
+		public const float MAX_SPEED = 120f;
+		public const float MIN_SPEED = -128f;
+
+		[Tooltip("Distance from the start of one dash to the next. Adjusted slightly so the dashes meet evenly around the edge.")]
+		[Range(1, MAX_SPACING)]
+		public float Spacing;
+
+		[Tooltip("How much of each step is dash. 0 with Round Caps gives dots.")]
+		[Range(0, 1)]
+		public float Length;
+
+		[Tooltip("Moves the dashes along the edge, in units per second (8 unit steps). Clockwise when positive. Uses game time.")]
+		[Range(MIN_SPEED, MAX_SPEED)]
+		public float Speed;
+
+		[Tooltip("Round the ends of each dash. Caps fit inside the dash length.")]
+		public bool RoundCaps;
+
+		public static OutlineDashes Default => new OutlineDashes {
+			Spacing = 14,
+			Length = 0.55f,
+			Speed = 0,
+			RoundCaps = true
+		};
+	}
+
+	/// <summary>
+	/// Notches cut into an outline at even spacing around the edge.
+	/// </summary>
+	[Serializable]
+	public struct OutlineNotches
+	{
+		public const int MAX_COUNT = 127;
+		public const int MAX_WIDTH = 63;
+
+		[Tooltip("Number of notches around the whole edge.")]
+		[Range(1, MAX_COUNT)]
+		public int Count;
+
+		[Tooltip("Width of each notch along the edge.")]
+		[Range(1, MAX_WIDTH)]
+		public float Width;
+
+		[Tooltip("How far into the outline each notch cuts. 1 cuts all the way through.")]
+		[Range(0, 1)]
+		public float Depth;
+
+		public NotchShape Shape;
+
+		[Tooltip("Which edge of the outline the notches cut into.")]
+		public NotchSide Side;
+
+		[Tooltip("Randomly moves each notch and varies its depth.")]
+		[Range(0, 1)]
+		public float Jitter;
+
+		public static OutlineNotches Default => new OutlineNotches {
+			Count = 12,
+			Width = 10,
+			Depth = 0.6f,
+			Shape = NotchShape.V,
+			Side = NotchSide.OuterEdge,
+			Jitter = 0
+		};
+	}
+
+	/// <summary>
+	/// Smooth noise along an outline, for a hand-drawn look. The noise loops seamlessly around the edge.
+	/// </summary>
+	[Serializable]
+	public struct OutlineWobble
+	{
+		public const int MAX_WAVELENGTH = 255;
+		public const float MAX_AMOUNT = 15.5f;
+		public const int MAX_SEED = 15;
+
+		[Tooltip("Distance between wobbles along the edge. Adjusted slightly so the wobble loops evenly.")]
+		[Range(4, MAX_WAVELENGTH)]
+		public float Wavelength;
+
+		[Tooltip("How much the outline's width varies.")]
+		[Range(0, MAX_AMOUNT)]
+		public float Thickness;
+
+		[Tooltip("How far the outline drifts in and out from its position.")]
+		[Range(0, MAX_AMOUNT)]
+		public float Drift;
+
+		[Tooltip("Picks a different wobble pattern.")]
+		[Range(0, MAX_SEED)]
+		public int Seed;
+
+		public static OutlineWobble Default => new OutlineWobble {
+			Wavelength = 40,
+			Thickness = 1,
+			Drift = 2,
+			Seed = 0
+		};
+	}
+
 	[Serializable]
 	public struct CornerTypes
 	{
@@ -209,13 +340,34 @@ namespace Tekly.Common.Ui.Fancy
 		[Tooltip("Multiply this outline by the element's sprite.")]
 		public bool UseTexture;
 
+		[Tooltip("Vary the outline along the edge: dashes, notches or a hand-drawn wobble. Stack outlines to combine styles.")]
+		public OutlineStyle Style;
+
+		public OutlineDashes Dashes;
+		public OutlineNotches Notches;
+		public OutlineWobble Wobble;
+
 		public static ShapeOutline Default => new ShapeOutline {
 			Enabled = true,
 			Width = 4,
 			Offset = 0,
 			Alignment = OutlineAlignment.Inside,
-			Paint = ShapePaint.Solid(Color.white)
+			Paint = ShapePaint.Solid(Color.white),
+			Style = OutlineStyle.Solid,
+			Dashes = OutlineDashes.Default,
+			Notches = OutlineNotches.Default,
+			Wobble = OutlineWobble.Default
 		};
+
+		/// <summary>
+		/// How far past its band the style can push the outline, so the layer quad leaves room for it.
+		/// </summary>
+		public float GetStyleReach()
+		{
+			return Style == OutlineStyle.Wobble
+				? Mathf.Clamp(Wobble.Thickness, 0, OutlineWobble.MAX_AMOUNT) + Mathf.Clamp(Wobble.Drift, 0, OutlineWobble.MAX_AMOUNT)
+				: 0f;
+		}
 
 		/// <summary>
 		/// Band of signed distance (negative inside the shape) that this outline covers.

@@ -1,0 +1,1150 @@
+<title>Tweenline Reference Screens</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a tool page. Live phone on the left, the animation's timeline and Tweenline notes on the right. Single dark look on purpose. */
+:root {
+  --bg: #12131a;
+  --panel: #1b1d27;
+  --panel-2: #232633;
+  --line: #2f3344;
+  --fg: #e6e8f0;
+  --muted: #9298ad;
+  --accent: #7cc4ff;
+  --have: #3fc8a0;
+  --planned: #f0b44a;
+  --missing: #f06a7a;
+  --marker: #c9a2ff;
+  --font-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  --font-game: "Lilita One", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--fg); }
+body { font-family: var(--font-ui); font-size: 14px; line-height: 1.5; }
+.page { max-width: 1240px; margin: 0 auto; padding-block: 24px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+header.top h1 { font-size: 22px; margin: 0; font-weight: 600; letter-spacing: -0.01em; }
+header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
+.tabs { display: flex; gap: 4px; background: var(--panel); padding: 4px; border-radius: 10px; border: 1px solid var(--line); }
+.tabs button { font: 500 13px var(--font-ui); color: var(--muted); background: none; border: 0; padding: 8px 14px; border-radius: 7px; cursor: pointer; }
+.tabs button[aria-selected="true"] { background: var(--panel-2); color: var(--fg); box-shadow: inset 0 0 0 1px var(--line); }
+.tabs button:focus-visible, .ctrl button:focus-visible, .phone button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.layout { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 28px; align-items: start; }
+@media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } .stage { justify-self: center; } }
+.stage { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+@media (max-width: 860px) { .stage { position: static; } }
+
+.ctrl { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.ctrl button { font: 500 12px var(--font-ui); color: var(--fg); background: var(--panel); border: 1px solid var(--line); padding: 7px 12px; border-radius: 8px; cursor: pointer; }
+.ctrl button:hover { background: var(--panel-2); }
+.ctrl button.on { border-color: var(--accent); color: var(--accent); }
+.hint { font-size: 12px; color: var(--muted); text-align: center; max-width: 320px; margin: 0; }
+
+/* ---------- Phone ---------- */
+.phone { width: 340px; height: 700px; border-radius: 46px; padding: 10px; background: #050608; box-shadow: 0 0 0 2px #2a2d38, 0 30px 60px -20px rgba(0,0,0,.7); flex: none; }
+.screen { position: relative; width: 320px; height: 680px; border-radius: 37px; overflow: hidden; overflow: clip; cursor: pointer; user-select: none; -webkit-user-select: none; }
+.scr { position: absolute; inset: 0; }
+.scr[hidden] { display: none !important; }
+.fx { position: absolute; inset: 0; pointer-events: none; z-index: 50; }
+.notch { position: absolute; top: 10px; left: 50%; width: 92px; height: 26px; margin-left: -46px; background: #050608; border-radius: 16px; z-index: 60; }
+.hurry-chip { position: absolute; top: 44px; right: 14px; z-index: 61; font: 12px var(--font-game); letter-spacing: .04em; color: #fff; background: rgba(0,0,0,.45); padding: 3px 9px; border-radius: 10px; opacity: 0; transition: opacity .15s; }
+.hurry-chip.show { opacity: 1; }
+.abs { position: absolute; }
+.game { font-family: var(--font-game); color: #fff; letter-spacing: .02em; }
+.outline { text-shadow: 0 2px 0 rgba(20,10,40,.9), 0 -1px 0 rgba(20,10,40,.6), 2px 0 0 rgba(20,10,40,.6), -2px 0 0 rgba(20,10,40,.6), 0 4px 8px rgba(0,0,0,.35); }
+.bottom-origin { transform-origin: 50% 100%; }
+
+/* Shared buttons */
+.gbtn { position: absolute; font: 22px var(--font-game); color: #fff; border: 0; border-radius: 18px; cursor: pointer; letter-spacing: .03em; text-shadow: 0 2px 0 rgba(0,0,0,.3); }
+.gbtn.gold { background: linear-gradient(#ffd35a, #f6a21c); box-shadow: inset 0 -5px 0 #c96f0a, inset 0 2px 0 #fff3b8, 0 6px 14px rgba(0,0,0,.35); color: #6a3300; text-shadow: 0 1px 0 rgba(255,255,255,.5); }
+.gbtn.blue { background: linear-gradient(#69c8ff, #2f84f0); box-shadow: inset 0 -5px 0 #1d58b8, inset 0 2px 0 #c4ecff, 0 6px 14px rgba(0,0,0,.35); }
+.gbtn.green { background: linear-gradient(#8ef06a, #3dbb3a); box-shadow: inset 0 -5px 0 #23852a, inset 0 2px 0 #dcffc4, 0 6px 14px rgba(0,0,0,.35); color: #fff; }
+.gbtn .shine-mask { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none; }
+.gbtn .shine { position: absolute; top: -10px; bottom: -10px; left: 0; width: 34px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent); transform: skewX(-20deg); }
+
+/* ---------- Victory ---------- */
+#s-victory { background: radial-gradient(120% 70% at 50% 28%, #7b4ff0 0%, #3a1f8f 45%, #160a3d 100%); }
+#v-rays { left: 50%; top: 170px; width: 640px; height: 640px; margin: -320px 0 0 -320px; border-radius: 50%;
+  background: repeating-conic-gradient(rgba(255,230,150,.22) 0deg 9deg, transparent 9deg 22.5deg);
+  -webkit-mask: radial-gradient(circle, #000 0%, #000 22%, transparent 62%); mask: radial-gradient(circle, #000 0%, #000 22%, transparent 62%); }
+#v-glow { left: 50%; top: 170px; width: 300px; height: 300px; margin: -150px 0 0 -150px; border-radius: 50%; background: radial-gradient(circle, rgba(255,226,140,.65), rgba(255,180,80,0) 65%); }
+#v-content { inset: 0; }
+#v-ribbon { left: 20px; right: 20px; top: 92px; height: 74px; }
+#v-ribbon .band { position: absolute; inset: 10px 0 8px; background: linear-gradient(#ff5d7a, #d42c5c); border-radius: 10px; box-shadow: inset 0 -5px 0 #9c1544, 0 6px 0 rgba(0,0,0,.25); }
+#v-ribbon .band::before, #v-ribbon .band::after { content: ""; position: absolute; top: 14px; width: 30px; height: 46px; background: #a8173f; z-index: -1; }
+#v-ribbon .band::before { left: -18px; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 40% 50%); }
+#v-ribbon .band::after { right: -18px; clip-path: polygon(0 0, 100% 0, 60% 50%, 100% 100%, 0 100%); }
+#v-title { position: absolute; inset: 0; display: grid; place-items: center; font-size: 50px; line-height: 1; color: #fff6c9;
+  text-shadow: 0 3px 0 #8a1238, 0 -2px 0 #8a1238, 3px 0 0 #8a1238, -3px 0 0 #8a1238, 0 6px 10px rgba(0,0,0,.35); }
+#v-stars { left: 0; right: 0; top: 182px; height: 110px; }
+.star { position: absolute; width: 78px; height: 78px; }
+.star.big { width: 100px; height: 100px; }
+.star svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.star .socket { fill: #26115e; stroke: #120638; stroke-width: 3; }
+.star .fill path:first-child { fill: url(#gold); stroke: #b8610b; stroke-width: 3; }
+.star .flash path { fill: #fff; }
+#v-score-label { left: 0; right: 0; top: 304px; text-align: center; font-size: 16px; color: #c8b6ff; letter-spacing: .14em; }
+#v-score { left: 0; right: 0; top: 322px; text-align: center; font-size: 52px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+#v-best { left: 222px; top: 312px; font-size: 14px; padding: 6px 10px; background: linear-gradient(#5ef0c0, #19b78a); color: #053a2b; border-radius: 10px; box-shadow: inset 0 -3px 0 #108663; rotate: 12deg; }
+#v-xp { left: 34px; right: 34px; top: 410px; height: 44px; }
+#v-xp .lvl { position: absolute; left: 0; top: 0; width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(#69c8ff, #2f84f0); box-shadow: inset 0 -3px 0 #1d58b8; display: grid; place-items: center; font-size: 18px; z-index: 2; }
+#v-xp .bar { position: absolute; left: 30px; right: 0; top: 11px; height: 22px; border-radius: 11px; background: #1b0d4a; box-shadow: inset 0 2px 0 rgba(0,0,0,.4); overflow: hidden; }
+#v-xp .bar i { position: absolute; inset: 0; background: linear-gradient(#9ff17b, #49c43b); box-shadow: inset 0 -3px 0 #2f9a2a; clip-path: inset(0 calc((1 - var(--fill, .4)) * 100%) 0 0 round 11px); }
+#v-xp .xp-text { position: absolute; right: 8px; top: 13px; font-size: 13px; z-index: 2; }
+#v-reward-row { left: 0; right: 0; top: 476px; display: flex; justify-content: center; gap: 10px; }
+.chip { position: relative; font-size: 17px; display: flex; align-items: center; gap: 6px; background: rgba(10,4,40,.45); padding: 6px 12px 6px 6px; border-radius: 14px; }
+.chip svg { width: 26px; height: 26px; }
+#v-buttons { left: 0; right: 0; top: 566px; height: 70px; }
+#v-next { left: 82px; width: 156px; height: 62px; }
+#v-home, #v-retry { width: 56px; height: 56px; top: 4px; border-radius: 16px; display: grid; place-items: center; }
+#v-home { left: 18px; } #v-retry { right: 18px; }
+#v-home svg, #v-retry svg { width: 28px; height: 28px; fill: #fff; }
+
+/* ---------- Cards ---------- */
+#s-cards { background: radial-gradient(110% 60% at 50% 40%, #1f5f6b 0%, #0f2f45 55%, #08141f 100%); }
+#c-dim { inset: 0; background: rgba(4,10,18,.7); }
+#c-head { left: 0; right: 0; top: 70px; text-align: center; font-size: 28px; color: #ffe9a8; }
+#c-sub { left: 30px; right: 30px; top: 108px; text-align: center; font: 500 14px var(--font-ui); color: #b9d6e4; min-height: 20px; }
+.slot { position: absolute; top: 210px; width: 92px; height: 138px; }
+.slot .hov { position: absolute; inset: 0; }
+.slot .flip { position: absolute; inset: 0; }
+.face { position: absolute; inset: 0; border-radius: 12px; backface-visibility: hidden; }
+.face.back { background: repeating-linear-gradient(45deg, #253a7a 0 6px, #1e2f66 6px 12px); border: 3px solid #c7a24a; box-shadow: 0 6px 14px rgba(0,0,0,.45); display: grid; place-items: center; }
+.face.back::after { content: ""; width: 34px; height: 34px; border: 3px solid #c7a24a; transform: rotate(45deg); border-radius: 6px; }
+.face.front { padding: 3px; box-shadow: 0 8px 16px rgba(0,0,0,.45); background: var(--tier); }
+.face.front .in { position: absolute; inset: 3px; border-radius: 9px; background: linear-gradient(#1e2a3e, #121a29); display: flex; flex-direction: column; align-items: center; padding: 8px 6px 6px; gap: 4px; }
+.face.front .tier { font: 600 8px var(--font-ui); letter-spacing: .16em; color: var(--tierc); text-transform: uppercase; }
+.face.front .ico { width: 48px; height: 48px; border-radius: 50%; background: radial-gradient(circle, var(--tierg), transparent 70%); display: grid; place-items: center; }
+.face.front .ico svg { width: 36px; height: 36px; }
+.face.front .nm { font: 13px var(--font-game); color: #fff; text-align: center; line-height: 1.05; }
+.face.front .ds { font: 500 8.5px/1.25 var(--font-ui); color: #b8c3d6; text-align: center; }
+.card-glow { position: absolute; inset: -14px; border-radius: 22px; background: radial-gradient(closest-side, var(--tierg), transparent); }
+.rare { --tier: linear-gradient(#7fd0ff, #2f7ff0); --tierc: #8fd4ff; --tierg: rgba(80,170,255,.55); }
+.epic { --tier: linear-gradient(#d69bff, #8a3ff0); --tierc: #d9a8ff; --tierg: rgba(190,110,255,.55); }
+.legend { --tier: linear-gradient(#ffe27a, #f39a1c); --tierc: #ffd56a; --tierg: rgba(255,200,80,.6); }
+.slot button.hit { position: absolute; inset: 0; background: none; border: 0; border-radius: 12px; cursor: pointer; z-index: 3; }
+#c-deck { left: 114px; top: 560px; width: 92px; height: 60px; }
+#c-deck i { position: absolute; left: 0; width: 92px; height: 52px; border-radius: 10px; background: repeating-linear-gradient(45deg, #253a7a 0 6px, #1e2f66 6px 12px); border: 3px solid #c7a24a; }
+#c-burst { left: 50%; top: 300px; width: 360px; height: 360px; margin: -180px 0 0 -180px; border-radius: 50%;
+  background: repeating-conic-gradient(rgba(255,214,120,.25) 0deg 8deg, transparent 8deg 20deg); -webkit-mask: radial-gradient(circle, #000 15%, transparent 65%); mask: radial-gradient(circle, #000 15%, transparent 65%); }
+#c-take { left: 30px; width: 260px; top: 560px; height: 60px; font-size: 18px; }
+
+/* ---------- Rewards ---------- */
+#s-rewards { background: radial-gradient(120% 70% at 50% 35%, #ff9a4a 0%, #c2452d 40%, #3d0f1e 100%); }
+#r-hud { left: 14px; right: 14px; top: 46px; height: 40px; display: flex; justify-content: space-between; }
+.pill { position: relative; display: flex; align-items: center; gap: 4px; height: 34px; padding: 0 12px 0 4px; border-radius: 17px; background: rgba(30,6,14,.55); font-size: 18px; font-variant-numeric: tabular-nums; }
+.pill .pi { width: 30px; height: 30px; flex: none; }
+#r-title-wrap { left: 0; right: 0; top: 104px; text-align: center; }
+#r-title { display: inline-block; font-size: 36px; color: #fff3c4; }
+#r-sub { left: 0; right: 0; top: 148px; text-align: center; font: 500 13px var(--font-ui); color: #ffd7c0; letter-spacing: .08em; text-transform: uppercase; }
+#r-burst { left: 50%; top: 290px; width: 420px; height: 420px; margin: -210px 0 0 -210px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,250,210,.95) 0%, rgba(255,220,120,.6) 22%, rgba(255,160,60,0) 60%); }
+#r-rays { left: 50%; top: 290px; width: 520px; height: 520px; margin: -260px 0 0 -260px; border-radius: 50%;
+  background: repeating-conic-gradient(rgba(255,240,180,.3) 0deg 7deg, transparent 7deg 18deg); -webkit-mask: radial-gradient(circle, #000 12%, transparent 60%); mask: radial-gradient(circle, #000 12%, transparent 60%); }
+#r-chest { left: 85px; top: 236px; width: 150px; height: 120px; }
+#r-chest .body { position: absolute; left: 0; right: 0; bottom: 0; height: 74px; border-radius: 8px 8px 14px 14px; background: linear-gradient(#a8622e, #6e3714); box-shadow: inset 0 -6px 0 #4a220a, 0 10px 18px rgba(0,0,0,.4); }
+#r-chest .body::before { content: ""; position: absolute; left: 18px; top: 0; bottom: 0; width: 14px; background: linear-gradient(#ffd35a, #d48a16); }
+#r-chest .body::after { content: ""; position: absolute; right: 18px; top: 0; bottom: 0; width: 14px; background: linear-gradient(#ffd35a, #d48a16); }
+#r-chest .lock { position: absolute; left: 61px; top: -4px; width: 28px; height: 30px; border-radius: 6px; background: linear-gradient(#ffe27a, #e09a1a); box-shadow: inset 0 -3px 0 #b06a08; z-index: 2; }
+#r-lid { left: -4px; right: -4px; top: 0; height: 52px; border-radius: 40px 40px 6px 6px; background: linear-gradient(#c27a3c, #8a4a1c); box-shadow: inset 0 -6px 0 #5a2c0c; transform-origin: 12% 100%; z-index: 3; }
+#r-lid::before, #r-lid::after { content: ""; position: absolute; top: 0; bottom: 0; width: 14px; background: linear-gradient(#ffe27a, #d48a16); }
+#r-lid::before { left: 22px; } #r-lid::after { right: 22px; }
+#r-items { left: 18px; right: 18px; top: 410px; height: 96px; }
+.item { position: absolute; top: 0; width: 64px; height: 84px; }
+.item .tile { position: absolute; left: 0; top: 0; width: 64px; height: 64px; border-radius: 14px; display: grid; place-items: center; box-shadow: inset 0 -4px 0 rgba(0,0,0,.25), 0 4px 10px rgba(0,0,0,.3); }
+.item .tile svg { width: 42px; height: 42px; }
+.item .qty { position: absolute; left: 0; right: 0; top: 60px; text-align: center; font-size: 16px; }
+.t-gold { background: linear-gradient(#ffe48a, #f0a83a); } .t-blue { background: linear-gradient(#8fd6ff, #3f8ff0); }
+.t-red { background: linear-gradient(#ff9fae, #e0466a); } .t-purple { background: linear-gradient(#d9a8ff, #8a4ff0); }
+.coin-fly { position: absolute; left: 0; top: 0; width: 26px; height: 26px; }
+#r-claim { left: 70px; width: 180px; top: 568px; height: 62px; font-size: 24px; }
+#r-tap { left: 0; right: 0; top: 646px; text-align: center; font: 500 11px var(--font-ui); color: rgba(255,230,210,.6); letter-spacing: .1em; text-transform: uppercase; }
+
+/* ---------- Timeline panel ---------- */
+.side { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; min-width: 0; }
+.panel h2 { font-size: 16px; margin: 0 0 4px; font-weight: 600; }
+.panel h3 { font-size: 13px; margin: 18px 0 6px; font-weight: 600; color: var(--fg); }
+.panel p, .panel li { color: #c3c7d6; max-width: 72ch; }
+.panel p { margin: 6px 0; }
+.panel ul { margin: 6px 0; padding-left: 18px; }
+.panel li { margin: 3px 0; }
+.legend-row { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--muted); margin: 8px 0 12px; }
+.legend-row span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 18px; height: 8px; border-radius: 3px; display: inline-block; }
+.sw.have { background: var(--have); } .sw.planned { background: var(--planned); }
+.sw.marker { width: 8px; height: 8px; transform: rotate(45deg); background: var(--marker); border-radius: 1px; }
+.anim { margin-top: 14px; }
+.anim-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 14px; margin-bottom: 6px; }
+.anim-head b { font: 600 13px var(--font-mono); color: var(--accent); }
+.anim-head span { font: 12px var(--font-mono); color: var(--muted); }
+.tl-scroll { overflow-x: auto; }
+.tl { position: relative; min-width: 560px; font: 11px var(--font-mono); }
+.tl-row { display: grid; grid-template-columns: 196px 1fr; align-items: center; height: 22px; }
+.tl-row.group { height: 20px; margin-top: 4px; }
+.tl-row.group .lbl { color: var(--fg); font-weight: 500; }
+.tl-row .lbl { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px; }
+.tl-row .lbl em { font-style: normal; color: #c3c7d6; }
+.lane { position: relative; height: 100%; border-left: 1px solid var(--line); }
+.bar { position: absolute; top: 4px; height: 14px; border-radius: 3px; background: var(--have); color: #082a20; font-size: 9.5px; line-height: 14px; padding: 0 4px; white-space: nowrap; overflow: hidden; min-width: 3px; }
+.bar.planned { background: var(--planned); color: #3a2400; }
+.bar.step { width: 3px !important; padding: 0; border-radius: 1px; }
+.ruler { position: relative; height: 18px; border-bottom: 1px solid var(--line); cursor: ew-resize; }
+.ruler i { position: absolute; top: 0; font-style: normal; color: var(--muted); font-size: 10px; transform: translateX(-50%); }
+.ruler i::after { content: ""; position: absolute; left: 50%; top: 13px; height: 5px; border-left: 1px solid var(--line); }
+.mk { position: absolute; top: 2px; width: 9px; height: 9px; background: var(--marker); transform: translateX(-50%) rotate(45deg); border-radius: 1px; }
+.mk-line { position: absolute; top: 18px; bottom: 0; border-left: 1px dashed rgba(201,162,255,.35); pointer-events: none; }
+.lanes-wrap { position: relative; }
+.ph { position: absolute; top: 0; bottom: 0; border-left: 2px solid #fff; pointer-events: none; opacity: .85; }
+.scrub-hint { font-size: 11px; color: var(--muted); margin-top: 6px; }
+.tag { display: inline-block; font: 500 11px var(--font-mono); padding: 1px 6px; border-radius: 4px; background: var(--panel-2); color: var(--fg); }
+.tag.p { background: rgba(240,180,74,.16); color: var(--planned); }
+.tag.m { background: rgba(240,106,122,.16); color: var(--missing); }
+.tag.h { background: rgba(63,200,160,.14); color: var(--have); }
+table.gaps { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.gaps th, table.gaps td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.gaps th { color: var(--muted); font-weight: 500; font-size: 12px; }
+table.gaps td:first-child { white-space: nowrap; font-weight: 600; }
+table.gaps td.n { font-variant-numeric: tabular-nums; color: var(--muted); }
+.gap-scroll { overflow-x: auto; }
+code { font-family: var(--font-mono); font-size: 12px; color: #d8dcf0; background: var(--panel-2); padding: 0 4px; border-radius: 3px; }
+@media (prefers-reduced-motion: reduce) { .hurry-chip { transition: none; } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff2a0"/><stop offset=".5" stop-color="#ffcc33"/><stop offset="1" stop-color="#f08a12"/></linearGradient>
+    <linearGradient id="coinG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0a0"/><stop offset="1" stop-color="#f0a020"/></linearGradient>
+    <linearGradient id="gemG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b8f4ff"/><stop offset="1" stop-color="#2a8cf0"/></linearGradient>
+  </defs>
+  <symbol id="i-star" viewBox="0 0 100 100"><path d="M50 4l13.6 29.4 32 3.6-23.8 21.8 6.6 31.6L50 74.2 21.6 90.4l6.6-31.6L4.4 37l32-3.6z" stroke-linejoin="round"/></symbol>
+  <symbol id="i-coin" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="url(#coinG)" stroke="#b86a08" stroke-width="3"/><circle cx="20" cy="20" r="10" fill="none" stroke="#d9890f" stroke-width="2.5"/><path d="M14 13l4 2" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".8"/></symbol>
+  <symbol id="i-gem" viewBox="0 0 40 40"><path d="M8 15l6-8h12l6 8-12 18z" fill="url(#gemG)" stroke="#1a5fb0" stroke-width="2.5" stroke-linejoin="round"/><path d="M8 15h24M14 7l6 8 6-8M20 15v18" stroke="#1a5fb0" stroke-width="1.5" fill="none" opacity=".6"/></symbol>
+  <symbol id="i-potion" viewBox="0 0 40 40"><path d="M16 5h8v8l8 12a8 8 0 0 1-7 11H15a8 8 0 0 1-7-11l8-12z" fill="#ff5d8a" stroke="#8a1238" stroke-width="2.5" stroke-linejoin="round"/><path d="M11 24h18" stroke="#ffd0dc" stroke-width="2"/><rect x="14" y="3" width="12" height="4" rx="1.5" fill="#c58a52"/></symbol>
+  <symbol id="i-scroll" viewBox="0 0 40 40"><rect x="9" y="6" width="22" height="28" rx="3" fill="#fff2d0" stroke="#8a5a20" stroke-width="2.5"/><path d="M14 13h12M14 18h12M14 23h8" stroke="#b0884c" stroke-width="2" stroke-linecap="round"/><circle cx="27" cy="29" r="5" fill="#d42c5c" stroke="#8a1238" stroke-width="2"/></symbol>
+  <symbol id="i-sword" viewBox="0 0 40 40"><path d="M30 4l6 0 0 6-17 17-6-6z" fill="#e8f0ff" stroke="#3a4a70" stroke-width="2" stroke-linejoin="round"/><path d="M9 21l10 10M12 28l-6 6" stroke="#ff8a3a" stroke-width="4" stroke-linecap="round"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 40 40"><path d="M20 4l13 5v10c0 9-6 14-13 17C13 33 7 28 7 19V9z" fill="#c9a2ff" stroke="#4a1a8a" stroke-width="2.5" stroke-linejoin="round"/><path d="M20 9v22M12 17h16" stroke="#4a1a8a" stroke-width="2" opacity=".5"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 40 40"><path d="M20 3c3 7 11 10 11 20a11 11 0 0 1-22 0c0-6 4-8 5-13 2 3 2 6 4 7 1-5 0-9 2-14z" fill="#ffb03a" stroke="#b0460a" stroke-width="2.5" stroke-linejoin="round"/><path d="M20 22c3 3 5 5 5 8a5 5 0 0 1-10 0c0-3 3-4 5-8z" fill="#fff0a0"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-4v-6h-4v6H6v-9H3z"/></symbol>
+  <symbol id="i-retry" viewBox="0 0 24 24"><path d="M12 4a8 8 0 1 1-7.7 10h2.6A5.5 5.5 0 1 0 12 6.5V10L6.5 5.25 12 0.5z"/></symbol>
+</svg>
+
+<div class="page">
+  <header class="top">
+    <div>
+      <h1>Tweenline Reference Screens</h1>
+      <p>Three mobile game screens animated by a small engine that copies Tweenline's track model. Each timeline below is drawn from the same clips that drive the phone. Green tracks exist today, amber tracks are on the roadmap.</p>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Screens">
+      <button role="tab" id="tab-victory" data-screen="victory" aria-selected="true">Victory</button>
+      <button role="tab" id="tab-cards" data-screen="cards" aria-selected="false">Choose a card</button>
+      <button role="tab" id="tab-rewards" data-screen="rewards" aria-selected="false">Rewards</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <div class="stage">
+      <div class="phone">
+        <div class="screen" id="screen" aria-label="Game screen preview">
+          <div class="notch"></div>
+          <div class="hurry-chip" id="hurry-chip">HURRY ×3</div>
+
+          <!-- Victory -->
+          <div class="scr game" id="s-victory">
+            <div class="abs" id="v-rays"></div>
+            <div class="abs" id="v-glow"></div>
+            <div class="abs" id="v-content">
+              <div class="abs" id="v-ribbon"><div class="band"></div><div id="v-title">VICTORY</div></div>
+              <div class="abs" id="v-stars">
+                <div class="star" style="left:42px;top:24px"><svg><use href="#i-star" class="socket"/></svg><svg class="fill" id="v-star0"><path d="M50 4l13.6 29.4 32 3.6-23.8 21.8 6.6 31.6L50 74.2 21.6 90.4l6.6-31.6L4.4 37l32-3.6z" transform="scale(.78)" stroke-linejoin="round"/></svg><svg class="flash" id="v-flash0"><path d="M50 4l13.6 29.4 32 3.6-23.8 21.8 6.6 31.6L50 74.2 21.6 90.4l6.6-31.6L4.4 37l32-3.6z" transform="scale(.78)"/></svg></div>
+                <div class="star big" style="left:110px;top:0"><svg><use href="#i-star" class="socket"/></svg><svg class="fill" id="v-star1"><path d="M50 4l13.6 29.4 32 3.6-23.8 21.8 6.6 31.6L50 74.2 21.6 90.4l6.6-31.6L4.4 37l32-3.6z" stroke-linejoin="round"/></svg><svg class="flash" id="v-flash1"><path d="M50 4l13.6 29.4 32 3.6-23.8 21.8 6.6 31.6L50 74.2 21.6 90.4l6.6-31.6L4.4 37l32-3.6z"/></svg></div>
+                <div class="star" style="left:200px;top:24px"><svg><use href="#i-star" class="socket"/></svg><svg class="fill" id="v-star2"><path d="M50 4l13.6 29.4 32 3.6-23.8 21.8 6.6 31.6L50 74.2 21.6 90.4l6.6-31.6L4.4 37l32-3.6z" transform="scale(.78)" stroke-linejoin="round"/></svg><svg class="flash" id="v-flash2"><path d="M50 4l13.6 29.4 32 3.6-23.8 21.8 6.6 31.6L50 74.2 21.6 90.4l6.6-31.6L4.4 37l32-3.6z" transform="scale(.78)"/></svg></div>
+              </div>
+              <div class="abs" id="v-score-label">SCORE</div>
+              <div class="abs outline" id="v-score">0</div>
+              <div class="abs" id="v-best">NEW BEST!</div>
+              <div class="abs" id="v-xp"><div class="lvl outline">12</div><div class="bar"><i id="v-xpfill"></i></div><div class="xp-text outline">+1,820 XP</div></div>
+              <div class="abs" id="v-reward-row">
+                <div class="chip" id="v-chip0"><svg><use href="#i-coin"/></svg>+350</div>
+                <div class="chip" id="v-chip1"><svg><use href="#i-gem"/></svg>+5</div>
+              </div>
+              <div class="abs" id="v-buttons">
+                <button class="gbtn blue" id="v-home" aria-label="Home"><svg><use href="#i-home"/></svg></button>
+                <button class="gbtn gold" id="v-next">NEXT LEVEL<span class="shine-mask"><span class="shine" id="v-shine"></span></span></button>
+                <button class="gbtn blue" id="v-retry" aria-label="Retry"><svg><use href="#i-retry"/></svg></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cards -->
+          <div class="scr game" id="s-cards" hidden>
+            <div class="abs" id="c-burst"></div>
+            <div class="abs outline" id="c-head">CHOOSE A BLESSING</div>
+            <div class="abs" id="c-sub" data-full="Pick one. It lasts for the rest of this run."></div>
+            <div class="abs" id="c-deck"><i style="top:8px"></i><i style="top:4px"></i><i style="top:0"></i></div>
+            <div class="slot rare" id="c-slot0" style="left:12px">
+              <div class="hov" id="c-hov0"><div class="card-glow" id="c-glow0"></div><div class="flip" id="c-flip0">
+                <div class="face back" id="c-back0"></div>
+                <div class="face front" id="c-front0"><div class="in"><div class="tier">Rare</div><div class="ico"><svg><use href="#i-sword"/></svg></div><div class="nm">Ember Blade</div><div class="ds">Attacks burn for 30% extra fire damage</div></div></div>
+              </div></div>
+              <button class="hit" data-card="0" aria-label="Choose Ember Blade"></button>
+            </div>
+            <div class="slot epic" id="c-slot1" style="left:114px">
+              <div class="hov" id="c-hov1"><div class="card-glow" id="c-glow1"></div><div class="flip" id="c-flip1">
+                <div class="face back" id="c-back1"></div>
+                <div class="face front" id="c-front1"><div class="in"><div class="tier">Epic</div><div class="ico"><svg><use href="#i-shield"/></svg></div><div class="nm">Aegis Ward</div><div class="ds">Block the first hit of every wave</div></div></div>
+              </div></div>
+              <button class="hit" data-card="1" aria-label="Choose Aegis Ward"></button>
+            </div>
+            <div class="slot legend" id="c-slot2" style="left:216px">
+              <div class="hov" id="c-hov2"><div class="card-glow" id="c-glow2"></div><div class="flip" id="c-flip2">
+                <div class="face back" id="c-back2"></div>
+                <div class="face front" id="c-front2"><div class="in"><div class="tier">Legendary</div><div class="ico"><svg><use href="#i-flame"/></svg></div><div class="nm">Phoenix Heart</div><div class="ds">Revive once at full health</div></div></div>
+              </div></div>
+              <button class="hit" data-card="2" aria-label="Choose Phoenix Heart"></button>
+            </div>
+            <button class="gbtn green" id="c-take">TAKE IT<span class="shine-mask"><span class="shine" id="c-shine"></span></span></button>
+          </div>
+
+          <!-- Rewards -->
+          <div class="scr game" id="s-rewards" hidden>
+            <div class="abs" id="r-rays"></div>
+            <div class="abs" id="r-burst"></div>
+            <div class="abs" id="r-hud">
+              <div class="pill outline" id="r-coins"><svg class="pi" id="r-coin-icon"><use href="#i-coin"/></svg><span id="r-coin-num">1,240</span></div>
+              <div class="pill outline" id="r-gems"><svg class="pi" id="r-gem-icon"><use href="#i-gem"/></svg><span id="r-gem-num">36</span></div>
+            </div>
+            <div class="abs" id="r-title-wrap"><div id="r-title" class="outline">STAGE 7 CLEAR</div></div>
+            <div class="abs" id="r-sub">Golden chest</div>
+            <div class="abs bottom-origin" id="r-chest"><div class="body"><div class="lock"></div></div><div class="abs" id="r-lid"></div></div>
+            <div class="abs" id="r-items">
+              <div class="item" id="r-item0" style="left:0"><div class="tile t-gold"><svg><use href="#i-coin"/></svg></div><div class="qty outline">500</div></div>
+              <div class="item" id="r-item1" style="left:76px"><div class="tile t-blue"><svg><use href="#i-gem"/></svg></div><div class="qty outline">12</div></div>
+              <div class="item" id="r-item2" style="left:144px"><div class="tile t-red"><svg><use href="#i-potion"/></svg></div><div class="qty outline">×3</div></div>
+              <div class="item" id="r-item3" style="left:220px"><div class="tile t-purple"><svg><use href="#i-scroll"/></svg></div><div class="qty outline">×1</div></div>
+            </div>
+            <div id="r-coinlayer"></div>
+            <button class="gbtn gold" id="r-claim">CLAIM<span class="shine-mask"><span class="shine" id="r-shine"></span></span></button>
+            <div class="abs" id="r-tap">Tap to hurry</div>
+          </div>
+
+          <canvas class="fx" id="fx" width="640" height="1360"></canvas>
+        </div>
+      </div>
+      <div class="ctrl">
+        <button id="btn-replay">Replay</button>
+        <button id="btn-hurry">Hurry (tap screen)</button>
+        <button id="btn-slow">Slow motion ×0.25</button>
+      </div>
+      <p class="hint" id="hint">Tap the phone to hurry, tap again to complete. Drag on a timeline ruler to scrub.</p>
+    </div>
+
+    <div class="side">
+      <section class="panel" id="timeline-panel">
+        <h2 id="tl-title">Timeline</h2>
+        <div class="legend-row">
+          <span><i class="sw have"></i>Track exists</span>
+          <span><i class="sw planned"></i>Planned track</span>
+          <span><i class="sw marker"></i>Marker</span>
+        </div>
+        <div id="tl-host"></div>
+        <div class="scrub-hint">Labels read <em>Object · Track</em>. Bar text is the ease. Stagger shows as several clips on one row.</div>
+      </section>
+      <section class="panel" id="notes"></section>
+      <section class="panel" id="summary">
+        <h2>What to build next</h2>
+        <p>Every gap the three screens hit, counted by how many screens need it.</p>
+        <div class="gap-scroll">
+        <table class="gaps">
+          <thead><tr><th>Gap</th><th>Screens</th><th>Where it shows up</th><th>Today's workaround</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tag p">Punch</span></td><td class="n">3</td><td>Score lands, every coin hitting the HUD, the chosen card settling, the chest before it opens.</td><td>A Scale clip with Elastic Out. It cannot stack on top of a running Scale clip, which Punch needs since it is layered.</td></tr>
+            <tr><td><span class="tag m">Stagger children</span></td><td class="n">3</td><td>Stars, buttons, reward chips, cards, items, coins.</td><td>One Tweenline per child with Stagger set. Six coins mean six components with the same animation copied.</td></tr>
+            <tr><td><span class="tag p">Count up</span></td><td class="n">2</td><td>Score 0 to 48,250, coin HUD 1,240 to 1,740.</td><td>Code on a marker. Not scrubbable or hurried with the rest.</td></tr>
+            <tr><td><span class="tag p">Shake</span></td><td class="n">2</td><td>Screen shake on the title slam, chest rattling before it opens.</td><td>Hand keyed Rotation and Position clips. Tedious and not seeded.</td></tr>
+            <tr><td><span class="tag m">Reverse from current time</span></td><td class="n">1</td><td>Card hover lift. <code>PlayReverse</code> starts at the end, so leaving mid lift snaps up before dropping.</td><td>A second Hover Out animation with From set to Current.</td></tr>
+            <tr><td><span class="tag m">Move to a target</span></td><td class="n">1</td><td>Coins flying to the coin counter, whose position depends on the HUD layout.</td><td>A Position clip with a hand typed offset that breaks when the layout changes. Already on the 3D list as "move towards a target Transform".</td></tr>
+            <tr><td><span class="tag m">Arc or path motion</span></td><td class="n">1</td><td>Items leaping out of the chest, coins arcing to the HUD.</td><td>Works now: a Position clip plus a one hop Bounce clip gives a clean arc. Worth documenting as a recipe instead of a new track.</td></tr>
+            <tr><td><span class="tag m">Chain into Idle</span></td><td class="n">2</td><td>Rays spinning after Show, Claim and Take button shine loops.</td><td>A second Tweenline on the looping object, started by a marker. Works but needs a component per loop.</td></tr>
+            <tr><td><span class="tag p">Image fill</span></td><td class="n">1</td><td>XP bar filling from 40% to 85%.</td><td>Scale X on a masked child. Fine for bars, wrong for radial fills.</td></tr>
+            <tr><td><span class="tag p">Typewriter</span></td><td class="n">1</td><td>Card screen subtitle.</td><td>None without TMP access.</td></tr>
+            <tr><td><span class="tag p">Graphic color</span></td><td class="n">1</td><td>Claim button tinted grey until the count finishes.</td><td>Swap sprites with Active steps. Note that a white flash cannot be done with Graphic color because UI tint multiplies, so the star flash here uses a white overlay with an Alpha track.</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p>Not Tweenline's job and handled with markers: confetti and sparkle particles, sound, spawning pooled coins, and pointer input that plays Hover and Select.</p>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+/* ================= Eases (same model as TweenEase.cs) ================= */
+const backCache = {};
+function backS(o) {
+  let lo = 0, hi = 30;
+  for (let i = 0; i < 50; i++) { const s = (lo + hi) / 2; const v = 4 * s * s * s / (27 * (s + 1) * (s + 1)); if (v < o) lo = s; else hi = s; }
+  return (lo + hi) / 2;
+}
+function elasticOut(t, e) {
+  const w = e.n * Math.PI, l = -Math.log(e.o) * w / Math.PI;
+  return 1 - Math.exp(-l * t) * Math.cos(w * t) * (1 - t ** 4);
+}
+function bounceOut(t, e) {
+  let total = 1; const segs = [];
+  for (let i = 1; i <= e.b; i++) { const h = Math.pow(e.k, i), d = 2 * Math.sqrt(h); segs.push([h, d]); total += d; }
+  let x = t * total;
+  if (x < 1) return x * x;
+  x -= 1;
+  for (const [h, d] of segs) { if (x < d) { const u = (x - d / 2) / (d / 2); return 1 - h * (1 - u * u); } x -= d; }
+  return 1;
+}
+function easeIn(e, t) {
+  switch (e.type) {
+    case "Linear": return t;
+    case "Sine": return 1 - Math.cos(t * Math.PI / 2);
+    case "Quad": return t * t;
+    case "Cubic": return t * t * t;
+    case "Quart": return t ** 4;
+    case "Quint": return t ** 5;
+    case "Expo": return (Math.pow(2, 10 * t) - 1) / 1023;
+    case "Circ": return 1 - Math.sqrt(1 - t * t);
+    case "Back": { const s = backCache[e.o] ??= backS(e.o); return t * t * ((s + 1) * t - s); }
+    case "Elastic": return 1 - elasticOut(1 - t, e);
+    case "Bounce": return 1 - bounceOut(1 - t, e);
+  }
+  return t;
+}
+function ease(e, t) {
+  if (t <= 0) return 0;
+  if (t >= 1) return 1;
+  if (e.dir === "In") return easeIn(e, t);
+  if (e.dir === "Out") return 1 - easeIn(e, 1 - t);
+  return t < 0.5 ? easeIn(e, t * 2) * 0.5 : 1 - easeIn(e, 2 - t * 2) * 0.5;
+}
+function parseEase(str) {
+  const [type, dir = "Out", a, b] = str.split(" ");
+  const e = { type, dir, o: 0.1, n: 3, b: 3, k: 0.25, label: str };
+  if (type === "Back" && a) e.o = +a;
+  if (type === "Elastic") { e.o = a ? +a : 0.3; if (b) e.n = +b; }
+  if (type === "Bounce") { if (a) e.b = +a; if (b) e.k = +b; }
+  if (type === "Linear") e.label = "Linear";
+  return e;
+}
+
+/* ================= Tracks ================= */
+// status: have = exists in Tweenline today, planned = on the roadmap
+const TRACKS = {
+  Pos:      { name: "Anchored Position", status: "have" },
+  Scale:    { name: "Scale", status: "have" },
+  Rot:      { name: "Rotation", status: "have" },
+  RotY:     { name: "Rotation (Y)", status: "have" },
+  Alpha:    { name: "CanvasGroup Alpha", status: "have" },
+  Active:   { name: "Active", status: "have", step: true },
+  Slide:    { name: "Slide", status: "have", layered: true },
+  Bounce:   { name: "Bounce", status: "have", layered: true },
+  Shake:    { name: "Shake", status: "planned", layered: true },
+  Punch:    { name: "Punch", status: "planned", layered: true },
+  Count:    { name: "Count up", status: "planned" },
+  Fill:     { name: "Image fill", status: "planned" },
+  Type:     { name: "Typewriter", status: "planned" },
+  Tint:     { name: "Graphic color", status: "planned" },
+};
+
+let screenEl = null;
+const $ = (id) => document.getElementById(id);
+const lerp = (a, b, t) => a + (b - a) * t;
+const vlerp = (a, b, t) => Array.isArray(a) ? a.map((v, i) => lerp(v, b[i], t)) : lerp(a, b, t);
+
+function layoutRect(el) {
+  if (!(el instanceof HTMLElement)) {
+    // SVG elements have no offsetLeft, so measure against the screen instead
+    const a = el.getBoundingClientRect(), b = screenEl.getBoundingClientRect();
+    return { x: a.left - b.left, y: a.top - b.top, w: a.width, h: a.height };
+  }
+  let x = 0, y = 0, e = el;
+  while (e && e !== screenEl) { x += e.offsetLeft; y += e.offsetTop; e = e.offsetParent; }
+  return { x, y, w: el.offsetWidth, h: el.offsetHeight };
+}
+const SW = 320, SH = 680;
+function offscreenVector(el, dir) {
+  const r = layoutRect(el), m = 24;
+  if (dir === "Bottom") return [0, SH - r.y + m];
+  if (dir === "Top") return [0, -(r.y + r.h + m)];
+  if (dir === "Left") return [-(r.x + r.w + m), 0];
+  return [SW - r.x + m, 0];
+}
+
+/* Element state, reset each frame then built up by every playing Tweenline, like base x multipliers + offsets */
+const states = new Map();
+function fresh() { return { x: 0, y: 0, sx: 1, sy: 1, rz: 0, ry: 0, a: 1, vis: true, ox: 0, oy: 0, orz: 0, msx: 1, msy: 1, fill: null, text: null, chars: null, tint: null }; }
+function st(el) { let s = states.get(el); if (!s) { s = fresh(); states.set(el, s); } return s; }
+
+/* clip helper: C(target, track, start, dur, from, to, ease, extra) */
+function C(o, track, start, dur, from, to, easeStr = "Quad Out", extra = {}) {
+  return { o, track, start, dur, from, to, ease: parseEase(easeStr), ...extra };
+}
+
+class Anim {
+  constructor(name, clips, opts = {}) {
+    this.name = name; this.clips = clips; this.markers = opts.markers || []; this.wrap = opts.wrap || "Once";
+    this.names = opts.names || {};
+    this.duration = Math.max(0, ...clips.map((c) => c.start + (c.dur || 0)), ...this.markers.map((m) => m.t));
+  }
+  prepare() {
+    for (const c of this.clips) {
+      c.el = typeof c.o === "string" ? $(c.o) : c.o;
+      const s = st(c.el);
+      c.rFrom = typeof c.from === "function" ? c.from(c) : c.from === "current" ? currentOf(s, c.track) : c.from;
+      c.rTo = typeof c.to === "function" ? c.to(c) : c.to;
+      if (c.track === "Slide") c.vec = offscreenVector(c.el, c.dir);
+      if (c.track === "Bounce") prepBounce(c);
+    }
+    this.groups = new Map();
+    for (const c of this.clips) {
+      const key = c.el.id + "|" + c.track;
+      if (!this.groups.has(key)) this.groups.set(key, []);
+      this.groups.get(key).push(c);
+    }
+    for (const g of this.groups.values()) g.sort((a, b) => a.start - b.start);
+  }
+  evaluate(t) {
+    for (const g of this.groups.values()) {
+      const tr = TRACKS[g[0].track];
+      if (tr.layered) for (const c of g) applyLayered(c, t);
+      else applyAbsolute(g, t);
+    }
+  }
+}
+function currentOf(s, track) {
+  switch (track) {
+    case "Pos": return [s.x, s.y];
+    case "Scale": return [s.sx, s.sy];
+    case "Rot": return s.rz;
+    case "RotY": return s.ry;
+    case "Alpha": return s.a;
+  }
+  return 0;
+}
+function applyAbsolute(g, t) {
+  let c = g[0], v;
+  if (t < c.start) v = c.rFrom;
+  else {
+    for (const k of g) if (k.start <= t) c = k;
+    const u = c.dur ? (t - c.start) / c.dur : 1;
+    v = u >= 1 ? c.rTo : (TRACKS[c.track].step ? c.rFrom : vlerp(c.rFrom, c.rTo, ease(c.ease, u)));
+  }
+  const s = st(c.el);
+  switch (c.track) {
+    case "Pos": s.x = v[0]; s.y = v[1]; break;
+    case "Scale": if (Array.isArray(v)) { s.sx = v[0]; s.sy = v[1]; } else { s.sx = s.sy = v; } break;
+    case "Rot": s.rz = v; break;
+    case "RotY": s.ry = v; break;
+    case "Alpha": s.a = v; break;
+    case "Active": s.vis = v; break;
+    case "Count": s.text = c.fmt(v); break;
+    case "Fill": s.fill = v; break;
+    case "Type": s.chars = Math.round(v); break;
+    case "Tint": s.tint = v; break;
+  }
+}
+function prepBounce(c) {
+  const segs = []; let w = 0;
+  const H = c.drop === "OffScreen" ? layoutRect(c.el).y + layoutRect(c.el).h + 30 : c.height;
+  c.H = H;
+  const hops = c.hops || 3, decay = c.decay ?? 0.4;
+  if (c.drop) { segs.push({ h: 1, w: 1, fall: true }); w += 1; for (let i = 1; i < hops; i++) { const h = decay ** i; segs.push({ h, w: 2 * Math.sqrt(h) }); w += 2 * Math.sqrt(h); } }
+  else for (let i = 0; i < hops; i++) { const h = decay ** i; segs.push({ h, w: 2 * Math.sqrt(h) }); w += 2 * Math.sqrt(h); }
+  let acc = 0;
+  for (const s of segs) { s.start = acc / w * c.dur; s.dur = s.w / w * c.dur; acc += s.w; }
+  c.segs = segs;
+}
+function applyLayered(c, t) {
+  const s = st(c.el), lt = t - c.start, u = c.dur ? lt / c.dur : 1;
+  switch (c.track) {
+    case "Slide": {
+      const e = ease(c.ease, Math.min(1, Math.max(0, u)));
+      const k = c.mode === "In" ? 1 - e : e;
+      s.ox += c.vec[0] * k; s.oy += c.vec[1] * k; break;
+    }
+    case "Bounce": {
+      const impact = c.impact ?? 0.12;
+      if (lt < 0) { if (c.drop) s.oy -= c.H; break; }
+      if (lt > c.dur + impact) break;
+      let h = 0, sp = 0, sq = 0;
+      for (const g of c.segs) {
+        if (lt >= g.start && lt < g.start + g.dur) {
+          const v = (lt - g.start) / g.dur;
+          if (g.fall) { h = 1 - v * v; sp = v; } else { const q = 2 * v - 1; h = g.h * (1 - q * q); sp = Math.abs(q) * Math.sqrt(g.h); }
+          break;
+        }
+      }
+      for (const g of c.segs) { const d = lt - (g.start + g.dur); if (d >= 0 && d < impact) sq = Math.max(sq, Math.sqrt(g.h) * Math.sin(Math.PI * d / impact)); }
+      s.oy -= h * c.H;
+      const str = (c.stretch ?? 0.15) * sp, sqz = (c.squash ?? 0.2) * sq;
+      s.msy *= 1 + str - sqz; s.msx *= 1 - str * 0.5 + sqz;
+      break;
+    }
+    case "Shake": {
+      if (u < 0 || u > 1) break;
+      const d = (1 - u) ** 2, f = c.freq || 18, tt = lt;
+      const n1 = Math.sin(tt * f * 6.283 + 1.3) * 0.6 + Math.sin(tt * f * 1.73 * 6.283 + 4.1) * 0.4;
+      const n2 = Math.sin(tt * f * 1.31 * 6.283 + 2.2) * 0.6 + Math.sin(tt * f * 2.11 * 6.283 + 0.7) * 0.4;
+      s.ox += (c.pos?.[0] || 0) * d * n1; s.oy += (c.pos?.[1] || 0) * d * n2; s.orz += (c.rot || 0) * d * n2;
+      break;
+    }
+    case "Punch": {
+      if (u < 0 || u > 1) break;
+      const p = (c.amount || 0.2) * Math.sin(u * Math.PI * (c.osc || 2.5)) * (1 - u) ** 2;
+      s.msx *= 1 + p; s.msy *= 1 + p; break;
+    }
+  }
+}
+
+function write(el, s) {
+  const tx = s.x + s.ox, ty = s.y + s.oy, sx = s.sx * s.msx, sy = s.sy * s.msy, rz = s.rz + s.orz;
+  let tf = `translate(${tx.toFixed(2)}px,${ty.toFixed(2)}px)`;
+  if (s.ry) tf += ` perspective(700px) rotateY(${s.ry.toFixed(2)}deg)`;
+  if (rz) tf += ` rotate(${rz.toFixed(2)}deg)`;
+  tf += ` scale(${sx.toFixed(4)},${sy.toFixed(4)})`;
+  el.style.transform = tf;
+  el.style.opacity = Math.max(0, Math.min(1, s.a));
+  el.style.visibility = s.vis && s.a > 0.001 ? "" : "hidden";
+  if (s.fill !== null) el.style.setProperty("--fill", s.fill.toFixed(4));
+  if (s.text !== null && el.textContent !== s.text) el.textContent = s.text;
+  if (s.chars !== null) {
+    const full = el.dataset.full;
+    const k = Math.max(0, Math.min(full.length, s.chars));
+    if (el._k !== k) { el._k = k; el.innerHTML = ""; el.append(full.slice(0, k)); const h = document.createElement("span"); h.style.visibility = "hidden"; h.textContent = full.slice(k); el.append(h); }
+  }
+  if (s.tint !== null) el.style.filter = `grayscale(${(1 - s.tint).toFixed(3)}) brightness(${(0.6 + 0.4 * s.tint).toFixed(3)})`;
+}
+
+/* ================= Tweenline player ================= */
+let globalSpeed = 1;
+const HURRY = 3;
+const clocks = new Map(); // anim -> latest time for the timeline playhead
+class Tweenline {
+  constructor(name) { this.name = name; this.anim = null; this.t = 0; this.playing = false; this.dir = 1; this.hurried = false; this.held = []; }
+  play(anim, { reverse = false, fromTime = null } = {}) {
+    if (this.anim && this.anim !== anim) { this.held = this.held.filter((h) => h.anim !== this.anim); this.held.push({ anim: this.anim, t: this.t }); }
+    this.held = this.held.filter((h) => h.anim !== anim);
+    anim.prepare();
+    this.anim = anim; this.dir = reverse ? -1 : 1; this.hurried = false; this.playing = true;
+    this.t = fromTime ?? (reverse ? anim.duration : 0);
+    if (!reverse) fireMarkers(anim, -1, this.t);
+  }
+  hurry() { if (!this.playing || this.anim.wrap !== "Once") return false; const was = this.hurried; this.hurried = true; return was; }
+  complete() {
+    if (!this.playing) return;
+    const edge = this.dir > 0 ? this.anim.duration : 0;
+    if (this.dir > 0) fireMarkers(this.anim, this.t, edge);
+    this.t = edge; this.playing = false;
+  }
+  tick(dt) {
+    if (!this.playing) return;
+    const step = dt * globalSpeed * (this.hurried ? HURRY : 1);
+    const prev = this.t; this.t += step * this.dir;
+    const D = this.anim.duration;
+    if (this.anim.wrap === "Loop") { if (this.t >= D) this.t %= D; }
+    else if (this.anim.wrap === "PingPong") { if (this.t >= D) { this.t = D; this.dir = -1; } else if (this.t <= 0) { this.t = 0; this.dir = 1; } }
+    else {
+      if (this.dir > 0) { fireMarkers(this.anim, prev, Math.min(this.t, D)); if (this.t >= D) { this.t = D; this.playing = false; } }
+      else if (this.t <= 0) { this.t = 0; this.playing = false; }
+    }
+  }
+  evaluate() {
+    for (const h of this.held) h.anim.evaluate(h.t);
+    if (this.anim) { this.anim.evaluate(this.t); clocks.set(this.anim, this.t); }
+  }
+  reset() { this.anim = null; this.held = []; this.playing = false; this.t = 0; this.hurried = false; }
+}
+function fireMarkers(anim, from, to) { for (const m of anim.markers) if (m.t > from && m.t <= to) m.fn && m.fn(); }
+
+/* ================= Particles (markers trigger these, like a ParticleSystem) ================= */
+const fx = $("fx"), g = fx.getContext("2d");
+let parts = [];
+const CONF = ["#ffd35a", "#ff5d7a", "#5ef0c0", "#69c8ff", "#c9a2ff", "#ffffff"];
+function confetti(x, y, n = 70) {
+  for (let i = 0; i < n; i++) {
+    const a = -Math.PI / 2 + (Math.random() - 0.5) * 2.4, v = 260 + Math.random() * 380;
+    parts.push({ k: "c", x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: Math.random() * 6, vr: (Math.random() - 0.5) * 14, w: 5 + Math.random() * 5, h: 8 + Math.random() * 6, c: CONF[i % CONF.length], life: 2.6, age: 0 });
+  }
+}
+function sparkle(x, y, n = 14, col = "#fff3b0", spread = 160) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * 6.283, v = spread * (0.4 + Math.random() * 0.8);
+    parts.push({ k: "s", x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, s: 2 + Math.random() * 4, c: col, life: 0.6 + Math.random() * 0.3, age: 0 });
+  }
+}
+function tickFx(dt) {
+  dt *= globalSpeed;
+  g.setTransform(2, 0, 0, 2, 0, 0); g.clearRect(0, 0, SW, SH);
+  parts = parts.filter((p) => (p.age += dt) < p.life);
+  for (const p of parts) {
+    if (p.k === "c") { p.vy += 900 * dt; p.vx *= 1 - 1.6 * dt; p.vy *= 1 - 1.2 * dt; p.r += p.vr * dt; }
+    else { p.vx *= 1 - 4 * dt; p.vy *= 1 - 4 * dt; }
+    p.x += p.vx * dt; p.y += p.vy * dt;
+    const a = Math.min(1, (p.life - p.age) / 0.4);
+    g.globalAlpha = a; g.fillStyle = p.c;
+    if (p.k === "c") { g.save(); g.translate(p.x, p.y); g.rotate(p.r); g.scale(1, Math.cos(p.r * 1.7)); g.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); g.restore(); }
+    else { const s = p.s * (1 - p.age / p.life * 0.5); g.beginPath(); g.moveTo(p.x, p.y - s * 2); g.lineTo(p.x + s * 0.5, p.y - s * 0.5); g.lineTo(p.x + s * 2, p.y); g.lineTo(p.x + s * 0.5, p.y + s * 0.5); g.lineTo(p.x, p.y + s * 2); g.lineTo(p.x - s * 0.5, p.y + s * 0.5); g.lineTo(p.x - s * 2, p.y); g.lineTo(p.x - s * 0.5, p.y - s * 0.5); g.closePath(); g.fill(); }
+  }
+  g.globalAlpha = 1;
+}
+function centerOf(id) { const r = layoutRect($(id)); return [r.x + r.w / 2, r.y + r.h / 2]; }
+
+/* ================= Screens ================= */
+const fmtInt = (v) => Math.round(v).toLocaleString("en-US");
+const S = {};
+
+/* ---- Victory ---- */
+S.victory = (() => {
+  const main = new Tweenline("Victory"), rays = new Tweenline("Rays"), shine = new Tweenline("Next shine");
+  const starT = [0.8, 1.1, 1.4];
+  const names = {};
+  const clips = [
+    C("v-rays", "Alpha", 0, 0.6, 0, 1, "Quad Out"),
+    C("v-glow", "Alpha", 0, 0.5, 0, 0.8, "Quad Out"),
+    C("v-glow", "Scale", 0, 0.7, 0.4, 1, "Back Out 0.2"),
+    C("v-ribbon", "Scale", 0.15, 0.32, 3.2, 1, "Expo In"),
+    C("v-ribbon", "Alpha", 0.15, 0.12, 0, 1, "Linear"),
+    C("v-content", "Shake", 0.47, 0.45, 0, 0, "Linear", { pos: [9, 7], rot: 1.6, freq: 16, label: "Shake 9,7px 1.6°" }),
+    C("v-ribbon", "Punch", 0.47, 0.4, 0, 0, "Linear", { amount: 0.1, osc: 2.5, label: "Punch 0.1" }),
+  ];
+  starT.forEach((t, i) => {
+    clips.push(
+      C(`v-star${i}`, "Scale", t, 0.42, 2.4, 1, "Back In 0.15", { row: "Stars" }),
+      C(`v-star${i}`, "Alpha", t, 0.15, 0, 1, "Linear", { row: "Stars" }),
+      C(`v-star${i}`, "Rot", t, 0.42, -70, 0, "Cubic Out", { row: "Stars" }),
+      C(`v-star${i}`, "Punch", t + 0.42, 0.35, 0, 0, "Linear", { amount: 0.18, osc: 2.5, row: "Stars", label: "Punch 0.18" }),
+      C(`v-flash${i}`, "Alpha", t + 0.42, 0.3, 1, 0, "Quad Out", { row: "Star flashes" })
+    );
+  });
+  clips.push(
+    C("v-score-label", "Alpha", 1.85, 0.25, 0, 1, "Linear"),
+    C("v-score", "Scale", 1.85, 0.3, 0.6, 1, "Back Out 0.3"),
+    C("v-score", "Alpha", 1.85, 0.15, 0, 1, "Linear"),
+    C("v-score", "Count", 1.95, 1.3, 0, 48250, "Quart Out", { fmt: fmtInt, label: "0 → 48,250 Quart Out" }),
+    C("v-score", "Punch", 3.25, 0.35, 0, 0, "Linear", { amount: 0.16, label: "Punch 0.16" }),
+    C("v-best", "Scale", 3.35, 0.6, 0, 1, "Elastic Out 0.4 3"),
+    C("v-best", "Rot", 3.35, 0.6, -40, 0, "Back Out 0.3"),
+    C("v-xp", "Alpha", 2.0, 0.3, 0, 1, "Linear"),
+    C("v-xp", "Pos", 2.0, 0.4, [0, 20], [0, 0], "Cubic Out"),
+    C("v-xpfill", "Fill", 2.3, 1.1, 0.4, 0.85, "Cubic InOut", { label: "0.40 → 0.85 Cubic InOut" }),
+    C("v-chip0", "Scale", 2.6, 0.4, 0, 1, "Back Out 0.3", { row: "Reward chips" }),
+    C("v-chip1", "Scale", 2.72, 0.4, 0, 1, "Back Out 0.3", { row: "Reward chips" }),
+    C("v-home", "Slide", 3.4, 0.5, 0, 0, "Back Out 0.15", { mode: "In", dir: "Bottom", row: "Buttons", label: "In Bottom Back Out" }),
+    C("v-next", "Slide", 3.5, 0.5, 0, 0, "Back Out 0.15", { mode: "In", dir: "Bottom", row: "Buttons", label: "In Bottom Back Out" }),
+    C("v-retry", "Slide", 3.6, 0.5, 0, 0, "Back Out 0.15", { mode: "In", dir: "Bottom", row: "Buttons", label: "In Bottom Back Out" })
+  );
+  Object.assign(names, { "v-rays": "Rays", "v-glow": "Glow", "v-ribbon": "Title ribbon", "v-content": "Content root", "v-score-label": "Score label", "v-score": "Score", "v-best": "New best badge", "v-xp": "XP bar", "v-xpfill": "XP fill" });
+  const show = new Anim("Show", clips, {
+    names,
+    markers: [
+      { t: 0.47, name: "Confetti", fn: () => confetti(160, 130, 90) },
+      { t: 0.05, name: "Play Rays Idle", fn: () => rays.play(raysIdle) },
+      ...starT.map((t, i) => ({ t: t + 0.42, name: `Star ${i + 1} sfx`, fn: () => { const [x, y] = centerOf(`v-star${i}`); sparkle(x, y, 16); } })),
+      { t: 4.1, name: "Play Shine", fn: () => shine.play(shineAnim) },
+    ],
+  });
+  const raysIdle = new Anim("Idle", [C("v-rays", "Rot", 0, 12, 0, 360, "Linear")], { wrap: "Loop", names });
+  const shineAnim = new Anim("Shine", [C("v-shine", "Pos", 0, 0.6, [-50, 0], [200, 0], "Quad InOut"), C("v-shine", "Pos", 2.2, 0, [200, 0], [200, 0], "Linear")], { wrap: "Loop", names: { "v-shine": "Next shine" } });
+  return {
+    tls: [main, rays, shine], anims: [show, raysIdle, shineAnim], main,
+    start() { main.play(show); },
+    notes: `
+      <h2>Victory · how it maps</h2>
+      <p>One Tweenline on the screen root holds <b>Show</b> (4.1s). Rays and the button shine get their own Tweenline with a looping animation, started from markers, since a Tweenline plays one animation at a time.</p>
+      <h3>Beats</h3>
+      <ul>
+        <li><b>0.00</b> Rays and glow fade in. Glow uses Scale with <code>Back Out 0.2</code>.</li>
+        <li><b>0.15</b> Title slams: Scale 3.2 → 1 with <code>Expo In</code> over 0.32s, so it accelerates into the screen.</li>
+        <li><b>0.47</b> Impact. <span class="tag p">Shake</span> on the content root (9,7px, 1.6°, 16Hz), <span class="tag p">Punch</span> on the ribbon, confetti from a marker.</li>
+        <li><b>0.80 / 1.10 / 1.40</b> Stars drop in, 0.3s apart. Scale 2.4 → 1 <code>Back In 0.15</code> with Rotation -70 → 0 <code>Cubic Out</code>, then a <span class="tag p">Punch</span> and a white flash overlay fading with Alpha.</li>
+        <li><b>1.95</b> <span class="tag p">Count up</span> 0 → 48,250 with <code>Quart Out</code> over 1.3s, so most of the counting happens early and the last digits tick slowly.</li>
+        <li><b>2.30</b> <span class="tag p">Image fill</span> on the XP bar 0.40 → 0.85 <code>Cubic InOut</code>.</li>
+        <li><b>3.35</b> New best badge with <code>Elastic Out 0.4 3</code>.</li>
+        <li><b>3.40</b> Buttons use <span class="tag h">Slide</span> In from Bottom with <code>Back Out 0.15</code>, staggered 0.1s.</li>
+      </ul>
+      <h3>Gaps this screen hits</h3>
+      <ul>
+        <li>Shake, Punch, Count up and Image fill are all needed and all planned.</li>
+        <li>Stagger for the stars and buttons means a Tweenline per star with Stagger 0.3. Stagger children on the parent would keep it to one animation.</li>
+        <li>The star punch has to run after the Scale clip finishes. A layered Punch makes that free. With only Scale you would key a second Scale clip.</li>
+        <li>White flash: Graphic color multiplies, so it cannot brighten a gold star. A white copy with an Alpha track works today.</li>
+      </ul>`,
+  };
+})();
+
+/* ---- Cards ---- */
+S.cards = (() => {
+  const main = new Tweenline("Cards"), burst = new Tweenline("Burst"), shine = new Tweenline("Take shine");
+  const slotTL = [0, 1, 2].map((i) => new Tweenline("Card " + i));
+  const hovTL = [0, 1, 2].map((i) => new Tweenline("Card hover " + i));
+  const fan = [-8, 0, 8], fanY = [10, 0, 10];
+  const deck = (i) => () => { const d = layoutRect($("c-deck")), s = layoutRect($(`c-slot${i}`)); return [d.x - s.x, d.y - s.y - 40]; };
+  const names = { "c-dim": "Dim", "c-head": "Header", "c-sub": "Subtitle", "c-take": "Take button", "c-burst": "Burst rays" };
+  const clips = [
+    C("c-head", "Alpha", 0, 0.3, 0, 1, "Linear"),
+    C("c-head", "Scale", 0, 0.45, 0.5, 1, "Back Out 0.3"),
+    C("c-sub", "Type", 0.35, 1.0, 0, 44, "Linear", { label: "44 chars Linear" }),
+    C("c-take", "Active", 0, 0, false, false, "Linear"),
+    C("c-burst", "Alpha", 0, 0, 0, 0, "Linear"),
+  ];
+  [0, 1, 2].forEach((i) => {
+    const t = 0.3 + i * 0.14;
+    clips.push(
+      C(`c-slot${i}`, "Pos", t, 0.5, deck(i), [0, fanY[i]], "Quart Out", { row: "Cards" }),
+      C(`c-slot${i}`, "Rot", t, 0.5, -30 + i * 20, fan[i], "Cubic Out", { row: "Cards" }),
+      C(`c-slot${i}`, "Scale", t, 0.5, 0.8, 1, "Quad Out", { row: "Cards" }),
+      C(`c-flip${i}`, "RotY", t + 0.6, 0.4, 180, 0, "Cubic InOut", { row: "Card flips" }),
+      C(`c-back${i}`, "Active", 0, 0, true, true, "Linear", { row: "Card backs" }),
+      C(`c-back${i}`, "Active", t + 0.8, 0, true, false, "Linear", { row: "Card backs" }),
+      C(`c-front${i}`, "Active", 0, 0, false, false, "Linear", { row: "Card fronts" }),
+      C(`c-front${i}`, "Active", t + 0.8, 0, false, true, "Linear", { row: "Card fronts" }),
+      C(`c-glow${i}`, "Alpha", 0, 0, 0, 0, "Linear", { row: "Card glows" })
+    );
+  });
+  const show = new Anim("Show", clips, { names, markers: [{ t: 1.66, name: "Cards ready", fn: () => { ready = true; } }] });
+
+  const hover = [0, 1, 2].map((i) => new Anim("Hover", [
+    C(`c-hov${i}`, "Pos", 0, 0.22, [0, 0], [0, -16], "Back Out 0.3", { row: "Card" }),
+    C(`c-hov${i}`, "Scale", 0, 0.22, 1, 1.06, "Back Out 0.3", { row: "Card" }),
+    C(`c-glow${i}`, "Alpha", 0, 0.2, 0, 1, "Quad Out", { row: "Glow" }),
+  ], { names }));
+
+  const select = [0, 1, 2].map((i) => new Anim("Select", [
+    C(`c-slot${i}`, "Pos", 0, 0.5, "current", () => { const s = layoutRect($(`c-slot${i}`)); return [160 - (s.x + s.w / 2), 290 - (s.y + s.h / 2)]; }, "Cubic InOut", { row: "Chosen card" }),
+    C(`c-slot${i}`, "Rot", 0, 0.5, "current", 0, "Cubic InOut", { row: "Chosen card" }),
+    C(`c-slot${i}`, "Scale", 0, 0.5, "current", 1.7, "Back Out 0.2", { row: "Chosen card" }),
+    C(`c-hov${i}`, "Pos", 0, 0.3, "current", [0, 0], "Quad Out", { row: "Hover child" }),
+    C(`c-hov${i}`, "Scale", 0, 0.3, "current", 1, "Quad Out", { row: "Hover child" }),
+    C(`c-slot${i}`, "Punch", 0.5, 0.4, 0, 0, "Linear", { amount: 0.08, row: "Chosen card", label: "Punch 0.08" }),
+    C(`c-glow${i}`, "Alpha", 0.3, 0.3, "current", 1, "Linear", { row: "Glow" }),
+  ], { names, markers: [{ t: 0.5, name: "Sparkle", fn: () => sparkle(160, 290, 26, "#ffe9a0", 220) }] }));
+
+  const dismiss = [0, 1, 2].map((i) => new Anim("Dismiss", [
+    C(`c-slot${i}`, "Slide", 0.05, 0.5, 0, 0, "Back In 0.2", { mode: "Out", dir: "Bottom", row: "Card", label: "Out Bottom Back In" }),
+    C(`c-slot${i}`, "Rot", 0.05, 0.5, "current", i === 0 ? -35 : 35, "Quad In", { row: "Card" }),
+    C(`c-slot${i}`, "Alpha", 0.25, 0.3, 1, 0, "Linear", { row: "Card" }),
+    C(`c-hov${i}`, "Pos", 0, 0.2, "current", [0, 0], "Quad Out", { row: "Hover child" }),
+    C(`c-hov${i}`, "Scale", 0, 0.2, "current", 1, "Quad Out", { row: "Hover child" }),
+    C(`c-glow${i}`, "Alpha", 0, 0.15, "current", 0, "Linear", { row: "Glow" }),
+  ], { names }));
+
+  const picked = new Anim("Picked", [
+    C("c-head", "Alpha", 0, 0.25, 1, 0, "Linear"),
+    C("c-sub", "Alpha", 0, 0.25, 1, 0, "Linear"),
+    C("c-burst", "Alpha", 0.35, 0.35, 0, 1, "Quad Out"),
+    C("c-burst", "Scale", 0.35, 0.5, 0.3, 1, "Back Out 0.2"),
+    C("c-take", "Active", 0.6, 0, false, true, "Linear"),
+    C("c-take", "Slide", 0.6, 0.45, 0, 0, "Back Out 0.2", { mode: "In", dir: "Bottom", label: "In Bottom Back Out" }),
+  ], { names, markers: [{ t: 0.35, name: "Play Burst Idle", fn: () => burst.play(burstIdle) }, { t: 1.1, name: "Play Shine", fn: () => shine.play(shineAnim) }] });
+  const burstIdle = new Anim("Idle", [C("c-burst", "Rot", 0, 14, 0, 360, "Linear")], { wrap: "Loop", names });
+  const shineAnim = new Anim("Shine", [C("c-shine", "Pos", 0, 0.6, [-50, 0], [280, 0], "Quad InOut"), C("c-shine", "Pos", 2.2, 0, [280, 0], [280, 0], "Linear")], { wrap: "Loop", names: { "c-shine": "Take shine" } });
+
+  let ready = false, chosen = -1;
+  const hits = [...document.querySelectorAll("#s-cards .hit")];
+  function hoverIn(i) {
+    if (!ready || chosen >= 0) return;
+    const tl = hovTL[i], a = hover[i];
+    tl.play(a, { fromTime: tl.anim === a ? tl.t : 0 });
+  }
+  function hoverOut(i) {
+    if (!ready || chosen >= 0) return;
+    const tl = hovTL[i], a = hover[i];
+    // Tweenline today starts PlayReverse at the end. This page reverses from the current time, which is the proposed fix.
+    tl.play(a, { reverse: true, fromTime: tl.anim === a ? tl.t : a.duration });
+  }
+  function choose(i) {
+    if (!ready || chosen >= 0) return;
+    chosen = i;
+    $("c-take").firstChild.textContent = "TAKE " + $(`c-front${i}`).querySelector(".nm").textContent.toUpperCase();
+    [0, 1, 2].forEach((k) => { hovTL[k].reset(); if (k === i) slotTL[k].play(select[k]); else slotTL[k].play(dismiss[k]); });
+    main.play(picked);
+    $("c-slot" + i).style.zIndex = 5;
+    timelineFocus = [show, select[i], dismiss[i === 0 ? 1 : 0], picked];
+    renderTimeline();
+  }
+  hits.forEach((b) => {
+    const i = +b.dataset.card;
+    b.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") hoverIn(i); });
+    b.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") hoverOut(i); });
+    b.addEventListener("focus", () => hoverIn(i));
+    b.addEventListener("blur", () => hoverOut(i));
+    b.addEventListener("click", (e) => { e.stopPropagation(); if (ready) choose(i); else onScreenTap(); });
+  });
+  let timelineFocus = [show, hover[1], select[2], dismiss[0], picked];
+  return {
+    tls: [main, burst, shine, ...slotTL, ...hovTL],
+    get anims() { return timelineFocus; },
+    allAnims: [show, picked, burstIdle, shineAnim, ...hover, ...select, ...dismiss],
+    main,
+    start() {
+      ready = false; chosen = -1; $("c-take").firstChild.textContent = "TAKE IT";
+      [0, 1, 2].forEach((k) => { $("c-slot" + k).style.zIndex = ""; });
+      timelineFocus = [show, hover[1], select[2], dismiss[0], picked];
+      main.play(show);
+    },
+    notes: `
+      <h2>Choose a card · how it maps</h2>
+      <p>The screen root holds <b>Show</b> and <b>Picked</b>. Each card has two Tweenlines: one on the card for <b>Select</b> and <b>Dismiss</b>, and one on a <i>hover child</i> for <b>Hover</b>, so hover never fights the deal position. Hover a card, then click one.</p>
+      <h3>Beats</h3>
+      <ul>
+        <li><b>0.30</b> Cards deal from the deck 0.14s apart. Anchored Position <code>Quart Out</code>, Rotation from a tilt to the fan angle (-8, 0, 8) <code>Cubic Out</code>.</li>
+        <li><b>0.90</b> Each card flips: Rotation Y 180 → 0 <code>Cubic InOut</code>, with Active steps at the halfway point that hide the back and show the front.</li>
+        <li><b>0.35</b> <span class="tag p">Typewriter</span> on the subtitle, 44 characters over 1s.</li>
+        <li><b>Hover</b> 0.22s: lift 16px and Scale 1.06 with <code>Back Out 0.3</code>, glow Alpha. Leaving plays it in reverse.</li>
+        <li><b>Select</b> uses From <code>Current</code> on every clip, so it starts from wherever hover left the card. It flies to centre <code>Cubic InOut</code>, scales to 1.7 <code>Back Out 0.2</code>, then <span class="tag p">Punch</span>.</li>
+        <li><b>Dismiss</b>: <span class="tag h">Slide</span> Out to Bottom <code>Back In 0.2</code> plus Rotation ±35 and a late Alpha fade.</li>
+        <li><b>Picked</b>: header fades, rays burst in, the Take button slides up.</li>
+      </ul>
+      <h3>Gaps this screen hits</h3>
+      <ul>
+        <li><b>Reverse from current time.</b> <code>PlayReverse</code> sets the time to the end, so moving off a card halfway through its lift snaps it up before it drops. This page reverses from the current time to show the fix. A <code>PlayReverse</code> option that keeps the time when the same animation is current would cover it.</li>
+        <li>Select needs a target computed at play time (screen centre minus the card's slot). A "move to target" option, already on the 3D list, would remove the hand typed offsets per card.</li>
+        <li>Dealing three cards is a stagger. Stagger children would let one Show animation deal any number of cards.</li>
+        <li>Typewriter is planned. Flip works today with Rotation and two Active steps.</li>
+      </ul>`,
+  };
+})();
+
+/* ---- Rewards ---- */
+S.rewards = (() => {
+  const main = new Tweenline("Rewards"), rays = new Tweenline("Rays"), claimIdle = new Tweenline("Claim idle");
+  const N_COINS = 6;
+  const layer = $("r-coinlayer");
+  layer.innerHTML = Array.from({ length: N_COINS }, (_, i) => `<svg class="coin-fly" id="r-fly${i}"><use href="#i-coin"/></svg>`).join("");
+  const names = { "r-rays": "Rays", "r-burst": "Burst", "r-hud": "HUD", "r-title-wrap": "Title", "r-sub": "Subtitle", "r-chest": "Chest", "r-lid": "Lid", "r-coin-num": "Coin counter", "r-coin-icon": "Coin icon", "r-claim": "Claim button", "r-tap": "Tap hint" };
+  const fromChest = (i) => () => { const c = layoutRect($("r-chest")), it = layoutRect($(`r-item${i}`)); return [c.x + c.w / 2 - (it.x + it.w / 2), c.y + 40 - (it.y + 32)]; };
+  const clips = [
+    C("r-hud", "Slide", 0.0, 0.45, 0, 0, "Quart Out", { mode: "In", dir: "Top", label: "In Top Quart Out" }),
+    C("r-title-wrap", "Slide", 0.1, 0.5, 0, 0, "Back Out 0.2", { mode: "In", dir: "Top", label: "In Top Back Out" }),
+    C("r-sub", "Alpha", 0.45, 0.3, 0, 1, "Linear"),
+    C("r-chest", "Bounce", 0.3, 0.95, 0, 0, "Linear", { drop: "OffScreen", hops: 3, decay: 0.3, stretch: 0.18, squash: 0.28, impact: 0.14, label: "Drop OffScreen 3 hops" }),
+    C("r-chest", "Scale", 1.45, 0.35, 1, [1.12, 0.86], "Quad In"),
+    C("r-chest", "Shake", 1.45, 0.4, 0, 0, "Linear", { pos: [4, 0], rot: 5, freq: 22, label: "Shake 4px 5° 22Hz" }),
+    C("r-chest", "Scale", 1.8, 0.5, [1.12, 0.86], 1, "Elastic Out 0.35 3"),
+    C("r-lid", "Rot", 1.8, 0.35, 0, -22, "Back Out 0.4"),
+    C("r-lid", "Pos", 1.8, 0.35, [0, 0], [-10, -16], "Cubic Out"),
+    C("r-burst", "Scale", 1.8, 0.6, 0.2, 1.4, "Expo Out"),
+    C("r-burst", "Alpha", 1.8, 0.8, 1, 0, "Quad In"),
+    C("r-rays", "Alpha", 1.85, 0.5, 0, 1, "Quad Out"),
+    C("r-rays", "Scale", 1.85, 0.6, 0.3, 1, "Back Out 0.2"),
+  ];
+  [0, 1, 2, 3].forEach((i) => {
+    const t = 2.0 + i * 0.12;
+    clips.push(
+      C(`r-item${i}`, "Pos", t, 0.55, fromChest(i), [0, 0], "Cubic Out", { row: "Items" }),
+      C(`r-item${i}`, "Bounce", t, 0.55, 0, 0, "Linear", { height: 70, hops: 1, stretch: 0.1, squash: 0.15, impact: 0.12, row: "Items", label: "1 hop arc" }),
+      C(`r-item${i}`, "Scale", t, 0.45, 0.2, 1, "Back Out 0.4", { row: "Items" }),
+      C(`r-item${i}`, "Alpha", t, 0.1, 0, 1, "Linear", { row: "Items" })
+    );
+  });
+  const coinStart = 2.9;
+  const toHud = (i) => () => { const a = layoutRect($("r-item0")), h = layoutRect($("r-coin-icon")); const sx = a.x + 32 - 13 + (i % 3 - 1) * 8, sy = a.y + 32 - 13; return [h.x + 2 - sx, h.y + 2 - sy]; };
+  const atItem = (i) => () => { const a = layoutRect($("r-item0")); return [a.x + 32 - 13 + (i % 3 - 1) * 8, a.y + 32 - 13]; };
+  for (let i = 0; i < N_COINS; i++) {
+    const t = coinStart + i * 0.09;
+    clips.push(
+      C(`r-fly${i}`, "Alpha", 0, 0, 0, 0, "Linear", { row: "Flying coins" }),
+      C(`r-fly${i}`, "Alpha", t, 0.05, 0, 1, "Linear", { row: "Flying coins" }),
+      C(`r-fly${i}`, "Pos", t, 0.5, atItem(i), (c) => { const s = atItem(i)(), d = toHud(i)(); return [s[0] + d[0], s[1] + d[1]]; }, "Quad In", { row: "Flying coins" }),
+      C(`r-fly${i}`, "Bounce", t, 0.5, 0, 0, "Linear", { height: 60 + (i % 3) * 18, hops: 1, stretch: 0, squash: 0, impact: 0, row: "Flying coins", label: "arc" }),
+      C(`r-fly${i}`, "Alpha", t + 0.5, 0.04, 1, 0, "Linear", { row: "Flying coins" }),
+      C("r-coin-icon", "Punch", t + 0.5, 0.25, 0, 0, "Linear", { amount: 0.3, osc: 2, row: "Coin icon", label: "Punch" })
+    );
+  }
+  clips.push(
+    C("r-coin-num", "Count", coinStart + 0.5, N_COINS * 0.09 + 0.3, 1240, 1740, "Quad Out", { fmt: fmtInt, label: "1,240 → 1,740" }),
+    C("r-coin-num", "Punch", coinStart + 0.5 + N_COINS * 0.09 + 0.3, 0.3, 0, 0, "Linear", { amount: 0.2, label: "Punch" }),
+    C("r-claim", "Scale", 3.35, 0.45, 0, 1, "Back Out 0.35"),
+    C("r-claim", "Tint", 3.35, 0, 0, 0, "Linear", { label: "grey" }),
+    C("r-claim", "Tint", 4.0, 0.25, 0, 1, "Quad Out", { label: "grey → white" }),
+    C("r-tap", "Alpha", 0, 0.3, 0, 1, "Linear"),
+    C("r-tap", "Alpha", 3.6, 0.3, 1, 0, "Linear")
+  );
+  const show = new Anim("Show", clips, {
+    names,
+    markers: [
+      { t: 1.25, name: "Land dust", fn: () => sparkle(160, 356, 10, "#ffd9b0", 120) },
+      { t: 1.8, name: "Open", fn: () => { sparkle(160, 270, 30, "#fff3b0", 240); confetti(160, 270, 40); rays.play(raysIdle); } },
+      { t: 4.25, name: "Play Claim Idle", fn: () => claimIdle.play(claimLoop) },
+    ],
+  });
+  const raysIdle = new Anim("Idle", [C("r-rays", "Rot", 0, 16, 0, 360, "Linear")], { wrap: "Loop", names });
+  const claimLoop = new Anim("Idle", [
+    C("r-claim", "Scale", 0, 0.7, 1, 1.05, "Sine InOut"),
+    C("r-shine", "Pos", 0, 0.7, [-50, 0], [220, 0], "Quad InOut", { row: "Claim shine" }),
+  ], { wrap: "PingPong", names: { ...names, "r-shine": "Claim shine" } });
+  return {
+    tls: [main, rays, claimIdle], anims: [show, claimLoop], main,
+    start() { main.play(show); },
+    notes: `
+      <h2>Rewards · how it maps</h2>
+      <p>The screen root holds <b>Show</b> (4.3s). Rays and the Claim button get looping <b>Idle</b> animations on their own Tweenlines, started by markers.</p>
+      <h3>Beats</h3>
+      <ul>
+        <li><b>0.00</b> HUD and title use <span class="tag h">Slide</span> In from Top.</li>
+        <li><b>0.30</b> Chest drops with <span class="tag h">Bounce</span>: Drop From Off Screen, 3 hops, decay 0.3, squash 0.28. This is exactly what Bounce was built for.</li>
+        <li><b>1.45</b> Anticipation: Scale to (1.12, 0.86) <code>Quad In</code> plus <span class="tag p">Shake</span> 5° at 22Hz.</li>
+        <li><b>1.80</b> Open: Scale back with <code>Elastic Out 0.35 3</code>, lid Rotation -22 <code>Back Out 0.4</code>, burst Scale 0.2 → 1.4 <code>Expo Out</code> with Alpha fading <code>Quad In</code>. Particles from the Open marker.</li>
+        <li><b>2.00</b> Items leap out 0.12s apart. Anchored Position from the chest <code>Cubic Out</code> plus a one hop <span class="tag h">Bounce</span> for the arc, Scale 0.2 → 1 <code>Back Out 0.4</code>.</li>
+        <li><b>2.90</b> Six coins arc to the HUD 0.09s apart (Position <code>Quad In</code> plus one hop Bounce). Each arrival punches the coin icon while a <span class="tag p">Count up</span> runs 1,240 → 1,740.</li>
+        <li><b>3.35</b> Claim pops in <code>Back Out 0.35</code> but stays grey with <span class="tag p">Graphic color</span> until the count is done at 4.0.</li>
+        <li><b>Idle</b> PingPong: Scale 1 → 1.05 <code>Sine InOut</code> and a shine sweep on a masked child.</li>
+      </ul>
+      <h3>Gaps this screen hits</h3>
+      <ul>
+        <li><b>Arc motion works today.</b> Position plus a one hop Bounce gives a clean parabola, because Bounce is layered. Worth writing down as a recipe.</li>
+        <li><b>Move to a target.</b> Coins need the HUD icon's position at play time. With plain Position the offset is typed by hand and breaks if the HUD moves.</li>
+        <li><b>Stagger children.</b> Four items and six coins each need their own Tweenline today. Coins are usually pooled and spawned, so they also need a way to play with a per instance delay from code.</li>
+        <li>Count up, Punch, Shake and Graphic color are planned. Punch here must stack six times on one icon, which only a layered track can do.</li>
+      </ul>`,
+  };
+})();
+
+/* ================= Timeline view ================= */
+const host = $("tl-host");
+let current = "victory";
+let playheads = [];
+function renderTimeline() {
+  const scr = S[current];
+  const anims = scr.anims;
+  host.innerHTML = "";
+  playheads = [];
+  for (const a of anims) {
+    const rows = new Map();
+    for (const c of a.clips) {
+      const id = typeof c.o === "string" ? c.o : c.o.id;
+      const obj = c.row || a.names[id] || id;
+      const key = obj + "|" + c.track;
+      if (!rows.has(key)) rows.set(key, { obj, track: c.track, clips: [] });
+      rows.get(key).clips.push(c);
+    }
+    const D = Math.max(a.duration, 0.5);
+    const pct = (t) => (t / D * 100).toFixed(3) + "%";
+    const wrap = document.createElement("div"); wrap.className = "anim";
+    const ownerLabel = a.name === "Hover" || a.name === "Select" || a.name === "Dismiss" ? " · per card" : "";
+    wrap.innerHTML = `<div class="anim-head"><b>${a.name}</b><span>${a.duration.toFixed(2)}s · Wrap ${a.wrap}${ownerLabel}</span></div>`;
+    const sc = document.createElement("div"); sc.className = "tl-scroll";
+    const tl = document.createElement("div"); tl.className = "tl";
+    const ruler = document.createElement("div"); ruler.className = "tl-row";
+    const step = D > 6 ? 2 : D > 2.5 ? 0.5 : 0.25;
+    let ticks = "";
+    for (let t = 0; t <= D + 1e-6; t += step) ticks += `<i style="left:${pct(t)}">${+t.toFixed(2)}s</i>`;
+    for (const m of a.markers) ticks += `<span class="mk" style="left:${pct(m.t)}" title="Marker: ${m.name} at ${m.t.toFixed(2)}s"></span>`;
+    ruler.innerHTML = `<div class="lbl">Markers</div><div class="lane ruler">${ticks}</div>`;
+    tl.appendChild(ruler);
+    const lanes = document.createElement("div"); lanes.className = "lanes-wrap";
+    let lastObj = null;
+    for (const r of rows.values()) {
+      const tr = TRACKS[r.track];
+      const row = document.createElement("div"); row.className = "tl-row";
+      const showObj = r.obj !== lastObj; lastObj = r.obj;
+      let bars = "";
+      for (const c of r.clips) {
+        const isStep = tr.step || c.dur === 0;
+        const lbl = c.label || c.ease.label;
+        const title = `${r.obj} · ${tr.name}\n${c.start.toFixed(2)}s for ${c.dur.toFixed(2)}s\n${lbl}`;
+        bars += `<div class="bar ${tr.status} ${isStep ? "step" : ""}" style="left:${pct(c.start)};width:${pct(c.dur)}" title="${title}">${isStep ? "" : lbl}</div>`;
+      }
+      row.innerHTML = `<div class="lbl" title="${r.obj} · ${tr.name}">${showObj ? `<em>${r.obj}</em> · ` : "&nbsp;&nbsp;· "}${tr.name}</div><div class="lane">${bars}</div>`;
+      lanes.appendChild(row);
+    }
+    tl.appendChild(lanes);
+    const overlay = document.createElement("div");
+    overlay.style.cssText = "position:absolute;top:0;bottom:0;left:196px;right:0;pointer-events:none";
+    for (const m of a.markers) overlay.insertAdjacentHTML("beforeend", `<div class="mk-line" style="left:${pct(m.t)}"></div>`);
+    const ph = document.createElement("div"); ph.className = "ph"; ph.style.left = "0%";
+    overlay.appendChild(ph); tl.appendChild(overlay);
+    playheads.push({ anim: a, el: ph, D });
+    // Scrub: like Tweenline.Evaluate(animation, time) in edit mode
+    const rl = ruler.querySelector(".ruler");
+    const scrub = (e) => {
+      const tlObj = scr.tls.find((x) => x.anim === a) || (a === scr.anims[0] ? scr.main : null);
+      if (!tlObj) return;
+      const rect = rl.getBoundingClientRect();
+      const t = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)) * a.duration;
+      tlObj.t = t; tlObj.playing = false; tlObj.dir = 1;
+    };
+    rl.addEventListener("pointerdown", (e) => { rl.setPointerCapture(e.pointerId); scrub(e); });
+    rl.addEventListener("pointermove", (e) => { if (e.buttons) scrub(e); });
+    sc.appendChild(tl); wrap.appendChild(sc); host.appendChild(wrap);
+  }
+}
+
+/* ================= Screen switching and loop ================= */
+screenEl = $("screen");
+const allEls = new Set();
+function collectEls() {
+  allEls.clear();
+  const scr = S[current];
+  const list = scr.allAnims || scr.anims;
+  for (const a of list) for (const c of a.clips) allEls.add(typeof c.o === "string" ? $(c.o) : c.o);
+}
+function show(id, replay = true) {
+  current = id;
+  for (const k of Object.keys(S)) {
+    $("s-" + k).hidden = k !== id;
+    $("tab-" + k).setAttribute("aria-selected", k === id);
+  }
+  for (const k of Object.keys(S)) for (const t of S[k].tls) t.reset();
+  parts = [];
+  collectEls();
+  $("notes").innerHTML = S[id].notes;
+  if (replay) start();
+}
+function start() {
+  const scr = S[current];
+  for (const t of scr.tls) t.reset();
+  parts = [];
+  for (const el of allEls) { el.style.transform = ""; el.style.filter = ""; }
+  scr.start();
+  renderTimeline();
+  if (reduced) { scr.main.complete(); }
+}
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function onScreenTap() {
+  const scr = S[current];
+  const anyHurried = scr.tls.some((t) => t.playing && t.hurried);
+  for (const t of scr.tls) { if (anyHurried && t.hurried) t.complete(); else t.hurry(); }
+}
+screenEl.addEventListener("click", onScreenTap);
+$("btn-hurry").addEventListener("click", onScreenTap);
+$("btn-replay").addEventListener("click", () => start());
+$("btn-slow").addEventListener("click", (e) => { globalSpeed = globalSpeed === 1 ? 0.25 : 1; e.currentTarget.classList.toggle("on", globalSpeed !== 1); });
+document.querySelectorAll(".tabs button").forEach((b) => b.addEventListener("click", () => {
+  const id = b.dataset.screen;
+  if (id !== current) show(id);
+  try { history.replaceState(null, "", "#" + id); } catch (e) { /* hash is a convenience only */ }
+}));
+window.addEventListener("hashchange", () => { const h = location.hash.slice(1); if (S[h] && h !== current) show(h); });
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  const scr = S[current];
+  for (const t of scr.tls) t.tick(dt);
+  for (const el of allEls) states.set(el, fresh());
+  for (const t of scr.tls) t.evaluate();
+  for (const el of allEls) write(el, states.get(el));
+  $("hurry-chip").classList.toggle("show", scr.tls.some((t) => t.playing && t.hurried));
+  for (const p of playheads) { const c = clocks.get(p.anim); p.el.style.left = c == null ? "0%" : (c / p.D * 100).toFixed(3) + "%"; p.el.style.opacity = c == null ? 0 : 0.85; }
+  tickFx(dt);
+  requestAnimationFrame(frame);
+}
+const initial = S[location.hash.slice(1)] ? location.hash.slice(1) : "victory";
+show(initial);
+requestAnimationFrame(frame);
+})();
+</script>

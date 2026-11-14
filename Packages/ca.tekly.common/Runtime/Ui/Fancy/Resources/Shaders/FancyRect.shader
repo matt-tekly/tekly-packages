@@ -13,7 +13,8 @@
 //           or, for solid layers (flag bit 23), texture scroll x | y (12-bit signed, 1/256 texture units/s)
 //   uv2.y   softness | gradient angle
 //   uv2.z   offset x | y           (12-bit signed)
-//   uv2.w   flags: layer type (2 bits) | gradient type (3 bits) | corner types (4 x 2 bits) | textured (1 bit)
+//           or, for styled outlines (layer type 3), the packed outline style (see FancyRect.PackOutlineStyle)
+//   uv2.w   flags: layer type (2 bits: band, inner shadow, bevel, styled band) | gradient type (3 bits) | corner types (4 x 2 bits) | textured (1 bit)
 //           | channel check (1 bit, always set; draws magenta if the canvas drops the data)
 //           | gradient bias (8 bits, 0-255 = -1 to 1) | solid (1 bit: band is the whole shape, uv2.x is scroll)
 //   uv3.x   other color RGB (8 bits each); see color / tangent.w
@@ -96,6 +97,11 @@ Shader "UI/Fancy Rect"
             #define LAYER_BAND 0
             #define LAYER_INNER_SHADOW 1
             #define LAYER_BEVEL 2
+            #define LAYER_STYLED_BAND 3
+
+            #define OUTLINE_DASHES 1
+            #define OUTLINE_NOTCHES 2
+            #define OUTLINE_WOBBLE 3
 
             #define REVEAL_NONE 0
             #define REVEAL_HORIZONTAL 1
@@ -148,7 +154,7 @@ Shader "UI/Fancy Rect"
                 float4 color2     : TEXCOORD5;
                 float4 mask       : TEXCOORD6;
                 float4 halfSize   : TEXCOORD7; // xy = half size, zw = gradient range start, end
-                nointerpolation float4 extra : TEXCOORD8; // x = packed reveal
+                nointerpolation float4 extra : TEXCOORD8; // x = packed reveal, y = packed outline style
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
@@ -218,16 +224,23 @@ Shader "UI/Fancy Rect"
                 return length(outside) + inside - radius;
             }
 
+            // Pick the corner by splitting between neighbouring corners at the midpoint of their circle centers
+            // rather than at the center line, so unequal corners larger than half a side still meet cleanly.
+            void PickCorner(float2 p, float4 radii, out bool top, out bool right)
+            {
+                float splitY = p.x >= 0.0 ? (radii.z - radii.y) * 0.5 : (radii.w - radii.x) * 0.5;
+                top = p.y >= splitY;
+                float splitX = top ? (radii.x - radii.y) * 0.5 : (radii.w - radii.z) * 0.5;
+                right = p.x >= splitX;
+            }
+
             float ShapeDistance(float2 p, float2 halfSize, float4 radii, float4 bulge, float4 cornerTypes)
             {
                 p = ApplyBulge(p, halfSize, bulge);
 
-                // Pick the corner by splitting between neighbouring corners at the midpoint of their circle centers
-                // rather than at the center line, so unequal corners larger than half a side still meet cleanly.
-                float splitY = p.x >= 0.0 ? (radii.z - radii.y) * 0.5 : (radii.w - radii.x) * 0.5;
-                bool top = p.y >= splitY;
-                float splitX = top ? (radii.x - radii.y) * 0.5 : (radii.w - radii.z) * 0.5;
-                bool right = p.x >= splitX;
+                bool top;
+                bool right;
+                PickCorner(p, radii, top, right);
 
                 float radius = top ? (right ? radii.y : radii.x) : (right ? radii.z : radii.w);
                 float cornerType = top ? (right ? cornerTypes.y : cornerTypes.x) : (right ? cornerTypes.z : cornerTypes.w);
@@ -242,6 +255,198 @@ Shader "UI/Fancy Rect"
             {
                 float t = saturate(x / width + 0.5);
                 return width > pixel * 1.5 ? t * t * (3.0 - 2.0 * t) : t;
+            }
+
+            float Wrap(float x, float m)
+            {
+                return x - m * floor(x / m);
+            }
+
+            // Length of a corner's edge for a given radius.
+            float CornerArcLength(float radius, float cornerType)
+            {
+                if (cornerType == CORNER_CHAMFER) {
+                    return radius * 1.4142136;
+                }
+
+                if (cornerType == CORNER_SQUIRCLE) {
+                    return radius * 1.7544; // quarter of an n = 4 superellipse
+                }
+
+                return radius * 1.5707963; // round and inverted
+            }
+
+            // Distance along the outline, clockwise from the middle of the top side, plus the outline's total length.
+            // Measured along the line `centerline` units from the shape edge (signed, negative inside), so corners
+            // get that line's length: wider arcs outside the shape, tighter inside.
+            // Where a corner's radius is smaller than the line's depth, the line has a sharp corner and the two sides
+            // meet on the diagonal like a miter.
+            // Measured on the unbulged shape, so spacing stretches slightly along bulged sides.
+            // Corners are parameterized by angle, which is exact for round corners and close for the others.
+            float EdgePosition(float2 p, float2 h, float4 radii, float4 bulge, float4 cornerTypes, float centerline, out float perimeter)
+            {
+                p = ApplyBulge(p, h, bulge);
+
+                // Per corner: how far the centerline's straight sides stop short of the shape's corner, and the
+                // radius of the centerline's corner arc (0 for a mitered corner).
+                float4 inset = max(radii, -centerline);
+                float4 curve = max(radii + centerline, 0.0);
+
+                float4 arcs = float4(
+                    CornerArcLength(curve.x, cornerTypes.x),
+                    CornerArcLength(curve.y, cornerTypes.y),
+                    CornerArcLength(curve.z, cornerTypes.z),
+                    CornerArcLength(curve.w, cornerTypes.w));
+
+                // Where each stretch of the centerline starts, going clockwise from the middle of the top side.
+                float topRightCorner = h.x - inset.y;
+                float rightSide = topRightCorner + arcs.y;
+                float bottomRightCorner = rightSide + 2.0 * h.y - inset.y - inset.z;
+                float bottomSide = bottomRightCorner + arcs.z;
+                float bottomLeftCorner = bottomSide + 2.0 * h.x - inset.z - inset.w;
+                float leftSide = bottomLeftCorner + arcs.w;
+                float topLeftCorner = leftSide + 2.0 * h.y - inset.w - inset.x;
+                float topSide = topLeftCorner + arcs.x;
+                perimeter = max(topSide + h.x - inset.x, 1e-3);
+
+                bool top;
+                bool right;
+                PickCorner(p, radii, top, right);
+
+                float cornerInset = top ? (right ? inset.y : inset.x) : (right ? inset.z : inset.w);
+                float cornerCurve = top ? (right ? curve.y : curve.x) : (right ? curve.z : curve.w);
+                float2 a = float2(right ? p.x : -p.x, top ? p.y : -p.y) - h;
+                float2 d = a + cornerInset; // relative to the center of the centerline's corner
+
+                bool onArc = cornerCurve > 0.0 && d.x > 0.0 && d.y > 0.0;
+
+                // Mitered corners split their two sides on the diagonal through the corner.
+                bool horizontal = cornerCurve > 0.0 ? d.x <= 0.0 && (d.y > 0.0 || a.y >= a.x) : a.y >= a.x;
+
+                float s;
+
+                if (onArc) {
+                    // 0 on the top or bottom side of the corner, 1 on its left or right side.
+                    float f = atan2(d.x, d.y) / 1.5707963;
+                    s = top
+                        ? (right ? topRightCorner + f * arcs.y : topLeftCorner + (1.0 - f) * arcs.x)
+                        : (right ? bottomRightCorner + (1.0 - f) * arcs.z : bottomLeftCorner + f * arcs.w);
+                } else if (horizontal) {
+                    s = top
+                        ? (right ? p.x : topSide + p.x + h.x - inset.x)
+                        : bottomSide + h.x - inset.z - p.x;
+                } else {
+                    s = right ? rightSide + h.y - inset.y - p.y : leftSide + p.y + h.y - inset.w;
+                }
+
+                // Near an off-center corner split a point can land just past either end.
+                return Wrap(s, perimeter);
+            }
+
+            float EdgeHash(float i, float seed)
+            {
+                return frac(sin(i * 127.1 + seed * 311.7) * 43758.5453);
+            }
+
+            // Smooth value noise that repeats every `cells`, so it loops seamlessly around the edge.
+            float LoopNoise(float x, float cells, float seed)
+            {
+                float i = floor(x);
+                float f = frac(x);
+                float h0 = EdgeHash(Wrap(i, cells), seed);
+                float h1 = EdgeHash(Wrap(i + 1.0, cells), seed);
+                return lerp(h0, h1, f * f * (3.0 - 2.0 * f)) * 2.0 - 1.0;
+            }
+
+            float BandCoverage(float sd, float bandStart, float bandEnd, float width, float pixel)
+            {
+                return (1.0 - Ramp(sd - bandEnd, width, pixel)) * Ramp(sd - bandStart, width, pixel);
+            }
+
+            // Coverage of an outline styled along the edge. `s` is the position along the edge, `perimeter` its length.
+            // The style is packed by FancyRect.PackOutlineStyle. Repeats snap so a whole number fit around the edge.
+            float StyledBandCoverage(float sd, float s, float perimeter, float bandStart, float bandEnd, float width, float pixel, float style)
+            {
+                float kind = Bits(style, 0, 2);
+                float thickness = max(bandEnd - bandStart, 1e-3);
+                float coverage;
+
+                if (kind == OUTLINE_DASHES) {
+                    float spacing = max(Bits(style, 2, 10) * 0.5, 1.0);
+                    float dashFraction = Bits(style, 12, 6) / 63.0;
+                    float speed = (Bits(style, 18, 5) - 16.0) * 8.0;
+                    bool roundCaps = Bits(style, 23, 1) > 0.5;
+
+                    float period = perimeter / max(1.0, floor(perimeter / spacing + 0.5));
+                    float phase = period * frac(speed * _Time.y / period);
+                    float halfDash = dashFraction * period * 0.5;
+
+                    // Distance along the edge to the nearest dash center.
+                    float along = abs(frac((s - phase - halfDash) / period + 0.5) - 0.5) * period;
+
+                    // Round caps make each dash a capsule, with the caps inside the dash length. Zero length gives dots.
+                    float halfThickness = thickness * 0.5;
+                    float gap = max(along - max(halfDash - halfThickness, 0.0), 0.0);
+                    float capsule = 1.0 - Ramp(length(float2(gap, sd - (bandStart + bandEnd) * 0.5)) - halfThickness, width, pixel);
+                    float square = BandCoverage(sd, bandStart, bandEnd, width, pixel) * Ramp(halfDash - along, width, pixel);
+                    coverage = roundCaps ? capsule : square;
+                } else if (kind == OUTLINE_NOTCHES) {
+                    float count = max(Bits(style, 2, 7), 1.0);
+                    float halfWidth = max(Bits(style, 9, 6), 1.0) * 0.5;
+                    float depth = Bits(style, 15, 4) / 15.0;
+                    float shape = Bits(style, 19, 2);
+                    bool innerSide = Bits(style, 21, 1) > 0.5;
+                    float jitter = Bits(style, 22, 2) / 3.0;
+
+                    float spacing = perimeter / count;
+                    float nearest = floor(s / spacing + 0.5);
+                    float cut = 0.0;
+
+                    // Jitter can move a neighbour's notch closer than the nearest one, so check both sides.
+                    for (int j = -1; j <= 1; j++) {
+                        float k = nearest + j;
+                        float index = Wrap(k, count);
+                        float center = k * spacing + (EdgeHash(index, 3.0) - 0.5) * jitter * spacing * 0.6;
+                        float depthScale = 1.0 - jitter * EdgeHash(index, 7.0) * 0.8;
+                        float t = abs(s - center);
+
+                        float profile;
+                        if (shape < 0.5) {
+                            profile = saturate(1.0 - t / halfWidth);
+                        } else if (shape < 1.5) {
+                            profile = saturate((halfWidth - t) / pixel + 0.5);
+                        } else {
+                            float r = t / halfWidth;
+                            profile = sqrt(saturate(1.0 - r * r));
+                        }
+
+                        cut = max(cut, profile * depthScale);
+                    }
+
+                    cut *= depth * thickness;
+                    bandStart += innerSide ? cut : 0.0;
+                    bandEnd -= innerSide ? 0.0 : cut;
+
+                    // Fades out where a notch leaves less than a pixel, so full-depth cuts leave no fringe.
+                    coverage = BandCoverage(sd, bandStart, bandEnd, width, pixel) * saturate((bandEnd - bandStart) / pixel);
+                } else {
+                    // Wobble: two octaves of looping noise move the band (drift) and change its width (thickness).
+                    float wavelength = max(Bits(style, 2, 8), 1.0);
+                    float widthAmount = Bits(style, 10, 5) * 0.5;
+                    float driftAmount = Bits(style, 15, 5) * 0.5;
+                    float seed = Bits(style, 20, 4);
+
+                    float cells = max(1.0, floor(perimeter / wavelength + 0.5));
+                    float x = s / perimeter * cells;
+                    float drift = (LoopNoise(x, cells, seed + 1.0) + 0.5 * LoopNoise(x * 2.0, cells * 2.0, seed + 9.0)) / 1.5;
+                    float grow = (LoopNoise(x, cells, seed + 21.0) + 0.5 * LoopNoise(x * 2.0, cells * 2.0, seed + 33.0)) / 1.5;
+
+                    float start = bandStart + driftAmount * drift - widthAmount * grow;
+                    float end = max(bandEnd + driftAmount * drift + widthAmount * grow, start);
+                    coverage = BandCoverage(sd, start, end, width, pixel) * saturate((end - start) / pixel);
+                }
+
+                return coverage;
             }
 
             float GradientT(float gradientType, float2 q, float2 halfSize, float angle, float sd, float bandStart, float bandEnd)
@@ -325,6 +530,7 @@ Shader "UI/Fancy Rect"
                 OUT.positionCS = UnityObjectToClipPos(IN.positionOS);
                 float flags = round(IN.uv2.w);
                 bool solid = Bits(flags, 23, 1) > 0.5;
+                bool styled = Bits(flags, 0, 2) == LAYER_STYLED_BAND;
 
                 // Solid layers (fill, gloss, zero-spread shadows) cover the whole shape, so their band slot carries
                 // the texture scroll instead. Scrolling runs here in the vertex shader: no mesh rebuilds.
@@ -332,7 +538,8 @@ Shader "UI/Fancy Rect"
                 float2 scroll = solid ? (Unpack12(IN.uv2.x) - 2048.0) / 256.0 : float2(0, 0);
                 OUT.local = float4(IN.uv0.xy, IN.uv0.zw + frac(_Time.y * scroll));
                 float revealBits = round(IN.uv3.w);
-                OUT.extra = float4(fmod(revealBits, 4194304.0), 0, 0, 0); // strip the tint bits (22, 23)
+                // Strip the tint bits (22, 23) from the reveal. Styled outlines carry their style in place of an offset.
+                OUT.extra = float4(fmod(revealBits, 4194304.0), styled ? round(IN.uv2.z) : 0.0, 0, 0);
                 float gradientBits = round(IN.uv3.y);
                 OUT.halfSize = float4(Unpack12(IN.uv3.z) * 0.5, Bits(gradientBits, 8, 8) / 255.0, Bits(gradientBits, 16, 8) / 255.0);
 
@@ -346,7 +553,7 @@ Shader "UI/Fancy Rect"
                 float2 softAngle = Unpack12(IN.uv2.y);
                 OUT.band = float4(bandRange, softAngle.x * 0.25, softAngle.y / 4095.0 * 6.2831853);
 
-                OUT.offset = float4(UnpackSigned(IN.uv2.z), flags, Bits(flags, 14, 1));
+                OUT.offset = float4(styled ? float2(0, 0) : UnpackSigned(IN.uv2.z), flags, Bits(flags, 14, 1));
 
                 // The vertex color is white with the anchor's alpha, so after the canvas multiplies in the
                 // CanvasRenderer color, rgb is that color and a is anchor alpha * its alpha. Both layer colors are
@@ -437,6 +644,12 @@ Shader "UI/Fancy Rect"
                         // Inside the real shape, shadowed where the offset shape (shrunk by the spread) is not.
                         float insideShape = 1.0 - Ramp(ShapeDistance(p, halfSize, IN.radii, IN.bulge, cornerTypes), pixel, pixel);
                         coverage = insideShape * Ramp(sd + bandEnd, width, pixel);
+                    } else if (layerType == LAYER_STYLED_BAND) {
+                        float perimeter;
+                        // Measured along the outline's outer edge, its silhouette, so dashes keep their visible length
+                        // around corners. Their inner side gets shorter there instead.
+                        float s = EdgePosition(q, halfSize, IN.radii, IN.bulge, cornerTypes, bandEnd, perimeter);
+                        coverage = StyledBandCoverage(sd, s, perimeter, bandStart, bandEnd, width, pixel, round(IN.extra.y));
                     } else {
                         float outer = 1.0 - Ramp(sd - bandEnd, width, pixel);
                         float inner = bandStart <= NO_INNER_EDGE ? 1.0 : Ramp(sd - bandStart, width, pixel);

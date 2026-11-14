@@ -298,6 +298,100 @@ namespace Tekly.Common.Ui.Fancy
 			EditorGUILayout.PropertyField(outline.FindPropertyRelative(nameof(ShapeOutline.Offset)));
 			EditorGUILayout.PropertyField(outline.FindPropertyRelative(nameof(ShapeOutline.Paint)));
 			EditorGUILayout.PropertyField(outline.FindPropertyRelative(nameof(ShapeOutline.UseTexture)));
+			OutlineStyleGUI(outline);
+		}
+
+		private static void OutlineStyleGUI(SerializedProperty outline)
+		{
+			var style = outline.FindPropertyRelative(nameof(ShapeOutline.Style));
+
+			using (var check = new EditorGUI.ChangeCheckScope()) {
+				EditorGUILayout.PropertyField(style);
+
+				// Outlines saved before styles existed hold zeroed settings, which would draw nothing useful.
+				if (check.changed) {
+					InitUnconfiguredStyles(outline);
+				}
+			}
+
+			if (style.hasMultipleDifferentValues) {
+				return;
+			}
+
+			var settingsName = (OutlineStyle)style.enumValueIndex switch {
+				OutlineStyle.Dashes => nameof(ShapeOutline.Dashes),
+				OutlineStyle.Notches => nameof(ShapeOutline.Notches),
+				OutlineStyle.Wobble => nameof(ShapeOutline.Wobble),
+				_ => null
+			};
+
+			if (settingsName != null) {
+				using (new EditorGUI.IndentLevelScope()) {
+					ChildFieldsGUI(outline.FindPropertyRelative(settingsName));
+				}
+			}
+		}
+
+		private static void ChildFieldsGUI(SerializedProperty parent)
+		{
+			var child = parent.Copy();
+			var end = parent.GetEndProperty();
+
+			if (!child.NextVisible(true)) {
+				return;
+			}
+
+			while (!SerializedProperty.EqualContents(child, end)) {
+				EditorGUILayout.PropertyField(child, true);
+
+				if (!child.NextVisible(false)) {
+					break;
+				}
+			}
+		}
+
+		private static void InitUnconfiguredStyles(SerializedProperty outline)
+		{
+			var dashes = outline.FindPropertyRelative(nameof(ShapeOutline.Dashes));
+			if (dashes.FindPropertyRelative(nameof(OutlineDashes.Spacing)).floatValue <= 0f) {
+				InitDashes(dashes, OutlineDashes.Default);
+			}
+
+			var notches = outline.FindPropertyRelative(nameof(ShapeOutline.Notches));
+			if (notches.FindPropertyRelative(nameof(OutlineNotches.Count)).intValue <= 0) {
+				InitNotches(notches, OutlineNotches.Default);
+			}
+
+			var wobble = outline.FindPropertyRelative(nameof(ShapeOutline.Wobble));
+			if (wobble.FindPropertyRelative(nameof(OutlineWobble.Wavelength)).floatValue <= 0f) {
+				InitWobble(wobble, OutlineWobble.Default);
+			}
+		}
+
+		private static void InitDashes(SerializedProperty dashes, OutlineDashes defaults)
+		{
+			dashes.FindPropertyRelative(nameof(OutlineDashes.Spacing)).floatValue = defaults.Spacing;
+			dashes.FindPropertyRelative(nameof(OutlineDashes.Length)).floatValue = defaults.Length;
+			dashes.FindPropertyRelative(nameof(OutlineDashes.Speed)).floatValue = defaults.Speed;
+			dashes.FindPropertyRelative(nameof(OutlineDashes.RoundCaps)).boolValue = defaults.RoundCaps;
+		}
+
+		private static void InitNotches(SerializedProperty notches, OutlineNotches defaults)
+		{
+			notches.FindPropertyRelative(nameof(OutlineNotches.Count)).intValue = defaults.Count;
+			notches.FindPropertyRelative(nameof(OutlineNotches.Width)).floatValue = defaults.Width;
+			notches.FindPropertyRelative(nameof(OutlineNotches.Depth)).floatValue = defaults.Depth;
+			notches.FindPropertyRelative(nameof(OutlineNotches.Shape)).enumValueIndex = (int)defaults.Shape;
+			notches.FindPropertyRelative(nameof(OutlineNotches.Side)).enumValueIndex = (int)defaults.Side;
+			notches.FindPropertyRelative(nameof(OutlineNotches.Jitter)).floatValue = defaults.Jitter;
+		}
+
+		private static void InitWobble(SerializedProperty wobble, OutlineWobble defaults)
+		{
+			wobble.FindPropertyRelative(nameof(OutlineWobble.Wavelength)).floatValue = defaults.Wavelength;
+			wobble.FindPropertyRelative(nameof(OutlineWobble.Thickness)).floatValue = defaults.Thickness;
+			wobble.FindPropertyRelative(nameof(OutlineWobble.Drift)).floatValue = defaults.Drift;
+			wobble.FindPropertyRelative(nameof(OutlineWobble.Seed)).intValue = defaults.Seed;
 		}
 
 		private static void DrawShadow(SerializedProperty shadow)
@@ -326,6 +420,10 @@ namespace Tekly.Common.Ui.Fancy
 			outline.FindPropertyRelative(nameof(ShapeOutline.Alignment)).enumValueIndex = (int)defaults.Alignment;
 			InitPaint(outline.FindPropertyRelative(nameof(ShapeOutline.Paint)), defaults.Paint);
 			outline.FindPropertyRelative(nameof(ShapeOutline.UseTexture)).boolValue = false;
+			outline.FindPropertyRelative(nameof(ShapeOutline.Style)).enumValueIndex = (int)defaults.Style;
+			InitDashes(outline.FindPropertyRelative(nameof(ShapeOutline.Dashes)), defaults.Dashes);
+			InitNotches(outline.FindPropertyRelative(nameof(ShapeOutline.Notches)), defaults.Notches);
+			InitWobble(outline.FindPropertyRelative(nameof(ShapeOutline.Wobble)), defaults.Wobble);
 		}
 
 		private static void InitShadow(SerializedProperty shadow)
