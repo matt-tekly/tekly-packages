@@ -48,6 +48,45 @@ namespace Tekly.Common.Ui.Styled
 		Screen = 3
 	}
 
+	/// <summary>
+	/// Shows only part of the rect, for progress bars and cooldowns. A linear reveal with a Shape cap makes
+	/// the shape itself smaller, so a stroke runs around the growing end and a shadow is the shadow of what
+	/// shows. A straight cap and a radial reveal cut the finished layers like a mask.
+	/// </summary>
+	public enum StyledReveal
+	{
+		None = 0,
+		FromLeft = 1,
+		FromRight = 2,
+		FromBottom = 3,
+		FromTop = 4,
+
+		/// <summary>Sweeps around the center, like a cooldown.</summary>
+		Radial = 5
+	}
+
+	/// <summary>How the growing end of a linear reveal is shaped.</summary>
+	public enum StyledRevealCap
+	{
+		/// <summary>
+		/// The end has the rect's own shape, as if the whole rect were sliding into view. A rounded bar keeps
+		/// a rounded end at any amount.
+		/// </summary>
+		Shape = 0,
+
+		/// <summary>The end is cut straight across, like a mask. A stroke stops at the cut and does not run along it.</summary>
+		Straight = 1
+	}
+
+	/// <summary>Where a radial reveal starts.</summary>
+	public enum StyledRadialStart
+	{
+		Top = 0,
+		Right = 1,
+		Bottom = 2,
+		Left = 3
+	}
+
 	/// <summary>How the rect's sprite is placed in the shape.</summary>
 	public enum StyledTextureMode
 	{
@@ -260,6 +299,9 @@ namespace Tekly.Common.Ui.Styled
 		[Tooltip("Multiply this layer by the rect's sprite. Not used by bevels.")]
 		public bool Textured;
 
+		[Tooltip("Draw this layer whole even when the rect is only partly revealed, like the track behind a progress bar.")]
+		public bool IgnoreReveal;
+
 		[Tooltip("Keep this layer's own colors when the rect is tinted, by its Tint or by anything that colors the whole graphic such as a Button's color transition. The layer still fades with the tint's alpha.")]
 		public bool IgnoreTint;
 
@@ -457,14 +499,16 @@ namespace Tekly.Common.Ui.Styled
 	///   1  corner radii: top-left, top-right, bottom-right, bottom-left (already fitted to the size)
 	///   2  corner exponents, one per corner in the order of the radii: 2 is a circular corner, 4 a squircle
 	///   3  shape wobble: amount, lobe length, seed, changes per second
-	///   4  reserved: reveal
+	///   4  reveal: mode, then by mode. 0 = none. 1 = slide: the shape's copy is moved by x, y. 2 = straight cut:
+	///      direction x, y and position. 3 = radial: start angle and signed sweep in radians. 5 = nothing shows.
 	///   5  texture matrix: uv.x = dot(xy, position), uv.y = dot(zw, position)
 	///   6  texture offset x, y, then scroll x, y in tiles per second
 	///   7  texture uv limits: min x, min y, max x, max y. Keeps a Cover sprite inside its own part of an atlas.
 	///
 	/// Layer texels:
 	///   0  kind, flags (1 = underlay: ends the layer a pixel early, see StyledRect.WriteRows.
-	///      2 = show behind: a shadow is not cut out under the shape. 4 = textured. 8 = ignore tint),
+	///      2 = show behind: a shadow is not cut out under the shape. 4 = textured. 8 = ignore tint.
+	///      16 = ignore reveal),
 	///      band start, band end
 	///   1  offset x, offset y, soft width (twice the blur), spread. Offset and spread are for shadows.
 	///   2  color A (gamma, straight alpha)
@@ -484,6 +528,7 @@ namespace Tekly.Common.Ui.Styled
 		public const int SHAPE_RADII = 1;
 		public const int SHAPE_CORNER_EXPONENTS = 2;
 		public const int SHAPE_WOBBLE = 3;
+		public const int SHAPE_REVEAL = 4;
 		public const int SHAPE_TEXTURE_MATRIX = 5;
 		public const int SHAPE_TEXTURE_OFFSET = 6;
 		public const int SHAPE_TEXTURE_LIMITS = 7;
@@ -503,6 +548,13 @@ namespace Tekly.Common.Ui.Styled
 		public const int FLAG_SHOW_BEHIND = 2;
 		public const int FLAG_TEXTURED = 4;
 		public const int FLAG_IGNORE_TINT = 8;
+		public const int FLAG_IGNORE_REVEAL = 16;
+
+		public const int REVEAL_NONE = 0;
+		public const int REVEAL_SLIDE = 1;
+		public const int REVEAL_STRAIGHT = 2;
+		public const int REVEAL_RADIAL = 3;
+		public const int REVEAL_HIDDEN = 5;
 
 		public static int SpanTexels(int layerCount)
 		{

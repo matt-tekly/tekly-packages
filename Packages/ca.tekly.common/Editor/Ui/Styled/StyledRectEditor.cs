@@ -60,20 +60,21 @@ namespace Tekly.Common.Ui.Styled
 		private static readonly LayerField s_paint = new LayerField(nameof(StyledLayer.Paint));
 		private static readonly LayerField s_textured = new LayerField(nameof(StyledLayer.Textured), "Use Texture", "Multiply this layer by the rect's sprite.");
 		private static readonly LayerField s_ignoreTint = new LayerField(nameof(StyledLayer.IgnoreTint));
+		private static readonly LayerField s_ignoreReveal = new LayerField(nameof(StyledLayer.IgnoreReveal));
 		private static readonly LayerField s_highlight = new LayerField(PAINT_COLOR, "Highlight", "Where the edge faces the light.");
 		private static readonly LayerField s_shadow = new LayerField(PAINT_COLOR2, "Shadow", "Where the edge faces away from the light.");
 		private static readonly LayerField s_lightAngle = new LayerField(PAINT_ANGLE, "Light Angle",
 			"Where the light comes from. As in CSS: 0 is straight above and it turns clockwise, so 315 is top-left.");
 
 		private static readonly LayerField[] s_allFields = {
-			s_kind, s_width, s_align, s_offset, s_dashSpacing, s_dashLength, s_dashSpeed, s_dashRoundCaps, s_wobbleWidth, s_wobbleDrift, s_wobbleLength, s_wobbleSeed, s_inset, s_shadowOffset, s_blur, s_spread, s_showBehind, s_paint, s_textured, s_highlight, s_shadow, s_lightAngle, s_ignoreTint
+			s_kind, s_width, s_align, s_offset, s_dashSpacing, s_dashLength, s_dashSpeed, s_dashRoundCaps, s_wobbleWidth, s_wobbleDrift, s_wobbleLength, s_wobbleSeed, s_inset, s_shadowOffset, s_blur, s_spread, s_showBehind, s_paint, s_textured, s_highlight, s_shadow, s_lightAngle, s_ignoreTint, s_ignoreReveal
 		};
 
 		// The fields each layer kind shows when unfolded.
-		private static readonly LayerField[] s_fillFields = { s_kind, s_paint, s_inset, s_blur, s_textured, s_ignoreTint };
+		private static readonly LayerField[] s_fillFields = { s_kind, s_paint, s_inset, s_blur, s_textured, s_ignoreTint, s_ignoreReveal };
 		private static readonly LayerField[] s_strokeFields = {
 			s_kind, s_width, s_align, s_offset, s_paint, s_dashSpacing, s_dashLength, s_dashSpeed, s_dashRoundCaps,
-			s_wobbleWidth, s_wobbleDrift, s_wobbleLength, s_wobbleSeed, s_textured, s_ignoreTint
+			s_wobbleWidth, s_wobbleDrift, s_wobbleLength, s_wobbleSeed, s_textured, s_ignoreTint, s_ignoreReveal
 		};
 
 		// Shown only on a stroke that has a dash spacing.
@@ -81,9 +82,9 @@ namespace Tekly.Common.Ui.Styled
 
 		// Shown only on a stroke that wobbles.
 		private static readonly LayerField[] s_wobbleDetailFields = { s_wobbleLength, s_wobbleSeed };
-		private static readonly LayerField[] s_shadowFields = { s_kind, s_shadowOffset, s_blur, s_spread, s_showBehind, s_paint, s_textured, s_ignoreTint };
-		private static readonly LayerField[] s_innerShadowFields = { s_kind, s_shadowOffset, s_blur, s_spread, s_paint, s_textured, s_ignoreTint };
-		private static readonly LayerField[] s_bevelFields = { s_kind, s_width, s_blur, s_highlight, s_shadow, s_lightAngle, s_ignoreTint };
+		private static readonly LayerField[] s_shadowFields = { s_kind, s_shadowOffset, s_blur, s_spread, s_showBehind, s_paint, s_textured, s_ignoreTint, s_ignoreReveal };
+		private static readonly LayerField[] s_innerShadowFields = { s_kind, s_shadowOffset, s_blur, s_spread, s_paint, s_textured, s_ignoreTint, s_ignoreReveal };
+		private static readonly LayerField[] s_bevelFields = { s_kind, s_width, s_blur, s_highlight, s_shadow, s_lightAngle, s_ignoreTint, s_ignoreReveal };
 
 		private static bool s_advancedExpanded;
 
@@ -98,6 +99,9 @@ namespace Tekly.Common.Ui.Styled
 
 			root.Add(CreateHeading("Shape"));
 			root.Add(CreateShape());
+
+			root.Add(CreateHeading("Reveal"));
+			root.Add(CreateReveal());
 
 			root.Add(CreateHeading("Texture"));
 			root.Add(CreateTexture());
@@ -217,6 +221,43 @@ namespace Tekly.Common.Ui.Styled
 			field.labelElement.style.width = 16f;
 			field.BindProperty(property);
 			return field;
+		}
+
+		/// <summary>The reveal, and once one is set, its amount and the settings its kind uses.</summary>
+		private VisualElement CreateReveal()
+		{
+			var method = serializedObject.FindProperty("m_reveal");
+
+			var reveal = new VisualElement();
+			reveal.Add(new PropertyField(method, "Reveal"));
+
+			var amount = new PropertyField(serializedObject.FindProperty("m_revealAmount"), "Amount");
+			var cap = new PropertyField(serializedObject.FindProperty("m_revealCap"), "Cap");
+			var start = new PropertyField(serializedObject.FindProperty("m_radialStart"), "Start");
+			var clockwise = new PropertyField(serializedObject.FindProperty("m_radialClockwise"), "Clockwise");
+
+			reveal.Add(amount);
+			reveal.Add(cap);
+			reveal.Add(start);
+			reveal.Add(clockwise);
+
+			void Refresh()
+			{
+				var mixed = method.hasMultipleDifferentValues;
+				var value = (StyledReveal)method.intValue;
+				var radial = !mixed && value == StyledReveal.Radial;
+				var linear = !mixed && value != StyledReveal.None && value != StyledReveal.Radial;
+
+				SetVisible(amount, mixed || value != StyledReveal.None);
+				SetVisible(cap, linear);
+				SetVisible(start, radial);
+				SetVisible(clockwise, radial);
+			}
+
+			reveal.TrackPropertyValue(method, _ => Refresh());
+			Refresh();
+
+			return reveal;
 		}
 
 		/// <summary>The sprite, and once one is set, how it is placed. Warns when a Tile sprite cannot tile.</summary>

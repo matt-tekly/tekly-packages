@@ -42,6 +42,11 @@ namespace Tekly.Common.Ui.Styled
 			public Vector2 TextureOffset;
 			public float TextureRotation;
 			public Vector2 TextureScroll;
+			public StyledReveal Reveal;
+			public float RevealAmount = 1f;
+			public StyledRevealCap RevealCap;
+			public StyledRadialStart RadialStart;
+			public bool RadialClockwise = true;
 			public readonly List<StyledLayer> Layers = new List<StyledLayer>();
 			public readonly List<string> Notes = new List<string>();
 		}
@@ -555,8 +560,28 @@ namespace Tekly.Common.Ui.Styled
 				plan.Notes.Add("A custom material is assigned. It uses the Fancy Rect shader and is not carried over");
 			}
 
-			if (fancy.RevealMethod != RevealMethod.None) {
-				plan.Notes.Add("Reveal has no equivalent yet and is dropped");
+			// FancyRect cut a linear reveal straight across. Its origins and a StyledRect's radial starts are
+			// the same four sides.
+			plan.RevealAmount = fancy.RevealAmount;
+			plan.RevealCap = StyledRevealCap.Straight;
+			plan.RadialClockwise = fancy.RevealClockwise;
+
+			switch (fancy.RevealMethod) {
+				case RevealMethod.Horizontal:
+					plan.Reveal = fancy.RevealOrigin == RevealOrigin.Right ? StyledReveal.FromRight : StyledReveal.FromLeft;
+					break;
+				case RevealMethod.Vertical:
+					plan.Reveal = fancy.RevealOrigin == RevealOrigin.Top ? StyledReveal.FromTop : StyledReveal.FromBottom;
+					break;
+				case RevealMethod.Radial:
+					plan.Reveal = StyledReveal.Radial;
+					plan.RadialStart = fancy.RevealOrigin switch {
+						RevealOrigin.Top => StyledRadialStart.Top,
+						RevealOrigin.Right => StyledRadialStart.Right,
+						RevealOrigin.Bottom => StyledRadialStart.Bottom,
+						_ => StyledRadialStart.Left
+					};
+					break;
 			}
 
 			if (fancy.Sprite == null) {
@@ -769,6 +794,11 @@ namespace Tekly.Common.Ui.Styled
 			styled.TextureOffset = plan.TextureOffset;
 			styled.TextureRotation = plan.TextureRotation;
 			styled.TextureScroll = plan.TextureScroll;
+			styled.Reveal = plan.Reveal;
+			styled.RevealAmount = plan.RevealAmount;
+			styled.RevealCap = plan.RevealCap;
+			styled.RadialStart = plan.RadialStart;
+			styled.RadialClockwise = plan.RadialClockwise;
 
 			while (styled.LayerCount > 0) {
 				styled.RemoveLayer(0);

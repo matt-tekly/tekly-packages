@@ -44,11 +44,16 @@ struct Varyings
     // xy = shadow offset, z = soft width, w = shadow spread. A stroke has no offset or spread, so in the
     // Extended shader a stroke carries its own wobble here: x = drift, y = length, w = seed.
     nointerpolation float4 soft       : TEXCOORD7;
-    nointerpolation float4 softRadii  : TEXCOORD8; // the radii an inner shadow or Edge gradient measures against
+    // x = the least radius the corners have for an inner shadow, a blurred fill or an Edge gradient (their
+    // soft radii are the radii raised to at least this). y = the corners' exponent: 2 is circular, 4 a
+    // squircle. z = reveal mode. w is unused.
+    nointerpolation float4 corner     : TEXCOORD8;
     // x = layer kind, y = 1 when a shadow shows behind the shape, plus 2 when the layer is textured,
     // plus 4 when it is an underlay. zw = gradient range start, end
     nointerpolation float4 kind       : TEXCOORD9;
-    nointerpolation float4 cornerExponents : TEXCOORD10; // per corner: 2 is circular, 4 a squircle
+    // By reveal mode. Slide: xy = how far the shape's copy is moved. Straight: xy = direction, z = position.
+    // Radial: xy = start ray, zw = end ray, signed so that a positive cross product is revealed.
+    nointerpolation float4 reveal     : TEXCOORD10;
     nointerpolation float4 uvLimits   : TEXCOORD11; // min x, min y, max x, max y the texture uv may reach
 #ifdef STYLED_EXTENDED
     nointerpolation float4 wobble     : TEXCOORD12; // shape wobble: amount, lobe length, seed, changes per second
@@ -77,10 +82,11 @@ Varyings vert(Attributes IN)
 
     OUT.shape = float4(halfSize, header.zw);
     OUT.radii = StyledLoad(shape + STYLED_SHAPE_RADII);
-    OUT.cornerExponents = StyledLoad(shape + STYLED_SHAPE_CORNER_EXPONENTS);
 
-    // Flags: 1 = underlay, 2 = show behind, 4 = textured, 8 = ignore tint.
+    // Flags: 1 = underlay, 2 = show behind, 4 = textured, 8 = ignore tint, 16 = ignore reveal.
     float flags = round(header.y);
+    float ignoreReveal = floor(flags / 16.0);
+    flags -= ignoreReveal * 16.0;
     float ignoreTint = floor(flags / 8.0);
     flags -= ignoreTint * 8.0;
     float textured = floor(flags / 4.0);
@@ -106,7 +112,30 @@ Varyings vert(Attributes IN)
 
     OUT.gradient = float4(layerKind > STYLED_KIND_BEVEL - 0.5 ? direction : scaledDirection, round(gradient.x), exponent);
     OUT.soft = StyledLoad(layer + STYLED_LAYER_SHADOW);
-    OUT.softRadii = StyledLoad(layer + STYLED_LAYER_SOFT_RADII);
+
+    // Soft radii are the radii raised to a least value, so that least value is all the fragment needs.
+    float4 softRadii = StyledLoad(layer + STYLED_LAYER_SOFT_RADII);
+    float4 raised = softRadii > OUT.radii ? softRadii : float4(0, 0, 0, 0);
+    float softRounding = max(max(raised.x, raised.y), max(raised.z, raised.w));
+
+    // Reveal: mode, then by mode. A layer that ignores the reveal draws whole.
+    float4 revealRow = StyledLoad(shape + STYLED_SHAPE_REVEAL);
+    float revealMode = ignoreReveal > 0.5 ? 0.0 : round(revealRow.x);
+    OUT.reveal = float4(revealRow.yzw, 0.0);
+
+    if (revealMode > STYLED_REVEAL_RADIAL - 0.5 && revealMode < STYLED_REVEAL_RADIAL + 0.5) {
+        // A pie around the center between two rays. Up to half a turn it is where both rays agree,
+        // beyond that where either does.
+        float start = revealRow.y;
+        float sweep = revealRow.z;
+        float turn = sweep < 0.0 ? -1.0 : 1.0;
+        float end = start + sweep;
+
+        OUT.reveal = float4(turn * cos(start), turn * sin(start), -turn * cos(end), -turn * sin(end));
+        revealMode = abs(sweep) <= 3.1415927 ? STYLED_REVEAL_RADIAL : STYLED_REVEAL_RADIAL_WIDE;
+    }
+
+    OUT.corner = float4(softRounding, StyledLoad(shape + STYLED_SHAPE_CORNER_EXPONENTS).x, revealMode, 0.0);
     OUT.kind = float4(layerKind, showBehind + textured * 2.0 + underlay * 4.0, gradient.zw);
 
 #ifdef STYLED_EXTENDED
@@ -164,18 +193,61 @@ float ApplyRange(float t, float2 range, float exponent)
     return exponent != 1.0 && t > 0.0 ? pow(t, exponent) : t;
 }
 
-// The distance to the shape every layer measures against. In the Extended shader the shape's wobble moves
-// the edge in and out, the same amount for every layer, so fills, strokes and shadows stay together.
-// The wobble always follows the real shape's edge, whichever radii the distance itself uses.
-float LayerDistance(Varyings IN, float2 position, float4 radii, float mitre)
+// The distance to the whole shape. In the Extended shader the shape's wobble moves the edge in and out,
+// the same amount for every layer, so fills, strokes and shadows stay together. The wobble always follows
+// the real shape's edge, whichever radii the distance itself uses.
+float WholeShapeDistance(Varyings IN, float2 position, float4 radii, float mitre)
 {
-    float distance = StyledShapeDistance(position, IN.shape.xy, radii, IN.cornerExponents, mitre);
+    float distance = StyledShapeDistance(position, IN.shape.xy, radii, IN.corner.yyyy, mitre);
 
 #ifdef STYLED_EXTENDED
-    distance -= StyledShapeWobble(position, IN.shape.xy, IN.radii, IN.cornerExponents, IN.wobble);
+    distance -= StyledShapeWobble(position, IN.shape.xy, IN.radii, IN.corner.yyyy, IN.wobble);
 #endif
 
     return distance;
+}
+
+// The distance every layer measures against. A slide reveal (a linear reveal with a Shape cap) is not a
+// mask over the finished rect: it makes the shape itself smaller. What shows is where the shape overlaps
+// a copy of itself moved back by the hidden distance, so the growing end has the shape's own corners, a
+// stroke runs around it, a shadow is the shadow of what shows, and a bevel lights the new edge.
+float LayerDistance(Varyings IN, float2 position, float4 radii, float mitre)
+{
+    float distance = WholeShapeDistance(IN, position, radii, mitre);
+
+    if (IN.corner.z > STYLED_REVEAL_SLIDE - 0.5 && IN.corner.z < STYLED_REVEAL_SLIDE + 0.5) {
+        distance = max(distance, WholeShapeDistance(IN, position - IN.reveal.xy, radii, mitre));
+    }
+
+    return distance;
+}
+
+// How much of a pixel a straight or radial reveal shows, 0 to 1 with a one pixel edge. These cut the
+// finished layers like a mask, so a ring revealed radially is a plain arc. 1 for no reveal and for a
+// slide, which reshapes the rect instead.
+float RevealMask(Varyings IN, float2 position, float pixel)
+{
+    float mode = IN.corner.z;
+
+    if (mode < STYLED_REVEAL_STRAIGHT - 0.5) {
+        return 1.0;
+    }
+
+    float inside;
+
+    if (mode < STYLED_REVEAL_STRAIGHT + 0.5) {
+        inside = IN.reveal.z - dot(position, IN.reveal.xy);
+    } else if (mode < STYLED_REVEAL_RADIAL_WIDE + 0.5) {
+        // A pie between two rays. Up to half a turn it is where both rays agree, beyond that where either does.
+        float s0 = IN.reveal.x * position.y - IN.reveal.y * position.x;
+        float s1 = IN.reveal.z * position.y - IN.reveal.w * position.x;
+        inside = mode < STYLED_REVEAL_RADIAL + 0.5 ? min(s0, s1) : max(s0, s1);
+    } else {
+        // Nothing is revealed.
+        return 0.0;
+    }
+
+    return saturate(inside / pixel + 0.5);
 }
 
 fixed4 frag(Varyings IN) : SV_Target
@@ -195,6 +267,7 @@ fixed4 frag(Varyings IN) : SV_Target
     float kind = IN.kind.x;
     float gradientType = IN.gradient.z;
 
+    float4 softRadii = max(IN.radii, IN.corner.x);
     float pixel = StyledPixelSize(p);
     float softWidth = max(IN.soft.z, pixel);
 
@@ -211,7 +284,7 @@ fixed4 frag(Varyings IN) : SV_Target
         // A blurred fill measures against the soft radii, so its soft edge does not crease into the
         // corners. Strokes have no soft edge.
         bool softFill = kind < STYLED_KIND_STROKE - 0.5 && IN.soft.z > 0.0;
-        float sd = LayerDistance(IN, p, softFill ? IN.softRadii : IN.radii, mitre);
+        float sd = LayerDistance(IN, p, softFill ? softRadii : IN.radii, mitre);
 
 #ifdef STYLED_EXTENDED
         float dashed = isStroke && IN.stroke.x > 0.0 ? 1.0 : 0.0;
@@ -225,7 +298,7 @@ fixed4 frag(Varyings IN) : SV_Target
         if (isStroke && (dashed > 0.5 || wobbleWidth > 0.0 || wobbleDrift > 0.0)) {
             // Measured along the stroke's outer edge, its silhouette, so dashes keep their visible length
             // around corners.
-            along = StyledEdgePosition(p, halfSize, IN.radii, IN.cornerExponents, bandEnd, perimeter);
+            along = StyledEdgePosition(p, halfSize, IN.radii, IN.corner.yyyy, bandEnd, perimeter);
 
             // A length of 0 uses the shape's lobe length. Width and drift use different lobes, so the
             // stroke does not just swell where it moves out.
@@ -260,10 +333,11 @@ fixed4 frag(Varyings IN) : SV_Target
             // 0 at the layer's outer edge, 1 at its inner edge (or the deepest point of a fill).
             // Measured against the soft radii, so the gradient does not crease into the corners.
             float depth = isStroke ? bandEnd - bandStart : min(halfSize.x, halfSize.y) + bandEnd;
-            float softDistance = LayerDistance(IN, p, IN.softRadii, mitre);
+            float softDistance = LayerDistance(IN, p, softRadii, mitre);
             edgePosition = (bandEnd - softDistance) / max(depth, 1e-4);
         }
 
+        coverage *= RevealMask(IN, p, pixel);
         t = ApplyRange(StyledGradientPosition(gradientType, p, halfSize, IN.gradient.xy, edgePosition), IN.kind.zw, IN.gradient.w);
     } else if (kind < STYLED_KIND_BEVEL - 0.5) {
         // Shadows carry their gradient along with their offset. An Edge gradient has no meaning
@@ -281,11 +355,15 @@ fixed4 frag(Varyings IN) : SV_Target
             // Cut out under the shape, as CSS does. The cut sits on the inner half of the shape's
             // anti-aliased edge, so the shadow still backs that edge and no light fringe appears.
             coverage *= max(saturate(shapeDistance / pixel + 1.0), showBehind);
+
+            // A drop shadow is revealed in its own offset space, so it stays the shadow of what shows.
+            coverage *= RevealMask(IN, q, pixel);
         } else {
             // Inner shadow: inside the real shape, shadowed where the offset shape, pushed in by
             // the spread, is not. That shape uses the soft radii so its corners do not crease.
-            float sd = LayerDistance(IN, q, IN.softRadii, 0.0);
+            float sd = LayerDistance(IN, q, softRadii, 0.0);
             coverage = saturate(0.5 - shapeDistance / pixel) * StyledRamp(sd + spread, softWidth, pixel);
+            coverage *= RevealMask(IN, p, pixel);
         }
 
         t = ApplyRange(StyledGradientPosition(gradientType, q, halfSize, IN.gradient.xy, 0.0), IN.kind.zw, IN.gradient.w);
@@ -293,9 +371,20 @@ fixed4 frag(Varyings IN) : SV_Target
         // Bevel: a band just inside the edge, lit by which way the edge faces. Color is the
         // highlight (facing the light) and Color 2 the shadow (facing away).
         float sd = LayerDistance(IN, p, IN.radii, 0.0);
-        float facing = dot(StyledShapeNormal(p, halfSize, IN.radii, IN.cornerExponents), IN.gradient.xy);
+
+        // On the growing end of a slide reveal the edge belongs to the shape's moved copy, so that is
+        // where the lighting comes from.
+        float2 normalAt = p;
+
+        if (IN.corner.z > STYLED_REVEAL_SLIDE - 0.5 && IN.corner.z < STYLED_REVEAL_SLIDE + 0.5
+            && WholeShapeDistance(IN, p - IN.reveal.xy, IN.radii, 0.0) > WholeShapeDistance(IN, p, IN.radii, 0.0)) {
+            normalAt = p - IN.reveal.xy;
+        }
+
+        float facing = dot(StyledShapeNormal(normalAt, halfSize, IN.radii, IN.corner.yyyy), IN.gradient.xy);
 
         coverage = saturate(0.5 - sd / pixel) * StyledRamp(sd - bandStart, softWidth, pixel) * saturate(abs(facing) * 1.4142136);
+        coverage *= RevealMask(IN, p, pixel);
         t = facing >= 0.0 ? 0.0 : 1.0;
     }
 

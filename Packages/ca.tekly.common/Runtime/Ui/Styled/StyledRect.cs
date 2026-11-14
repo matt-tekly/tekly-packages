@@ -95,6 +95,39 @@ namespace Tekly.Common.Ui.Styled
 			set => SetTextureValue(ref m_wobbleSpeed, value);
 		}
 
+		/// <summary>
+		/// Shows only part of the rect, growing from a side or sweeping around the center. Layers with Ignore
+		/// Reveal on stay whole.
+		/// </summary>
+		public StyledReveal Reveal {
+			get => m_reveal;
+			set => SetTextureValue(ref m_reveal, value);
+		}
+
+		/// <summary>How much of the rect shows: 0 hides it, 1 shows all of it. Never rebuilds the mesh.</summary>
+		public float RevealAmount {
+			get => m_revealAmount;
+			set => SetTextureValue(ref m_revealAmount, Mathf.Clamp01(value));
+		}
+
+		/// <summary>Linear reveals only: whether the growing end has the rect's own shape or is cut straight.</summary>
+		public StyledRevealCap RevealCap {
+			get => m_revealCap;
+			set => SetTextureValue(ref m_revealCap, value);
+		}
+
+		/// <summary>Radial reveals only: where the sweep starts.</summary>
+		public StyledRadialStart RadialStart {
+			get => m_radialStart;
+			set => SetTextureValue(ref m_radialStart, value);
+		}
+
+		/// <summary>Radial reveals only: sweep clockwise from the start.</summary>
+		public bool RadialClockwise {
+			get => m_radialClockwise;
+			set => SetTextureValue(ref m_radialClockwise, value);
+		}
+
 		/// <summary>Optional sprite. Multiplies every layer that has Textured on. See TextureMode for how it is placed.</summary>
 		public Sprite Sprite {
 			get => m_sprite;
@@ -186,6 +219,9 @@ namespace Tekly.Common.Ui.Styled
 
 		private const float RAYCAST_TOLERANCE = 0.01f;
 
+		// A slide this far past the rect's size hides it entirely, with no sliver left where the two shapes meet.
+		private const float HIDDEN_SLIDE_MARGIN = 4f;
+
 		// Texture coordinate limits that never clamp anything, for a repeating texture.
 		private const float NO_UV_LIMIT = 1e6f;
 
@@ -210,6 +246,21 @@ namespace Tekly.Common.Ui.Styled
 
 		[Tooltip("How many times a second the lobes change into a new set. The edge morphs in place. 0 keeps it still. Uses game time.")]
 		[SerializeField] private float m_wobbleSpeed;
+
+		[Tooltip("Shows only part of the rect, for progress bars and cooldowns. Every layer follows the revealed shape unless it has Ignore Reveal on.")]
+		[SerializeField] private StyledReveal m_reveal = StyledReveal.None;
+
+		[Tooltip("How much of the rect shows: 0 hides it, 1 shows all of it.")]
+		[SerializeField, Range(0, 1)] private float m_revealAmount = 1;
+
+		[Tooltip("Whether the growing end has the rect's own shape, so a rounded bar keeps a rounded end, or is cut straight.")]
+		[SerializeField] private StyledRevealCap m_revealCap = StyledRevealCap.Shape;
+
+		[Tooltip("Where a radial reveal starts.")]
+		[SerializeField] private StyledRadialStart m_radialStart = StyledRadialStart.Top;
+
+		[Tooltip("Sweep clockwise from the start.")]
+		[SerializeField] private bool m_radialClockwise = true;
 
 		[Tooltip("Multiplies every layer that has Use Texture on.")]
 		[SerializeField] private Sprite m_sprite;
@@ -377,7 +428,35 @@ namespace Tekly.Common.Ui.Styled
 			var rect = GetPixelAdjustedRect();
 			localPoint = new Vector2(Mathf.Clamp(localPoint.x, rect.xMin, rect.xMax), Mathf.Clamp(localPoint.y, rect.yMin, rect.yMax));
 
-			return StyledShapeField.Distance(localPoint - rect.center, halfSize, CalculateRadii(halfSize), CornerExponent()) <= RAYCAST_TOLERANCE;
+			var point = localPoint - rect.center;
+			var radii = CalculateRadii(halfSize);
+
+			return StyledShapeField.Distance(point, halfSize, radii, CornerExponent()) <= RAYCAST_TOLERANCE
+			       && IsRevealed(point, halfSize, radii);
+		}
+
+		/// <summary>Whether a point relative to the shape center is in the revealed part. Matches the shader.</summary>
+		private bool IsRevealed(Vector2 point, Vector2 halfSize, Vector4 radii)
+		{
+			var reveal = GetRevealRow(halfSize);
+
+			switch ((int)reveal.x) {
+				case StyledRows.REVEAL_NONE:
+					return true;
+				case StyledRows.REVEAL_SLIDE:
+					return StyledShapeField.Distance(point - new Vector2(reveal.y, reveal.z), halfSize, radii, CornerExponent()) <= RAYCAST_TOLERANCE;
+				case StyledRows.REVEAL_STRAIGHT:
+					return Vector2.Dot(point, new Vector2(reveal.y, reveal.z)) <= reveal.w + RAYCAST_TOLERANCE;
+				case StyledRows.REVEAL_RADIAL: {
+					// Angle swept from the start toward the point, in the direction of the sweep.
+					var sweep = reveal.z;
+					var angle = Mathf.Atan2(point.y, point.x);
+					var swept = Mathf.Repeat((angle - reveal.y) * Mathf.Sign(sweep), Mathf.PI * 2f);
+					return swept <= Mathf.Abs(sweep);
+				}
+				default:
+					return false;
+			}
 		}
 
 		protected override void OnEnable()
@@ -743,6 +822,7 @@ namespace Tekly.Common.Ui.Styled
 			m_store.Write(m_address + StyledRows.SHAPE_SIZE, new Vector4(halfSize.x, halfSize.y, 0, 0));
 			m_store.Write(m_address + StyledRows.SHAPE_RADII, radii);
 			m_store.Write(m_address + StyledRows.SHAPE_CORNER_EXPONENTS, Vector4.one * CornerExponent());
+			m_store.Write(m_address + StyledRows.SHAPE_REVEAL, GetRevealRow(halfSize));
 			m_store.Write(m_address + StyledRows.SHAPE_WOBBLE, new Vector4(Mathf.Max(0, m_wobbleAmount), Mathf.Max(1, m_wobbleLength), m_wobbleSeed, m_wobbleSpeed));
 			WriteTextureRows(halfSize);
 
@@ -758,7 +838,8 @@ namespace Tekly.Common.Ui.Styled
 				var flags = (underlay ? StyledRows.FLAG_UNDERLAY : 0)
 				            | (layer.ShowBehind ? StyledRows.FLAG_SHOW_BEHIND : 0)
 				            | (IsTextured(layer) ? StyledRows.FLAG_TEXTURED : 0)
-				            | (layer.IgnoreTint ? StyledRows.FLAG_IGNORE_TINT : 0);
+				            | (layer.IgnoreTint ? StyledRows.FLAG_IGNORE_TINT : 0)
+				            | (layer.IgnoreReveal ? StyledRows.FLAG_IGNORE_REVEAL : 0);
 				var address = StyledRows.LayerAddress(m_address, i);
 
 				m_store.Write(address + StyledRows.LAYER_HEADER, new Vector4((int)layer.Kind, flags, band.x, band.y));
@@ -781,6 +862,53 @@ namespace Tekly.Common.Ui.Styled
 
 				edgeCovered |= CoversEdge(layer, band);
 			}
+		}
+
+		/// <summary>
+		/// The reveal as the shader and the hit test read it: a mode, then that mode's values.
+		/// A linear reveal with a Shape cap is a slide: the visible part is where the shape overlaps a copy of
+		/// itself moved back by the hidden distance, which is what gives the growing end the shape's own corners.
+		/// </summary>
+		private Vector4 GetRevealRow(Vector2 halfSize)
+		{
+			if (m_reveal == StyledReveal.None || m_revealAmount >= 1f) {
+				return new Vector4(StyledRows.REVEAL_NONE, 0, 0, 0);
+			}
+
+			if (m_revealAmount <= 0f) {
+				return new Vector4(StyledRows.REVEAL_HIDDEN, 0, 0, 0);
+			}
+
+			if (m_reveal == StyledReveal.Radial) {
+				var start = m_radialStart switch {
+					StyledRadialStart.Top => Mathf.PI * 0.5f,
+					StyledRadialStart.Right => 0f,
+					StyledRadialStart.Bottom => Mathf.PI * 1.5f,
+					_ => Mathf.PI
+				};
+
+				// Angles grow counter-clockwise, so a clockwise sweep is negative.
+				var sweep = m_revealAmount * Mathf.PI * 2f * (m_radialClockwise ? -1f : 1f);
+				return new Vector4(StyledRows.REVEAL_RADIAL, start, sweep, 0);
+			}
+
+			// The direction the reveal grows in, and the rect's size along it.
+			var direction = m_reveal switch {
+				StyledReveal.FromLeft => Vector2.right,
+				StyledReveal.FromRight => Vector2.left,
+				StyledReveal.FromBottom => Vector2.up,
+				_ => Vector2.down
+			};
+
+			var size = 2f * (direction.x != 0f ? halfSize.x : halfSize.y);
+
+			if (m_revealCap == StyledRevealCap.Straight) {
+				// Revealed where the position along the direction is at most the cut.
+				return new Vector4(StyledRows.REVEAL_STRAIGHT, direction.x, direction.y, size * (m_revealAmount - 0.5f));
+			}
+
+			var slide = -direction * (size * (1f - m_revealAmount));
+			return new Vector4(StyledRows.REVEAL_SLIDE, slide.x, slide.y, 0);
 		}
 
 		/// <summary>
