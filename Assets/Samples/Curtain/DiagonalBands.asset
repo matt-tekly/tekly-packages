@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2f1170e27507294ab9c788c579d14a7, type: 3}
+  m_Name: DiagonalBands
+  m_EditorClassIdentifier: Tekly.Curtain.Runtime::Tekly.Curtains.CurtainLook
+  m_style:
+    Shape: 0
+    Invert: 0
+    Angle: 60
+    Split: 0
+    Center: {x: 0.5, y: 0.5}
+    Diamond: 0
+    Gradient: {fileID: 0}
+    Softness: 0
+    Bands:
+    - {r: 1, g: 0.7882353, b: 0.2901961, a: 1}
+    - {r: 1, g: 0.36078432, b: 0.5411765, a: 1}
+    Stagger: 0.15
+    Ease:
+      Type: 3
+      Direction: 0
+      Overshoot: 0.1
+      Oscillations: 3
+      Bounces: 3
+      Bounciness: 0.25

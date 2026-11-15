@@ -134,6 +134,8 @@ namespace Tekly.Tweenlines
             Selection.selectionChanged += OnSelectionChanged;
             TweenlinePreview.Changed += Repaint;
             Undo.undoRedoPerformed += OnUndoRedo;
+            EditorApplication.hierarchyChanged += OnHierarchyChanged;
+            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
             OnSelectionChanged();
         }
 
@@ -142,6 +144,8 @@ namespace Tekly.Tweenlines
             Selection.selectionChanged -= OnSelectionChanged;
             TweenlinePreview.Changed -= Repaint;
             Undo.undoRedoPerformed -= OnUndoRedo;
+            EditorApplication.hierarchyChanged -= OnHierarchyChanged;
+            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
 
             if (IsPreviewing) {
                 TweenlinePreview.Stop();
@@ -157,15 +161,58 @@ namespace Tekly.Tweenlines
 
         private void OnSelectionChanged()
         {
-            var gameObject = Selection.activeGameObject;
-            var tweenline = gameObject != null ? gameObject.GetComponent<Tweenline>() : null;
-
-            if (tweenline != null && tweenline != m_target) {
-                SetTarget(tweenline);
-            }
+            FollowSelection();
 
             // The Add Track button follows the Hierarchy selection
             Repaint();
+        }
+
+        /// <summary>
+        /// Entering or leaving play mode and opening a scene replace the scene's objects, which leaves the
+        /// window's target destroyed while the selection hasn't changed. Picks the target up again from the
+        /// selection when that happens.
+        /// </summary>
+        private void OnHierarchyChanged()
+        {
+            if (m_target == null) {
+                FollowSelection();
+                Repaint();
+            }
+        }
+
+        private void OnPlayModeStateChanged(PlayModeStateChange change)
+        {
+            if (change == PlayModeStateChange.EnteredPlayMode || change == PlayModeStateChange.EnteredEditMode) {
+                OnHierarchyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Shows the Tweenline on the selected object. An object without one shows the nearest Tweenline above
+        /// it, unless it is already inside the shown Tweenline's hierarchy, where it picks the Add Track
+        /// target instead.
+        /// </summary>
+        private void FollowSelection()
+        {
+            var gameObject = Selection.activeGameObject;
+
+            if (gameObject == null) {
+                return;
+            }
+
+            var tweenline = gameObject.GetComponent<Tweenline>();
+
+            if (tweenline == null) {
+                if (m_target != null && IsInHierarchy(gameObject)) {
+                    return;
+                }
+
+                tweenline = gameObject.GetComponentInParent<Tweenline>(true);
+            }
+
+            if (tweenline != null) {
+                SetTarget(tweenline);
+            }
         }
 
         /// <summary>
@@ -242,6 +289,10 @@ namespace Tekly.Tweenlines
 
         private void OnGUI()
         {
+            if (m_target == null) {
+                FollowSelection();
+            }
+
             if (m_target == null) {
                 DrawNoTarget();
                 return;
@@ -529,9 +580,10 @@ namespace Tekly.Tweenlines
 
         private static GameObject TargetGameObject(TweenTrack track)
         {
+            // A destroyed target still matches its type, so it is checked against Unity's null too.
             return track?.TargetObject switch {
-                GameObject gameObject => gameObject,
-                Component component => component.gameObject,
+                GameObject gameObject when gameObject != null => gameObject,
+                Component component when component != null => component.gameObject,
                 _ => null
             };
         }
