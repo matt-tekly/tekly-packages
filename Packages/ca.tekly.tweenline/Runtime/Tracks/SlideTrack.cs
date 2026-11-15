@@ -234,7 +234,7 @@ namespace Tekly.Tweenlines.Tracks
                 var rotation = OffScreen.RotationAt(mixer, m_target, time);
                 var scale = scaleSlot.SampleBase(time);
 
-                m_offScreenVectors[i] = OffScreen.Vector(m_target, clip.OffScreenArea, direction, position, rotation, scale);
+                m_offScreenVectors[i] = OffScreen.Vector(mixer, time, m_target, clip.OffScreenArea, direction, position, rotation, scale);
             }
         }
 

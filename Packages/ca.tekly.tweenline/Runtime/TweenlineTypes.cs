@@ -74,6 +74,20 @@ namespace Tekly.Tweenlines
         }
 
         /// <summary>
+        /// The shared record for a target and channel without capturing one.
+        /// </summary>
+        internal bool TryGetRecord<T>(Object target, TweenChannel<T> channel, out ChannelRecord<T> record)
+        {
+            if (m_records.TryGetValue((target, channel), out var stored)) {
+                record = (ChannelRecord<T>) stored;
+                return true;
+            }
+
+            record = null;
+            return false;
+        }
+
+        /// <summary>
         /// The shared record for a target and channel, capturing its origin first if there is none.
         /// </summary>
         internal ChannelRecord<T> GetRecord<T>(Object target, TweenChannel<T> channel)

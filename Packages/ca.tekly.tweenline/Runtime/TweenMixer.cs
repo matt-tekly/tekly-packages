@@ -48,6 +48,31 @@ namespace Tekly.Tweenlines
             return m_slots.TryGetValue((target, channel), out var slot) && slot.Active && ((ChannelSlot<T>) slot).HasSource;
         }
 
+        /// <summary>
+        /// A channel's base value at a time: the base track's value when one drives it, else the live value
+        /// with any offset this Tweenline's last write left on it removed. Lets tracks measure other objects,
+        /// like a parent that a slide moved away, at the pose they have at that time instead of wherever a
+        /// previous animation left them. Never adds a slot, so the animation's writes don't change.
+        /// </summary>
+        public T BaseAt<T>(Object target, TweenChannel<T> channel, float time)
+        {
+            if (m_slots.TryGetValue((target, channel), out var slot) && slot.Active) {
+                var typed = (ChannelSlot<T>) slot;
+
+                if (typed.HasSource) {
+                    return typed.SampleBase(time);
+                }
+            }
+
+            var current = channel.Read(target);
+
+            if (m_origins != null && m_origins.TryGetRecord(target, channel, out var record) && record.HasWritten && channel.Same(current, record.LastWritten)) {
+                return record.LastBase;
+            }
+
+            return current;
+        }
+
         internal void BeginPrepare(TweenOrigins origins, bool readCurrent)
         {
             m_origins = origins;

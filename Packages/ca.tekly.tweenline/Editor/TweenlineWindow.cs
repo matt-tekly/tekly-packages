@@ -272,7 +272,9 @@ namespace Tekly.Tweenlines
 
         private void SetTarget(Tweenline tweenline)
         {
-            if (tweenline == m_target) {
+            // Leaving play mode recreates the scene with the same instance ids, and Unity's == compares ids, so the
+            // destroyed target would equal the restored one and the window would never pick it up again
+            if (ReferenceEquals(tweenline, m_target)) {
                 return;
             }
 
