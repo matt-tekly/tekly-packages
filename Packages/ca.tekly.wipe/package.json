@@ -1,0 +1,18 @@
+{
+  "name": "ca.tekly.wipe",
+  "displayName": "Tekly Wipe",
+  "version": "0.0.1",
+  "unity": "6000.0",
+  "description": "Screen transitions for uGUI in one pass: wipes, irises, staggered bars and tiles, ramp textures and silhouette irises with colour layers, live canvas reveals and Tweenline tracks",
+  "dependencies": {
+    "ca.tekly.common": "0.0.1",
+    "ca.tekly.tweenline": "0.0.1",
+    "com.unity.ugui": "2.0.0"
+  },
+  "author": {
+    "name": "Matt King",
+    "email": "matt@tekly.ca"
+  },
+  "hideInEditor": false,
+  "type": "library"
+}

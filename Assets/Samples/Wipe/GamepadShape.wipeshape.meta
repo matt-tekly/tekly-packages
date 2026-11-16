@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 63a17c745530da94d93bee0e272e769e
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 5704bb99c2da90c49bebb10b76e5d827, type: 3}
+  source: {fileID: 2800000, guid: fc98693732c06ad41867c9659b101d2e, type: 3}
+  resolution: 128
+  channel: 0
+  threshold: 0.5

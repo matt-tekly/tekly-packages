@@ -750,6 +750,11 @@ namespace Tekly.Tweenlines
                 return $"{slideMode.enumDisplayNames[slideMode.enumValueIndex]} {preposition} {direction.enumDisplayNames[direction.enumValueIndex]}";
             }
 
+            // A clip with only a mode, like a wipe's Cover or Uncover
+            if (slideMode != null && slideMode.propertyType == SerializedPropertyType.Enum) {
+                return slideMode.enumDisplayNames[slideMode.enumValueIndex];
+            }
+
             return string.Empty;
         }
 

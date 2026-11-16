@@ -50,16 +50,6 @@
         "ca.tekly.common": "0.0.1"
       }
     },
-    "ca.tekly.curtain": {
-      "version": "file:ca.tekly.curtain",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {
-        "ca.tekly.common": "0.0.1",
-        "ca.tekly.tweenline": "0.0.1",
-        "com.unity.ugui": "2.0.0"
-      }
-    },
     "ca.tekly.datamodels": {
       "version": "file:ca.tekly.datamodels",
       "depth": 0,
@@ -350,6 +340,16 @@
         "ca.tekly.logger": "0.0.7",
         "ca.tekly.injectors": "1.0.0",
         "ca.tekly.common": "0.0.1"
+      }
+    },
+    "ca.tekly.wipe": {
+      "version": "file:ca.tekly.wipe",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "ca.tekly.common": "0.0.1",
+        "ca.tekly.tweenline": "0.0.1",
+        "com.unity.ugui": "2.0.0"
       }
     },
     "ca.tekly.zipfile": {

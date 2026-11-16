@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b071c6729bc4e64d90dd010b8378f91, type: 3}
+  m_Name: StarIris
+  m_EditorClassIdentifier: Tekly.Wipe.Runtime::Tekly.Wipes.WipeLook
+  m_style:
+    Field: 1
+    Invert: 0
+    Angle: 90
+    Mirror: 0
+    Center: {x: 0.5, y: 0.5}
+    RadialShape: 3
+    Points: 5
+    Inner: 0.5
+    Rotation: 0
+    Spin: 0.25
+    StartAngle: 0
+    Arms: 1
+    Twist: 0
+    Clockwise: 1
+    Ramp: {fileID: 0}
+    Shape: {fileID: 0}
+    Repeat: 0
+    LaneAngle: 90
+    LaneWidth: 0.2
+    LaneElement: 1
+    Cap: 1
+    GridSize: 0.1
+    Diagonal: 0
+    GridElement: 0
+    Spread: 0.5
+    Random: 0
+    Alternate: 0
+    Softness: 0
+    WaveAmplitude: 0
+    WaveFrequency: 8
+    Wave: 0
+    Fill: {r: 0.1, g: 0.13, b: 0.25, a: 1}
+    Layers:
+    - {r: 1, g: 0.78, b: 0.25, a: 1}
+    LayerOffset: 0.08
+    Exit: 1
+    CoverDuration: 0.7
+    CoverEase:
+      Type: 3
+      Direction: 0
+      Overshoot: 0.1
+      Oscillations: 3
+      Bounces: 3
+      Bounciness: 0.25
+    UncoverDuration: 0.6
+    UncoverEase:
+      Type: 3
+      Direction: 1
+      Overshoot: 0.1
+      Oscillations: 3
+      Bounces: 3
+      Bounciness: 0.25

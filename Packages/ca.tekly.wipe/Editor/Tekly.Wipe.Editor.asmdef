@@ -1,0 +1,22 @@
+{
+    "name": "Tekly.Wipe.Editor",
+    "rootNamespace": "Tekly.Wipes",
+    "references": [
+        "Tekly.Wipe.Runtime",
+        "Tekly.Tweenline.Runtime",
+        "Tekly.Tweenline.Editor",
+        "UnityEngine.UI",
+        "UnityEditor.UI"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
