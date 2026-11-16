@@ -42,6 +42,9 @@ namespace Tekly.Wipes
         // Room a trimmed quad leaves for the antialiased edge, as a fraction of the field.
         private const float TRIM_MARGIN = 0.02f;
 
+        // Keeps a spin's turn rate finite as the shape closes to a point. Smaller turns faster at the end.
+        private const float SPIN_FLOOR = 0.2f;
+
         private static readonly int s_fillId = Shader.PropertyToID("_Fill");
         private static readonly int s_rampId = Shader.PropertyToID("_Ramp");
         private static readonly int s_shapeId = Shader.PropertyToID("_ShapeTex");
@@ -234,7 +237,7 @@ namespace Tekly.Wipes
                     break;
                 }
                 case WipeField.Radial: {
-                    var rotation = (style.Rotation + style.Spin * 360f * frame.Coverage) * Mathf.Deg2Rad;
+                    var rotation = Rotation(style, frame.Coverage);
 
                     if (style.RadialShape == WipeRadialShape.Circle) {
                         a = new Vector4(center.x, center.y, 1f / farthest, 1f);
@@ -291,10 +294,13 @@ namespace Tekly.Wipes
                 }
                 case WipeField.Shape: {
                     var shape = style.Shape;
-                    var rotation = (style.Rotation + style.Spin * 360f * frame.Coverage) * Mathf.Deg2Rad;
+                    var rotation = Rotation(style, frame.Coverage);
 
-                    // Opens until the silhouette clears the rect, with room for the edge.
-                    var open = shape.OpenScale(center, half, rotation) * 1.05f + style.Softness;
+                    // Opens until the silhouette clears the rect, with room for the edge. It only has to
+                    // clear the rect while fully open, so it is fitted to the rotation it has then. Fitting
+                    // it to the rotation of a spin as it turns would change the scale and read as a zoom.
+                    var openRotation = Rotation(style, style.Invert ? 1f : 0f);
+                    var open = shape.OpenScale(center, half, openRotation) * 1.05f + style.Softness;
 
                     a = new Vector4(center.x, center.y, open, 0);
                     b = new Vector4(2f * shape.Reach, Mathf.Cos(rotation), Mathf.Sin(rotation), 0);
@@ -339,6 +345,31 @@ namespace Tekly.Wipes
                     break;
                 }
             }
+        }
+
+        /// <summary>
+        /// A shape's rotation in radians, with its spin. The spin turns faster as the shape gets smaller,
+        /// so its edge crosses the screen at a steady speed. At an even turn rate the edge of a large
+        /// shape races past and a small one barely moves, which reads as all the spin happening up close.
+        /// </summary>
+        private static float Rotation(WipeStyle style, float coverage)
+        {
+            if (style.Spin == 0f) {
+                return style.Rotation * Mathf.Deg2Rad;
+            }
+
+            // The shape's size, 1 when it clears the rect and 0 when it has closed to a point.
+            var size = style.Invert ? coverage : 1f - coverage;
+
+            // The turn rate is 1 / (size + floor), which this is the integral of, from 0 to 1 over the wipe.
+            var full = Mathf.Log((1f + SPIN_FLOOR) / SPIN_FLOOR);
+            var turned = Mathf.Log((1f + SPIN_FLOOR) / (size + SPIN_FLOOR)) / full;
+
+            if (style.Invert) {
+                turned = 1f - turned;
+            }
+
+            return (style.Rotation + style.Spin * 360f * turned) * Mathf.Deg2Rad;
         }
 
         /// <summary>

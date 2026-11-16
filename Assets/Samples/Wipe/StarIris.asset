@@ -28,6 +28,7 @@ MonoBehaviour:
     Twist: 0
     Clockwise: 1
     Ramp: {fileID: 0}
+    RampFit: 0
     Shape: {fileID: 0}
     Repeat: 0
     LaneAngle: 90
@@ -45,8 +46,7 @@ MonoBehaviour:
     WaveFrequency: 8
     Wave: 0
     Fill: {r: 0.1, g: 0.13, b: 0.25, a: 1}
-    Layers:
-    - {r: 1, g: 0.78, b: 0.25, a: 1}
+    Layers: []
     LayerOffset: 0.08
     Exit: 1
     CoverDuration: 0.7

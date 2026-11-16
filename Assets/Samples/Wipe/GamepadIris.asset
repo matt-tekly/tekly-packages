@@ -22,7 +22,7 @@ MonoBehaviour:
     Points: 5
     Inner: 0.5
     Rotation: 0
-    Spin: 0
+    Spin: 1
     StartAngle: 0
     Arms: 1
     Twist: 0
@@ -49,15 +49,15 @@ MonoBehaviour:
     Layers: []
     LayerOffset: 0.08
     Exit: 1
-    CoverDuration: 0.8
+    CoverDuration: 1
     CoverEase:
-      Type: 3
+      Type: 7
       Direction: 0
       Overshoot: 0.1
       Oscillations: 3
       Bounces: 3
       Bounciness: 0.25
-    UncoverDuration: 0.6
+    UncoverDuration: 0.8
     UncoverEase:
       Type: 3
       Direction: 1

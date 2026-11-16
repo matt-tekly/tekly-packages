@@ -28,7 +28,7 @@ MonoBehaviour:
     Twist: 0
     Clockwise: 1
     Ramp: {fileID: 3887643130108258490, guid: 595a08f80f521cc4cab92e92cc3b61eb, type: 3}
-    RampFit: 0
+    RampFit: 1
     Shape: {fileID: 0}
     Repeat: 0
     LaneAngle: 90
@@ -41,7 +41,7 @@ MonoBehaviour:
     Spread: 0.5
     Random: 0
     Alternate: 0
-    Softness: 0.03
+    Softness: 0.5
     WaveAmplitude: 0
     WaveFrequency: 8
     Wave: 0
