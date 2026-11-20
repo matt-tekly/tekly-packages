@@ -20,6 +20,9 @@ namespace Tekly.Tweenlines
         public float Time => m_time;
         public TweenAnimation Current => m_current;
         public List<TweenAnimation> Animations => m_animations;
+
+        /// <summary>Changes whenever a play starts or is stopped, so a play can be told apart from a later one</summary>
+        internal int PlayId => m_playId;
         public TweenOrigins Origins => m_origins ??= new TweenOrigins();
 
         public float Speed {
@@ -47,6 +50,7 @@ namespace Tekly.Tweenlines
         [SerializeField] private UnityEvent<string> m_completed = new UnityEvent<string>();
 
         private static readonly List<Tweenline> s_hurryBuffer = new List<Tweenline>();
+        private static readonly Stack<List<Awaitable>> s_awaitableLists = new Stack<List<Awaitable>>();
         private static bool s_hurrying;
 
         private TweenOrigins m_origins;
@@ -59,12 +63,20 @@ namespace Tekly.Tweenlines
         private bool m_playing;
         private bool m_hurried;
         private int m_playId;
+        private AwaitableCompletionSource m_completion;
+        private bool m_awaited;
 
         private void OnEnable()
         {
             if (!string.IsNullOrEmpty(m_playOnEnable)) {
                 Play(m_playOnEnable);
             }
+        }
+
+        private void OnDisable()
+        {
+            // Update stops here, so a play being awaited could never finish
+            CancelAwait();
         }
 
         private void Update()
@@ -129,6 +141,52 @@ namespace Tekly.Tweenlines
         }
 
         /// <summary>
+        /// Plays an animation on the first count Tweenlines, each starting stagger seconds after the one before
+        /// it, and completes when all of them have finished. The stagger follows play order and replaces each
+        /// Tweenline's own Stagger. Inactive ones are skipped without leaving a gap. Throws
+        /// OperationCanceledException when any of the plays is interrupted, see PlayAsync.
+        /// </summary>
+        public static Awaitable PlayAllAsync(IReadOnlyList<Tweenline> tweenlines, string animationName, int count, float stagger = 0)
+        {
+            return PlayAllAsync(tweenlines, animationName, count, stagger, null);
+        }
+
+        internal static async Awaitable PlayAllAsync(IReadOnlyList<Tweenline> tweenlines, string animationName, int count, float stagger, TweenSequence sequence)
+        {
+            // Several of these can be in flight at once, so each call takes its own list
+            var awaitables = s_awaitableLists.Count > 0 ? s_awaitableLists.Pop() : new List<Awaitable>();
+
+            try {
+                var delay = 0f;
+
+                count = Mathf.Min(count, tweenlines.Count);
+
+                for (var i = 0; i < count; i++) {
+                    var tweenline = tweenlines[i];
+
+                    if (tweenline == null || !tweenline.isActiveAndEnabled) {
+                        continue;
+                    }
+
+                    if (!tweenline.TryFind(animationName, out var animation)) {
+                        continue;
+                    }
+
+                    awaitables.Add(tweenline.PlayAsync(animation, false, delay));
+                    sequence?.Started(tweenline);
+                    delay += stagger;
+                }
+
+                for (var i = 0; i < awaitables.Count; i++) {
+                    await awaitables[i];
+                }
+            } finally {
+                awaitables.Clear();
+                s_awaitableLists.Push(awaitables);
+            }
+        }
+
+        /// <summary>
         /// Speeds up the current play by Hurry Speed until it ends, including any stagger delay still waiting.
         /// Markers still fire in order, unlike Complete. Looping animations are left alone since they never
         /// end. Returns true when the play was already hurried, so a caller can complete it on a second tap.
@@ -183,30 +241,52 @@ namespace Tekly.Tweenlines
 
         public void Play(TweenAnimation animation, bool reverse)
         {
-            m_playId++;
+            CancelAwait();
+            Begin(animation, reverse, StaggerDelay());
+        }
+
+        /// <summary>
+        /// Plays an animation and completes when it finishes, including when Complete or a hurry ends it early.
+        /// Throws OperationCanceledException when the play is interrupted instead: another Play, Stop, or the
+        /// Tweenline being disabled or destroyed. A looping animation never finishes, so it only ever ends
+        /// that way. A missing animation logs a warning and completes straight away.
+        /// </summary>
+        public Awaitable PlayAsync(string animationName)
+        {
+            if (!TryFind(animationName, out var animation)) {
+                return CompletedAwaitable();
+            }
+
+            return PlayAsync(animation, false, StaggerDelay());
+        }
+
+        public Awaitable PlayAsync(TweenAnimation animation, bool reverse = false)
+        {
+            return PlayAsync(animation, reverse, StaggerDelay());
+        }
+
+        /// <summary>
+        /// Stops playback and shows the first frame of an animation without firing markers or Completed, for
+        /// example to hide something until its turn in a sequence. Clips that start from the current value
+        /// go back to where the last forward play started, or to the rest value when there has not been one.
+        /// </summary>
+        public void Rewind(string animationName)
+        {
+            if (TryFind(animationName, out var animation)) {
+                Rewind(animation);
+            }
+        }
+
+        public void Rewind(TweenAnimation animation)
+        {
+            Stop();
+
             m_current = animation;
             m_duration = animation.Duration;
-            m_direction = reverse ? -1 : 1;
-            m_time = reverse ? m_duration : 0;
-            m_hurried = false;
-            m_delay = m_stagger * transform.GetSiblingIndex();
-            m_playing = true;
+            m_time = 0;
 
-            // Reversing plays back towards the start, so it keeps the start values of the last forward play
-            // instead of reading the end pose as the start
-            animation.Prepare(Origins, !reverse);
-
-            // The start pose shows straight away, but markers wait for the stagger delay
+            animation.Prepare(Origins, false);
             animation.Evaluate(m_time);
-            m_startMarkersPending = true;
-
-            if (m_delay > 0 || !FireStartMarkers()) {
-                return;
-            }
-
-            if (m_duration <= 0) {
-                Finish();
-            }
         }
 
         /// <summary>
@@ -218,6 +298,8 @@ namespace Tekly.Tweenlines
             m_playing = false;
             m_hurried = false;
             m_startMarkersPending = false;
+
+            CancelAwait();
         }
 
         /// <summary>
@@ -281,14 +363,102 @@ namespace Tekly.Tweenlines
 
         private void Play(string animationName, bool reverse)
         {
-            var animation = Find(animationName);
+            if (TryFind(animationName, out var animation)) {
+                Play(animation, reverse);
+            }
+        }
 
-            if (animation == null) {
-                Debug.LogWarning($"Tweenline [{name}] has no animation named [{animationName}]", this);
+        internal Awaitable PlayAsync(TweenAnimation animation, bool reverse, float delay)
+        {
+            CancelAwait();
+
+            if (m_completion == null) {
+                m_completion = new AwaitableCompletionSource();
+            } else {
+                m_completion.Reset();
+            }
+
+            // Held locally because a marker fired by Begin can start another awaited play, which resets the source
+            var awaitable = m_completion.Awaitable;
+            m_awaited = true;
+
+            // Update never runs on an inactive Tweenline, so the play could not finish
+            if (!isActiveAndEnabled) {
+                CancelAwait();
+            }
+
+            Begin(animation, reverse, delay);
+
+            return awaitable;
+        }
+
+        private void Begin(TweenAnimation animation, bool reverse, float delay)
+        {
+            m_playId++;
+            m_current = animation;
+            m_duration = animation.Duration;
+            m_direction = reverse ? -1 : 1;
+            m_time = reverse ? m_duration : 0;
+            m_hurried = false;
+            m_delay = delay;
+            m_playing = true;
+
+            // Reversing plays back towards the start, so it keeps the start values of the last forward play
+            // instead of reading the end pose as the start
+            animation.Prepare(Origins, !reverse);
+
+            // The start pose shows straight away, but markers wait for the stagger delay
+            animation.Evaluate(m_time);
+            m_startMarkersPending = true;
+
+            if (m_delay > 0 || !FireStartMarkers()) {
                 return;
             }
 
-            Play(animation, reverse);
+            if (m_duration <= 0) {
+                Finish();
+            }
+        }
+
+        internal static Awaitable CompletedAwaitable()
+        {
+            var completion = new AwaitableCompletionSource();
+            completion.SetResult();
+
+            return completion.Awaitable;
+        }
+
+        internal float StaggerDelay()
+        {
+            return m_stagger * transform.GetSiblingIndex();
+        }
+
+        /// <summary>
+        /// Finds an animation by name, logging a warning when there is none.
+        /// </summary>
+        internal bool TryFind(string animationName, out TweenAnimation animation)
+        {
+            animation = Find(animationName);
+
+            if (animation == null) {
+                Debug.LogWarning($"Tweenline [{name}] has no animation named [{animationName}]", this);
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Ends a pending PlayAsync with a cancellation. Its continuation runs inside this call.
+        /// </summary>
+        private void CancelAwait()
+        {
+            if (!m_awaited) {
+                return;
+            }
+
+            m_awaited = false;
+            m_completion.SetCanceled();
         }
 
         /// <summary>
@@ -365,6 +535,13 @@ namespace Tekly.Tweenlines
             m_hurried = false;
 
             var animation = m_current;
+
+            // Before the events, so a listener that plays something else does not cancel a play that finished
+            if (m_awaited) {
+                m_awaited = false;
+                m_completion.SetResult();
+            }
+
             Completed?.Invoke(this, animation);
             m_completed?.Invoke(animation.Name);
         }
