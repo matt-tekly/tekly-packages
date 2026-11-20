@@ -202,5 +202,26 @@ namespace Tekly.Tweenlines
                 order[j + 1] = index;
             }
         }
+
+        /// <summary>
+        /// The clip covering a time: the one that started last, if it hasn't ended yet. -1 when there is
+        /// none, so a layered track does nothing between its clips.
+        /// </summary>
+        public static int FindCovering<TClip>(List<TClip> clips, float time, Func<TClip, float> start, Func<TClip, float> end)
+        {
+            var result = -1;
+            var latest = float.MinValue;
+
+            for (var i = 0; i < clips.Count; i++) {
+                var clipStart = start(clips[i]);
+
+                if (clipStart <= time && clipStart >= latest) {
+                    latest = clipStart;
+                    result = i;
+                }
+            }
+
+            return result >= 0 && time <= end(clips[result]) ? result : -1;
+        }
     }
 }

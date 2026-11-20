@@ -101,6 +101,7 @@ MonoBehaviour:
     m_tracks:
     - rid: 6958352150732472439
     - rid: 6958352150732472440
+    - rid: 6958352150732472460
     m_markers: []
   m_completed:
     m_PersistentCalls:
@@ -120,7 +121,7 @@ MonoBehaviour:
             Type: 8
             Direction: 0
             Overshoot: 0.3
-            Oscillations: 3
+            Falloff: 0
             Bounces: 3
             Bounciness: 0.25
           FromMode: 3
@@ -139,13 +140,25 @@ MonoBehaviour:
             Type: 0
             Direction: 0
             Overshoot: 0
-            Oscillations: 0
+            Falloff: 0
             Bounces: 0
             Bounciness: 0
           FromMode: 3
           Space: 0
           From: 0
           To: 1
+    - rid: 6958352150732472460
+      type: {class: PunchTrack, ns: Tekly.Tweenlines.Tracks, asm: Tekly.Tweenline.Runtime}
+      data:
+        m_enabled: 1
+        m_target: {fileID: 1394949030588823861}
+        m_clips:
+        - Start: 0.75
+          Duration: 1
+          Scale: {x: 0, y: 0, z: 0}
+          Rotation: {x: 0, y: 0, z: 0}
+          Position: {x: 0, y: -50, z: 0}
+          Falloff: 0.5244
 --- !u!225 &6439748527889351834
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -245,7 +258,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
