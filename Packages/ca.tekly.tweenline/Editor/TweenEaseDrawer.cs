@@ -88,7 +88,7 @@ namespace Tekly.Tweenlines
                     break;
                 case EaseType.Elastic:
                     DrawSetting(ref settingRect, property, nameof(TweenEase.Overshoot));
-                    DrawSetting(ref settingRect, property, nameof(TweenEase.Oscillations));
+                    DrawSetting(ref settingRect, property, nameof(TweenEase.Falloff));
                     break;
                 case EaseType.Bounce:
                     DrawSetting(ref settingRect, property, nameof(TweenEase.Bounces));
@@ -120,7 +120,7 @@ namespace Tekly.Tweenlines
             var defaults = new TweenEase(type, EaseDirection.Out);
 
             property.FindPropertyRelative(nameof(TweenEase.Overshoot)).floatValue = defaults.Overshoot;
-            property.FindPropertyRelative(nameof(TweenEase.Oscillations)).intValue = defaults.Oscillations;
+            property.FindPropertyRelative(nameof(TweenEase.Falloff)).floatValue = defaults.Falloff;
             property.FindPropertyRelative(nameof(TweenEase.Bounces)).intValue = defaults.Bounces;
             property.FindPropertyRelative(nameof(TweenEase.Bounciness)).floatValue = defaults.Bounciness;
         }
@@ -131,7 +131,7 @@ namespace Tekly.Tweenlines
                 Type = (EaseType) property.FindPropertyRelative(nameof(TweenEase.Type)).intValue,
                 Direction = (EaseDirection) property.FindPropertyRelative(nameof(TweenEase.Direction)).intValue,
                 Overshoot = property.FindPropertyRelative(nameof(TweenEase.Overshoot)).floatValue,
-                Oscillations = property.FindPropertyRelative(nameof(TweenEase.Oscillations)).intValue,
+                Falloff = property.FindPropertyRelative(nameof(TweenEase.Falloff)).floatValue,
                 Bounces = property.FindPropertyRelative(nameof(TweenEase.Bounces)).intValue,
                 Bounciness = property.FindPropertyRelative(nameof(TweenEase.Bounciness)).floatValue
             };

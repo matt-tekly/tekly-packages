@@ -22,6 +22,12 @@ namespace Tekly.Tweenlines
         public static bool IsPlaying { get; private set; }
         public static bool IsActive => s_driver != null && AnimationMode.InAnimationMode(s_driver);
 
+        /// <summary>How fast the preview plays, where 1 is real time. Scrubbing is not affected</summary>
+        public static float TimeScale {
+            get => s_timeScale;
+            set => s_timeScale = Mathf.Max(0, value);
+        }
+
         public static TweenAnimation Animation {
             get {
                 if (Target == null || AnimationIndex < 0 || AnimationIndex >= Target.Animations.Count) {
@@ -38,6 +44,7 @@ namespace Tekly.Tweenlines
         private static readonly List<(EditorCurveBinding, PropertyModification)> s_modifications = new List<(EditorCurveBinding, PropertyModification)>();
         private static double s_lastTick;
         private static float s_direction = 1;
+        private static float s_timeScale = 1;
 
         public static bool IsPreviewing(Tweenline tweenline)
         {
@@ -303,7 +310,7 @@ namespace Tekly.Tweenlines
             }
 
             var now = EditorApplication.timeSinceStartup;
-            var deltaTime = (float) (now - s_lastTick);
+            var deltaTime = (float) (now - s_lastTick) * s_timeScale;
             s_lastTick = now;
 
             var animation = Animation;

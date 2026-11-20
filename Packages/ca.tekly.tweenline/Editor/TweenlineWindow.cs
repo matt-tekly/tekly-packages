@@ -59,6 +59,7 @@ namespace Tekly.Tweenlines
         [SerializeField] private float m_offset = -0.05f;
         [SerializeField] private float m_snap = 0.05f;
         [SerializeField] private float m_detailsHeight = DETAILS_HEIGHT;
+        [SerializeField] private float m_timeScale = 1;
 
         private SerializedObject m_serializedObject;
         private readonly List<Row> m_rows = new List<Row>();
@@ -89,6 +90,10 @@ namespace Tekly.Tweenlines
         private static readonly Color s_stepOnColor = new Color(0.3f, 0.65f, 0.35f);
         private static readonly Color s_stepOffColor = new Color(0.35f, 0.35f, 0.35f, 0.6f);
         private static readonly Color s_endColor = new Color(1, 1, 1, 0.25f);
+
+        // Real time is first, so a scale that is not in the list falls back to it
+        private static readonly float[] s_timeScales = { 1f, 0.1f, 0.25f, 0.5f, 2f };
+        private static readonly string[] s_timeScaleLabels = { "1x", "0.1x", "0.25x", "0.5x", "2x" };
 
         private TweenAnimation Animation {
             get {
@@ -136,6 +141,7 @@ namespace Tekly.Tweenlines
             Undo.undoRedoPerformed += OnUndoRedo;
             EditorApplication.hierarchyChanged += OnHierarchyChanged;
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+            TweenlinePreview.TimeScale = m_timeScale;
             OnSelectionChanged();
         }
 
@@ -442,6 +448,17 @@ namespace Tekly.Tweenlines
 
             if (!Mathf.Approximately(time, PlayheadTime)) {
                 ScrubTo(time);
+            }
+
+            // Play mode runs on the game's own clock, so the scale only applies to the edit mode preview
+            using (new EditorGUI.DisabledScope(Application.isPlaying)) {
+                var scaleIndex = Mathf.Max(0, System.Array.IndexOf(s_timeScales, m_timeScale));
+                var newIndex = EditorGUILayout.Popup(scaleIndex, s_timeScaleLabels, EditorStyles.toolbarPopup, GUILayout.Width(52));
+
+                if (newIndex != scaleIndex || !Mathf.Approximately(TweenlinePreview.TimeScale, m_timeScale)) {
+                    m_timeScale = s_timeScales[newIndex];
+                    TweenlinePreview.TimeScale = m_timeScale;
+                }
             }
         }
 

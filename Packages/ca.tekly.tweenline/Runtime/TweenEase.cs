@@ -37,7 +37,7 @@ namespace Tekly.Tweenlines
     /// <summary>
     /// How a clip moves from its start to its end. The type picks the shape and the direction picks which
     /// end it shapes. Settings are in units you can see: Overshoot is a fraction of the distance travelled,
-    /// counts are counts. Every ease starts at exactly 0 and ends at exactly 1, so clips land on their end
+    /// counts are counts. Elastic has no count: how much each swing shrinks sets how long it keeps swinging. Every ease starts at exactly 0 and ends at exactly 1, so clips land on their end
     /// value.
     /// </summary>
     [Serializable]
@@ -45,7 +45,6 @@ namespace Tekly.Tweenlines
     {
         public const float DEFAULT_BACK_OVERSHOOT = 0.1f;
         public const float DEFAULT_ELASTIC_OVERSHOOT = 0.3f;
-        public const int DEFAULT_OSCILLATIONS = 3;
         public const int DEFAULT_BOUNCES = 3;
         public const float DEFAULT_BOUNCINESS = 0.25f;
 
@@ -53,14 +52,23 @@ namespace Tekly.Tweenlines
 
         private const float MIN_OVERSHOOT = 0.001f;
 
+        // Past this Elastic barely loses height from one swing to the next, so it would never settle in a clip
+        private const float MAX_ELASTIC_OVERSHOOT = 0.9f;
+        private const float MAX_FALLOFF = 0.9f;
+        private const float MIN_FALLOFF = 0.001f;
+
+        // Elastic's swings have shrunk to 1 percent of the distance when the clip ends. Stored as -ln(0.01).
+        // A bigger value stops more abruptly and a smaller one leaves more of the clip with nothing to see
+        private const float ELASTIC_END_DECAY = 4.60517f;
+
         public EaseType Type;
         public EaseDirection Direction;
 
-        [Tooltip("How far Back or Elastic goes past the end, as a fraction of the distance. 0.1 is 10 percent")]
+        [Tooltip("How far Back or Elastic goes past the end, as a fraction of the distance. 0.1 is 10 percent. For Elastic with no Falloff it is also how springy it is: a bigger overshoot swings more times")]
         [Range(MIN_OVERSHOOT, 1)] public float Overshoot;
 
-        [Tooltip("Number of times Elastic swings across the end before it settles")]
-        [Range(1, MAX_COUNT)] public int Oscillations;
+        [Tooltip("Size of each Elastic swing relative to the one before it. Higher keeps wobbling for longer, so it needs a longer clip. 0 lets the Overshoot decide, the way a real spring behaves")]
+        [Range(0, MAX_FALLOFF)] public float Falloff;
 
         [Tooltip("Number of rebounds after Bounce first lands")]
         [Range(0, MAX_COUNT)] public int Bounces;
@@ -73,7 +81,7 @@ namespace Tekly.Tweenlines
             Type = type;
             Direction = direction;
             Overshoot = 0;
-            Oscillations = 0;
+            Falloff = 0;
             Bounces = 0;
             Bounciness = 0;
 
@@ -86,7 +94,7 @@ namespace Tekly.Tweenlines
         public void ResetSettings()
         {
             Overshoot = Type == EaseType.Elastic ? DEFAULT_ELASTIC_OVERSHOOT : DEFAULT_BACK_OVERSHOOT;
-            Oscillations = DEFAULT_OSCILLATIONS;
+            Falloff = 0;
             Bounces = DEFAULT_BOUNCES;
             Bounciness = DEFAULT_BOUNCINESS;
         }
@@ -165,28 +173,59 @@ namespace Tekly.Tweenlines
         }
 
         /// <summary>
-        /// A cosine swinging across the end inside an envelope that closes at t = 1, so it lands exactly. The
-        /// envelope's power is picked so the first swing past the end is the overshoot.
+        /// A spring fitted to the clip. It is a cosine swinging across the end inside an envelope that
+        /// fades. The swing rate is picked so the swings have just died away as the clip ends, which leaves
+        /// little still time at the end however long the clip is.
+        /// With no Falloff the envelope fades at one rate, like a damped spring, so each swing is roughly the
+        /// overshoot times the one before: a small overshoot goes past once and settles, a large one keeps
+        /// wobbling. With a Falloff the envelope fades at one rate on the way in, to make the first swing the
+        /// overshoot, and at the Falloff's rate after that.
         /// </summary>
         private float ElasticOut(float t)
         {
-            var oscillations = Mathf.Clamp(Oscillations, 1, MAX_COUNT);
-            var overshoot = Mathf.Clamp(Overshoot, MIN_OVERSHOOT, 1);
+            const float quarterTurn = Mathf.PI * 0.5f;
 
-            var frequency = 2 * Mathf.PI * oscillations;
+            var overshoot = Mathf.Clamp(Overshoot, MIN_OVERSHOOT, MAX_ELASTIC_OVERSHOOT);
+            var target = -Mathf.Log(overshoot);
 
-            // The first peak is near t = 1 / 2n. The envelope pulls it earlier, so refine where it is and the
-            // power that makes its height the overshoot
-            var peak = 0.5f / oscillations;
-            var power = Mathf.Log(overshoot) / Mathf.Log(1 - peak);
+            // The curve is 1 - envelope * cos(phase), and it first reaches the end at a quarter turn. The
+            // envelope is e^(-approach * phase) up to there and fades by e^(-decay * phase) after
+            float approach;
+            float decay;
 
-            for (var i = 0; i < 3; i++) {
-                var angle = Mathf.PI - Mathf.Atan(power / (frequency * (1 - peak)));
-                peak = angle / frequency;
-                power = Mathf.Log(overshoot / -Mathf.Cos(angle)) / Mathf.Log(1 - peak);
+            if (Falloff > 0) {
+                decay = -Mathf.Log(Mathf.Clamp(Falloff, MIN_FALLOFF, MAX_FALLOFF)) / Mathf.PI;
+
+                // The first peak comes a little before half a turn, at PI - atan(decay). This is the approach
+                // rate that leaves the envelope at the overshoot there. It is never negative, which would dip
+                // backwards at the start, so a big overshoot with a small Falloff gets a smaller first swing
+                var peak = decay * (quarterTurn - Mathf.Atan(decay)) + 0.5f * Mathf.Log(1 + decay * decay);
+                approach = Mathf.Max(0, (target - peak) / quarterTurn);
+            } else {
+                // One rate throughout. The position of the peak depends on the rate, so refine it
+                decay = target / Mathf.PI;
+
+                for (var i = 0; i < 3; i++) {
+                    decay = (target - 0.5f * Mathf.Log(1 + decay * decay)) / (Mathf.PI - Mathf.Atan(decay));
+                }
+
+                approach = decay;
             }
 
-            return 1 - Mathf.Pow(1 - t, power) * Mathf.Cos(frequency * t);
+            // How far the swing has turned by the end of the clip, which is when it has died away. A tiny
+            // overshoot has already died away before it reaches the end
+            var remaining = ELASTIC_END_DECAY - approach * quarterTurn;
+            var turn = remaining > 0 ? quarterTurn + remaining / decay : ELASTIC_END_DECAY / approach;
+            var phase = turn * t;
+
+            var fade = phase <= quarterTurn ? approach * phase : approach * quarterTurn + decay * (phase - quarterTurn);
+
+            // Eases out what swing is left over the back half of the clip, so it lands exactly and comes to
+            // rest gently. It is close to 1 early on, which leaves the first swing at the overshoot
+            var t2 = t * t;
+            var landing = 1 - t2 * t2;
+
+            return 1 - Mathf.Exp(-fade) * Mathf.Cos(phase) * landing;
         }
 
         /// <summary>
