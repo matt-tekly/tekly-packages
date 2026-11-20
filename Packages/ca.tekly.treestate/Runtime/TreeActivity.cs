@@ -13,6 +13,12 @@ namespace Tekly.TreeState
         public virtual string Name => name;
         public virtual string FullName => Name;
         public string TypeName => m_typeName ??= GetType().Name;
+
+        /// <summary>
+        /// Seconds a load or unload can take before it is reported as slow.
+        /// 0 uses the monitor's SlowThreshold, negative never reports.
+        /// </summary>
+        public float SlowThreshold { get; set; }
         
         public ActivityMode Mode
         {
@@ -20,13 +26,17 @@ namespace Tekly.TreeState
             private set {
                 var previousMode = m_mode;
                 m_mode = value;
+                m_modeStartTime = Time.unscaledTime;
+                m_slowReported = false;
                 m_monitor?.ActivityModeChanged(this, previousMode);
             }
         }
-
-        private string m_typeName;
+        
+        [NonSerialized] private string m_typeName;
         private IActivityMonitor m_monitor;
         private ActivityMode m_mode;
+        private float m_modeStartTime;
+        private bool m_slowReported;
         internal readonly Disposables Disposables = new Disposables();
 
         public void SetMonitor(IActivityMonitor monitor)
@@ -46,7 +56,10 @@ namespace Tekly.TreeState
                     LoadingUpdate();
 
                     if (IsDoneLoading()) {
+                        CheckSlow(true);
                         Mode = ActivityMode.ReadyToActivate;
+                    } else {
+                        CheckSlow(false);
                     }
 
                     break;
@@ -60,7 +73,10 @@ namespace Tekly.TreeState
                     UnloadingUpdate();
 
                     if (IsDoneUnloading()) {
+                        CheckSlow(true);
                         Deactivate();
+                    } else {
+                        CheckSlow(false);
                     }
 
                     break;
@@ -108,6 +124,30 @@ namespace Tekly.TreeState
             InactiveStarted();
             PostInactive();
             Disposables.Clear();
+        }
+
+        /// <summary>
+        /// Reports the current load or unload to the monitor if it has run past SlowThreshold, or the monitor's
+        /// SlowThreshold when this activity doesn't have its own.
+        /// While still running it reports once. On completion it reports again with the final duration.
+        /// </summary>
+        private void CheckSlow(bool completed)
+        {
+            if (m_monitor == null || (m_slowReported && !completed)) {
+                return;
+            }
+
+            var threshold = SlowThreshold != 0 ? SlowThreshold : m_monitor.SlowThreshold;
+            if (threshold <= 0) {
+                return;
+            }
+
+            // unscaledTime doesn't advance while the Editor is paused, so pauses aren't reported as slow loads
+            var duration = Time.unscaledTime - m_modeStartTime;
+            if (duration > threshold) {
+                m_slowReported = true;
+                m_monitor.ActivitySlow(this, duration, completed);
+            }
         }
 
         protected virtual void PreLoad() { }

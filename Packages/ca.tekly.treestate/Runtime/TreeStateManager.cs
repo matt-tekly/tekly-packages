@@ -20,6 +20,7 @@ namespace Tekly.TreeState
 		
 		public float CurrentTransitionDuration => Time.unscaledTime - m_sequenceStartTime;
 		public TreeState PendingTransition => m_pendingTransition;
+		public float SlowThreshold => TreeStateRegistry.Instance.SlowThreshold;
 		
 		private TreeActivity[] m_activities;
 		
@@ -117,10 +118,11 @@ namespace Tekly.TreeState
 				var evt = new TreeActivityModeChangedEvt {
 					Manager = Name,
 					State = treeActivity.Name,
+					StateFullName = treeActivity.FullName,
 					ActivityType = treeActivity.TypeName,
 					Mode = treeActivity.Mode,
 					PreviousMode = previousMode,
-					IsState = treeActivity is TreeState
+					IsState = treeActivity is TreeState,
 				};
 			
 				TreeStateRegistry.Instance.ActivityModeChanged.Emit(evt);
@@ -129,6 +131,22 @@ namespace Tekly.TreeState
 #if UNITY_EDITOR
 			UnityEditor.EditorApplication.RepaintHierarchyWindow();
 #endif
+		}
+
+		public void ActivitySlow(TreeActivity treeActivity, float duration, bool completed)
+		{
+			var evt = new TreeActivitySlowEvt {
+				Manager = Name,
+				State = treeActivity.Name,
+				StateFullName = treeActivity.FullName,
+				ActivityType = treeActivity.TypeName,
+				Mode = treeActivity.Mode,
+				Duration = duration,
+				Completed = completed,
+				IsState = treeActivity is TreeState
+			};
+
+			TreeStateRegistry.Instance.ActivitySlow.Emit(evt);
 		}
 
 		public void CurrentActivitySet(TreeActivity treeActivity)

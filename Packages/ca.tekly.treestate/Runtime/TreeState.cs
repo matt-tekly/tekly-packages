@@ -45,8 +45,8 @@ namespace Tekly.TreeState
 		public TreeStateManager Manager { get; private set; }
 
 		public override string FullName => m_fullName ??= TreeStateUtils.CalculatePath(this);
-
-		private string m_fullName;
+		
+		[NonSerialized] private string m_fullName;
 		
 		private List<TreeStateActivity> m_activities;
 

@@ -1,3 +1,4 @@
+using System;
 using Tekly.TreeState.Utils;
 
 namespace Tekly.TreeState
@@ -13,8 +14,8 @@ namespace Tekly.TreeState
 		public override string Name => m_name ??= $"{name} [{GetType().Name}]";
 		public override string FullName => m_fullName ??= TreeStateUtils.CalculatePath(TreeState);
 		
-		private string m_name;
-		private string m_fullName;
+		[NonSerialized] private string m_name;
+		[NonSerialized] private string m_fullName;
 
 		protected TreeState TreeState;
     
