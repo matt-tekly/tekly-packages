@@ -197,6 +197,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
+  m_UseReflectionProbes: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -1485,13 +1486,14 @@ GameObject:
   - component: {fileID: 1508563261}
   - component: {fileID: 1508563265}
   - component: {fileID: 1508563266}
+  - component: {fileID: 1508563267}
   m_Layer: 5
   m_Name: loading_panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1508563261
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1550,6 +1552,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
+  m_UseReflectionProbes: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -1602,6 +1605,60 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_completeHideOnDisable: 0
   m_id: loading_panel
+--- !u!114 &1508563267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1508563259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 846e89a1ea3966d46a3f363e7a44fbe3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Tekly.Tweenline.Runtime::Tekly.Tweenlines.Tweenline
+  m_playOnEnable: Show
+  m_useUnscaledTime: 0
+  m_speed: 1
+  m_stagger: 0
+  m_hurrySpeed: 4
+  m_animations:
+  - m_name: Show
+    m_wrap: 1
+    m_tracks:
+    - rid: 6958352173412647017
+    m_markers:
+    - Time: 1.8000001
+      Name: Marker
+      Event:
+        m_PersistentCalls:
+          m_Calls: []
+  m_completed:
+    m_PersistentCalls:
+      m_Calls: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 6958352173412647017
+      type: {class: BounceTrack, ns: Tekly.Tweenlines.Tracks, asm: Tekly.Tweenline.Runtime}
+      data:
+        m_enabled: 1
+        m_target: {fileID: 2079160508}
+        m_direction: {x: 0, y: 1, z: 0}
+        m_preserve: 0
+        m_clips:
+        - Start: 0
+          Duration: 1.1
+          Drop: 0
+          DropFrom: 0
+          OffScreenArea: {fileID: 0}
+          Height: 200
+          Hops: 3
+          Decay: 0.1516
+          Stretch: 0.15
+          Squash: 0.25
+          ImpactTime: 0.08
+          Anticipation: 0.17
 --- !u!1 &1606198007
 GameObject:
   m_ObjectHideFlags: 0
@@ -1935,6 +1992,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
+  m_UseReflectionProbes: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -2035,6 +2093,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
+  m_UseReflectionProbes: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -2214,7 +2273,6 @@ GameObject:
   - component: {fileID: 2079160508}
   - component: {fileID: 2079160510}
   - component: {fileID: 2079160509}
-  - component: {fileID: 2079160511}
   m_Layer: 5
   m_Name: LoadingText
   m_TagString: Untagged
@@ -2311,7 +2369,7 @@ MonoBehaviour:
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 1
-  m_ActiveFontFeatures: 00000000
+  m_ActiveFontFeatures: 6e72656b
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
@@ -2341,115 +2399,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2079160507}
   m_CullTransparentMesh: 1
---- !u!114 &2079160511
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2079160507}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 790e481d4afe4f9c98676b13955a0387, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_name: 
-  m_playOnEnable: 1
-  m_delay: 0
-  m_siblingIndexDelay: 0
-  m_useUnscaledTime: 0
-  m_loops: -1
-  m_tweens:
-  - rid: 7832460860249341952
-  - rid: 7832460860249341953
-  - rid: 5278890747381940224
-  - rid: 5278890747381940225
-  m_completed:
-    m_PersistentCalls:
-      m_Calls: []
-  references:
-    version: 2
-    RefIds:
-    - rid: 5278890747381940224
-      type: {class: RotationTween, ns: Tekly.Common.Tweenimation.Tweens, asm: Tekly.Common.Runtime}
-      data:
-        m_name: RotationTween
-        m_enabled: 1
-        m_delay: 1.2
-        m_duration: 0.1
-        m_ease:
-          UseCurve: 0
-          Ease: 31
-          Curve:
-            serializedVersion: 2
-            m_Curve: []
-            m_PreInfinity: 2
-            m_PostInfinity: 2
-            m_RotationOrder: 4
-        m_transform: {fileID: 2079160508}
-        m_originMode: 1
-        m_start: {x: 0, y: 0, z: 0}
-        m_end: {x: 0, y: 0, z: 20}
-    - rid: 5278890747381940225
-      type: {class: ScaleTween, ns: Tekly.Common.Tweenimation.Tweens, asm: Tekly.Common.Runtime}
-      data:
-        m_name: ScaleTween
-        m_enabled: 1
-        m_delay: 1.2
-        m_duration: 0.23
-        m_ease:
-          UseCurve: 0
-          Ease: 32
-          Curve:
-            serializedVersion: 2
-            m_Curve: []
-            m_PreInfinity: 2
-            m_PostInfinity: 2
-            m_RotationOrder: 4
-        m_transform: {fileID: 2079160508}
-        m_originMode: 1
-        m_start: {x: 1, y: 1, z: 1}
-        m_end: {x: 1.5, y: 1, z: 1}
-    - rid: 7832460860249341952
-      type: {class: TranslationTween, ns: Tekly.Common.Tweenimation.Tweens, asm: Tekly.Common.Runtime}
-      data:
-        m_name: TranslationTween
-        m_enabled: 1
-        m_delay: 0
-        m_duration: 1
-        m_ease:
-          UseCurve: 0
-          Ease: 15
-          Curve:
-            serializedVersion: 2
-            m_Curve: []
-            m_PreInfinity: 2
-            m_PostInfinity: 2
-            m_RotationOrder: 4
-        m_transform: {fileID: 2079160508}
-        m_originMode: 0
-        m_start: {x: 0, y: -50, z: 0}
-        m_end: {x: 0, y: 50, z: 0}
-    - rid: 7832460860249341953
-      type: {class: TranslationTween, ns: Tekly.Common.Tweenimation.Tweens, asm: Tekly.Common.Runtime}
-      data:
-        m_name: TranslationTween
-        m_enabled: 1
-        m_delay: 1
-        m_duration: 0.5
-        m_ease:
-          UseCurve: 0
-          Ease: 29
-          Curve:
-            serializedVersion: 2
-            m_Curve: []
-            m_PreInfinity: 2
-            m_PostInfinity: 2
-            m_RotationOrder: 4
-        m_transform: {fileID: 2079160508}
-        m_originMode: 0
-        m_start: {x: 0, y: 50, z: 0}
-        m_end: {x: 0, y: -50, z: 0}
 --- !u!1 &2134060053
 GameObject:
   m_ObjectHideFlags: 0

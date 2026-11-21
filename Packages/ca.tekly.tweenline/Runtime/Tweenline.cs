@@ -23,6 +23,10 @@ namespace Tekly.Tweenlines
 
         /// <summary>Changes whenever a play starts or is stopped, so a play can be told apart from a later one</summary>
         internal int PlayId => m_playId;
+
+        /// <summary>Where this sits in the TweenlineRunner's list, or -1 when it isn't being updated</summary>
+        internal int RunnerIndex { get; set; } = -1;
+
         public TweenOrigins Origins => m_origins ??= new TweenOrigins();
 
         public float Speed {
@@ -50,7 +54,6 @@ namespace Tekly.Tweenlines
         [SerializeField] private UnityEvent<string> m_completed = new UnityEvent<string>();
 
         private static readonly List<Tweenline> s_hurryBuffer = new List<Tweenline>();
-        private static readonly Stack<List<Awaitable>> s_awaitableLists = new Stack<List<Awaitable>>();
         private static bool s_hurrying;
 
         private TweenOrigins m_origins;
@@ -68,6 +71,9 @@ namespace Tekly.Tweenlines
 
         private void OnEnable()
         {
+            // Picks a play left running when it was disabled back up
+            UpdateRunner();
+
             if (!string.IsNullOrEmpty(m_playOnEnable)) {
                 Play(m_playOnEnable);
             }
@@ -75,11 +81,16 @@ namespace Tekly.Tweenlines
 
         private void OnDisable()
         {
-            // Update stops here, so a play being awaited could never finish
+            UpdateRunner();
+
+            // Ticks stop here, so a play being awaited could never finish
             CancelAwait();
         }
 
-        private void Update()
+        /// <summary>
+        /// Advances the current play by a frame. Called by TweenlineRunner while this is playing and enabled.
+        /// </summary>
+        internal void Tick()
         {
             if (!m_playing) {
                 return;
@@ -144,46 +155,41 @@ namespace Tekly.Tweenlines
         /// Plays an animation on the first count Tweenlines, each starting stagger seconds after the one before
         /// it, and completes when all of them have finished. The stagger follows play order and replaces each
         /// Tweenline's own Stagger. Inactive ones are skipped without leaving a gap. Throws
-        /// OperationCanceledException when any of the plays is interrupted, see PlayAsync.
+        /// OperationCanceledException as soon as any of the plays is interrupted, see PlayAsync.
         /// </summary>
         public static Awaitable PlayAllAsync(IReadOnlyList<Tweenline> tweenlines, string animationName, int count, float stagger = 0)
         {
             return PlayAllAsync(tweenlines, animationName, count, stagger, null);
         }
 
-        internal static async Awaitable PlayAllAsync(IReadOnlyList<Tweenline> tweenlines, string animationName, int count, float stagger, TweenSequence sequence)
+        internal static Awaitable PlayAllAsync(IReadOnlyList<Tweenline> tweenlines, string animationName, int count, float stagger, TweenSequence sequence)
         {
-            // Several of these can be in flight at once, so each call takes its own list
-            var awaitables = s_awaitableLists.Count > 0 ? s_awaitableLists.Pop() : new List<Awaitable>();
+            var group = PlayGroup.Rent();
+            var awaitable = group.Completion.Awaitable;
+            var delay = 0f;
 
-            try {
-                var delay = 0f;
+            count = Mathf.Min(count, tweenlines.Count);
 
-                count = Mathf.Min(count, tweenlines.Count);
+            for (var i = 0; i < count; i++) {
+                var tweenline = tweenlines[i];
 
-                for (var i = 0; i < count; i++) {
-                    var tweenline = tweenlines[i];
-
-                    if (tweenline == null || !tweenline.isActiveAndEnabled) {
-                        continue;
-                    }
-
-                    if (!tweenline.TryFind(animationName, out var animation)) {
-                        continue;
-                    }
-
-                    awaitables.Add(tweenline.PlayAsync(animation, false, delay));
-                    sequence?.Started(tweenline);
-                    delay += stagger;
+                if (tweenline == null || !tweenline.isActiveAndEnabled) {
+                    continue;
                 }
 
-                for (var i = 0; i < awaitables.Count; i++) {
-                    await awaitables[i];
+                if (!tweenline.TryFind(animationName, out var animation)) {
+                    continue;
                 }
-            } finally {
-                awaitables.Clear();
-                s_awaitableLists.Push(awaitables);
+
+                group.Watch(tweenline.PlayAsync(animation, false, delay));
+                sequence?.Started(tweenline);
+                delay += stagger;
             }
+
+            // Plays that finished straight away have already reported, so this can complete the group now
+            group.Release();
+
+            return awaitable;
         }
 
         /// <summary>
@@ -304,6 +310,7 @@ namespace Tekly.Tweenlines
             m_hurried = false;
             m_startMarkersPending = false;
 
+            UpdateRunner();
             CancelAwait();
         }
 
@@ -387,7 +394,7 @@ namespace Tekly.Tweenlines
             var awaitable = m_completion.Awaitable;
             m_awaited = true;
 
-            // Update never runs on an inactive Tweenline, so the play could not finish
+            // An inactive Tweenline is never ticked, so the play could not finish
             if (!isActiveAndEnabled) {
                 CancelAwait();
             }
@@ -414,6 +421,8 @@ namespace Tekly.Tweenlines
             m_hurried = false;
             m_delay = delay;
             m_playing = true;
+
+            UpdateRunner();
 
             // Reversing plays back towards the start, so it keeps the start values of the last forward play
             // instead of reading the end pose as the start
@@ -490,6 +499,21 @@ namespace Tekly.Tweenlines
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Puts this on the TweenlineRunner while it is playing and enabled, and takes it off otherwise. Only
+        /// in play mode, since nothing ticks in edit mode and the runner's object can't be made there.
+        /// </summary>
+        private void UpdateRunner()
+        {
+            var shouldTick = m_playing && isActiveAndEnabled && Application.isPlaying;
+
+            if (shouldTick && RunnerIndex < 0) {
+                TweenlineRunner.Add(this);
+            } else if (!shouldTick && RunnerIndex >= 0) {
+                TweenlineRunner.Remove(this);
+            }
         }
 
         /// <summary>
@@ -578,6 +602,8 @@ namespace Tekly.Tweenlines
             m_playing = false;
             m_hurried = false;
 
+            UpdateRunner();
+
             var animation = m_current;
 
             // Before the events, so a listener that plays something else does not cancel a play that finished
@@ -605,6 +631,69 @@ namespace Tekly.Tweenlines
         private void OnValidate()
         {
             m_completed ??= new UnityEvent<string>();
+        }
+
+        /// <summary>
+        /// The plays started by one PlayAllAsync. Completes when every play has finished and is cancelled as
+        /// soon as any of them is interrupted, instead of waiting for the plays before it. Groups are pooled
+        /// and go back to the pool once every play has reported, since a cancelled group still has plays
+        /// running that will report later.
+        /// </summary>
+        private sealed class PlayGroup
+        {
+            private static readonly Stack<PlayGroup> s_pool = new Stack<PlayGroup>();
+
+            public readonly AwaitableCompletionSource Completion = new AwaitableCompletionSource();
+
+            private int m_pending;
+            private bool m_done;
+
+            /// <summary>
+            /// A group holding one report for the caller, released once every play has been started, so
+            /// plays that finish straight away can't complete it early.
+            /// </summary>
+            public static PlayGroup Rent()
+            {
+                var group = s_pool.Count > 0 ? s_pool.Pop() : new PlayGroup();
+
+                group.Completion.Reset();
+                group.m_pending = 1;
+                group.m_done = false;
+
+                return group;
+            }
+
+            public void Watch(Awaitable play)
+            {
+                m_pending++;
+                _ = WatchAsync(play);
+            }
+
+            public void Release()
+            {
+                if (!m_done && m_pending == 1) {
+                    m_done = true;
+                    Completion.SetResult();
+                }
+
+                if (--m_pending == 0) {
+                    s_pool.Push(this);
+                }
+            }
+
+            private async Awaitable WatchAsync(Awaitable play)
+            {
+                try {
+                    await play;
+                } catch (OperationCanceledException) {
+                    if (!m_done) {
+                        m_done = true;
+                        Completion.SetCanceled();
+                    }
+                }
+
+                Release();
+            }
         }
     }
 }

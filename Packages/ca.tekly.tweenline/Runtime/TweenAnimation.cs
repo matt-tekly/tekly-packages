@@ -57,6 +57,10 @@ namespace Tekly.Tweenlines
 
         [NonSerialized] private TweenMixer m_mixer;
 
+        // Split once in Prepare so Evaluate doesn't check every track's type twice per frame
+        [NonSerialized] private List<TweenTrack> m_baseTracks;
+        [NonSerialized] private List<TweenTrack> m_layeredTracks;
+
         public TweenAnimation() { }
 
         public TweenAnimation(string name)
@@ -78,19 +82,28 @@ namespace Tekly.Tweenlines
         public void Prepare(TweenOrigins origins, bool readCurrent)
         {
             m_mixer ??= new TweenMixer();
-            m_mixer.BeginPrepare(origins, readCurrent);
+            m_baseTracks ??= new List<TweenTrack>();
+            m_layeredTracks ??= new List<TweenTrack>();
 
-            // Base tracks first so layered tracks can see which channels have a base track
-            foreach (var track in m_tracks) {
-                if (track != null && !(track is ILayeredTrack)) {
-                    track.Prepare(m_mixer);
-                }
-            }
+            m_mixer.BeginPrepare(origins, readCurrent);
+            m_baseTracks.Clear();
+            m_layeredTracks.Clear();
 
             foreach (var track in m_tracks) {
                 if (track is ILayeredTrack) {
-                    track.Prepare(m_mixer);
+                    m_layeredTracks.Add(track);
+                } else if (track != null) {
+                    m_baseTracks.Add(track);
                 }
+            }
+
+            // Base tracks first so layered tracks can see which channels have a base track
+            foreach (var track in m_baseTracks) {
+                track.Prepare(m_mixer);
+            }
+
+            foreach (var track in m_layeredTracks) {
+                track.Prepare(m_mixer);
             }
         }
 
@@ -105,14 +118,14 @@ namespace Tekly.Tweenlines
 
             m_mixer.BeginEvaluate();
 
-            foreach (var track in m_tracks) {
-                if (track != null && track.Enabled && !(track is ILayeredTrack)) {
+            foreach (var track in m_baseTracks) {
+                if (track.Enabled) {
                     track.Evaluate(time);
                 }
             }
 
-            foreach (var track in m_tracks) {
-                if (track != null && track.Enabled && track is ILayeredTrack) {
+            foreach (var track in m_layeredTracks) {
+                if (track.Enabled) {
                     track.Evaluate(time);
                 }
             }

@@ -140,8 +140,13 @@ namespace Tekly.Tweenlines
                 return;
             }
 
-            if (animation.Wrap == TweenWrap.Once && Time >= animation.Duration) {
-                Time = 0;
+            // A PingPong preview can leave it heading backwards, which a Once animation never does
+            if (animation.Wrap == TweenWrap.Once) {
+                s_direction = 1;
+
+                if (Time >= animation.Duration) {
+                    Time = 0;
+                }
             }
 
             IsPlaying = true;

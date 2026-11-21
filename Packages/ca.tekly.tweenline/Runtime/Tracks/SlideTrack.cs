@@ -139,7 +139,8 @@ namespace Tekly.Tweenlines.Tracks
 
         public override void Evaluate(float time)
         {
-            if (!m_position.IsPrepared) {
+            // Off screen offsets are resolved per clip in Prepare, so a clip added since then waits for the next Prepare
+            if (!m_position.IsPrepared || m_offScreenVectors.Length != m_clips.Count) {
                 return;
             }
 

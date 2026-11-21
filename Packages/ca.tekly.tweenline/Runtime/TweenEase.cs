@@ -139,7 +139,8 @@ namespace Tekly.Tweenlines
                 case EaseType.Quint:
                     return t * t * t * t * t;
                 case EaseType.Expo:
-                    return Mathf.Pow(2, 10 * (t - 1));
+                    // Shifted and scaled from 2^(10(t - 1)) so it is exactly 0 at the start instead of 0.001
+                    return (Mathf.Pow(2, 10 * t) - 1) / 1023f;
                 case EaseType.Circ:
                     return 1 - Mathf.Sqrt(1 - t * t);
                 case EaseType.Back:

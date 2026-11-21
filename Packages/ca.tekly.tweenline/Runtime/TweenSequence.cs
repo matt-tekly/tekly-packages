@@ -25,19 +25,25 @@ namespace Tekly.Tweenlines
         /// <summary>Whether Cancel was called or the token given to the sequence was cancelled</summary>
         public bool IsCancelled => m_cancelled || m_cancellationToken.IsCancellationRequested;
 
+        /// <summary>Whether Delay counts unscaled time, for sequences that run while the game is paused</summary>
+        public bool UseUnscaledTime => m_useUnscaledTime;
+
         private readonly List<Entry> m_active = new List<Entry>();
         private readonly CancellationToken m_cancellationToken;
+        private readonly bool m_useUnscaledTime;
         private bool m_hurried;
         private bool m_completing;
         private bool m_cancelled;
 
         /// <summary>
         /// Pass the destroyCancellationToken of the MonoBehaviour driving the sequence, so the sequence counts
-        /// as cancelled once that is destroyed: a Delay ends and later plays throw.
+        /// as cancelled once that is destroyed: a Delay ends and later plays throw. Set useUnscaledTime when
+        /// the sequence runs while Time.timeScale is 0, like on a pause screen whose Tweenlines use unscaled time.
         /// </summary>
-        public TweenSequence(CancellationToken cancellationToken = default)
+        public TweenSequence(CancellationToken cancellationToken = default, bool useUnscaledTime = false)
         {
             m_cancellationToken = cancellationToken;
+            m_useUnscaledTime = useUnscaledTime;
         }
 
         /// <summary>
@@ -82,10 +88,12 @@ namespace Tekly.Tweenlines
             var remaining = seconds;
 
             while (remaining > 0 && !m_completing) {
-                await Awaitable.NextFrameAsync(m_cancellationToken);
+                // No token here: passing one registers a callback on it every frame. The check after covers it
+                await Awaitable.NextFrameAsync();
                 ThrowIfCancelled();
 
-                remaining -= Time.deltaTime * (m_hurried ? hurrySpeed : 1f);
+                var deltaTime = m_useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
+                remaining -= deltaTime * (m_hurried ? hurrySpeed : 1f);
             }
         }
 
@@ -113,7 +121,8 @@ namespace Tekly.Tweenlines
             m_completing = true;
 
             // Completing a play resumes the code awaiting it, which starts the next play through Started.
-            // Those complete there and are never added, so this only drains what was already playing
+            // Those complete there and are never added, so this only drains what was already playing.
+            // Oldest first, so markers left on staggered plays fire in the order the plays started
             while (TakeActive(out var tweenline)) {
                 tweenline.Complete();
             }
@@ -156,13 +165,13 @@ namespace Tekly.Tweenlines
         }
 
         /// <summary>
-        /// Removes the most recent play that is still running. False when there is none left.
+        /// Removes the oldest play that is still running. False when there is none left.
         /// </summary>
         private bool TakeActive(out Tweenline tweenline)
         {
             while (m_active.Count > 0) {
-                var entry = m_active[m_active.Count - 1];
-                m_active.RemoveAt(m_active.Count - 1);
+                var entry = m_active[0];
+                m_active.RemoveAt(0);
 
                 if (entry.IsActive) {
                     tweenline = entry.Tweenline;

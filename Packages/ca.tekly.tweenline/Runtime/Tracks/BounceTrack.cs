@@ -179,7 +179,8 @@ namespace Tekly.Tweenlines.Tracks
 
         public override void Evaluate(float time)
         {
-            if (m_scaleSlot == null) {
+            // Drops are resolved per clip in Prepare, so a clip added since then waits for the next Prepare
+            if (m_scaleSlot == null || m_dropVectors.Length != m_clips.Count) {
                 return;
             }
 

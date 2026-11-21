@@ -1159,9 +1159,9 @@ MonoBehaviour:
         - Start: 0.45000002
           Duration: 1
           Ease:
-            Type: 9
+            Type: 7
             Direction: 0
-            Overshoot: 0.1577
+            Overshoot: 0.1
             Falloff: 0
             Bounces: 3
             Bounciness: 0.25
