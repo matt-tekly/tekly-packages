@@ -224,6 +224,11 @@ namespace Tekly.Tweenlines
             Play(animationName, false);
         }
 
+        /// <summary>
+        /// Plays an animation from its end back to its start. When that animation is already playing forward
+        /// it turns around from the current time instead of jumping to the end, like a hover that is left
+        /// part way in. Play does the same for an animation that is playing in reverse.
+        /// </summary>
         public void PlayReverse(string animationName)
         {
             Play(animationName, true);
@@ -394,10 +399,17 @@ namespace Tekly.Tweenlines
 
         private void Begin(TweenAnimation animation, bool reverse, float delay)
         {
+            var direction = reverse ? -1 : 1;
+
+            if (CanTurnAround(animation, direction)) {
+                TurnAround(direction);
+                return;
+            }
+
             m_playId++;
             m_current = animation;
             m_duration = animation.Duration;
-            m_direction = reverse ? -1 : 1;
+            m_direction = direction;
             m_time = reverse ? m_duration : 0;
             m_hurried = false;
             m_delay = delay;
@@ -416,6 +428,38 @@ namespace Tekly.Tweenlines
             }
 
             if (m_duration <= 0) {
+                Finish();
+            }
+        }
+
+        /// <summary>
+        /// Whether a play is asking for the animation that is already playing, in the other direction. A
+        /// PingPong animation changes direction by itself, so it always starts over.
+        /// </summary>
+        private bool CanTurnAround(TweenAnimation animation, int direction)
+        {
+            return m_playing && m_current == animation && m_direction != direction && animation.Wrap != TweenWrap.PingPong;
+        }
+
+        /// <summary>
+        /// Carries on from the current time in the other direction, as a new play. The clip values of the
+        /// play being turned around are kept, so it runs back through the same motion. A stagger delay is
+        /// not applied, since that would freeze the animation part way.
+        /// </summary>
+        private void TurnAround(int direction)
+        {
+            m_playId++;
+            m_direction = direction;
+            m_hurried = false;
+            m_delay = 0;
+
+            // Set when the play was still waiting on its stagger delay. Nothing has moved, so there is
+            // nothing for its start markers to announce
+            m_startMarkersPending = false;
+
+            var atEdge = direction > 0 ? m_time >= m_duration : m_time <= 0;
+
+            if (atEdge) {
                 Finish();
             }
         }

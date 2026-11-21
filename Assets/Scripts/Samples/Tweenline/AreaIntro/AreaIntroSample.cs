@@ -77,7 +77,7 @@ namespace TeklySample.Samples.Tweenlines
             Fill(area, firstVisit, findCount);
             Rewind();
 
-            var sequence = new TweenSequence();
+            var sequence = new TweenSequence(destroyCancellationToken);
             m_sequence = sequence;
 
             try {
@@ -88,7 +88,7 @@ namespace TeklySample.Samples.Tweenlines
                     await sequence.PlayAll(m_finds, SHOW, findCount, m_findStagger);
                 }
 
-                await Hold(sequence, m_holdSeconds);
+                await sequence.Delay(m_holdSeconds, m_holdHurrySpeed);
                 await sequence.Play(m_banner, HIDE);
             } catch (OperationCanceledException) {
                 // Another area was entered, or the scene closed part way through
@@ -146,25 +146,6 @@ namespace TeklySample.Samples.Tweenlines
                 // The row is centered however many finds it has
                 find.anchoredPosition = new Vector2((i - (findCount - 1) * 0.5f) * m_findSpacing, find.anchoredPosition.y);
                 find.GetComponentInChildren<TMP_Text>(true).text = area.Finds[i];
-            }
-        }
-
-        /// <summary>
-        /// Waits as part of a sequence: faster once it is hurried, not at all once it is completing, and it
-        /// ends with a cancellation when the sequence is cancelled or this object is destroyed.
-        /// </summary>
-        private async Awaitable Hold(TweenSequence sequence, float seconds)
-        {
-            var remaining = seconds;
-
-            while (remaining > 0 && !sequence.IsCompleting) {
-                await Awaitable.NextFrameAsync(destroyCancellationToken);
-
-                if (sequence.IsCancelled) {
-                    throw new OperationCanceledException();
-                }
-
-                remaining -= Time.deltaTime * (sequence.IsHurried ? m_holdHurrySpeed : 1f);
             }
         }
 

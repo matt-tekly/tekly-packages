@@ -991,7 +991,7 @@ MonoBehaviour:
             Type: 6
             Direction: 0
             Overshoot: 0.1
-            Oscillations: 3
+            Falloff: 0
             Bounces: 3
             Bounciness: 0.25
           FromMode: 3
@@ -1010,7 +1010,7 @@ MonoBehaviour:
             Type: 6
             Direction: 0
             Overshoot: 0.1
-            Oscillations: 3
+            Falloff: 0
             Bounces: 3
             Bounciness: 0.25
           FromMode: 3
@@ -1029,7 +1029,7 @@ MonoBehaviour:
             Type: 8
             Direction: 0
             Overshoot: 0.15
-            Oscillations: 3
+            Falloff: 0
             Bounces: 3
             Bounciness: 0.25
           FromMode: 3
@@ -1048,7 +1048,7 @@ MonoBehaviour:
             Type: 0
             Direction: 0
             Overshoot: 0
-            Oscillations: 0
+            Falloff: 0
             Bounces: 0
             Bounciness: 0
           FromMode: 3
@@ -1067,7 +1067,7 @@ MonoBehaviour:
             Type: 3
             Direction: 1
             Overshoot: 0.1
-            Oscillations: 3
+            Falloff: 0
             Bounces: 3
             Bounciness: 0.25
           FromMode: 3
@@ -1086,7 +1086,7 @@ MonoBehaviour:
             Type: 0
             Direction: 0
             Overshoot: 0
-            Oscillations: 0
+            Falloff: 0
             Bounces: 0
             Bounciness: 0
           FromMode: 3
@@ -1105,7 +1105,7 @@ MonoBehaviour:
             Type: 3
             Direction: 1
             Overshoot: 0.1
-            Oscillations: 3
+            Falloff: 0
             Bounces: 3
             Bounciness: 0.25
           FromMode: 3
@@ -1124,7 +1124,7 @@ MonoBehaviour:
             Type: 3
             Direction: 1
             Overshoot: 0.1
-            Oscillations: 3
+            Falloff: 0
             Bounces: 3
             Bounciness: 0.25
           FromMode: 3
@@ -1143,7 +1143,7 @@ MonoBehaviour:
             Type: 6
             Direction: 0
             Overshoot: 0.1
-            Oscillations: 3
+            Falloff: 0
             Bounces: 3
             Bounciness: 0.25
           Mode: 0
@@ -1157,12 +1157,12 @@ MonoBehaviour:
         m_target: {fileID: 1936602596}
         m_clips:
         - Start: 0.45000002
-          Duration: 1.8499999
+          Duration: 1
           Ease:
             Type: 9
             Direction: 0
             Overshoot: 0.1577
-            Oscillations: 4
+            Falloff: 0
             Bounces: 3
             Bounciness: 0.25
           FromMode: 3
