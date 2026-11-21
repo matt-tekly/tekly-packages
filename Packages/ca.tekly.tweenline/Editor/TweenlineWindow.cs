@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Tekly.Tweenlines.Tracks;
@@ -23,6 +24,8 @@ namespace Tekly.Tweenlines
         private const float SCROLLBAR_WIDTH = 13;
         private const float EDGE_GRAB = 6;
         private const float MIN_CLIP_WIDTH = 6;
+        private const float EDGE_SNAP_PIXELS = 8;
+        private const float DRAG_THRESHOLD = 3;
 
         private enum Selected
         {
@@ -38,8 +41,12 @@ namespace Tekly.Tweenlines
             Scrub,
             MoveClip,
             ResizeClip,
+            ResizeClipStart,
             MoveMarker,
-            Pan
+            Pan,
+            BoxSelect,
+            MoveTrack,
+            ScaleSelection
         }
 
         /// <summary>
@@ -54,11 +61,28 @@ namespace Tekly.Tweenlines
             public bool IsHeader => Track < 0;
         }
 
+        private readonly struct ClipRef : IEquatable<ClipRef>
+        {
+            public readonly int Track;
+            public readonly int Clip;
+
+            public ClipRef(int track, int clip)
+            {
+                Track = track;
+                Clip = clip;
+            }
+
+            public bool Equals(ClipRef other) => Track == other.Track && Clip == other.Clip;
+            public override bool Equals(object obj) => obj is ClipRef other && Equals(other);
+            public override int GetHashCode() => Track * 397 ^ Clip;
+        }
+
         [SerializeField] private Tweenline m_target;
         [SerializeField] private int m_animationIndex;
         [SerializeField] private float m_pixelsPerSecond = 200;
         [SerializeField] private float m_offset = -0.05f;
         [SerializeField] private float m_snap = 0.05f;
+        [SerializeField] private bool m_snapEnabled = true;
         [SerializeField] private float m_detailsHeight = DETAILS_HEIGHT;
         [SerializeField] private float m_timeScale = 1;
         [SerializeField] private bool m_locked;
@@ -72,8 +96,26 @@ namespace Tekly.Tweenlines
         private int m_selectedClip = -1;
         private int m_selectedMarker = -1;
 
+        // Every selected clip, the primary m_selectedTrack and m_selectedClip included
+        private readonly List<ClipRef> m_selectedClips = new List<ClipRef>();
+
         private DragMode m_dragMode;
         private float m_dragOffset;
+        private Vector2 m_mouseDownPosition;
+        private bool m_dragMoved;
+        private bool m_reduceSelectionOnClick;
+        private float m_dragEnd;
+        private readonly List<float> m_dragStarts = new List<float>();
+        private readonly List<float> m_snapTimes = new List<float>();
+        private float m_snapGuide = float.NaN;
+        private readonly List<ClipRef> m_boxBase = new List<ClipRef>();
+        private int m_boxTrack = -1;
+        private int m_trackDropRow = -1;
+        private bool m_trackDropAfter;
+        private Rect m_timelineRect;
+        private readonly List<float> m_dragDurations = new List<float>();
+        private float m_scalePivot;
+        private float m_scaleEdge;
         private float m_panStartOffset;
         private int m_undoGroup;
         private float m_rowScroll;
@@ -93,6 +135,12 @@ namespace Tekly.Tweenlines
         private static readonly Color s_stepOnColor = new Color(0.3f, 0.65f, 0.35f);
         private static readonly Color s_stepOffColor = new Color(0.35f, 0.35f, 0.35f, 0.6f);
         private static readonly Color s_endColor = new Color(1, 1, 1, 0.25f);
+        private static readonly Color s_snapGuideColor = new Color(1f, 0.85f, 0.3f, 0.8f);
+        private static readonly Color s_boxFillColor = new Color(0.45f, 0.7f, 0.95f, 0.15f);
+        private static readonly Color s_boxEdgeColor = new Color(0.45f, 0.7f, 0.95f, 0.8f);
+        private static readonly Color s_dropLineColor = new Color(0.45f, 0.7f, 0.95f);
+        private static readonly Color s_scaleHandleColor = new Color(0.45f, 0.7f, 0.95f, 0.6f);
+        private static readonly float[] s_tickSteps = { 0.01f, 0.02f, 0.05f, 0.1f, 0.2f, 0.5f, 1f, 2f, 5f, 10f };
 
         // Real time is first, so a scale that is not in the list falls back to it
         private static readonly float[] s_timeScales = { 1f, 0.1f, 0.25f, 0.5f, 2f };
@@ -110,6 +158,8 @@ namespace Tekly.Tweenlines
         }
 
         private bool IsPreviewing => TweenlinePreview.IsPreviewing(m_target);
+
+        private bool IsPlaying => Application.isPlaying ? m_target.IsPlaying : IsPreviewing && TweenlinePreview.IsPlaying;
 
         private float PlayheadTime {
             get {
@@ -343,6 +393,7 @@ namespace Tekly.Tweenlines
 
             m_serializedObject.Update();
             ValidateSelection();
+            HandleKeyboard();
 
             EditorGUI.BeginChangeCheck();
 
@@ -423,14 +474,24 @@ namespace Tekly.Tweenlines
                 EditorGUILayout.PropertyField(wrap, GUIContent.none, GUILayout.Width(80));
             }
 
+            using (new EditorGUI.DisabledScope(Animation == null)) {
+                if (GUILayout.Button(new GUIContent("Frame All", "Fit the whole animation in view. F frames the selection"), EditorStyles.toolbarButton, GUILayout.Width(64))) {
+                    FrameAll();
+                }
+            }
+
             GUILayout.FlexibleSpace();
 
             using (new EditorGUI.DisabledScope(Animation == null)) {
                 DrawTransport();
             }
 
-            GUILayout.Label("Snap", EditorStyles.miniLabel);
-            m_snap = Mathf.Max(0, EditorGUILayout.FloatField(m_snap, EditorStyles.toolbarTextField, GUILayout.Width(40)));
+            var snapLabel = new GUIContent("Snap", "Snap drags to the grid, clip edges, markers and the playhead. Hold Ctrl while dragging to skip snapping");
+            m_snapEnabled = GUILayout.Toggle(m_snapEnabled, snapLabel, EditorStyles.toolbarButton, GUILayout.Width(40));
+
+            using (new EditorGUI.DisabledScope(!m_snapEnabled)) {
+                m_snap = Mathf.Max(0, EditorGUILayout.FloatField(m_snap, EditorStyles.toolbarTextField, GUILayout.Width(40)));
+            }
         }
 
         private void DrawTransport()
@@ -457,22 +518,11 @@ namespace Tekly.Tweenlines
                 }
             }
 
-            var playing = Application.isPlaying ? m_target.IsPlaying : IsPreviewing && TweenlinePreview.IsPlaying;
+            var playing = IsPlaying;
             var playIcon = EditorGUIUtility.TrIconContent(playing ? "PauseButton" : "PlayButton", playing ? "Pause" : "Play");
 
             if (GUILayout.Button(playIcon, EditorStyles.toolbarButton, GUILayout.Width(28))) {
-                if (Application.isPlaying) {
-                    if (playing) {
-                        m_target.Stop();
-                    } else {
-                        m_target.Play(Animation, false);
-                    }
-                } else if (playing) {
-                    TweenlinePreview.Pause();
-                } else {
-                    EnsurePreview();
-                    TweenlinePreview.Play();
-                }
+                TogglePlay();
             }
 
             var time = EditorGUILayout.FloatField(PlayheadTime, EditorStyles.toolbarTextField, GUILayout.Width(50));
@@ -493,6 +543,24 @@ namespace Tekly.Tweenlines
             }
         }
 
+        private void TogglePlay()
+        {
+            var playing = IsPlaying;
+
+            if (Application.isPlaying) {
+                if (playing) {
+                    m_target.Stop();
+                } else {
+                    m_target.Play(Animation, false);
+                }
+            } else if (playing) {
+                TweenlinePreview.Pause();
+            } else {
+                EnsurePreview();
+                TweenlinePreview.Play();
+            }
+        }
+
         private void DrawTimeline(Rect body)
         {
             var animation = Animation;
@@ -509,8 +577,9 @@ namespace Tekly.Tweenlines
             var timelineRect = new Rect(HEADER_WIDTH, rowsRect.y, width - HEADER_WIDTH, rowsHeight);
 
             m_rowScroll = hasScrollbar ? Mathf.Clamp(m_rowScroll, 0, contentHeight - rowsHeight) : 0;
+            m_timelineRect = timelineRect;
 
-            HandleInput(rulerRect, timelineRect);
+            HandleInput(rulerRect, timelineRect, new Rect(0, rowsRect.y, HEADER_WIDTH, rowsHeight));
             HandleDragAndDrop(new Rect(0, body.y, width, body.height));
 
             var headerRect = new Rect(0, body.y, HEADER_WIDTH, RULER_HEIGHT);
@@ -552,12 +621,87 @@ namespace Tekly.Tweenlines
 
             GUI.EndGroup();
 
+            DrawSelectionFrame(timelineRect);
+
             if (hasScrollbar) {
                 var scrollRect = new Rect(width, rowsRect.y, SCROLLBAR_WIDTH, rowsHeight);
                 m_rowScroll = GUI.VerticalScrollbar(scrollRect, m_rowScroll, rowsHeight, 0, contentHeight);
             }
 
             DrawPlayhead(new Rect(HEADER_WIDTH, body.y, rulerRect.width, body.height));
+            DrawDragOverlays(rowsRect, timelineRect);
+        }
+
+        /// <summary>
+        /// The box selection, the snap guide, the dragged clip's times and where a dragged track will land.
+        /// </summary>
+        private void DrawDragOverlays(Rect rowsRect, Rect timelineRect)
+        {
+            if (Event.current.type != EventType.Repaint || m_dragMode == DragMode.None) {
+                return;
+            }
+
+            switch (m_dragMode) {
+                case DragMode.BoxSelect when m_dragMoved: {
+                    var box = BoxRect(Event.current.mousePosition);
+                    EditorGUI.DrawRect(box, s_boxFillColor);
+                    DrawOutline(box, s_boxEdgeColor);
+                    break;
+                }
+                case DragMode.MoveTrack when m_trackDropRow >= 0: {
+                    var y = rowsRect.y + (m_trackDropRow + (m_trackDropAfter ? 1 : 0)) * ROW_HEIGHT - m_rowScroll;
+                    EditorGUI.DrawRect(new Rect(TRACK_INDENT, y - 1, rowsRect.width - TRACK_INDENT, 2), s_dropLineColor);
+                    break;
+                }
+                case DragMode.MoveClip when m_dragMoved:
+                case DragMode.ResizeClip:
+                case DragMode.ResizeClipStart:
+                case DragMode.MoveMarker:
+                case DragMode.ScaleSelection:
+                    if (!float.IsNaN(m_snapGuide)) {
+                        var x = TimeToX(m_snapGuide);
+
+                        if (x >= timelineRect.x && x <= timelineRect.xMax) {
+                            EditorGUI.DrawRect(new Rect(x, timelineRect.y - RULER_HEIGHT, 1, timelineRect.height + RULER_HEIGHT), s_snapGuideColor);
+                        }
+                    }
+
+                    DrawDragReadout();
+                    break;
+            }
+        }
+
+        private void DrawDragReadout()
+        {
+            string text;
+
+            if (m_dragMode == DragMode.MoveMarker) {
+                text = $"{Animation.Markers[m_selectedMarker].Time:0.###}s";
+            } else if (m_dragMode == DragMode.ScaleSelection) {
+                GetSelectionRange(out var start, out var end);
+                text = $"{start:0.###}s to {end:0.###}s ({end - start:0.###}s, {(end - start) / Mathf.Abs(m_scaleEdge - m_scalePivot) * 100:0}%)";
+            } else {
+                var track = Animation.Tracks[m_selectedTrack];
+                track.GetClipRange(m_selectedClip, out var start, out var duration);
+                text = track is IStepTrack ? $"{start:0.###}s" : $"{start:0.###}s to {start + duration:0.###}s ({duration:0.###}s)";
+            }
+
+            var content = new GUIContent(text);
+            var size = EditorStyles.helpBox.CalcSize(content);
+            var mouse = Event.current.mousePosition;
+            var rect = new Rect(mouse.x + 14, mouse.y - size.y - 6, size.x, size.y);
+            rect.x = Mathf.Min(rect.x, position.width - size.x - 4);
+            rect.y = Mathf.Max(rect.y, 2);
+
+            GUI.Label(rect, content, EditorStyles.helpBox);
+        }
+
+        private static void DrawOutline(Rect rect, Color color)
+        {
+            EditorGUI.DrawRect(new Rect(rect.x, rect.y, rect.width, 1), color);
+            EditorGUI.DrawRect(new Rect(rect.x, rect.yMax - 1, rect.width, 1), color);
+            EditorGUI.DrawRect(new Rect(rect.x, rect.y, 1, rect.height), color);
+            EditorGUI.DrawRect(new Rect(rect.xMax - 1, rect.y, 1, rect.height), color);
         }
 
         private void DrawRuler(Rect rect, TweenAnimation animation)
@@ -722,9 +866,8 @@ namespace Tekly.Tweenlines
             var warning = TrackWarning(track);
             var label = new GUIContent($"{(warning != null ? "⚠ " : string.Empty)}{TweenlineEditorUtils.TrackName(track.GetType())}", warning);
 
-            if (GUI.Button(labelRect, label, EditorStyles.label)) {
-                SelectTrack(index);
-            }
+            // Clicking selects and dragging reorders, both handled in HandleInput
+            GUI.Label(labelRect, label, EditorStyles.label);
 
             var menuRect = new Rect(HEADER_WIDTH - 24, rowRect.y + 3, 20, 18);
             if (EditorGUI.DropdownButton(menuRect, GUIContent.none, FocusType.Passive, EditorStyles.toolbarDropDown)) {
@@ -748,9 +891,14 @@ namespace Tekly.Tweenlines
                 var clipRect = ClipRect(track, c, 0);
                 clipRect.x -= HEADER_WIDTH;
 
-                var selected = m_selected == Selected.Clip && m_selectedTrack == index && m_selectedClip == c;
-                EditorGUI.DrawRect(clipRect, selected ? s_clipSelectedColor : clipColor);
+                EditorGUI.DrawRect(clipRect, IsClipSelected(index, c) ? s_clipSelectedColor : clipColor);
                 EditorGUI.DrawRect(new Rect(clipRect.xMax - 2, clipRect.y, 2, clipRect.height), new Color(1, 1, 1, 0.35f));
+                EditorGUIUtility.AddCursorRect(new Rect(clipRect.xMax - EDGE_GRAB, clipRect.y, EDGE_GRAB, clipRect.height), MouseCursor.ResizeHorizontal);
+
+                if (CanGrabStart(clipRect)) {
+                    EditorGUI.DrawRect(new Rect(clipRect.x, clipRect.y, 2, clipRect.height), new Color(1, 1, 1, 0.2f));
+                    EditorGUIUtility.AddCursorRect(new Rect(clipRect.x, clipRect.y, EDGE_GRAB, clipRect.height), MouseCursor.ResizeHorizontal);
+                }
 
                 var clip = clips.GetArrayElementAtIndex(c);
                 var clipLabelRect = new Rect(clipRect.x + 3, clipRect.y, Mathf.Max(0, clipRect.width - 6), clipRect.height);
@@ -830,8 +978,7 @@ namespace Tekly.Tweenlines
                 var handle = ClipRect(track, c, 0);
                 handle.x -= HEADER_WIDTH;
 
-                var selected = m_selected == Selected.Clip && m_selectedTrack == trackIndex && m_selectedClip == c;
-                EditorGUI.DrawRect(handle, selected ? Color.white : new Color(0.85f, 0.85f, 0.85f));
+                EditorGUI.DrawRect(handle, IsClipSelected(trackIndex, c) ? Color.white : new Color(0.85f, 0.85f, 0.85f));
             }
         }
 
@@ -900,6 +1047,9 @@ namespace Tekly.Tweenlines
                 EditorGUILayout.LabelField("Add an animation to start", EditorStyles.centeredGreyMiniLabel);
             } else {
                 switch (m_selected) {
+                    case Selected.Clip when m_selectedClips.Count > 1:
+                        DrawMultiClipDetails();
+                        break;
                     case Selected.Clip:
                         DrawClipDetails();
                         break;
@@ -931,8 +1081,18 @@ namespace Tekly.Tweenlines
                 AddMarker(PlayheadTime);
             }
 
-            EditorGUILayout.HelpBox("Double click a track row to add a clip. Drag clips to move them and their right edge to resize. "
-                + "Right click the ruler to add a marker. Scroll to zoom, middle drag to pan, hold Ctrl to drag without snapping.", MessageType.None);
+            EditorGUILayout.HelpBox("Double click a track row to add a clip. Drag clips to move them and either edge to resize. "
+                + "Shift click or drag a box to select several clips, and drag the handles beside them to stretch them together.Drag a track's name to reorder it. Right click the ruler to add a marker. "
+                + "Scroll to zoom, middle drag to pan, hold Ctrl to drag without snapping.\n"
+                + "Keys: Delete, Ctrl+D duplicate, Ctrl+A select all, Space play, F frame, Home and End jump, arrows nudge, Esc deselect.", MessageType.None);
+        }
+
+        private void DrawMultiClipDetails()
+        {
+            EditorGUILayout.LabelField($"{m_selectedClips.Count} clips selected", EditorStyles.boldLabel);
+            GetSelectionRange(out var start, out var end);
+            EditorGUILayout.LabelField("Range", $"{start:0.###}s to {end:0.###}s");
+            DrawClipButtons();
         }
 
         private void DrawTrackDetails()
@@ -1027,11 +1187,13 @@ namespace Tekly.Tweenlines
         {
             using (new EditorGUILayout.HorizontalScope()) {
                 if (GUILayout.Button("Duplicate")) {
-                    DuplicateClip(m_selectedTrack, m_selectedClip);
+                    DuplicateSelectedClips();
+                    GUIUtility.ExitGUI();
                 }
 
                 if (GUILayout.Button("Delete")) {
-                    DeleteClip(m_selectedTrack, m_selectedClip);
+                    DeleteSelectedClips();
+                    GUIUtility.ExitGUI();
                 }
             }
         }
@@ -1107,7 +1269,7 @@ namespace Tekly.Tweenlines
             return null;
         }
 
-        private void HandleInput(Rect rulerRect, Rect timelineRect)
+        private void HandleInput(Rect rulerRect, Rect timelineRect, Rect headerRect)
         {
             var e = Event.current;
             var controlId = GUIUtility.GetControlID(FocusType.Passive);
@@ -1117,6 +1279,11 @@ namespace Tekly.Tweenlines
 
             switch (e.GetTypeForControl(controlId)) {
                 case EventType.MouseDown:
+                    if (headerRect.Contains(e.mousePosition)) {
+                        HandleHeaderMouseDown(e, controlId, timelineRect);
+                        return;
+                    }
+
                     if (!overRuler && !overTimeline) {
                         return;
                     }
@@ -1137,6 +1304,10 @@ namespace Tekly.Tweenlines
                     break;
                 case EventType.MouseDrag:
                     if (GUIUtility.hotControl == controlId) {
+                        if (!m_dragMoved && (e.mousePosition - m_mouseDownPosition).sqrMagnitude >= DRAG_THRESHOLD * DRAG_THRESHOLD) {
+                            m_dragMoved = true;
+                        }
+
                         HandleDrag(e, mouseTime);
                         e.Use();
                     }
@@ -1145,12 +1316,7 @@ namespace Tekly.Tweenlines
                 case EventType.MouseUp:
                     if (GUIUtility.hotControl == controlId) {
                         GUIUtility.hotControl = 0;
-
-                        if (m_dragMode == DragMode.MoveClip || m_dragMode == DragMode.ResizeClip || m_dragMode == DragMode.MoveMarker) {
-                            Undo.CollapseUndoOperations(m_undoGroup);
-                        }
-
-                        m_dragMode = DragMode.None;
+                        EndDrag(e);
                         e.Use();
                     }
 
@@ -1169,6 +1335,79 @@ namespace Tekly.Tweenlines
             }
         }
 
+        private void EndDrag(Event e)
+        {
+            switch (m_dragMode) {
+                case DragMode.MoveClip:
+                    // A click on a clip that was already part of a group selects only that clip
+                    if (!m_dragMoved && m_reduceSelectionOnClick) {
+                        SelectClip(m_selectedTrack, m_selectedClip);
+                    }
+
+                    Undo.CollapseUndoOperations(m_undoGroup);
+                    break;
+                case DragMode.ResizeClip:
+                case DragMode.ResizeClipStart:
+                case DragMode.MoveMarker:
+                case DragMode.ScaleSelection:
+                    Undo.CollapseUndoOperations(m_undoGroup);
+                    break;
+                case DragMode.BoxSelect:
+                    // A click without a drag keeps the old behaviour of selecting the row's track
+                    if (!m_dragMoved && !e.shift) {
+                        if (m_boxTrack >= 0) {
+                            SelectTrack(m_boxTrack);
+                        } else {
+                            ClearSelection();
+                        }
+                    }
+
+                    break;
+                case DragMode.MoveTrack:
+                    if (m_dragMoved && m_trackDropRow >= 0) {
+                        MoveTrackTo(m_selectedTrack, m_rows[m_trackDropRow].Track, m_trackDropAfter);
+                    }
+
+                    break;
+            }
+
+            m_dragMode = DragMode.None;
+            m_reduceSelectionOnClick = false;
+            m_snapGuide = float.NaN;
+            m_trackDropRow = -1;
+            Repaint();
+        }
+
+        /// <summary>
+        /// Clicking a track's name selects it and dragging it reorders it among the tracks of the same object.
+        /// The toggle and menu button in the header are left to their own controls.
+        /// </summary>
+        private void HandleHeaderMouseDown(Event e, int controlId, Rect timelineRect)
+        {
+            var rowIndex = RowAt(e.mousePosition.y, timelineRect);
+
+            if (rowIndex < 0 || m_rows[rowIndex].IsHeader || Animation.Tracks[m_rows[rowIndex].Track] == null) {
+                return;
+            }
+
+            var x = e.mousePosition.x;
+
+            if (x < TRACK_INDENT + 18 || x > HEADER_WIDTH - 24) {
+                return;
+            }
+
+            var trackIndex = m_rows[rowIndex].Track;
+            SelectTrack(trackIndex);
+
+            if (e.button == 1) {
+                ShowTrackMenu(trackIndex);
+            } else if (e.button == 0) {
+                BeginDrag(controlId, DragMode.MoveTrack, 0);
+            }
+
+            e.Use();
+        }
+
         private void HandleRulerMouseDown(Event e, int controlId, float mouseTime)
         {
             var markers = Animation.Markers;
@@ -1180,13 +1419,11 @@ namespace Tekly.Tweenlines
                     if (e.button == 1) {
                         var index = i;
                         var menu = new GenericMenu();
-                        menu.AddItem(new GUIContent("Delete Marker"), false, () => {
-                            TweenlineEditorUtils.Modify(m_target, "Delete Marker", () => Animation.Markers.RemoveAt(index));
-                            ClearSelection();
-                        });
+                        menu.AddItem(new GUIContent("Delete Marker"), false, () => DeleteMarker(index));
                         menu.ShowAsContext();
                     } else {
                         BeginDrag(controlId, DragMode.MoveMarker, markers[i].Time - mouseTime);
+                        CollectSnapTimes(false, i);
                     }
 
                     e.Use();
@@ -1210,12 +1447,18 @@ namespace Tekly.Tweenlines
 
         private void HandleRowsMouseDown(Event e, int controlId, float mouseTime, Rect timelineRect)
         {
-            var rowIndex = Mathf.FloorToInt((e.mousePosition.y - timelineRect.y + m_rowScroll) / ROW_HEIGHT);
+            // The group handles sit just outside the selection, over empty space or other clips, so they go first
+            if (e.button == 0 && TryBeginScaleSelection(e, controlId, timelineRect)) {
+                e.Use();
+                return;
+            }
+
+            var rowIndex = RowAt(e.mousePosition.y, timelineRect);
             var tracks = Animation.Tracks;
 
-            if (rowIndex < 0 || rowIndex >= m_rows.Count || m_rows[rowIndex].IsHeader || tracks[m_rows[rowIndex].Track] == null) {
+            if (rowIndex < 0 || m_rows[rowIndex].IsHeader || tracks[m_rows[rowIndex].Track] == null) {
                 if (e.button == 0) {
-                    ClearSelection();
+                    BeginBoxSelect(controlId, e, -1);
                     e.Use();
                 }
 
@@ -1233,20 +1476,7 @@ namespace Tekly.Tweenlines
                     continue;
                 }
 
-                SelectClip(row, c);
-
-                if (e.button == 1) {
-                    ShowClipMenu(row, c);
-                } else {
-                    track.GetClipRange(c, out var start, out _);
-
-                    if (!(track is IStepTrack) && e.mousePosition.x >= clipRect.xMax - EDGE_GRAB) {
-                        BeginDrag(controlId, DragMode.ResizeClip, 0);
-                    } else {
-                        BeginDrag(controlId, DragMode.MoveClip, start - mouseTime);
-                    }
-                }
-
+                HandleClipMouseDown(e, controlId, mouseTime, row, c, clipRect);
                 e.Use();
                 return;
             }
@@ -1258,13 +1488,87 @@ namespace Tekly.Tweenlines
                 var menu = new GenericMenu();
                 menu.AddItem(new GUIContent("Add Clip"), false, () => AddClip(trackIndex, time));
                 menu.ShowAsContext();
-            } else if (e.clickCount == 2) {
+            } else if (e.button == 0 && e.clickCount == 2) {
                 AddClip(row, time);
-            } else {
-                SelectTrack(row);
+            } else if (e.button == 0) {
+                BeginBoxSelect(controlId, e, row);
             }
 
             e.Use();
+        }
+
+        private void HandleClipMouseDown(Event e, int controlId, float mouseTime, int track, int clip, Rect clipRect)
+        {
+            var alreadySelected = IsClipSelected(track, clip);
+
+            if (e.button == 1) {
+                if (!alreadySelected) {
+                    SelectClip(track, clip);
+                }
+
+                ShowClipMenu();
+                return;
+            }
+
+            if (e.button != 0) {
+                return;
+            }
+
+            if (e.shift) {
+                ToggleClip(track, clip);
+                return;
+            }
+
+            var isStep = Animation.Tracks[track] is IStepTrack;
+            var x = e.mousePosition.x;
+
+            if (!isStep && x >= clipRect.xMax - EDGE_GRAB) {
+                SelectClip(track, clip);
+                BeginDrag(controlId, DragMode.ResizeClip, 0);
+                CollectSnapTimes(true, -1);
+                return;
+            }
+
+            if (!isStep && x <= clipRect.x + EDGE_GRAB && CanGrabStart(clipRect)) {
+                SelectClip(track, clip);
+                Animation.Tracks[track].GetClipRange(clip, out var start, out var duration);
+                m_dragEnd = start + duration;
+                BeginDrag(controlId, DragMode.ResizeClipStart, 0);
+                CollectSnapTimes(true, -1);
+                return;
+            }
+
+            // Grabbing a clip of a group keeps the group so it moves together, and a click without a drag
+            // narrows the selection down to the clip
+            if (alreadySelected) {
+                SetPrimaryClip(track, clip);
+                m_reduceSelectionOnClick = m_selectedClips.Count > 1;
+            } else {
+                SelectClip(track, clip);
+            }
+
+            m_dragStarts.Clear();
+
+            foreach (var selected in m_selectedClips) {
+                Animation.Tracks[selected.Track].GetClipRange(selected.Clip, out var selectedStart, out _);
+                m_dragStarts.Add(selectedStart);
+            }
+
+            Animation.Tracks[track].GetClipRange(clip, out var grabbedStart, out _);
+            BeginDrag(controlId, DragMode.MoveClip, grabbedStart - mouseTime);
+            CollectSnapTimes(true, -1);
+        }
+
+        private void BeginBoxSelect(int controlId, Event e, int track)
+        {
+            m_boxTrack = track;
+            m_boxBase.Clear();
+
+            if (e.shift && m_selected == Selected.Clip) {
+                m_boxBase.AddRange(m_selectedClips);
+            }
+
+            BeginDrag(controlId, DragMode.BoxSelect, 0);
         }
 
         private void HandleDrag(Event e, float mouseTime)
@@ -1276,28 +1580,302 @@ namespace Tekly.Tweenlines
                 case DragMode.Pan:
                     m_offset = m_panStartOffset - (e.mousePosition.x - m_dragOffset) / m_pixelsPerSecond;
                     break;
-                case DragMode.MoveClip: {
-                    var start = ClipProperty(m_selectedTrack, m_selectedClip).FindPropertyRelative("Start");
-                    start.floatValue = Mathf.Max(0, Snap(mouseTime + m_dragOffset, e));
-                    ApplyChanges();
+                case DragMode.MoveClip when m_dragMoved:
+                    DragSelectedClips(e, mouseTime);
                     break;
-                }
                 case DragMode.ResizeClip: {
                     var clip = ClipProperty(m_selectedTrack, m_selectedClip);
                     var start = clip.FindPropertyRelative("Start").floatValue;
-                    clip.FindPropertyRelative("Duration").floatValue = Mathf.Max(0, Snap(mouseTime, e) - start);
+                    clip.FindPropertyRelative("Duration").floatValue = Mathf.Max(0, SnapTime(mouseTime, e) - start);
+                    ApplyChanges();
+                    break;
+                }
+                case DragMode.ScaleSelection:
+                    ScaleSelectedClips(e, mouseTime);
+                    break;
+                case DragMode.ResizeClipStart: {
+                    var clip = ClipProperty(m_selectedTrack, m_selectedClip);
+                    var start = Mathf.Clamp(SnapTime(mouseTime, e), 0, m_dragEnd);
+                    clip.FindPropertyRelative("Start").floatValue = start;
+                    clip.FindPropertyRelative("Duration").floatValue = m_dragEnd - start;
                     ApplyChanges();
                     break;
                 }
                 case DragMode.MoveMarker: {
                     var marker = AnimationProperty().FindPropertyRelative("m_markers").GetArrayElementAtIndex(m_selectedMarker);
-                    marker.FindPropertyRelative("Time").floatValue = Mathf.Max(0, Snap(mouseTime + m_dragOffset, e));
+                    marker.FindPropertyRelative("Time").floatValue = Mathf.Max(0, SnapTime(mouseTime + m_dragOffset, e));
                     ApplyChanges();
                     break;
                 }
+                case DragMode.BoxSelect when m_dragMoved:
+                    UpdateBoxSelection(e.mousePosition);
+                    break;
+                case DragMode.MoveTrack when m_dragMoved:
+                    UpdateTrackDrop(e.mousePosition.y);
+                    break;
             }
 
             Repaint();
+        }
+
+        /// <summary>
+        /// Moves every selected clip by how far the grabbed clip moved. The grabbed clip snaps by either edge,
+        /// and the group stops at zero.
+        /// </summary>
+        private void DragSelectedClips(Event e, float mouseTime)
+        {
+            var grabbed = m_selectedClips.IndexOf(new ClipRef(m_selectedTrack, m_selectedClip));
+            Animation.Tracks[m_selectedTrack].GetClipRange(m_selectedClip, out _, out var duration);
+
+            var grabbedStart = m_dragStarts[grabbed];
+            var delta = SnapClipStart(mouseTime + m_dragOffset, duration, e) - grabbedStart;
+            var earliest = float.MaxValue;
+
+            foreach (var start in m_dragStarts) {
+                earliest = Mathf.Min(earliest, start);
+            }
+
+            delta = Mathf.Max(delta, -earliest);
+
+            for (var i = 0; i < m_selectedClips.Count; i++) {
+                var selected = m_selectedClips[i];
+                ClipProperty(selected.Track, selected.Clip).FindPropertyRelative("Start").floatValue = m_dragStarts[i] + delta;
+            }
+
+            ApplyChanges();
+        }
+
+        /// <summary>
+        /// The frame around a group of selected clips: their time range across the visible rows that hold them.
+        /// Only shown for more than one clip over a range longer than zero.
+        /// </summary>
+        private bool TryGetSelectionFrame(Rect timelineRect, out Rect frame)
+        {
+            frame = default;
+
+            if (m_selected != Selected.Clip || m_selectedClips.Count < 2) {
+                return false;
+            }
+
+            GetSelectionRange(out var start, out var end);
+
+            if (end - start <= 0) {
+                return false;
+            }
+
+            var firstRow = -1;
+            var lastRow = -1;
+
+            for (var i = 0; i < m_rows.Count; i++) {
+                var row = m_rows[i];
+
+                if (row.IsHeader || !HasSelectedClip(row.Track)) {
+                    continue;
+                }
+
+                if (firstRow < 0) {
+                    firstRow = i;
+                }
+
+                lastRow = i;
+            }
+
+            if (firstRow < 0) {
+                return false;
+            }
+
+            var top = timelineRect.y + firstRow * ROW_HEIGHT - m_rowScroll + 1;
+            var bottom = timelineRect.y + (lastRow + 1) * ROW_HEIGHT - m_rowScroll - 1;
+            frame = Rect.MinMaxRect(TimeToX(start), top, TimeToX(end), bottom);
+            return true;
+        }
+
+        private bool HasSelectedClip(int trackIndex)
+        {
+            foreach (var selected in m_selectedClips) {
+                if (selected.Track == trackIndex) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static Rect LeftScaleHandle(Rect frame)
+        {
+            return new Rect(frame.x - EDGE_GRAB - 2, frame.y, EDGE_GRAB, frame.height);
+        }
+
+        private static Rect RightScaleHandle(Rect frame)
+        {
+            return new Rect(frame.xMax + 2, frame.y, EDGE_GRAB, frame.height);
+        }
+
+        private void DrawSelectionFrame(Rect timelineRect)
+        {
+            if (!TryGetSelectionFrame(timelineRect, out var frame)) {
+                return;
+            }
+
+            GUI.BeginClip(timelineRect);
+            frame.position -= timelineRect.position;
+
+            DrawOutline(frame, s_boxEdgeColor);
+
+            var left = LeftScaleHandle(frame);
+            var right = RightScaleHandle(frame);
+
+            EditorGUI.DrawRect(left, s_scaleHandleColor);
+            EditorGUI.DrawRect(right, s_scaleHandleColor);
+            EditorGUIUtility.AddCursorRect(left, MouseCursor.ResizeHorizontal);
+            EditorGUIUtility.AddCursorRect(right, MouseCursor.ResizeHorizontal);
+
+            GUI.EndClip();
+        }
+
+        private bool TryBeginScaleSelection(Event e, int controlId, Rect timelineRect)
+        {
+            if (!TryGetSelectionFrame(timelineRect, out var frame)) {
+                return false;
+            }
+
+            var fromRight = RightScaleHandle(frame).Contains(e.mousePosition);
+
+            if (!fromRight && !LeftScaleHandle(frame).Contains(e.mousePosition)) {
+                return false;
+            }
+
+            GetSelectionRange(out var start, out var end);
+            m_scalePivot = fromRight ? start : end;
+            m_scaleEdge = fromRight ? end : start;
+
+            m_dragStarts.Clear();
+            m_dragDurations.Clear();
+
+            foreach (var selected in m_selectedClips) {
+                Animation.Tracks[selected.Track].GetClipRange(selected.Clip, out var clipStart, out var duration);
+                m_dragStarts.Add(clipStart);
+                m_dragDurations.Add(duration);
+            }
+
+            BeginDrag(controlId, DragMode.ScaleSelection, 0);
+            CollectSnapTimes(true, -1);
+            return true;
+        }
+
+        /// <summary>
+        /// Stretches the selected clips around the opposite edge of the group, scaling each clip's start and
+        /// duration so their timing stays in proportion. Step clips have no duration and only move.
+        /// </summary>
+        private void ScaleSelectedClips(Event e, float mouseTime)
+        {
+            const float MIN_SPAN = 0.01f;
+
+            var edge = SnapTime(mouseTime, e);
+            edge = m_scaleEdge > m_scalePivot ? Mathf.Max(edge, m_scalePivot + MIN_SPAN) : Mathf.Clamp(edge, 0, m_scalePivot - MIN_SPAN);
+
+            var scale = (edge - m_scalePivot) / (m_scaleEdge - m_scalePivot);
+
+            for (var i = 0; i < m_selectedClips.Count; i++) {
+                var selected = m_selectedClips[i];
+                var clip = ClipProperty(selected.Track, selected.Clip);
+
+                clip.FindPropertyRelative("Start").floatValue = m_scalePivot + (m_dragStarts[i] - m_scalePivot) * scale;
+
+                var duration = clip.FindPropertyRelative("Duration");
+
+                if (duration != null) {
+                    duration.floatValue = m_dragDurations[i] * scale;
+                }
+            }
+
+            ApplyChanges();
+        }
+
+        private Rect BoxRect(Vector2 mousePosition)
+        {
+            return Rect.MinMaxRect(
+                Mathf.Min(m_mouseDownPosition.x, mousePosition.x), Mathf.Min(m_mouseDownPosition.y, mousePosition.y),
+                Mathf.Max(m_mouseDownPosition.x, mousePosition.x), Mathf.Max(m_mouseDownPosition.y, mousePosition.y));
+        }
+
+        private void UpdateBoxSelection(Vector2 mousePosition)
+        {
+            var box = BoxRect(mousePosition);
+            var tracks = Animation.Tracks;
+
+            m_selectedClips.Clear();
+            m_selectedClips.AddRange(m_boxBase);
+
+            for (var i = 0; i < m_rows.Count; i++) {
+                var row = m_rows[i];
+
+                if (row.IsHeader || tracks[row.Track] == null) {
+                    continue;
+                }
+
+                var track = tracks[row.Track];
+                var rowY = m_timelineRect.y + i * ROW_HEIGHT - m_rowScroll;
+
+                for (var c = 0; c < track.ClipCount; c++) {
+                    var clip = new ClipRef(row.Track, c);
+
+                    if (ClipRect(track, c, rowY).Overlaps(box) && !m_selectedClips.Contains(clip)) {
+                        m_selectedClips.Add(clip);
+                    }
+                }
+            }
+
+            if (m_selectedClips.Count == 0) {
+                m_selected = Selected.None;
+                m_selectedTrack = -1;
+                m_selectedClip = -1;
+            } else {
+                var primary = m_selectedClips[m_selectedClips.Count - 1];
+                m_selected = Selected.Clip;
+                m_selectedTrack = primary.Track;
+                m_selectedClip = primary.Clip;
+            }
+
+            m_selectedMarker = -1;
+        }
+
+        /// <summary>
+        /// Finds where a dragged track would land. Only rows of the same object take it, since tracks are shown
+        /// grouped under their object and a move across objects would not show.
+        /// </summary>
+        private void UpdateTrackDrop(float mouseY)
+        {
+            m_trackDropRow = -1;
+
+            var rowIndex = RowAt(mouseY, m_timelineRect);
+
+            if (rowIndex < 0 || m_rows[rowIndex].IsHeader) {
+                return;
+            }
+
+            var tracks = Animation.Tracks;
+            var target = m_rows[rowIndex].Track;
+
+            if (TargetGameObject(tracks[target]) != TargetGameObject(tracks[m_selectedTrack])) {
+                return;
+            }
+
+            var rowTop = m_timelineRect.y + rowIndex * ROW_HEIGHT - m_rowScroll;
+            m_trackDropRow = rowIndex;
+            m_trackDropAfter = mouseY > rowTop + ROW_HEIGHT * 0.5f;
+        }
+
+        private int RowAt(float y, Rect timelineRect)
+        {
+            var rowIndex = Mathf.FloorToInt((y - timelineRect.y + m_rowScroll) / ROW_HEIGHT);
+            return rowIndex >= 0 && rowIndex < m_rows.Count ? rowIndex : -1;
+        }
+
+        private static bool CanGrabStart(Rect clipRect)
+        {
+            // Narrow clips keep their whole body for moving and only resize from the right
+            return clipRect.width >= EDGE_GRAB * 3;
         }
 
         private void BeginDrag(int controlId, DragMode mode, float offset)
@@ -1305,9 +1883,343 @@ namespace Tekly.Tweenlines
             GUIUtility.hotControl = controlId;
             m_dragMode = mode;
             m_dragOffset = offset;
+            m_mouseDownPosition = Event.current.mousePosition;
+            m_dragMoved = false;
+            m_snapGuide = float.NaN;
 
             Undo.IncrementCurrentGroup();
             m_undoGroup = Undo.GetCurrentGroup();
+        }
+
+        /// <summary>
+        /// Gathers the times a drag can snap to: zero, clip edges, markers and the playhead, leaving out the
+        /// selected clips or the given marker that are being dragged.
+        /// </summary>
+        private void CollectSnapTimes(bool skipSelectedClips, int skipMarker)
+        {
+            m_snapTimes.Clear();
+            m_snapTimes.Add(0);
+
+            var animation = Animation;
+
+            for (var t = 0; t < animation.Tracks.Count; t++) {
+                var track = animation.Tracks[t];
+
+                if (track == null) {
+                    continue;
+                }
+
+                for (var c = 0; c < track.ClipCount; c++) {
+                    if (skipSelectedClips && IsClipSelected(t, c)) {
+                        continue;
+                    }
+
+                    track.GetClipRange(c, out var start, out var duration);
+                    m_snapTimes.Add(start);
+
+                    if (duration > 0) {
+                        m_snapTimes.Add(start + duration);
+                    }
+                }
+            }
+
+            for (var i = 0; i < animation.Markers.Count; i++) {
+                if (i != skipMarker) {
+                    m_snapTimes.Add(animation.Markers[i].Time);
+                }
+            }
+
+            if (IsPreviewing || Application.isPlaying) {
+                m_snapTimes.Add(PlayheadTime);
+            }
+        }
+
+        private bool SnapActive(Event e)
+        {
+            return m_snapEnabled && !e.control;
+        }
+
+        /// <summary>
+        /// Grid snapping for clicks, like adding a clip or marker.
+        /// </summary>
+        private float Snap(float time, Event e)
+        {
+            return SnapActive(e) ? GridSnap(time) : time;
+        }
+
+        private float GridSnap(float time)
+        {
+            return m_snap > 0 ? Mathf.Round(time / m_snap) * m_snap : time;
+        }
+
+        /// <summary>
+        /// Snaps a dragged time to a nearby edge, marker or the playhead, else to the grid.
+        /// </summary>
+        private float SnapTime(float time, Event e)
+        {
+            m_snapGuide = float.NaN;
+
+            if (!SnapActive(e)) {
+                return time;
+            }
+
+            if (TrySnapToEdge(time, out var snapped, out _)) {
+                m_snapGuide = snapped;
+                return snapped;
+            }
+
+            return GridSnap(time);
+        }
+
+        /// <summary>
+        /// Snaps a moved clip by whichever of its edges is closer to something, else its start to the grid.
+        /// </summary>
+        private float SnapClipStart(float start, float duration, Event e)
+        {
+            m_snapGuide = float.NaN;
+
+            if (!SnapActive(e)) {
+                return start;
+            }
+
+            var startHit = TrySnapToEdge(start, out var snappedStart, out var startDistance);
+            var endDistance = float.MaxValue;
+            var snappedEnd = 0f;
+            var endHit = duration > 0 && TrySnapToEdge(start + duration, out snappedEnd, out endDistance);
+
+            if (startHit && (!endHit || startDistance <= endDistance)) {
+                m_snapGuide = snappedStart;
+                return snappedStart;
+            }
+
+            if (endHit) {
+                m_snapGuide = snappedEnd;
+                return snappedEnd - duration;
+            }
+
+            return GridSnap(start);
+        }
+
+        private bool TrySnapToEdge(float time, out float snapped, out float distance)
+        {
+            snapped = time;
+            distance = EDGE_SNAP_PIXELS / m_pixelsPerSecond;
+
+            var found = false;
+
+            foreach (var candidate in m_snapTimes) {
+                var candidateDistance = Mathf.Abs(candidate - time);
+
+                if (candidateDistance <= distance) {
+                    distance = candidateDistance;
+                    snapped = candidate;
+                    found = true;
+                }
+            }
+
+            return found;
+        }
+
+        /// <summary>
+        /// Delete, duplicate, select all and frame come through Unity's commands so the Edit menu and its
+        /// shortcuts work. The other keys have no command and are read directly.
+        /// </summary>
+        private void HandleKeyboard()
+        {
+            var e = Event.current;
+
+            // A text field being edited keeps its own select all, delete and arrow keys
+            if (Animation == null || EditorGUIUtility.editingTextField) {
+                return;
+            }
+
+            switch (e.type) {
+                case EventType.ValidateCommand:
+                    if (CanRunCommand(e.commandName)) {
+                        e.Use();
+                    }
+
+                    break;
+                case EventType.ExecuteCommand:
+                    if (CanRunCommand(e.commandName)) {
+                        RunCommand(e.commandName);
+                        e.Use();
+                        GUIUtility.ExitGUI();
+                    }
+
+                    break;
+                case EventType.KeyDown:
+                    if (GUIUtility.hotControl != 0 || e.control || e.command || e.alt) {
+                        return;
+                    }
+
+                    if (HandleKey(e.keyCode)) {
+                        e.Use();
+                        GUIUtility.ExitGUI();
+                    }
+
+                    break;
+            }
+        }
+
+        private bool CanRunCommand(string command)
+        {
+            switch (command) {
+                case "Delete":
+                case "SoftDelete":
+                    return m_selected != Selected.None;
+                case "Duplicate":
+                    return m_selected == Selected.Clip;
+                case "SelectAll":
+                case "FrameSelected":
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private void RunCommand(string command)
+        {
+            switch (command) {
+                case "Delete":
+                case "SoftDelete":
+                    DeleteSelection();
+                    break;
+                case "Duplicate":
+                    DuplicateSelectedClips();
+                    break;
+                case "SelectAll":
+                    SelectAllClips();
+                    break;
+                case "FrameSelected":
+                    FrameSelection();
+                    break;
+            }
+        }
+
+        private bool HandleKey(KeyCode key)
+        {
+            switch (key) {
+                case KeyCode.Delete:
+                case KeyCode.Backspace:
+                    if (m_selected == Selected.None) {
+                        return false;
+                    }
+
+                    DeleteSelection();
+                    return true;
+                case KeyCode.Space:
+                    TogglePlay();
+                    return true;
+                case KeyCode.F:
+                    FrameSelection();
+                    return true;
+                case KeyCode.Home:
+                    ScrubTo(0);
+                    return true;
+                case KeyCode.End:
+                    ScrubTo(Animation.Duration);
+                    return true;
+                case KeyCode.LeftArrow:
+                    Nudge(-1);
+                    return true;
+                case KeyCode.RightArrow:
+                    Nudge(1);
+                    return true;
+                case KeyCode.Escape:
+                    if (m_selected == Selected.None) {
+                        return false;
+                    }
+
+                    ClearSelection();
+                    Repaint();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Moves the selected clips or marker by one snap step, or steps the playhead when nothing is selected.
+        /// </summary>
+        private void Nudge(int direction)
+        {
+            var step = direction * (m_snap > 0 ? m_snap : 0.01f);
+
+            switch (m_selected) {
+                case Selected.Clip: {
+                    GetSelectionRange(out var start, out _);
+                    step = Mathf.Max(step, -start);
+
+                    foreach (var selected in m_selectedClips) {
+                        ClipProperty(selected.Track, selected.Clip).FindPropertyRelative("Start").floatValue += step;
+                    }
+
+                    ApplyChanges();
+                    break;
+                }
+                case Selected.Marker: {
+                    var time = AnimationProperty().FindPropertyRelative("m_markers").GetArrayElementAtIndex(m_selectedMarker).FindPropertyRelative("Time");
+                    time.floatValue = Mathf.Max(0, time.floatValue + step);
+                    ApplyChanges();
+                    break;
+                }
+                default:
+                    ScrubTo(PlayheadTime + step);
+                    break;
+            }
+
+            Repaint();
+        }
+
+        private void FrameAll()
+        {
+            FrameRange(0, Animation.Duration);
+        }
+
+        private void FrameSelection()
+        {
+            switch (m_selected) {
+                case Selected.Clip: {
+                    GetSelectionRange(out var start, out var end);
+                    FrameRange(start, end);
+                    break;
+                }
+                case Selected.Marker: {
+                    var time = Animation.Markers[m_selectedMarker].Time;
+                    FrameRange(time - 0.5f, time + 0.5f);
+                    break;
+                }
+                default:
+                    FrameAll();
+                    break;
+            }
+        }
+
+        private void FrameRange(float start, float end)
+        {
+            var width = Mathf.Max(50, position.width - HEADER_WIDTH - SCROLLBAR_WIDTH);
+            var span = Mathf.Max(end - start, 0.1f);
+
+            m_pixelsPerSecond = Mathf.Clamp(width * 0.9f / span, 20, 4000);
+            m_offset = start - (width / m_pixelsPerSecond - span) * 0.5f;
+            Repaint();
+        }
+
+        private void GetSelectionRange(out float start, out float end)
+        {
+            start = float.MaxValue;
+            end = float.MinValue;
+
+            foreach (var selected in m_selectedClips) {
+                Animation.Tracks[selected.Track].GetClipRange(selected.Clip, out var clipStart, out var duration);
+                start = Mathf.Min(start, clipStart);
+                end = Mathf.Max(end, clipStart + duration);
+            }
+
+            if (m_selectedClips.Count == 0) {
+                start = end = 0;
+            }
         }
 
         private void ScrubTo(float time)
@@ -1398,25 +2310,69 @@ namespace Tekly.Tweenlines
             SelectClip(trackIndex, clipIndex);
         }
 
-        private void DuplicateClip(int trackIndex, int clipIndex)
+        /// <summary>
+        /// Copies the selected clips and places the copies right after the selection as one block, then
+        /// selects the copies. Copies go to the end of each clip list so the other clip indices stay put.
+        /// </summary>
+        private void DuplicateSelectedClips()
         {
-            var clips = TrackProperty(trackIndex).FindPropertyRelative("m_clips");
-            clips.InsertArrayElementAtIndex(clipIndex);
+            GetSelectionRange(out var start, out var end);
+            var offset = end - start > 0 ? end - start : Mathf.Max(m_snap, 0.1f);
+            var copies = new List<ClipRef>(m_selectedClips.Count);
 
-            var copy = clips.GetArrayElementAtIndex(clipIndex + 1);
-            var start = copy.FindPropertyRelative("Start");
-            var duration = copy.FindPropertyRelative("Duration");
-            start.floatValue += duration != null ? duration.floatValue : Mathf.Max(m_snap, 0.1f);
+            foreach (var selected in m_selectedClips) {
+                var clips = TrackProperty(selected.Track).FindPropertyRelative("m_clips");
+                clips.InsertArrayElementAtIndex(selected.Clip);
+                clips.MoveArrayElement(selected.Clip + 1, clips.arraySize - 1);
+
+                var copyIndex = clips.arraySize - 1;
+                clips.GetArrayElementAtIndex(copyIndex).FindPropertyRelative("Start").floatValue += offset;
+                copies.Add(new ClipRef(selected.Track, copyIndex));
+            }
 
             ApplyChanges();
-            SelectClip(trackIndex, clipIndex + 1);
+
+            m_selectedClips.Clear();
+            m_selectedClips.AddRange(copies);
+            SetPrimaryClip(copies[copies.Count - 1].Track, copies[copies.Count - 1].Clip);
+            Repaint();
         }
 
-        private void DeleteClip(int trackIndex, int clipIndex)
+        private void DeleteSelectedClips()
         {
-            TrackProperty(trackIndex).FindPropertyRelative("m_clips").DeleteArrayElementAtIndex(clipIndex);
+            // Highest index first per track so the earlier indices stay valid
+            m_selectedClips.Sort((a, b) => a.Track != b.Track ? a.Track.CompareTo(b.Track) : b.Clip.CompareTo(a.Clip));
+
+            foreach (var selected in m_selectedClips) {
+                TrackProperty(selected.Track).FindPropertyRelative("m_clips").DeleteArrayElementAtIndex(selected.Clip);
+            }
+
             ApplyChanges();
-            SelectTrack(trackIndex);
+            ClearSelection();
+            Repaint();
+        }
+
+        private void DeleteSelection()
+        {
+            switch (m_selected) {
+                case Selected.Clip:
+                    DeleteSelectedClips();
+                    break;
+                case Selected.Track:
+                    RemoveTrack(m_selectedTrack);
+                    break;
+                case Selected.Marker:
+                    DeleteMarker(m_selectedMarker);
+                    break;
+            }
+        }
+
+        private void DeleteMarker(int index)
+        {
+            TweenlineEditorUtils.Modify(m_target, "Delete Marker", () => Animation.Markers.RemoveAt(index));
+            m_serializedObject.Update();
+            ClearSelection();
+            Repaint();
         }
 
         private void RemoveTrack(int trackIndex)
@@ -1424,6 +2380,33 @@ namespace Tekly.Tweenlines
             TweenlineEditorUtils.Modify(m_target, "Remove Track", () => Animation.Tracks.RemoveAt(trackIndex));
             m_serializedObject.Update();
             ClearSelection();
+        }
+
+        /// <summary>
+        /// Moves a track to just before or after another one in the animation's track list.
+        /// </summary>
+        private void MoveTrackTo(int trackIndex, int targetIndex, bool after)
+        {
+            var insert = after ? targetIndex + 1 : targetIndex;
+
+            if (insert == trackIndex || insert == trackIndex + 1) {
+                return;
+            }
+
+            if (insert > trackIndex) {
+                insert--;
+            }
+
+            var tracks = Animation.Tracks;
+
+            TweenlineEditorUtils.Modify(m_target, "Move Track", () => {
+                var track = tracks[trackIndex];
+                tracks.RemoveAt(trackIndex);
+                tracks.Insert(insert, track);
+            });
+
+            m_serializedObject.Update();
+            SelectTrack(insert);
         }
 
         private void MoveTrack(int trackIndex, int direction)
@@ -1465,16 +2448,18 @@ namespace Tekly.Tweenlines
             menu.ShowAsContext();
         }
 
-        private void ShowClipMenu(int trackIndex, int clipIndex)
+        private void ShowClipMenu()
         {
+            var label = m_selectedClips.Count > 1 ? $" {m_selectedClips.Count} Clips" : string.Empty;
             var menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Duplicate"), false, () => {
+
+            menu.AddItem(new GUIContent($"Duplicate{label}"), false, () => {
                 m_serializedObject.Update();
-                DuplicateClip(trackIndex, clipIndex);
+                DuplicateSelectedClips();
             });
-            menu.AddItem(new GUIContent("Delete"), false, () => {
+            menu.AddItem(new GUIContent($"Delete{label}"), false, () => {
                 m_serializedObject.Update();
-                DeleteClip(trackIndex, clipIndex);
+                DeleteSelectedClips();
             });
             menu.ShowAsContext();
         }
@@ -1485,12 +2470,19 @@ namespace Tekly.Tweenlines
             m_selectedTrack = index;
             m_selectedClip = -1;
             m_selectedMarker = -1;
+            m_selectedClips.Clear();
             GUI.FocusControl(null);
             Repaint();
         }
 
         private void SelectClip(int trackIndex, int clipIndex)
         {
+            m_selectedClips.Clear();
+
+            if (clipIndex >= 0) {
+                m_selectedClips.Add(new ClipRef(trackIndex, clipIndex));
+            }
+
             m_selected = clipIndex >= 0 ? Selected.Clip : Selected.None;
             m_selectedTrack = trackIndex;
             m_selectedClip = clipIndex;
@@ -1499,12 +2491,79 @@ namespace Tekly.Tweenlines
             Repaint();
         }
 
+        /// <summary>
+        /// Makes a clip that is already in the selection the one the details pane shows.
+        /// </summary>
+        private void SetPrimaryClip(int trackIndex, int clipIndex)
+        {
+            m_selected = Selected.Clip;
+            m_selectedTrack = trackIndex;
+            m_selectedClip = clipIndex;
+            m_selectedMarker = -1;
+            GUI.FocusControl(null);
+        }
+
+        private void ToggleClip(int trackIndex, int clipIndex)
+        {
+            if (m_selected != Selected.Clip) {
+                SelectClip(trackIndex, clipIndex);
+                return;
+            }
+
+            var clip = new ClipRef(trackIndex, clipIndex);
+
+            if (m_selectedClips.Remove(clip)) {
+                if (m_selectedClips.Count == 0) {
+                    ClearSelection();
+                } else {
+                    var last = m_selectedClips[m_selectedClips.Count - 1];
+                    SetPrimaryClip(last.Track, last.Clip);
+                }
+            } else {
+                m_selectedClips.Add(clip);
+                SetPrimaryClip(trackIndex, clipIndex);
+            }
+
+            Repaint();
+        }
+
+        private void SelectAllClips()
+        {
+            m_selectedClips.Clear();
+
+            var tracks = Animation.Tracks;
+
+            for (var t = 0; t < tracks.Count; t++) {
+                if (tracks[t] == null) {
+                    continue;
+                }
+
+                for (var c = 0; c < tracks[t].ClipCount; c++) {
+                    m_selectedClips.Add(new ClipRef(t, c));
+                }
+            }
+
+            if (m_selectedClips.Count == 0) {
+                ClearSelection();
+            } else {
+                SetPrimaryClip(m_selectedClips[0].Track, m_selectedClips[0].Clip);
+            }
+
+            Repaint();
+        }
+
+        private bool IsClipSelected(int trackIndex, int clipIndex)
+        {
+            return m_selected == Selected.Clip && m_selectedClips.Contains(new ClipRef(trackIndex, clipIndex));
+        }
+
         private void SelectMarker(int index)
         {
             m_selected = index >= 0 ? Selected.Marker : Selected.None;
             m_selectedTrack = -1;
             m_selectedClip = -1;
             m_selectedMarker = index;
+            m_selectedClips.Clear();
             GUI.FocusControl(null);
             Repaint();
         }
@@ -1515,17 +2574,24 @@ namespace Tekly.Tweenlines
             m_selectedTrack = -1;
             m_selectedClip = -1;
             m_selectedMarker = -1;
+            m_selectedClips.Clear();
             GUI.FocusControl(null);
         }
 
+        /// <summary>
+        /// Drops selected items that no longer exist, like after an undo removed a clip.
+        /// </summary>
         private void ValidateSelection()
         {
             var animation = Animation;
 
+            if (m_selected == Selected.Clip && animation != null) {
+                m_selectedClips.RemoveAll(clip => !IsValidClip(animation, clip.Track, clip.Clip));
+            }
+
             var valid = m_selected switch {
-                Selected.Track => animation != null && m_selectedTrack >= 0 && m_selectedTrack < animation.Tracks.Count && animation.Tracks[m_selectedTrack] != null,
-                Selected.Clip => animation != null && m_selectedTrack >= 0 && m_selectedTrack < animation.Tracks.Count && animation.Tracks[m_selectedTrack] != null
-                    && m_selectedClip >= 0 && m_selectedClip < animation.Tracks[m_selectedTrack].ClipCount,
+                Selected.Track => animation != null && IsValidTrack(animation, m_selectedTrack),
+                Selected.Clip => animation != null && IsValidClip(animation, m_selectedTrack, m_selectedClip),
                 Selected.Marker => animation != null && m_selectedMarker >= 0 && m_selectedMarker < animation.Markers.Count,
                 _ => true
             };
@@ -1533,6 +2599,16 @@ namespace Tekly.Tweenlines
             if (!valid) {
                 ClearSelection();
             }
+        }
+
+        private static bool IsValidTrack(TweenAnimation animation, int trackIndex)
+        {
+            return trackIndex >= 0 && trackIndex < animation.Tracks.Count && animation.Tracks[trackIndex] != null;
+        }
+
+        private static bool IsValidClip(TweenAnimation animation, int trackIndex, int clipIndex)
+        {
+            return IsValidTrack(animation, trackIndex) && clipIndex >= 0 && clipIndex < animation.Tracks[trackIndex].ClipCount;
         }
 
         private SerializedProperty AnimationProperty()
@@ -1574,20 +2650,9 @@ namespace Tekly.Tweenlines
             return (x - HEADER_WIDTH) / m_pixelsPerSecond + m_offset;
         }
 
-        private float Snap(float time, Event e)
-        {
-            if (m_snap <= 0 || e.control) {
-                return time;
-            }
-
-            return Mathf.Round(time / m_snap) * m_snap;
-        }
-
         private float TickStep()
         {
-            var steps = new[] { 0.01f, 0.02f, 0.05f, 0.1f, 0.2f, 0.5f, 1f, 2f, 5f, 10f };
-
-            foreach (var step in steps) {
+            foreach (var step in s_tickSteps) {
                 if (step * m_pixelsPerSecond >= 12) {
                     return step;
                 }
