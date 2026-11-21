@@ -351,8 +351,16 @@ namespace Tekly.Tweenlines
             return null;
         }
 
+        /// <summary>
+        /// Undo can destroy the target, for example undoing adding the Tweenline or creating its object, and a
+        /// SerializedObject of a destroyed object throws on Update. OnGUI makes a new one once there's a target.
+        /// </summary>
         private void OnUndoRedo()
         {
+            if (m_serializedObject != null && m_serializedObject.targetObject == null) {
+                m_serializedObject = null;
+            }
+
             m_serializedObject?.Update();
             Repaint();
         }
@@ -1205,6 +1213,7 @@ namespace Tekly.Tweenlines
             EditorGUILayout.LabelField("Marker", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(marker.FindPropertyRelative("Time"));
             EditorGUILayout.PropertyField(marker.FindPropertyRelative("Name"));
+            EditorGUILayout.PropertyField(marker.FindPropertyRelative("Fire"));
             EditorGUILayout.PropertyField(marker.FindPropertyRelative("Event"));
 
             if (GUILayout.Button("Delete Marker")) {

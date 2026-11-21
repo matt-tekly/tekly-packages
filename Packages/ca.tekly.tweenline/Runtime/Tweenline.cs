@@ -13,11 +13,35 @@ namespace Tekly.Tweenlines
     {
         public event Action<Tweenline, TweenAnimation> Completed;
 
+        /// <summary>
+        /// Raised for every marker reached, with why it was reached, whatever the marker's Fire setting says. Raised
+        /// before the marker's own Event.
+        /// </summary>
+        public event Action<Tweenline, TweenMarker, TweenMarkerReason> MarkerFired;
+
         public bool IsPlaying => m_playing;
 
         /// <summary>Whether the current play was hurried. Cleared by the next Play</summary>
         public bool IsHurried => m_hurried;
         public float Time => m_time;
+
+        /// <summary>Length of the current animation in seconds</summary>
+        public float Duration => m_duration;
+
+        /// <summary>
+        /// Where the current animation is, from 0 at its start to 1 at its end. It follows the timeline, not
+        /// the play, so a reverse play goes from 1 to 0. A zero length animation is always at 1.
+        /// </summary>
+        public float Progress {
+            get {
+                if (m_current == null) {
+                    return 0;
+                }
+
+                return m_duration > 0 ? m_time / m_duration : 1;
+            }
+        }
+
         public TweenAnimation Current => m_current;
         public List<TweenAnimation> Animations => m_animations;
 
@@ -301,6 +325,76 @@ namespace Tekly.Tweenlines
         }
 
         /// <summary>
+        /// Jumps the current animation to a time and shows that frame, firing the markers jumped past with
+        /// Seeked. A play carries on from there in the same direction and still finishes and completes its
+        /// PlayAsync as usual, and a stagger delay still waiting is dropped. When stopped it only shows the
+        /// frame, for example to drive an animation from a slider.
+        /// </summary>
+        public void Seek(float time)
+        {
+            if (m_current == null) {
+                return;
+            }
+
+            var playId = m_playId;
+            var previous = m_time;
+
+            // Start markers not yet fired sit at the time being left, so they count as jumped past
+            var includeFrom = m_startMarkersPending;
+
+            m_time = Mathf.Clamp(time, 0, m_duration);
+            m_delay = 0;
+            m_startMarkersPending = false;
+
+            m_current.FireMarkers(this, previous, m_time, TweenMarkerReason.Seeked, includeFrom);
+
+            if (playId != m_playId) {
+                return;
+            }
+
+            m_current.Evaluate(m_time);
+        }
+
+        /// <summary>
+        /// Seek with a time from 0 at the start of the current animation to 1 at its end.
+        /// </summary>
+        public void SeekProgress(float progress)
+        {
+            Seek(progress * m_duration);
+        }
+
+        /// <summary>
+        /// Shows an animation at a time without playing it. A different animation is rewound first and the
+        /// markers between its start and the time fire with Seeked. A play is stopped, which interrupts its
+        /// PlayAsync. Seeking the animation already shown again only fires the markers between the two times,
+        /// so this can be called every frame from a slider.
+        /// </summary>
+        public void Seek(string animationName, float time)
+        {
+            if (TryFind(animationName, out var animation)) {
+                Seek(animation, time);
+            }
+        }
+
+        public void Seek(TweenAnimation animation, float time)
+        {
+            if (m_current != animation) {
+                Rewind(animation);
+            } else if (m_playing) {
+                Stop();
+            }
+
+            Seek(time);
+        }
+
+        public void SeekProgress(string animationName, float progress)
+        {
+            if (TryFind(animationName, out var animation)) {
+                Seek(animation, progress * animation.Duration);
+            }
+        }
+
+        /// <summary>
         /// Stops playback, leaving every property where it is.
         /// </summary>
         public void Stop()
@@ -315,7 +409,7 @@ namespace Tekly.Tweenlines
         }
 
         /// <summary>
-        /// Jumps the playing animation to its end, fires the remaining markers and completes it.
+        /// Jumps the playing animation to its end, fires the remaining markers with Skipped and completes it.
         /// </summary>
         public void Complete()
         {
@@ -323,14 +417,14 @@ namespace Tekly.Tweenlines
                 return;
             }
 
-            if (m_startMarkersPending && !FireStartMarkers()) {
+            if (m_startMarkersPending && !FireStartMarkers(TweenMarkerReason.Skipped)) {
                 return;
             }
 
             var playId = m_playId;
             var edge = m_direction > 0 ? m_duration : 0;
 
-            m_current.FireMarkers(m_time, edge);
+            m_current.FireMarkers(this, m_time, edge, TweenMarkerReason.Skipped);
 
             if (playId != m_playId) {
                 return;
@@ -533,14 +627,26 @@ namespace Tekly.Tweenlines
         /// Fires markers at the starting time once the stagger delay has passed. False when a marker started
         /// another animation or stopped this one.
         /// </summary>
-        private bool FireStartMarkers()
+        private bool FireStartMarkers(TweenMarkerReason reason = TweenMarkerReason.Played)
         {
             var playId = m_playId;
 
             m_startMarkersPending = false;
-            m_current.FireMarkers(m_time, m_time, true);
+            m_current.FireMarkers(this, m_time, m_time, reason, true);
 
             return playId == m_playId;
+        }
+
+        /// <summary>
+        /// Reports a marker reached by the current animation. Called by TweenAnimation.FireMarkers.
+        /// </summary>
+        internal void OnMarker(TweenMarker marker, TweenMarkerReason reason)
+        {
+            MarkerFired?.Invoke(this, marker, reason);
+
+            if (marker.Fires(reason)) {
+                marker.Event?.Invoke();
+            }
         }
 
         private void Advance(float deltaTime)
@@ -558,7 +664,7 @@ namespace Tekly.Tweenlines
                 var edge = m_direction > 0 ? duration : 0;
                 var overshoot = duration > 0 ? Mathf.Abs(m_time - edge) % duration : 0;
 
-                m_current.FireMarkers(previous, edge);
+                m_current.FireMarkers(this, previous, edge, TweenMarkerReason.Played);
 
                 if (playId != m_playId) {
                     return;
@@ -574,16 +680,16 @@ namespace Tekly.Tweenlines
                     case TweenWrap.Loop:
                         var start = m_direction > 0 ? 0 : duration;
                         m_time = start + overshoot * m_direction;
-                        m_current.FireMarkers(start, m_time, true);
+                        m_current.FireMarkers(this, start, m_time, TweenMarkerReason.Played, true);
                         break;
                     case TweenWrap.PingPong:
                         m_direction = -m_direction;
                         m_time = edge + overshoot * m_direction;
-                        m_current.FireMarkers(edge, m_time);
+                        m_current.FireMarkers(this, edge, m_time, TweenMarkerReason.Played);
                         break;
                 }
             } else {
-                m_current.FireMarkers(previous, m_time);
+                m_current.FireMarkers(this, previous, m_time, TweenMarkerReason.Played);
             }
 
             if (playId != m_playId) {

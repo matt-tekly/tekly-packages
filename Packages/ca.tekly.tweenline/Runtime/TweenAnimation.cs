@@ -5,12 +5,49 @@ using UnityEngine.Events;
 
 namespace Tekly.Tweenlines
 {
+    /// <summary>
+    /// Why a marker fired.
+    /// </summary>
+    public enum TweenMarkerReason
+    {
+        /// <summary>Crossed during playback, including a hurried play, loops and turning around</summary>
+        Played,
+
+        /// <summary>Jumped past by Seek, in either direction</summary>
+        Seeked,
+
+        /// <summary>Jumped past by Complete</summary>
+        Skipped
+    }
+
+    /// <summary>
+    /// When a marker's Event is invoked.
+    /// </summary>
+    public enum TweenMarkerFire
+    {
+        /// <summary>However the marker is reached, for markers that set state</summary>
+        Always,
+
+        /// <summary>Only when played through, not seeked or skipped past, for effects like sounds</summary>
+        OnlyWhenPlayed
+    }
+
     [Serializable]
     public class TweenMarker
     {
         public float Time;
         public string Name;
+
+        [Tooltip("Always for markers that set state, so a skip or seek still leaves things right. Only When Played for "
+                 + "effects like sounds. Tweenline.MarkerFired is raised either way")]
+        public TweenMarkerFire Fire = TweenMarkerFire.Always;
+
         public UnityEvent Event = new UnityEvent();
+
+        public bool Fires(TweenMarkerReason reason)
+        {
+            return Fire == TweenMarkerFire.Always || reason == TweenMarkerReason.Played;
+        }
     }
 
     /// <summary>
@@ -135,9 +172,10 @@ namespace Tekly.Tweenlines
 
         /// <summary>
         /// Fires markers crossed moving from one time to another, in either direction. The from time is
-        /// exclusive unless includeFrom is set and the to time is inclusive.
+        /// exclusive unless includeFrom is set and the to time is inclusive. Each one is reported to the owner,
+        /// which invokes its Event when its Fire setting allows the reason.
         /// </summary>
-        public void FireMarkers(float from, float to, bool includeFrom = false)
+        internal void FireMarkers(Tweenline owner, float from, float to, TweenMarkerReason reason, bool includeFrom = false)
         {
             foreach (var marker in m_markers) {
                 var time = marker.Time;
@@ -150,7 +188,7 @@ namespace Tekly.Tweenlines
                 }
 
                 if (crossed) {
-                    marker.Event?.Invoke();
+                    owner.OnMarker(marker, reason);
                 }
             }
         }
