@@ -41,6 +41,13 @@ namespace Tekly.Tweenlines
         [NonSerialized] private int[] m_order;
         [NonSerialized] private TValue[] m_from;
         [NonSerialized] private TValue[] m_to;
+
+        // Which clip each clip starts from for ClipFrom.Previous, so a clip after one that ends on a target
+        // starts where the target is now. -1 when it doesn't start from another clip
+        [NonSerialized] private int[] m_fromClip;
+        [NonSerialized] private bool[] m_followsTarget;
+        [NonSerialized] private bool m_hasTargets;
+        [NonSerialized] private float[] m_arcs;
         [NonSerialized] private ChannelSlot<TValue> m_slot;
         [NonSerialized] private bool m_prepared;
 
@@ -52,6 +59,25 @@ namespace Tekly.Tweenlines
         protected abstract TValue Add(TValue origin, TValue offset);
 
         protected abstract TweenClip<TValue> CreateClip(float start);
+
+        /// <summary>
+        /// The value that puts the track's target on another Transform. Only tracks that implement
+        /// IPositionTrack override it.
+        /// </summary>
+        protected virtual bool TryGetTargetValue(Transform target, out TValue value)
+        {
+            value = default;
+            return false;
+        }
+
+        /// <summary>
+        /// Moves along a curve that bulges sideways by arc, a fraction of the distance. Only tracks that
+        /// implement IPositionTrack override it, other tracks never get an arc.
+        /// </summary>
+        protected virtual TValue Curve(TValue from, TValue to, float t, float arc)
+        {
+            return Lerp(from, to, t);
+        }
 
         public override bool Bind(GameObject gameObject)
         {
@@ -98,11 +124,20 @@ namespace Tekly.Tweenlines
                 m_order = new int[count];
                 m_from = new TValue[count];
                 m_to = new TValue[count];
+                m_fromClip = new int[count];
+                m_followsTarget = new bool[count];
+                m_arcs = new float[count];
             }
+
+            var arcs = this is IPositionTrack;
+            var arcSeed = unchecked(mixer.PlaySeed * 31 + m_target.GetEntityId().GetHashCode());
 
             ClipOrder.Sort(m_clips, m_order, clip => clip.Start);
 
             var previous = origin;
+            var previousClip = -1;
+
+            m_hasTargets = false;
 
             for (var i = 0; i < count; i++) {
                 var index = m_order[i];
@@ -115,8 +150,14 @@ namespace Tekly.Tweenlines
                     _ => Resolve(clip.Space, origin, clip.From)
                 };
 
-                m_to[index] = Resolve(clip.Space, origin, clip.To);
+                m_followsTarget[index] = TryResolveTarget(index, out var target);
+                m_to[index] = m_followsTarget[index] ? target : Resolve(clip.Space, origin, clip.To);
+                m_fromClip[index] = clip.FromMode == ClipFrom.Previous ? previousClip : -1;
+                m_hasTargets |= m_followsTarget[index];
+                m_arcs[index] = arcs ? clip.Arc + clip.ArcRandom * TweenRandom.Hash(arcSeed, index, 0) : 0;
+
                 previous = m_to[index];
+                previousClip = index;
             }
 
             m_prepared = true;
@@ -157,9 +198,51 @@ namespace Tekly.Tweenlines
 
             var clip = m_clips[active];
             var ratio = clip.Duration > 0 ? Mathf.Clamp01((time - clip.Start) / clip.Duration) : 1f;
+            var from = m_from[active];
+            var to = m_to[active];
 
-            value = Lerp(m_from[active], m_to[active], clip.Ease.Evaluate(ratio));
+            if (m_hasTargets) {
+                FollowTargets(active, ref from, ref to);
+            }
+
+            var eased = clip.Ease.Evaluate(ratio);
+            var arc = m_arcs[active];
+
+            value = arc != 0 ? Curve(from, to, eased, arc) : Lerp(from, to, eased);
             return true;
+        }
+
+        /// <summary>
+        /// Reads where the targets are now for a clip that ends on one, or starts from one that did. A target
+        /// that has been destroyed leaves the value resolved when the animation started.
+        /// </summary>
+        private void FollowTargets(int index, ref TValue from, ref TValue to)
+        {
+            if (m_followsTarget[index] && TryResolveTarget(index, out var target)) {
+                to = target;
+            }
+
+            var fromClip = m_fromClip[index];
+
+            if (fromClip >= 0 && m_followsTarget[fromClip] && TryResolveTarget(fromClip, out target)) {
+                from = target;
+            }
+        }
+
+        /// <summary>
+        /// Where a clip ends when it has a target: the target with To added as an offset.
+        /// </summary>
+        private bool TryResolveTarget(int index, out TValue value)
+        {
+            var clip = m_clips[index];
+
+            if (clip.ToTarget != null && TryGetTargetValue(clip.ToTarget, out var target)) {
+                value = Add(target, clip.To);
+                return true;
+            }
+
+            value = default;
+            return false;
         }
 
         private TValue Resolve(ClipSpace space, TValue origin, TValue value)

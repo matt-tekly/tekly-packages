@@ -1177,8 +1177,27 @@ namespace Tekly.Tweenlines
                 EditorGUILayout.PropertyField(clip.FindPropertyRelative("From"), new GUIContent("From Value"));
             }
 
-            EditorGUILayout.PropertyField(clip.FindPropertyRelative("To"));
-            EditorGUILayout.PropertyField(clip.FindPropertyRelative("Space"));
+            var toTarget = clip.FindPropertyRelative("ToTarget");
+            var isPosition = track is IPositionTrack;
+            var hasTarget = isPosition && toTarget != null;
+
+            if (hasTarget) {
+                EditorGUILayout.PropertyField(toTarget, new GUIContent("To Target", "Ends on this Transform, followed every frame. Leave empty to end on the To value"));
+                hasTarget = toTarget.objectReferenceValue != null;
+            }
+
+            // With a target, To is an offset from it and Space doesn't apply
+            EditorGUILayout.PropertyField(clip.FindPropertyRelative("To"), new GUIContent(hasTarget ? "Offset" : "To"));
+
+            if (!hasTarget) {
+                EditorGUILayout.PropertyField(clip.FindPropertyRelative("Space"));
+            }
+
+            if (isPosition) {
+                EditorGUILayout.PropertyField(clip.FindPropertyRelative("Arc"), new GUIContent("Arc", "How far the middle of the path bulges sideways, as a fraction of the distance. Positive bulges left of the direction of travel, so up when moving right"));
+                EditorGUILayout.PropertyField(clip.FindPropertyRelative("ArcRandom"), new GUIContent("Arc Random", "Adds a random amount from minus this to plus this to Arc for each play and target, so objects heading to the same place fan out"));
+            }
+
             DrawClipButtons();
         }
 

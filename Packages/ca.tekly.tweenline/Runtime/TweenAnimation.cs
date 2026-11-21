@@ -114,15 +114,16 @@ namespace Tekly.Tweenlines
 
         /// <summary>
         /// Resolves every track before playback. readCurrent reads each channel's live value as the start
-        /// value used by ClipFrom.Current and by step tracks before their first switch.
+        /// value used by ClipFrom.Current and by step tracks before their first switch. playSeed picks random
+        /// choices like an Arc Random, see TweenMixer.PlaySeed.
         /// </summary>
-        public void Prepare(TweenOrigins origins, bool readCurrent)
+        public void Prepare(TweenOrigins origins, bool readCurrent, int playSeed = 0)
         {
             m_mixer ??= new TweenMixer();
             m_baseTracks ??= new List<TweenTrack>();
             m_layeredTracks ??= new List<TweenTrack>();
 
-            m_mixer.BeginPrepare(origins, readCurrent);
+            m_mixer.BeginPrepare(origins, readCurrent, playSeed);
             m_baseTracks.Clear();
             m_layeredTracks.Clear();
 

@@ -48,6 +48,9 @@ namespace Tekly.Tweenlines
         /// <summary>Changes whenever a play starts or is stopped, so a play can be told apart from a later one</summary>
         internal int PlayId => m_playId;
 
+        /// <summary>Random choices for the current play, different per Tweenline and per play, see TweenMixer.PlaySeed</summary>
+        private int PlaySeed => unchecked(GetEntityId().GetHashCode() * 31 + m_playId);
+
         /// <summary>Where this sits in the TweenlineRunner's list, or -1 when it isn't being updated</summary>
         internal int RunnerIndex { get; set; } = -1;
 
@@ -320,7 +323,7 @@ namespace Tekly.Tweenlines
             m_duration = animation.Duration;
             m_time = 0;
 
-            animation.Prepare(Origins, false);
+            animation.Prepare(Origins, false, PlaySeed);
             animation.Evaluate(m_time);
         }
 
@@ -452,7 +455,7 @@ namespace Tekly.Tweenlines
         /// </summary>
         public void Prepare(TweenAnimation animation, bool readCurrent)
         {
-            animation.Prepare(Origins, readCurrent);
+            animation.Prepare(Origins, readCurrent, PlaySeed);
 
             if (animation == m_current) {
                 m_duration = animation.Duration;
@@ -520,7 +523,7 @@ namespace Tekly.Tweenlines
 
             // Reversing plays back towards the start, so it keeps the start values of the last forward play
             // instead of reading the end pose as the start
-            animation.Prepare(Origins, !reverse);
+            animation.Prepare(Origins, !reverse, PlaySeed);
 
             // The start pose shows straight away, but markers wait for the stagger delay
             animation.Evaluate(m_time);

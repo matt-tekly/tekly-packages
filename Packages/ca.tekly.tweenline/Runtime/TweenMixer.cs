@@ -13,6 +13,12 @@ namespace Tekly.Tweenlines
         private readonly Dictionary<(Object, TweenChannel), ChannelSlot> m_slots = new Dictionary<(Object, TweenChannel), ChannelSlot>();
         private readonly List<ChannelSlot> m_active = new List<ChannelSlot>();
 
+        /// <summary>
+        /// Different for each play of each Tweenline and the same while a play is sampled again, for
+        /// random choices like an Arc Random. Use with TweenRandom.Hash.
+        /// </summary>
+        public int PlaySeed { get; private set; }
+
         private TweenOrigins m_origins;
         private bool m_readCurrent;
 
@@ -73,10 +79,11 @@ namespace Tekly.Tweenlines
             return current;
         }
 
-        internal void BeginPrepare(TweenOrigins origins, bool readCurrent)
+        internal void BeginPrepare(TweenOrigins origins, bool readCurrent, int playSeed)
         {
             m_origins = origins;
             m_readCurrent = readCurrent;
+            PlaySeed = playSeed;
 
             foreach (var slot in m_active) {
                 slot.Active = false;

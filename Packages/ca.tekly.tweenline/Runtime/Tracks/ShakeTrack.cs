@@ -201,7 +201,7 @@ namespace Tekly.Tweenlines.Tracks
         /// </summary>
         private static float Noise(int seed, int axis, float cycles)
         {
-            var position = cycles + (Hash(seed, axis, -1) + 1) * 0.5f;
+            var position = cycles + (TweenRandom.Hash(seed, axis, -1) + 1) * 0.5f;
             var index = Mathf.FloorToInt(position);
             var blend = position - index;
 
@@ -216,28 +216,10 @@ namespace Tekly.Tweenlines.Tracks
         /// </summary>
         private static float Swing(int seed, int axis, int index)
         {
-            var size = 0.4f + 0.3f * (Hash(seed, axis, index) + 1);
-            var startsPositive = Hash(seed, axis, -2) > 0;
+            var size = 0.4f + 0.3f * (TweenRandom.Hash(seed, axis, index) + 1);
+            var startsPositive = TweenRandom.Hash(seed, axis, -2) > 0;
 
             return (index & 1) == 0 == startsPositive ? size : -size;
-        }
-
-        /// <summary>
-        /// A repeatable random value between -1 and 1 for a seed, axis and cycle.
-        /// </summary>
-        private static float Hash(int seed, int axis, int index)
-        {
-            unchecked {
-                var hash = (uint) (seed * 73856093) ^ (uint) (axis * 19349663) ^ (uint) (index * 83492791);
-
-                hash ^= hash >> 13;
-                hash *= 0x5bd1e995;
-                hash ^= hash >> 15;
-                hash *= 0x27d4eb2d;
-                hash ^= hash >> 16;
-
-                return (hash & 0xFFFFFF) / (float) 0x7FFFFF - 1f;
-            }
         }
 
 #if UNITY_EDITOR

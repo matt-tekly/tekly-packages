@@ -44,6 +44,35 @@ namespace Tekly.Tweenlines
     public interface ILayeredTrack { }
 
     /// <summary>
+    /// A clip track that moves a position, so its clips can end on a Transform and follow an Arc.
+    /// </summary>
+    public interface IPositionTrack { }
+
+    /// <summary>
+    /// Repeatable random values, so random choices stay the same when a play is sampled again.
+    /// </summary>
+    public static class TweenRandom
+    {
+        /// <summary>
+        /// A repeatable random value between -1 and 1 for a seed and two indices.
+        /// </summary>
+        public static float Hash(int seed, int a, int b)
+        {
+            unchecked {
+                var hash = (uint) (seed * 73856093) ^ (uint) (a * 19349663) ^ (uint) (b * 83492791);
+
+                hash ^= hash >> 13;
+                hash *= 0x5bd1e995;
+                hash ^= hash >> 15;
+                hash *= 0x27d4eb2d;
+                hash ^= hash >> 16;
+
+                return (hash & 0xFFFFFF) / (float) 0x7FFFFF - 1f;
+            }
+        }
+    }
+
+    /// <summary>
     /// A base track that can report its value at any time, so layered tracks can work out where the target
     /// will be, like where a drop lands.
     /// </summary>
