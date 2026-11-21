@@ -264,5 +264,10 @@ namespace Tekly.Tweenlines
         public static readonly CanvasGroupAlphaChannel CanvasGroupAlpha = new CanvasGroupAlphaChannel();
         public static readonly ActiveChannel Active = new ActiveChannel();
         public static readonly EnabledChannel Enabled = new EnabledChannel();
+
+#if TWEENLINE_UGUI
+        public static readonly GraphicColorChannel GraphicColor = new GraphicColorChannel();
+        public static readonly ImageFillAmountChannel ImageFillAmount = new ImageFillAmountChannel();
+#endif
     }
 }

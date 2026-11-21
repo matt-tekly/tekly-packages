@@ -954,12 +954,11 @@ MonoBehaviour:
   - m_name: Show
     m_wrap: 0
     m_tracks:
-    - rid: 6958352150732472449
     - rid: 6958352150732472450
-    - rid: 6958352150732472451
     - rid: 6958352150732472452
     - rid: 6958352150732472457
     - rid: 6958352150732472459
+    - rid: 6958352184605409384
     m_markers: []
   - m_name: Stamp
     m_wrap: 0
@@ -979,25 +978,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 6958352150732472449
-      type: {class: AnchoredPositionTrack, ns: Tekly.Tweenlines.Tracks, asm: Tekly.Tweenline.Runtime}
-      data:
-        m_enabled: 0
-        m_target: {fileID: 1425736661}
-        m_clips:
-        - Start: 0
-          Duration: 0.45
-          Ease:
-            Type: 6
-            Direction: 0
-            Overshoot: 0.1
-            Falloff: 0
-            Bounces: 3
-            Bounciness: 0.25
-          FromMode: 3
-          Space: 1
-          From: {x: -3200, y: 0}
-          To: {x: 0, y: 0}
     - rid: 6958352150732472450
       type: {class: AnchoredPositionTrack, ns: Tekly.Tweenlines.Tracks, asm: Tekly.Tweenline.Runtime}
       data:
@@ -1017,25 +997,6 @@ MonoBehaviour:
           Space: 1
           From: {x: 3200, y: 0}
           To: {x: 0, y: 0}
-    - rid: 6958352150732472451
-      type: {class: ScaleTrack, ns: Tekly.Tweenlines.Tracks, asm: Tekly.Tweenline.Runtime}
-      data:
-        m_enabled: 0
-        m_target: {fileID: 1936602596}
-        m_clips:
-        - Start: 0.45000002
-          Duration: 0.35
-          Ease:
-            Type: 8
-            Direction: 0
-            Overshoot: 0.15
-            Falloff: 0
-            Bounces: 3
-            Bounciness: 0.25
-          FromMode: 3
-          Space: 1
-          From: {x: 1.6, y: 1.6, z: 1}
-          To: {x: 1, y: 1, z: 1}
     - rid: 6958352150732472452
       type: {class: CanvasGroupAlphaTrack, ns: Tekly.Tweenlines.Tracks, asm: Tekly.Tweenline.Runtime}
       data:
@@ -1169,6 +1130,25 @@ MonoBehaviour:
           Space: 1
           From: {x: 350, y: 0}
           To: {x: 0, y: 0}
+    - rid: 6958352184605409384
+      type: {class: ImageFillTrack, ns: Tekly.Tweenlines.Tracks, asm: Tekly.Tweenline.Runtime}
+      data:
+        m_enabled: 1
+        m_target: {fileID: 1960387872}
+        m_clips:
+        - Start: 0.15
+          Duration: 0.5
+          Ease:
+            Type: 3
+            Direction: 0
+            Overshoot: 0.1
+            Falloff: 0
+            Bounces: 3
+            Bounciness: 0.25
+          FromMode: 3
+          Space: 0
+          From: 0
+          To: 1
 --- !u!1 &470969932
 GameObject:
   m_ObjectHideFlags: 0
@@ -2486,27 +2466,96 @@ MonoBehaviour:
   m_GameObject: {fileID: 1425736660}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Script: {fileID: 11500000, guid: bd2ec1839fd864b498281c816ce77109, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_EditorClassIdentifier: Tekly.Common.Runtime::Tekly.Common.Ui.Styled.StyledRect
   m_Material: {fileID: 0}
-  m_Color: {r: 0.86, g: 0.26, b: 0.16, a: 1}
-  m_RaycastTarget: 0
+  m_Color: {r: 0.85882354, g: 0.25882354, b: 0.16078432, a: 1}
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_radiusMode: 0
+  m_radius: 0
+  m_cornerRadii: {x: 16, y: 16, z: 16, w: 16}
+  m_roundedCorners: -1
+  m_cornerSmoothing: 1
+  m_wobbleAmount: 4.48
+  m_wobbleLength: 80
+  m_wobbleSeed: 0
+  m_wobbleSpeed: 0
+  m_reveal: 0
+  m_revealAmount: 1
+  m_revealCap: 0
+  m_radialStart: 0
+  m_radialClockwise: 1
+  m_sprite: {fileID: 21300000, guid: 4b2250ecbcbb650418b23535f1e69cd0, type: 3}
+  m_textureMode: 1
+  m_textureScale: {x: 2, y: 2}
+  m_textureOffset: {x: 0, y: 0}
+  m_textureRotation: 0
+  m_textureScroll: {x: 0, y: 0}
+  m_blendMode: 0
+  m_raycastUsesShape: 1
+  m_layers:
+  - Enabled: 1
+    Kind: 0
+    Paint:
+      Color: {r: 1, g: 1, b: 1, a: 1}
+      Gradient: 0
+      Color2: {r: 0.496, g: 0.496, b: 0.496, a: 1}
+      Angle: 0
+      RangeStart: 0
+      RangeEndInset: 0
+      Bias: -0.444
+    Width: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
+    ShadowOffset: {x: 0, y: 0}
+    Blur: 0
+    ShowBehind: 0
+    Textured: 1
+    IgnoreReveal: 0
+    IgnoreTint: 0
+  - Enabled: 1
+    Kind: 2
+    Paint:
+      Color: {r: 0, g: 0, b: 0, a: 0.35}
+      Gradient: 0
+      Color2: {r: 0, g: 0, b: 0, a: 0.35}
+      Angle: 0
+      RangeStart: 0
+      RangeEndInset: 0
+      Bias: 0
+    Width: 0
+    EdgeOffset: 0
+    StrokeStyle:
+      Align: 0
+      DashSpacing: 0
+      DashLength: 0
+      DashSpeed: 0
+      WobbleWidth: 0
+      WobbleDrift: 0
+      WobbleLength: 0
+      WobbleSeed: 0
+      DashRoundCaps: 0
+    ShadowOffset: {x: 0, y: -10}
+    Blur: 10
+    ShowBehind: 0
+    Textured: 0
+    IgnoreReveal: 0
+    IgnoreTint: 0
 --- !u!1001 &1738723928
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3172,11 +3221,11 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
-  m_FillMethod: 4
+  m_FillMethod: 1
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0

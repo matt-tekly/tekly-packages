@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Tekly.Common.Ui.Styled;
 using Tekly.Tweenlines;
 using TMPro;
 using UnityEngine;
@@ -32,7 +33,7 @@ namespace TeklySample.Samples.Tweenlines
         [SerializeField] private Tweenline m_banner;
 
         [Tooltip("Tinted with the area's color")]
-        [SerializeField] private Image m_bandImage;
+        [SerializeField] private StyledRect m_bandImage;
 
         [SerializeField] private TMP_Text m_kickerLabel;
         [SerializeField] private TMP_Text m_nameLabel;

@@ -1,7 +1,9 @@
 {
     "name": "Tekly.Tweenline.Runtime",
     "rootNamespace": "Tekly.Tweenlines",
-    "references": [],
+    "references": [
+        "UnityEngine.UI"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
@@ -9,6 +11,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.ugui",
+            "expression": "",
+            "define": "TWEENLINE_UGUI"
+        }
+    ],
     "noEngineReferences": false
 }
