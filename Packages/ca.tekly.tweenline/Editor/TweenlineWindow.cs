@@ -8,8 +8,9 @@ namespace Tekly.Tweenlines
 {
     /// <summary>
     /// Timeline editor for the selected Tweenline. Scrubbing or pressing play in edit mode starts a preview.
+    /// Locking keeps the shown Tweenline while the Hierarchy selection changes.
     /// </summary>
-    public class TweenlineWindow : EditorWindow
+    public class TweenlineWindow : EditorWindow, IHasCustomMenu
     {
         private const float HEADER_WIDTH = 220;
         private const float RULER_HEIGHT = 22;
@@ -60,6 +61,7 @@ namespace Tekly.Tweenlines
         [SerializeField] private float m_snap = 0.05f;
         [SerializeField] private float m_detailsHeight = DETAILS_HEIGHT;
         [SerializeField] private float m_timeScale = 1;
+        [SerializeField] private bool m_locked;
 
         private SerializedObject m_serializedObject;
         private readonly List<Row> m_rows = new List<Row>();
@@ -77,6 +79,7 @@ namespace Tekly.Tweenlines
         private float m_rowScroll;
         private Vector2 m_detailsScroll;
         private float m_runtimeScrubTime;
+        private GUIStyle m_lockStyle;
 
         private static readonly Color s_clipColor = new Color(0.27f, 0.52f, 0.78f);
         private static readonly Color s_clipSelectedColor = new Color(0.45f, 0.7f, 0.95f);
@@ -165,6 +168,34 @@ namespace Tekly.Tweenlines
             }
         }
 
+        /// <summary>
+        /// Called by Unity to draw extra buttons in the window's title bar.
+        /// </summary>
+        private void ShowButton(Rect rect)
+        {
+            m_lockStyle ??= new GUIStyle("IN LockButton");
+
+            var locked = GUI.Toggle(rect, m_locked, GUIContent.none, m_lockStyle);
+
+            if (locked != m_locked) {
+                SetLocked(locked);
+            }
+        }
+
+        public void AddItemsToMenu(GenericMenu menu)
+        {
+            menu.AddItem(new GUIContent("Lock"), m_locked, () => SetLocked(!m_locked));
+        }
+
+        private void SetLocked(bool locked)
+        {
+            m_locked = locked;
+
+            if (!m_locked) {
+                OnSelectionChanged();
+            }
+        }
+
         private void OnSelectionChanged()
         {
             FollowSelection();
@@ -196,13 +227,13 @@ namespace Tekly.Tweenlines
         /// <summary>
         /// Shows the Tweenline on the selected object. An object without one shows the nearest Tweenline above
         /// it, unless it is already inside the shown Tweenline's hierarchy, where it picks the Add Track
-        /// target instead.
+        /// target instead. A locked window keeps its Tweenline, so any selection only picks the Add Track target.
         /// </summary>
         private void FollowSelection()
         {
             var gameObject = Selection.activeGameObject;
 
-            if (gameObject == null) {
+            if (gameObject == null || m_locked && m_target != null) {
                 return;
             }
 
@@ -480,20 +511,16 @@ namespace Tekly.Tweenlines
             m_rowScroll = hasScrollbar ? Mathf.Clamp(m_rowScroll, 0, contentHeight - rowsHeight) : 0;
 
             HandleInput(rulerRect, timelineRect);
+            HandleDragAndDrop(new Rect(0, body.y, width, body.height));
 
             var headerRect = new Rect(0, body.y, HEADER_WIDTH, RULER_HEIGHT);
             EditorGUI.DrawRect(headerRect, new Color(0, 0, 0, 0.1f));
 
             var addTarget = AddTrackTarget();
-            var addLabel = new GUIContent($"Add Track to {addTarget.name}", "Adds to the child of this Tweenline selected in the Hierarchy, else the selected track's object, else this Tweenline's object");
+            var addLabel = new GUIContent($"Add Track to {addTarget.name}", "Adds to the child of this Tweenline selected in the Hierarchy, else the selected track's object, else this Tweenline's object. Drag an object from the Hierarchy onto the timeline to add a track for it.");
 
             if (GUI.Button(new Rect(4, body.y + 2, HEADER_WIDTH - 60, RULER_HEIGHT - 4), addLabel, EditorStyles.miniButton)) {
-                m_collapsed.Remove(addTarget);
-
-                TweenlineEditorUtils.ShowAddTrackMenu(m_target, animation, addTarget, index => {
-                    m_serializedObject.Update();
-                    SelectTrack(index);
-                });
+                ShowAddTrackMenu(addTarget);
             }
 
             GUI.Label(new Rect(HEADER_WIDTH - 52, body.y + 3, 50, RULER_HEIGHT), $"{animation.Duration:0.##}s", EditorStyles.miniLabel);
@@ -633,12 +660,7 @@ namespace Tekly.Tweenlines
                 var addRect = new Rect(HEADER_WIDTH - 26, rowRect.y + 3, 22, 18);
 
                 if (GUI.Button(addRect, new GUIContent("+", $"Add a track for [{gameObject.name}]"), EditorStyles.miniButton)) {
-                    m_collapsed.Remove(gameObject);
-
-                    TweenlineEditorUtils.ShowAddTrackMenu(m_target, Animation, gameObject, index => {
-                        m_serializedObject.Update();
-                        SelectTrack(index);
-                    });
+                    ShowAddTrackMenu(gameObject);
                 }
             }
 
@@ -1028,6 +1050,61 @@ namespace Tekly.Tweenlines
                 markers.DeleteArrayElementAtIndex(m_selectedMarker);
                 ClearSelection();
             }
+        }
+
+        private void ShowAddTrackMenu(GameObject target)
+        {
+            m_collapsed.Remove(target);
+
+            TweenlineEditorUtils.ShowAddTrackMenu(m_target, Animation, target, index => {
+                m_serializedObject.Update();
+                SelectTrack(index);
+            });
+        }
+
+        /// <summary>
+        /// Dropping a scene object from the Hierarchy opens the Add Track menu for it. Dragging leaves the
+        /// Hierarchy selection alone, so this works for children that have their own Tweenline.
+        /// </summary>
+        private void HandleDragAndDrop(Rect rect)
+        {
+            var e = Event.current;
+
+            if (e.type != EventType.DragUpdated && e.type != EventType.DragPerform || !rect.Contains(e.mousePosition)) {
+                return;
+            }
+
+            var target = DraggedSceneObject();
+
+            if (target == null) {
+                return;
+            }
+
+            DragAndDrop.visualMode = DragAndDropVisualMode.Link;
+
+            if (e.type == EventType.DragPerform) {
+                DragAndDrop.AcceptDrag();
+                ShowAddTrackMenu(target);
+            }
+
+            e.Use();
+        }
+
+        private static GameObject DraggedSceneObject()
+        {
+            foreach (var dragged in DragAndDrop.objectReferences) {
+                var gameObject = dragged switch {
+                    GameObject go => go,
+                    Component component => component.gameObject,
+                    _ => null
+                };
+
+                if (gameObject != null && !EditorUtility.IsPersistent(gameObject)) {
+                    return gameObject;
+                }
+            }
+
+            return null;
         }
 
         private void HandleInput(Rect rulerRect, Rect timelineRect)
