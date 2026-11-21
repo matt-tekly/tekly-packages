@@ -105,8 +105,7 @@ namespace Tekly.Tweenlines.Tracks
         [SerializeField] private BouncePreserve m_preserve = BouncePreserve.Area;
         [SerializeField] private List<BounceClip> m_clips = new List<BounceClip>();
 
-        [NonSerialized] private ChannelSlot<Vector2> m_anchoredSlot;
-        [NonSerialized] private ChannelSlot<Vector3> m_positionSlot;
+        [NonSerialized] private PositionLayer m_position;
         [NonSerialized] private ChannelSlot<Vector3> m_scaleSlot;
 
         // Per clip drop offset from the landing position, worked out when the animation starts. Zero uses Height
@@ -158,30 +157,20 @@ namespace Tekly.Tweenlines.Tracks
                 return;
             }
 
-            if (IsUi) {
-                origins.GetOrCapture(m_target, TweenChannels.AnchoredPosition);
-            }
-
-            origins.GetOrCapture(m_target, TweenChannels.LocalPosition);
+            PositionLayer.CaptureOrigins(origins, m_target);
             origins.GetOrCapture(m_target, TweenChannels.LocalScale);
         }
 
         public override void Prepare(TweenMixer mixer)
         {
-            m_anchoredSlot = null;
-            m_positionSlot = null;
+            m_position.Clear();
             m_scaleSlot = null;
 
             if (!m_enabled || m_target == null || m_clips.Count == 0) {
                 return;
             }
 
-            // Layer onto whichever position channel a base track drives, preferring anchored position for UI
-            if (IsUi && !mixer.HasSource(m_target, TweenChannels.LocalPosition)) {
-                m_anchoredSlot = mixer.Get(m_target, TweenChannels.AnchoredPosition);
-            } else {
-                m_positionSlot = mixer.Get(m_target, TweenChannels.LocalPosition);
-            }
+            m_position.Prepare(mixer, m_target);
 
             m_scaleSlot = mixer.Get(m_target, TweenChannels.LocalScale);
 
@@ -212,14 +201,7 @@ namespace Tekly.Tweenlines.Tracks
 
             Sample(clip, time - clip.Start, out var height, out var stretch);
 
-            var offset = direction * height;
-
-            if (m_anchoredSlot != null) {
-                m_anchoredSlot.Offset(offset);
-            } else {
-                m_positionSlot.Offset(offset);
-            }
-
+            m_position.Offset(direction * height);
             m_scaleSlot.Multiply(ApplyStretch(Vector3.one, stretch, direction));
         }
 
@@ -228,30 +210,14 @@ namespace Tekly.Tweenlines.Tracks
         /// </summary>
         private int FindClip(float time)
         {
-            var result = -1;
-            var latest = float.MinValue;
-
-            for (var i = 0; i < m_clips.Count; i++) {
-                if (m_clips[i].Start <= time && m_clips[i].Start >= latest) {
-                    latest = m_clips[i].Start;
-                    result = i;
-                }
-            }
+            var result = ClipOrder.FindLatestStarted(m_clips, time, clip => clip.Start);
 
             if (result >= 0) {
                 return time <= m_clips[result].End ? result : -1;
             }
 
             // Before a drop starts, hold its starting height so it doesn't show at rest first
-            var earliest = float.MaxValue;
-
-            for (var i = 0; i < m_clips.Count; i++) {
-                if (m_clips[i].Start < earliest) {
-                    earliest = m_clips[i].Start;
-                    result = i;
-                }
-            }
-
+            result = ClipOrder.FindEarliest(m_clips, clip => clip.Start);
             return result >= 0 && m_clips[result].Drop ? result : -1;
         }
 
@@ -270,7 +236,7 @@ namespace Tekly.Tweenlines.Tracks
                 }
 
                 // Measure the pose it has at the top of the drop, which is the start of the clip
-                var position = OffScreen.PositionAt(m_target, m_anchoredSlot, m_positionSlot, clip.Start);
+                var position = m_position.BaseAt(m_target, clip.Start);
                 var rotation = OffScreen.RotationAt(mixer, m_target, clip.Start);
                 var scale = m_scaleSlot.SampleBase(clip.Start);
 
@@ -427,11 +393,7 @@ namespace Tekly.Tweenlines.Tracks
                 return;
             }
 
-            TweenChannels.LocalPosition.CollectDrivenProperties(m_target, properties);
-
-            if (IsUi) {
-                TweenChannels.AnchoredPosition.CollectDrivenProperties(m_target, properties);
-            }
+            PositionLayer.CollectDrivenProperties(m_target, properties);
 
             TweenChannels.LocalScale.CollectDrivenProperties(m_target, properties);
         }

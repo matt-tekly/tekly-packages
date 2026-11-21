@@ -209,6 +209,16 @@ namespace Tekly.Tweenlines
         /// </summary>
         public static int FindCovering<TClip>(List<TClip> clips, float time, Func<TClip, float> start, Func<TClip, float> end)
         {
+            var result = FindLatestStarted(clips, time, start);
+            return result >= 0 && time <= end(clips[result]) ? result : -1;
+        }
+
+        /// <summary>
+        /// The clip that started last at or before a time, whether or not it has ended. -1 before every clip.
+        /// Equal starts pick the later one in the list.
+        /// </summary>
+        public static int FindLatestStarted<TClip>(List<TClip> clips, float time, Func<TClip, float> start)
+        {
             var result = -1;
             var latest = float.MinValue;
 
@@ -221,7 +231,27 @@ namespace Tekly.Tweenlines
                 }
             }
 
-            return result >= 0 && time <= end(clips[result]) ? result : -1;
+            return result;
+        }
+
+        /// <summary>
+        /// The clip that starts first, or -1 when there are none. Equal starts pick the earlier one in the list.
+        /// </summary>
+        public static int FindEarliest<TClip>(List<TClip> clips, Func<TClip, float> start)
+        {
+            var result = -1;
+            var earliest = float.MaxValue;
+
+            for (var i = 0; i < clips.Count; i++) {
+                var clipStart = start(clips[i]);
+
+                if (clipStart < earliest) {
+                    earliest = clipStart;
+                    result = i;
+                }
+            }
+
+            return result;
         }
     }
 }

@@ -75,22 +75,6 @@ namespace Tekly.Tweenlines.Tracks
         }
 
         /// <summary>
-        /// The target's base position at a time in its parent's space, from the anchored slot when it has one or
-        /// the position slot otherwise.
-        /// </summary>
-        public static Vector3 PositionAt(Transform target, ChannelSlot<Vector2> anchoredSlot, ChannelSlot<Vector3> positionSlot, float time)
-        {
-            if (anchoredSlot != null) {
-                // Anchored and local positions differ by a constant, so convert through the current pair
-                var anchored = anchoredSlot.SampleBase(time);
-                var rectTransform = (RectTransform) target;
-                return target.localPosition + (Vector3) (anchored - rectTransform.anchoredPosition);
-            }
-
-            return positionSlot.SampleBase(time);
-        }
-
-        /// <summary>
         /// The rect a UI target must leave: the area (a RectTransform, or a Canvas's rect) or the root canvas.
         /// </summary>
         public static RectTransform AreaRect(Transform target, Component area)

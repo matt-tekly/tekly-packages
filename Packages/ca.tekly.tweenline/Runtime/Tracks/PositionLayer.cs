@@ -50,6 +50,21 @@ namespace Tekly.Tweenlines.Tracks
             }
         }
 
+        /// <summary>
+        /// The target's base position at a time in its parent's space, before any layered offsets.
+        /// </summary>
+        public Vector3 BaseAt(Transform target, float time)
+        {
+            if (m_anchoredSlot != null) {
+                // Anchored and local positions differ by a constant, so convert through the current pair
+                var anchored = m_anchoredSlot.SampleBase(time);
+                var rectTransform = (RectTransform) target;
+                return target.localPosition + (Vector3) (anchored - rectTransform.anchoredPosition);
+            }
+
+            return m_positionSlot.SampleBase(time);
+        }
+
 #if UNITY_EDITOR
         public static void CollectDrivenProperties(Transform target, List<DrivenProperty> properties)
         {
