@@ -8,6 +8,7 @@ A small audio package for Unity.
 |---|---|
 | `ThunkSound` | Base asset for anything playable. Holds mixer group, volume and pitch ranges, fades, priority, limits and an optional spatial template. |
 | `ThunkClip` | A sound that plays one AudioClip picked from a set, once or looping. |
+| `ThunkChain` | A sound with a start, a loop and an end. |
 | `ThunkEmitter` | A component that plays sounds at its own position. |
 | `ThunkHandle` | A struct that refers to one playing voice. Goes stale when the voice ends, after which its calls do nothing. |
 | `ThunkTrack` | An asset for one stream of music. |
@@ -88,6 +89,24 @@ A template is usually an AudioSource in a prefab, which makes it a shared preset
 
 In the editor the template is copied every time a sound plays, so it can be tuned while the game runs. In a build it is copied once per AudioSource.
 
+## Chains
+
+A `ThunkChain` is a sound in three parts: a start that plays once, a loop that follows it with no gap, and an end that plays when the voice is released. The start and end are optional. Each part is its own set of clips.
+
+```csharp
+var engine = m_engineChain.Play();   // start, then loop
+engine.Release();                    // loop fades out under the end
+engine.Stop(0.5f);                   // or: fade the whole thing out, end included
+```
+
+- `Release` is the natural ending. Without an end, it fades out using the sound's fade out time.
+- `Stop` always ends the whole voice, whichever part is playing.
+- A chain is one voice. It counts once against its limits, and one pitch is picked for all three parts.
+
+The loop is scheduled against the audio clock from the length of the start clip, so the join is exact. Two things make it approximate: changing the pitch during the start, and pausing during the start. Both reschedule the loop from where the start has got to. Clips in a format that pads its audio (MP3) will have a gap whatever is done, so use Vorbis or PCM for chain clips. Doppler on a moving emitter also bends the pitch without Thunk knowing.
+
+A track can play a chain, which is how music with an intro is done.
+
 ## Not built yet
 
-Chained sounds (in, loop, out) and timeline sounds.
+Timeline sounds.

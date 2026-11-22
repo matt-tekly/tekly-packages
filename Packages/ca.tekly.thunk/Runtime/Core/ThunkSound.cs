@@ -99,6 +99,21 @@ namespace Tekly.Thunk
 		/// </summary>
 		internal abstract bool Begin(ThunkVoice voice, ThunkSoundRecord record);
 
+		internal virtual void PauseSources(ThunkVoice voice)
+		{
+			voice.PauseSources();
+		}
+
+		internal virtual void ResumeSources(ThunkVoice voice)
+		{
+			voice.UnPauseSources();
+		}
+
+		/// <summary>
+		/// Called when the pitch of a voice that asked to have its pitch watched changes.
+		/// </summary>
+		internal virtual void PitchChanged(ThunkVoice voice) { }
+
 		/// <summary>
 		/// Ends the voice the way this kind of sound ends naturally.
 		/// </summary>

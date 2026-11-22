@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b57009db9fe298640a0a9b11eec2c396, type: 3}
+  m_Name: thunk_chain
+  m_EditorClassIdentifier: Tekly.Thunk::Tekly.Thunk.ThunkChain
+  m_uniqueId: 0
+  m_mixerGroup: {fileID: 0}
+  m_volume:
+    Min: 1
+    Max: 1
+  m_pitch:
+    Min: 1
+    Max: 1
+  m_fadeIn: 0
+  m_fadeOut: 0
+  m_fadeEase: 0
+  m_priority: 128
+  m_playWhilePaused: 0
+  m_spatialTemplate: {fileID: 0}
+  m_maxInstances: 0
+  m_stealing: 0
+  m_cooldown: 0.03
+  m_start:
+    Clips: []
+    Mode: 0
+  m_loop:
+    Clips: []
+    Mode: 0
+  m_end:
+    Clips: []
+    Mode: 0
+  m_endCrossfade: 0.05

@@ -125,6 +125,45 @@ namespace Tekly.Thunk.Tests
 			serialized.ApplyModifiedPropertiesWithoutUndo();
 		}
 
+		protected AudioClip CreateClip(int samples)
+		{
+			var clip = AudioClip.Create("test", samples, 1, 44100, false);
+			m_objects.Add(clip);
+
+			return clip;
+		}
+
+		protected ThunkChain CreateChain(int startClips = 0, int loopClips = 1, int endClips = 0, float endCrossfade = 0.05f, float fadeOut = 0f, int maxInstances = 0, float pitch = 1f, int startSamples = 44100)
+		{
+			var chain = ScriptableObject.CreateInstance<ThunkChain>();
+			m_objects.Add(chain);
+
+			var serialized = new SerializedObject(chain);
+
+			WriteClips(serialized.FindProperty("m_start.Clips"), startClips, startSamples);
+			WriteClips(serialized.FindProperty("m_loop.Clips"), loopClips, 4410);
+			WriteClips(serialized.FindProperty("m_end.Clips"), endClips, 4410);
+
+			serialized.FindProperty("m_endCrossfade").floatValue = endCrossfade;
+			serialized.FindProperty("m_fadeOut").floatValue = fadeOut;
+			serialized.FindProperty("m_maxInstances").intValue = maxInstances;
+			serialized.FindProperty("m_cooldown").floatValue = 0f;
+			serialized.FindProperty("m_pitch.Min").floatValue = pitch;
+			serialized.FindProperty("m_pitch.Max").floatValue = pitch;
+			serialized.ApplyModifiedPropertiesWithoutUndo();
+
+			return chain;
+		}
+
+		private void WriteClips(SerializedProperty property, int count, int samples)
+		{
+			property.arraySize = count;
+
+			for (var index = 0; index < count; index++) {
+				property.GetArrayElementAtIndex(index).objectReferenceValue = CreateClip(samples);
+			}
+		}
+
 		internal ThunkVoice GetVoice(ThunkHandle handle)
 		{
 			Assert.IsTrue(m_runtime.TryGetVoice(handle, out var voice), "the handle should resolve");

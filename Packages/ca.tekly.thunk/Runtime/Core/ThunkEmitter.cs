@@ -100,6 +100,7 @@ namespace Tekly.Thunk
 			audio.outputAudioMixerGroup = null;
 
 			source.Gain = 1f;
+			source.FadeDuration = 0f;
 			m_freeSources.Push(source);
 		}
 

@@ -1,4 +1,4 @@
-namespace Tekly.Thunk
+﻿namespace Tekly.Thunk
 {
 	/// <summary>
 	/// A request to keep a track's music turned down, returned by <see cref="ThunkTrack.Duck()"/>. The music stays

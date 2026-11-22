@@ -35,6 +35,11 @@ namespace Tekly.Thunk
 		/// </summary>
 		public AudioSource Template;
 
+		// Fading this one source out, see ThunkVoice.FadeOutSource
+		public float FadeFrom;
+		public float FadeTime;
+		public float FadeDuration;
+
 		public ThunkSource(AudioSource audio)
 		{
 			Audio = audio;
@@ -50,6 +55,12 @@ namespace Tekly.Thunk
 		public ThunkHandle Handle => new ThunkHandle(Index, Generation);
 		public bool IsPaused => State == ThunkVoiceState.Paused || State == ThunkVoiceState.Pausing;
 		public bool IsFading => m_fadeDuration > 0f;
+		public bool HasSourceFades => m_sourceFades > 0;
+
+		/// <summary>
+		/// The pitch the voice's sources are playing at.
+		/// </summary>
+		public float Pitch => BasePitch * UserPitch * Emitter.Pitch;
 
 		/// <summary>
 		/// How loud the voice is before its emitter and distance are applied. Used to pick the quietest voice.
@@ -76,6 +87,21 @@ namespace Tekly.Thunk
 		public AudioSource SpatialTemplate;
 
 		public ThunkVoiceState State;
+
+		/// <summary>
+		/// Set once the voice has been released, so it only happens once.
+		/// </summary>
+		public bool Released;
+
+		// For sounds that move through stages. What the values mean is up to the sound.
+		public int Stage;
+		public double StageDsp;
+		public double StageBeginDsp;
+
+		/// <summary>
+		/// Has the sound told when the voice's pitch changes, for sounds that schedule by clip length.
+		/// </summary>
+		public bool WatchPitch;
 		public bool Unscaled;
 
 		public float BaseVolume;
@@ -94,6 +120,8 @@ namespace Tekly.Thunk
 		private float m_fadeTime;
 		private float m_fadeDuration;
 		private Ease m_fadeEase;
+		private int m_sourceFades;
+		private float m_watchedPitch;
 
 		public ThunkVoice(int index)
 		{
@@ -128,6 +156,66 @@ namespace Tekly.Thunk
 		{
 			for (var index = 0; index < Sources.Count; index++) {
 				Apply(Sources[index]);
+			}
+
+			if (WatchPitch) {
+				var pitch = Pitch;
+
+				if (!Mathf.Approximately(pitch, m_watchedPitch)) {
+					m_watchedPitch = pitch;
+					Sound.PitchChanged(this);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Starts telling the sound about pitch changes, from the pitch the voice has now.
+		/// </summary>
+		public void StartWatchingPitch()
+		{
+			WatchPitch = true;
+			m_watchedPitch = Pitch;
+		}
+
+		/// <summary>
+		/// Fades one source out and stops it, leaving the rest of the voice playing.
+		/// </summary>
+		public void FadeOutSource(ThunkSource source, float duration)
+		{
+			if (duration <= 0f) {
+				source.Audio.Stop();
+				return;
+			}
+
+			if (source.FadeDuration <= 0f) {
+				m_sourceFades++;
+			}
+
+			source.FadeFrom = source.Gain;
+			source.FadeTime = 0f;
+			source.FadeDuration = duration;
+		}
+
+		public void TickSourceFades(float deltaTime)
+		{
+			for (var index = 0; index < Sources.Count; index++) {
+				var source = Sources[index];
+
+				if (source.FadeDuration <= 0f) {
+					continue;
+				}
+
+				source.FadeTime += deltaTime;
+
+				var ratio = Mathf.Clamp01(source.FadeTime / source.FadeDuration);
+				source.Gain = Mathf.Lerp(source.FadeFrom, 0f, ratio);
+				Apply(source);
+
+				if (ratio >= 1f) {
+					source.Audio.Stop();
+					source.FadeDuration = 0f;
+					m_sourceFades--;
+				}
 			}
 		}
 
@@ -215,13 +303,20 @@ namespace Tekly.Thunk
 			SpatialTemplate = null;
 
 			State = ThunkVoiceState.Playing;
+			Released = false;
+			Stage = 0;
+			StageDsp = 0d;
+			StageBeginDsp = 0d;
+			WatchPitch = false;
+
 			m_fadeDuration = 0f;
+			m_sourceFades = 0;
 		}
 
 		private void Apply(ThunkSource source)
 		{
 			source.Audio.volume = BaseVolume * UserVolume * Fade * TrackGain * source.Gain * Emitter.Volume;
-			source.Audio.pitch = BasePitch * UserPitch * Emitter.Pitch;
+			source.Audio.pitch = Pitch;
 		}
 	}
 }

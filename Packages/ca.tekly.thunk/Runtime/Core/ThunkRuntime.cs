@@ -224,7 +224,7 @@ namespace Tekly.Thunk
 
 			if (fade <= 0f) {
 				voice.StartFade(0f, 0f, voice.Sound.FadeEase);
-				voice.PauseSources();
+				voice.Sound.PauseSources(voice);
 				voice.State = ThunkVoiceState.Paused;
 				return;
 			}
@@ -240,7 +240,7 @@ namespace Tekly.Thunk
 			}
 
 			if (voice.State == ThunkVoiceState.Paused) {
-				voice.UnPauseSources();
+				voice.Sound.ResumeSources(voice);
 			}
 
 			voice.State = ThunkVoiceState.Playing;
@@ -301,9 +301,13 @@ namespace Tekly.Thunk
 					}
 
 					if (voice.State == ThunkVoiceState.Pausing) {
-						voice.PauseSources();
+						voice.Sound.PauseSources(voice);
 						voice.State = ThunkVoiceState.Paused;
 					}
+				}
+
+				if (voice.HasSourceFades && voice.State != ThunkVoiceState.Paused) {
+					voice.TickSourceFades(voice.Unscaled ? unscaledDeltaTime : deltaTime);
 				}
 
 				if (voice.State != ThunkVoiceState.Paused && voice.IsFinished(m_applicationPaused)) {
