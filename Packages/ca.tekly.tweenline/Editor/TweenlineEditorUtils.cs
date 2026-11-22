@@ -89,7 +89,8 @@ namespace Tekly.Tweenlines
             Undo.RecordObject(tweenline, "Remove Missing Types");
             SerializationUtility.ClearAllManagedReferencesWithMissingTypes(tweenline);
 
-            foreach (var animation in tweenline.Animations) {
+            for (var i = 0; i < tweenline.Animations.Count; i++) {
+                var animation = tweenline.Animations[i];
                 animation.Tracks.RemoveAll(track => track == null);
             }
 
@@ -129,7 +130,8 @@ namespace Tekly.Tweenlines
             var menu = new GenericMenu();
             var separated = false;
 
-            foreach (var entry in entries) {
+            for (var i = 0; i < entries.Length; i++) {
+                var entry = entries[i];
                 if (!entry.available && !separated && menu.GetItemCount() > 0) {
                     menu.AddSeparator(string.Empty);
                     separated = true;

@@ -7,7 +7,7 @@ using Object = UnityEngine.Object;
 namespace Tekly.Tweenlines.Tracks
 {
     [Serializable]
-    public struct BounceClip
+    public struct BounceClip : IClip
     {
         public float Start;
         public float Duration;
@@ -43,6 +43,8 @@ namespace Tekly.Tweenlines.Tracks
         public float Anticipation;
 
         public float End => Start + Duration;
+
+        float IClip.Start => Start;
     }
 
     public enum BounceDropFrom
@@ -89,7 +91,8 @@ namespace Tekly.Tweenlines.Tracks
         public override float End {
             get {
                 var end = 0f;
-                foreach (var clip in m_clips) {
+                for (var i = 0; i < m_clips.Count; i++) {
+                    var clip = m_clips[i];
                     end = Mathf.Max(end, clip.End);
                 }
 
@@ -211,14 +214,14 @@ namespace Tekly.Tweenlines.Tracks
         /// </summary>
         private int FindClip(float time)
         {
-            var result = ClipOrder.FindLatestStarted(m_clips, time, clip => clip.Start);
+            var result = ClipOrder.FindLatestStarted(m_clips, time);
 
             if (result >= 0) {
                 return time <= m_clips[result].End ? result : -1;
             }
 
             // Before a drop starts, hold its starting height so it doesn't show at rest first
-            result = ClipOrder.FindEarliest(m_clips, clip => clip.Start);
+            result = ClipOrder.FindEarliest(m_clips);
             return result >= 0 && m_clips[result].Drop ? result : -1;
         }
 

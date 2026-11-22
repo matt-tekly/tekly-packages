@@ -165,7 +165,8 @@ namespace Tekly.Tweenlines
             s_hurrying = true;
 
             try {
-                foreach (var tweenline in tweenlines) {
+                for (var i = 0; i < tweenlines.Count; i++) {
+                    var tweenline = tweenlines[i];
                     if (completeIfHurried && tweenline.IsHurried) {
                         tweenline.Complete();
                     } else {
@@ -243,7 +244,8 @@ namespace Tekly.Tweenlines
 
         public TweenAnimation Find(string animationName)
         {
-            foreach (var animation in m_animations) {
+            for (var i = 0; i < m_animations.Count; i++) {
+                var animation = m_animations[i];
                 if (animation.Name == animationName) {
                     return animation;
                 }
@@ -445,7 +447,8 @@ namespace Tekly.Tweenlines
         {
             Origins.Clear();
 
-            foreach (var animation in m_animations) {
+            for (var i = 0; i < m_animations.Count; i++) {
+                var animation = m_animations[i];
                 animation.CaptureOrigins(Origins);
             }
         }

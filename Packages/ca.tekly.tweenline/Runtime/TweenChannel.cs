@@ -47,6 +47,7 @@ namespace Tekly.Tweenlines
         public override Vector3 Zero => Vector3.zero;
         public override Vector3 Multiply(Vector3 a, Vector3 b) => Vector3.Scale(a, b);
         public override Vector3 Add(Vector3 a, Vector3 b) => a + b;
+        public override bool Same(Vector3 a, Vector3 b) => a.Equals(b);
     }
 
     public abstract class Vector2Channel : TweenChannel<Vector2>
@@ -55,6 +56,7 @@ namespace Tekly.Tweenlines
         public override Vector2 Zero => Vector2.zero;
         public override Vector2 Multiply(Vector2 a, Vector2 b) => Vector2.Scale(a, b);
         public override Vector2 Add(Vector2 a, Vector2 b) => a + b;
+        public override bool Same(Vector2 a, Vector2 b) => a.Equals(b);
     }
 
     public abstract class FloatChannel : TweenChannel<float>
@@ -63,6 +65,7 @@ namespace Tekly.Tweenlines
         public override float Zero => 0;
         public override float Multiply(float a, float b) => a * b;
         public override float Add(float a, float b) => a + b;
+        public override bool Same(float a, float b) => a.Equals(b);
     }
 
     /// <summary>
@@ -74,6 +77,7 @@ namespace Tekly.Tweenlines
         public override bool Zero => false;
         public override bool Multiply(bool a, bool b) => a;
         public override bool Add(bool a, bool b) => a;
+        public override bool Same(bool a, bool b) => a == b;
     }
 
     public sealed class LocalPositionChannel : Vector3Channel

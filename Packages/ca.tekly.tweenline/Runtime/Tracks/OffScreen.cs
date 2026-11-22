@@ -127,7 +127,8 @@ namespace Tekly.Tweenlines.Tracks
             area.GetLocalCorners(s_corners);
             var areaToParent = parentMatrix.inverse * LocalToWorldAt(mixer, area, time);
             var areaMax = float.MinValue;
-            foreach (var corner in s_corners) {
+            for (var i = 0; i < s_corners.Length; i++) {
+                var corner = s_corners[i];
                 areaMax = Mathf.Max(areaMax, Vector3.Dot(areaToParent.MultiplyPoint3x4(corner), direction));
             }
 
@@ -197,7 +198,8 @@ namespace Tekly.Tweenlines.Tracks
 
             target.GetComponentsInChildren(s_renderers);
 
-            foreach (var renderer in s_renderers) {
+            for (var r = 0; r < s_renderers.Count; r++) {
+                var renderer = s_renderers[r];
                 var matrix = targetMatrix * RelativeMatrix(target, renderer.transform);
                 var local = renderer.localBounds;
                 var min = local.min;

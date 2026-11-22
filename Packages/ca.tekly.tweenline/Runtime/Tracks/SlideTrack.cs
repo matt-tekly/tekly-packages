@@ -7,7 +7,7 @@ using Object = UnityEngine.Object;
 namespace Tekly.Tweenlines.Tracks
 {
     [Serializable]
-    public struct SlideClip
+    public struct SlideClip : IClip
     {
         public float Start;
         public float Duration;
@@ -26,6 +26,8 @@ namespace Tekly.Tweenlines.Tracks
         public Component OffScreenArea;
 
         public float End => Start + Duration;
+
+        float IClip.Start => Start;
     }
 
     public enum SlideMode
@@ -68,7 +70,8 @@ namespace Tekly.Tweenlines.Tracks
         public override float End {
             get {
                 var end = 0f;
-                foreach (var clip in m_clips) {
+                for (var i = 0; i < m_clips.Count; i++) {
+                    var clip = m_clips[i];
                     end = Mathf.Max(end, clip.End);
                 }
 
@@ -153,10 +156,10 @@ namespace Tekly.Tweenlines.Tracks
         /// </summary>
         private Vector3 SampleOffset(float time)
         {
-            var index = ClipOrder.FindLatestStarted(m_clips, time, clip => clip.Start);
+            var index = ClipOrder.FindLatestStarted(m_clips, time);
 
             if (index < 0) {
-                return Offset(ClipOrder.FindEarliest(m_clips, clip => clip.Start), 0);
+                return Offset(ClipOrder.FindEarliest(m_clips), 0);
             }
 
             var clip = m_clips[index];

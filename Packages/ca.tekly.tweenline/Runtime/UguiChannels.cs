@@ -14,6 +14,7 @@ namespace Tekly.Tweenlines
         public override Color Zero => Color.clear;
         public override Color Multiply(Color a, Color b) => a * b;
         public override Color Add(Color a, Color b) => a + b;
+        public override bool Same(Color a, Color b) => a.Equals(b);
     }
 
     /// <summary>

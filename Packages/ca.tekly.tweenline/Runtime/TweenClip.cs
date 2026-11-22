@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Tekly.Tweenlines
 {
     [Serializable]
-    public struct TweenClip<TValue>
+    public struct TweenClip<TValue> : IClip
     {
         public float Start;
         public float Duration;
@@ -34,5 +34,7 @@ namespace Tekly.Tweenlines
         public float ArcRandom;
 
         public float End => Start + Duration;
+
+        float IClip.Start => Start;
     }
 }

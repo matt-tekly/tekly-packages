@@ -16,7 +16,7 @@ namespace Tekly.Wipes
     }
 
     [Serializable]
-    public struct WipeClip
+    public struct WipeClip : IClip
     {
         public float Start;
         public float Duration;
@@ -32,6 +32,8 @@ namespace Tekly.Wipes
         public WipeLook Look;
 
         public float End => Start + Duration;
+
+        float IClip.Start => Start;
     }
 
     /// <summary>
@@ -174,7 +176,7 @@ namespace Tekly.Wipes
                 m_leaves = new bool[count];
             }
 
-            ClipOrder.Sort(m_clips, m_order, clip => clip.Start);
+            ClipOrder.Sort(m_clips, m_order);
 
             var previous = m_clips[m_order[0]].Mode == WipeMode.Cover ? 0f : 1f;
 

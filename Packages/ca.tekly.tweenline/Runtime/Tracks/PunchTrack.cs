@@ -6,7 +6,7 @@ using Object = UnityEngine.Object;
 namespace Tekly.Tweenlines.Tracks
 {
     [Serializable]
-    public struct PunchClip
+    public struct PunchClip : IClip
     {
         public float Start;
         public float Duration;
@@ -24,6 +24,8 @@ namespace Tekly.Tweenlines.Tracks
         [Range(0, PunchTrack.MAX_FALLOFF)] public float Falloff;
 
         public float End => Start + Duration;
+
+        float IClip.Start => Start;
     }
 
     /// <summary>
@@ -56,7 +58,8 @@ namespace Tekly.Tweenlines.Tracks
         public override float End {
             get {
                 var end = 0f;
-                foreach (var clip in m_clips) {
+                for (var i = 0; i < m_clips.Count; i++) {
+                    var clip = m_clips[i];
                     end = Mathf.Max(end, clip.End);
                 }
 
@@ -148,7 +151,7 @@ namespace Tekly.Tweenlines.Tracks
                 return;
             }
 
-            var index = ClipOrder.FindCovering(m_clips, time, clip => clip.Start, clip => clip.End);
+            var index = ClipOrder.FindCovering(m_clips, time);
 
             if (index < 0) {
                 return;
@@ -181,7 +184,8 @@ namespace Tekly.Tweenlines.Tracks
 
         private bool Uses(Func<PunchClip, Vector3> amount)
         {
-            foreach (var clip in m_clips) {
+            for (var i = 0; i < m_clips.Count; i++) {
+                var clip = m_clips[i];
                 if (amount(clip) != Vector3.zero) {
                     return true;
                 }

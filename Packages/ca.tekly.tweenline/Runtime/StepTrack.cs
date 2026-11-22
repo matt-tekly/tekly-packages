@@ -6,10 +6,15 @@ using Object = UnityEngine.Object;
 namespace Tekly.Tweenlines
 {
     [Serializable]
-    public struct StepClip
+    public struct StepClip : IClip
     {
         public float Start;
         public bool Value;
+
+        float IClip.Start => Start;
+
+        // A step is instant, so it ends where it starts
+        float IClip.End => Start;
     }
 
     /// <summary>
@@ -41,7 +46,8 @@ namespace Tekly.Tweenlines
         public override float End {
             get {
                 var end = 0f;
-                foreach (var clip in m_clips) {
+                for (var i = 0; i < m_clips.Count; i++) {
+                    var clip = m_clips[i];
                     end = Mathf.Max(end, clip.Start);
                 }
 
@@ -70,7 +76,8 @@ namespace Tekly.Tweenlines
             var current = m_target != null && Channel.Read(m_target);
             var latest = float.MinValue;
 
-            foreach (var clip in m_clips) {
+            for (var i = 0; i < m_clips.Count; i++) {
+                var clip = m_clips[i];
                 if (clip.Start <= start && clip.Start >= latest) {
                     latest = clip.Start;
                     current = clip.Value;
@@ -109,7 +116,7 @@ namespace Tekly.Tweenlines
                 m_order = new int[m_clips.Count];
             }
 
-            ClipOrder.Sort(m_clips, m_order, clip => clip.Start);
+            ClipOrder.Sort(m_clips, m_order);
         }
 
         public override void Evaluate(float time)

@@ -753,7 +753,8 @@ namespace Tekly.Tweenlines
             m_rows.Clear();
             m_rowObjects.Clear();
 
-            foreach (var track in tracks) {
+            for (var i = 0; i < tracks.Count; i++) {
+                var track = tracks[i];
                 var gameObject = TargetGameObject(track);
 
                 if (!m_rowObjects.Contains(gameObject)) {
@@ -761,7 +762,8 @@ namespace Tekly.Tweenlines
                 }
             }
 
-            foreach (var gameObject in m_rowObjects) {
+            for (var i = 0; i < m_rowObjects.Count; i++) {
+                var gameObject = m_rowObjects[i];
                 m_rows.Add(new Row { Object = gameObject, Track = -1 });
 
                 if (m_collapsed.Contains(gameObject)) {
@@ -825,7 +827,8 @@ namespace Tekly.Tweenlines
             // A collapsed object still shows a thin bar for each of its clips
             GUI.BeginClip(new Rect(HEADER_WIDTH, rowRect.y, rowRect.width - HEADER_WIDTH, rowRect.height));
 
-            foreach (var track in tracks) {
+            for (var i = 0; i < tracks.Count; i++) {
+                var track = tracks[i];
                 if (TargetGameObject(track) != gameObject) {
                     continue;
                 }
@@ -1282,7 +1285,9 @@ namespace Tekly.Tweenlines
 
         private static GameObject DraggedSceneObject()
         {
-            foreach (var dragged in DragAndDrop.objectReferences) {
+            var objectReferences = DragAndDrop.objectReferences;
+            for (var i = 0; i < objectReferences.Length; i++) {
+                var dragged = objectReferences[i];
                 var gameObject = dragged switch {
                     GameObject go => go,
                     Component component => component.gameObject,
@@ -1577,7 +1582,8 @@ namespace Tekly.Tweenlines
 
             m_dragStarts.Clear();
 
-            foreach (var selected in m_selectedClips) {
+            for (var i = 0; i < m_selectedClips.Count; i++) {
+                var selected = m_selectedClips[i];
                 Animation.Tracks[selected.Track].GetClipRange(selected.Clip, out var selectedStart, out _);
                 m_dragStarts.Add(selectedStart);
             }
@@ -1659,7 +1665,8 @@ namespace Tekly.Tweenlines
             var delta = SnapClipStart(mouseTime + m_dragOffset, duration, e) - grabbedStart;
             var earliest = float.MaxValue;
 
-            foreach (var start in m_dragStarts) {
+            for (var i = 0; i < m_dragStarts.Count; i++) {
+                var start = m_dragStarts[i];
                 earliest = Mathf.Min(earliest, start);
             }
 
@@ -1720,7 +1727,8 @@ namespace Tekly.Tweenlines
 
         private bool HasSelectedClip(int trackIndex)
         {
-            foreach (var selected in m_selectedClips) {
+            for (var i = 0; i < m_selectedClips.Count; i++) {
+                var selected = m_selectedClips[i];
                 if (selected.Track == trackIndex) {
                     return true;
                 }
@@ -1780,7 +1788,8 @@ namespace Tekly.Tweenlines
             m_dragStarts.Clear();
             m_dragDurations.Clear();
 
-            foreach (var selected in m_selectedClips) {
+            for (var i = 0; i < m_selectedClips.Count; i++) {
+                var selected = m_selectedClips[i];
                 Animation.Tracks[selected.Track].GetClipRange(selected.Clip, out var clipStart, out var duration);
                 m_dragStarts.Add(clipStart);
                 m_dragDurations.Add(duration);
@@ -2035,7 +2044,8 @@ namespace Tekly.Tweenlines
 
             var found = false;
 
-            foreach (var candidate in m_snapTimes) {
+            for (var i = 0; i < m_snapTimes.Count; i++) {
+                var candidate = m_snapTimes[i];
                 var candidateDistance = Mathf.Abs(candidate - time);
 
                 if (candidateDistance <= distance) {
@@ -2179,7 +2189,8 @@ namespace Tekly.Tweenlines
                     GetSelectionRange(out var start, out _);
                     step = Mathf.Max(step, -start);
 
-                    foreach (var selected in m_selectedClips) {
+                    for (var i = 0; i < m_selectedClips.Count; i++) {
+                        var selected = m_selectedClips[i];
                         ClipProperty(selected.Track, selected.Clip).FindPropertyRelative("Start").floatValue += step;
                     }
 
@@ -2239,7 +2250,8 @@ namespace Tekly.Tweenlines
             start = float.MaxValue;
             end = float.MinValue;
 
-            foreach (var selected in m_selectedClips) {
+            for (var i = 0; i < m_selectedClips.Count; i++) {
+                var selected = m_selectedClips[i];
                 Animation.Tracks[selected.Track].GetClipRange(selected.Clip, out var clipStart, out var duration);
                 start = Mathf.Min(start, clipStart);
                 end = Mathf.Max(end, clipStart + duration);
@@ -2348,7 +2360,8 @@ namespace Tekly.Tweenlines
             var offset = end - start > 0 ? end - start : Mathf.Max(m_snap, 0.1f);
             var copies = new List<ClipRef>(m_selectedClips.Count);
 
-            foreach (var selected in m_selectedClips) {
+            for (var i = 0; i < m_selectedClips.Count; i++) {
+                var selected = m_selectedClips[i];
                 var clips = TrackProperty(selected.Track).FindPropertyRelative("m_clips");
                 clips.InsertArrayElementAtIndex(selected.Clip);
                 clips.MoveArrayElement(selected.Clip + 1, clips.arraySize - 1);
@@ -2371,7 +2384,8 @@ namespace Tekly.Tweenlines
             // Highest index first per track so the earlier indices stay valid
             m_selectedClips.Sort((a, b) => a.Track != b.Track ? a.Track.CompareTo(b.Track) : b.Clip.CompareTo(a.Clip));
 
-            foreach (var selected in m_selectedClips) {
+            for (var i = 0; i < m_selectedClips.Count; i++) {
+                var selected = m_selectedClips[i];
                 TrackProperty(selected.Track).FindPropertyRelative("m_clips").DeleteArrayElementAtIndex(selected.Clip);
             }
 
@@ -2680,7 +2694,8 @@ namespace Tekly.Tweenlines
 
         private float TickStep()
         {
-            foreach (var step in s_tickSteps) {
+            for (var i = 0; i < s_tickSteps.Length; i++) {
+                var step = s_tickSteps[i];
                 if (step * m_pixelsPerSecond >= 12) {
                     return step;
                 }

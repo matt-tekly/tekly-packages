@@ -104,7 +104,8 @@ namespace Tekly.Tweenlines
         {
             m_hurried = true;
 
-            foreach (var entry in m_active) {
+            for (var i = 0; i < m_active.Count; i++) {
+                var entry = m_active[i];
                 if (entry.IsActive) {
                     entry.Tweenline.Hurry();
                 }

@@ -73,13 +73,15 @@ namespace Tekly.Tweenlines
             get {
                 var duration = 0f;
 
-                foreach (var track in m_tracks) {
+                for (var i = 0; i < m_tracks.Count; i++) {
+                    var track = m_tracks[i];
                     if (track != null) {
                         duration = Mathf.Max(duration, track.End);
                     }
                 }
 
-                foreach (var marker in m_markers) {
+                for (var i = 0; i < m_markers.Count; i++) {
+                    var marker = m_markers[i];
                     duration = Mathf.Max(duration, marker.Time);
                 }
 
@@ -107,7 +109,8 @@ namespace Tekly.Tweenlines
 
         public void CaptureOrigins(TweenOrigins origins)
         {
-            foreach (var track in m_tracks) {
+            for (var i = 0; i < m_tracks.Count; i++) {
+                var track = m_tracks[i];
                 track?.CaptureOrigins(origins);
             }
         }
@@ -127,7 +130,8 @@ namespace Tekly.Tweenlines
             m_baseTracks.Clear();
             m_layeredTracks.Clear();
 
-            foreach (var track in m_tracks) {
+            for (var i = 0; i < m_tracks.Count; i++) {
+                var track = m_tracks[i];
                 if (track is ILayeredTrack) {
                     m_layeredTracks.Add(track);
                 } else if (track != null) {
@@ -136,11 +140,13 @@ namespace Tekly.Tweenlines
             }
 
             // Base tracks first so layered tracks can see which channels have a base track
-            foreach (var track in m_baseTracks) {
+            for (var i = 0; i < m_baseTracks.Count; i++) {
+                var track = m_baseTracks[i];
                 track.Prepare(m_mixer);
             }
 
-            foreach (var track in m_layeredTracks) {
+            for (var i = 0; i < m_layeredTracks.Count; i++) {
+                var track = m_layeredTracks[i];
                 track.Prepare(m_mixer);
             }
         }
@@ -156,13 +162,15 @@ namespace Tekly.Tweenlines
 
             m_mixer.BeginEvaluate();
 
-            foreach (var track in m_baseTracks) {
+            for (var i = 0; i < m_baseTracks.Count; i++) {
+                var track = m_baseTracks[i];
                 if (track.Enabled) {
                     track.Evaluate(time);
                 }
             }
 
-            foreach (var track in m_layeredTracks) {
+            for (var i = 0; i < m_layeredTracks.Count; i++) {
+                var track = m_layeredTracks[i];
                 if (track.Enabled) {
                     track.Evaluate(time);
                 }
@@ -178,7 +186,8 @@ namespace Tekly.Tweenlines
         /// </summary>
         internal void FireMarkers(Tweenline owner, float from, float to, TweenMarkerReason reason, bool includeFrom = false)
         {
-            foreach (var marker in m_markers) {
+            for (var i = 0; i < m_markers.Count; i++) {
+                var marker = m_markers[i];
                 var time = marker.Time;
                 bool crossed;
 

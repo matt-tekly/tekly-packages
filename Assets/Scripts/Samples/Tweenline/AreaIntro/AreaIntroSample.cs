@@ -129,7 +129,8 @@ namespace TeklySample.Samples.Tweenlines
             m_banner.Rewind(STAMP);
             m_banner.Rewind(SHOW);
 
-            foreach (var find in m_finds) {
+            for (var i = 0; i < m_finds.Length; i++) {
+                var find = m_finds[i];
                 find.Rewind(SHOW);
             }
         }

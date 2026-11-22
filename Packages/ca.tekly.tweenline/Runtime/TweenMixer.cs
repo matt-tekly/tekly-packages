@@ -85,7 +85,8 @@ namespace Tekly.Tweenlines
             m_readCurrent = readCurrent;
             PlaySeed = playSeed;
 
-            foreach (var slot in m_active) {
+            for (var i = 0; i < m_active.Count; i++) {
+                var slot = m_active[i];
                 slot.Active = false;
             }
 
@@ -94,14 +95,16 @@ namespace Tekly.Tweenlines
 
         internal void BeginEvaluate()
         {
-            foreach (var slot in m_active) {
+            for (var i = 0; i < m_active.Count; i++) {
+                var slot = m_active[i];
                 slot.BeginEvaluate();
             }
         }
 
         internal void Flush()
         {
-            foreach (var slot in m_active) {
+            for (var i = 0; i < m_active.Count; i++) {
+                var slot = m_active[i];
                 slot.Flush();
             }
         }
@@ -236,7 +239,11 @@ namespace Tekly.Tweenlines
             var baseValue = m_hasBase ? m_base : Start;
             var value = Channel.Add(Channel.Multiply(baseValue, m_multiplier), m_offset);
 
-            if (!Channel.Same(Channel.Read(Target), value)) {
+            // A changed value is written without reading the target first. Only a held value pays for the
+            // read, which skips the write when nothing moved the target and keeps it from dirtying every frame
+            var changed = !m_record.HasWritten || !Channel.Same(m_record.LastWritten, value);
+
+            if (changed || !Channel.Same(Channel.Read(Target), value)) {
                 Channel.Write(Target, value);
             }
 

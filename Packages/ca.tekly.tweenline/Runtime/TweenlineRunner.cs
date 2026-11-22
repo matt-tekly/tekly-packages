@@ -101,7 +101,8 @@ namespace Tekly.Tweenlines
 
         private void OnDestroy()
         {
-            foreach (var tweenline in m_tweenlines) {
+            for (var i = 0; i < m_tweenlines.Count; i++) {
+                var tweenline = m_tweenlines[i];
                 if (!ReferenceEquals(tweenline, null)) {
                     tweenline.RunnerIndex = -1;
                 }

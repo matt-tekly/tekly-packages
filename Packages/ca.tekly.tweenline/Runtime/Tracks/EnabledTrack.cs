@@ -20,7 +20,9 @@ namespace Tekly.Tweenlines.Tracks
         {
             m_target = null;
 
-            foreach (var component in gameObject.GetComponents<Component>()) {
+            var components = gameObject.GetComponents<Component>();
+            for (var i = 0; i < components.Length; i++) {
+                var component = components[i];
                 if (!(component is Tweenline) && EnabledChannel.CanToggle(component)) {
                     m_target = component;
                     return true;

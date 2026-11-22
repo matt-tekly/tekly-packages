@@ -53,7 +53,8 @@ namespace TeklySample.Samples.Tweenlines
             m_newBest.Rewind(SHOW);
             m_buttons.Rewind(SHOW);
 
-            foreach (var star in m_stars) {
+            for (var i = 0; i < m_stars.Length; i++) {
+                var star = m_stars[i];
                 star.Rewind(SHOW);
             }
 

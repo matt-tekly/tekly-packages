@@ -25,7 +25,8 @@ namespace Tekly.Tweenlines
         public override float End {
             get {
                 var end = 0f;
-                foreach (var clip in m_clips) {
+                for (var i = 0; i < m_clips.Count; i++) {
+                    var clip = m_clips[i];
                     end = Mathf.Max(end, clip.End);
                 }
 
@@ -132,7 +133,7 @@ namespace Tekly.Tweenlines
             var arcs = this is IPositionTrack;
             var arcSeed = unchecked(mixer.PlaySeed * 31 + m_target.GetEntityId().GetHashCode());
 
-            ClipOrder.Sort(m_clips, m_order, clip => clip.Start);
+            ClipOrder.Sort(m_clips, m_order);
 
             var previous = origin;
             var previousClip = -1;
@@ -261,23 +262,35 @@ namespace Tekly.Tweenlines
     }
 
     /// <summary>
+    /// A clip's place on the timeline, so ClipOrder can read it. Clips are structs, which makes ClipOrder's
+    /// generic methods compile per clip type and read these directly instead of through a delegate.
+    /// </summary>
+    public interface IClip
+    {
+        float Start { get; }
+        float End { get; }
+    }
+
+    /// <summary>
     /// Orders clips by start time without allocating. Clip counts are small, so an insertion sort is used,
     /// which also keeps clips with equal starts in list order.
     /// </summary>
     public static class ClipOrder
     {
-        public static void Sort<TClip>(List<TClip> clips, int[] order, Func<TClip, float> start)
+        public static void Sort<TClip>(List<TClip> clips, int[] order) where TClip : struct, IClip
         {
-            for (var i = 0; i < order.Length; i++) {
+            var length = order.Length;
+
+            for (var i = 0; i < length; i++) {
                 order[i] = i;
             }
 
-            for (var i = 1; i < order.Length; i++) {
+            for (var i = 1; i < length; i++) {
                 var index = order[i];
-                var value = start(clips[index]);
+                var value = clips[index].Start;
                 var j = i - 1;
 
-                while (j >= 0 && start(clips[order[j]]) > value) {
+                while (j >= 0 && clips[order[j]].Start > value) {
                     order[j + 1] = order[j];
                     j--;
                 }
@@ -290,23 +303,24 @@ namespace Tekly.Tweenlines
         /// The clip covering a time: the one that started last, if it hasn't ended yet. -1 when there is
         /// none, so a layered track does nothing between its clips.
         /// </summary>
-        public static int FindCovering<TClip>(List<TClip> clips, float time, Func<TClip, float> start, Func<TClip, float> end)
+        public static int FindCovering<TClip>(List<TClip> clips, float time) where TClip : struct, IClip
         {
-            var result = FindLatestStarted(clips, time, start);
-            return result >= 0 && time <= end(clips[result]) ? result : -1;
+            var result = FindLatestStarted(clips, time);
+            return result >= 0 && time <= clips[result].End ? result : -1;
         }
 
         /// <summary>
         /// The clip that started last at or before a time, whether or not it has ended. -1 before every clip.
         /// Equal starts pick the later one in the list.
         /// </summary>
-        public static int FindLatestStarted<TClip>(List<TClip> clips, float time, Func<TClip, float> start)
+        public static int FindLatestStarted<TClip>(List<TClip> clips, float time) where TClip : struct, IClip
         {
             var result = -1;
             var latest = float.MinValue;
+            var count = clips.Count;
 
-            for (var i = 0; i < clips.Count; i++) {
-                var clipStart = start(clips[i]);
+            for (var i = 0; i < count; i++) {
+                var clipStart = clips[i].Start;
 
                 if (clipStart <= time && clipStart >= latest) {
                     latest = clipStart;
@@ -320,13 +334,14 @@ namespace Tekly.Tweenlines
         /// <summary>
         /// The clip that starts first, or -1 when there are none. Equal starts pick the earlier one in the list.
         /// </summary>
-        public static int FindEarliest<TClip>(List<TClip> clips, Func<TClip, float> start)
+        public static int FindEarliest<TClip>(List<TClip> clips) where TClip : struct, IClip
         {
             var result = -1;
             var earliest = float.MaxValue;
+            var count = clips.Count;
 
-            for (var i = 0; i < clips.Count; i++) {
-                var clipStart = start(clips[i]);
+            for (var i = 0; i < count; i++) {
+                var clipStart = clips[i].Start;
 
                 if (clipStart < earliest) {
                     earliest = clipStart;

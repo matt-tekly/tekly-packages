@@ -214,7 +214,8 @@ namespace Tekly.Tweenlines
             CollectDrivenProperties(s_registered);
 
             // Original values are read before anything is written so AnimationMode restores to them
-            foreach (var property in s_registered) {
+            for (var i = 0; i < s_registered.Count; i++) {
+                var property = s_registered[i];
                 var modification = new PropertyModification {
                     target = property.Target,
                     propertyPath = property.PropertyPath,
@@ -236,15 +237,20 @@ namespace Tekly.Tweenlines
         /// </summary>
         private static void AddModifications()
         {
-            foreach (var (binding, modification) in s_modifications) {
+            for (var i = 0; i < s_modifications.Count; i++) {
+                var (binding, modification) = s_modifications[i];
                 AnimationMode.AddPropertyModification(binding, modification, true);
             }
         }
 
         private static void CollectDrivenProperties(List<DrivenProperty> properties)
         {
-            foreach (var animation in Target.Animations) {
-                foreach (var track in animation.Tracks) {
+            var animations = Target.Animations;
+            for (var i = 0; i < animations.Count; i++) {
+                var animation = animations[i];
+                var tracks = animation.Tracks;
+                for (var j = 0; j < tracks.Count; j++) {
+                    var track = tracks[j];
                     if (track != null) {
                         track.CollectDrivenProperties(properties);
                     }
