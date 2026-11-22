@@ -1,105 +1,41 @@
-﻿using Tekly.Common.Maths;
-using Tekly.Common.Utils;
-using UnityEngine;
-using UnityEngine.Audio;
+﻿using UnityEngine;
 
-namespace Tekly.Thunk.Core
+namespace Tekly.Thunk
 {
-	public enum ThunkClipCapacityBehaviour
-	{
-		Unbound,
-		ReplaceOldest,
-		IgnoreNew
-	}
-	
+	/// <summary>
+	/// A sound that plays one AudioClip picked from a set, once or looping.
+	/// </summary>
 	[CreateAssetMenu(fileName = "thunk_clip", menuName = "Tekly/Thunk/Clip")]
-	public class ThunkClip : UniqueIdScriptableObject
+	public class ThunkClip : ThunkSound
 	{
-		public RandomSelectMode RandomMode;
-		public AudioClip[] Clips;
-		public AudioMixerGroup MixerGroup;
-		
-		[RangeLimits(0f, 1f)]
-		public FloatRange Volume;
-		
-		[RangeLimits(0f, 3f)]
-		public FloatRange Pitch;
+		public ThunkClipSet Clips => m_clips;
+		public bool Loop => m_loop;
+		public bool RandomizeStartTime => m_randomizeStartTime;
 
-		public bool RandomizeStartTime;
-		
-		public bool Loop;
-		public float MinimumTimeBetweenPlays;
-		public int InstanceCapacity;
-		
-		public ThunkClipCapacityBehaviour CapacityBehaviour;
+		[SerializeField] private ThunkClipSet m_clips;
+		[SerializeField] private bool m_loop;
 
-		public ThunkClipState State => Thunk.Instance.ClipStateManager.GetOrCreate(this);
+		[Tooltip("Starts at a random point in the clip. Useful for loops that can overlap themselves, like ambience.")]
+		[SerializeField] private bool m_randomizeStartTime;
 
-		public virtual ThunkClipState CreateState()
+		internal override bool Begin(ThunkVoice voice, ThunkSoundRecord record)
 		{
-			return new ThunkClipState(this);
-		}
-		
-		private void OnEnable()
-		{
-#if UNITY_EDITOR
-			if (!Application.isPlaying) {
-				return;
-			}
-#endif
-			// Clips created at runtime (CreateInstance) have no id and their fields aren't set yet;
-			// they register lazily on first play instead
-			if (UniqueId == 0) {
-				return;
+			var clip = record.Select(0, m_clips);
+
+			if (clip == null) {
+				return false;
 			}
 
-			// Register every loaded copy so the shared state outlives any single copy (e.g. a clip in multiple
-			// AssetBundles). The State getter also registers, for clips already loaded before play mode.
-			Thunk.Instance?.ClipStateManager.GetOrCreate(this);
-		}
+			var source = voice.AddSource(clip);
+			source.Audio.loop = m_loop;
 
-		private void OnDisable()
-		{
-			Unregister();
-		}
-
-		private void OnDestroy()
-		{
-			Unregister();
-		}
-
-		private void Unregister()
-		{
-#if UNITY_EDITOR
-			if (!Application.isPlaying) {
-				return;
+			if (m_randomizeStartTime) {
+				// The int Range excludes the max, so this never seeks to the very end
+				source.Audio.timeSamples = Random.Range(0, clip.samples);
 			}
-#endif
-			Thunk.Instance?.ClipStateManager.Unregister(this);
-		}
 
-		
-#if UNITY_EDITOR
-		public void Reset()
-		{
-			Volume = new FloatRange(1, 1);
-			Pitch = new FloatRange(1, 1);
-			Loop = false;
-			MinimumTimeBetweenPlays = 0;
-			InstanceCapacity = 0;
-			CapacityBehaviour = ThunkClipCapacityBehaviour.Unbound;
+			source.Audio.Play();
+			return true;
 		}
-
-		protected override void OnValidate()
-		{
-			base.OnValidate();
-
-			if (Application.isPlaying) {
-				if (Thunk.Instance.ClipStateManager.TryGet(this, out var clipState)) {
-					clipState.Reset();
-				}
-			}
-		}
-#endif
 	}
 }

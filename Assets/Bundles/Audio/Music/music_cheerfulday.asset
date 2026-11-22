@@ -11,19 +11,26 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0f6bf0dc227644e592d3028e5976fd3d, type: 3}
   m_Name: music_cheerfulday
-  m_EditorClassIdentifier: Tekly.Thunk::Tekly.Thunk.Core.ThunkClip
+  m_EditorClassIdentifier: Tekly.Thunk::Tekly.Thunk.ThunkClip
   m_uniqueId: 8677576478305726724
-  RandomMode: 0
-  Clips:
-  - {fileID: 8300000, guid: ea3f6c359aa4e1d44a7eed06d509361d, type: 3}
-  MixerGroup: {fileID: 5621778150841972868, guid: 3c48cc700afde4c7b82d128591b8a8d0, type: 2}
-  Volume:
+  m_mixerGroup: {fileID: 5621778150841972868, guid: 3c48cc700afde4c7b82d128591b8a8d0, type: 2}
+  m_volume:
     Min: 1
     Max: 1
-  Pitch:
+  m_pitch:
     Min: 1
     Max: 1
-  Loop: 1
-  MinimumTimeBetweenPlays: 0
-  InstanceCapacity: 0
-  CapacityBehaviour: 0
+  m_fadeIn: 0
+  m_fadeOut: 0
+  m_fadeEase: 0
+  m_priority: 128
+  m_playWhilePaused: 0
+  m_maxInstances: 0
+  m_stealing: 0
+  m_cooldown: 0
+  m_clips:
+    Clips:
+    - {fileID: 8300000, guid: ea3f6c359aa4e1d44a7eed06d509361d, type: 3}
+    Mode: 0
+  m_loop: 1
+  m_randomizeStartTime: 0

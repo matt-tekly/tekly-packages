@@ -1,108 +1,128 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace Tekly.Thunk.Core
+namespace Tekly.Thunk
 {
 	[CustomEditor(typeof(ThunkEmitter))]
 	[CanEditMultipleObjects]
 	public class ThunkEmitterEditor : Editor
 	{
-		private SerializedProperty m_audioSourceTemplateProp;
-		private SerializedProperty m_volumeProp;
-		private SerializedProperty m_pitchProp;
-		private SerializedProperty m_ignoreListenerPause;
-		private SerializedProperty m_unscaledDeltaTime;
+		private const float STATE_COLUMN_WIDTH = 90f;
+		private const float TIME_COLUMN_WIDTH = 110f;
+		private const float ROW_HEIGHT = 18f;
 
-		private bool m_requiresRepaint;
+		private static GUIStyle s_rightHeaderStyle;
+		private static GUIStyle s_rightLabelStyle;
 
-		private const float StateColumnWidth = 90f;
-		private const float TimeColumnWidth = 150f;
-		private const float RowHeight = 18f;
+		private SerializedProperty m_volume;
+		private SerializedProperty m_pitch;
+		private SerializedProperty m_spatialTemplate;
 
-		public override bool RequiresConstantRepaint() => m_requiresRepaint;
-
-		private void OnEnable()
+		public override bool RequiresConstantRepaint()
 		{
-			m_audioSourceTemplateProp = serializedObject.FindProperty("m_audioSourceTemplate");
-			m_volumeProp = serializedObject.FindProperty("m_volume");
-			m_pitchProp = serializedObject.FindProperty("m_pitch");
-			m_ignoreListenerPause = serializedObject.FindProperty("m_ignoreListenerPause");
-			m_unscaledDeltaTime = serializedObject.FindProperty("m_unscaledDeltaTime");
+			return Application.isPlaying;
 		}
 
 		public override void OnInspectorGUI()
 		{
 			serializedObject.Update();
 
-			EditorGUILayout.PropertyField(m_audioSourceTemplateProp);
-
-			EditorGUI.BeginChangeCheck();
-
-			EditorGUILayout.PropertyField(m_volumeProp);
-			EditorGUILayout.PropertyField(m_pitchProp);
-			EditorGUILayout.PropertyField(m_ignoreListenerPause);
-			EditorGUILayout.PropertyField(m_unscaledDeltaTime);
-
-			var pitchOrVolumeChanged = EditorGUI.EndChangeCheck();
+			EditorGUILayout.PropertyField(m_volume);
+			EditorGUILayout.PropertyField(m_pitch);
+			EditorGUILayout.PropertyField(m_spatialTemplate);
 
 			serializedObject.ApplyModifiedProperties();
 
-			if (pitchOrVolumeChanged) {
-				foreach (var targetObject in targets) {
-					var emitter = targetObject as ThunkEmitter;
-					emitter.UpdatePitchAndVolume();
-
-					if (!Application.isPlaying) {
-						EditorUtility.SetDirty(emitter);
-					}
-				}
+			if (!Application.isPlaying) {
+				return;
 			}
 
-			if (Application.isPlaying) {
-				m_requiresRepaint = false;
-				foreach (var targetObject in targets) {
-					var emitter = targetObject as ThunkEmitter;
-					EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+			var runtime = ThunkRuntime.Instance;
 
-					DrawTableRow("Clip", "State", "Time", true);
-					foreach (var thunkClipInstance in emitter.Instances) {
-						var clipLength = thunkClipInstance.PlayingAudioClip?.length ?? 0;
-						var clipTime = thunkClipInstance.Time;
-						var time = $"Time: {clipTime:F3}/{clipLength:F3}";
-						DrawTableRow(thunkClipInstance.DebuggerDisplay, thunkClipInstance.State.ToString(), time, true);
-					}
+			if (runtime == null) {
+				return;
+			}
 
-					EditorGUILayout.EndVertical();
+			EditorGUILayout.Space();
 
-					m_requiresRepaint = true;
+			foreach (var targetObject in targets) {
+				var emitter = targetObject as ThunkEmitter;
+
+				if (emitter == null) {
+					continue;
 				}
 
-				Repaint();
+				DrawVoices(runtime, emitter);
 			}
 		}
 
-		private void DrawTableRow(string clip, string state, string time, bool isHeader)
+		private void OnEnable()
 		{
-			var rowRect = GUILayoutUtility.GetRect(0f, RowHeight, GUILayout.ExpandWidth(true));
+			m_volume = serializedObject.FindProperty("m_volume");
+			m_pitch = serializedObject.FindProperty("m_pitch");
+			m_spatialTemplate = serializedObject.FindProperty("m_spatialTemplate");
+		}
 
-			// Some padding
-			rowRect.xMin += 4f;
-			rowRect.xMax -= 4f;
+		private static void DrawVoices(ThunkRuntime runtime, ThunkEmitter emitter)
+		{
+			EnsureStyles();
 
-			var timeRect = new Rect(rowRect.xMax - TimeColumnWidth, rowRect.y, TimeColumnWidth, rowRect.height);
-			var stateRect = new Rect(timeRect.x - StateColumnWidth, rowRect.y, StateColumnWidth, rowRect.height);
-			var clipRect = new Rect(rowRect.x, rowRect.y, stateRect.x - rowRect.x, rowRect.height);
+			using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox)) {
+				DrawRow("Sound", "State", "Time", EditorStyles.boldLabel, s_rightHeaderStyle);
 
-			var style = isHeader ? EditorStyles.boldLabel : EditorStyles.label;
+				var voices = runtime.ActiveVoices;
 
-			EditorGUI.LabelField(clipRect, clip, style);
-			EditorGUI.LabelField(stateRect, state, style);
+				for (var i = 0; i < voices.Count; i++) {
+					var voice = voices[i];
 
-			// Right-align time column
-			using (new EditorGUIUtility.IconSizeScope(Vector2.zero)) {
-				var rightAlign = new GUIStyle(style) { alignment = TextAnchor.MiddleRight };
-				EditorGUI.LabelField(timeRect, time, rightAlign);
+					if (voice == null || !ReferenceEquals(voice.Emitter, emitter)) {
+						continue;
+					}
+
+					var soundName = voice.Sound != null ? voice.Sound.name : "(none)";
+					DrawRow(soundName, voice.State.ToString(), GetTimeText(voice), EditorStyles.label, s_rightLabelStyle);
+				}
 			}
+		}
+
+		private static string GetTimeText(ThunkVoice voice)
+		{
+			if (voice.Sources.Count == 0) {
+				return "-";
+			}
+
+			var audio = voice.Sources[0].Audio;
+
+			if (audio == null || audio.clip == null) {
+				return "-";
+			}
+
+			return $"{audio.time:0.00}/{audio.clip.length:0.00}";
+		}
+
+		private static void DrawRow(string sound, string state, string time, GUIStyle style, GUIStyle timeStyle)
+		{
+			var row = GUILayoutUtility.GetRect(0f, ROW_HEIGHT, GUILayout.ExpandWidth(true));
+			row.xMin += 4f;
+			row.xMax -= 4f;
+
+			var timeRect = new Rect(row.xMax - TIME_COLUMN_WIDTH, row.y, TIME_COLUMN_WIDTH, row.height);
+			var stateRect = new Rect(timeRect.x - STATE_COLUMN_WIDTH, row.y, STATE_COLUMN_WIDTH, row.height);
+			var soundRect = new Rect(row.x, row.y, stateRect.x - row.x, row.height);
+
+			EditorGUI.LabelField(soundRect, sound, style);
+			EditorGUI.LabelField(stateRect, state, style);
+			EditorGUI.LabelField(timeRect, time, timeStyle);
+		}
+
+		private static void EnsureStyles()
+		{
+			if (s_rightLabelStyle != null) {
+				return;
+			}
+
+			s_rightLabelStyle = new GUIStyle(EditorStyles.label) { alignment = TextAnchor.MiddleRight };
+			s_rightHeaderStyle = new GUIStyle(EditorStyles.boldLabel) { alignment = TextAnchor.MiddleRight };
 		}
 	}
 }

@@ -1,0 +1,139 @@
+﻿using System.Collections.Generic;
+using NUnit.Framework;
+using Tekly.Common.Utils;
+using UnityEditor;
+using UnityEngine;
+using Object = UnityEngine.Object;
+
+namespace Tekly.Thunk.Tests
+{
+	public abstract class ThunkTestBase
+	{
+		internal ThunkRuntime Runtime => m_runtime;
+
+		private readonly List<Object> m_objects = new List<Object>();
+		private ThunkRuntime m_runtime;
+
+		[SetUp]
+		public void SetUpThunk()
+		{
+			m_runtime = new ThunkRuntime();
+		}
+
+		[TearDown]
+		public void TearDownThunk()
+		{
+			// The runtime goes first so it can hand sources back to emitters that still exist
+			m_runtime.Dispose();
+			m_runtime = null;
+
+			for (var index = 0; index < m_objects.Count; index++) {
+				if (m_objects[index] != null) {
+					Object.DestroyImmediate(m_objects[index]);
+				}
+			}
+
+			m_objects.Clear();
+		}
+
+		protected AudioClip[] CreateClips(int count)
+		{
+			var clips = new AudioClip[count];
+
+			for (var index = 0; index < count; index++) {
+				clips[index] = AudioClip.Create("test", 4410, 1, 44100, false);
+				m_objects.Add(clips[index]);
+			}
+
+			return clips;
+		}
+
+		protected static ThunkClipSet CreateSet(AudioClip[] clips, RandomSelectMode mode)
+		{
+			return new ThunkClipSet { Clips = clips, Mode = mode };
+		}
+
+		protected ThunkEmitter CreateEmitter()
+		{
+			var emitter = new GameObject("emitter").AddComponent<ThunkEmitter>();
+			m_objects.Add(emitter.gameObject);
+
+			return emitter;
+		}
+
+		protected ThunkClip CreateSound(int clipCount = 1, int maxInstances = 0, ThunkStealing stealing = ThunkStealing.None, float cooldown = 0f, ulong uniqueId = 0UL, bool loop = true)
+		{
+			var sound = ScriptableObject.CreateInstance<ThunkClip>();
+			m_objects.Add(sound);
+
+			var clips = CreateClips(clipCount);
+			var serialized = new SerializedObject(sound);
+			var clipsProperty = serialized.FindProperty("m_clips.Clips");
+
+			clipsProperty.arraySize = clipCount;
+
+			for (var index = 0; index < clipCount; index++) {
+				clipsProperty.GetArrayElementAtIndex(index).objectReferenceValue = clips[index];
+			}
+
+			serialized.FindProperty("m_clips.Mode").enumValueIndex = (int) RandomSelectMode.Random;
+			serialized.FindProperty("m_loop").boolValue = loop;
+			serialized.FindProperty("m_maxInstances").intValue = maxInstances;
+			serialized.FindProperty("m_stealing").enumValueIndex = (int) stealing;
+			serialized.FindProperty("m_cooldown").floatValue = cooldown;
+			serialized.FindProperty("m_uniqueId").ulongValue = uniqueId;
+			serialized.ApplyModifiedPropertiesWithoutUndo();
+
+			return sound;
+		}
+
+		protected ThunkTrack CreateTrack(bool resumeHeld = true, float duckLevel = 0.3f, float duckFadeDown = 0f, float duckFadeBack = 0f)
+		{
+			var track = ScriptableObject.CreateInstance<ThunkTrack>();
+			m_objects.Add(track);
+
+			var serialized = new SerializedObject(track);
+			serialized.FindProperty("m_crossfade").floatValue = 0f;
+			serialized.FindProperty("m_resumeHeld").boolValue = resumeHeld;
+			serialized.FindProperty("m_duckLevel").floatValue = duckLevel;
+			serialized.FindProperty("m_duckFadeDown").floatValue = duckFadeDown;
+			serialized.FindProperty("m_duckFadeBack").floatValue = duckFadeBack;
+			serialized.ApplyModifiedPropertiesWithoutUndo();
+
+			return track;
+		}
+
+		protected AudioSource CreateTemplate(float spatialBlend = 1f, float minDistance = 1f, float maxDistance = 50f, AudioRolloffMode rolloffMode = AudioRolloffMode.Logarithmic)
+		{
+			var gameObject = new GameObject("template");
+			m_objects.Add(gameObject);
+
+			var template = gameObject.AddComponent<AudioSource>();
+			template.playOnAwake = false;
+			template.spatialBlend = spatialBlend;
+			template.minDistance = minDistance;
+			template.maxDistance = maxDistance;
+			template.rolloffMode = rolloffMode;
+
+			return template;
+		}
+
+		protected static void SetSoundTemplate(ThunkSound sound, AudioSource template)
+		{
+			var serialized = new SerializedObject(sound);
+			serialized.FindProperty("m_spatialTemplate").objectReferenceValue = template;
+			serialized.ApplyModifiedPropertiesWithoutUndo();
+		}
+
+		internal ThunkVoice GetVoice(ThunkHandle handle)
+		{
+			Assert.IsTrue(m_runtime.TryGetVoice(handle, out var voice), "the handle should resolve");
+			return voice;
+		}
+
+		protected bool Resolves(ThunkHandle handle)
+		{
+			return m_runtime.TryGetVoice(handle, out _);
+		}
+	}
+}

@@ -2,7 +2,8 @@
     "name": "Tekly.Thunk.Editor",
     "rootNamespace": "Tekly.Thunk",
     "references": [
-        "GUID:44ca852543c584c4a8a88e686f4688b3"
+        "GUID:44ca852543c584c4a8a88e686f4688b3",
+        "GUID:b9160372c6c55a741932d482673e3abb"
     ],
     "includePlatforms": [
         "Editor"

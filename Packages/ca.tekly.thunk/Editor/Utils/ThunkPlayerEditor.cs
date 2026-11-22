@@ -1,39 +1,53 @@
-﻿#if UNITY_EDITOR
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
-namespace Tekly.Thunk.Utils
+namespace Tekly.Thunk
 {
 	[CustomEditor(typeof(ThunkPlayer))]
 	[CanEditMultipleObjects]
-	public sealed class ThunkPlayerInspector : Editor
+	public class ThunkPlayerEditor : Editor
 	{
 		public override void OnInspectorGUI()
 		{
-			base.OnInspectorGUI();
-
-			if (!Application.isPlaying) {
-				return;
-			}
+			DrawDefaultInspector();
 
 			EditorGUILayout.Space();
 
+			EditorGUI.BeginDisabledGroup(!Application.isPlaying);
+
 			using (new EditorGUILayout.HorizontalScope()) {
 				if (GUILayout.Button("Play")) {
-					foreach (var t in targets) {
-						var player = (ThunkPlayer)t;
-						player.Play();
+					foreach (var targetObject in targets) {
+						var player = targetObject as ThunkPlayer;
+
+						if (player != null) {
+							player.Play();
+						}
 					}
 				}
 
 				if (GUILayout.Button("Stop")) {
-					foreach (var t in targets) {
-						var player = (ThunkPlayer)t;
-						player.Stop();
+					foreach (var targetObject in targets) {
+						var player = targetObject as ThunkPlayer;
+
+						if (player != null) {
+							player.Stop();
+						}
+					}
+				}
+
+				if (GUILayout.Button("Release")) {
+					foreach (var targetObject in targets) {
+						var player = targetObject as ThunkPlayer;
+
+						if (player != null) {
+							player.Release();
+						}
 					}
 				}
 			}
+
+			EditorGUI.EndDisabledGroup();
 		}
 	}
 }
-#endif

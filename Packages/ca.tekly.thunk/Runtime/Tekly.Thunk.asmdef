@@ -1,7 +1,10 @@
 {
     "name": "Tekly.Thunk",
     "rootNamespace": "Tekly.Thunk",
-    "references": ["GUID:b9160372c6c55a741932d482673e3abb"],
+    "references": [
+        "GUID:b9160372c6c55a741932d482673e3abb",
+        "GUID:4bdc187487ea5db4e983b03012d17dcd"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

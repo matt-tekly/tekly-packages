@@ -1,7 +1,7 @@
 using Tekly.Common.Maths;
 using Tekly.Common.Utils;
 using Tekly.DataModels.Models;
-using Tekly.Thunk.Core;
+using Tekly.Thunk;
 using UnityEngine.Audio;
 
 namespace TeklySample.Samples.Leaf
@@ -23,11 +23,11 @@ namespace TeklySample.Samples.Leaf
         {
             Add("name", volumeSetting.Name);
             
-            var startingVolume = Thunk.GetVolume(mixer, volumeSetting.Parameter);
+            var startingVolume = ThunkMixer.GetVolume(mixer, volumeSetting.Parameter);
             var value = AddRange("value", MathUtils.Lerp(0, 100, startingVolume), 0, 100);
             
             value.Subscribe(_ => {
-                Thunk.SetVolume(mixer, volumeSetting.Parameter, value.CurrentRatio);
+                ThunkMixer.SetVolume(mixer, volumeSetting.Parameter, value.CurrentRatio);
             }).AddTo(m_disposables);
         }
     }

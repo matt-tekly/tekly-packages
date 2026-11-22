@@ -8361,12 +8361,12 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 843440db22cf4bf1ace0153a8fd0f120, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Tekly.Thunk::Tekly.Thunk.Music.ThunkTrackPlayer
-  m_clip: {fileID: 11400000, guid: 75cd4a61e4a4fbe45ab6ae3262bc7a5f, type: 2}
-  m_trackId: music
-  m_push: 0
-  m_fadeInDuration: 0
-  m_autoPlay: 1
+  m_EditorClassIdentifier: Tekly.Thunk::Tekly.Thunk.ThunkTrackPlayer
+  m_track: {fileID: 11400000, guid: 31344a0e322f40449edd433e40464fff, type: 2}
+  m_sound: {fileID: 11400000, guid: 75cd4a61e4a4fbe45ab6ae3262bc7a5f, type: 2}
+  m_mode: 0
+  m_fade: 0
+  m_playOnEnable: 1
 --- !u!4 &1267478077
 Transform:
   m_ObjectHideFlags: 0

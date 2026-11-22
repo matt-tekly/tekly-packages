@@ -11,22 +11,29 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0f6bf0dc227644e592d3028e5976fd3d, type: 3}
   m_Name: thunk_sound
-  m_EditorClassIdentifier: Tekly.Vonix::Tekly.Vonix.Core.VonixClip
+  m_EditorClassIdentifier: Tekly.Thunk::Tekly.Thunk.ThunkClip
   m_uniqueId: 10685183595126848427
-  RandomMode: 0
-  Clips:
-  - {fileID: 8300000, guid: f281445048afb354e9a3e4d2f06ba9dd, type: 3}
-  - {fileID: 8300000, guid: 27ccf7285c382c24bac53b24de5dce7e, type: 3}
-  - {fileID: 8300000, guid: 3bb15a547ee6e68469a9e7a1f2dcf353, type: 3}
-  - {fileID: 8300000, guid: 3e8df81f1b001b846b825c2d0f52009c, type: 3}
-  MixerGroup: {fileID: -8309867485381092383, guid: 3c48cc700afde4c7b82d128591b8a8d0, type: 2}
-  Volume:
+  m_mixerGroup: {fileID: -8309867485381092383, guid: 3c48cc700afde4c7b82d128591b8a8d0, type: 2}
+  m_volume:
     Min: 1
     Max: 1
-  Pitch:
+  m_pitch:
     Min: 1
     Max: 1
-  Loop: 0
-  MinimumTimeBetweenPlays: 0.2
-  InstanceCapacity: 2
-  CapacityBehaviour: 2
+  m_fadeIn: 0
+  m_fadeOut: 0
+  m_fadeEase: 0
+  m_priority: 128
+  m_playWhilePaused: 0
+  m_maxInstances: 2
+  m_stealing: 0
+  m_cooldown: 0.22
+  m_clips:
+    Clips:
+    - {fileID: 8300000, guid: f281445048afb354e9a3e4d2f06ba9dd, type: 3}
+    - {fileID: 8300000, guid: 27ccf7285c382c24bac53b24de5dce7e, type: 3}
+    - {fileID: 8300000, guid: 3bb15a547ee6e68469a9e7a1f2dcf353, type: 3}
+    - {fileID: 8300000, guid: 3e8df81f1b001b846b825c2d0f52009c, type: 3}
+    Mode: 0
+  m_loop: 0
+  m_randomizeStartTime: 0

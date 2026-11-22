@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6419e6c05d7b4e71a39c2f94148677a8, type: 3}
+  m_Name: track_music
+  m_EditorClassIdentifier: Tekly.Thunk::Tekly.Thunk.ThunkTrack
+  m_uniqueId: 1776398930315308380
+  m_crossfade: 1
+  m_resumeHeld: 1
+  m_mixerGroup: {fileID: 0}

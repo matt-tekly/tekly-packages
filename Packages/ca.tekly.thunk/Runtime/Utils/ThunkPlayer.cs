@@ -1,45 +1,80 @@
-﻿using Tekly.Common.Utils;
-using Tekly.Thunk.Core;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.Serialization;
 
-namespace Tekly.Thunk.Utils
+namespace Tekly.Thunk
 {
-	[RequireComponent(typeof(ThunkEmitter))]
+	public enum ThunkPlayerDisableAction
+	{
+		/// <summary>The sound plays on.</summary>
+		Nothing,
+
+		/// <summary>The sound stops immediately.</summary>
+		Stop,
+
+		/// <summary>The sound ends naturally, using its fade out.</summary>
+		Release
+	}
+
+	/// <summary>
+	/// Plays a sound. With an emitter the sound plays at the emitter, without one it has no position.
+	/// </summary>
 	public class ThunkPlayer : MonoBehaviour
 	{
+		[Tooltip("Optional. Without an emitter the sound plays with no position.")]
 		[SerializeField] private ThunkEmitter m_emitter;
-		[SerializeField] private ThunkClip m_clip;
+
+		[FormerlySerializedAs("m_clip")]
+		[SerializeField] private ThunkSound m_sound;
+
+		[SerializeField] private bool m_playOnEnable = true;
+
+		[Tooltip("Stops the sound this component last played before playing again.")]
 		[SerializeField] private bool m_stopOnPlay;
 
-		private int m_instanceId = Core.Thunk.INVALID_ID;
-		
-		private void OnEnable()
-		{
-			Play();
-		}
-		
+		[SerializeField] private ThunkPlayerDisableAction m_onDisable;
+
+		private ThunkHandle m_handle;
+
 		public void Play()
 		{
-			if (m_stopOnPlay) {
-				Stop();
+			if (m_sound == null) {
+				Debug.LogWarning("[Thunk] ThunkPlayer has no sound", this);
+				return;
 			}
-			
-			m_instanceId = m_emitter.Play(m_clip);
+
+			if (m_stopOnPlay) {
+				m_handle.Stop();
+			}
+
+			m_handle = m_emitter != null ? m_emitter.Play(m_sound) : m_sound.Play();
 		}
-		
+
 		public void Stop()
 		{
-			if (m_instanceId != Core.Thunk.INVALID_ID) {
-				m_emitter.Stop(m_instanceId);
-				m_instanceId = Core.Thunk.INVALID_ID;
+			m_handle.Stop();
+			m_handle = ThunkHandle.None;
+		}
+
+		public void Release()
+		{
+			m_handle.Release();
+			m_handle = ThunkHandle.None;
+		}
+
+		private void OnEnable()
+		{
+			if (m_playOnEnable) {
+				Play();
 			}
 		}
 
-#if UNITY_EDITOR
-		private void OnValidate()
+		private void OnDisable()
 		{
-			this.TryFillComponent(ref m_emitter);
+			if (m_onDisable == ThunkPlayerDisableAction.Stop) {
+				Stop();
+			} else if (m_onDisable == ThunkPlayerDisableAction.Release) {
+				Release();
+			}
 		}
-#endif
 	}
 }

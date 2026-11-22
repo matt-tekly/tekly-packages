@@ -2,11 +2,10 @@
   "name": "ca.tekly.thunk",
   "displayName": "Tekly Thunk",
   "version": "0.0.1",
-  "unity": "2019.4",
+  "unity": "6000.0",
   "dependencies": {
-    "ca.tekly.logger": "0.0.7",
-    "ca.tekly.common": "0.0.1",
-    "ca.tekly.content": "0.0.1"
+    "ca.tekly.logger": "1.0.0",
+    "ca.tekly.common": "0.0.1"
   },
   "author": {
     "name": "Matt King",
@@ -14,5 +13,5 @@
   },
   "hideInEditor": false,
   "type": "library",
-  "description": "An audio package"
+  "description": "A small audio package: sounds that pick from clip sets with limits and cooldowns, emitters that play at their own position, generation checked handles and music tracks that can be interrupted and resumed"
 }

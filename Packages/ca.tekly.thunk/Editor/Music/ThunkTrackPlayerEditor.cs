@@ -1,37 +1,43 @@
-﻿#if UNITY_EDITOR
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
-namespace Tekly.Thunk.Music
+namespace Tekly.Thunk
 {
 	[CustomEditor(typeof(ThunkTrackPlayer))]
 	[CanEditMultipleObjects]
-	public sealed class ThunkTrackPlayerEditor : Editor
+	public class ThunkTrackPlayerEditor : Editor
 	{
 		public override void OnInspectorGUI()
 		{
-			base.OnInspectorGUI();
+			DrawDefaultInspector();
 
-			if (!Application.isPlaying) {
-				return;
-			}
+			EditorGUILayout.Space();
+
+			EditorGUI.BeginDisabledGroup(!Application.isPlaying);
 
 			using (new EditorGUILayout.HorizontalScope()) {
 				if (GUILayout.Button("Play")) {
-					foreach (var t in targets) {
-						var player = (ThunkTrackPlayer)t;
-						player.Play();
+					foreach (var targetObject in targets) {
+						var player = targetObject as ThunkTrackPlayer;
+
+						if (player != null) {
+							player.Play();
+						}
 					}
 				}
 
-				if (GUILayout.Button("Pop")) {
-					foreach (var t in targets) {
-						var player = (ThunkTrackPlayer)t;
-						player.Pop();
+				if (GUILayout.Button("Stop")) {
+					foreach (var targetObject in targets) {
+						var player = targetObject as ThunkTrackPlayer;
+
+						if (player != null) {
+							player.Stop();
+						}
 					}
 				}
 			}
+
+			EditorGUI.EndDisabledGroup();
 		}
 	}
 }
-#endif

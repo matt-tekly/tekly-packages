@@ -1,279 +1,126 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace Tekly.Thunk.Core
+namespace Tekly.Thunk
 {
 	/// <summary>
-	/// An Emitter represents an object that will play audio using ThunkClips
+	/// Plays sounds at its own position. The AudioSources it plays through are components on its GameObject, added
+	/// as needed and reused.
 	/// </summary>
 	public class ThunkEmitter : MonoBehaviour
 	{
+		/// <summary>
+		/// Multiplies the volume of everything this emitter plays.
+		/// </summary>
 		public float Volume {
 			get => m_volume;
 			set {
 				if (!Mathf.Approximately(m_volume, value)) {
 					m_volume = value;
-					UpdatePitchAndVolume();
+					ApplyToVoices();
 				}
 			}
 		}
-		
+
+		/// <summary>
+		/// Multiplies the pitch of everything this emitter plays.
+		/// </summary>
 		public float Pitch {
 			get => m_pitch;
 			set {
 				if (!Mathf.Approximately(m_pitch, value)) {
 					m_pitch = value;
-					UpdatePitchAndVolume();
+					ApplyToVoices();
 				}
 			}
 		}
 
-		public bool UseUnscaledDeltaTime {
-			get => m_unscaledDeltaTime;
-			set => m_unscaledDeltaTime = value;
-		}
-		
 		/// <summary>
-		/// Lets this emitter's AudioSources keep playing while AudioListener.pause is true.
-		/// Applies to AudioSources already created as well as new ones.
+		/// The AudioSource whose spatial settings are used for sounds that have no template of their own.
 		/// </summary>
-		public bool IgnoreListenerPause {
-			get => m_ignoreListenerPause;
-			set {
-				if (m_ignoreListenerPause == value) {
-					return;
-				}
-				
-				m_ignoreListenerPause = value;
-				ApplyIgnoreListenerPause();
-			}
+		public AudioSource SpatialTemplate {
+			get => m_spatialTemplate;
+			set => m_spatialTemplate = value;
 		}
-		
-		public IReadOnlyList<ThunkClipInstance> Instances => m_instances;
 
-		/// <summary>
-		/// Raised when an instance on this emitter is disposed for any reason: it finished, was stopped, faded out,
-		/// was replaced due to capacity, or its clip was unloaded. Not raised when the emitter itself is destroyed.
-		/// </summary>
-		public event Action<ThunkClipInstance> InstanceDisposed;
-		
-		[SerializeField] private AudioSource m_audioSourceTemplate;
-		
-		private readonly List<ThunkClipInstance> m_instances = new List<ThunkClipInstance>();
-		private AudioSourcePool m_audioSourcePool;
-		
-		/// <summary>
-		/// Every AudioSource this emitter created, in use or pooled
-		/// </summary>
-		private readonly List<AudioSource> m_audioSources = new List<AudioSource>();
-		
-		private bool m_initialized;
-		
-		[Tooltip("All AudioSources associated with this Emitter will have their Volume multiplied by this")]
-		[Range(0f,1f)]
+		[Tooltip("Multiplies the volume of everything this emitter plays.")]
+		[Range(0f, 1f)]
 		[SerializeField] private float m_volume = 1f;
-		
-		[Tooltip("All AudioSources associated with this Emitter will have their Pitch multiplied by this")]
-		[Range(0f,3f)]
+
+		[Tooltip("Multiplies the pitch of everything this emitter plays.")]
+		[Range(0f, 3f)]
 		[SerializeField] private float m_pitch = 1f;
-		
-		[Tooltip("Allows AudioSource to play even though AudioListener.pause is set to true. This is useful for the menu element sounds or background music in pause menus.")]
-		[SerializeField] private bool m_ignoreListenerPause;
-		
-		[Tooltip("Clips associated with this Emitter used unscaled delta time for fading.")]
-		[SerializeField] private bool m_unscaledDeltaTime;
 
-		public ThunkAudioSource GetAudioSource()
+		[Tooltip("Optional. An AudioSource whose 3D sound settings are used for what this emitter plays: one in a prefab, or a disabled one on this object. A sound with its own template uses that in place of this. Without either, sounds are not positioned.")]
+		[SerializeField] private AudioSource m_spatialTemplate;
+
+		private readonly Stack<ThunkSource> m_freeSources = new Stack<ThunkSource>();
+
+		/// <summary>
+		/// Plays the sound at this emitter. Ignore the handle to play it as a one-shot.
+		/// </summary>
+		public ThunkHandle Play(ThunkSound sound)
 		{
-			Init();
-			return m_audioSourcePool.Get();
+			var runtime = ThunkRuntime.Instance;
+			return runtime != null ? runtime.Play(sound, this) : ThunkHandle.None;
 		}
 
-		internal AudioSource CreateAudioSource()
+		/// <summary>
+		/// Stops everything this emitter is playing.
+		/// </summary>
+		public void StopAll(float fade = 0f)
 		{
-			var instance = gameObject.AddComponent<AudioSource>();
-
-			if (m_audioSourceTemplate != null) {
-				CopyProperties(m_audioSourceTemplate, instance);
-			}
-			
-			instance.ignoreListenerPause = m_ignoreListenerPause;
-			m_audioSources.Add(instance);
-			
-			return instance;
+			ThunkRuntime.Instance?.StopEmitter(this, fade);
 		}
 
-		private void ApplyIgnoreListenerPause()
+		internal ThunkSource RentSource()
 		{
-			for (var index = 0; index < m_audioSources.Count; index++) {
-				m_audioSources[index].ignoreListenerPause = m_ignoreListenerPause;
+			if (m_freeSources.TryPop(out var source)) {
+				return source;
 			}
+
+			var audio = gameObject.AddComponent<AudioSource>();
+			audio.playOnAwake = false;
+
+			return new ThunkSource(audio);
+		}
+
+		internal void ReturnSource(ThunkSource source)
+		{
+			var audio = source.Audio;
+
+			// Unity null check: the AudioSource is already gone if this GameObject is being destroyed
+			if (audio == null) {
+				return;
+			}
+
+			audio.Stop();
+			audio.clip = null;
+			audio.loop = false;
+			audio.outputAudioMixerGroup = null;
+
+			source.Gain = 1f;
+			m_freeSources.Push(source);
+		}
+
+		private void ApplyToVoices()
+		{
+			ThunkRuntime.Instance?.ApplyEmitter(this);
+		}
+
+		private void OnDestroy()
+		{
+			ThunkRuntime.Instance?.EmitterDestroyed(this);
 		}
 
 #if UNITY_EDITOR
 		private void OnValidate()
 		{
-			// The inspector changes the serialized field directly, bypassing the property
-			ApplyIgnoreListenerPause();
+			// The inspector changes the serialized fields directly, bypassing the properties
+			if (Application.isPlaying) {
+				ApplyToVoices();
+			}
 		}
 #endif
-		
-		private void Init()
-		{
-			if (m_initialized) {
-				return;
-			}
-			
-			m_audioSourcePool = new AudioSourcePool(this);
-			m_initialized = true;
-		}
-		
-		private void OnDestroy()
-		{
-			if (!m_initialized) {
-				return;
-			}
-
-			// The AudioSources are destroyed with this GameObject so they aren't returned to the pool,
-			// but the instances still need to be removed from their ThunkClipStates
-			for (var index = m_instances.Count - 1; index >= 0; index--) {
-				m_instances[index].OnEmitterStopped();
-			}
-			
-			m_instances.Clear();
-		}
-		
-		public int Play(ThunkClip clip, float? pitch = null, float? volume = null, float? delay = null, float? startTime = null)
-		{
-			if (clip == null) {
-				Debug.LogWarning("[Thunk] ThunkEmitter.Play called with a null ThunkClip", this);
-				return Thunk.INVALID_ID;
-			}
-			
-			Init();
-
-			var instance = clip.State.Play(this, pitch, volume, delay, startTime);
-
-			if (instance == null) {
-				return Thunk.INVALID_ID;
-			}
-
-			m_instances.Add(instance);
-			return instance.Id;
-		}
-		
-		public void Stop(int instanceId)
-		{
-			// Dispose removes the instance from its ThunkClipState and calls back into ClipInstanceDisposed
-			if (TryGetInstance(instanceId, out var instance)) {
-				instance.Dispose();
-			}
-		}
-		
-		public void SetPaused(int instanceId, bool paused)
-		{
-			if (TryGetInstance(instanceId, out var instance)) {
-				instance.AudioSource.Paused = paused;
-			}
-		}
-
-		public void SetVolume(int instanceId, float volume)
-		{
-			if (TryGetInstance(instanceId, out var instance)) {
-				instance.SetVolume(volume);
-			}
-		}
-
-		public bool TryGetInstance(int instanceId, out ThunkClipInstance instance)
-		{
-			for (var index = 0; index < m_instances.Count; index++) {
-				var target = m_instances[index];
-				
-				if (target.Id == instanceId) {
-					instance = target;
-					return true;
-				}
-			}
-			
-			instance = null;
-			return false;
-		}
-
-		internal void ClipInstanceDisposed(ThunkClipInstance thunkClipInstance)
-		{
-			for (var index = 0; index < m_instances.Count; index++) {
-				var instance = m_instances[index];
-				
-				if (instance.Id == thunkClipInstance.Id) {
-					m_instances.RemoveAt(index);
-					m_audioSourcePool.Return(instance.AudioSource);
-					InstanceDisposed?.Invoke(instance);
-					return;
-				}
-			}
-		}
-		
-		public void UpdatePitchAndVolume()
-		{
-			for (var index = 0; index < m_instances.Count; index++) {
-				var instance = m_instances[index];
-
-				instance.UpdatePitchAndVolume();
-			}
-		}
-		
-		private static void CopyProperties(AudioSource source, AudioSource destination)
-		{
-			destination.bypassEffects = source.bypassEffects;
-			destination.bypassListenerEffects = source.bypassListenerEffects;
-			destination.bypassReverbZones = source.bypassReverbZones;
-			destination.priority = source.priority;
-			
-			destination.panStereo = source.panStereo;
-			destination.spatialBlend = source.spatialBlend;
-			
-			destination.reverbZoneMix = source.reverbZoneMix;
-			destination.dopplerLevel = source.dopplerLevel;
-			
-			destination.rolloffMode = source.rolloffMode;
-			destination.minDistance = source.minDistance;
-			destination.maxDistance = source.maxDistance;
-			destination.spatialize = source.spatialize;
-			destination.spatializePostEffects = source.spatializePostEffects;
-			
-			destination.spread = source.spread;
-			
-			destination.SetCustomCurve(AudioSourceCurveType.CustomRolloff, source.GetCustomCurve(AudioSourceCurveType.CustomRolloff));
-			destination.SetCustomCurve(AudioSourceCurveType.SpatialBlend, source.GetCustomCurve(AudioSourceCurveType.SpatialBlend));
-			destination.SetCustomCurve(AudioSourceCurveType.ReverbZoneMix, source.GetCustomCurve(AudioSourceCurveType.ReverbZoneMix));
-			destination.SetCustomCurve(AudioSourceCurveType.Spread, source.GetCustomCurve(AudioSourceCurveType.Spread));
-		}
-
-		private class AudioSourcePool
-		{
-			private readonly ThunkEmitter m_emitter;
-			private readonly Stack<ThunkAudioSource> m_free = new Stack<ThunkAudioSource>();
-
-			public AudioSourcePool(ThunkEmitter emitter)
-			{
-				m_emitter = emitter;
-			}
-
-			public ThunkAudioSource Get()
-			{
-				if (!m_free.TryPop(out var audioSource)) {
-					audioSource = new ThunkAudioSource(m_emitter);
-				}
-
-				return audioSource;
-			}
-
-			public void Return(ThunkAudioSource audioSource)
-			{
-				m_free.Push(audioSource);
-				audioSource.Free();
-			}
-		}
 	}
 }
