@@ -106,11 +106,13 @@ namespace Tekly.Tweenlines.Tracks
                 return;
             }
 
-            if (Uses(clip => clip.Position)) {
+            GetUsedChannels(out var usesPosition, out var usesRotation);
+
+            if (usesPosition) {
                 PositionLayer.CaptureOrigins(origins, m_target);
             }
 
-            if (Uses(clip => clip.Rotation)) {
+            if (usesRotation) {
                 origins.GetOrCapture(m_target, TweenChannels.LocalRotation);
             }
         }
@@ -125,11 +127,13 @@ namespace Tekly.Tweenlines.Tracks
             }
 
             // Only the channels a clip shakes are taken, so the others stay free for layouts and other code
-            if (Uses(clip => clip.Position)) {
+            GetUsedChannels(out var usesPosition, out var usesRotation);
+
+            if (usesPosition) {
                 m_position.Prepare(mixer, m_target);
             }
 
-            if (Uses(clip => clip.Rotation)) {
+            if (usesRotation) {
                 m_rotationSlot = mixer.Get(m_target, TweenChannels.LocalRotation);
             }
         }
@@ -171,16 +175,21 @@ namespace Tekly.Tweenlines.Tracks
             }
         }
 
-        private bool Uses(Func<ShakeClip, Vector3> amount)
+        /// <summary>
+        /// Which channels any clip shakes, so the track only takes those.
+        /// </summary>
+        private void GetUsedChannels(out bool position, out bool rotation)
         {
-            for (var i = 0; i < m_clips.Count; i++) {
-                var clip = m_clips[i];
-                if (amount(clip) != Vector3.zero) {
-                    return true;
-                }
-            }
+            position = false;
+            rotation = false;
 
-            return false;
+            var count = m_clips.Count;
+
+            for (var i = 0; i < count; i++) {
+                var clip = m_clips[i];
+                position |= clip.Position != Vector3.zero;
+                rotation |= clip.Rotation != Vector3.zero;
+            }
         }
 
         /// <summary>
@@ -233,11 +242,13 @@ namespace Tekly.Tweenlines.Tracks
                 return;
             }
 
-            if (Uses(clip => clip.Position)) {
+            GetUsedChannels(out var usesPosition, out var usesRotation);
+
+            if (usesPosition) {
                 PositionLayer.CollectDrivenProperties(m_target, properties);
             }
 
-            if (Uses(clip => clip.Rotation)) {
+            if (usesRotation) {
                 TweenChannels.LocalRotation.CollectDrivenProperties(m_target, properties);
             }
         }
