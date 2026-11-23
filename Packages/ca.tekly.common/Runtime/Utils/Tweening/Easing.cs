@@ -132,11 +132,12 @@ namespace Tekly.Common.Utils.Tweening
             return 1 - InQuint((1 - t) * 2) / 2;
         }
 
-        public static float InSine(float t) => -math.cos(t * math.PI / 2);
+        public static float InSine(float t) => 1 - math.cos(t * math.PI / 2);
         public static float OutSine(float t) => math.sin(t * math.PI / 2);
         public static float InOutSine(float t) => (math.cos(t * math.PI) - 1) / -2;
 
-        public static float InExpo(float t) => math.pow(2, 10 * (t - 1));
+        // 2^(10t) runs from 1 to 1024, so it is shifted and scaled to run from exactly 0 to exactly 1
+        public static float InExpo(float t) => (math.pow(2, 10 * t) - 1) / 1023;
         public static float OutExpo(float t) => 1 - InExpo(1 - t);
 
         public static float InOutExpo(float t)
@@ -165,7 +166,12 @@ namespace Tekly.Common.Utils.Tweening
         public static float OutElastic(float t)
         {
             float p = 0.3f;
-            return math.pow(2, -10 * t) * math.sin((t - p / 4) * (2 * math.PI) / p) + 1;
+
+            // The decay 2^(-10t) only gets down to 1/1024, which would leave the end slightly off 1. It is shifted
+            // and scaled to run from exactly 1 to exactly 0.
+            float decay = (math.pow(2, -10 * t) - 1 / 1024f) / (1 - 1 / 1024f);
+
+            return decay * math.sin((t - p / 4) * (2 * math.PI) / p) + 1;
         }
 
         public static float InOutElastic(float t)
