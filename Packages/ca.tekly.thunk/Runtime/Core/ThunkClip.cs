@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Tekly.Thunk
 {
@@ -13,9 +14,11 @@ namespace Tekly.Thunk
 		public bool RandomizeStartTime => m_randomizeStartTime;
 
 		[SerializeField] private ThunkClipSet m_clips;
+		[FormerlySerializedAs("Loop")]
 		[SerializeField] private bool m_loop;
 
 		[Tooltip("Starts at a random point in the clip. Useful for loops that can overlap themselves, like ambience.")]
+		[FormerlySerializedAs("RandomizeStartTime")]
 		[SerializeField] private bool m_randomizeStartTime;
 
 		internal override bool EndsOnItsOwn => !m_loop;

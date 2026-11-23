@@ -170,38 +170,16 @@ For sounds that need to line up with an animation, fire them from the animation 
 
 ## Upgrading from the old Thunk
 
-Thunk was rewritten. This section maps the old API onto the new one. It can be deleted once nothing is left to upgrade.
+Thunk was rewritten, and a project on the old version needs its code, sound assets and scenes changed. [upgrading.md](upgrading.md) has the whole procedure, written so that a coding agent can carry it out:
 
-The namespaces under `Tekly.Thunk`, such as `Tekly.Thunk.Core` and `Tekly.Thunk.Music`, are now the single namespace `Tekly.Thunk`.
+```
+Read Packages/ca.tekly.thunk/upgrading.md and migrate this project from the old Thunk.
+```
 
-| Before | Now |
-|---|---|
-| `Thunk.SetVolume`, `Thunk.GetVolume`, `Thunk.ToDecibel`, `Thunk.ToLinear` | The same methods on `ThunkMixer` |
-| `Thunk.Instance.OneShot.Play(clip)` | `sound.Play()` |
-| `Thunk.Instance.UiSounds.Play(clip)` | `sound.Play()`, with the sound's Clock set to Real Time |
-| `int` ids from `emitter.Play`, used with `emitter.Stop(id)`, `emitter.SetPaused(id, ...)` and `emitter.SetVolume(id, ...)` | A `ThunkHandle` with `Stop`, `Pause`, `Resume` and `SetVolume` on it. It needs no emitter and does nothing once the voice has ended. |
-| Pitch, volume, delay and start time passed to `emitter.Play` | `handle.SetPitch` and `handle.SetVolume` after playing. For a delay, use a `ThunkTimeline`. There is no start time argument. |
-| `emitter.Instances` and the `InstanceDisposed` event | Removed. Poll `handle.IsPlaying`. |
-| Ignore Listener Pause and Unscaled Delta Time on the emitter | Real Time on the emitter, or a Clock of Real Time on the sound |
-| Sounds ignored `Time.timeScale` | Sounds follow it unless they are on the Real Time clock |
-| Audio Source Template on the emitter, a scene AudioSource | Spatial Template on the emitter or the sound, an AudioSource in a prefab |
-| `Thunk.Instance.TrackManager.GetTrack("music")`, set up by a `ThunkTrackInitializer` | A `ThunkTrack` asset, with no set up |
-| `track.Play(clip)` and `track.PlayCrossfade(clip, time)` | `track.Play(sound)` and `track.Play(sound, time)` |
-| `track.PushCrossfade(clip, time)`, then `track.PopCrossFade(time)` | `var handle = track.Interrupt(sound, time)`, then `handle.Stop(time)` |
-| Capacity Behaviour: Unbound, Replace Oldest, Ignore New | Max Instances of 0, Stealing set to Oldest, Stealing set to None |
+In short:
 
-### Assets and scenes
-
-These carry over on their own:
-
-- On a clip: Mixer Group, Volume, Pitch, Instance Capacity (now Max Instances) and Minimum Time Between Plays (now Cooldown).
-- On an emitter: Volume, Pitch, and Ignore Listener Pause (now Real Time).
-- On a `ThunkPlayer`: the emitter, the sound and Stop On Play.
-- On a `ThunkTrackPlayer`: the sound, the fade time and whether it plays on enable. One that had Push ticked becomes Interrupt.
-
-These do not, and have to be set again:
-
-- On a clip: the list of clips and its Random Mode (both now live inside the Clips set), Loop, Randomize Start Time and Capacity Behaviour.
-- On a `ThunkTrackPlayer`: the track. It was a name and is now a reference to a `ThunkTrack` asset.
-- On an emitter: the template. Unscaled Delta Time is gone, as Real Time covers it.
-- `ThunkTrackInitializer` components show as missing scripts and can be removed.
+- The namespaces under `Tekly.Thunk` are now the single namespace `Tekly.Thunk`, and the `Thunk` class is gone. Its mixer helpers are on `ThunkMixer`.
+- `int` ids are now `ThunkHandle`s, and a sound is stopped, paused and faded through its handle.
+- Tracks named by a string are now `ThunkTrack` assets.
+- Old sound assets load, but their clip lists have to be moved. Do this from git history before saving them in Unity, as saving drops the old data.
+- Sounds follow the time scale unless they are on the Real Time clock.
