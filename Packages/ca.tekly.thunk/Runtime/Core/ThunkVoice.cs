@@ -131,7 +131,12 @@ namespace Tekly.Thunk
 		/// When set, the sound is told whenever the voice's pitch changes. For sounds that schedule by clip length.
 		/// </summary>
 		public bool WatchPitch;
-		public bool Unscaled;
+
+		/// <summary>
+		/// The voice keeps playing while AudioListener.pause is set, and its fades run on unscaled time. Set if the
+		/// sound, the emitter or the track it was played through asks for it.
+		/// </summary>
+		public bool PlayWhilePaused;
 
 		public float BaseVolume;
 		public float BasePitch;
@@ -171,7 +176,7 @@ namespace Tekly.Thunk
 			audio.loop = false;
 			audio.outputAudioMixerGroup = MixerGroup;
 			audio.priority = Sound.Priority;
-			audio.ignoreListenerPause = Sound.PlayWhilePaused;
+			audio.ignoreListenerPause = PlayWhilePaused;
 
 			if (Positioned) {
 				source.Transform.SetPositionAndRotation(Position, Rotation);

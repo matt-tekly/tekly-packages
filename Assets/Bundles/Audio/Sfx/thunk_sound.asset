@@ -25,6 +25,7 @@ MonoBehaviour:
   m_fadeEase: 0
   m_priority: 128
   m_playWhilePaused: 0
+  m_spatialTemplate: {fileID: 0}
   m_maxInstances: 2
   m_stealing: 0
   m_cooldown: 0.22

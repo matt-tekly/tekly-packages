@@ -40,6 +40,14 @@ handle.Stop(0.5f);    // fades out and stops
 handle.Stop();        // stops now
 ```
 
+## Playing while paused
+
+A sound with Play While Paused ticked keeps playing while `AudioListener.pause` is set, and its fades run on unscaled time. That suits UI sounds, which are the same sound whether the game is paused or not.
+
+The same option is on `ThunkEmitter` and `ThunkTrack`, where it applies to everything played through them whatever the sound says. A pause menu that plays gameplay sounds (a weapon preview, a reward jingle) plays them through an emitter with it ticked, so the sounds don't need a second copy. A track with it ticked keeps its music going through a pause.
+
+A voice plays while paused if the sound, the emitter or the track asks for it. It is decided when the sound starts.
+
 ## Limits
 
 Max instances, stealing and cooldown are set on the sound and apply to the sound as a whole, wherever it is played from. Copies of a sound loaded from different bundles share them.
@@ -134,3 +142,40 @@ Each entry has a delay, its own set of clips, a volume offset and a pitch offset
 - Every entry holds an AudioSource for as long as the timeline plays, so a timeline with five entries costs five voices from Unity's budget. It is meant for composite sounds, not for anything fired many times a second.
 
 For sounds that need to line up with an animation, fire them from the animation (Tweenline markers, for example) instead.
+
+## Upgrading from the old Thunk
+
+Thunk was rewritten. This section maps the old API onto the new one. It can be deleted once nothing is left to upgrade.
+
+The namespaces under `Tekly.Thunk`, such as `Tekly.Thunk.Core` and `Tekly.Thunk.Music`, are now the single namespace `Tekly.Thunk`.
+
+| Before | Now |
+|---|---|
+| `Thunk.SetVolume`, `Thunk.GetVolume`, `Thunk.ToDecibel`, `Thunk.ToLinear` | The same methods on `ThunkMixer` |
+| `Thunk.Instance.OneShot.Play(clip)` | `sound.Play()` |
+| `Thunk.Instance.UiSounds.Play(clip)` | `sound.Play()`, with Play While Paused ticked on the sound |
+| `int` ids from `emitter.Play`, used with `emitter.Stop(id)`, `emitter.SetPaused(id, ...)` and `emitter.SetVolume(id, ...)` | A `ThunkHandle` with `Stop`, `Pause`, `Resume` and `SetVolume` on it. It needs no emitter and does nothing once the voice has ended. |
+| Pitch, volume, delay and start time passed to `emitter.Play` | `handle.SetPitch` and `handle.SetVolume` after playing. For a delay, use a `ThunkTimeline`. There is no start time argument. |
+| `emitter.Instances` and the `InstanceDisposed` event | Removed. Poll `handle.IsPlaying`. |
+| Ignore Listener Pause and Unscaled Delta Time on the emitter | Play While Paused, on the emitter or on the sound |
+| Audio Source Template on the emitter, a scene AudioSource | Spatial Template on the emitter or the sound, an AudioSource in a prefab |
+| `Thunk.Instance.TrackManager.GetTrack("music")`, set up by a `ThunkTrackInitializer` | A `ThunkTrack` asset, with no set up |
+| `track.Play(clip)` and `track.PlayCrossfade(clip, time)` | `track.Play(sound)` and `track.Play(sound, time)` |
+| `track.PushCrossfade(clip, time)`, then `track.PopCrossFade(time)` | `var handle = track.Interrupt(sound, time)`, then `handle.Stop(time)` |
+| Capacity Behaviour: Unbound, Replace Oldest, Ignore New | Max Instances of 0, Stealing set to Oldest, Stealing set to None |
+
+### Assets and scenes
+
+These carry over on their own:
+
+- On a clip: Mixer Group, Volume, Pitch, Instance Capacity (now Max Instances) and Minimum Time Between Plays (now Cooldown).
+- On an emitter: Volume, Pitch, and Ignore Listener Pause (now Play While Paused).
+- On a `ThunkPlayer`: the emitter, the sound and Stop On Play.
+- On a `ThunkTrackPlayer`: the sound, the fade time and whether it plays on enable. One that had Push ticked becomes Interrupt.
+
+These do not, and have to be set again:
+
+- On a clip: the list of clips and its Random Mode (both now live inside the Clips set), Loop, Randomize Start Time and Capacity Behaviour.
+- On a `ThunkTrackPlayer`: the track. It was a name and is now a reference to a `ThunkTrack` asset.
+- On an emitter: the template. Unscaled Delta Time is gone, as Play While Paused covers it.
+- `ThunkTrackInitializer` components show as missing scripts and can be removed.

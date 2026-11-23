@@ -17,6 +17,7 @@ namespace Tekly.Thunk
 		private SerializedProperty m_volume;
 		private SerializedProperty m_pitch;
 		private SerializedProperty m_spatialTemplate;
+		private SerializedProperty m_playWhilePaused;
 
 		public override bool RequiresConstantRepaint()
 		{
@@ -31,6 +32,7 @@ namespace Tekly.Thunk
 			EditorGUILayout.PropertyField(m_pitch);
 			EditorGUILayout.PropertyField(m_spatialTemplate);
 			ThunkSoundEditor.DrawTemplateProblem(m_spatialTemplate);
+			EditorGUILayout.PropertyField(m_playWhilePaused);
 
 			serializedObject.ApplyModifiedProperties();
 
@@ -62,6 +64,7 @@ namespace Tekly.Thunk
 			m_volume = serializedObject.FindProperty("m_volume");
 			m_pitch = serializedObject.FindProperty("m_pitch");
 			m_spatialTemplate = serializedObject.FindProperty("m_spatialTemplate");
+			m_playWhilePaused = serializedObject.FindProperty("m_playWhilePaused");
 		}
 
 		private static void DrawVoices(ThunkRuntime runtime, ThunkEmitter emitter)

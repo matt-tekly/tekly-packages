@@ -118,6 +118,16 @@ namespace Tekly.Thunk.Tests
 			return template;
 		}
 
+		/// <summary>
+		/// Ticks Play While Paused on a sound or a track.
+		/// </summary>
+		protected static void SetPlayWhilePaused(Object asset)
+		{
+			var serialized = new SerializedObject(asset);
+			serialized.FindProperty("m_playWhilePaused").boolValue = true;
+			serialized.ApplyModifiedPropertiesWithoutUndo();
+		}
+
 		protected static void SetSoundTemplate(ThunkSound sound, AudioSource template)
 		{
 			var serialized = new SerializedObject(sound);

@@ -220,6 +220,35 @@ namespace Tekly.Thunk.Tests
 		}
 
 		[Test]
+		public void AWaitingSourceThatWasDestroyed_IsNotReused()
+		{
+			var first = GetVoice(Runtime.Play(CreateSound(), null));
+			var audio = first.Sources[0].Audio;
+
+			Runtime.StopVoice(first, 0f);
+			Object.DestroyImmediate(audio.gameObject);
+
+			var second = GetVoice(Runtime.Play(CreateSound(), null));
+
+			Assert.IsTrue(second.Sources[0].Audio != null);
+		}
+
+		[Test]
+		public void PoolRootDestroyed_IsMadeAgainForTheNextSound()
+		{
+			var first = GetVoice(Runtime.Play(CreateSound(), null));
+			var root = first.Sources[0].Transform.parent.gameObject;
+
+			Runtime.StopVoice(first, 0f);
+			Object.DestroyImmediate(root);
+
+			var second = GetVoice(Runtime.Play(CreateSound(), null));
+
+			Assert.IsTrue(second.Sources[0].Audio != null);
+			Assert.IsTrue(second.Sources[0].Transform.parent != null);
+		}
+
+		[Test]
 		public void InTheEditor_AReusedSourcePicksUpChangesToTheTemplate()
 		{
 			var template = CreateTemplate(1f, 1f, 50f);

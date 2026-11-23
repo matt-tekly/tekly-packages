@@ -137,6 +137,54 @@ namespace Tekly.Thunk.Tests
 		}
 
 		[Test]
+		public void PlayWhilePaused_IsOffUnlessSomethingAsksForIt()
+		{
+			var voice = GetVoice(Runtime.Play(CreateSound(), CreateEmitter()));
+
+			Assert.IsFalse(voice.PlayWhilePaused);
+			Assert.IsFalse(voice.Sources[0].Audio.ignoreListenerPause);
+		}
+
+		[Test]
+		public void PlayWhilePaused_OnTheSound_AppliesWhereverItIsPlayed()
+		{
+			var sound = CreateSound();
+			SetPlayWhilePaused(sound);
+
+			var voice = GetVoice(Runtime.Play(sound, null));
+
+			Assert.IsTrue(voice.PlayWhilePaused);
+			Assert.IsTrue(voice.Sources[0].Audio.ignoreListenerPause);
+		}
+
+		[Test]
+		public void PlayWhilePaused_OnTheEmitter_AppliesToASoundThatDoesNotAskForIt()
+		{
+			var emitter = CreateEmitter();
+			emitter.PlayWhilePaused = true;
+
+			var voice = GetVoice(Runtime.Play(CreateSound(), emitter));
+
+			Assert.IsTrue(voice.PlayWhilePaused);
+			Assert.IsTrue(voice.Sources[0].Audio.ignoreListenerPause);
+		}
+
+		[Test]
+		public void PlayWhilePaused_OnTheTrack_AppliesToItsMusicButNotToSoundsPlayedOverIt()
+		{
+			var track = CreateTrack();
+			SetPlayWhilePaused(track);
+
+			var state = Runtime.GetTrack(track);
+			var music = GetVoice(state.Play(Runtime, track, CreateSound(), 0f));
+			var over = GetVoice(state.PlayOver(Runtime, track, CreateSound()));
+
+			Assert.IsTrue(music.PlayWhilePaused);
+			Assert.IsTrue(music.Sources[0].Audio.ignoreListenerPause);
+			Assert.IsFalse(over.PlayWhilePaused);
+		}
+
+		[Test]
 		public void EmitterGone_ReleasesThatEmittersLoopingVoicesOnly()
 		{
 			var sound = CreateSound();

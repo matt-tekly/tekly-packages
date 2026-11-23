@@ -127,9 +127,10 @@ namespace Tekly.Thunk
 
 		/// <summary>
 		/// Plays a sound on an emitter, or with no position if the emitter is null. A negative fadeIn uses the
-		/// sound's own fade in time.
+		/// sound's own fade in time. The voice plays while the game is paused if playWhilePaused is set, or if the
+		/// sound or the emitter asks for it.
 		/// </summary>
-		public ThunkHandle Play(ThunkSound sound, ThunkEmitter emitter, float fadeIn = -1f, ThunkTrackState track = null, AudioMixerGroup mixerGroup = null, float trackGain = 1f)
+		public ThunkHandle Play(ThunkSound sound, ThunkEmitter emitter, float fadeIn = -1f, ThunkTrackState track = null, AudioMixerGroup mixerGroup = null, float trackGain = 1f, bool playWhilePaused = false)
 		{
 			if (sound == null) {
 				m_logger.Warning("Play was called with a null sound");
@@ -138,7 +139,7 @@ namespace Tekly.Thunk
 
 			// A sound played with no emitter has no position, whatever its spatial template says
 			if (emitter == null) {
-				return Begin(sound, null, null, Vector3.zero, fadeIn, track, mixerGroup, trackGain);
+				return Begin(sound, null, null, Vector3.zero, fadeIn, track, mixerGroup, trackGain, playWhilePaused);
 			}
 
 			var template = Alive(sound.SpatialTemplate);
@@ -147,7 +148,7 @@ namespace Tekly.Thunk
 				template = Alive(emitter.SpatialTemplate);
 			}
 
-			return Begin(sound, emitter, template, Vector3.zero, fadeIn, track, mixerGroup, trackGain);
+			return Begin(sound, emitter, template, Vector3.zero, fadeIn, track, mixerGroup, trackGain, playWhilePaused || emitter.PlayWhilePaused);
 		}
 
 		/// <summary>
@@ -160,15 +161,19 @@ namespace Tekly.Thunk
 				return ThunkHandle.None;
 			}
 
-			return Begin(sound, null, Alive(sound.SpatialTemplate), position, -1f, null, null, 1f);
+			return Begin(sound, null, Alive(sound.SpatialTemplate), position, -1f, null, null, 1f, false);
 		}
 
 		/// <summary>
 		/// The sound plays through copies of the template. A null template means the sound is not positioned. With
 		/// an emitter and a template the voice follows the emitter. Otherwise it stays at the given position.
 		/// </summary>
-		private ThunkHandle Begin(ThunkSound sound, ThunkEmitter emitter, AudioSource template, Vector3 position, float fadeIn, ThunkTrackState track, AudioMixerGroup mixerGroup, float trackGain)
+		private ThunkHandle Begin(ThunkSound sound, ThunkEmitter emitter, AudioSource template, Vector3 position, float fadeIn, ThunkTrackState track, AudioMixerGroup mixerGroup, float trackGain, bool playWhilePaused)
 		{
+			if (IsShuttingDown()) {
+				return ThunkHandle.None;
+			}
+
 			var record = m_records.Get(sound);
 			var now = Time.unscaledTimeAsDouble;
 
@@ -199,7 +204,7 @@ namespace Tekly.Thunk
 			voice.Track = track;
 			voice.MixerGroup = mixerGroup != null ? mixerGroup : sound.MixerGroup;
 			voice.State = ThunkVoiceState.Playing;
-			voice.Unscaled = sound.PlayWhilePaused;
+			voice.PlayWhilePaused = playWhilePaused || sound.PlayWhilePaused;
 			voice.BaseVolume = sound.Volume.Get();
 			voice.BasePitch = sound.Pitch.Get();
 			voice.UserVolume = 1f;
@@ -322,6 +327,11 @@ namespace Tekly.Thunk
 		/// </summary>
 		public void EmitterGone(ThunkEmitter emitter)
 		{
+			// Everything is being destroyed, the pooled AudioSources included, so there is nothing to play out
+			if (IsShuttingDown()) {
+				return;
+			}
+
 			for (var index = 0; index < m_active.Count; index++) {
 				var voice = m_active[index];
 
@@ -379,7 +389,7 @@ namespace Tekly.Thunk
 					continue;
 				}
 
-				if (voice.IsFading && voice.TickFade(voice.Unscaled ? unscaledDeltaTime : deltaTime)) {
+				if (voice.IsFading && voice.TickFade(voice.PlayWhilePaused ? unscaledDeltaTime : deltaTime)) {
 					if (voice.State == ThunkVoiceState.Stopping) {
 						Free(voice);
 						continue;
@@ -392,7 +402,7 @@ namespace Tekly.Thunk
 				}
 
 				if (voice.HasSourceFades && voice.State != ThunkVoiceState.Paused) {
-					voice.TickSourceFades(voice.Unscaled ? unscaledDeltaTime : deltaTime);
+					voice.TickSourceFades(voice.PlayWhilePaused ? unscaledDeltaTime : deltaTime);
 				}
 
 				if (voice.State != ThunkVoiceState.Paused && voice.IsFinished(suspended)) {
@@ -446,6 +456,16 @@ namespace Tekly.Thunk
 #endif
 
 			return m_applicationPaused;
+		}
+
+		/// <summary>
+		/// True once the application is quitting, which includes leaving play mode in the editor. Objects are
+		/// destroyed in no particular order then, so a sound must not be started: its AudioSource may already be
+		/// gone, and making a new one would leave an object behind.
+		/// </summary>
+		private static bool IsShuttingDown()
+		{
+			return LifeCycle.Instance.IsQuitting;
 		}
 
 		private void OnPause(bool paused)
@@ -558,7 +578,7 @@ namespace Tekly.Thunk
 		private ThunkSourcePool GetPool(AudioSource template)
 		{
 			if (ReferenceEquals(template, null)) {
-				m_plainPool ??= new ThunkSourcePool(GetRoot(), null);
+				m_plainPool ??= new ThunkSourcePool(this, null);
 				return m_plainPool;
 			}
 
@@ -566,7 +586,7 @@ namespace Tekly.Thunk
 				// Creating a pool is rare, so it is a cheap moment to clean up pools whose templates have been destroyed
 				RemoveDeadPools();
 
-				pool = new ThunkSourcePool(GetRoot(), template);
+				pool = new ThunkSourcePool(this, template);
 				m_pools.Add(template, pool);
 			}
 
@@ -590,9 +610,13 @@ namespace Tekly.Thunk
 			m_deadTemplates.Clear();
 		}
 
-		private Transform GetRoot()
+		/// <summary>
+		/// The object every pooled AudioSource is a child of.
+		/// </summary>
+		public Transform GetRoot()
 		{
-			if (ReferenceEquals(m_root, null)) {
+			// Unity null check, so it is made again if something destroyed it
+			if (m_root == null) {
 				var gameObject = new GameObject("[Thunk]");
 
 				if (Application.isPlaying) {

@@ -29,12 +29,12 @@ namespace Tekly.Thunk
 		public bool IsDead => HasTemplate && Template == null;
 
 		private readonly Stack<ThunkSource> m_free = new Stack<ThunkSource>();
-		private readonly Transform m_root;
+		private readonly ThunkRuntime m_runtime;
 		private int m_rented;
 
-		public ThunkSourcePool(Transform root, AudioSource template)
+		public ThunkSourcePool(ThunkRuntime runtime, AudioSource template)
 		{
-			m_root = root;
+			m_runtime = runtime;
 			Template = template;
 			HasTemplate = !ReferenceEquals(template, null);
 		}
@@ -43,9 +43,15 @@ namespace Tekly.Thunk
 		{
 			m_rented++;
 
-			if (!m_free.TryPop(out var source)) {
-				return Create();
-			}
+			ThunkSource source;
+
+			do {
+				if (!m_free.TryPop(out source)) {
+					return Create();
+				}
+
+				// Unity null check: a waiting source is dropped if something destroyed its AudioSource
+			} while (source.Audio == null);
 
 #if UNITY_EDITOR
 			// Recopied so a template's 3D settings can be tuned while the game runs. A newly made source is already up to date.
@@ -105,11 +111,11 @@ namespace Tekly.Thunk
 			// Unity null check: a pool that outlives its template falls back to plain AudioSources
 			if (HasTemplate && Template != null) {
 				// Instantiating a component copies its whole GameObject and returns the matching component
-				audio = Object.Instantiate(Template, m_root);
+				audio = Object.Instantiate(Template, m_runtime.GetRoot());
 				audio.name = Template.name;
 			} else {
 				var gameObject = new GameObject("Source");
-				gameObject.transform.SetParent(m_root, false);
+				gameObject.transform.SetParent(m_runtime.GetRoot(), false);
 				audio = gameObject.AddComponent<AudioSource>();
 			}
 

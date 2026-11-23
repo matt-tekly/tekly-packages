@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b57009db9fe298640a0a9b11eec2c396, type: 3}
+  m_Name: pause_sample_chain
+  m_EditorClassIdentifier: Tekly.Thunk::Tekly.Thunk.ThunkChain
+  m_uniqueId: 9814661586672097585
+  m_mixerGroup: {fileID: -8309867485381092383, guid: 3c48cc700afde4c7b82d128591b8a8d0, type: 2}
+  m_volume:
+    Min: 0.5
+    Max: 0.5
+  m_pitch:
+    Min: 1
+    Max: 1
+  m_fadeIn: 0
+  m_fadeOut: 0.2
+  m_fadeEase: 0
+  m_priority: 128
+  m_playWhilePaused: 0
+  m_spatialTemplate: {fileID: 0}
+  m_maxInstances: 0
+  m_stealing: 0
+  m_cooldown: 0
+  m_start:
+    Clips:
+    - {fileID: 8300000, guid: 96d39121d44414446bba2500887de794, type: 3}
+    Mode: 0
+  m_loop:
+    Clips:
+    - {fileID: 8300000, guid: 989f9c91784f7b341bfe0ad68b0ddf1d, type: 3}
+    Mode: 0
+  m_end:
+    Clips:
+    - {fileID: 8300000, guid: f281445048afb354e9a3e4d2f06ba9dd, type: 3}
+    Mode: 0
+  m_endCrossfade: 0.05

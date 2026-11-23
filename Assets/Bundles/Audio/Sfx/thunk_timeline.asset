@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73a2603cb9a784940bae4a0c25f6bd6e, type: 3}
   m_Name: thunk_timeline
   m_EditorClassIdentifier: Tekly.Thunk::Tekly.Thunk.ThunkTimeline
-  m_uniqueId: 0
+  m_uniqueId: 11114387864571036487
   m_mixerGroup: {fileID: 0}
   m_volume:
     Min: 1
@@ -29,4 +29,18 @@ MonoBehaviour:
   m_maxInstances: 0
   m_stealing: 0
   m_cooldown: 0.03
-  m_entries: []
+  m_entries:
+  - Delay: 0
+    Clips:
+      Clips:
+      - {fileID: 8300000, guid: f281445048afb354e9a3e4d2f06ba9dd, type: 3}
+      Mode: 0
+    VolumeOffset: -0.133
+    Semitones: 0
+  - Delay: 0.61
+    Clips:
+      Clips:
+      - {fileID: 8300000, guid: 27ccf7285c382c24bac53b24de5dce7e, type: 3}
+      Mode: 0
+    VolumeOffset: 0
+    Semitones: 0

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Tekly.Thunk
 {
@@ -36,6 +37,15 @@ namespace Tekly.Thunk
 		}
 
 		/// <summary>
+		/// Everything this emitter plays keeps playing while the game is paused, whatever the sound says. Read when
+		/// a sound starts.
+		/// </summary>
+		public bool PlayWhilePaused {
+			get => m_playWhilePaused;
+			set => m_playWhilePaused = value;
+		}
+
+		/// <summary>
 		/// The template for sounds that have no template of their own. They play through copies of it.
 		/// </summary>
 		public AudioSource SpatialTemplate {
@@ -53,6 +63,10 @@ namespace Tekly.Thunk
 
 		[Tooltip("Optional. An AudioSource in a prefab. Sounds from this emitter play through copies of that prefab, so its 3D sound settings and any filters on it apply. A sound with its own template uses that one instead. With neither, sounds are not positioned.")]
 		[SerializeField] private AudioSource m_spatialTemplate;
+
+		[FormerlySerializedAs("m_ignoreListenerPause")]
+		[Tooltip("Everything this emitter plays keeps playing while AudioListener.pause is set and fades on unscaled time, whatever the sound says. For a pause menu that plays gameplay sounds.")]
+		[SerializeField] private bool m_playWhilePaused;
 
 		/// <summary>
 		/// Plays the sound at this emitter. Ignore the handle to play it as a one-shot.

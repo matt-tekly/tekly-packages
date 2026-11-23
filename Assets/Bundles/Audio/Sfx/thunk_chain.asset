@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b57009db9fe298640a0a9b11eec2c396, type: 3}
   m_Name: thunk_chain
   m_EditorClassIdentifier: Tekly.Thunk::Tekly.Thunk.ThunkChain
-  m_uniqueId: 0
+  m_uniqueId: 13584191529625896476
   m_mixerGroup: {fileID: 0}
   m_volume:
     Min: 1
@@ -30,12 +30,15 @@ MonoBehaviour:
   m_stealing: 0
   m_cooldown: 0.03
   m_start:
-    Clips: []
+    Clips:
+    - {fileID: 8300000, guid: f281445048afb354e9a3e4d2f06ba9dd, type: 3}
     Mode: 0
   m_loop:
-    Clips: []
+    Clips:
+    - {fileID: 8300000, guid: 27ccf7285c382c24bac53b24de5dce7e, type: 3}
     Mode: 0
   m_end:
-    Clips: []
+    Clips:
+    - {fileID: 8300000, guid: 3bb15a547ee6e68469a9e7a1f2dcf353, type: 3}
     Mode: 0
   m_endCrossfade: 0.05

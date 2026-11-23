@@ -50,6 +50,7 @@ namespace Tekly.Thunk
 		private float m_crossfade;
 		private bool m_resumeHeld;
 		private AudioMixerGroup m_mixerGroup;
+		private bool m_playWhilePaused;
 		private float m_duckLevel;
 		private float m_duckFadeDown;
 		private float m_duckFadeBack;
@@ -273,7 +274,7 @@ namespace Tekly.Thunk
 
 		private ThunkHandle Start(ThunkRuntime runtime, ThunkSound sound, float fade)
 		{
-			return runtime.Play(sound, null, fade, this, m_mixerGroup, m_duckGain);
+			return runtime.Play(sound, null, fade, this, m_mixerGroup, m_duckGain, m_playWhilePaused);
 		}
 
 		private void ReleaseDuckOf(ThunkRuntime runtime, ThunkHandle voice)
@@ -352,6 +353,7 @@ namespace Tekly.Thunk
 			m_crossfade = track.Crossfade;
 			m_resumeHeld = track.ResumeHeld;
 			m_mixerGroup = track.MixerGroup;
+			m_playWhilePaused = track.PlayWhilePaused;
 			m_duckLevel = track.DuckLevel;
 			m_duckFadeDown = track.DuckFadeDown;
 			m_duckFadeBack = track.DuckFadeBack;
