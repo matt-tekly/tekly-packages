@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73a2603cb9a784940bae4a0c25f6bd6e, type: 3}
+  m_Name: thunk_timeline
+  m_EditorClassIdentifier: Tekly.Thunk::Tekly.Thunk.ThunkTimeline
+  m_uniqueId: 0
+  m_mixerGroup: {fileID: 0}
+  m_volume:
+    Min: 1
+    Max: 1
+  m_pitch:
+    Min: 1
+    Max: 1
+  m_fadeIn: 0
+  m_fadeOut: 0
+  m_fadeEase: 0
+  m_priority: 128
+  m_playWhilePaused: 0
+  m_spatialTemplate: {fileID: 0}
+  m_maxInstances: 0
+  m_stealing: 0
+  m_cooldown: 0.03
+  m_entries: []

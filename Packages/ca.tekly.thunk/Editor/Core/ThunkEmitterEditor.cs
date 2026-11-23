@@ -30,6 +30,7 @@ namespace Tekly.Thunk
 			EditorGUILayout.PropertyField(m_volume);
 			EditorGUILayout.PropertyField(m_pitch);
 			EditorGUILayout.PropertyField(m_spatialTemplate);
+			ThunkSoundEditor.DrawTemplateProblem(m_spatialTemplate);
 
 			serializedObject.ApplyModifiedProperties();
 

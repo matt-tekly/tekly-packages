@@ -5,53 +5,44 @@ namespace Tekly.Thunk
 {
 	[CustomEditor(typeof(ThunkClip))]
 	[CanEditMultipleObjects]
-	public class ThunkClipEditor : Editor
+	public class ThunkClipEditor : ThunkSoundEditor
 	{
-		// Kept between presses so that exhaustive and non-repeating selection behave as they do at runtime
-		private readonly ThunkSoundRecord m_record = new ThunkSoundRecord();
+		private static readonly GUIContent s_clipsLabel = new GUIContent("Clips", "One of these is picked each time the sound plays.");
 
-		public override void OnInspectorGUI()
+		private SerializedProperty m_clips;
+		private SerializedProperty m_loop;
+		private SerializedProperty m_randomizeStartTime;
+
+		protected override void OnEnable()
 		{
-			DrawDefaultInspector();
+			base.OnEnable();
 
-			var clip = target as ThunkClip;
-
-			if (clip == null) {
-				return;
-			}
-
-			EditorGUILayout.Space();
-
-			if (clip.Clips.Count == 0) {
-				EditorGUILayout.HelpBox("This sound has no clips to preview.", MessageType.Info);
-				return;
-			}
-
-			using (new EditorGUILayout.HorizontalScope()) {
-				if (GUILayout.Button("Preview")) {
-					Preview(clip);
-				}
-
-				if (GUILayout.Button("Stop")) {
-					ThunkPreview.Stop();
-				}
-			}
+			m_clips = serializedObject.FindProperty("m_clips");
+			m_loop = serializedObject.FindProperty("m_loop");
+			m_randomizeStartTime = serializedObject.FindProperty("m_randomizeStartTime");
 		}
 
-		private void OnDisable()
+		protected override void DrawContent()
 		{
-			ThunkPreview.Stop();
+			ClipSets.Draw(m_clips, s_clipsLabel);
+
+			EditorGUILayout.PropertyField(m_loop);
+			EditorGUILayout.PropertyField(m_randomizeStartTime);
 		}
 
-		private void Preview(ThunkClip clip)
+		protected override string GetPreviewProblem()
 		{
-			var audioClip = m_record.Select(0, clip.Clips);
+			return ((ThunkClip) target).Clips.Count == 0 ? "This sound has no clips. Add one to preview it." : null;
+		}
 
-			if (audioClip == null) {
-				return;
+		protected override void Preview()
+		{
+			var clip = (ThunkClip) target;
+			var audioClip = Record.Select(0, clip.Clips);
+
+			if (audioClip != null) {
+				ThunkPreview.Play(audioClip, clip.Volume.Get(), clip.Pitch.Get(), clip.Loop, clip.MixerGroup);
 			}
-
-			ThunkPreview.Play(audioClip, clip.Volume.Get(), clip.Pitch.Get(), clip.Loop, clip.MixerGroup);
 		}
 	}
 }
