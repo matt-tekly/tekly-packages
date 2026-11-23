@@ -164,6 +164,43 @@ namespace Tekly.Thunk.Tests
 			}
 		}
 
+		protected static TimelineEntryDescription Entry(float delay = 0f, int clips = 1, float volumeOffset = 0f, float semitones = 0f)
+		{
+			return new TimelineEntryDescription { Delay = delay, ClipCount = clips, VolumeOffset = volumeOffset, Semitones = semitones };
+		}
+
+		protected ThunkTimeline CreateTimeline(TimelineEntryDescription[] entries, float fadeOut = 0f, float pitch = 1f, int maxInstances = 0)
+		{
+			var timeline = ScriptableObject.CreateInstance<ThunkTimeline>();
+			m_objects.Add(timeline);
+
+			var serialized = new SerializedObject(timeline);
+			var entriesProperty = serialized.FindProperty("m_entries");
+			var count = entries != null ? entries.Length : 0;
+
+			entriesProperty.arraySize = count;
+
+			for (var index = 0; index < count; index++) {
+				var element = entriesProperty.GetArrayElementAtIndex(index);
+				var clips = element.FindPropertyRelative("Clips").FindPropertyRelative("Clips");
+
+				element.FindPropertyRelative("Delay").floatValue = entries[index].Delay;
+				element.FindPropertyRelative("VolumeOffset").floatValue = entries[index].VolumeOffset;
+				element.FindPropertyRelative("Semitones").floatValue = entries[index].Semitones;
+
+				WriteClips(clips, entries[index].ClipCount, 44100);
+			}
+
+			serialized.FindProperty("m_fadeOut").floatValue = fadeOut;
+			serialized.FindProperty("m_maxInstances").intValue = maxInstances;
+			serialized.FindProperty("m_cooldown").floatValue = 0f;
+			serialized.FindProperty("m_pitch.Min").floatValue = pitch;
+			serialized.FindProperty("m_pitch.Max").floatValue = pitch;
+			serialized.ApplyModifiedPropertiesWithoutUndo();
+
+			return timeline;
+		}
+
 		internal ThunkVoice GetVoice(ThunkHandle handle)
 		{
 			Assert.IsTrue(m_runtime.TryGetVoice(handle, out var voice), "the handle should resolve");
@@ -174,5 +211,13 @@ namespace Tekly.Thunk.Tests
 		{
 			return m_runtime.TryGetVoice(handle, out _);
 		}
+	}
+
+	public struct TimelineEntryDescription
+	{
+		public float Delay;
+		public int ClipCount;
+		public float VolumeOffset;
+		public float Semitones;
 	}
 }

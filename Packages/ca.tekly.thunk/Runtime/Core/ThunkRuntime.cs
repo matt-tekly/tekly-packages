@@ -210,6 +210,7 @@ namespace Tekly.Thunk
 				Free(voice, true);
 			} else {
 				voice.State = ThunkVoiceState.Stopping;
+				voice.Sound.Stopping(voice);
 				voice.StartFade(0f, fade, voice.Sound.FadeEase);
 			}
 

@@ -1,4 +1,5 @@
-﻿﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -17,6 +18,12 @@ namespace Tekly.Thunk
 					}
 				}
 
+				for (var i = 0; i < s_timelineUsed; i++) {
+					if (s_timelineSources[i] != null && s_timelineSources[i].isPlaying) {
+						return true;
+					}
+				}
+
 				return false;
 			}
 		}
@@ -30,7 +37,10 @@ namespace Tekly.Thunk
 
 		private static readonly AudioSource[] s_sources = new AudioSource[3];
 
+		private static readonly List<AudioSource> s_timelineSources = new List<AudioSource>();
+
 		private static GameObject s_object;
+		private static int s_timelineUsed;
 		private static bool s_fading;
 		private static double s_fadeBegin;
 		private static float s_fadeDuration;
@@ -68,6 +78,35 @@ namespace Tekly.Thunk
 
 			startSource.PlayScheduled(begin);
 			loopSource.PlayScheduled(begin + start.samples / (start.frequency * (double) Mathf.Max(Mathf.Abs(pitch), 0.01f)));
+		}
+
+		public static void BeginTimeline()
+		{
+			Stop();
+			s_timelineUsed = 0;
+		}
+
+		public static void AddTimelineEntry(AudioClip clip, float delay, float volume, float pitch, AudioMixerGroup group)
+		{
+			if (clip == null) {
+				return;
+			}
+
+			var source = GetTimelineSource(s_timelineUsed);
+			s_timelineUsed++;
+
+			source.Stop();
+			source.clip = clip;
+			source.volume = volume;
+			source.pitch = pitch;
+			source.loop = false;
+			source.outputAudioMixerGroup = group;
+
+			if (delay <= 0f) {
+				source.Play();
+			} else {
+				source.PlayScheduled(AudioSettings.dspTime + delay);
+			}
 		}
 
 		public static void ReleaseChain(AudioClip end, float crossfade)
@@ -111,6 +150,12 @@ namespace Tekly.Thunk
 
 			for (var i = 0; i < s_sources.Length; i++) {
 				StopSource(i);
+			}
+
+			for (var i = 0; i < s_timelineSources.Count; i++) {
+				if (s_timelineSources[i] != null) {
+					s_timelineSources[i].Stop();
+				}
 			}
 		}
 
@@ -198,6 +243,29 @@ namespace Tekly.Thunk
 			return s_sources[index];
 		}
 
+		private static AudioSource GetTimelineSource(int index)
+		{
+			if (s_object == null) {
+				s_object = new GameObject("[Thunk] Preview") { hideFlags = HideFlags.HideAndDontSave };
+			}
+
+			if (index < s_timelineSources.Count && s_timelineSources[index] != null) {
+				return s_timelineSources[index];
+			}
+
+			var source = s_object.AddComponent<AudioSource>();
+			source.playOnAwake = false;
+			source.spatialBlend = 0f;
+
+			if (index < s_timelineSources.Count) {
+				s_timelineSources[index] = source;
+			} else {
+				s_timelineSources.Add(source);
+			}
+
+			return source;
+		}
+
 		private static void Cleanup()
 		{
 			CancelFade();
@@ -207,6 +275,8 @@ namespace Tekly.Thunk
 			}
 
 			s_object = null;
+			s_timelineSources.Clear();
+			s_timelineUsed = 0;
 
 			for (var i = 0; i < s_sources.Length; i++) {
 				s_sources[i] = null;

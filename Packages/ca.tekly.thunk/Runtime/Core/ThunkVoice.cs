@@ -31,6 +31,16 @@ namespace Tekly.Thunk
 		public float Gain = 1f;
 
 		/// <summary>
+		/// Pitch of this source relative to the rest of its voice.
+		/// </summary>
+		public float PitchScale = 1f;
+
+		/// <summary>
+		/// When the source starts on the audio clock, for sounds that schedule their sources.
+		/// </summary>
+		public double StartDsp;
+
+		/// <summary>
 		/// The template the AudioSource's spatial settings were last copied from, null if it is not positioned.
 		/// </summary>
 		public AudioSource Template;
@@ -313,10 +323,10 @@ namespace Tekly.Thunk
 			m_sourceFades = 0;
 		}
 
-		private void Apply(ThunkSource source)
+		public void Apply(ThunkSource source)
 		{
 			source.Audio.volume = BaseVolume * UserVolume * Fade * TrackGain * source.Gain * Emitter.Volume;
-			source.Audio.pitch = Pitch;
+			source.Audio.pitch = Pitch * source.PitchScale;
 		}
 	}
 }

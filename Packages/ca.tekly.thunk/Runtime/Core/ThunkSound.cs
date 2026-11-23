@@ -99,6 +99,11 @@ namespace Tekly.Thunk
 		/// </summary>
 		internal abstract bool Begin(ThunkVoice voice, ThunkSoundRecord record);
 
+		/// <summary>
+		/// Called when a voice starts fading out to a stop.
+		/// </summary>
+		internal virtual void Stopping(ThunkVoice voice) { }
+
 		internal virtual void PauseSources(ThunkVoice voice)
 		{
 			voice.PauseSources();

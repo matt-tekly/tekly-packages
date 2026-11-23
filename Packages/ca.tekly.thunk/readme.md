@@ -9,6 +9,7 @@ A small audio package for Unity.
 | `ThunkSound` | Base asset for anything playable. Holds mixer group, volume and pitch ranges, fades, priority, limits and an optional spatial template. |
 | `ThunkClip` | A sound that plays one AudioClip picked from a set, once or looping. |
 | `ThunkChain` | A sound with a start, a loop and an end. |
+| `ThunkTimeline` | A sound made of several clips played at set times. |
 | `ThunkEmitter` | A component that plays sounds at its own position. |
 | `ThunkHandle` | A struct that refers to one playing voice. Goes stale when the voice ends, after which its calls do nothing. |
 | `ThunkTrack` | An asset for one stream of music. |
@@ -107,6 +108,14 @@ The loop is scheduled against the audio clock from the length of the start clip,
 
 A track can play a chain, which is how music with an intro is done.
 
-## Not built yet
+## Timelines
 
-Timeline sounds.
+A `ThunkTimeline` is a sound made of several clips played at set times after it starts, such as a chest opening: a creak, a latch at 0.2 seconds and a sparkle at 0.5. Entries can overlap. It plays once and does not loop.
+
+Each entry has a delay, its own set of clips, a volume offset and a pitch offset in semitones.
+
+- A timeline is one voice with one handle. It counts once against its limits.
+- Stopping it stops the entries that are playing and cancels the ones that have not started.
+- Every entry holds an AudioSource for as long as the timeline plays, so a timeline with five entries costs five voices from Unity's budget. It is meant for composite sounds, not for anything fired many times a second.
+
+For sounds that need to line up with an animation, fire them from the animation (Tweenline markers, for example) instead.
