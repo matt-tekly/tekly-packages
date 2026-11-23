@@ -95,7 +95,8 @@ namespace Tekly.Thunk
 
 			// A paused or fading voice has nothing for an end clip to play over. This is checked before picking an end
 			// clip, so that a release with no end doesn't advance the end set's selection order.
-			var endClip = voice.State == ThunkVoiceState.Playing ? voice.Record.Select(SET_END, m_end) : null;
+			var canPlayEnd = voice.State == ThunkVoiceState.Playing && !voice.SourcesPaused;
+			var endClip = canPlayEnd ? voice.Record.Select(SET_END, m_end) : null;
 
 			if (endClip == null) {
 				runtime.StopVoice(voice, FadeOut);

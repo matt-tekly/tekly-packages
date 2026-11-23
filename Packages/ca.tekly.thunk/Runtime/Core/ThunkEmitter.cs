@@ -37,12 +37,12 @@ namespace Tekly.Thunk
 		}
 
 		/// <summary>
-		/// Everything this emitter plays keeps playing while the game is paused, whatever the sound says. Read when
-		/// a sound starts.
+		/// Everything this emitter plays runs on the Real Time clock, whatever the sound says. Read when a sound
+		/// starts.
 		/// </summary>
-		public bool PlayWhilePaused {
-			get => m_playWhilePaused;
-			set => m_playWhilePaused = value;
+		public bool RealTime {
+			get => m_realTime;
+			set => m_realTime = value;
 		}
 
 		/// <summary>
@@ -65,8 +65,9 @@ namespace Tekly.Thunk
 		[SerializeField] private AudioSource m_spatialTemplate;
 
 		[FormerlySerializedAs("m_ignoreListenerPause")]
-		[Tooltip("Everything this emitter plays keeps playing while AudioListener.pause is set and fades on unscaled time, whatever the sound says. For a pause menu that plays gameplay sounds.")]
-		[SerializeField] private bool m_playWhilePaused;
+		[FormerlySerializedAs("m_playWhilePaused")]
+		[Tooltip("Everything this emitter plays runs on the Real Time clock, whatever the sound says: it ignores the time scale and AudioListener.pause. For a pause menu that plays gameplay sounds.")]
+		[SerializeField] private bool m_realTime;
 
 		/// <summary>
 		/// Plays the sound at this emitter. Ignore the handle to play it as a one-shot.

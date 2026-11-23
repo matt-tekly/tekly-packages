@@ -28,7 +28,7 @@ namespace Tekly.Thunk
 		// The fields this inspector places itself, so they are left out when the rest are drawn as they are
 		private static readonly string[] s_commonFields = {
 			"m_Script", "m_mixerGroup", "m_volume", "m_pitch", "m_fadeIn", "m_fadeOut", "m_fadeEase", "m_priority",
-			"m_playWhilePaused", "m_spatialTemplate", "m_maxInstances", "m_stealing", "m_cooldown"
+			"m_clock", "m_spatialTemplate", "m_maxInstances", "m_stealing", "m_cooldown"
 		};
 
 		/// <summary>
@@ -53,7 +53,7 @@ namespace Tekly.Thunk
 		private SerializedProperty m_fadeOut;
 		private SerializedProperty m_fadeEase;
 		private SerializedProperty m_priority;
-		private SerializedProperty m_playWhilePaused;
+		private SerializedProperty m_clock;
 		private SerializedProperty m_spatialTemplate;
 		private SerializedProperty m_maxInstances;
 		private SerializedProperty m_stealing;
@@ -150,7 +150,7 @@ namespace Tekly.Thunk
 			m_fadeOut = serializedObject.FindProperty("m_fadeOut");
 			m_fadeEase = serializedObject.FindProperty("m_fadeEase");
 			m_priority = serializedObject.FindProperty("m_priority");
-			m_playWhilePaused = serializedObject.FindProperty("m_playWhilePaused");
+			m_clock = serializedObject.FindProperty("m_clock");
 			m_spatialTemplate = serializedObject.FindProperty("m_spatialTemplate");
 			m_maxInstances = serializedObject.FindProperty("m_maxInstances");
 			m_stealing = serializedObject.FindProperty("m_stealing");
@@ -213,7 +213,7 @@ namespace Tekly.Thunk
 				EditorGUILayout.PropertyField(m_volume);
 				EditorGUILayout.PropertyField(m_pitch);
 				EditorGUILayout.PropertyField(m_priority);
-				EditorGUILayout.PropertyField(m_playWhilePaused);
+				EditorGUILayout.PropertyField(m_clock);
 			}
 
 			EndGroup();

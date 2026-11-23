@@ -73,7 +73,7 @@ namespace Tekly.Thunk
 		/// <summary>
 		/// The pitch the voice's sources are playing at.
 		/// </summary>
-		public float Pitch => BasePitch * UserPitch * (ReferenceEquals(Emitter, null) ? 1f : Emitter.Pitch);
+		public float Pitch => BasePitch * UserPitch * ClockRate * (ReferenceEquals(Emitter, null) ? 1f : Emitter.Pitch);
 
 		/// <summary>
 		/// How loud the voice is before its emitter and distance are applied. Used to pick the quietest voice.
@@ -133,10 +133,27 @@ namespace Tekly.Thunk
 		public bool WatchPitch;
 
 		/// <summary>
-		/// The voice keeps playing while AudioListener.pause is set, and its fades run on unscaled time. Set if the
-		/// sound, the emitter or the track it was played through asks for it.
+		/// The clock the voice runs on. Real Time if the sound, the emitter or the track it was played through asks
+		/// for it, Game Time otherwise.
 		/// </summary>
-		public bool PlayWhilePaused;
+		public ThunkClock Clock;
+
+		/// <summary>
+		/// How fast the voice's clock is running, which multiplies its pitch. Always 1 on the Real Time clock. Never
+		/// 0: a stopped clock pauses the voice and leaves this at the speed it had.
+		/// </summary>
+		public float ClockRate = 1f;
+
+		/// <summary>
+		/// True while the voice's clock is stopped.
+		/// </summary>
+		public bool ClockPaused;
+
+		/// <summary>
+		/// True while the voice's sources are paused, which is while the voice is paused or its clock is stopped.
+		/// Kept by the runtime, so the sound is told to pause and resume its sources once for each stretch.
+		/// </summary>
+		public bool SourcesPaused;
 
 		public float BaseVolume;
 		public float BasePitch;
@@ -176,7 +193,7 @@ namespace Tekly.Thunk
 			audio.loop = false;
 			audio.outputAudioMixerGroup = MixerGroup;
 			audio.priority = Sound.Priority;
-			audio.ignoreListenerPause = PlayWhilePaused;
+			audio.ignoreListenerPause = Clock == ThunkClock.RealTime;
 
 			if (Positioned) {
 				source.Transform.SetPositionAndRotation(Position, Rotation);
@@ -346,6 +363,11 @@ namespace Tekly.Thunk
 			StageDsp = 0d;
 			StageBeginDsp = 0d;
 			WatchPitch = false;
+
+			Clock = ThunkClock.GameTime;
+			ClockRate = 1f;
+			ClockPaused = false;
+			SourcesPaused = false;
 
 			m_fadeDuration = 0f;
 			m_sourceFades = 0;

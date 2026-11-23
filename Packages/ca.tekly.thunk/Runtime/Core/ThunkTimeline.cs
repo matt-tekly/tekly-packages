@@ -63,7 +63,8 @@ namespace Tekly.Thunk
 				voice.Apply(source);
 
 				if (entry.Delay > 0f) {
-					source.StartDsp = now + entry.Delay;
+					// Delays are in the voice's own time, so they are longer on the audio clock while it runs slowly
+					source.StartDsp = now + entry.Delay / voice.ClockRate;
 					source.Audio.PlayScheduled(source.StartDsp);
 				} else {
 					source.StartDsp = now;
@@ -84,6 +85,29 @@ namespace Tekly.Thunk
 
 				if (source.StartDsp > now) {
 					source.Audio.Stop();
+				}
+			}
+		}
+
+		internal override void ClockRateChanged(ThunkVoice voice, float from, float to)
+		{
+			// While paused the entries are parked, and their times are measured from when the pause began
+			var paused = voice.SourcesPaused;
+			var reference = paused ? voice.StageDsp : AudioSettings.dspTime;
+			var scale = from / to;
+
+			for (var index = 0; index < voice.Sources.Count; index++) {
+				var source = voice.Sources[index];
+
+				if (source.StartDsp <= reference) {
+					continue;
+				}
+
+				// What is left of the wait takes longer or shorter at the new speed
+				source.StartDsp = reference + (source.StartDsp - reference) * scale;
+
+				if (!paused) {
+					source.Audio.SetScheduledStartTime(source.StartDsp);
 				}
 			}
 		}

@@ -18,6 +18,11 @@ namespace Tekly.Thunk
 	{
 		public IReadOnlyList<ThunkVoice> ActiveVoices => m_active;
 
+		/// <summary>
+		/// See <see cref="ThunkSettings.PitchFollowsTimeScale"/>.
+		/// </summary>
+		public bool PitchFollowsTimeScale { get; set; } = true;
+
 		private readonly TkLogger m_logger = TkLogger.Get<ThunkRuntime>();
 
 		private readonly List<ThunkVoice> m_voices = new List<ThunkVoice>();
@@ -42,6 +47,11 @@ namespace Tekly.Thunk
 
 		private long m_playCount;
 		private bool m_applicationPaused;
+
+		// The game clock: stopped while the time scale is 0 or the listener is paused. The speed is the last one it
+		// had while running, so a voice always has a speed to play at once the clock starts again.
+		private bool m_gamePaused;
+		private float m_gameSpeed = 1f;
 
 		public ThunkRuntime()
 		{
@@ -127,10 +137,10 @@ namespace Tekly.Thunk
 
 		/// <summary>
 		/// Plays a sound on an emitter, or with no position if the emitter is null. A negative fadeIn uses the
-		/// sound's own fade in time. The voice plays while the game is paused if playWhilePaused is set, or if the
-		/// sound or the emitter asks for it.
+		/// sound's own fade in time. The voice runs on the Real Time clock if realTime is set, or if the sound or the
+		/// emitter asks for it.
 		/// </summary>
-		public ThunkHandle Play(ThunkSound sound, ThunkEmitter emitter, float fadeIn = -1f, ThunkTrackState track = null, AudioMixerGroup mixerGroup = null, float trackGain = 1f, bool playWhilePaused = false)
+		public ThunkHandle Play(ThunkSound sound, ThunkEmitter emitter, float fadeIn = -1f, ThunkTrackState track = null, AudioMixerGroup mixerGroup = null, float trackGain = 1f, bool realTime = false)
 		{
 			if (sound == null) {
 				m_logger.Warning("Play was called with a null sound");
@@ -139,7 +149,7 @@ namespace Tekly.Thunk
 
 			// A sound played with no emitter has no position, whatever its spatial template says
 			if (emitter == null) {
-				return Begin(sound, null, null, Vector3.zero, fadeIn, track, mixerGroup, trackGain, playWhilePaused);
+				return Begin(sound, null, null, Vector3.zero, fadeIn, track, mixerGroup, trackGain, realTime);
 			}
 
 			var template = Alive(sound.SpatialTemplate);
@@ -148,7 +158,7 @@ namespace Tekly.Thunk
 				template = Alive(emitter.SpatialTemplate);
 			}
 
-			return Begin(sound, emitter, template, Vector3.zero, fadeIn, track, mixerGroup, trackGain, playWhilePaused || emitter.PlayWhilePaused);
+			return Begin(sound, emitter, template, Vector3.zero, fadeIn, track, mixerGroup, trackGain, realTime || emitter.RealTime);
 		}
 
 		/// <summary>
@@ -168,7 +178,7 @@ namespace Tekly.Thunk
 		/// The sound plays through copies of the template. A null template means the sound is not positioned. With
 		/// an emitter and a template the voice follows the emitter. Otherwise it stays at the given position.
 		/// </summary>
-		private ThunkHandle Begin(ThunkSound sound, ThunkEmitter emitter, AudioSource template, Vector3 position, float fadeIn, ThunkTrackState track, AudioMixerGroup mixerGroup, float trackGain, bool playWhilePaused)
+		private ThunkHandle Begin(ThunkSound sound, ThunkEmitter emitter, AudioSource template, Vector3 position, float fadeIn, ThunkTrackState track, AudioMixerGroup mixerGroup, float trackGain, bool realTime)
 		{
 			if (IsShuttingDown()) {
 				return ThunkHandle.None;
@@ -204,7 +214,8 @@ namespace Tekly.Thunk
 			voice.Track = track;
 			voice.MixerGroup = mixerGroup != null ? mixerGroup : sound.MixerGroup;
 			voice.State = ThunkVoiceState.Playing;
-			voice.PlayWhilePaused = playWhilePaused || sound.PlayWhilePaused;
+			voice.Clock = realTime || sound.Clock == ThunkClock.RealTime ? ThunkClock.RealTime : ThunkClock.GameTime;
+			voice.ClockRate = voice.Clock == ThunkClock.GameTime ? m_gameSpeed : 1f;
 			voice.BaseVolume = sound.Volume.Get();
 			voice.BasePitch = sound.Pitch.Get();
 			voice.UserVolume = 1f;
@@ -242,6 +253,12 @@ namespace Tekly.Thunk
 			voice.ActiveIndex = m_active.Count;
 			m_active.Add(voice);
 
+			// A sound on the game clock that starts while that clock is stopped waits for it
+			if (m_gamePaused && voice.Clock == ThunkClock.GameTime) {
+				voice.ClockPaused = true;
+				RefreshPaused(voice);
+			}
+
 			return voice.Handle;
 		}
 
@@ -255,8 +272,8 @@ namespace Tekly.Thunk
 			var handle = voice.Handle;
 			voice.Track = null;
 
-			// A paused voice is already silent, so there is nothing to fade
-			if (fade <= 0f || voice.State == ThunkVoiceState.Paused) {
+			// A voice whose sources are paused is already silent, so there is nothing to fade
+			if (fade <= 0f || voice.SourcesPaused) {
 				// Freed before the track reacts, so the voice no longer counts against its sound's limits
 				Free(voice);
 			} else {
@@ -274,10 +291,11 @@ namespace Tekly.Thunk
 				return;
 			}
 
-			if (fade <= 0f) {
+			// With its sources already paused by its clock, the voice is silent and a fade would never move
+			if (fade <= 0f || voice.SourcesPaused) {
 				voice.StartFade(0f, 0f, voice.Sound.FadeEase);
-				voice.Sound.PauseSources(voice);
 				voice.State = ThunkVoiceState.Paused;
+				RefreshPaused(voice);
 				return;
 			}
 
@@ -291,11 +309,8 @@ namespace Tekly.Thunk
 				return;
 			}
 
-			if (voice.State == ThunkVoiceState.Paused) {
-				voice.Sound.ResumeSources(voice);
-			}
-
 			voice.State = ThunkVoiceState.Playing;
+			RefreshPaused(voice);
 			voice.StartFade(1f, fade, voice.Sound.FadeEase);
 		}
 
@@ -377,8 +392,16 @@ namespace Tekly.Thunk
 			}
 		}
 
-		public void Tick(float deltaTime, float unscaledDeltaTime)
+		/// <summary>
+		/// Advances every voice. The deltaTime is game time and gameRate is how fast the game clock is running, 0
+		/// for stopped.
+		/// </summary>
+		public void Tick(float deltaTime, float unscaledDeltaTime, float gameRate = 1f)
 		{
+			UpdateGameClock(gameRate);
+
+			// The game clock can be stopped while game time still moves, by the listener being paused
+			var gameDeltaTime = m_gamePaused ? 0f : deltaTime;
 			var suspended = IsAudioSuspended();
 
 			// Voices started during the tick are appended and ticked in the same pass
@@ -389,23 +412,26 @@ namespace Tekly.Thunk
 					continue;
 				}
 
-				if (voice.IsFading && voice.TickFade(voice.PlayWhilePaused ? unscaledDeltaTime : deltaTime)) {
+				var clockDeltaTime = voice.Clock == ThunkClock.RealTime ? unscaledDeltaTime : gameDeltaTime;
+
+				if (voice.IsFading && clockDeltaTime > 0f && voice.TickFade(clockDeltaTime)) {
 					if (voice.State == ThunkVoiceState.Stopping) {
 						Free(voice);
 						continue;
 					}
 
 					if (voice.State == ThunkVoiceState.Pausing) {
-						voice.Sound.PauseSources(voice);
 						voice.State = ThunkVoiceState.Paused;
+						RefreshPaused(voice);
 					}
 				}
 
-				if (voice.HasSourceFades && voice.State != ThunkVoiceState.Paused) {
-					voice.TickSourceFades(voice.PlayWhilePaused ? unscaledDeltaTime : deltaTime);
+				if (voice.HasSourceFades && !voice.SourcesPaused && clockDeltaTime > 0f) {
+					voice.TickSourceFades(clockDeltaTime);
 				}
 
-				if (voice.State != ThunkVoiceState.Paused && voice.IsFinished(suspended)) {
+				// A paused source reports that it is not playing, the same as one that has played out
+				if (!voice.SourcesPaused && voice.IsFinished(suspended)) {
 					Free(voice);
 				}
 			}
@@ -432,7 +458,82 @@ namespace Tekly.Thunk
 
 		private void OnUpdate()
 		{
-			Tick(Time.deltaTime, Time.unscaledDeltaTime);
+			var follows = PitchFollowsTimeScale;
+			var gameRate = GetGameRate(Time.timeScale, AudioListener.pause, follows);
+
+			// A game clock that doesn't follow the time scale counts real seconds while it runs
+			Tick(follows ? Time.deltaTime : Time.unscaledDeltaTime, Time.unscaledDeltaTime, gameRate);
+		}
+
+		/// <summary>
+		/// How fast the game clock is running: 0 while the time scale is 0 or the listener is paused, otherwise the
+		/// time scale, or 1 if sounds are not to follow it.
+		/// </summary>
+		public static float GetGameRate(float timeScale, bool listenerPaused, bool followTimeScale)
+		{
+			if (listenerPaused || timeScale <= 0f) {
+				return 0f;
+			}
+
+			return followTimeScale ? timeScale : 1f;
+		}
+
+		/// <summary>
+		/// Brings the voices on the game clock into line with how fast that clock is now running.
+		/// </summary>
+		private void UpdateGameClock(float rate)
+		{
+			var paused = rate <= 0f;
+			var speed = paused ? m_gameSpeed : rate;
+
+			if (paused == m_gamePaused && Mathf.Approximately(speed, m_gameSpeed)) {
+				return;
+			}
+
+			m_gamePaused = paused;
+			m_gameSpeed = speed;
+
+			for (var index = 0; index < m_active.Count; index++) {
+				var voice = m_active[index];
+
+				if (voice == null || voice.Clock != ThunkClock.GameTime) {
+					continue;
+				}
+
+				// Before the speed, so a sound that has set times ahead of it has them brought up to date by the
+				// resume before they are moved for the new speed
+				voice.ClockPaused = paused;
+				RefreshPaused(voice);
+
+				if (!Mathf.Approximately(voice.ClockRate, speed)) {
+					var from = voice.ClockRate;
+
+					voice.ClockRate = speed;
+					voice.Apply();
+					voice.Sound.ClockRateChanged(voice, from, speed);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Pauses or resumes the voice's sources if that is out of step with the voice. A voice can be paused by
+		/// its handle and by its clock at once, and its sources only resume when neither holds it.
+		/// </summary>
+		private static void RefreshPaused(ThunkVoice voice)
+		{
+			var paused = voice.State == ThunkVoiceState.Paused || voice.ClockPaused;
+
+			if (paused == voice.SourcesPaused) {
+				return;
+			}
+
+			voice.SourcesPaused = paused;
+
+			if (paused) {
+				voice.Sound.PauseSources(voice);
+			} else {
+				voice.Sound.ResumeSources(voice);
+			}
 		}
 
 		private void OnLateUpdate()

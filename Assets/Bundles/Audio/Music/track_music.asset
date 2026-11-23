@@ -16,7 +16,7 @@ MonoBehaviour:
   m_crossfade: 1
   m_resumeHeld: 1
   m_mixerGroup: {fileID: 0}
-  m_playWhilePaused: 1
+  m_realTime: 0
   m_duckLevel: 0.3
   m_duckFadeDown: 0.2
   m_duckFadeBack: 0.8

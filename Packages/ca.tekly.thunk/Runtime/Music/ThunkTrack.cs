@@ -1,6 +1,7 @@
 ﻿using Tekly.Common.Utils;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.Serialization;
 
 namespace Tekly.Thunk
 {
@@ -14,7 +15,7 @@ namespace Tekly.Thunk
 		public float Crossfade => m_crossfade;
 		public bool ResumeHeld => m_resumeHeld;
 		public AudioMixerGroup MixerGroup => m_mixerGroup;
-		public bool PlayWhilePaused => m_playWhilePaused;
+		public bool RealTime => m_realTime;
 		public float DuckLevel => m_duckLevel;
 		public float DuckFadeDown => m_duckFadeDown;
 		public float DuckFadeBack => m_duckFadeBack;
@@ -29,8 +30,9 @@ namespace Tekly.Thunk
 		[Tooltip("Optional. Everything played on this track is routed to this group instead of the sound's own.")]
 		[SerializeField] private AudioMixerGroup m_mixerGroup;
 
-		[Tooltip("Music on this track keeps playing while AudioListener.pause is set and fades on unscaled time, whatever the sound says.")]
-		[SerializeField] private bool m_playWhilePaused;
+		[FormerlySerializedAs("m_playWhilePaused")]
+		[Tooltip("Music on this track runs on the Real Time clock, whatever the sound says: it ignores the time scale and AudioListener.pause. Untick it for music that should slow down and pause with the game.")]
+		[SerializeField] private bool m_realTime = true;
 
 		[Tooltip("How loud the music is while it is ducked, as a ratio of its normal volume.")]
 		[Range(0f, 1f)]

@@ -6,17 +6,17 @@ using UnityEngine;
 namespace TeklySample.Samples.Thunk
 {
     /// <summary>
-    /// A DevBoard page, "Sample/Thunk Pause", for hearing what AudioListener.pause does to each kind of sound: a
-    /// loop on an ordinary emitter, the same loop on an emitter that plays while paused, a chain and a timeline.
+    /// A DevBoard page, "Sample/Thunk Clocks", for hearing what the time scale and AudioListener.pause do to each
+    /// kind of sound: a loop on an ordinary emitter, the same loop on a Real Time emitter, a chain and a timeline.
     /// </summary>
     public class ThunkPauseSample : MonoBehaviour
     {
-        private const string PAGE = "Sample/Thunk Pause";
+        private const string PAGE = "Sample/Thunk Clocks";
 
-        [Tooltip("An ordinary emitter. What it plays goes silent while the listener is paused.")]
+        [Tooltip("An ordinary emitter. What it plays follows the game clock.")]
         [SerializeField] private ThunkEmitter m_emitter;
 
-        [Tooltip("An emitter with Play While Paused ticked. What it plays carries on through a pause.")]
+        [Tooltip("An emitter with Real Time ticked. What it plays ignores the time scale and the listener pause.")]
         [SerializeField] private ThunkEmitter m_pausedEmitter;
 
         [SerializeField] private ThunkSound m_loop;
@@ -31,7 +31,7 @@ namespace TeklySample.Samples.Thunk
         private void Start()
         {
             // The segments are removed when this GameObject is destroyed
-            DevBoard.Page(PAGE, Listener, "Listener", 0, owner: gameObject);
+            DevBoard.Page(PAGE, Clock, "Game Clock", 0, owner: gameObject);
             DevBoard.Page(PAGE, Loops, "Loops", 1, owner: gameObject);
             DevBoard.Page(PAGE, Chain, "Chain", 2, owner: gameObject);
             DevBoard.Page(PAGE, Timeline, "Timeline", 3, owner: gameObject);
@@ -40,25 +40,38 @@ namespace TeklySample.Samples.Thunk
         private void OnDisable()
         {
             StopAll();
+
             AudioListener.pause = false;
+            Time.timeScale = 1f;
         }
 
-        private void Listener(Segment page)
+        private void Clock(Segment page)
         {
+            page.Label("Sounds on the game clock play at the time scale, and pause at 0 or while the listener is paused.");
+
+            page.Property("Time scale", () => Time.timeScale, "{0:0.##}");
+            var row = page.Row();
+            row.Button("0", () => Time.timeScale = 0f);
+            row.Button("0.25", () => Time.timeScale = 0.25f);
+            row.Button("0.5", () => Time.timeScale = 0.5f);
+            row.Button("1", () => Time.timeScale = 1f);
+            row.Button("2", () => Time.timeScale = 2f);
+
             page.Toggle("AudioListener.pause", () => AudioListener.pause, value => AudioListener.pause = value);
+            page.Toggle("Pitch follows time scale", () => ThunkSettings.PitchFollowsTimeScale, value => ThunkSettings.PitchFollowsTimeScale = value);
             page.Button("Stop Everything", StopAll);
         }
 
         private void Loops(Segment page)
         {
-            page.Label("The same sound on two emitters. Only the second should be heard while paused.");
+            page.Label("The same sound on two emitters. Only the first should follow the game clock.");
 
             page.Property("Ordinary emitter", () => State(m_loopHandle));
             var row = page.Row();
             row.Button("Play", () => m_loopHandle = Play(m_emitter, m_loop)).InteractableWhen(() => !m_loopHandle.IsPlaying);
             row.Button("Stop", () => m_loopHandle.Stop()).InteractableWhen(() => m_loopHandle.IsPlaying);
 
-            page.Property("Emitter that plays while paused", () => State(m_pausedLoopHandle));
+            page.Property("Real Time emitter", () => State(m_pausedLoopHandle));
             row = page.Row();
             row.Button("Play", () => m_pausedLoopHandle = Play(m_pausedEmitter, m_loop)).InteractableWhen(() => !m_pausedLoopHandle.IsPlaying);
             row.Button("Stop", () => m_pausedLoopHandle.Stop()).InteractableWhen(() => m_pausedLoopHandle.IsPlaying);
@@ -66,7 +79,7 @@ namespace TeklySample.Samples.Thunk
 
         private void Chain(Segment page)
         {
-            page.Label("A three second rising sweep, then a steady tone that carries straight on from it. Pause during the sweep, wait, then resume and listen to the join.");
+            page.Label("A three second rising sweep, then a steady tone that carries straight on from it. Stop or slow the clock during the sweep, then listen to the join.");
 
             page.Property("Chain", () => State(m_chainHandle));
             var row = page.Row();
@@ -77,7 +90,7 @@ namespace TeklySample.Samples.Thunk
 
         private void Timeline(Segment page)
         {
-            page.Label("Three blips, at 0, 2 and 4 seconds. Pause after the first, wait, then resume. The second should be late by as long as the pause lasted.");
+            page.Label("Three blips, at 0, 2 and 4 seconds of game time. Stop the clock after the first and the second should be late by as long as it was stopped. At half speed they should be 4 seconds apart.");
 
             page.Property("Timeline", () => State(m_timelineHandle));
             var row = page.Row();

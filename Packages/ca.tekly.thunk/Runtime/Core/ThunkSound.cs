@@ -35,7 +35,7 @@ namespace Tekly.Thunk
 		public float FadeOut => m_fadeOut;
 		public Ease FadeEase => m_fadeEase;
 		public int Priority => m_priority;
-		public bool PlayWhilePaused => m_playWhilePaused;
+		public ThunkClock Clock => m_clock;
 		public AudioSource SpatialTemplate => m_spatialTemplate;
 		public int MaxInstances => m_maxInstances;
 		public ThunkStealing Stealing => m_stealing;
@@ -66,8 +66,9 @@ namespace Tekly.Thunk
 		[Range(0, 256)]
 		[SerializeField] private int m_priority = 128;
 
-		[Tooltip("Keeps playing while AudioListener.pause is set and fades on unscaled time. For UI sounds and pause menu music.")]
-		[SerializeField] private bool m_playWhilePaused;
+		[FormerlySerializedAs("m_playWhilePaused")]
+		[Tooltip("Game Time follows the game: the sound plays at the time scale, and pauses while the time scale is 0 or AudioListener.pause is set. Real Time ignores both. Use Real Time for UI and music.")]
+		[SerializeField] private ThunkClock m_clock;
 
 		[Tooltip("Optional. An AudioSource in a prefab. When this sound is played from an emitter or at a position it is played through copies of that prefab, so its 3D sound settings and any filters on it apply. Without one the emitter's template is used. Has no effect on a sound played with no position.")]
 		[SerializeField] private AudioSource m_spatialTemplate;
@@ -129,6 +130,12 @@ namespace Tekly.Thunk
 		{
 			voice.UnPauseSources();
 		}
+
+		/// <summary>
+		/// Called when the speed of the voice's clock changes, after the voice's pitch has been updated. For sounds
+		/// that have set times ahead of them to move.
+		/// </summary>
+		internal virtual void ClockRateChanged(ThunkVoice voice, float from, float to) { }
 
 		/// <summary>
 		/// Called when the pitch changes on a voice that asked for pitch changes to be reported.

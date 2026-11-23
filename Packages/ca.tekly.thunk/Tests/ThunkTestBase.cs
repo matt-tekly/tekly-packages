@@ -119,12 +119,18 @@ namespace Tekly.Thunk.Tests
 		}
 
 		/// <summary>
-		/// Ticks Play While Paused on a sound or a track.
+		/// Puts a sound on the Real Time clock, or sets whether a track's music is.
 		/// </summary>
-		protected static void SetPlayWhilePaused(Object asset)
+		protected static void SetRealTime(Object asset, bool realTime = true)
 		{
 			var serialized = new SerializedObject(asset);
-			serialized.FindProperty("m_playWhilePaused").boolValue = true;
+
+			if (asset is ThunkSound) {
+				serialized.FindProperty("m_clock").enumValueIndex = (int) (realTime ? ThunkClock.RealTime : ThunkClock.GameTime);
+			} else {
+				serialized.FindProperty("m_realTime").boolValue = realTime;
+			}
+
 			serialized.ApplyModifiedPropertiesWithoutUndo();
 		}
 

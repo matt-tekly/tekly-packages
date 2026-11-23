@@ -40,13 +40,38 @@ handle.Stop(0.5f);    // fades out and stops
 handle.Stop();        // stops now
 ```
 
-## Playing while paused
+## Clocks
 
-A sound with Play While Paused ticked keeps playing while `AudioListener.pause` is set, and its fades run on unscaled time. That suits UI sounds, which are the same sound whether the game is paused or not.
+Every sound runs on one of two clocks, set by Clock on the sound.
 
-The same option is on `ThunkEmitter` and `ThunkTrack`, where it applies to everything played through them whatever the sound says. A pause menu that plays gameplay sounds (a weapon preview, a reward jingle) plays them through an emitter with it ticked, so the sounds don't need a second copy. A track with it ticked keeps its music going through a pause.
+| | Game Time (the default) | Real Time |
+|---|---|---|
+| `Time.timeScale` | The sound plays at that speed, so slow motion slows it and lowers its pitch | Ignored |
+| Time scale of 0 | Paused, and carries on from where it was | Ignored |
+| `AudioListener.pause` | Paused | Ignored |
+| Fades | Game seconds | Real seconds |
+| Timeline delays | Game seconds | Real seconds |
 
-A voice plays while paused if the sound, the emitter or the track asks for it. It is decided when the sound starts.
+Use Game Time for anything in the world and Real Time for UI and music. Pausing the game by setting the time scale to 0 then pauses the world's sounds and leaves the menus and music alone, with nothing else to call.
+
+Chains stay seamless at any speed, and a timeline's entries keep their spacing: at half speed each clip takes twice as long and so does each gap.
+
+An emitter or a track can put everything played through it on Real Time, whatever the sound says:
+
+- **`ThunkEmitter`** has a Real Time option. A pause menu that plays gameplay sounds (a weapon preview, a reward jingle) plays them through an emitter with it ticked, so those sounds don't need a second copy.
+- **`ThunkTrack`** has the same option and it is on for a new track, as music rarely wants to bend with the game. Untick it for music that should.
+
+For a game that wants its sounds to pause with the game but not bend in slow motion, turn the speed part off for everything:
+
+```csharp
+ThunkSettings.PitchFollowsTimeScale = false;   // once, when the game starts
+```
+
+Game Time sounds then always play at normal speed, and still pause while the time scale is 0 or the listener is paused. The setting lasts for the play session.
+
+Which clock a voice is on is decided when the sound starts. A sound on Game Time that is played while the game clock is stopped starts paused, and plays once the clock runs again.
+
+Slow motion done with a pitch parameter on an Audio Mixer group is not seen by Thunk. A chain routed through such a group loses its clean join, so let the clock do it.
 
 ## Limits
 
@@ -153,11 +178,12 @@ The namespaces under `Tekly.Thunk`, such as `Tekly.Thunk.Core` and `Tekly.Thunk.
 |---|---|
 | `Thunk.SetVolume`, `Thunk.GetVolume`, `Thunk.ToDecibel`, `Thunk.ToLinear` | The same methods on `ThunkMixer` |
 | `Thunk.Instance.OneShot.Play(clip)` | `sound.Play()` |
-| `Thunk.Instance.UiSounds.Play(clip)` | `sound.Play()`, with Play While Paused ticked on the sound |
+| `Thunk.Instance.UiSounds.Play(clip)` | `sound.Play()`, with the sound's Clock set to Real Time |
 | `int` ids from `emitter.Play`, used with `emitter.Stop(id)`, `emitter.SetPaused(id, ...)` and `emitter.SetVolume(id, ...)` | A `ThunkHandle` with `Stop`, `Pause`, `Resume` and `SetVolume` on it. It needs no emitter and does nothing once the voice has ended. |
 | Pitch, volume, delay and start time passed to `emitter.Play` | `handle.SetPitch` and `handle.SetVolume` after playing. For a delay, use a `ThunkTimeline`. There is no start time argument. |
 | `emitter.Instances` and the `InstanceDisposed` event | Removed. Poll `handle.IsPlaying`. |
-| Ignore Listener Pause and Unscaled Delta Time on the emitter | Play While Paused, on the emitter or on the sound |
+| Ignore Listener Pause and Unscaled Delta Time on the emitter | Real Time on the emitter, or a Clock of Real Time on the sound |
+| Sounds ignored `Time.timeScale` | Sounds follow it unless they are on the Real Time clock |
 | Audio Source Template on the emitter, a scene AudioSource | Spatial Template on the emitter or the sound, an AudioSource in a prefab |
 | `Thunk.Instance.TrackManager.GetTrack("music")`, set up by a `ThunkTrackInitializer` | A `ThunkTrack` asset, with no set up |
 | `track.Play(clip)` and `track.PlayCrossfade(clip, time)` | `track.Play(sound)` and `track.Play(sound, time)` |
@@ -169,7 +195,7 @@ The namespaces under `Tekly.Thunk`, such as `Tekly.Thunk.Core` and `Tekly.Thunk.
 These carry over on their own:
 
 - On a clip: Mixer Group, Volume, Pitch, Instance Capacity (now Max Instances) and Minimum Time Between Plays (now Cooldown).
-- On an emitter: Volume, Pitch, and Ignore Listener Pause (now Play While Paused).
+- On an emitter: Volume, Pitch, and Ignore Listener Pause (now Real Time).
 - On a `ThunkPlayer`: the emitter, the sound and Stop On Play.
 - On a `ThunkTrackPlayer`: the sound, the fade time and whether it plays on enable. One that had Push ticked becomes Interrupt.
 
@@ -177,5 +203,5 @@ These do not, and have to be set again:
 
 - On a clip: the list of clips and its Random Mode (both now live inside the Clips set), Loop, Randomize Start Time and Capacity Behaviour.
 - On a `ThunkTrackPlayer`: the track. It was a name and is now a reference to a `ThunkTrack` asset.
-- On an emitter: the template. Unscaled Delta Time is gone, as Play While Paused covers it.
+- On an emitter: the template. Unscaled Delta Time is gone, as Real Time covers it.
 - `ThunkTrackInitializer` components show as missing scripts and can be removed.
