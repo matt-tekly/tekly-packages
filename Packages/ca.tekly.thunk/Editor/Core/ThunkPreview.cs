@@ -119,7 +119,7 @@ namespace Tekly.Thunk
 			var startSource = s_sources[SOURCE_START];
 			var loopSource = s_sources[SOURCE_LOOP];
 
-			// Nothing is playing to release, so the end would sound on its own
+			// Nothing is playing, so there is nothing to release and the end clip would play by itself
 			if (!IsPlaying || startSource == null && loopSource == null) {
 				return;
 			}

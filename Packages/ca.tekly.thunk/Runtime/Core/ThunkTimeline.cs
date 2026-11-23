@@ -4,13 +4,13 @@ using UnityEngine;
 namespace Tekly.Thunk
 {
 	/// <summary>
-	/// One sound on a <see cref="ThunkTimeline"/>. Every value is neutral at zero, as that is what a new entry
-	/// added in the inspector starts with.
+	/// One sound on a <see cref="ThunkTimeline"/>. Every value is neutral at zero, because a new entry added in
+	/// the inspector starts with all zeros.
 	/// </summary>
 	[Serializable]
 	public struct ThunkTimelineEntry
 	{
-		[Tooltip("Seconds after the timeline starts that this entry plays.")]
+		[Tooltip("How many seconds after the timeline starts this entry plays.")]
 		[Min(0f)]
 		public float Delay;
 
@@ -35,7 +35,7 @@ namespace Tekly.Thunk
 	[CreateAssetMenu(fileName = "thunk_timeline", menuName = "Tekly/Thunk/Timeline")]
 	public class ThunkTimeline : ThunkSound
 	{
-		// Where a scheduled source is moved to while the voice is paused
+		// While the voice is paused, a scheduled source is pushed this far into the future
 		private const double FAR_AWAY = 1000000d;
 
 		public ThunkTimelineEntry[] Entries => m_entries;
@@ -92,14 +92,14 @@ namespace Tekly.Thunk
 		{
 			var now = AudioSettings.dspTime;
 
-			// Remembered so the resume knows how long the pause lasted
+			// Stored so that resuming can work out how long the pause lasted
 			voice.StageDsp = now;
 
 			for (var index = 0; index < voice.Sources.Count; index++) {
 				var source = voice.Sources[index];
 
 				if (source.StartDsp > now) {
-					// Not started, so there is nothing to pause: it is pushed out of the way until the resume
+					// It hasn't started, so there is nothing to pause. Its start is pushed far into the future until the resume.
 					source.Audio.SetScheduledStartTime(now + FAR_AWAY);
 				} else {
 					source.Audio.Pause();

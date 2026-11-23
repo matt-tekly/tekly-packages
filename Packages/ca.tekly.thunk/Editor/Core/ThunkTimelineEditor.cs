@@ -7,7 +7,7 @@ namespace Tekly.Thunk
 	[CanEditMultipleObjects]
 	public class ThunkTimelineEditor : Editor
 	{
-		// Kept so exhaustive and non-repeating selection behaves as it does at runtime across presses
+		// Kept between presses so that exhaustive and non-repeating selection behave as they do at runtime
 		private readonly ThunkSoundRecord m_record = new ThunkSoundRecord();
 
 		public override void OnInspectorGUI()

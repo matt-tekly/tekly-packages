@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Tekly.Thunk
 {
 	/// <summary>
-	/// Plays sounds at its own position. The AudioSources it plays through are components on its GameObject, added
-	/// as needed and reused.
+	/// Plays sounds at its own position. The AudioSources it plays through are pooled centrally and follow it, so
+	/// a sound is not cut off when the emitter goes away: once the emitter is disabled or destroyed, sounds that
+	/// end on their own finish where the emitter last was and sounds that loop are released.
 	/// </summary>
 	public class ThunkEmitter : MonoBehaviour
 	{
@@ -36,7 +36,7 @@ namespace Tekly.Thunk
 		}
 
 		/// <summary>
-		/// The AudioSource whose spatial settings are used for sounds that have no template of their own.
+		/// The template for sounds that have no template of their own. They play through copies of it.
 		/// </summary>
 		public AudioSource SpatialTemplate {
 			get => m_spatialTemplate;
@@ -51,10 +51,8 @@ namespace Tekly.Thunk
 		[Range(0f, 3f)]
 		[SerializeField] private float m_pitch = 1f;
 
-		[Tooltip("Optional. An AudioSource whose 3D sound settings are used for what this emitter plays: one in a prefab, or a disabled one on this object. A sound with its own template uses that in place of this. Without either, sounds are not positioned.")]
+		[Tooltip("Optional. An AudioSource in a prefab. Sounds from this emitter play through copies of that prefab, so its 3D sound settings and any filters on it apply. A sound with its own template uses that one instead. With neither, sounds are not positioned.")]
 		[SerializeField] private AudioSource m_spatialTemplate;
-
-		private readonly Stack<ThunkSource> m_freeSources = new Stack<ThunkSource>();
 
 		/// <summary>
 		/// Plays the sound at this emitter. Ignore the handle to play it as a one-shot.
@@ -73,47 +71,20 @@ namespace Tekly.Thunk
 			ThunkRuntime.Instance?.StopEmitter(this, fade);
 		}
 
-		internal ThunkSource RentSource()
-		{
-			if (m_freeSources.TryPop(out var source)) {
-				return source;
-			}
-
-			var audio = gameObject.AddComponent<AudioSource>();
-			audio.playOnAwake = false;
-
-			return new ThunkSource(audio);
-		}
-
-		internal void ReturnSource(ThunkSource source)
-		{
-			var audio = source.Audio;
-
-			// Unity null check: the AudioSource is already gone if this GameObject is being destroyed
-			if (audio == null) {
-				return;
-			}
-
-			audio.Stop();
-			audio.clip = null;
-			audio.loop = false;
-			audio.outputAudioMixerGroup = null;
-
-			source.Gain = 1f;
-			source.PitchScale = 1f;
-			source.StartDsp = 0d;
-			source.FadeDuration = 0f;
-			m_freeSources.Push(source);
-		}
-
 		private void ApplyToVoices()
 		{
 			ThunkRuntime.Instance?.ApplyEmitter(this);
 		}
 
+		private void OnDisable()
+		{
+			ThunkRuntime.Instance?.EmitterGone(this);
+		}
+
 		private void OnDestroy()
 		{
-			ThunkRuntime.Instance?.EmitterDestroyed(this);
+			// A component that was never enabled doesn't get OnDisable
+			ThunkRuntime.Instance?.EmitterGone(this);
 		}
 
 #if UNITY_EDITOR

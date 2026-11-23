@@ -16,7 +16,7 @@ namespace Tekly.Thunk
 	}
 
 	/// <summary>
-	/// Plays a sound. With an emitter the sound plays at the emitter, without one it has no position.
+	/// Plays a sound. With an emitter the sound plays at the emitter. Without one it has no position.
 	/// </summary>
 	public class ThunkPlayer : MonoBehaviour
 	{

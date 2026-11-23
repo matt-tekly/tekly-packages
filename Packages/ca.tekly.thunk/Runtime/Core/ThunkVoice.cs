@@ -9,10 +9,10 @@ namespace Tekly.Thunk
 	{
 		Playing,
 
-		/// <summary>Fading out, ends when the fade does. Nothing can bring it back.</summary>
+		/// <summary>Fading out. The voice ends when the fade finishes and nothing can bring it back.</summary>
 		Stopping,
 
-		/// <summary>Fading out, pauses when the fade does.</summary>
+		/// <summary>Fading out. The voice pauses when the fade finishes.</summary>
 		Pausing,
 
 		Paused
@@ -24,6 +24,12 @@ namespace Tekly.Thunk
 	internal sealed class ThunkSource
 	{
 		public readonly AudioSource Audio;
+		public readonly Transform Transform;
+
+		/// <summary>
+		/// The pool the source came from and goes back to.
+		/// </summary>
+		public readonly ThunkSourcePool Pool;
 
 		/// <summary>
 		/// Volume of this source relative to the rest of its voice.
@@ -40,19 +46,16 @@ namespace Tekly.Thunk
 		/// </summary>
 		public double StartDsp;
 
-		/// <summary>
-		/// The template the AudioSource's spatial settings were last copied from, null if it is not positioned.
-		/// </summary>
-		public AudioSource Template;
-
-		// Fading this one source out, see ThunkVoice.FadeOutSource
+		// State for fading out just this source, see ThunkVoice.FadeOutSource
 		public float FadeFrom;
 		public float FadeTime;
 		public float FadeDuration;
 
-		public ThunkSource(AudioSource audio)
+		public ThunkSource(AudioSource audio, ThunkSourcePool pool)
 		{
 			Audio = audio;
+			Transform = audio.transform;
+			Pool = pool;
 		}
 	}
 
@@ -70,7 +73,7 @@ namespace Tekly.Thunk
 		/// <summary>
 		/// The pitch the voice's sources are playing at.
 		/// </summary>
-		public float Pitch => BasePitch * UserPitch * Emitter.Pitch;
+		public float Pitch => BasePitch * UserPitch * (ReferenceEquals(Emitter, null) ? 1f : Emitter.Pitch);
 
 		/// <summary>
 		/// How loud the voice is before its emitter and distance are applied. Used to pick the quietest voice.
@@ -87,19 +90,35 @@ namespace Tekly.Thunk
 
 		public ThunkSound Sound;
 		public ThunkSoundRecord Record;
+		/// <summary>
+		/// The emitter the voice was played from. Null for a voice played with no emitter, and for one whose
+		/// emitter has gone away.
+		/// </summary>
 		public ThunkEmitter Emitter;
 		public ThunkTrackState Track;
 		public AudioMixerGroup MixerGroup;
 
 		/// <summary>
-		/// The AudioSource the voice's spatial settings are copied from. Null for a voice with no position.
+		/// Where the voice's sources come from.
 		/// </summary>
-		public AudioSource SpatialTemplate;
+		public ThunkSourcePool Pool;
+
+		/// <summary>
+		/// True if the voice's sources are placed in the world. False for a voice played with no template.
+		/// </summary>
+		public bool Positioned;
+
+		/// <summary>
+		/// The transform the voice's sources are moved to every frame. Null for a voice that stays where it is.
+		/// </summary>
+		public Transform Follow;
+		public Vector3 Position;
+		public Quaternion Rotation;
 
 		public ThunkVoiceState State;
 
 		/// <summary>
-		/// Set once the voice has been released, so it only happens once.
+		/// Set when the voice is released, so that a second release does nothing.
 		/// </summary>
 		public bool Released;
 
@@ -109,7 +128,7 @@ namespace Tekly.Thunk
 		public double StageBeginDsp;
 
 		/// <summary>
-		/// Has the sound told when the voice's pitch changes, for sounds that schedule by clip length.
+		/// When set, the sound is told whenever the voice's pitch changes. For sounds that schedule by clip length.
 		/// </summary>
 		public bool WatchPitch;
 		public bool Unscaled;
@@ -121,7 +140,7 @@ namespace Tekly.Thunk
 		public float Fade;
 
 		/// <summary>
-		/// Set by the track the voice is music on, to duck it.
+		/// Set by the track this voice is playing music on, to duck it.
 		/// </summary>
 		public float TrackGain;
 
@@ -139,12 +158,12 @@ namespace Tekly.Thunk
 		}
 
 		/// <summary>
-		/// Takes an AudioSource from the emitter and sets it up with the clip and the sound's settings. The caller
-		/// starts it.
+		/// Takes an AudioSource from the voice's pool and sets it up with the clip and the sound's settings. The
+		/// caller starts it.
 		/// </summary>
 		public ThunkSource AddSource(AudioClip clip, float gain = 1f)
 		{
-			var source = Emitter.RentSource();
+			var source = Pool.Rent();
 			source.Gain = gain;
 
 			var audio = source.Audio;
@@ -154,7 +173,9 @@ namespace Tekly.Thunk
 			audio.priority = Sound.Priority;
 			audio.ignoreListenerPause = Sound.PlayWhilePaused;
 
-			ThunkSpatialTemplate.Apply(source, SpatialTemplate);
+			if (Positioned) {
+				source.Transform.SetPositionAndRotation(Position, Rotation);
+			}
 
 			Sources.Add(source);
 			Apply(source);
@@ -179,7 +200,7 @@ namespace Tekly.Thunk
 		}
 
 		/// <summary>
-		/// Starts telling the sound about pitch changes, from the pitch the voice has now.
+		/// Starts reporting pitch changes to the sound, beginning from the voice's current pitch.
 		/// </summary>
 		public void StartWatchingPitch()
 		{
@@ -310,7 +331,9 @@ namespace Tekly.Thunk
 			Emitter = null;
 			Track = null;
 			MixerGroup = null;
-			SpatialTemplate = null;
+			Pool = null;
+			Positioned = false;
+			Follow = null;
 
 			State = ThunkVoiceState.Playing;
 			Released = false;
@@ -325,7 +348,9 @@ namespace Tekly.Thunk
 
 		public void Apply(ThunkSource source)
 		{
-			source.Audio.volume = BaseVolume * UserVolume * Fade * TrackGain * source.Gain * Emitter.Volume;
+			var emitterVolume = ReferenceEquals(Emitter, null) ? 1f : Emitter.Volume;
+
+			source.Audio.volume = BaseVolume * UserVolume * Fade * TrackGain * source.Gain * emitterVolume;
 			source.Audio.pitch = Pitch * source.PitchScale;
 		}
 	}

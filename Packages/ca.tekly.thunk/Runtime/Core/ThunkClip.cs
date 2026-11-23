@@ -18,6 +18,8 @@ namespace Tekly.Thunk
 		[Tooltip("Starts at a random point in the clip. Useful for loops that can overlap themselves, like ambience.")]
 		[SerializeField] private bool m_randomizeStartTime;
 
+		internal override bool EndsOnItsOwn => !m_loop;
+
 		internal override bool Begin(ThunkVoice voice, ThunkSoundRecord record)
 		{
 			var clip = record.Select(0, m_clips);

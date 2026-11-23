@@ -48,7 +48,8 @@ namespace Tekly.Thunk
 		}
 
 		/// <summary>
-		/// Lets the voice end the way its sound defines: a clip fades out using the sound's fade out time.
+		/// Lets the voice end the way its sound is meant to end. A clip fades out using the sound's fade out time and
+		/// a chain plays its end.
 		/// </summary>
 		public void Release()
 		{

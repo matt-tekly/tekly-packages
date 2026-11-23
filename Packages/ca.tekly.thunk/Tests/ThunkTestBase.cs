@@ -23,7 +23,7 @@ namespace Tekly.Thunk.Tests
 		[TearDown]
 		public void TearDownThunk()
 		{
-			// The runtime goes first so it can hand sources back to emitters that still exist
+			// The runtime goes first, while the emitters and templates its voices refer to still exist
 			m_runtime.Dispose();
 			m_runtime = null;
 

@@ -69,7 +69,7 @@ namespace Tekly.Thunk
 		[Tooltip("Keeps playing while AudioListener.pause is set and fades on unscaled time. For UI sounds and pause menu music.")]
 		[SerializeField] private bool m_playWhilePaused;
 
-		[Tooltip("Optional. An AudioSource, usually in a prefab, whose 3D sound settings are used when this sound is played from an emitter. Without one the emitter's template is used. Has no effect on a sound played with no position.")]
+		[Tooltip("Optional. An AudioSource in a prefab. When this sound is played from an emitter or at a position it is played through copies of that prefab, so its 3D sound settings and any filters on it apply. Without one the emitter's template is used. Has no effect on a sound played with no position.")]
 		[SerializeField] private AudioSource m_spatialTemplate;
 
 		[FormerlySerializedAs("InstanceCapacity")]
@@ -81,7 +81,7 @@ namespace Tekly.Thunk
 		[SerializeField] private ThunkStealing m_stealing;
 
 		[FormerlySerializedAs("MinimumTimeBetweenPlays")]
-		[Tooltip("Seconds that must pass before the sound can play again. A small value stops copies of the sound doubling up in the same moment.")]
+		[Tooltip("Seconds that must pass before the sound can play again. A small value stops copies of the sound from stacking up at the same instant.")]
 		[Min(0f)]
 		[SerializeField] private float m_cooldown = 0.03f;
 
@@ -93,6 +93,22 @@ namespace Tekly.Thunk
 			var runtime = ThunkRuntime.Instance;
 			return runtime != null ? runtime.Play(this, null) : ThunkHandle.None;
 		}
+
+		/// <summary>
+		/// Plays the sound at a point in the world, through a copy of the sound's spatial template. A sound with
+		/// no template is not positioned, so it plays the same as <see cref="Play"/>.
+		/// </summary>
+		public ThunkHandle PlayAt(Vector3 position)
+		{
+			var runtime = ThunkRuntime.Instance;
+			return runtime != null ? runtime.PlayAt(this, position) : ThunkHandle.None;
+		}
+
+		/// <summary>
+		/// False for a sound that keeps playing until it is told to end. Those are released when the emitter
+		/// playing them goes away.
+		/// </summary>
+		internal virtual bool EndsOnItsOwn => true;
 
 		/// <summary>
 		/// Starts the voice's sources. Returns false if there is nothing to play.
@@ -115,7 +131,7 @@ namespace Tekly.Thunk
 		}
 
 		/// <summary>
-		/// Called when the pitch of a voice that asked to have its pitch watched changes.
+		/// Called when the pitch changes on a voice that asked for pitch changes to be reported.
 		/// </summary>
 		internal virtual void PitchChanged(ThunkVoice voice) { }
 

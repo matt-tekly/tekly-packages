@@ -137,7 +137,7 @@ namespace Tekly.Thunk.Tests
 		}
 
 		[Test]
-		public void EmitterDestroyed_FreesThatEmittersVoicesOnly()
+		public void EmitterGone_ReleasesThatEmittersLoopingVoicesOnly()
 		{
 			var sound = CreateSound();
 			var first = CreateEmitter();
@@ -146,7 +146,7 @@ namespace Tekly.Thunk.Tests
 			var onFirst = Runtime.Play(sound, first);
 			var onSecond = Runtime.Play(sound, second);
 
-			Runtime.EmitterDestroyed(first);
+			Runtime.EmitterGone(first);
 
 			Assert.IsFalse(Resolves(onFirst));
 			Assert.IsTrue(Resolves(onSecond));

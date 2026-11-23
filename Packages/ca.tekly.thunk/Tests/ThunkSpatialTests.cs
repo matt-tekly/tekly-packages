@@ -16,7 +16,8 @@ namespace Tekly.Thunk.Tests
 
 			var voice = GetVoice(Runtime.Play(sound, null));
 
-			Assert.IsTrue(voice.SpatialTemplate == null);
+			Assert.IsFalse(voice.Positioned);
+			Assert.IsFalse(voice.Pool.HasTemplate);
 			Assert.AreEqual(0f, voice.Sources[0].Audio.spatialBlend, TOLERANCE);
 		}
 
@@ -27,12 +28,13 @@ namespace Tekly.Thunk.Tests
 
 			var voice = GetVoice(Runtime.Play(CreateSound(), emitter));
 
-			Assert.IsTrue(voice.SpatialTemplate == null);
+			Assert.IsFalse(voice.Positioned);
+			Assert.IsTrue(voice.Follow == null);
 			Assert.AreEqual(0f, voice.Sources[0].Audio.spatialBlend, TOLERANCE);
 		}
 
 		[Test]
-		public void EmitterTemplate_IsCopiedOntoThePlayingSource()
+		public void EmitterTemplate_ThePlayingSourceIsACopyOfIt()
 		{
 			var template = CreateTemplate(0.6f, 2f, 30f, AudioRolloffMode.Linear);
 			var emitter = CreateEmitter();
@@ -41,7 +43,9 @@ namespace Tekly.Thunk.Tests
 			var voice = GetVoice(Runtime.Play(CreateSound(), emitter));
 			var audio = voice.Sources[0].Audio;
 
-			Assert.AreSame(template, voice.SpatialTemplate);
+			Assert.AreSame(template, voice.Pool.Template);
+			Assert.AreNotSame(template, audio);
+			Assert.AreNotSame(template.gameObject, audio.gameObject);
 			Assert.AreEqual(0.6f, audio.spatialBlend, TOLERANCE);
 			Assert.AreEqual(2f, audio.minDistance, TOLERANCE);
 			Assert.AreEqual(30f, audio.maxDistance, TOLERANCE);
@@ -61,41 +65,13 @@ namespace Tekly.Thunk.Tests
 
 			var voice = GetVoice(Runtime.Play(sound, emitter));
 
-			Assert.AreSame(soundTemplate, voice.SpatialTemplate);
+			Assert.AreSame(soundTemplate, voice.Pool.Template);
 			Assert.AreEqual(5f, voice.Sources[0].Audio.minDistance, TOLERANCE);
 			Assert.AreEqual(60f, voice.Sources[0].Audio.maxDistance, TOLERANCE);
 		}
 
 		[Test]
-		public void OtherSpatialProperties_AreCopied()
-		{
-			var template = CreateTemplate();
-			template.dopplerLevel = 3f;
-			template.spread = 90f;
-			template.reverbZoneMix = 0.7f;
-			template.panStereo = 0.5f;
-			template.bypassEffects = true;
-			template.bypassListenerEffects = true;
-			template.bypassReverbZones = true;
-			template.velocityUpdateMode = AudioVelocityUpdateMode.Fixed;
-
-			var emitter = CreateEmitter();
-			emitter.SpatialTemplate = template;
-
-			var audio = GetVoice(Runtime.Play(CreateSound(), emitter)).Sources[0].Audio;
-
-			Assert.AreEqual(3f, audio.dopplerLevel, TOLERANCE);
-			Assert.AreEqual(90f, audio.spread, TOLERANCE);
-			Assert.AreEqual(0.7f, audio.reverbZoneMix, TOLERANCE);
-			Assert.AreEqual(0.5f, audio.panStereo, TOLERANCE);
-			Assert.IsTrue(audio.bypassEffects);
-			Assert.IsTrue(audio.bypassListenerEffects);
-			Assert.IsTrue(audio.bypassReverbZones);
-			Assert.AreEqual(AudioVelocityUpdateMode.Fixed, audio.velocityUpdateMode);
-		}
-
-		[Test]
-		public void CustomRolloffCurve_IsCopied()
+		public void CustomRolloffCurve_ComesFromTheTemplate()
 		{
 			var template = CreateTemplate(1f, 1f, 50f, AudioRolloffMode.Custom);
 			var curve = new AnimationCurve(new Keyframe(0f, 1f), new Keyframe(1f, 0.25f));
@@ -117,6 +93,22 @@ namespace Tekly.Thunk.Tests
 		}
 
 		[Test]
+		public void FiltersOnTheTemplate_ComeAlongWithIt()
+		{
+			var template = CreateTemplate();
+			template.gameObject.AddComponent<AudioLowPassFilter>().cutoffFrequency = 500f;
+
+			var emitter = CreateEmitter();
+			emitter.SpatialTemplate = template;
+
+			var audio = GetVoice(Runtime.Play(CreateSound(), emitter)).Sources[0].Audio;
+			var filter = audio.GetComponent<AudioLowPassFilter>();
+
+			Assert.IsNotNull(filter);
+			Assert.AreEqual(500f, filter.cutoffFrequency, 0.5f);
+		}
+
+		[Test]
 		public void PropertiesTheSoundOwns_AreNotTakenFromTheTemplate()
 		{
 			var template = CreateTemplate();
@@ -135,37 +127,65 @@ namespace Tekly.Thunk.Tests
 			Assert.AreSame(sound.Clips.Clips[0], audio.clip);
 			Assert.IsFalse(audio.loop);
 			Assert.IsFalse(audio.mute);
+			Assert.IsFalse(audio.playOnAwake);
 			Assert.AreEqual(128, audio.priority);
 			Assert.AreEqual(1f, audio.volume, TOLERANCE);
 		}
 
 		[Test]
-		public void ReusedSourceWithoutATemplate_IsReset()
+		public void InactiveOrDisabledTemplate_StillGivesAWorkingSource()
 		{
 			var template = CreateTemplate();
-			template.bypassEffects = true;
-			template.spatialBlend = 1f;
-			template.panStereo = 0.5f;
-			template.dopplerLevel = 3f;
+			template.enabled = false;
+			template.gameObject.SetActive(false);
 
 			var emitter = CreateEmitter();
 			emitter.SpatialTemplate = template;
 
-			var first = Runtime.Play(CreateSound(), emitter);
-			var audio = GetVoice(first).Sources[0].Audio;
+			var audio = GetVoice(Runtime.Play(CreateSound(), emitter)).Sources[0].Audio;
 
-			Runtime.StopVoice(GetVoice(first), 0f);
+			Assert.IsTrue(audio.enabled);
+			Assert.IsTrue(audio.gameObject.activeInHierarchy);
+		}
+
+		[Test]
+		public void Sources_AreReusedByPlaysThroughTheSameTemplate()
+		{
+			var template = CreateTemplate();
+			var first = CreateEmitter();
+			var second = CreateEmitter();
+
+			first.SpatialTemplate = template;
+			second.SpatialTemplate = template;
+
+			var voice = GetVoice(Runtime.Play(CreateSound(), first));
+			var audio = voice.Sources[0].Audio;
+
+			Runtime.StopVoice(voice, 0f);
+
+			Assert.AreSame(audio, GetVoice(Runtime.Play(CreateSound(), second)).Sources[0].Audio);
+		}
+
+		[Test]
+		public void Sources_AreNotSharedBetweenTemplates()
+		{
+			var emitter = CreateEmitter();
+			emitter.SpatialTemplate = CreateTemplate();
+
+			var voice = GetVoice(Runtime.Play(CreateSound(), emitter));
+			var audio = voice.Sources[0].Audio;
+
+			Runtime.StopVoice(voice, 0f);
+
+			emitter.SpatialTemplate = CreateTemplate();
+			var other = GetVoice(Runtime.Play(CreateSound(), emitter));
+
 			emitter.SpatialTemplate = null;
+			var plain = GetVoice(Runtime.Play(CreateSound(), emitter));
 
-			var second = GetVoice(Runtime.Play(CreateSound(), emitter));
-			var source = second.Sources[0];
-
-			Assert.AreSame(audio, source.Audio);
-			Assert.AreEqual(0f, audio.spatialBlend, TOLERANCE);
-			Assert.IsFalse(audio.bypassEffects);
-			Assert.AreEqual(0f, audio.panStereo, TOLERANCE);
-			Assert.AreEqual(1f, audio.dopplerLevel, TOLERANCE);
-			Assert.IsTrue(source.Template == null);
+			Assert.AreNotSame(audio, other.Sources[0].Audio);
+			Assert.AreNotSame(audio, plain.Sources[0].Audio);
+			Assert.AreEqual(0f, plain.Sources[0].Audio.spatialBlend, TOLERANCE);
 		}
 
 		[Test]
@@ -179,11 +199,28 @@ namespace Tekly.Thunk.Tests
 
 			var voice = GetVoice(Runtime.Play(CreateSound(), emitter));
 
+			Assert.IsFalse(voice.Positioned);
 			Assert.AreEqual(0f, voice.Sources[0].Audio.spatialBlend, TOLERANCE);
 		}
 
 		[Test]
-		public void InTheEditor_TheTemplateIsCopiedAgainOnEveryPlay()
+		public void TemplateDestroyedWhilePlaying_ItsSourceIsDestroyedWhenTheVoiceEnds()
+		{
+			var template = CreateTemplate();
+			var emitter = CreateEmitter();
+			emitter.SpatialTemplate = template;
+
+			var voice = GetVoice(Runtime.Play(CreateSound(), emitter));
+			var audio = voice.Sources[0].Audio;
+
+			Object.DestroyImmediate(template.gameObject);
+			Runtime.StopVoice(voice, 0f);
+
+			Assert.IsTrue(audio == null);
+		}
+
+		[Test]
+		public void InTheEditor_AReusedSourcePicksUpChangesToTheTemplate()
 		{
 			var template = CreateTemplate(1f, 1f, 50f);
 			var emitter = CreateEmitter();
@@ -197,6 +234,102 @@ namespace Tekly.Thunk.Tests
 			var audio = GetVoice(Runtime.Play(CreateSound(), emitter)).Sources[0].Audio;
 
 			Assert.AreEqual(80f, audio.maxDistance, TOLERANCE);
+		}
+
+		[Test]
+		public void Source_StartsAtTheEmitter_AndFollowsIt()
+		{
+			var emitter = CreateEmitter();
+			emitter.SpatialTemplate = CreateTemplate();
+			emitter.transform.position = new Vector3(1f, 2f, 3f);
+
+			var voice = GetVoice(Runtime.Play(CreateSound(), emitter));
+			var source = voice.Sources[0];
+
+			Assert.AreEqual(new Vector3(1f, 2f, 3f), source.Transform.position);
+
+			emitter.transform.position = new Vector3(4f, 5f, 6f);
+			Runtime.Follow();
+
+			Assert.AreEqual(new Vector3(4f, 5f, 6f), source.Transform.position);
+		}
+
+		[Test]
+		public void PlayAt_PlacesTheSourceThroughTheSoundsTemplate()
+		{
+			var template = CreateTemplate();
+			var sound = CreateSound();
+			SetSoundTemplate(sound, template);
+
+			var voice = GetVoice(Runtime.PlayAt(sound, new Vector3(7f, 8f, 9f)));
+
+			Assert.IsTrue(voice.Positioned);
+			Assert.AreSame(template, voice.Pool.Template);
+			Assert.IsTrue(voice.Follow == null);
+			Assert.AreEqual(new Vector3(7f, 8f, 9f), voice.Sources[0].Transform.position);
+		}
+
+		[Test]
+		public void PlayAt_WithNoTemplate_IsNotPositioned()
+		{
+			var voice = GetVoice(Runtime.PlayAt(CreateSound(), new Vector3(7f, 8f, 9f)));
+
+			Assert.IsFalse(voice.Positioned);
+			Assert.AreEqual(0f, voice.Sources[0].Audio.spatialBlend, TOLERANCE);
+		}
+
+		[Test]
+		public void EmitterGone_ASoundThatEndsOnItsOwn_PlaysOutWhereTheEmitterWas()
+		{
+			var emitter = CreateEmitter();
+			emitter.SpatialTemplate = CreateTemplate();
+			emitter.Volume = 0.5f;
+			emitter.transform.position = new Vector3(1f, 2f, 3f);
+
+			var handle = Runtime.Play(CreateSound(loop: false), emitter);
+			var voice = GetVoice(handle);
+
+			Runtime.EmitterGone(emitter);
+			Object.DestroyImmediate(emitter.gameObject);
+
+			Runtime.Follow();
+			voice.Apply();
+
+			Assert.IsTrue(Resolves(handle));
+			Assert.IsTrue(voice.Emitter == null);
+			Assert.AreEqual(new Vector3(1f, 2f, 3f), voice.Sources[0].Transform.position);
+			Assert.AreEqual(0.5f, voice.Sources[0].Audio.volume, TOLERANCE);
+		}
+
+		[Test]
+		public void EmitterGone_ALoopingSound_IsReleased()
+		{
+			var emitter = CreateEmitter();
+			var chain = CreateChain(endClips: 1);
+
+			var looping = Runtime.Play(CreateSound(loop: true), emitter);
+			var chained = Runtime.Play(chain, emitter);
+
+			Runtime.EmitterGone(emitter);
+
+			// A clip with no fade out ends immediately. A chain moves on to its end clip.
+			Assert.IsFalse(Resolves(looping));
+			Assert.IsTrue(Resolves(chained));
+			Assert.IsTrue(GetVoice(chained).Released);
+		}
+
+		[Test]
+		public void FollowedTransformDestroyedWithoutNotice_StopsBeingFollowed()
+		{
+			var emitter = CreateEmitter();
+			emitter.SpatialTemplate = CreateTemplate();
+
+			var voice = GetVoice(Runtime.Play(CreateSound(), emitter));
+
+			Object.DestroyImmediate(emitter.gameObject);
+
+			Assert.DoesNotThrow(() => Runtime.Follow());
+			Assert.IsTrue(ReferenceEquals(voice.Follow, null));
 		}
 	}
 }

@@ -107,7 +107,7 @@ namespace Tekly.Thunk.Tests
 			voice.StageDsp = 0d;
 			voice.Sound.Release(voice, Runtime);
 
-			// Held first as the tick may free the voice, which would clear its sources
+			// Grabbed first, because the tick may free the voice and clear its sources
 			var loop = voice.Sources[1];
 
 			Runtime.Tick(1f, 1f);

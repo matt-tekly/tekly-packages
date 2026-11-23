@@ -47,7 +47,7 @@ namespace Tekly.Thunk
 			}
 
 			if (m_mode == ThunkTrackPlayMode.Interrupt) {
-				// Playing again replaces this component's own interruption, it doesn't stack another
+				// Playing again replaces this component's own interruption instead of stacking another on top
 				m_handle.Stop(m_fade);
 				m_handle = m_track.Interrupt(m_sound, m_fade);
 			} else if (m_mode == ThunkTrackPlayMode.Over) {

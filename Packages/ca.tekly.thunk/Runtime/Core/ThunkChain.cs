@@ -8,8 +8,8 @@ namespace Tekly.Thunk
 	///
 	/// The loop is scheduled against the audio clock from the start clip's length, so the join is exact as long as
 	/// the pitch doesn't change during the start. If the pitch changes or the voice is paused during the start, the
-	/// loop is rescheduled from where the start has got to, which is close but not exact. Compressed formats that
-	/// pad their clips (MP3) leave a gap whatever is done here.
+	/// loop is rescheduled from wherever the start has reached, which is close but not exact. Compressed formats
+	/// that pad their clips (MP3) leave a gap no matter what.
 	/// </summary>
 	[CreateAssetMenu(fileName = "thunk_chain", menuName = "Tekly/Thunk/Chain")]
 	public class ThunkChain : ThunkSound
@@ -25,7 +25,7 @@ namespace Tekly.Thunk
 		// Scheduling slightly ahead gives the audio thread time to line both sources up
 		private const double SCHEDULE_LEAD = 0.03d;
 
-		// Where a scheduled source is moved to while the voice is paused
+		// While the voice is paused, a scheduled source is pushed this far into the future
 		private const double FAR_AWAY = 1000000d;
 
 		public ThunkClipSet Start => m_start;
@@ -45,6 +45,8 @@ namespace Tekly.Thunk
 		[Tooltip("Seconds to fade the loop out underneath the end.")]
 		[Min(0f)]
 		[SerializeField] private float m_endCrossfade = 0.05f;
+
+		internal override bool EndsOnItsOwn => false;
 
 		internal override bool Begin(ThunkVoice voice, ThunkSoundRecord record)
 		{
@@ -91,8 +93,8 @@ namespace Tekly.Thunk
 
 			UpdateStage(voice);
 
-			// A voice that is paused or already fading away has nothing to play an end over. Checked before an end
-			// clip is picked, so a release that plays no end doesn't use up a turn in the end set's order.
+			// A paused or fading voice has nothing for an end clip to play over. This is checked before picking an end
+			// clip, so that a release with no end doesn't advance the end set's selection order.
 			var endClip = voice.State == ThunkVoiceState.Playing ? voice.Record.Select(SET_END, m_end) : null;
 
 			if (endClip == null) {
@@ -126,7 +128,7 @@ namespace Tekly.Thunk
 				return;
 			}
 
-			// The loop hasn't started, so there is nothing to pause: it is pushed out of the way until the resume
+			// The loop hasn't started, so there is nothing to pause. Its start is pushed far into the future until the resume.
 			voice.Sources[0].Audio.Pause();
 			voice.Sources[1].Audio.SetScheduledStartTime(AudioSettings.dspTime + FAR_AWAY);
 			voice.StageDsp = double.MaxValue;
@@ -145,7 +147,7 @@ namespace Tekly.Thunk
 
 		internal override void PitchChanged(ThunkVoice voice)
 		{
-			// MaxValue means the voice is paused, and the resume will reschedule
+			// MaxValue means the voice is paused. Resuming will reschedule the loop.
 			if (voice.StageDsp == double.MaxValue) {
 				return;
 			}
@@ -158,8 +160,8 @@ namespace Tekly.Thunk
 		}
 
 		/// <summary>
-		/// The voice doesn't get told when the loop takes over from the start, so the stage is worked out from the
-		/// audio clock whenever it matters.
+		/// Nothing notifies the voice when the loop takes over from the start, so the stage is worked out from the
+		/// audio clock whenever it is needed.
 		/// </summary>
 		internal static void UpdateStage(ThunkVoice voice)
 		{
@@ -177,13 +179,13 @@ namespace Tekly.Thunk
 			// Unity null check: the clip is gone if its bundle was unloaded
 			var remaining = clip != null ? GetDuration(clip, start.timeSamples, voice.Pitch) : 0d;
 
-			// During the scheduling lead the start hasn't begun yet, so its time remaining counts from when it will
+			// During the scheduling lead the start hasn't begun, so its remaining time is measured from when it will begin
 			voice.StageDsp = System.Math.Max(AudioSettings.dspTime, voice.StageBeginDsp) + remaining;
 			voice.Sources[1].Audio.SetScheduledStartTime(voice.StageDsp);
 		}
 
 		/// <summary>
-		/// Seconds the clip takes to play from a sample position to its end at a pitch.
+		/// How many seconds the clip takes to play from the given sample position to its end, at the given pitch.
 		/// </summary>
 		private static double GetDuration(AudioClip clip, int fromSample, float pitch)
 		{

@@ -52,8 +52,8 @@ namespace Tekly.Thunk
 
 			EnsureSelectorCapacity(setIndex + 1);
 
-			// A selector that was never built has a Size of 0. The set can also change under the record: it was
-			// edited, or a copy of the sound from another bundle differs.
+			// A selector that was never built has a Size of 0. The set can also change underneath the record, either
+			// because it was edited or because a copy of the sound from another bundle has different clips.
 			if (m_selectors[setIndex].Size != count || m_selectors[setIndex].Mode != mode) {
 				m_selectors[setIndex] = new RandomSelector64(count, mode);
 			}

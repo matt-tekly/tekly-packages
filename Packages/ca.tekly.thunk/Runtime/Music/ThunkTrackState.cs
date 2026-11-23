@@ -30,7 +30,8 @@ namespace Tekly.Thunk
 			public float Level;
 
 			/// <summary>
-			/// The voice the request lasts as long as, if it was made by playing a sound over the track
+			/// If the request was made by playing a sound over the track, this is that sound's voice. The request lasts
+			/// as long as the voice does.
 			/// </summary>
 			public ThunkHandle Voice;
 		}
@@ -45,7 +46,7 @@ namespace Tekly.Thunk
 		private float m_duckTime;
 		private float m_duckDuration;
 
-		// Taken from the track on every call, so a voice ending later still has them
+		// Copied from the track on every call, so they are still available when a voice ends later
 		private float m_crossfade;
 		private bool m_resumeHeld;
 		private AudioMixerGroup m_mixerGroup;
@@ -88,7 +89,7 @@ namespace Tekly.Thunk
 			}
 
 			if (m_entries.Count > 1) {
-				// Interrupted: the new main music waits, and starts when it comes back to the top
+				// The track is interrupted, so the new main music waits and starts once it is back on top
 				DetachAndStop(runtime, main.Handle, 0f);
 				m_entries[0] = new Entry { Sound = sound };
 
@@ -156,7 +157,7 @@ namespace Tekly.Thunk
 		{
 			ReadSettings(track);
 
-			// It is told about this track so the duck ends with it, but it is not one of the track's entries
+			// The voice knows about this track so that the duck ends when it does, but it is not one of the track's entries
 			var handle = runtime.Play(sound, null, -1f, this);
 
 			if (!handle.IsNone) {
@@ -231,7 +232,7 @@ namespace Tekly.Thunk
 			var index = IndexOf(handle);
 
 			if (index < 0) {
-				// Not music: a sound that was played over the track, so its duck ends with it
+				// This is not music. It is a sound that was played over the track, so its duck ends with it.
 				ReleaseDuckOf(runtime, handle);
 				return;
 			}
@@ -329,7 +330,7 @@ namespace Tekly.Thunk
 		private static void DetachAndStop(ThunkRuntime runtime, ThunkHandle handle, float fade)
 		{
 			if (runtime.TryGetVoice(handle, out var voice)) {
-				// Detached first so stopping it doesn't come back here as a voice that ended
+				// Detached first, so that stopping it doesn't call back into this track as a voice that ended
 				voice.Track = null;
 				runtime.StopVoice(voice, fade);
 			}

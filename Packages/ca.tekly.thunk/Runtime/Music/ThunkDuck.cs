@@ -2,8 +2,8 @@
 {
 	/// <summary>
 	/// A request to keep a track's music turned down, returned by <see cref="ThunkTrack.Duck()"/>. The music stays
-	/// down until the request is released. <c>default</c> is a request that was never made, and releasing it does
-	/// nothing, as does releasing twice.
+	/// down until the request is released. <c>default</c> is a request that was never made. Releasing it does
+	/// nothing, and neither does releasing a request twice.
 	/// </summary>
 	public readonly struct ThunkDuck
 	{

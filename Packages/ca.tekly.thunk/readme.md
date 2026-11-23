@@ -10,7 +10,7 @@ A small audio package for Unity.
 | `ThunkClip` | A sound that plays one AudioClip picked from a set, once or looping. |
 | `ThunkChain` | A sound with a start, a loop and an end. |
 | `ThunkTimeline` | A sound made of several clips played at set times. |
-| `ThunkEmitter` | A component that plays sounds at its own position. |
+| `ThunkEmitter` | A component that plays sounds at its own position. The sounds follow it and outlive it. |
 | `ThunkHandle` | A struct that refers to one playing voice. Goes stale when the voice ends, after which its calls do nothing. |
 | `ThunkTrack` | An asset for one stream of music. |
 | `ThunkPlayer`, `ThunkTrackPlayer` | Components that play a sound, or play a sound on a track, without code. |
@@ -23,10 +23,11 @@ A small audio package for Unity.
 [SerializeField] private ThunkEmitter m_emitter;
 
 m_click.Play();              // no position
-m_emitter.Play(m_click);     // at the emitter
+m_emitter.Play(m_click);     // at the emitter, following it
+m_click.PlayAt(position);    // at a point in the world
 ```
 
-Both return a `ThunkHandle`. Ignore it to play a one-shot. Keep it to control the voice:
+All three return a `ThunkHandle`. Ignore it to play a one-shot. Keep it to control the voice:
 
 ```csharp
 var handle = m_engine.Play();
@@ -77,18 +78,32 @@ This only turns down music on the track. For one group of sounds ducking another
 
 ## Spatial sound
 
-How a sound is heard in the world comes from a template AudioSource. Thunk copies its 3D Sound Settings (spatial blend, doppler, spread, rolloff, distances and their curves), stereo pan, reverb zone mix and effect bypass flags onto the AudioSource the sound plays through. Everything else on the template is ignored: the clip, volume, pitch, loop, priority, mute and output group come from the sound.
+Sounds play through AudioSources that Thunk pools centrally, under one `[Thunk]` object. How a sound is heard in the world comes from a template: an AudioSource in a prefab. Thunk keeps a pool of copies of that prefab and plays the sound through one of them, so the template's 3D Sound Settings apply, and so do any filters (`AudioLowPassFilter` and the like) or spatializer components that sit next to its AudioSource.
 
-A sound played with `sound.Play()` is never positioned. A sound played from an emitter uses the first of these that exists:
+The clip, volume, pitch, loop, priority and output group always come from the sound, whatever the template has set.
+
+```csharp
+m_emitter.Play(m_footstep);       // follows the emitter
+m_explosion.PlayAt(hit.point);    // stays at a point, no emitter needed
+m_click.Play();                   // not positioned
+```
+
+A sound played with `sound.Play()` is never positioned. `sound.PlayAt(position)` uses the Spatial Template on the sound. A sound played from an emitter uses the first of these that exists:
 
 1. The Spatial Template on the sound.
 2. The Spatial Template on the emitter.
 
-If neither exists the sound is not positioned.
+If there is no template the sound is not positioned.
 
-A template is usually an AudioSource in a prefab, which makes it a shared preset: point every large sound at `spatial_large.prefab` and retune them all in one place. An emitter can also point at a disabled AudioSource on its own GameObject for a one-off.
+Things to know about templates:
 
-In the editor the template is copied every time a sound plays, so it can be tuned while the game runs. In a build it is copied once per AudioSource.
+- The whole GameObject of the template is copied, so keep it to an AudioSource and its filters. A template should be a prefab of its own, not an AudioSource on a character or on the emitter.
+- There is one pool for each template, so templates are meant to be shared. Point every large sound at `spatial_large.prefab` and they share one pool and are retuned in one place.
+- In the editor a template's 3D Sound Settings are copied onto a pooled source again each time it is reused, so they can be tuned while the game runs. Changes to filters are only picked up by copies made afterwards.
+
+### When an emitter goes away
+
+A sound is not cut off when its emitter is disabled or destroyed. A sound that ends on its own (a clip that does not loop, a timeline) plays out where the emitter last was. A sound that would play forever (a looping clip, a chain) is released, so it fades out or plays its end. This is what lets an enemy play its death sound and be destroyed on the same frame.
 
 ## Chains
 

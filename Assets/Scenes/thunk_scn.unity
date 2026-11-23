@@ -151,6 +151,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Tekly.Thunk::Tekly.Thunk.ThunkEmitter
   m_volume: 1
   m_pitch: 1
+  m_spatialTemplate: {fileID: 0}
 --- !u!4 &34358607
 Transform:
   m_ObjectHideFlags: 0

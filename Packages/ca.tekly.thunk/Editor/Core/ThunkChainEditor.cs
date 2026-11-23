@@ -11,7 +11,7 @@ namespace Tekly.Thunk
 		private const int SET_LOOP = 1;
 		private const int SET_END = 2;
 
-		// Kept so exhaustive and non-repeating selection behaves as it does at runtime across presses
+		// Kept between presses so that exhaustive and non-repeating selection behave as they do at runtime
 		private readonly ThunkSoundRecord m_record = new ThunkSoundRecord();
 
 		public override void OnInspectorGUI()

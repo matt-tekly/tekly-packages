@@ -22,10 +22,10 @@ namespace Tekly.Thunk
 		[Min(0f)]
 		[SerializeField] private float m_crossfade = 1f;
 
-		[Tooltip("When an interruption ends, the held music carries on from where it was. Otherwise it starts again.")]
+		[Tooltip("When on, held music carries on from where it was once an interruption ends. When off, it starts again from the beginning.")]
 		[SerializeField] private bool m_resumeHeld = true;
 
-		[Tooltip("Optional. Everything played on this track goes to this group in place of the sound's own.")]
+		[Tooltip("Optional. Everything played on this track is routed to this group instead of the sound's own.")]
 		[SerializeField] private AudioMixerGroup m_mixerGroup;
 
 		[Tooltip("How loud the music is while it is ducked, as a ratio of its normal volume.")]
@@ -82,7 +82,7 @@ namespace Tekly.Thunk
 
 		/// <summary>
 		/// Turns the music down to the track's duck level until the returned request is released. With several
-		/// requests active the lowest level wins, they do not stack.
+		/// requests active the lowest level wins. They do not stack.
 		/// </summary>
 		public ThunkDuck Duck()
 		{
