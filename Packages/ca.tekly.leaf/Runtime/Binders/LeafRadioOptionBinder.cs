@@ -32,6 +32,9 @@ namespace Tekly.Leaf.Binders
 
 		protected override void BindValue(bool value)
 		{
+			// A binder under a hidden panel is bound before its Awake has run
+			m_radioOption ??= m_option as ILeafRadioOption;
+
 			if (m_radioOption == null || (m_ignoreModelUpdates && m_hasBoundValue)) {
 				return;
 			}

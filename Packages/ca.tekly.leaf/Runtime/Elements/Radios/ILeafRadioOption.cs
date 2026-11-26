@@ -55,7 +55,16 @@ namespace Tekly.Leaf.Elements.Radios
 			Group = component.GetComponentInParent<LeafRadioGroup>();
 
 			if (Group != null) {
+				// A binder can turn the option on before it has been enabled, such as a panel bound to its model
+				// while still hidden. That choice wins over the option the group would start on.
+				var turnedOnEarly = m_isOn;
+				m_isOn = false;
+
 				Group.OnOptionEnabled(option);
+
+				if (turnedOnEarly) {
+					Group.SetWithoutNotify(option);
+				}
 			}
 
 			m_wasOn = IsOn;
