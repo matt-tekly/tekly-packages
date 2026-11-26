@@ -82,3 +82,14 @@
 - Fades are run by the animator with unscaled time from a tracked color, so they keep going while a Graphic is hidden and are repaired when the animator is enabled, when an Active Target shows a Graphic, and after a scene save or undo in the editor. Nothing runs per frame while idle apart from a cheap check in LateUpdate. Set the Selectable's Transition to None, and don't make a Toggle's own Graphic a color target
 - Showing/hiding GameObjects by flags is a separate list (`LeafActiveTarget`). A face that fades in can often stay active and use alpha in its layers instead
 - Disabled elements report `Normal` mode but keep `IsSelected`
+
+### Tweenline Animator
+- `LeafAnimatorTweenline` plays a Tweenline animation per state, for motion like a button growing on hover or squashing on press. It's in its own assembly, `Tekly.Leaf.Tweenline`, which only compiles when `ca.tekly.tweenline` is installed, so Leaf doesn't depend on Tweenline
+- Rules are checked in order and the first match plays. Each rule has the modes it applies in, the flags it needs and an animation name. Put the most specific first and end with one that matches everything, e.g. Disabled, Pressed, Highlighted, Selected, then Normal
+- Author each animation as "go to this look" with its clips starting from Current. Any state can then follow any other without an animation per pair, and a change that interrupts another starts from where the element actually is
+- A state change that matches the animation already showing leaves it alone, so gaining a flag no rule cares about doesn't restart it. Instant changes (on enable) jump to the end of the animation
+- Only plays in play mode, so a Selected or On look is never saved into the scene or prefab. Preview the animations in the Tweenline window instead
+- Set the Tweenline to Unscaled Time so buttons animate while the game is paused, and leave its Stagger at 0
+- A Tweenline plays one animation at a time. For looks that overlap, like Selected while Pressed, add a rule for the combination or give each part its own object, Tweenline and animator, and drive them together with a `LeafAnimatorGroup`. Pair it with `LeafAnimatorColors` the same way, colors for tints and Tweenline for motion
+- Never have two Tweenlines drive the same property on the same object. Each keeps its own rest values, so they overwrite each other
+- Inside a layout group, animate scale on the element or move a child, since the layout owns the element's position

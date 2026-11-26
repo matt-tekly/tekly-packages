@@ -1,0 +1,25 @@
+{
+    "name": "Tekly.Leaf.Tweenline",
+    "rootNamespace": "Tekly.Leaf",
+    "references": [
+        "GUID:92e9d0c25e5487c4aaa6f9d67a9b913f",
+        "GUID:8c32b66f1bf1bb6449d61d954a6d55e7"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "LEAF_TWEENLINE"
+    ],
+    "versionDefines": [
+        {
+            "name": "ca.tekly.tweenline",
+            "expression": "",
+            "define": "LEAF_TWEENLINE"
+        }
+    ],
+    "noEngineReferences": false
+}
