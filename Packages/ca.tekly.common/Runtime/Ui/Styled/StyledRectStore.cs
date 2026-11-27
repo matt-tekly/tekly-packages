@@ -27,6 +27,7 @@ namespace Tekly.Common.Ui.Styled
 		private const int START_HEIGHT = 16;
 		private const string SHADER_RESOURCE = "Shaders/StyledRect";
 		private const string EXTENDED_SHADER_RESOURCE = "Shaders/StyledRectExtended";
+		private const string SOLID_SHADER_RESOURCE = "Shaders/StyledRectSolid";
 
 		private static readonly int s_dataId = Shader.PropertyToID("_TeklyStyledData");
 		private static readonly int s_dataWidthId = Shader.PropertyToID("_TeklyStyledDataWidth");
@@ -56,6 +57,8 @@ namespace Tekly.Common.Ui.Styled
 
 		// One per blend mode for the Core shader, then one per blend mode for the Extended shader.
 		private readonly Material[] m_materials = new Material[BLEND_MODE_COUNT * 2];
+		private readonly Material[] m_solidMaterials = new Material[BLEND_MODE_COUNT];
+		private Shader m_solidShader;
 		// Native, not managed: Texture2D.SetPixelData allocates on every call when given a managed array.
 		private NativeArray<Vector4> m_data;
 		private int m_nextAddress;
@@ -98,14 +101,29 @@ namespace Tekly.Common.Ui.Styled
 		{
 			var index = Mathf.Clamp((int)blendMode, 0, BLEND_MODE_COUNT - 1);
 			var slot = index + (extended ? BLEND_MODE_COUNT : 0);
-			var material = m_materials[slot];
+			return m_materials[slot] ??= CreateMaterial(extended ? m_extendedShader : m_shader, index, extended ? ", Extended" : "");
+		}
 
-			if (material != null) {
-				return material;
+		/// <summary>
+		/// The shared material that draws the solid middles of fills for a blend mode (see StyledRect.UpdateGeometry).
+		/// Its shader is only loaded once a rect needs it.
+		/// </summary>
+		public Material GetSolidMaterial(StyledBlendMode blendMode)
+		{
+			var index = Mathf.Clamp((int)blendMode, 0, BLEND_MODE_COUNT - 1);
+
+			if (m_solidMaterials[index] == null) {
+				m_solidShader ??= Resources.Load<Shader>(SOLID_SHADER_RESOURCE);
+				m_solidMaterials[index] = CreateMaterial(m_solidShader, index, ", Solid");
 			}
 
-			material = new Material(extended ? m_extendedShader : m_shader) {
-				name = $"Styled Rect ({(StyledBlendMode)index}{(extended ? ", Extended" : "")})",
+			return m_solidMaterials[index];
+		}
+
+		private static Material CreateMaterial(Shader shader, int index, string tierName)
+		{
+			var material = new Material(shader) {
+				name = $"Styled Rect ({(StyledBlendMode)index}{tierName})",
 				hideFlags = HideFlags.HideAndDontSave
 			};
 
@@ -127,7 +145,6 @@ namespace Tekly.Common.Ui.Styled
 				material.EnableKeyword(output);
 			}
 
-			m_materials[slot] = material;
 			return material;
 		}
 
@@ -189,6 +206,10 @@ namespace Tekly.Common.Ui.Styled
 			DestroyObject(m_texture);
 
 			foreach (var material in m_materials) {
+				DestroyObject(material);
+			}
+
+			foreach (var material in m_solidMaterials) {
 				DestroyObject(material);
 			}
 

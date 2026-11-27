@@ -79,21 +79,26 @@ float StyledPixelSize(float2 p)
 // 0-1 ramp centered on an edge. A sharp edge is a linear ramp one pixel wide. A soft edge has the profile of
 // a Gaussian blur, the falloff CSS and design tools use: `width` is four standard deviations, which holds
 // nearly all of the fade, with faint tails running another quarter of it past each end.
-float StyledRamp(float x, float width, float pixel)
+half StyledRamp(float x, float width, float pixel)
 {
+    half ramp;
+
+    // A real branch: most edges are sharp, and they should not pay for the soft profile.
+    [branch]
     if (width <= pixel * 1.5) {
-        return saturate(x / width + 0.5);
+        ramp = saturate(x / width + 0.5);
+    } else {
+        // erf(x / (sigma * sqrt(2))) with sigma = width / 4, approximated to within 0.0005.
+        float z = x * 2.8284271 / width;
+        float a = abs(z);
+        float d = 1.0 + a * (0.278393 + a * (0.230389 + a * (0.000972 + a * 0.078108)));
+        d *= d;
+        d *= d;
+        float erf = 1.0 - 1.0 / d;
+        ramp = 0.5 + 0.5 * (z < 0.0 ? -erf : erf);
     }
 
-    // erf(x / (sigma * sqrt(2))) with sigma = width / 4, approximated to within 0.0005.
-    float z = x * 2.8284271 / width;
-    float a = abs(z);
-    float d = 1.0 + a * (0.278393 + a * (0.230389 + a * (0.000972 + a * 0.078108)));
-    d *= d;
-    d *= d;
-    float erf = 1.0 - 1.0 / d;
-
-    return 0.5 + 0.5 * (z < 0.0 ? -erf : erf);
+    return ramp;
 }
 
 // Picks the corner a point belongs to and returns the point relative to that corner of the rect, mirrored
@@ -151,10 +156,15 @@ float StyledShapeDistance(float2 p, float2 halfSize, float4 radii, float4 expone
     float2 outside = max(a, 0.0);
     float inside = min(max(a.x, a.y), 0.0);
 
-    if (exponent > 2.001 && outside.x + outside.y > 0.0) {
-        float2 slope;
-        float norm = StyledSuperellipse(outside, exponent, slope);
-        return (norm + inside - radius) / max(length(slope), 0.25);
+    // A real branch, which is cheap because every pixel of a rect has the same exponent. Left to itself the
+    // GLES compiler flattens this, and circular corners pay for the superellipse's three pow calls too.
+    [branch]
+    if (exponent > 2.001) {
+        if (outside.x + outside.y > 0.0) {
+            float2 slope;
+            float norm = StyledSuperellipse(outside, exponent, slope);
+            return (norm + inside - radius) / max(length(slope), 0.25);
+        }
     }
 
     return length(outside) + inside - radius;
@@ -175,12 +185,16 @@ float2 StyledShapeNormal(float2 p, float2 halfSize, float4 radii, float4 exponen
 
     if (outside.x + outside.y <= 0.0) {
         normal = normalize(max(-a.yx, 1e-4));
-    } else if (exponent > 2.001 && radius > 0.0) {
-        float2 slope;
-        StyledSuperellipse(outside, exponent, slope);
-        normal = normalize(slope);
     } else {
         normal = outside / length(outside);
+
+        // A real branch for the same reason as in StyledShapeDistance.
+        [branch]
+        if (exponent > 2.001 && radius > 0.0) {
+            float2 slope;
+            StyledSuperellipse(outside, exponent, slope);
+            normal = normalize(slope);
+        }
     }
 
     return normal * mirror;
@@ -325,26 +339,20 @@ float StyledLobes(float along, float perimeter, float lobeLength, float seed)
     return (StyledLoopNoise(x, cells, seed) + 0.5 * StyledLoopNoise(x * 2.0, cells * 2.0, seed + 8.0)) / 1.5;
 }
 
-// How far the shape's edge is pushed out (positive) or pulled in at a point by the shape's wobble.
-// wobble: amount, lobe length, seed, changes per second. With a speed the lobes morph in place: the edge
-// blends from one set of lobes to the next and never travels around the shape.
-float StyledShapeWobble(float2 p, float2 halfSize, float4 radii, float4 exponents, float4 wobble)
+// How far the shape's edge is pushed out (positive) or pulled in by the shape's wobble, at `along` on an edge
+// `perimeter` long (see StyledEdgePosition). wobble: amount, lobe length, seed, changes per second. With a
+// speed the lobes morph in place: the edge blends from one set of lobes to the next and never travels
+// around the shape.
+float StyledShapeWobbleAt(float along, float perimeter, float4 wobble)
 {
-    if (wobble.x <= 0.0) {
-        return 0.0;
-    }
-
-    float perimeter;
-    float along = StyledEdgePosition(p, halfSize, radii, exponents, 0.0, perimeter);
-
     float time = _Time.y * wobble.w;
     float step = StyledWrap(floor(time), 64.0);
-    float blend = frac(time);
-    blend = blend * blend * (3.0 - 2.0 * blend);
-
     float lobes = StyledLobes(along, perimeter, wobble.y, wobble.z + step * 3.0);
 
+    [branch]
     if (wobble.w != 0.0) {
+        float blend = frac(time);
+        blend = blend * blend * (3.0 - 2.0 * blend);
         float next = StyledLobes(along, perimeter, wobble.y, wobble.z + StyledWrap(step + 1.0, 64.0) * 3.0);
         lobes = lerp(lobes, next, blend);
     }

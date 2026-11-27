@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 namespace Tekly.Common.Ui.Styled
@@ -288,9 +289,23 @@ namespace Tekly.Common.Ui.Styled
 		[Tooltip("Front to back: the first layer is drawn on top.")]
 		[SerializeField] private List<StyledLayer> m_layers = new List<StyledLayer> { StyledLayer.Fill(Color.white) };
 
+		// The fill middles, built by OnPopulateMesh as a second submesh (see UpdateGeometry), and the lists the
+		// combined mesh is built from. Shared by every rect: meshes are built one at a time on the main thread.
+		private static readonly List<LayerQuads> s_layerQuads = new List<LayerQuads>();
+		private static readonly List<UIVertex> s_solidVertices = new List<UIVertex>();
+		private static readonly List<int> s_solidIndices = new List<int>();
+		private static readonly List<Vector3> s_positions = new List<Vector3>();
+		private static readonly List<Color32> s_colors = new List<Color32>();
+		private static readonly List<Vector4> s_uv0 = new List<Vector4>();
+		private static readonly List<int> s_indices = new List<int>();
+		private static readonly List<IMaterialModifier> s_materialModifiers = new List<IMaterialModifier>();
+
 		private StyledRectStore m_store;
 		private int m_address;
 		private int m_texelCount;
+
+		// The solid material with this rect's stencil test, while it is inside a stencil Mask.
+		private Material m_solidMaskMaterial;
 
 		public StyledLayer GetLayer(int index) => m_layers[index];
 
@@ -470,12 +485,6 @@ namespace Tekly.Common.Ui.Styled
 			base.OnEnable();
 		}
 
-		protected override void OnDisable()
-		{
-			base.OnDisable();
-			ReleaseRows();
-		}
-
 		protected override void OnPopulateMesh(VertexHelper vh)
 		{
 			vh.Clear();
@@ -489,46 +498,257 @@ namespace Tekly.Common.Ui.Styled
 
 			var center = GetPixelAdjustedRect().center;
 			var radii = CalculateRadii(halfSize);
+			var solidSubmesh = UsesSolidSubmesh();
+
+			// Front to back first, so each fill knows what is drawn above it. `open` is the part of the rect no
+			// layer in front draws over with the full shader: inside every hole of the rings in front. A fill's
+			// solid middle draws in the second submesh, after the first, so it is clipped to that part and the
+			// layers in front still end up on top.
+			s_layerQuads.Clear();
+			var openMin = new Vector2(float.MinValue, float.MinValue);
+			var openMax = new Vector2(float.MaxValue, float.MaxValue);
+
+			for (var i = 0; i < m_layers.Count; i++) {
+				var layer = m_layers[i];
+				var quads = new LayerQuads { OpenMin = openMin, OpenMax = openMax };
+
+				if (layer.Draws) {
+					GetLayerBounds(layer, halfSize, radii, out quads.Min, out quads.Max, out quads.HoleMin, out quads.HoleMax, out quads.Solid);
+
+					// A wobble moves edges either way, so the layer reaches further out and its hole is smaller.
+					var wobble = Vector2.one * (Mathf.Max(0, m_wobbleAmount) + layer.WobbleReach);
+					quads.Min -= wobble;
+					quads.Max += wobble;
+					quads.HoleMin += wobble;
+					quads.HoleMax -= wobble;
+
+					// A hole can reach past a layer that is offset from the shape.
+					quads.HoleMin = Vector2.Max(quads.HoleMin, quads.Min);
+					quads.HoleMax = Vector2.Min(quads.HoleMax, quads.Max);
+					quads.Ring = AllowsHole(layer) && IsHoleWorthIt(quads.Min, quads.Max, quads.HoleMin, quads.HoleMax);
+
+					if (quads.Ring) {
+						openMin = Vector2.Max(openMin, quads.HoleMin);
+						openMax = Vector2.Min(openMax, quads.HoleMax);
+					} else {
+						openMax = openMin;
+					}
+				}
+
+				s_layerQuads.Add(quads);
+			}
 
 			// Back to front, so the first layer ends up on top.
 			for (var i = m_layers.Count - 1; i >= 0; i--) {
-				var layer = m_layers[i];
-
-				if (!layer.Draws) {
+				if (!m_layers[i].Draws) {
 					continue;
 				}
 
-				GetLayerBounds(layer, halfSize, radii, out var min, out var max, out var holeMin, out var holeMax);
-
-				// A wobble moves edges either way, so the layer reaches further out and its hole is smaller.
-				var wobble = Vector2.one * (Mathf.Max(0, m_wobbleAmount) + layer.WobbleReach);
-				min -= wobble;
-				max += wobble;
-				holeMin += wobble;
-				holeMax -= wobble;
-
-				// A hole can reach past a layer that is offset from the shape.
-				holeMin = Vector2.Max(holeMin, min);
-				holeMax = Vector2.Min(holeMax, max);
-
+				var quads = s_layerQuads[i];
 				var layerAddress = StyledRows.LayerAddress(m_address, i);
 
-				if (AllowsHole(layer) && IsHoleWorthIt(min, max, holeMin, holeMax)) {
-					EmitRing(vh, center, min, max, holeMin, holeMax, layerAddress);
+				if (!quads.Ring) {
+					EmitRect(vh, center, quads.Min, quads.Max, layerAddress);
+					continue;
+				}
+
+				EmitRing(vh, center, quads.Min, quads.Max, quads.HoleMin, quads.HoleMax, layerAddress);
+
+				if (!quads.Solid) {
+					continue;
+				}
+
+				// A fill's middle is covered everywhere, so its pixels only take the fill's color. The part no layer
+				// in front draws over goes to the second submesh and the solid material. The rest stays in this
+				// mesh, marked solid, so the full shader skips its distance field.
+				var solidAddress = StyledRows.SolidAddress(layerAddress);
+				var middleMin = Vector2.Max(quads.HoleMin, quads.OpenMin);
+				var middleMax = Vector2.Min(quads.HoleMax, quads.OpenMax);
+
+				if (solidSubmesh && IsHoleWorthIt(quads.HoleMin, quads.HoleMax, middleMin, middleMax)) {
+					EmitRing(vh, center, quads.HoleMin, quads.HoleMax, middleMin, middleMax, solidAddress);
+					EmitSolidRect(center, middleMin, middleMax, solidAddress);
 				} else {
-					EmitRect(vh, center, min, max, layerAddress);
+					EmitRect(vh, center, quads.HoleMin, quads.HoleMax, solidAddress);
 				}
 			}
 		}
 
 		/// <summary>
-		/// Where a layer can draw, as a rect relative to the shape center, and the rect in its middle where it
-		/// draws nothing (empty when there is none). Drawing around the hole means the GPU never shades it.
+		/// Builds the mesh, then adds the fill middles from OnPopulateMesh as a second submesh, which UpdateMaterial
+		/// gives the solid material.
+		/// </summary>
+		protected override void UpdateGeometry()
+		{
+			s_solidVertices.Clear();
+			s_solidIndices.Clear();
+			base.UpdateGeometry();
+
+			if (!UsesSolidSubmesh()) {
+				return;
+			}
+
+			var mesh = workerMesh;
+			mesh.GetVertices(s_positions);
+			mesh.GetColors(s_colors);
+			mesh.GetUVs(0, s_uv0);
+			mesh.GetTriangles(s_indices, 0);
+
+			var start = s_positions.Count;
+
+			foreach (var vertex in s_solidVertices) {
+				s_positions.Add(vertex.position);
+				s_colors.Add(vertex.color);
+				s_uv0.Add(vertex.uv0);
+			}
+
+			for (var i = 0; i < s_solidIndices.Count; i++) {
+				s_solidIndices[i] += start;
+			}
+
+			mesh.Clear();
+			mesh.SetVertices(s_positions);
+			mesh.SetColors(s_colors);
+			mesh.SetUVs(0, s_uv0);
+			mesh.subMeshCount = 2;
+			mesh.SetTriangles(s_indices, 0);
+			mesh.SetTriangles(s_solidIndices, 1);
+			canvasRenderer.SetMesh(mesh);
+		}
+
+		/// <summary>
+		/// The full material for the rect, and for the fill middles in the second submesh the solid one. Inside
+		/// a stencil Mask the solid material gets the same stencil test the full one does. A rect that is a Mask
+		/// itself, or that has anything else change its material, draws its middles with the full material: the
+		/// full shader draws them correctly too, only not as cheaply.
+		/// </summary>
+		protected override void UpdateMaterial()
+		{
+			if (!IsActive()) {
+				return;
+			}
+
+			var rendering = materialForRendering;
+			var solid = UsesSolidSubmesh();
+			canvasRenderer.materialCount = solid ? 2 : 1;
+			canvasRenderer.SetMaterial(rendering, 0);
+
+			if (solid) {
+				canvasRenderer.SetMaterial(SolidMaterialForRendering(rendering), 1);
+			}
+
+			canvasRenderer.SetTexture(mainTexture);
+		}
+
+		protected override void OnDisable()
+		{
+			base.OnDisable();
+			ReleaseRows();
+			ReleaseSolidMaskMaterial();
+		}
+
+		/// <summary>
+		/// The solid material, with the stencil test MaskableGraphic gave `rendering` when the rect is inside a
+		/// stencil Mask. Anything else that changed `rendering` gets `rendering` back.
+		/// </summary>
+		private Material SolidMaterialForRendering(Material rendering)
+		{
+			var solid = StyledRectStore.Instance.GetSolidMaterial(m_blendMode);
+
+			if (rendering == defaultMaterial) {
+				ReleaseSolidMaskMaterial();
+				return solid;
+			}
+
+			// Only the stencil test MaskableGraphic adds inside a Mask can be copied. A Mask on the rect itself
+			// writes the stencil through its own material, and a material from any other modifier is unknown.
+			if (!maskable || m_StencilValue <= 0 || !OnlyStencilModifiesMaterial()) {
+				ReleaseSolidMaskMaterial();
+				return rendering;
+			}
+
+			// The same stencil test MaskableGraphic.GetModifiedMaterial sets up.
+			var stencilId = (1 << m_StencilValue) - 1;
+			var masked = StencilMaterial.Add(solid, stencilId, StencilOp.Keep, CompareFunction.Equal, ColorWriteMask.All, stencilId, 0);
+			ReleaseSolidMaskMaterial();
+			m_solidMaskMaterial = masked;
+			return masked;
+		}
+
+		/// <summary>Whether this rect is the only material modifier on its object, so a stencil test is all that changed.</summary>
+		private bool OnlyStencilModifiesMaterial()
+		{
+			GetComponents(s_materialModifiers);
+			var onlySelf = s_materialModifiers.Count == 1;
+			s_materialModifiers.Clear();
+			return onlySelf;
+		}
+
+		private void ReleaseSolidMaskMaterial()
+		{
+			if (m_solidMaskMaterial != null) {
+				StencilMaterial.Remove(m_solidMaskMaterial);
+				m_solidMaskMaterial = null;
+			}
+		}
+
+		/// <summary>Whether fill middles go in a second submesh. Not with a custom material, which has one shader.</summary>
+		private bool UsesSolidSubmesh()
+		{
+			return m_Material == null;
+		}
+
+		private void EmitSolidRect(Vector2 center, Vector2 min, Vector2 max, int solidAddress)
+		{
+			if (max.x - min.x <= 0.0001f || max.y - min.y <= 0.0001f) {
+				return;
+			}
+
+			var start = s_solidVertices.Count;
+			s_solidVertices.Add(SolidVertex(center, min, solidAddress));
+			s_solidVertices.Add(SolidVertex(center, new Vector2(min.x, max.y), solidAddress));
+			s_solidVertices.Add(SolidVertex(center, max, solidAddress));
+			s_solidVertices.Add(SolidVertex(center, new Vector2(max.x, min.y), solidAddress));
+			s_solidIndices.Add(start);
+			s_solidIndices.Add(start + 1);
+			s_solidIndices.Add(start + 2);
+			s_solidIndices.Add(start + 2);
+			s_solidIndices.Add(start + 3);
+			s_solidIndices.Add(start);
+		}
+
+		private UIVertex SolidVertex(Vector2 center, Vector2 local, int solidAddress)
+		{
+			var vertex = UIVertex.simpleVert;
+			vertex.position = center + local;
+			vertex.color = color;
+			vertex.uv0 = new Vector4(local.x, local.y, m_address, solidAddress);
+			return vertex;
+		}
+
+		/// <summary>One layer's quads: where it draws, its hole, and the part no layer in front draws over.</summary>
+		private struct LayerQuads
+		{
+			public Vector2 Min;
+			public Vector2 Max;
+			public Vector2 HoleMin;
+			public Vector2 HoleMax;
+			public Vector2 OpenMin;
+			public Vector2 OpenMax;
+			public bool Ring;
+			public bool Solid;
+		}
+
+		/// <summary>
+		/// Where a layer can draw, as a rect relative to the shape center, and the rect in its middle that it
+		/// either does not draw or draws solid (empty when there is none). Drawing around an empty middle means
+		/// the GPU never shades it. A fill's middle is solid: covered everywhere, so the shader only colors it.
 		/// </summary>
 		private static void GetLayerBounds(in StyledLayer layer, Vector2 halfSize, Vector4 radii,
-			out Vector2 min, out Vector2 max, out Vector2 holeMin, out Vector2 holeMax)
+			out Vector2 min, out Vector2 max, out Vector2 holeMin, out Vector2 holeMax, out bool solidHole)
 		{
 			holeMin = holeMax = Vector2.zero;
+			solidHole = false;
 
 			switch (layer.Kind) {
 				case StyledLayerKind.Shadow: {
@@ -576,6 +796,15 @@ namespace Tekly.Common.Ui.Styled
 					// A stroke leaves the middle of the shape empty. Stay clear of its anti-aliased inner edge.
 					if (band.x > StyledLayer.NO_INNER_EDGE) {
 						TryGetInnerRect(halfSize, radii, Mathf.Max(0f, -band.x + EDGE_PADDING), out holeMin, out holeMax);
+						break;
+					}
+
+					// A fill is solid deeper than its edge, its soft edge and the anti-aliasing. An Edge gradient
+					// needs the distance everywhere, so it has no solid middle. A blurred fill measures against
+					// its soft radii.
+					if (layer.Paint.Gradient != StyledGradient.Edge) {
+						var depth = Mathf.Max(0f, -band.y) + layer.SoftWidth * SOFT_REACH + EDGE_PADDING;
+						solidHole = TryGetInnerRect(halfSize, SoftRadii(layer, halfSize, radii), depth, out holeMin, out holeMax);
 					}
 
 					break;

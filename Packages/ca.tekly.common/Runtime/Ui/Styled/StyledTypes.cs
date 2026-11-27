@@ -593,5 +593,14 @@ namespace Tekly.Common.Ui.Styled
 		{
 			return spanAddress + SHAPE_TEXELS + layerIndex * LAYER_TEXELS;
 		}
+
+		/// <summary>
+		/// The layer address a vertex carries in a fill's solid middle: negative, so the shader knows the whole
+		/// quad is covered. The shader turns it back with -address - 1.
+		/// </summary>
+		public static int SolidAddress(int layerAddress)
+		{
+			return -layerAddress - 1;
+		}
 	}
 }
