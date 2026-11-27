@@ -16,13 +16,10 @@ Shader "UI/Styled Rect Extended"
         _ColorMask ("Color Mask", Float) = 15
         [Toggle(UNITY_UI_ALPHACLIP)] _UseUIAlphaClip ("Use Alpha Clip", Float) = 0
 
-        // Set by StyledRectStore for each blend mode. The defaults are Normal (premultiplied alpha).
+        // Set by StyledRectStore for each blend mode, along with an output keyword. The defaults are
+        // Normal (premultiplied alpha).
         [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Src Blend", Float) = 1
         [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("Dst Blend", Float) = 10
-        // 0 = premultiplied color, 1 = color faded toward white (Multiply)
-        _BlendColorOutput ("Blend Color Output", Float) = 0
-        // 0 = coverage alpha, 1 = always 0, 2 = always 1 (both leave the alpha behind untouched)
-        _BlendAlphaOutput ("Blend Alpha Output", Float) = 0
     }
 
     SubShader
@@ -62,6 +59,9 @@ Shader "UI/Styled Rect Extended"
 
             #pragma multi_compile_local _ UNITY_UI_CLIP_RECT
             #pragma multi_compile_local _ UNITY_UI_ALPHACLIP
+            // The blend mode's output: none is Normal, ADD is Additive and Screen, MULTIPLY is Multiply.
+            // multi_compile, because the materials are made at runtime and a shader_feature would be stripped.
+            #pragma multi_compile_local _ STYLED_OUTPUT_ADD STYLED_OUTPUT_MULTIPLY
 
             #define STYLED_EXTENDED
             #include "StyledRectPass.cginc"

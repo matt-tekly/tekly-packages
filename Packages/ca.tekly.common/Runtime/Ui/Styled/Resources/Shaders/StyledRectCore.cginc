@@ -280,27 +280,39 @@ float StyledEdgePosition(float2 p, float2 h, float4 radii, float4 exponents, flo
     return StyledWrap(s, perimeter);
 }
 
-float StyledEdgeHash(float i, float seed)
+// PCG hash. Integer math is exact, so every GPU makes the same lobes, and it runs at full rate where a
+// sine based hash runs on the slower transcendental unit and differs between mobile GPUs at large inputs.
+uint StyledPcg(uint v)
 {
-    return frac(sin(i * 127.1 + seed * 311.7) * 43758.5453);
+    uint state = v * 747796405u + 2891336453u;
+    uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+    return (word >> 22u) ^ word;
+}
+
+// 0 to 1 for a whole-number index and an already hashed seed. The top 24 bits fit a float exactly.
+float StyledEdgeHash(float index, uint seedHash)
+{
+    return float(StyledPcg(uint(index) ^ seedHash) >> 8u) * (1.0 / 16777216.0);
 }
 
 // A whole-number index wrapped into 0 to count - 1. The half step keeps an index that sits exactly on a
 // multiple of the count from landing on the wrong side when the division is slightly off, and the result
-// is rounded, because the hash turns the smallest error in its input into a different value. Without
-// both, the noise shows a seam where the edge position wraps.
+// is rounded, because the hash turns an index that is off by one into a different value. Without both,
+// the noise shows a seam where the edge position wraps.
 float StyledWrapIndex(float index, float count)
 {
     return round(index - count * floor((index + 0.5) / count));
 }
 
 // Smooth value noise, -1 to 1, that repeats every `cells`, so it loops seamlessly around the edge.
+// The seed is hashed from its exact bits, so a fractional seed still picks its own pattern.
 float StyledLoopNoise(float x, float cells, float seed)
 {
     float i = floor(x);
     float f = frac(x);
-    float h0 = StyledEdgeHash(StyledWrapIndex(i, cells), seed);
-    float h1 = StyledEdgeHash(StyledWrapIndex(i + 1.0, cells), seed);
+    uint seedHash = StyledPcg(asuint(seed));
+    float h0 = StyledEdgeHash(StyledWrapIndex(i, cells), seedHash);
+    float h1 = StyledEdgeHash(StyledWrapIndex(i + 1.0, cells), seedHash);
     return lerp(h0, h1, f * f * (3.0 - 2.0 * f)) * 2.0 - 1.0;
 }
 

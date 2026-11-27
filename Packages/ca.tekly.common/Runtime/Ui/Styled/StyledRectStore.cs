@@ -32,19 +32,14 @@ namespace Tekly.Common.Ui.Styled
 		private static readonly int s_dataWidthId = Shader.PropertyToID("_TeklyStyledDataWidth");
 		private static readonly int s_srcBlendId = Shader.PropertyToID("_SrcBlend");
 		private static readonly int s_dstBlendId = Shader.PropertyToID("_DstBlend");
-		private static readonly int s_blendColorOutputId = Shader.PropertyToID("_BlendColorOutput");
-		private static readonly int s_blendAlphaOutputId = Shader.PropertyToID("_BlendAlphaOutput");
-
 		private const int BLEND_MODE_COUNT = 4;
 
-		// What the shader writes for a blend mode. Color: premultiplied, or faded toward white so that a
-		// transparent pixel multiplies by one. Alpha: the coverage, or a constant that leaves the alpha
-		// behind it untouched.
-		private const int COLOR_PREMULTIPLIED = 0;
-		private const int COLOR_TOWARD_WHITE = 1;
-		private const int ALPHA_COVERAGE = 0;
-		private const int ALPHA_ZERO = 1;
-		private const int ALPHA_ONE = 2;
+		// What the shader writes for a blend mode, picked by keyword. No keyword is Normal: premultiplied
+		// color and the coverage as alpha. ADD writes an alpha of 0 and MULTIPLY a color faded toward white
+		// with an alpha of 1, so a transparent pixel and the alpha behind are left untouched.
+		private const string OUTPUT_NORMAL = null;
+		private const string OUTPUT_ADD = "STYLED_OUTPUT_ADD";
+		private const string OUTPUT_MULTIPLY = "STYLED_OUTPUT_MULTIPLY";
 
 		private static StyledRectStore s_instance;
 
@@ -114,21 +109,23 @@ namespace Tekly.Common.Ui.Styled
 				hideFlags = HideFlags.HideAndDontSave
 			};
 
-			var (source, destination, colorOutput, alphaOutput) = (StyledBlendMode)index switch {
+			var (source, destination, output) = (StyledBlendMode)index switch {
 				// behind + color
-				StyledBlendMode.Additive => (GpuBlendMode.One, GpuBlendMode.One, COLOR_PREMULTIPLIED, ALPHA_ZERO),
+				StyledBlendMode.Additive => (GpuBlendMode.One, GpuBlendMode.One, OUTPUT_ADD),
 				// behind * lerp(1, color, alpha)
-				StyledBlendMode.Multiply => (GpuBlendMode.DstColor, GpuBlendMode.Zero, COLOR_TOWARD_WHITE, ALPHA_ONE),
+				StyledBlendMode.Multiply => (GpuBlendMode.DstColor, GpuBlendMode.Zero, OUTPUT_MULTIPLY),
 				// 1 - (1 - behind) * (1 - color)
-				StyledBlendMode.Screen => (GpuBlendMode.OneMinusDstColor, GpuBlendMode.One, COLOR_PREMULTIPLIED, ALPHA_ZERO),
+				StyledBlendMode.Screen => (GpuBlendMode.OneMinusDstColor, GpuBlendMode.One, OUTPUT_ADD),
 				// Normal: premultiplied alpha
-				_ => (GpuBlendMode.One, GpuBlendMode.OneMinusSrcAlpha, COLOR_PREMULTIPLIED, ALPHA_COVERAGE)
+				_ => (GpuBlendMode.One, GpuBlendMode.OneMinusSrcAlpha, OUTPUT_NORMAL)
 			};
 
 			material.SetFloat(s_srcBlendId, (float)source);
 			material.SetFloat(s_dstBlendId, (float)destination);
-			material.SetFloat(s_blendColorOutputId, colorOutput);
-			material.SetFloat(s_blendAlphaOutputId, alphaOutput);
+
+			if (output != null) {
+				material.EnableKeyword(output);
+			}
 
 			m_materials[slot] = material;
 			return material;
