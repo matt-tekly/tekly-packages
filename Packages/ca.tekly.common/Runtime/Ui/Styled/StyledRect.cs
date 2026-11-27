@@ -77,7 +77,7 @@ namespace Tekly.Common.Ui.Styled
 			}
 		}
 
-		/// <summary>Length of one lobe along the edge. Adjusted slightly so a whole number fits around the shape.</summary>
+		/// <summary>Roughly how long one lobe is along the edge. The lobes vary in length around the shape.</summary>
 		public float WobbleLength {
 			get => m_wobbleLength;
 			set => SetTextureValue(ref m_wobbleLength, Mathf.Max(1, value));
@@ -229,7 +229,7 @@ namespace Tekly.Common.Ui.Styled
 		[Tooltip("How far the shape's edge wobbles in and out, for a soft, hand-made outline. Every layer follows it. 0 turns it off.")]
 		[SerializeField] private float m_wobbleAmount;
 
-		[Tooltip("Length of one lobe along the edge. Adjusted slightly so a whole number fits around the shape.")]
+		[Tooltip("Roughly how long one lobe is along the edge. The lobes vary in length around the shape.")]
 		[SerializeField] private float m_wobbleLength = 80;
 
 		[Tooltip("Picks a different set of lobes.")]

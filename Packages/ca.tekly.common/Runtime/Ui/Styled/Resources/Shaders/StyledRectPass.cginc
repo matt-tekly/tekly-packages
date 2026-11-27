@@ -1,9 +1,9 @@
 // The vertex and fragment programs shared by the Styled Rect shaders.
 //
 // "UI/Styled Rect" is the Core tier. "UI/Styled Rect Extended" defines STYLED_EXTENDED before including
-// this, which adds what needs the position along the shape's edge: dashed strokes and a shape whose whole
-// edge wobbles. A rect only uses the Extended shader when it has one of
-// those, so everything else never pays for them.
+// this, which adds dashed strokes, which need the position along the shape's edge, and a shape whose whole
+// edge wobbles. A rect only uses the Extended shader when it has one of those, so everything else never pays
+// for them.
 //
 // Mobile GPUs run fewer pixels at once the more registers a shader needs, and a shader needs as many as its
 // heaviest path. So the fragment program has one path for every layer kind: each kind measures one or two
@@ -281,9 +281,9 @@ Varyings vert(Attributes IN)
 //
 // In the Extended shader, with `wobbled`, each copy takes the shape's wobble at its own position, so the
 // growing end wobbles as the shape does and the two copies meet where their wobbled edges do. Out come the
-// winning copy's position along the edge, the edge's length and its wobble. `centerline` is the line the
-// position is measured along (see StyledEdgePosition). Only the first distance is wobbled here, which keeps
-// the noise to one copy per slide copy: it is by far the most code, and code costs every pixel registers.
+// winning copy's wobble and, with `needsAlong`, its position along the edge and the edge's length, measured
+// along `centerline` (see StyledEdgePosition). Only the first distance is wobbled here, which keeps the
+// wobble and the edge position to one per slide copy.
 float LayerDistance(Varyings IN, float2 position, float4 radii, float mitre, bool wobbled, bool needsAlong, float centerline,
     out float copy, out float along, out float perimeter, out float wobble)
 {
@@ -312,7 +312,11 @@ float LayerDistance(Varyings IN, float2 position, float4 radii, float mitre, boo
         [branch]
         if (wobbled && needsAlong) {
             copyAlong = StyledEdgePosition(at, IN.shape.xy, IN.radii, IN.corner.yyyy, centerline, copyPerimeter);
-            copyWobble = IN.wobble.x > 0.0 ? StyledShapeWobbleAt(copyAlong, copyPerimeter, IN.wobble) : 0.0;
+        }
+
+        [branch]
+        if (wobbled && IN.wobble.x > 0.0) {
+            copyWobble = StyledShapeWobbleAt(at, IN.wobble);
             d -= copyWobble;
         }
 
@@ -426,14 +430,11 @@ fixed4 frag(Varyings IN) : SV_Target
         bool offsetOnSecond = TakeBit(bits, STYLED_OFFSET_ON_SECOND);
         float4 softRadii = max(IN.radii, IN.corner.x);
 
-        // A dashed stroke needs the position along the edge, as the shape's
-        // wobble does. It measures along its outer edge, its silhouette, so dashes keep their visible length
-        // around corners.
+        // A dashed stroke needs the position along the edge. It measures along its outer edge, its
+        // silhouette, so dashes keep their visible length around corners.
         bool strokeAlong = false;
-        bool needsAlong = false;
 #ifdef STYLED_EXTENDED
         strokeAlong = kind > STYLED_KIND_STROKE - 0.5 && kind < STYLED_KIND_SHADOW - 0.5 && IN.stroke.x > 0.0;
-        needsAlong = IN.wobble.x > 0.0 || strokeAlong;
 #endif
 
         float along = 0.0;
@@ -444,7 +445,7 @@ fixed4 frag(Varyings IN) : SV_Target
         // the edge in and out, the same amount for every layer, so fills, strokes and shadows stay together.
         // The first distance takes it exactly (see LayerDistance): it is the edge every kind but an inner
         // shadow draws. The second takes the first's, which differs from its own only by a shadow's offset
-        // along the lobes.
+        // across the waves.
         [unroll]
         for (int i = 0; i < 2; i++) {
             [branch]
@@ -460,7 +461,7 @@ fixed4 frag(Varyings IN) : SV_Target
             float perimeterOfThis;
             float wobbleOfThis;
             float d = LayerDistance(IN, p - (moved ? offset : float2(0, 0)), soft ? softRadii : IN.radii,
-                second && !secondMitre ? 0.0 : IN.distances.z, !second, needsAlong, strokeAlong ? IN.shape.w : 0.0,
+                second && !secondMitre ? 0.0 : IN.distances.z, !second, strokeAlong, strokeAlong ? IN.shape.w : 0.0,
                 copyOfThis, alongOfThis, perimeterOfThis, wobbleOfThis);
 
             d2 = second ? d - firstWobble : d2;

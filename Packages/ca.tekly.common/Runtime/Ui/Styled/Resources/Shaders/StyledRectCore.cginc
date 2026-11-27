@@ -293,56 +293,24 @@ float StyledEdgePosition(float2 p, float2 h, float4 radii, float4 exponents, flo
     return StyledWrap(s, perimeter);
 }
 
-// PCG hash. Integer math is exact, so every GPU makes the same lobes, and it runs at full rate where a
-// sine based hash runs on the slower transcendental unit and differs between mobile GPUs at large inputs.
-uint StyledPcg(uint v)
+// How far the shape's edge is pushed out (positive) or pulled in by the shape's wobble at `p`, in the rect's
+// own space. wobble: amount, lobe length, seed.
+//
+// Three waves cross the rect's plane at different angles and lengths, and the edge is moved by their sum
+// where it passes. An edge crossing them sees irregular lobes about a lobe length apart, with no need to
+// know where along the edge it is. The seed only shifts the waves, and the fixed offsets keep the two
+// sides of the rect from mirroring each other. The sum is divided by the waves' total weight, so the edge
+// never moves further than the amount.
+float StyledShapeWobbleAt(float2 p, float4 wobble)
 {
-    uint state = v * 747796405u + 2891336453u;
-    uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
-    return (word >> 22u) ^ word;
-}
-
-// 0 to 1 for a whole-number index and an already hashed seed. The top 24 bits fit a float exactly.
-float StyledEdgeHash(float index, uint seedHash)
-{
-    return float(StyledPcg(uint(index) ^ seedHash) >> 8u) * (1.0 / 16777216.0);
-}
-
-// A whole-number index wrapped into 0 to count - 1. The half step keeps an index that sits exactly on a
-// multiple of the count from landing on the wrong side when the division is slightly off, and the result
-// is rounded, because the hash turns an index that is off by one into a different value. Without both,
-// the noise shows a seam where the edge position wraps.
-float StyledWrapIndex(float index, float count)
-{
-    return round(index - count * floor((index + 0.5) / count));
-}
-
-// Smooth value noise, -1 to 1, that repeats every `cells`, so it loops seamlessly around the edge.
-// The seed is hashed from its exact bits, so a fractional seed still picks its own pattern.
-float StyledLoopNoise(float x, float cells, float seed)
-{
-    float i = floor(x);
-    float f = frac(x);
-    uint seedHash = StyledPcg(asuint(seed));
-    float h0 = StyledEdgeHash(StyledWrapIndex(i, cells), seedHash);
-    float h1 = StyledEdgeHash(StyledWrapIndex(i + 1.0, cells), seedHash);
-    return lerp(h0, h1, f * f * (3.0 - 2.0 * f)) * 2.0 - 1.0;
-}
-
-// Soft lobes along the edge, -1 to 1: two octaves of looping noise. `lobeLength` is snapped so a whole
-// number of lobes fits around the edge.
-float StyledLobes(float along, float perimeter, float lobeLength, float seed)
-{
-    float cells = max(1.0, floor(perimeter / max(lobeLength, 1.0) + 0.5));
-    float x = along / perimeter * cells;
-    return (StyledLoopNoise(x, cells, seed) + 0.5 * StyledLoopNoise(x * 2.0, cells * 2.0, seed + 8.0)) / 1.5;
-}
-
-// How far the shape's edge is pushed out (positive) or pulled in by the shape's wobble, at `along` on an edge
-// `perimeter` long (see StyledEdgePosition). wobble: amount, lobe length, seed.
-float StyledShapeWobbleAt(float along, float perimeter, float4 wobble)
-{
-    return wobble.x * StyledLobes(along, perimeter, wobble.y, wobble.z);
+    // A rise and a fall make one lobe each, so the longest wave is two lobes long.
+    float k = 3.1415927 / max(wobble.y, 1.0);
+    float3 phase = (frac(wobble.z * float3(0.1373, 0.3719, 0.7151)) + float3(0.13, 0.57, 0.81)) * 6.2831853;
+    float3 waves = sin(float3(
+        dot(p, float2(0.9397, 0.3420)) * k,
+        dot(p, float2(0.2588, 0.9659)) * k * 1.37,
+        dot(p, float2(-0.7071, 0.7071)) * k * 2.23) + phase);
+    return wobble.x * dot(waves, float3(1.0, 0.7, 0.25)) * (1.0 / 1.95);
 }
 
 // Coverage of a dashed stroke. `along` is the position along the edge and `perimeter` its length.
