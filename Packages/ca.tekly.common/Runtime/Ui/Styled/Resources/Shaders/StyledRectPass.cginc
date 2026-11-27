@@ -1,9 +1,8 @@
 // The vertex and fragment programs shared by the Styled Rect shaders.
 //
 // "UI/Styled Rect" is the Core tier. "UI/Styled Rect Extended" defines STYLED_EXTENDED before including
-// this, which adds dashed strokes, which need the position along the shape's edge, and a shape whose whole
-// edge wobbles. A rect only uses the Extended shader when it has one of those, so everything else never pays
-// for them.
+// this, which adds dashed strokes: they need the position along the shape's edge, the most code in the
+// program. A rect only uses the Extended shader when it has one, so everything else never pays for it.
 //
 // Mobile GPUs run fewer pixels at once the more registers a shader needs, and a shader needs as many as its
 // heaviest path. So the fragment program has one path for every layer kind: each kind measures one or two
@@ -45,7 +44,7 @@ struct Attributes
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
-// Everything after `mask` is constant across a layer. Small values are half, which Mali keeps two to a
+// Everything after `mask` is constant across a layer, but for the wobble. Small values are half, which Mali keeps two to a
 // register. The Extended shader has fifteen of these, the most GLES 3 guarantees.
 struct Varyings
 {
@@ -77,8 +76,11 @@ struct Varyings
     // Radial: xy = start ray, zw = end ray, signed so that a positive cross product is revealed.
     nointerpolation float4 reveal     : TEXCOORD11;
     nointerpolation float4 uvLimits   : TEXCOORD12; // min x, min y, max x, max y the texture uv may reach
+    // How far the shape's wobble moves the edge here, for the first distance's copy (x) and, in a slide
+    // reveal, its moved copy (y). Worked out per vertex and interpolated: a wobbly rect's layers are strips
+    // with vertices close enough together for that (see StyledRect.EmitWobblyLayer). 0 without a wobble.
+    half2 wobble                      : TEXCOORD13;
 #ifdef STYLED_EXTENDED
-    nointerpolation float4 wobble     : TEXCOORD13; // shape wobble: amount, lobe length, seed, unused
     // dash spacing (0 = solid), dash length as a fraction of the spacing plus 2 for round caps,
     // dash speed, unused.
     nointerpolation float4 stroke     : TEXCOORD14;
@@ -210,7 +212,6 @@ Varyings vert(Attributes IN)
     OUT.coverage = coverage;
 
 #ifdef STYLED_EXTENDED
-    OUT.wobble = StyledLoad(shape + STYLED_SHAPE_WOBBLE);
     OUT.stroke = isFillOrStroke && isStroke ? float4(curveDashes.yzw, 0.0) : float4(0, 0, 0, 0);
 #endif
 
@@ -256,6 +257,18 @@ Varyings vert(Attributes IN)
         textureLevel = log2(max(max(length(texelsAlongX), length(texelsAlongY)), 1e-6)) + STYLED_TEXTURE_LEVEL_OFFSET;
     }
 
+    // The wobble where the first distance is measured: a drop shadow's is moved by its offset. In a slide
+    // reveal the moved copy takes its own, so the growing end wobbles as the shape does.
+    float4 wobbleRow = StyledLoad(shape + STYLED_SHAPE_WOBBLE); // amount, lobe length, seed, unused
+    float2 wobbleAt = IN.uv0.xy - (isDropShadow ? soft.xy : float2(0, 0));
+    bool slideReveal = revealMode > STYLED_REVEAL_SLIDE - 0.5 && revealMode < STYLED_REVEAL_SLIDE + 0.5;
+    OUT.wobble = half2(0, 0);
+
+    if (wobbleRow.x > 0.0) {
+        OUT.wobble.x = StyledShapeWobbleAt(wobbleAt, wobbleRow);
+        OUT.wobble.y = slideReveal ? StyledShapeWobbleAt(wobbleAt - revealRow.yz, wobbleRow) : 0.0;
+    }
+
     // Soft radii are the radii raised to a least value, so that least value is all that is stored.
     OUT.corner = float4(header.y, StyledLoad(shape + STYLED_SHAPE_CORNER_EXPONENTS).x, revealMode, textureLevel);
     OUT.local = float4(IN.uv0.xy, uv);
@@ -279,11 +292,11 @@ Varyings vert(Attributes IN)
 // so the growing end has the shape's own corners, a stroke runs around it, a shadow is the shadow of what
 // shows, and a bevel lights the new edge. `copy` is which copy the distance belongs to: 1 for the moved one.
 //
-// In the Extended shader, with `wobbled`, each copy takes the shape's wobble at its own position, so the
-// growing end wobbles as the shape does and the two copies meet where their wobbled edges do. Out come the
-// winning copy's wobble and, with `needsAlong`, its position along the edge and the edge's length, measured
-// along `centerline` (see StyledEdgePosition). Only the first distance is wobbled here, which keeps the
-// wobble and the edge position to one per slide copy.
+// With `wobbled`, each copy takes the shape's wobble at its own position (worked out per vertex, see vert),
+// so the growing end wobbles as the shape does and the two copies meet where their wobbled edges do. Out
+// comes the winning copy's wobble and, in the Extended shader with `needsAlong`, its position along the edge
+// and the edge's length, measured along `centerline` (see StyledEdgePosition). Only the first distance takes
+// the edge position, which keeps it to one per slide copy.
 float LayerDistance(Varyings IN, float2 position, float4 radii, float mitre, bool wobbled, bool needsAlong, float centerline,
     out float copy, out float along, out float perimeter, out float wobble)
 {
@@ -303,30 +316,25 @@ float LayerDistance(Varyings IN, float2 position, float4 radii, float mitre, boo
 
         float2 at = position - (i > 0 ? IN.reveal.xy : float2(0, 0));
         float d = StyledShapeDistance(at, IN.shape.xy, radii, IN.corner.yyyy, mitre);
+        float copyWobble = wobbled ? (i > 0 ? IN.wobble.y : IN.wobble.x) : 0.0;
+        d -= copyWobble;
+        bool wins = d > distance;
+        wobble = wins ? copyWobble : wobble;
 
 #ifdef STYLED_EXTENDED
         float copyAlong = 0.0;
         float copyPerimeter = 1.0;
-        float copyWobble = 0.0;
 
         [branch]
         if (wobbled && needsAlong) {
             copyAlong = StyledEdgePosition(at, IN.shape.xy, IN.radii, IN.corner.yyyy, centerline, copyPerimeter);
         }
 
-        [branch]
-        if (wobbled && IN.wobble.x > 0.0) {
-            copyWobble = StyledShapeWobbleAt(at, IN.wobble);
-            d -= copyWobble;
-        }
-
-        bool wins = d > distance;
         along = wins ? copyAlong : along;
         perimeter = wins ? copyPerimeter : perimeter;
-        wobble = wins ? copyWobble : wobble;
 #endif
 
-        copy = d > distance ? float(i) : copy;
+        copy = wins ? float(i) : copy;
         distance = max(distance, d);
     }
 

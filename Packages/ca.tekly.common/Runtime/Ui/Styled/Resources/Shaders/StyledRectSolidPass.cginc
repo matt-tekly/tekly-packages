@@ -4,7 +4,7 @@
 // gradient, a straight or radial reveal mask and its texture. A GPU runs as many pixels at once as the
 // registers of its shader allow, and a shader needs as many as its heaviest path, so the middles, which are
 // most of a large rect's pixels, are drawn with this small shader instead of the full one. StyledRect puts
-// them in a second submesh with this material (see StyledRect.UpdateGeometry).
+// them in a first submesh with this material, drawn before the rest (see StyledRect.UpdateGeometry).
 //
 // Vertices are the same as the full shader's: the layer address is negative, which this shader turns back.
 

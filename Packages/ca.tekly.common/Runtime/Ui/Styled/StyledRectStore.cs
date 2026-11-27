@@ -96,7 +96,7 @@ namespace Tekly.Common.Ui.Styled
 		/// The shared material for a blend mode, created the first time it is used. Every rect with the same
 		/// mode and the same shader tier uses the same material, so they batch.
 		/// </summary>
-		/// <param name="extended">Use the Extended shader, for rects with dashes or wobble.</param>
+		/// <param name="extended">Use the Extended shader, for rects with dashed strokes.</param>
 		public Material GetMaterial(StyledBlendMode blendMode, bool extended = false)
 		{
 			var index = Mathf.Clamp((int)blendMode, 0, BLEND_MODE_COUNT - 1);

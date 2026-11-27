@@ -59,7 +59,7 @@ namespace Tekly.Common.Ui.Styled
 
 		/// <summary>
 		/// How far the shape's edge wobbles in and out, for a soft, hand-made outline. Every layer follows it.
-		/// 0 turns it off. A rect with a wobble draws with the Extended shader.
+		/// 0 turns it off.
 		/// </summary>
 		public float WobbleAmount {
 			get => m_wobbleAmount;
@@ -70,23 +70,22 @@ namespace Tekly.Common.Ui.Styled
 					return;
 				}
 
-				// The wobble reaches past the shape, so the layers' quads change, and it can change the shader.
+				// A wobbly rect's layers are strips that follow the wobble.
 				m_wobbleAmount = value;
 				SetVerticesDirty();
-				SetMaterialDirty();
 			}
 		}
 
 		/// <summary>Roughly how long one lobe is along the edge. The lobes vary in length around the shape.</summary>
 		public float WobbleLength {
 			get => m_wobbleLength;
-			set => SetTextureValue(ref m_wobbleLength, Mathf.Max(1, value));
+			set => SetWobbleValue(ref m_wobbleLength, Mathf.Max(1, value));
 		}
 
 		/// <summary>Picks a different set of lobes.</summary>
 		public float WobbleSeed {
 			get => m_wobbleSeed;
-			set => SetTextureValue(ref m_wobbleSeed, value);
+			set => SetWobbleValue(ref m_wobbleSeed, value);
 		}
 
 		/// <summary>
@@ -203,6 +202,10 @@ namespace Tekly.Common.Ui.Styled
 		private const float MIN_RING_HOLE_SIZE = 16f;
 		private const float MIN_RING_HOLE_FRACTION = 0.25f;
 
+		// The most cells a wobbly, slide revealed layer's middle is cut into, so a large rect stays within a
+		// mesh's vertex limit.
+		private const int MAX_GRID_CELLS = 600;
+
 		// A soft edge fades like a Gaussian blur whose 4 standard deviations span its width. Its tails run
 		// past that, and three deviations each way is where they stop being visible.
 		private const float SOFT_REACH = 0.75f;
@@ -277,9 +280,9 @@ namespace Tekly.Common.Ui.Styled
 		[Tooltip("Front to back: the first layer is drawn on top.")]
 		[SerializeField] private List<StyledLayer> m_layers = new List<StyledLayer> { StyledLayer.Fill(Color.white) };
 
-		// The fill middles, built by OnPopulateMesh as a second submesh (see UpdateGeometry), and the lists the
+		// The fill middles, built by OnPopulateMesh as a first submesh (see UpdateGeometry), and the lists the
 		// combined mesh is built from. Shared by every rect: meshes are built one at a time on the main thread.
-		private static readonly List<LayerQuads> s_layerQuads = new List<LayerQuads>();
+		private static readonly List<Vector2> s_wobbleColumns = new List<Vector2>();
 		private static readonly List<UIVertex> s_solidVertices = new List<UIVertex>();
 		private static readonly List<int> s_solidIndices = new List<int>();
 		private static readonly List<Vector3> s_positions = new List<Vector3>();
@@ -311,7 +314,7 @@ namespace Tekly.Common.Ui.Styled
 				SetVerticesDirty();
 			}
 
-			// Dashes or a wobbling width move the rect to the Extended shader.
+			// Dashes move the rect to the Extended shader.
 			if (previous.UsesEdgePosition != layer.UsesEdgePosition) {
 				SetMaterialDirty();
 			}
@@ -487,90 +490,96 @@ namespace Tekly.Common.Ui.Styled
 			var center = GetPixelAdjustedRect().center;
 			var radii = CalculateRadii(halfSize);
 			var solidSubmesh = UsesSolidSubmesh();
+			var wobbly = m_wobbleAmount > 0;
 
-			// Front to back first, so each fill knows what is drawn above it. `open` is the part of the rect no
-			// layer in front draws over with the full shader: inside every hole of the rings in front, a cross
-			// like they are, with corner squares as large as the largest of theirs. A fill's solid middle draws in
-			// the second submesh, after the first, so it is clipped to that part and the layers in front still end
-			// up on top.
-			s_layerQuads.Clear();
-			var openMin = new Vector2(float.MinValue, float.MinValue);
-			var openMax = new Vector2(float.MaxValue, float.MaxValue);
-			var openCorner = 0f;
-
-			for (var i = 0; i < m_layers.Count; i++) {
-				var layer = m_layers[i];
-				var quads = new LayerQuads { OpenMin = openMin, OpenMax = openMax, OpenCorner = openCorner };
-
-				if (layer.Draws) {
-					GetLayerBounds(layer, halfSize, radii, out quads.Min, out quads.Max, out quads.HoleMin, out quads.HoleMax, out quads.HoleCorner, out quads.Solid);
-
-					// A wobble moves edges either way, so the layer reaches further out and its hole is smaller.
-					var wobble = Vector2.one * Mathf.Max(0, m_wobbleAmount);
-					quads.Min -= wobble;
-					quads.Max += wobble;
-					quads.HoleMin += wobble;
-					quads.HoleMax -= wobble;
-
-					// A hole can reach past a layer that is offset from the shape.
-					quads.HoleMin = Vector2.Max(quads.HoleMin, quads.Min);
-					quads.HoleMax = Vector2.Min(quads.HoleMax, quads.Max);
-					quads.HoleCorner = FitCorner(quads.HoleMin, quads.HoleMax, quads.HoleCorner);
-					quads.Ring = AllowsHole(layer) && IsHoleWorthIt(quads.Min, quads.Max, quads.HoleMin, quads.HoleMax);
-
-					if (quads.Ring) {
-						openMin = Vector2.Max(openMin, quads.HoleMin);
-						openMax = Vector2.Min(openMax, quads.HoleMax);
-						openCorner = Mathf.Max(openCorner, quads.HoleCorner);
-					} else {
-						openMax = openMin;
-					}
-				}
-
-				s_layerQuads.Add(quads);
+			if (wobbly) {
+				BuildWobbleColumns(halfSize, StripRadii(radii));
 			}
 
-			// Back to front, so the first layer ends up on top.
+			// Back to front, so the first layer ends up on top. A fill's solid middle goes to the first submesh, which
+			// draws before this mesh, so the layers in front still end up on top of it. Only a layer behind the fill
+			// could wrongly draw over it, so the middle stays within `open`: the part of the rect every layer behind
+			// leaves alone in this mesh. That is inside each of their holes, a cross like they are, with corner
+			// squares as large as the largest of theirs.
+			var open = Cross.Everything;
+
 			for (var i = m_layers.Count - 1; i >= 0; i--) {
-				if (!m_layers[i].Draws) {
+				var layer = m_layers[i];
+
+				if (!layer.Draws) {
 					continue;
 				}
 
-				var quads = s_layerQuads[i];
+				var quads = GetLayerQuads(layer, halfSize, radii);
 				var layerAddress = StyledRows.LayerAddress(m_address, i);
+				var untouched = wobbly
+					? EmitWobblyLayer(vh, center, layer, quads, open, halfSize, radii, solidSubmesh, layerAddress)
+					: EmitLayer(vh, center, quads, open, solidSubmesh, layerAddress);
 
-				if (!quads.Ring) {
-					EmitRect(vh, center, quads.Min, quads.Max, layerAddress);
-					continue;
-				}
-
-				if (!quads.Solid) {
-					EmitRing(vh, center, quads.Min, quads.Max, quads.HoleMin, quads.HoleMax, quads.HoleCorner, layerAddress);
-					continue;
-				}
-
-				// A fill's middle is covered everywhere, so its pixels only take the fill's color. The part no layer
-				// in front draws over goes to the second submesh and the solid material, and the fill's ring reaches
-				// in to meet it. Otherwise the middle stays in this mesh, marked solid, so the full shader skips its
-				// distance field.
-				var solidAddress = StyledRows.SolidAddress(layerAddress);
-				var middleMin = Vector2.Max(quads.HoleMin, quads.OpenMin);
-				var middleMax = Vector2.Min(quads.HoleMax, quads.OpenMax);
-
-				if (solidSubmesh && IsHoleWorthIt(quads.HoleMin, quads.HoleMax, middleMin, middleMax)) {
-					var middleCorner = FitCorner(middleMin, middleMax, Mathf.Max(quads.HoleCorner, quads.OpenCorner));
-					EmitRing(vh, center, quads.Min, quads.Max, middleMin, middleMax, middleCorner, layerAddress);
-					EmitCross(vh, center, middleMin, middleMax, middleCorner, solidAddress, true);
-				} else {
-					EmitRing(vh, center, quads.Min, quads.Max, quads.HoleMin, quads.HoleMax, quads.HoleCorner, layerAddress);
-					EmitCross(vh, center, quads.HoleMin, quads.HoleMax, quads.HoleCorner, solidAddress, false);
-				}
+				open = open.Intersect(untouched);
 			}
 		}
 
+		/// <summary>Where a layer draws and its hole, as GetLayerBounds has them, widened for the wobble.</summary>
+		private LayerQuads GetLayerQuads(in StyledLayer layer, Vector2 halfSize, Vector4 radii)
+		{
+			var quads = new LayerQuads();
+			GetLayerBounds(layer, halfSize, radii, out quads.Min, out quads.Max, out quads.HoleMin, out quads.HoleMax, out quads.HoleCorner, out quads.Solid);
+
+			// A wobble moves edges either way, so the layer reaches further out and its hole is smaller.
+			var wobble = Vector2.one * Mathf.Max(0, m_wobbleAmount);
+			quads.Min -= wobble;
+			quads.Max += wobble;
+			quads.HoleMin += wobble;
+			quads.HoleMax -= wobble;
+
+			// A hole can reach past a layer that is offset from the shape.
+			quads.HoleMin = Vector2.Max(quads.HoleMin, quads.Min);
+			quads.HoleMax = Vector2.Min(quads.HoleMax, quads.Max);
+			quads.HoleCorner = FitCorner(quads.HoleMin, quads.HoleMax, quads.HoleCorner);
+			quads.Ring = AllowsHole(layer) && IsHoleWorthIt(quads.Min, quads.Max, quads.HoleMin, quads.HoleMax);
+			return quads;
+		}
+
 		/// <summary>
-		/// Builds the mesh, then adds the fill middles from OnPopulateMesh as a second submesh, which UpdateMaterial
-		/// gives the solid material.
+		/// A layer of a rect without a wobble: a rect, or a ring around its hole, and a fill's middle drawn
+		/// solid. Returns the part of the rect it leaves alone in this mesh (see OnPopulateMesh).
+		/// </summary>
+		private Cross EmitLayer(VertexHelper vh, Vector2 center, in LayerQuads quads, Cross open, bool solidSubmesh, int layerAddress)
+		{
+			if (!quads.Ring) {
+				EmitRect(vh, center, quads.Min, quads.Max, layerAddress);
+				return Cross.Empty;
+			}
+
+			if (!quads.Solid) {
+				EmitRing(vh, center, quads.Min, quads.Max, quads.HoleMin, quads.HoleMax, quads.HoleCorner, layerAddress);
+				return new Cross(quads.HoleMin, quads.HoleMax, quads.HoleCorner);
+			}
+
+			// A fill's middle is covered everywhere, so its pixels only take the fill's color. The part no layer
+			// behind draws over goes to the first submesh and the solid material, and the fill's ring reaches in
+			// to meet it. Otherwise the middle stays in this mesh, marked solid, so the full shader skips its
+			// distance field.
+			var solidAddress = StyledRows.SolidAddress(layerAddress);
+			var middleMin = Vector2.Max(quads.HoleMin, open.Min);
+			var middleMax = Vector2.Min(quads.HoleMax, open.Max);
+
+			if (solidSubmesh && IsHoleWorthIt(quads.HoleMin, quads.HoleMax, middleMin, middleMax)) {
+				var middleCorner = FitCorner(middleMin, middleMax, Mathf.Max(quads.HoleCorner, open.Corner));
+				EmitRing(vh, center, quads.Min, quads.Max, middleMin, middleMax, middleCorner, layerAddress);
+				EmitCross(vh, center, middleMin, middleMax, middleCorner, solidAddress, true);
+				return new Cross(middleMin, middleMax, middleCorner);
+			}
+
+			EmitRing(vh, center, quads.Min, quads.Max, quads.HoleMin, quads.HoleMax, quads.HoleCorner, layerAddress);
+			EmitCross(vh, center, quads.HoleMin, quads.HoleMax, quads.HoleCorner, solidAddress, false);
+			return Cross.Empty;
+		}
+
+		/// <summary>
+		/// Builds the mesh, then puts the fill middles from OnPopulateMesh in a first submesh, drawn before the
+		/// rest, which UpdateMaterial gives the solid material.
 		/// </summary>
 		protected override void UpdateGeometry()
 		{
@@ -605,13 +614,13 @@ namespace Tekly.Common.Ui.Styled
 			mesh.SetColors(s_colors);
 			mesh.SetUVs(0, s_uv0);
 			mesh.subMeshCount = 2;
-			mesh.SetTriangles(s_indices, 0);
-			mesh.SetTriangles(s_solidIndices, 1);
+			mesh.SetTriangles(s_solidIndices, 0);
+			mesh.SetTriangles(s_indices, 1);
 			canvasRenderer.SetMesh(mesh);
 		}
 
 		/// <summary>
-		/// The full material for the rect, and for the fill middles in the second submesh the solid one. Inside
+		/// The solid material for the fill middles in the first submesh, and the full one for the rest. Inside
 		/// a stencil Mask the solid material gets the same stencil test the full one does. A rect that is a Mask
 		/// itself, or that has anything else change its material, draws its middles with the full material: the
 		/// full shader draws them correctly too, only not as cheaply.
@@ -624,11 +633,13 @@ namespace Tekly.Common.Ui.Styled
 
 			var rendering = materialForRendering;
 			var solid = UsesSolidSubmesh();
-			canvasRenderer.materialCount = solid ? 2 : 1;
-			canvasRenderer.SetMaterial(rendering, 0);
-
 			if (solid) {
-				canvasRenderer.SetMaterial(SolidMaterialForRendering(rendering), 1);
+				canvasRenderer.materialCount = 2;
+				canvasRenderer.SetMaterial(SolidMaterialForRendering(rendering), 0);
+				canvasRenderer.SetMaterial(rendering, 1);
+			} else {
+				canvasRenderer.materialCount = 1;
+				canvasRenderer.SetMaterial(rendering, 0);
 			}
 
 			canvasRenderer.SetTexture(mainTexture);
@@ -686,7 +697,7 @@ namespace Tekly.Common.Ui.Styled
 			}
 		}
 
-		/// <summary>Whether fill middles go in a second submesh. Not with a custom material, which has one shader.</summary>
+		/// <summary>Whether fill middles go in their own submesh. Not with a custom material, which has one shader.</summary>
 		private bool UsesSolidSubmesh()
 		{
 			return m_Material == null;
@@ -720,7 +731,7 @@ namespace Tekly.Common.Ui.Styled
 			return vertex;
 		}
 
-		/// <summary>One layer's quads: where it draws, its hole, and the part no layer in front draws over.</summary>
+		/// <summary>One layer's quads: where it draws and its hole.</summary>
 		private struct LayerQuads
 		{
 			public Vector2 Min;
@@ -728,11 +739,44 @@ namespace Tekly.Common.Ui.Styled
 			public Vector2 HoleMin;
 			public Vector2 HoleMax;
 			public float HoleCorner;
-			public Vector2 OpenMin;
-			public Vector2 OpenMax;
-			public float OpenCorner;
 			public bool Ring;
 			public bool Solid;
+		}
+
+		/// <summary>
+		/// A rect, relative to the shape center, with a square Corner wide taken out of each of its corners (see
+		/// TryGetInnerCross). Empty when it has no area.
+		/// </summary>
+		private readonly struct Cross
+		{
+			public static readonly Cross Everything = new Cross(Vector2.one * float.MinValue, Vector2.one * float.MaxValue, 0f);
+			public static readonly Cross Empty = new Cross(Vector2.zero, Vector2.zero, 0f);
+
+			public readonly Vector2 Min;
+			public readonly Vector2 Max;
+			public readonly float Corner;
+
+			public Cross(Vector2 min, Vector2 max, float corner)
+			{
+				Min = min;
+				Max = max;
+				Corner = corner;
+			}
+
+			public bool IsEmpty => Max.x <= Min.x || Max.y <= Min.y;
+
+			/// <summary>
+			/// A cross inside both: the rects' overlap, with the larger corner. Each corner square sits at its own
+			/// rect's corner, outside the overlap's square, so the result never reaches into either's corners.
+			/// </summary>
+			public Cross Intersect(Cross other)
+			{
+				if (IsEmpty || other.IsEmpty) {
+					return Empty;
+				}
+
+				return new Cross(Vector2.Max(Min, other.Min), Vector2.Min(Max, other.Max), Mathf.Max(Corner, other.Corner));
+			}
 		}
 
 		/// <summary>
@@ -952,6 +996,448 @@ namespace Tekly.Common.Ui.Styled
 		}
 
 		/// <summary>
+		/// A layer of a wobbly rect. Its edge band is a strip that follows the wobbled edge, so it is no wider than
+		/// the band, where rects around the shape would have to reach a whole wobble further each way. The strip
+		/// also carries the wobble: the vertex program works it out at each vertex and the fragment program
+		/// interpolates it, so the strip's vertices are close enough together for that to follow the waves.
+		///
+		/// A layer with an empty middle has its strip end on the inside where the layer does, following the
+		/// wobble there too. Any other ends on the layer's cross, which stays a whole wobble inside the shape,
+		/// and the cross is drawn solid, or with the full shader for a layer without a hole. Returns the part of
+		/// the rect the layer leaves alone in this mesh (see OnPopulateMesh).
+		/// </summary>
+		private Cross EmitWobblyLayer(VertexHelper vh, Vector2 center, in StyledLayer layer, in LayerQuads quads, Cross open,
+			Vector2 halfSize, Vector4 radii, bool solidSubmesh, int layerAddress)
+		{
+			var strip = new Strip {
+				HalfSize = halfSize,
+				Radii = radii,
+				OuterRadii = StripRadii(radii),
+				Reach = OuterReach(layer),
+				Address = layerAddress
+			};
+
+			// A drop shadow's strip moves with its offset on the outside. Unless the offset is more than the
+			// shadow reaches, which would fold it over its edge row, then it reaches that much further instead.
+			if (layer.Kind == StyledLayerKind.Shadow) {
+				var offset = layer.ShadowOffset.magnitude;
+
+				if (offset < strip.Reach - 1f) {
+					strip.OuterShift = layer.ShadowOffset;
+				} else {
+					strip.Reach += offset;
+				}
+			}
+
+			var depth = InnerDepth(layer);
+
+			// Only where the row inside stays well clear of the middle. On a small rect it would come close to
+			// meeting itself, and the cross is safer.
+			if (quads.Ring && !quads.Solid && depth > 0 && depth + 2f * m_wobbleAmount + 1f < Mathf.Min(halfSize.x, halfSize.y)) {
+				strip.InnerDepth = depth;
+				EmitStrip(vh, center, strip);
+
+				// The row inside is up to a wobble deeper than the depth, which can be deeper than the hole. The
+				// pixel of margin covers its straight segments cutting across the inner corners' curve.
+				var hole = new Cross(quads.HoleMin, quads.HoleMax, quads.HoleCorner);
+				return TryGetInnerCross(halfSize, radii, depth + m_wobbleAmount + 1f, out var deepMin, out var deepMax, out var deepCorner)
+					? hole.Intersect(new Cross(deepMin, deepMax, deepCorner))
+					: Cross.Empty;
+			}
+
+			var middle = WobblyMiddle.Empty;
+			strip.CrossMin = quads.HoleMin;
+			strip.CrossMax = quads.HoleMax;
+			strip.CrossCorner = quads.HoleCorner;
+
+			if (quads.Ring && quads.Solid) {
+				middle = WobblyMiddle.Solid;
+				var middleMin = Vector2.Max(quads.HoleMin, open.Min);
+				var middleMax = Vector2.Min(quads.HoleMax, open.Max);
+
+				if (solidSubmesh && IsHoleWorthIt(quads.HoleMin, quads.HoleMax, middleMin, middleMax)) {
+					middle = WobblyMiddle.SolidSubmesh;
+					strip.CrossMin = middleMin;
+					strip.CrossMax = middleMax;
+					strip.CrossCorner = Mathf.Max(quads.HoleCorner, open.Corner);
+				}
+			} else if (!quads.Ring) {
+				middle = WobblyMiddle.Full;
+			}
+
+			// The cross stays a whole wobble inside the shape, where the edge never reaches, so the strip around it
+			// never folds. A layer without one has its strip meet in the middle.
+			var limit = halfSize - Vector2.one * (m_wobbleAmount + 1f);
+			strip.CrossMin = Vector2.Max(strip.CrossMin, -limit);
+			strip.CrossMax = Vector2.Min(strip.CrossMax, limit);
+
+			if (strip.CrossMax.x <= strip.CrossMin.x || strip.CrossMax.y <= strip.CrossMin.y) {
+				strip.CrossMin = strip.CrossMax = Vector2.zero;
+				middle = WobblyMiddle.Empty;
+			}
+
+			strip.CrossCorner = FitCorner(strip.CrossMin, strip.CrossMax, strip.CrossCorner);
+			EmitStrip(vh, center, strip);
+
+			var min = strip.CrossMin;
+			var max = strip.CrossMax;
+			var corner = strip.CrossCorner;
+
+			switch (middle) {
+				case WobblyMiddle.Solid:
+					EmitCross(vh, center, min, max, corner, StyledRows.SolidAddress(layerAddress), false);
+					break;
+				case WobblyMiddle.SolidSubmesh:
+					EmitCross(vh, center, min, max, corner, StyledRows.SolidAddress(layerAddress), true);
+					break;
+				case WobblyMiddle.Full when !AllowsHole(layer):
+					// A slide reveal's growing end crosses the middle, and it wobbles too, so the middle needs
+					// vertices as close together as the strip's.
+					EmitGrid(vh, center, new Vector2(min.x + corner, min.y), new Vector2(max.x - corner, max.y), layerAddress);
+					EmitGrid(vh, center, new Vector2(min.x, min.y + corner), new Vector2(min.x + corner, max.y - corner), layerAddress);
+					EmitGrid(vh, center, new Vector2(max.x - corner, min.y + corner), new Vector2(max.x, max.y - corner), layerAddress);
+					break;
+				case WobblyMiddle.Full:
+					EmitCross(vh, center, min, max, corner, layerAddress, false);
+					break;
+			}
+
+			// An empty cross, or a middle in the first submesh, is left alone. Anything else draws over it here.
+			return middle == WobblyMiddle.Empty || middle == WobblyMiddle.SolidSubmesh ? new Cross(min, max, corner) : Cross.Empty;
+		}
+
+		/// <summary>
+		/// How deep inside the shape's edge a layer with an empty middle draws, as GetLayerBounds cuts its hole,
+		/// or 0 for one that draws all the way in. A drop shadow is cut out by the shape's wobble at its own
+		/// offset, which can differ by up to about half the offset, so its strip reaches that much deeper.
+		/// </summary>
+		private static float InnerDepth(in StyledLayer layer)
+		{
+			switch (layer.Kind) {
+				case StyledLayerKind.Shadow:
+					return layer.ShowBehind ? 0f : EDGE_PADDING + layer.ShadowOffset.magnitude * 0.5f;
+				case StyledLayerKind.InnerShadow:
+					return Mathf.Max(layer.Spread, 0) + layer.SoftWidth * SOFT_REACH + EDGE_PADDING + layer.ShadowOffset.magnitude;
+				case StyledLayerKind.Bevel:
+					return Mathf.Max(0, layer.Width) + layer.SoftWidth * SOFT_REACH + EDGE_PADDING;
+				default: {
+					var band = layer.GetBand();
+					return band.x > StyledLayer.NO_INNER_EDGE ? Mathf.Max(0f, -band.x + EDGE_PADDING) : 0f;
+				}
+			}
+		}
+
+		/// <summary>
+		/// A rect cut into a grid about as fine as the strips' columns, but never more than MAX_GRID_CELLS
+		/// cells, so a large rect gets a coarser one.
+		/// </summary>
+		private void EmitGrid(VertexHelper vh, Vector2 center, Vector2 min, Vector2 max, int layerAddress)
+		{
+			var size = max - min;
+
+			if (size.x <= 0.0001f || size.y <= 0.0001f) {
+				return;
+			}
+
+			var spacing = Mathf.Max(WobbleSpacing(), Mathf.Sqrt(size.x * size.y / MAX_GRID_CELLS));
+			var across = Mathf.Max(1, Mathf.CeilToInt(size.x / spacing));
+			var down = Mathf.Max(1, Mathf.CeilToInt(size.y / spacing));
+			var start = vh.currentVertCount;
+
+			for (var y = 0; y <= down; y++) {
+				for (var x = 0; x <= across; x++) {
+					AddVertex(vh, center, min + Vector2.Scale(size, new Vector2(x / (float)across, y / (float)down)), layerAddress);
+				}
+			}
+
+			for (var y = 0; y < down; y++) {
+				for (var x = 0; x < across; x++) {
+					var a = start + y * (across + 1) + x;
+					var b = a + across + 1;
+					vh.AddTriangle(a, b, b + 1);
+					vh.AddTriangle(b + 1, a + 1, a);
+				}
+			}
+		}
+
+		/// <summary>
+		/// How far apart a wobbly rect's strip columns are: a third of a lobe. Between columns the wobble is
+		/// interpolated, which at this spacing stays within a pixel or two of the real one.
+		/// </summary>
+		private float WobbleSpacing()
+		{
+			return Mathf.Clamp(m_wobbleLength / 3f, 8f, 40f);
+		}
+
+		/// <summary>One wobbly layer's strip: how far it reaches out, and where it ends inside.</summary>
+		private struct Strip
+		{
+			public Vector2 HalfSize;
+			public Vector4 Radii;
+			public Vector4 OuterRadii;
+			public float Reach;
+			public Vector2 OuterShift;
+
+			// Inside, the strip ends InnerDepth inside the wobbled edge, or on the cross when that is 0.
+			public float InnerDepth;
+			public Vector2 CrossMin;
+			public Vector2 CrossMax;
+			public float CrossCorner;
+
+			public int Address;
+		}
+
+		/// <summary>What fills a wobbly layer's cross: nothing, its solid middle in this mesh or the solid submesh, or the full shader.</summary>
+		private enum WobblyMiddle
+		{
+			Empty,
+			Solid,
+			SolidSubmesh,
+			Full
+		}
+
+		/// <summary>
+		/// How far outside the shape's edge a layer can draw, as GetLayerBounds reaches, leaving out a shadow's
+		/// offset.
+		/// </summary>
+		private static float OuterReach(in StyledLayer layer)
+		{
+			switch (layer.Kind) {
+				case StyledLayerKind.Shadow:
+					return Mathf.Max(layer.Spread, 0) + layer.SoftWidth * SOFT_REACH + EDGE_PADDING;
+				case StyledLayerKind.InnerShadow:
+				case StyledLayerKind.Bevel:
+					return EDGE_PADDING;
+				default:
+					return Mathf.Max(layer.GetBand().y, 0) + layer.SoftWidth * SOFT_REACH + EDGE_PADDING;
+			}
+		}
+
+		/// <summary>
+		/// The corner radii the strips follow on and outside the edge. A smoothed corner bulges out past a
+		/// circular one, so they take a tighter circle that stays outside it. Inside the edge they follow the
+		/// circular corners, which stay inside it.
+		/// </summary>
+		private Vector4 StripRadii(Vector4 radii)
+		{
+			return radii * (1f - 0.5f * Mathf.Clamp01(m_cornerSmoothing));
+		}
+
+		/// <summary>
+		/// The strip's columns around the shape, clockwise from the left end of the top side: x is the stretch
+		/// (top side, top-right corner, right side, and so on, 0 to 7) and y how far along it, 0 to 1. Every
+		/// layer uses the same columns. They are a fraction of a lobe apart, and each corner has an even number of
+		/// segments, so one column runs through the middle of the corner, where the cross has its notch.
+		/// </summary>
+		private void BuildWobbleColumns(Vector2 halfSize, Vector4 stripRadii)
+		{
+			s_wobbleColumns.Clear();
+
+			var spacing = WobbleSpacing();
+
+			for (var stretch = 0; stretch < 8; stretch++) {
+				int count;
+
+				if (stretch % 2 == 0) {
+					var side = stretch % 4 == 0 ? 2f * halfSize.x : 2f * halfSize.y;
+					var length = side - StripCornerRadius(stripRadii, stretch - 1) - StripCornerRadius(stripRadii, stretch + 1);
+
+					// A side the corners take up whole, as on a pill, has no columns of its own.
+					count = length < 0.5f ? 0 : Mathf.CeilToInt(length / spacing);
+				} else {
+					var arc = (StripCornerRadius(stripRadii, stretch) + 16f) * Mathf.PI * 0.5f;
+					count = Mathf.Clamp(Mathf.CeilToInt(arc / spacing / 2f), 1, 4) * 2;
+				}
+
+				for (var i = 0; i < count; i++) {
+					s_wobbleColumns.Add(new Vector2(stretch, i / (float)count));
+				}
+			}
+		}
+
+		/// <summary>The strip radius of the corner a stretch points at: 1 top-right, 3 bottom-right, 5 bottom-left, 7 top-left.</summary>
+		private static float StripCornerRadius(Vector4 stripRadii, int stretch)
+		{
+			switch ((stretch + 8) % 8) {
+				case 1: return stripRadii.y;
+				case 3: return stripRadii.z;
+				case 5: return stripRadii.w;
+				default: return stripRadii.x;
+			}
+		}
+
+		/// <summary>
+		/// A strip around the shape from where the layer ends inside it to where it reaches outside its wobbled
+		/// edge, with a row of vertices on the wobbled edge itself. Every layer has that row in the same place, so
+		/// the edges of the layers that meet there take the same wobble.
+		/// </summary>
+		private void EmitStrip(VertexHelper vh, Vector2 center, in Strip strip)
+		{
+			var columns = s_wobbleColumns.Count;
+
+			if (columns < 3) {
+				return;
+			}
+
+			var start = vh.currentVertCount;
+
+			// The edge row only places the wobble, it bounds nothing, so its corners can be rounder than the
+			// shape's. At least as round as the wobble, a corner's wobble never pulls it in past its center.
+			var edgeRadii = Vector4.Max(strip.OuterRadii, Vector4.one * m_wobbleAmount);
+
+			foreach (var column in s_wobbleColumns) {
+				var stretch = (int)column.x;
+				var inner = strip.InnerDepth > 0
+					? WobbledPoint(stretch, column.y, -strip.InnerDepth, strip.HalfSize, strip.Radii)
+					: CrossPoint(stretch, column.y, strip.CrossMin, strip.CrossMax, strip.CrossCorner);
+
+				AddVertex(vh, center, inner, strip.Address);
+				AddVertex(vh, center, WobbledPoint(stretch, column.y, 0f, strip.HalfSize, edgeRadii), strip.Address);
+				AddVertex(vh, center, WobbledPoint(stretch, column.y, strip.Reach, strip.HalfSize, strip.OuterRadii) + strip.OuterShift, strip.Address);
+			}
+
+			for (var i = 0; i < columns; i++) {
+				var a = start + i * 3;
+				var b = start + (i + 1) % columns * 3;
+
+				vh.AddTriangle(a, b, b + 1);
+				vh.AddTriangle(b + 1, a + 1, a);
+				vh.AddTriangle(a + 1, b + 1, b + 2);
+				vh.AddTriangle(b + 2, a + 2, a + 1);
+			}
+		}
+
+		/// <summary>
+		/// A point `offset` outside the shape's edge (inside when negative), moved out by the wobble there. The
+		/// wobble is taken again where that lands, which puts the point on the wobbled edge's offset closely
+		/// enough for a strip.
+		/// </summary>
+		private Vector2 WobbledPoint(int stretch, float along, float offset, Vector2 halfSize, Vector4 radii)
+		{
+			var isCorner = stretch % 2 == 1;
+
+			// Inside the edge a corner's row turns tighter than the wobble can push it, and would fold over
+			// itself. It stays clear of the wobble instead: a whole wobble deeper, and not moved. Where that is
+			// deeper than the corner's radius the corner is square, and the sides stop where it is, so the row
+			// never doubles back.
+			if (offset < 0f) {
+				radii = Vector4.Max(radii, Vector4.one * (m_wobbleAmount - offset));
+
+				if (isCorner) {
+					return ContourPoint(stretch, along, offset - m_wobbleAmount, halfSize, radii, out _);
+				}
+			}
+
+			var point = ContourPoint(stretch, along, offset, halfSize, radii, out var normal);
+			var first = StyledShapeField.Wobble(point, m_wobbleAmount, m_wobbleLength, m_wobbleSeed);
+			var second = StyledShapeField.Wobble(point + normal * first, m_wobbleAmount, m_wobbleLength, m_wobbleSeed);
+
+			if (!isCorner) {
+				return point + normal * second;
+			}
+
+			// A corner's row turns around the corner's center. A wobble that pulls it in past the center would
+			// turn it inside out, so it stops there.
+			var radius = StripCornerRadius(radii, stretch) + offset;
+			return point + normal * Mathf.Max(second, -radius);
+		}
+
+		/// <summary>
+		/// A point `offset` outside the rounded rect (inside when negative), and the way out from it. Deeper
+		/// inside than a corner's radius, the corner is square.
+		/// </summary>
+		private static Vector2 ContourPoint(int stretch, float along, float offset, Vector2 h, Vector4 r, out Vector2 normal)
+		{
+			switch (stretch) {
+				case 0:
+					normal = Vector2.up;
+					return new Vector2(Mathf.Lerp(-h.x + r.x, h.x - r.y, along), h.y + offset);
+				case 2:
+					normal = Vector2.right;
+					return new Vector2(h.x + offset, Mathf.Lerp(h.y - r.y, -h.y + r.z, along));
+				case 4:
+					normal = Vector2.down;
+					return new Vector2(Mathf.Lerp(h.x - r.z, -h.x + r.w, along), -h.y - offset);
+				case 6:
+					normal = Vector2.left;
+					return new Vector2(-h.x - offset, Mathf.Lerp(-h.y + r.w, h.y - r.x, along));
+			}
+
+			// Corners turn clockwise, a quarter turn each, from the direction of the side before them.
+			float radius;
+			float startAngle;
+
+			switch (stretch) {
+				case 1:
+					radius = r.y;
+					startAngle = 90f;
+					break;
+				case 3:
+					radius = r.z;
+					startAngle = 0f;
+					break;
+				case 5:
+					radius = r.w;
+					startAngle = -90f;
+					break;
+				default:
+					radius = r.x;
+					startAngle = 180f;
+					break;
+			}
+
+			var corner = new Vector2(stretch == 1 || stretch == 3 ? 1f : -1f, stretch == 1 || stretch == 7 ? 1f : -1f);
+			var cornerCenter = Vector2.Scale(corner, h - Vector2.one * radius);
+			var angle = (startAngle - along * 90f) * Mathf.Deg2Rad;
+			normal = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+
+			return radius + offset >= 0f ? cornerCenter + normal * (radius + offset) : cornerCenter + corner * (radius + offset);
+		}
+
+		/// <summary>
+		/// The point on the cross's outline (see TryGetInnerCross) for a strip column. Sides map straight across
+		/// and each corner's notch is walked in two halves, so every corner of the outline has a column.
+		/// </summary>
+		private static Vector2 CrossPoint(int stretch, float along, Vector2 min, Vector2 max, float c)
+		{
+			switch (stretch) {
+				case 0: return new Vector2(Mathf.Lerp(min.x + c, max.x - c, along), max.y);
+				case 2: return new Vector2(max.x, Mathf.Lerp(max.y - c, min.y + c, along));
+				case 4: return new Vector2(Mathf.Lerp(max.x - c, min.x + c, along), min.y);
+				case 6: return new Vector2(min.x, Mathf.Lerp(min.y + c, max.y - c, along));
+			}
+
+			Vector2 from;
+			Vector2 notch;
+			Vector2 to;
+
+			switch (stretch) {
+				case 1:
+					from = new Vector2(max.x - c, max.y);
+					notch = new Vector2(max.x - c, max.y - c);
+					to = new Vector2(max.x, max.y - c);
+					break;
+				case 3:
+					from = new Vector2(max.x, min.y + c);
+					notch = new Vector2(max.x - c, min.y + c);
+					to = new Vector2(max.x - c, min.y);
+					break;
+				case 5:
+					from = new Vector2(min.x + c, min.y);
+					notch = new Vector2(min.x + c, min.y + c);
+					to = new Vector2(min.x, min.y + c);
+					break;
+				default:
+					from = new Vector2(min.x, max.y - c);
+					notch = new Vector2(min.x + c, max.y - c);
+					to = new Vector2(min.x + c, max.y);
+					break;
+			}
+
+			return along < 0.5f ? Vector2.Lerp(from, notch, along * 2f) : Vector2.Lerp(notch, to, along * 2f - 1f);
+		}
+
+		/// <summary>
 		/// Every piece of geometry goes through here: a rect in the shape's own space, relative to its center.
 		/// Shape deformation will later subdivide and displace the positions at this point, leaving the shape
 		/// space coordinates in uv0 untouched.
@@ -993,8 +1479,9 @@ namespace Tekly.Common.Ui.Styled
 
 			field = value;
 
-			// Holes are cut around the corners, so a rect with a holed layer needs its mesh rebuilt when they change.
-			if (HasHoledLayer()) {
+			// Holes are cut around the corners, and a wobbly rect's strips follow them, so either needs its mesh
+			// rebuilt when they change.
+			if (HasHoledLayer() || m_wobbleAmount > 0) {
 				SetVerticesDirty();
 			} else {
 				WriteRows();
@@ -1012,6 +1499,24 @@ namespace Tekly.Common.Ui.Styled
 
 			field = value;
 			WriteRows();
+		}
+
+		/// <summary>
+		/// Sets a wobble field. A wobbly rect's strips are placed along the wobbled edge, so its mesh is rebuilt.
+		/// </summary>
+		private void SetWobbleValue(ref float field, float value)
+		{
+			if (field == value) {
+				return;
+			}
+
+			field = value;
+
+			if (m_wobbleAmount > 0) {
+				SetVerticesDirty();
+			} else {
+				WriteRows();
+			}
 		}
 
 		/// <summary>
@@ -1054,15 +1559,11 @@ namespace Tekly.Common.Ui.Styled
 		}
 
 		/// <summary>
-		/// Whether the rect needs the Extended shader: its shape wobbles, or a stroke is dashed.
-		/// Everything else draws with the Core shader.
+		/// Whether the rect needs the Extended shader: a stroke is dashed. Everything else draws with the Core
+		/// shader.
 		/// </summary>
 		private bool UsesExtendedShader()
 		{
-			if (m_wobbleAmount > 0) {
-				return true;
-			}
-
 			foreach (var layer in m_layers) {
 				if (layer.UsesEdgePosition) {
 					return true;

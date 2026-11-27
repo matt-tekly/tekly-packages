@@ -35,5 +35,29 @@ namespace Tekly.Common.Ui.Styled
 
 			return outside.magnitude + inside - radius;
 		}
+
+		/// <summary>
+		/// How far the shape's wobble pushes the edge out (positive) or pulls it in at a point. C# copy of
+		/// StyledShapeWobbleAt in StyledRectCore.cginc, which StyledRect uses to place the vertices of a wobbly
+		/// rect's edge strips. Keep the two in sync.
+		/// </summary>
+		/// <param name="p">Point relative to the shape center.</param>
+		public static float Wobble(Vector2 p, float amount, float lobeLength, float seed)
+		{
+			const float TAU = Mathf.PI * 2f;
+			var k = Mathf.PI / Mathf.Max(lobeLength, 1f);
+
+			var wave0 = Mathf.Sin((p.x * 0.9397f + p.y * 0.3420f) * k + (Fraction(seed * 0.1373f) + 0.13f) * TAU);
+			var wave1 = Mathf.Sin((p.x * 0.2588f + p.y * 0.9659f) * k * 1.37f + (Fraction(seed * 0.3719f) + 0.57f) * TAU);
+			var wave2 = Mathf.Sin((p.x * -0.7071f + p.y * 0.7071f) * k * 2.23f + (Fraction(seed * 0.7151f) + 0.81f) * TAU);
+
+			return amount * (wave0 + 0.7f * wave1 + 0.25f * wave2) * (1f / 1.95f);
+		}
+
+		// The shader's frac: always 0 to 1, for negative values too.
+		private static float Fraction(float value)
+		{
+			return value - Mathf.Floor(value);
+		}
 	}
 }

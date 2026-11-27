@@ -1,5 +1,5 @@
 // Styled Rect, Solid tier. Draws the solid middle of a fill: covered everywhere, so only its color, gradient,
-// reveal mask and texture. StyledRect draws fill middles with this material in a second submesh, so they run
+// reveal mask and texture. StyledRect draws fill middles with this material in a first submesh, so they run
 // with far fewer registers than the full shader needs. The programs are in StyledRectSolidPass.cginc.
 Shader "UI/Styled Rect Solid"
 {

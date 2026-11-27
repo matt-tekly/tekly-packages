@@ -1,6 +1,6 @@
 // Styled Rect, Core tier. Draws one layer of a StyledRect per quad against the rect's distance field.
 // Every value comes from the StyledRectStore's data texture, fetched in the vertex shader and passed on as
-// flat varyings, so the fragment shader only does the per-pixel work.
+// varyings, so the fragment shader only does the per-pixel work.
 // The programs are in StyledRectPass.cginc, shared with the Extended tier.
 Shader "UI/Styled Rect"
 {

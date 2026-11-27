@@ -220,6 +220,26 @@ float StyledGradientPosition(float gradientType, float2 q, float2 halfSize, floa
     return saturate(edgePosition);
 }
 
+// How far the shape's edge is pushed out (positive) or pulled in by the shape's wobble at `p`, in the rect's
+// own space. wobble: amount, lobe length, seed.
+//
+// Three waves cross the rect's plane at different angles and lengths, and the edge is moved by their sum
+// where it passes. An edge crossing them sees irregular lobes about a lobe length apart, with no need to
+// know where along the edge it is. The seed only shifts the waves, and the fixed offsets keep the two
+// sides of the rect from mirroring each other. The sum is divided by the waves' total weight, so the edge
+// never moves further than the amount.
+float StyledShapeWobbleAt(float2 p, float4 wobble)
+{
+    // A rise and a fall make one lobe each, so the longest wave is two lobes long.
+    float k = 3.1415927 / max(wobble.y, 1.0);
+    float3 phase = (frac(wobble.z * float3(0.1373, 0.3719, 0.7151)) + float3(0.13, 0.57, 0.81)) * 6.2831853;
+    float3 waves = sin(float3(
+        dot(p, float2(0.9397, 0.3420)) * k,
+        dot(p, float2(0.2588, 0.9659)) * k * 1.37,
+        dot(p, float2(-0.7071, 0.7071)) * k * 2.23) + phase);
+    return wobble.x * dot(waves, float3(1.0, 0.7, 0.25)) * (1.0 / 1.95);
+}
+
 #ifdef STYLED_EXTENDED
 
 float StyledWrap(float x, float m)
@@ -291,26 +311,6 @@ float StyledEdgePosition(float2 p, float2 h, float4 radii, float4 exponents, flo
 
     // Near an off-center corner split a point can land just past either end.
     return StyledWrap(s, perimeter);
-}
-
-// How far the shape's edge is pushed out (positive) or pulled in by the shape's wobble at `p`, in the rect's
-// own space. wobble: amount, lobe length, seed.
-//
-// Three waves cross the rect's plane at different angles and lengths, and the edge is moved by their sum
-// where it passes. An edge crossing them sees irregular lobes about a lobe length apart, with no need to
-// know where along the edge it is. The seed only shifts the waves, and the fixed offsets keep the two
-// sides of the rect from mirroring each other. The sum is divided by the waves' total weight, so the edge
-// never moves further than the amount.
-float StyledShapeWobbleAt(float2 p, float4 wobble)
-{
-    // A rise and a fall make one lobe each, so the longest wave is two lobes long.
-    float k = 3.1415927 / max(wobble.y, 1.0);
-    float3 phase = (frac(wobble.z * float3(0.1373, 0.3719, 0.7151)) + float3(0.13, 0.57, 0.81)) * 6.2831853;
-    float3 waves = sin(float3(
-        dot(p, float2(0.9397, 0.3420)) * k,
-        dot(p, float2(0.2588, 0.9659)) * k * 1.37,
-        dot(p, float2(-0.7071, 0.7071)) * k * 2.23) + phase);
-    return wobble.x * dot(waves, float3(1.0, 0.7, 0.25)) * (1.0 / 1.95);
 }
 
 // Coverage of a dashed stroke. `along` is the position along the edge and `perimeter` its length.

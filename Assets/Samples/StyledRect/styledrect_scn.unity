@@ -464,7 +464,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -496,10 +495,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -580,7 +575,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -612,10 +606,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -640,10 +630,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -8}
     Blur: 24
@@ -824,7 +810,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -856,10 +841,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -1311,7 +1292,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -1343,10 +1323,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -2203,7 +2179,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -2235,10 +2210,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 8
@@ -3069,7 +3040,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -3101,10 +3071,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -3929,7 +3895,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 3
   m_revealAmount: 0.4
   m_revealCap: 0
@@ -3961,10 +3926,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -3989,10 +3950,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -4156,7 +4113,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -4188,10 +4144,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -5182,7 +5134,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -5214,10 +5165,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -5242,10 +5189,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -5809,7 +5752,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -5841,10 +5783,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -6135,7 +6073,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -6167,10 +6104,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -6660,7 +6593,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 5
   m_revealAmount: 0.4
   m_revealCap: 0
@@ -6692,10 +6624,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -6720,10 +6648,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -6962,7 +6886,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -6994,10 +6917,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -7261,7 +7180,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -7293,10 +7211,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -7321,10 +7235,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 3
@@ -7349,10 +7259,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -7665,7 +7571,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -7697,10 +7602,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -8081,7 +7982,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -8113,10 +8013,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 2
@@ -8141,10 +8037,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -8640,7 +8532,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -8672,10 +8563,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -9191,7 +9078,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -9223,10 +9109,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -9251,10 +9133,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 2
@@ -9279,10 +9157,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -9307,10 +9181,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -5}
     Blur: 6
@@ -9978,7 +9848,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -10010,10 +9879,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -10403,7 +10268,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -10435,10 +10299,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 8
@@ -11025,7 +10885,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -11057,10 +10916,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -11085,10 +10940,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -11113,10 +10964,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -11297,7 +11144,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -11329,10 +11175,6 @@ MonoBehaviour:
       DashSpacing: 16
       DashLength: 0.55
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 1
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -11357,10 +11199,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -11733,7 +11571,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -11765,10 +11602,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -12101,7 +11934,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -12133,10 +11965,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -12161,10 +11989,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -12245,7 +12069,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -12277,10 +12100,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -12305,10 +12124,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 2
@@ -12333,10 +12148,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -12361,10 +12172,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -5}
     Blur: 6
@@ -12654,7 +12461,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 2
   m_revealAmount: 0.7
   m_revealCap: 0
@@ -12686,10 +12492,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 2
@@ -12714,10 +12516,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -12742,10 +12540,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -5}
     Blur: 6
@@ -13496,7 +13290,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -13528,10 +13321,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -13812,7 +13601,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -13844,10 +13632,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -14280,7 +14064,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -14312,10 +14095,6 @@ MonoBehaviour:
       DashSpacing: 12
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 1
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -14340,10 +14119,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -14524,7 +14299,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -14556,10 +14330,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -14823,7 +14593,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -14855,10 +14624,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -14883,10 +14648,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -14911,10 +14672,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -5}
     Blur: 6
@@ -14995,7 +14752,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -15027,10 +14783,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -15055,10 +14807,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -15247,7 +14995,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -15279,10 +15026,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -15434,7 +15177,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -15466,10 +15208,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -15550,7 +15288,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 5
   m_revealAmount: 0.7
   m_revealCap: 0
@@ -15582,10 +15319,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -15610,10 +15343,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -15777,7 +15506,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -15809,10 +15537,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -16780,7 +16504,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -16812,10 +16535,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -17288,7 +17007,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -17320,10 +17038,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -18131,7 +17845,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -18163,10 +17876,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -18725,7 +18434,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -18757,10 +18465,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 5
@@ -18785,10 +18489,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -19345,7 +19045,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -19377,10 +19076,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -19405,10 +19100,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -19433,10 +19124,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -19700,7 +19387,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -19732,10 +19418,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -19760,10 +19442,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -20179,7 +19857,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -20211,10 +19888,6 @@ MonoBehaviour:
       DashSpacing: 12
       DashLength: 0.6
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 1
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -20378,7 +20051,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -20410,10 +20082,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -20438,10 +20106,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 2
@@ -20466,10 +20130,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -20494,10 +20154,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -5}
     Blur: 6
@@ -20787,7 +20443,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -20819,10 +20474,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -20847,10 +20498,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -21183,7 +20830,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -21215,10 +20861,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -21299,7 +20941,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -21331,10 +20972,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -21359,10 +20996,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 8, y: -8}
     Blur: 0
@@ -22206,7 +21839,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -22238,10 +21870,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -22393,7 +22021,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -22425,10 +22052,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -23153,7 +22776,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -23185,10 +22807,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -23213,10 +22831,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -23241,10 +22855,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -4}
     Blur: 5
@@ -23325,7 +22935,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -23357,10 +22966,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -23385,10 +22990,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 10, y: -10}
     Blur: 6
@@ -23552,7 +23153,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -23584,10 +23184,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -23768,7 +23364,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -23800,10 +23395,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -23984,7 +23575,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -24016,10 +23606,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -24100,7 +23686,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -24132,10 +23717,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -24160,10 +23741,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -24496,7 +24073,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -24528,10 +24104,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -24556,10 +24128,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 14
@@ -24640,7 +24208,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -24672,10 +24239,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -25122,7 +24685,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -25154,10 +24716,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -25799,7 +25357,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -25831,10 +25388,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -26936,7 +26489,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -26968,10 +26520,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -27052,7 +26600,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -27084,10 +26631,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 2.5
-      WobbleDrift: 0
-      WobbleLength: 40
-      WobbleSeed: 5
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -27112,10 +26655,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -27296,7 +26835,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -27328,10 +26866,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -27356,10 +26890,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -5}
     Blur: 3
@@ -27384,10 +26914,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -27412,10 +26938,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -5}
     Blur: 5
@@ -27496,7 +27018,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -27528,10 +27049,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 5}
     Blur: 4
@@ -27556,10 +27073,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -27640,7 +27153,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -27672,10 +27184,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 14
@@ -27700,10 +27208,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -27884,7 +27388,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -27916,10 +27419,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -27944,10 +27443,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 6
@@ -28929,7 +28424,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -28961,10 +28455,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -28989,10 +28479,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -29073,7 +28559,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -29105,10 +28590,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 3
-      WobbleLength: 40
-      WobbleSeed: 2
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -29133,10 +28614,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -29217,7 +28694,6 @@ MonoBehaviour:
   m_wobbleAmount: 5
   m_wobbleLength: 70
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -29249,10 +28725,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -29333,7 +28805,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 5
   m_revealAmount: 0.35
   m_revealCap: 0
@@ -29365,10 +28836,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -29393,10 +28860,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -29477,7 +28940,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -29509,10 +28971,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -29537,10 +28995,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -2}
     Blur: 2
@@ -29565,10 +29019,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -10}
     Blur: 18
@@ -29649,7 +29099,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -29681,10 +29130,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -29709,10 +29154,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 1.5
@@ -29737,10 +29178,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -29821,7 +29258,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -29853,10 +29289,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -31207,7 +30639,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -31239,10 +30670,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -31575,7 +31002,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -31607,10 +31033,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -31635,10 +31057,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -31714,12 +31132,11 @@ MonoBehaviour:
   m_radiusMode: 0
   m_radius: 12
   m_cornerRadii: {x: 16, y: 16, z: 16, w: 16}
-  m_roundedCorners: 15
+  m_roundedCorners: -1
   m_cornerSmoothing: 0
-  m_wobbleAmount: 0
+  m_wobbleAmount: 2
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -31751,10 +31168,6 @@ MonoBehaviour:
       DashSpacing: 18
       DashLength: 0.6
       DashSpeed: 0
-      WobbleWidth: 1.5
-      WobbleDrift: 2.5
-      WobbleLength: 45
-      WobbleSeed: 6
       DashRoundCaps: 1
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -31779,10 +31192,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -32664,7 +32073,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -32696,10 +32104,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -32724,10 +32128,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -6}
     Blur: 6
@@ -32752,10 +32152,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -33228,7 +32624,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -33260,10 +32655,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -33288,10 +32679,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -33372,7 +32759,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -33404,10 +32790,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -33897,7 +33279,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -33929,10 +33310,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -34096,7 +33473,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -34128,10 +33504,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 5
@@ -34156,10 +33528,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -34753,12 +34121,11 @@ MonoBehaviour:
   m_radiusMode: 0
   m_radius: 12
   m_cornerRadii: {x: 16, y: 16, z: 16, w: 16}
-  m_roundedCorners: 15
+  m_roundedCorners: -1
   m_cornerSmoothing: 0
-  m_wobbleAmount: 0
-  m_wobbleLength: 80
+  m_wobbleAmount: 5
+  m_wobbleLength: 14
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -34790,10 +34157,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 1.5
-      WobbleDrift: 1.5
-      WobbleLength: 14
-      WobbleSeed: 1
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -34818,10 +34181,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -35085,7 +34444,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -35117,10 +34475,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 2.5
-      WobbleDrift: 0
-      WobbleLength: 40
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -35145,10 +34499,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -35229,7 +34579,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -35261,10 +34610,6 @@ MonoBehaviour:
       DashSpacing: 18
       DashLength: 0.5
       DashSpeed: 30
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -35289,10 +34634,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -35625,7 +34966,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -35657,10 +34997,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -36007,7 +35343,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -36039,10 +35374,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -37006,7 +36337,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -37038,10 +36368,6 @@ MonoBehaviour:
       DashSpacing: 14
       DashLength: 0.5
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 1
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -37066,10 +36392,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -37150,7 +36472,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -37182,10 +36503,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -37210,10 +36527,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -38671,7 +37984,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -38703,10 +38015,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -38870,7 +38178,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -38902,10 +38209,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -39086,7 +38389,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -39118,10 +38420,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -39146,10 +38444,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -39765,7 +39059,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -39797,10 +39090,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -39825,10 +39114,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -39909,7 +39194,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 1
   m_revealAmount: 0.6
   m_revealCap: 0
@@ -39941,10 +39225,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -40025,7 +39305,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -40057,10 +39336,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -41187,7 +40462,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -41219,10 +40493,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -41247,10 +40517,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -41557,7 +40823,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -41589,10 +40854,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -41673,7 +40934,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -41705,10 +40965,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -41915,7 +41171,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -41947,10 +41202,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -42157,7 +41408,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -42189,10 +41439,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -42482,7 +41728,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 1
   m_revealAmount: 0.45
   m_revealCap: 0
@@ -42514,10 +41759,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -42542,10 +41783,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -43035,7 +42272,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -43067,10 +42303,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -44110,7 +43342,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 1
   m_revealAmount: 0.7
   m_revealCap: 0
@@ -44142,10 +43373,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -44170,10 +43397,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -44543,7 +43766,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -44575,10 +43797,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -44603,10 +43821,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -44939,7 +44153,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -44971,10 +44184,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 2
@@ -44999,10 +44208,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -45154,7 +44359,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -45186,10 +44390,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -45270,7 +44470,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -45302,10 +44501,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -45638,7 +44833,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -45670,10 +44864,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -46298,7 +45488,6 @@ MonoBehaviour:
   m_wobbleAmount: 6
   m_wobbleLength: 110
   m_wobbleSeed: 3
-  m_wobbleSpeed: 0.4
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -46330,10 +45519,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -46358,10 +45543,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -4}
     Blur: 5
@@ -46542,7 +45723,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -46574,10 +45754,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -46658,7 +45834,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -46690,10 +45865,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -4}
     Blur: 6
@@ -46718,10 +45889,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -47054,7 +46221,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -47086,10 +46252,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -47370,7 +46532,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -47402,10 +46563,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -47430,10 +46587,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -6}
     Blur: 10
@@ -47958,7 +47111,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -47990,10 +47142,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -49127,7 +48275,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -49159,10 +48306,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -49326,7 +48469,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -49358,10 +48500,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -49386,10 +48524,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -49570,7 +48704,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -49602,10 +48735,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -50321,7 +49450,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -50353,10 +49481,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -50381,10 +49505,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -50814,7 +49934,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -50846,10 +49965,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -50930,7 +50045,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -50962,10 +50076,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -4}
     Blur: 5
@@ -50990,10 +50100,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -51018,10 +50124,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -6}
     Blur: 8
@@ -51285,7 +50387,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -51317,10 +50418,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -51401,7 +50498,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -51433,10 +50529,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -51717,7 +50809,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -51749,10 +50840,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -51959,7 +51046,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -51991,10 +51077,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -53591,7 +52673,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -53623,10 +52704,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -53651,10 +52728,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 2
@@ -53679,10 +52752,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -53707,10 +52776,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -5}
     Blur: 6
@@ -55001,12 +54066,11 @@ MonoBehaviour:
   m_radiusMode: 0
   m_radius: 12
   m_cornerRadii: {x: 16, y: 16, z: 16, w: 16}
-  m_roundedCorners: 15
+  m_roundedCorners: -1
   m_cornerSmoothing: 0
-  m_wobbleAmount: 0
-  m_wobbleLength: 80
+  m_wobbleAmount: 5
+  m_wobbleLength: 120
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -55038,10 +54102,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 3
-      WobbleDrift: 3
-      WobbleLength: 120
-      WobbleSeed: 4
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -55066,10 +54126,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -56392,7 +55448,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -56424,10 +55479,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 2
-      WobbleDrift: 3
-      WobbleLength: 40
-      WobbleSeed: 2
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -56452,10 +55503,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -56536,7 +55583,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -56568,10 +55614,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -56596,10 +55638,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -56780,7 +55818,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -56812,10 +55849,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -56840,10 +55873,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -57150,7 +56179,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -57182,10 +56210,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -57575,7 +56599,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -57607,10 +56630,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -57691,7 +56710,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 1
   m_revealAmount: 0.55
   m_revealCap: 0
@@ -57723,10 +56741,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -57751,10 +56765,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -57779,10 +56789,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -57989,7 +56995,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -58021,10 +57026,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -58589,7 +57590,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -58621,10 +57621,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -58649,10 +57645,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -59377,7 +58369,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -59409,10 +58400,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -59437,10 +58424,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -8}
     Blur: 10
@@ -59604,7 +58587,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -59636,10 +58618,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -59664,10 +58642,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 10, y: -10}
     Blur: 6
@@ -59848,7 +58822,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -59880,10 +58853,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -59908,10 +58877,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 4
@@ -60410,7 +59375,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -60442,10 +59406,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -60752,7 +59712,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -60784,10 +59743,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -60812,10 +59767,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -61231,7 +60182,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -61263,10 +60213,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 20
@@ -61291,10 +60237,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -61675,7 +60617,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 1
   m_revealAmount: 0.6
   m_revealCap: 1
@@ -61707,10 +60648,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -62069,12 +61006,11 @@ MonoBehaviour:
   m_radiusMode: 0
   m_radius: 12
   m_cornerRadii: {x: 16, y: 16, z: 16, w: 16}
-  m_roundedCorners: 15
+  m_roundedCorners: -1
   m_cornerSmoothing: 0
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -62106,10 +61042,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 1.5
-      WobbleDrift: 2.5
-      WobbleLength: 50
-      WobbleSeed: 3
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -62134,10 +61066,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 1
-      WobbleDrift: 2.5
-      WobbleLength: 35
-      WobbleSeed: 9
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -62162,10 +61090,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -62246,7 +61170,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -62278,10 +61201,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -63947,7 +62866,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -63979,10 +62897,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -64007,10 +62921,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 2
@@ -64035,10 +62945,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -64063,10 +62969,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -5}
     Blur: 6
@@ -64147,7 +63049,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -64179,10 +63080,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -64207,10 +63104,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -64391,7 +63284,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -64423,10 +63315,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -64451,10 +63339,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -64535,7 +63419,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -64567,10 +63450,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -64595,10 +63474,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -65366,7 +64241,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -65398,10 +64272,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -65901,7 +64771,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -65933,10 +64802,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -66017,7 +64882,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -66049,10 +64913,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -66077,10 +64937,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -66370,7 +65226,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -66402,10 +65257,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -66569,7 +65420,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -66601,10 +65451,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -66629,10 +65475,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -66796,7 +65638,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -66828,10 +65669,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -67121,7 +65958,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -67153,10 +65989,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -67729,7 +66561,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -67761,10 +66592,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -67789,10 +66616,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 2
@@ -67817,10 +66640,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -67845,10 +66664,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: -5}
     Blur: 6
@@ -67929,7 +66744,6 @@ MonoBehaviour:
   m_wobbleAmount: 0
   m_wobbleLength: 80
   m_wobbleSeed: 0
-  m_wobbleSpeed: 0
   m_reveal: 0
   m_revealAmount: 1
   m_revealCap: 0
@@ -67961,10 +66775,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
@@ -67989,10 +66799,6 @@ MonoBehaviour:
       DashSpacing: 0
       DashLength: 0
       DashSpeed: 0
-      WobbleWidth: 0
-      WobbleDrift: 0
-      WobbleLength: 0
-      WobbleSeed: 0
       DashRoundCaps: 0
     ShadowOffset: {x: 0, y: 0}
     Blur: 0
