@@ -7,9 +7,11 @@ namespace TeklySample.Samples.StyledRects
 {
     /// <summary>
     /// Measures how long the GPU spends drawing StyledRects, for comparing shader changes on a device.
-    /// Fills the screen with a stack of cards in one of several setups and shows the average GPU and CPU
-    /// frame times. The buttons change the setup and the number of stacked cards. It only uses StyledRect
-    /// API that older commits have too, so the same scene can measure a build from before a change.
+    /// Fills the screen with cards in one of several setups and shows the average GPU and CPU frame times.
+    /// The cards are either stacked, each covering nearly the whole screen, or laid out side by side in a
+    /// grid of button sized cards that do not overlap, which is closer to a real screen. The buttons change
+    /// the setup, the layout and the number of cards. It only uses StyledRect API that older commits have
+    /// too, so the same scene can measure a build from before a change.
     ///
     /// The GPU time needs Frame Timing Stats on in the Player Settings. Compare builds at the same setup and
     /// card count, and with enough cards that the GPU is busy: a mobile GPU lowers its clock when it has
@@ -24,9 +26,17 @@ namespace TeklySample.Samples.StyledRects
         private const int MIN_CARDS = 1;
         private const int MAX_CARDS = 32;
         private const float REFERENCE_HEIGHT = 1080f;
+        private static readonly Vector2 GRID_CARD_SIZE = new Vector2(400f, 150f);
+        private const float GRID_GAP = 24f;
 
         [Tooltip("How many cards are stacked on top of each other. Each covers nearly the whole screen.")]
         [SerializeField] private int m_cardCount = 6;
+
+        [Tooltip("How many cards the grid layout shows. It holds at most as many as fit on the screen.")]
+        [SerializeField] private int m_gridCardCount = 32;
+
+        [Tooltip("Lay the cards out side by side in a grid instead of stacking them.")]
+        [SerializeField] private bool m_grid;
 
         [Tooltip("How many frames each average covers.")]
         [SerializeField] private int m_sampleFrames = 120;
@@ -38,6 +48,7 @@ namespace TeklySample.Samples.StyledRects
 
         private Scenario[] m_scenarios;
         private int m_scenarioIndex;
+        private Canvas m_canvas;
         private RectTransform m_root;
 
         private int m_warmup;
@@ -68,29 +79,24 @@ namespace TeklySample.Samples.StyledRects
                 new Scenario("Fill", Styled(BuildFill)),
                 new Scenario("Fill, wobble", Styled((rect, index) => {
                     BuildFill(rect, index);
-                    Wobble(rect, index, 0);
-                })),
-                new Scenario("Fill, animated wobble", Styled((rect, index) => {
-                    BuildFill(rect, index);
-                    Wobble(rect, index, 2);
+                    Wobble(rect, index);
                 })),
                 new Scenario("Layered", Styled(BuildLayered)),
                 new Scenario("Layered, wobble", Styled((rect, index) => {
                     BuildLayered(rect, index);
-                    Wobble(rect, index, 0);
+                    Wobble(rect, index);
                 })),
-                new Scenario("Layered, animated wobble", Styled((rect, index) => {
-                    BuildLayered(rect, index);
-                    Wobble(rect, index, 2);
-                })),
-                new Scenario("Dashed wobbly stroke", Styled(BuildDashedStroke))
+                new Scenario("Dashed stroke, wobble", Styled((rect, index) => {
+                    BuildDashedStroke(rect, index);
+                    Wobble(rect, index);
+                }))
             };
 
             var canvasObject = new GameObject("Benchmark Canvas", typeof(Canvas), typeof(CanvasScaler));
             canvasObject.transform.SetParent(transform, false);
 
-            var canvas = canvasObject.GetComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            m_canvas = canvasObject.GetComponent<Canvas>();
+            m_canvas.renderMode = RenderMode.ScreenSpaceOverlay;
 
             var scaler = canvasObject.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -135,7 +141,7 @@ namespace TeklySample.Samples.StyledRects
             GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1f));
 
             var width = Screen.width / scale;
-            var area = new Rect(40f, 40f, Mathf.Min(900f, width - 80f), 520f);
+            var area = new Rect(40f, 40f, Mathf.Min(1000f, width - 80f), 520f);
 
             GUI.Box(area, GUIContent.none);
             GUILayout.BeginArea(new Rect(area.x + 20f, area.y + 20f, area.width - 40f, area.height - 40f));
@@ -156,11 +162,18 @@ namespace TeklySample.Samples.StyledRects
             GUILayout.Space(30f);
 
             if (GUILayout.Button("Cards -", m_buttonStyle, GUILayout.Width(160f))) {
-                SetCardCount(m_cardCount - 1);
+                SetCardCount(CardCount - 1);
             }
 
             if (GUILayout.Button("Cards +", m_buttonStyle, GUILayout.Width(160f))) {
-                SetCardCount(m_cardCount + 1);
+                SetCardCount(CardCount + 1);
+            }
+
+            GUILayout.Space(30f);
+
+            if (GUILayout.Button(m_grid ? "Grid" : "Stacked", m_buttonStyle, GUILayout.Width(180f))) {
+                m_grid = !m_grid;
+                Rebuild();
             }
 
             GUILayout.EndHorizontal();
@@ -173,16 +186,43 @@ namespace TeklySample.Samples.StyledRects
             Rebuild();
         }
 
+        private int CardCount => m_grid ? Mathf.Min(m_gridCardCount, GridCapacity()) : m_cardCount;
+
         private void SetCardCount(int count)
         {
-            count = Mathf.Clamp(count, MIN_CARDS, MAX_CARDS);
+            count = Mathf.Clamp(count, MIN_CARDS, m_grid ? GridCapacity() : MAX_CARDS);
 
-            if (count == m_cardCount) {
+            if (count == CardCount) {
                 return;
             }
 
-            m_cardCount = count;
+            if (m_grid) {
+                m_gridCardCount = count;
+            } else {
+                m_cardCount = count;
+            }
+
             Rebuild();
+        }
+
+        // The canvas size in canvas units. The scaler sets the scale factor as soon as it is enabled.
+        private Vector2 CanvasSize()
+        {
+            return new Vector2(Screen.width, Screen.height) / m_canvas.scaleFactor;
+        }
+
+        private Vector2Int GridShape()
+        {
+            var size = CanvasSize();
+            var columns = Mathf.Max(1, Mathf.FloorToInt((size.x - GRID_GAP) / (GRID_CARD_SIZE.x + GRID_GAP)));
+            var rows = Mathf.Max(1, Mathf.FloorToInt((size.y - GRID_GAP) / (GRID_CARD_SIZE.y + GRID_GAP)));
+            return new Vector2Int(columns, rows);
+        }
+
+        private int GridCapacity()
+        {
+            var shape = GridShape();
+            return shape.x * shape.y;
         }
 
         private void Rebuild()
@@ -194,8 +234,14 @@ namespace TeklySample.Samples.StyledRects
             var scenario = m_scenarios[m_scenarioIndex];
 
             if (scenario.Build != null) {
-                for (var i = 0; i < m_cardCount; i++) {
-                    CreateCard(scenario, i);
+                var count = CardCount;
+
+                for (var i = 0; i < count; i++) {
+                    if (m_grid) {
+                        CreateGridCard(scenario, i);
+                    } else {
+                        CreateCard(scenario, i);
+                    }
                 }
             }
 
@@ -214,6 +260,28 @@ namespace TeklySample.Samples.StyledRects
             cardTransform.anchorMax = Vector2.one;
             cardTransform.offsetMin = new Vector2(inset, inset);
             cardTransform.offsetMax = new Vector2(-inset, -inset);
+
+            scenario.Build(cardObject, index);
+        }
+
+        // A button sized card in a grid cell, filled from the top left. The grid is centered on the screen and
+        // the gaps are wide enough that the drop shadows do not reach the next card.
+        private void CreateGridCard(Scenario scenario, int index)
+        {
+            var cardObject = new GameObject($"Card {index}", typeof(RectTransform));
+            var cardTransform = (RectTransform)cardObject.transform;
+            cardTransform.SetParent(m_root, false);
+
+            var shape = GridShape();
+            var step = GRID_CARD_SIZE + Vector2.one * GRID_GAP;
+            var gridSize = new Vector2(shape.x, shape.y) * step - Vector2.one * GRID_GAP;
+            var column = index % shape.x;
+            var row = index / shape.x;
+
+            cardTransform.anchorMin = cardTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            cardTransform.pivot = new Vector2(0f, 1f);
+            cardTransform.sizeDelta = GRID_CARD_SIZE;
+            cardTransform.anchoredPosition = new Vector2(-gridSize.x * 0.5f + column * step.x, gridSize.y * 0.5f - row * step.y);
 
             scenario.Build(cardObject, index);
         }
@@ -273,7 +341,8 @@ namespace TeklySample.Samples.StyledRects
         private string Header()
         {
             var scenario = m_scenarios[m_scenarioIndex];
-            var cards = scenario.Build != null ? $", {m_cardCount} cards" : "";
+            var layout = m_grid ? "grid" : "stacked";
+            var cards = scenario.Build != null ? $", {CardCount} cards {layout}" : "";
             return $"[{m_scenarioIndex + 1}/{m_scenarios.Length}] {scenario.Name}{cards}";
         }
 
@@ -300,12 +369,11 @@ namespace TeklySample.Samples.StyledRects
             return StyledPaint.Linear(color, darker, 160f);
         }
 
-        private static void Wobble(StyledRect rect, int index, float speed)
+        private static void Wobble(StyledRect rect, int index)
         {
             rect.WobbleAmount = 8f;
             rect.WobbleLength = 80f;
             rect.WobbleSeed = index;
-            rect.WobbleSpeed = speed;
         }
 
         private static void BuildFill(StyledRect rect, int index)
@@ -324,11 +392,11 @@ namespace TeklySample.Samples.StyledRects
             rect.AddLayer(StyledLayer.Stroke(4f, new Color(0.1f, 0.1f, 0.15f)));
         }
 
-        // The Extended shader's stroke path: dashes and the stroke's own wobble.
+        // The Extended shader's stroke path: moving dashes.
         private static void BuildDashedStroke(StyledRect rect, int index)
         {
             rect.AddLayer(StyledLayer.Fill(CardColor(index)));
-            rect.AddLayer(StyledLayer.Stroke(6f, Color.white).WithDashes(24f, speed: 20f).WithWobble(2f, 3f, seed: index));
+            rect.AddLayer(StyledLayer.Stroke(6f, Color.white).WithDashes(24f, speed: 20f));
         }
 
         private readonly struct Scenario

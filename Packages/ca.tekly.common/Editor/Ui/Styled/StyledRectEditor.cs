@@ -49,10 +49,6 @@ namespace Tekly.Common.Ui.Styled
 		private static readonly LayerField s_dashSpeed = new LayerField(STROKE + nameof(StyledStrokeStyle.DashSpeed));
 		private static readonly LayerField s_dashRoundCaps = new LayerField(STROKE + nameof(StyledStrokeStyle.DashRoundCaps), "Round Caps",
 			"Round the ends of each dash. The caps fit inside the dash length.");
-		private static readonly LayerField s_wobbleWidth = new LayerField(STROKE + nameof(StyledStrokeStyle.WobbleWidth));
-		private static readonly LayerField s_wobbleDrift = new LayerField(STROKE + nameof(StyledStrokeStyle.WobbleDrift));
-		private static readonly LayerField s_wobbleLength = new LayerField(STROKE + nameof(StyledStrokeStyle.WobbleLength));
-		private static readonly LayerField s_wobbleSeed = new LayerField(STROKE + nameof(StyledStrokeStyle.WobbleSeed));
 		private static readonly LayerField s_shadowOffset = new LayerField(nameof(StyledLayer.ShadowOffset), "Offset",
 			"How far the shadow is moved from the shape. Y is up, so (0, -6) is below the shape.");
 		private static readonly LayerField s_blur = new LayerField(nameof(StyledLayer.Blur));
@@ -69,21 +65,19 @@ namespace Tekly.Common.Ui.Styled
 			"Where the light comes from. As in CSS: 0 is straight above and it turns clockwise, so 315 is top-left.");
 
 		private static readonly LayerField[] s_allFields = {
-			s_kind, s_width, s_align, s_offset, s_dashSpacing, s_dashLength, s_dashSpeed, s_dashRoundCaps, s_wobbleWidth, s_wobbleDrift, s_wobbleLength, s_wobbleSeed, s_inset, s_shadowOffset, s_blur, s_spread, s_showBehind, s_paint, s_textured, s_highlight, s_shadow, s_lightAngle, s_ignoreTint, s_ignoreReveal
+			s_kind, s_width, s_align, s_offset, s_dashSpacing, s_dashLength, s_dashSpeed, s_dashRoundCaps, s_inset, s_shadowOffset, s_blur, s_spread, s_showBehind, s_paint, s_textured, s_highlight, s_shadow, s_lightAngle, s_ignoreTint, s_ignoreReveal
 		};
 
 		// The fields each layer kind shows when unfolded.
 		private static readonly LayerField[] s_fillFields = { s_kind, s_paint, s_inset, s_blur, s_textured, s_ignoreTint, s_ignoreReveal };
 		private static readonly LayerField[] s_strokeFields = {
 			s_kind, s_width, s_align, s_offset, s_paint, s_dashSpacing, s_dashLength, s_dashSpeed, s_dashRoundCaps,
-			s_wobbleWidth, s_wobbleDrift, s_wobbleLength, s_wobbleSeed, s_textured, s_ignoreTint, s_ignoreReveal
+			s_textured, s_ignoreTint, s_ignoreReveal
 		};
 
 		// Shown only on a stroke that has a dash spacing.
 		private static readonly LayerField[] s_dashDetailFields = { s_dashLength, s_dashSpeed, s_dashRoundCaps };
 
-		// Shown only on a stroke that wobbles.
-		private static readonly LayerField[] s_wobbleDetailFields = { s_wobbleLength, s_wobbleSeed };
 		private static readonly LayerField[] s_shadowFields = { s_kind, s_shadowOffset, s_blur, s_spread, s_showBehind, s_paint, s_textured, s_ignoreTint, s_ignoreReveal };
 		private static readonly LayerField[] s_innerShadowFields = { s_kind, s_shadowOffset, s_blur, s_spread, s_paint, s_textured, s_ignoreTint, s_ignoreReveal };
 		private static readonly LayerField[] s_bevelFields = { s_kind, s_width, s_blur, s_highlight, s_shadow, s_lightAngle, s_ignoreTint, s_ignoreReveal };
@@ -155,7 +149,7 @@ namespace Tekly.Common.Ui.Styled
 			return shape;
 		}
 
-		/// <summary>The shape's wobble: the amount, and once there is one, the lobes' length, seed and speed.</summary>
+		/// <summary>The shape's wobble: the amount, and once there is one, the lobes' length and seed.</summary>
 		private VisualElement CreateWobble()
 		{
 			var amount = serializedObject.FindProperty("m_wobbleAmount");
@@ -167,7 +161,6 @@ namespace Tekly.Common.Ui.Styled
 			details.style.marginLeft = 15f;
 			details.Add(new PropertyField(serializedObject.FindProperty("m_wobbleLength"), "Lobe Length"));
 			details.Add(new PropertyField(serializedObject.FindProperty("m_wobbleSeed"), "Seed"));
-			details.Add(new PropertyField(serializedObject.FindProperty("m_wobbleSpeed"), "Speed"));
 			wobble.Add(details);
 
 			void Refresh()
@@ -595,17 +588,11 @@ namespace Tekly.Common.Ui.Styled
 				m_body.SetEnabled(enabled);
 
 				var dashed = m_layer.FindPropertyRelative(STROKE + nameof(StyledStrokeStyle.DashSpacing)).floatValue > 0f;
-				var wobbles = m_layer.FindPropertyRelative(STROKE + nameof(StyledStrokeStyle.WobbleWidth)).floatValue > 0f
-				              || m_layer.FindPropertyRelative(STROKE + nameof(StyledStrokeStyle.WobbleDrift)).floatValue > 0f;
 
 				for (var i = 0; i < s_allFields.Length; i++) {
 					var visible = Array.IndexOf(shown, s_allFields[i]) >= 0;
 
 					if (visible && !dashed && Array.IndexOf(s_dashDetailFields, s_allFields[i]) >= 0) {
-						visible = false;
-					}
-
-					if (visible && !wobbles && Array.IndexOf(s_wobbleDetailFields, s_allFields[i]) >= 0) {
 						visible = false;
 					}
 

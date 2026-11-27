@@ -1,8 +1,8 @@
 // The vertex and fragment programs shared by the Styled Rect shaders.
 //
 // "UI/Styled Rect" is the Core tier. "UI/Styled Rect Extended" defines STYLED_EXTENDED before including
-// this, which adds what needs the position along the shape's edge: dashed strokes, strokes whose width
-// wobbles, and a shape whose whole edge wobbles. A rect only uses the Extended shader when it has one of
+// this, which adds what needs the position along the shape's edge: dashed strokes and a shape whose whole
+// edge wobbles. A rect only uses the Extended shader when it has one of
 // those, so everything else never pays for them.
 //
 // Mobile GPUs run fewer pixels at once the more registers a shader needs, and a shader needs as many as its
@@ -60,10 +60,9 @@ struct Varyings
     // over the half size. Edge: the band end and one over the depth the gradient spans. For a bevel, the
     // direction the light comes from. z = gradient type. w = gradient exponent.
     nointerpolation half4 gradient    : TEXCOORD6;
-    // x = layer kind, or -1 for a fill's solid middle. y = soft width, or in the Extended shader a stroke's
-    // drift. zw = gradient range start, end.
+    // x = layer kind, or -1 for a fill's solid middle. y = soft width. zw = gradient range start, end.
     nointerpolation half4 kind        : TEXCOORD7;
-    // xy = a shadow's offset, or in the Extended shader a stroke's wobble length and seed. z = the first
+    // xy = a shadow's offset. z = the first
     // distance's mitre. w = how the distances are taken, as STYLED_ bits.
     nointerpolation float4 distances  : TEXCOORD8;
     // x = which distance the edge is on: 1 or 2, negative to flip it, plus 10 for an underlay. y = the
@@ -79,9 +78,9 @@ struct Varyings
     nointerpolation float4 reveal     : TEXCOORD11;
     nointerpolation float4 uvLimits   : TEXCOORD12; // min x, min y, max x, max y the texture uv may reach
 #ifdef STYLED_EXTENDED
-    nointerpolation float4 wobble     : TEXCOORD13; // shape wobble: amount, lobe length, seed, changes per second
+    nointerpolation float4 wobble     : TEXCOORD13; // shape wobble: amount, lobe length, seed, unused
     // dash spacing (0 = solid), dash length as a fraction of the spacing plus 2 for round caps,
-    // dash speed, how much the stroke's width wobbles.
+    // dash speed, unused.
     nointerpolation float4 stroke     : TEXCOORD14;
 #endif
     UNITY_VERTEX_OUTPUT_STEREO
@@ -212,16 +211,7 @@ Varyings vert(Attributes IN)
 
 #ifdef STYLED_EXTENDED
     OUT.wobble = StyledLoad(shape + STYLED_SHAPE_WOBBLE);
-    OUT.stroke = float4(0, 0, 0, 0);
-
-    if (isFillOrStroke && isStroke) {
-        // A stroke has no offset or soft edge, so its own wobble takes those places: drift in kind.y, and
-        // its wobble's length (0 uses the shape's lobe length) and seed in distances.xy.
-        float4 strokeWobble = StyledLoad(layer + STYLED_LAYER_STROKE_WOBBLE); // width, drift, length, seed
-        OUT.stroke = float4(curveDashes.yzw, strokeWobble.x);
-        OUT.kind.y = strokeWobble.y;
-        OUT.distances.xy = float2(strokeWobble.z > 0.0 ? strokeWobble.z : OUT.wobble.y, OUT.wobble.z + strokeWobble.w);
-    }
+    OUT.stroke = isFillOrStroke && isStroke ? float4(curveDashes.yzw, 0.0) : float4(0, 0, 0, 0);
 #endif
 
     // Reveal: mode, then by mode. A layer that ignores the reveal draws whole.
@@ -436,15 +426,13 @@ fixed4 frag(Varyings IN) : SV_Target
         bool offsetOnSecond = TakeBit(bits, STYLED_OFFSET_ON_SECOND);
         float4 softRadii = max(IN.radii, IN.corner.x);
 
-        // A dashed stroke, or one with a wobble of its own, needs the position along the edge, as the shape's
+        // A dashed stroke needs the position along the edge, as the shape's
         // wobble does. It measures along its outer edge, its silhouette, so dashes keep their visible length
         // around corners.
         bool strokeAlong = false;
         bool needsAlong = false;
 #ifdef STYLED_EXTENDED
-        float drift = IN.kind.y;
-        strokeAlong = kind > STYLED_KIND_STROKE - 0.5 && kind < STYLED_KIND_SHADOW - 0.5
-                      && (IN.stroke.x > 0.0 || IN.stroke.w > 0.0 || drift > 0.0);
+        strokeAlong = kind > STYLED_KIND_STROKE - 0.5 && kind < STYLED_KIND_SHADOW - 0.5 && IN.stroke.x > 0.0;
         needsAlong = IN.wobble.x > 0.0 || strokeAlong;
 #endif
 
@@ -495,26 +483,10 @@ fixed4 frag(Varyings IN) : SV_Target
         coverage *= cutCode < 0.5 ? 1.0 : saturate((cutDistance + IN.coverage.w) / pixel + (cutCode > 2.5 ? 1.0 : 0.5));
 
 #ifdef STYLED_EXTENDED
-        // A dashed stroke, or one with a wobble of its own: its width varies and it drifts in and out, with
-        // its own length and seed.
+        // A dashed stroke: its band, cut into dashes along the edge.
         [branch]
         if (strokeAlong) {
-            float bandStart = IN.shape.z;
-            float bandEnd = IN.shape.w;
-
-            // Width and drift use different lobes, so the stroke does not just swell where it moves out.
-            float grow = IN.stroke.w * StyledLobes(along, perimeter, IN.distances.x, IN.distances.y + 21.0);
-            float moved = drift * StyledLobes(along, perimeter, IN.distances.x, IN.distances.y + 40.0);
-            bandStart += moved - grow;
-            bandEnd = max(bandEnd + moved + grow, bandStart);
-
-            if (IN.stroke.x > 0.0) {
-                coverage = StyledDashCoverage(d1, along, perimeter, bandStart, bandEnd, pixel, IN.stroke);
-            } else {
-                // Fades out where the wobble leaves less than a pixel of width.
-                coverage = (1.0 - StyledRamp(d1 - bandEnd, pixel, pixel)) * saturate(0.5 + (d1 - bandStart) / pixel)
-                           * saturate((bandEnd - bandStart) / pixel);
-            }
+            coverage = StyledDashCoverage(d1, along, perimeter, IN.shape.z, IN.shape.w, pixel, IN.stroke);
         }
 #endif
     }

@@ -1,6 +1,6 @@
 // Styled Rect, Extended tier. The Core shader plus what needs the position along the shape's edge: dashed
-// strokes, strokes whose width wobbles, and a shape whose whole edge wobbles. StyledRect picks this shader
-// only for rects that use one of those. The programs are in StyledRectPass.cginc.
+// strokes and a shape whose whole edge wobbles. StyledRect picks this shader only for rects that use one of
+// those. The programs are in StyledRectPass.cginc.
 Shader "UI/Styled Rect Extended"
 {
     Properties

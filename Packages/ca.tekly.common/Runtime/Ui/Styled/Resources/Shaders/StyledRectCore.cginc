@@ -28,7 +28,6 @@
 #define STYLED_LAYER_COLOR_B 3.0
 #define STYLED_LAYER_GRADIENT 4.0
 #define STYLED_LAYER_CURVE_DASHES 5.0
-#define STYLED_LAYER_STROKE_WOBBLE 6.0
 
 #define STYLED_KIND_FILL 0.0
 #define STYLED_KIND_STROKE 1.0
@@ -340,24 +339,10 @@ float StyledLobes(float along, float perimeter, float lobeLength, float seed)
 }
 
 // How far the shape's edge is pushed out (positive) or pulled in by the shape's wobble, at `along` on an edge
-// `perimeter` long (see StyledEdgePosition). wobble: amount, lobe length, seed, changes per second. With a
-// speed the lobes morph in place: the edge blends from one set of lobes to the next and never travels
-// around the shape.
+// `perimeter` long (see StyledEdgePosition). wobble: amount, lobe length, seed.
 float StyledShapeWobbleAt(float along, float perimeter, float4 wobble)
 {
-    float time = _Time.y * wobble.w;
-    float step = StyledWrap(floor(time), 64.0);
-    float lobes = StyledLobes(along, perimeter, wobble.y, wobble.z + step * 3.0);
-
-    [branch]
-    if (wobble.w != 0.0) {
-        float blend = frac(time);
-        blend = blend * blend * (3.0 - 2.0 * blend);
-        float next = StyledLobes(along, perimeter, wobble.y, wobble.z + StyledWrap(step + 1.0, 64.0) * 3.0);
-        lobes = lerp(lobes, next, blend);
-    }
-
-    return wobble.x * lobes;
+    return wobble.x * StyledLobes(along, perimeter, wobble.y, wobble.z);
 }
 
 // Coverage of a dashed stroke. `along` is the position along the edge and `perimeter` its length.

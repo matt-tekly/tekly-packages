@@ -90,15 +90,6 @@ namespace Tekly.Common.Ui.Styled
 		}
 
 		/// <summary>
-		/// How many times a second the lobes change into a new set. The edge morphs in place and does not
-		/// travel around the shape. 0 keeps it still. Runs in the shader from game time.
-		/// </summary>
-		public float WobbleSpeed {
-			get => m_wobbleSpeed;
-			set => SetTextureValue(ref m_wobbleSpeed, value);
-		}
-
-		/// <summary>
 		/// Shows only part of the rect, growing from a side or sweeping around the center. Layers with Ignore
 		/// Reveal on stay whole.
 		/// </summary>
@@ -243,9 +234,6 @@ namespace Tekly.Common.Ui.Styled
 
 		[Tooltip("Picks a different set of lobes.")]
 		[SerializeField] private float m_wobbleSeed;
-
-		[Tooltip("How many times a second the lobes change into a new set. The edge morphs in place. 0 keeps it still. Uses game time.")]
-		[SerializeField] private float m_wobbleSpeed;
 
 		[Tooltip("Shows only part of the rect, for progress bars and cooldowns. Every layer follows the revealed shape unless it has Ignore Reveal on.")]
 		[SerializeField] private StyledReveal m_reveal = StyledReveal.None;
@@ -501,22 +489,24 @@ namespace Tekly.Common.Ui.Styled
 			var solidSubmesh = UsesSolidSubmesh();
 
 			// Front to back first, so each fill knows what is drawn above it. `open` is the part of the rect no
-			// layer in front draws over with the full shader: inside every hole of the rings in front. A fill's
-			// solid middle draws in the second submesh, after the first, so it is clipped to that part and the
-			// layers in front still end up on top.
+			// layer in front draws over with the full shader: inside every hole of the rings in front, a cross
+			// like they are, with corner squares as large as the largest of theirs. A fill's solid middle draws in
+			// the second submesh, after the first, so it is clipped to that part and the layers in front still end
+			// up on top.
 			s_layerQuads.Clear();
 			var openMin = new Vector2(float.MinValue, float.MinValue);
 			var openMax = new Vector2(float.MaxValue, float.MaxValue);
+			var openCorner = 0f;
 
 			for (var i = 0; i < m_layers.Count; i++) {
 				var layer = m_layers[i];
-				var quads = new LayerQuads { OpenMin = openMin, OpenMax = openMax };
+				var quads = new LayerQuads { OpenMin = openMin, OpenMax = openMax, OpenCorner = openCorner };
 
 				if (layer.Draws) {
-					GetLayerBounds(layer, halfSize, radii, out quads.Min, out quads.Max, out quads.HoleMin, out quads.HoleMax, out quads.Solid);
+					GetLayerBounds(layer, halfSize, radii, out quads.Min, out quads.Max, out quads.HoleMin, out quads.HoleMax, out quads.HoleCorner, out quads.Solid);
 
 					// A wobble moves edges either way, so the layer reaches further out and its hole is smaller.
-					var wobble = Vector2.one * (Mathf.Max(0, m_wobbleAmount) + layer.WobbleReach);
+					var wobble = Vector2.one * Mathf.Max(0, m_wobbleAmount);
 					quads.Min -= wobble;
 					quads.Max += wobble;
 					quads.HoleMin += wobble;
@@ -525,11 +515,13 @@ namespace Tekly.Common.Ui.Styled
 					// A hole can reach past a layer that is offset from the shape.
 					quads.HoleMin = Vector2.Max(quads.HoleMin, quads.Min);
 					quads.HoleMax = Vector2.Min(quads.HoleMax, quads.Max);
+					quads.HoleCorner = FitCorner(quads.HoleMin, quads.HoleMax, quads.HoleCorner);
 					quads.Ring = AllowsHole(layer) && IsHoleWorthIt(quads.Min, quads.Max, quads.HoleMin, quads.HoleMax);
 
 					if (quads.Ring) {
 						openMin = Vector2.Max(openMin, quads.HoleMin);
 						openMax = Vector2.Min(openMax, quads.HoleMax);
+						openCorner = Mathf.Max(openCorner, quads.HoleCorner);
 					} else {
 						openMax = openMin;
 					}
@@ -552,24 +544,26 @@ namespace Tekly.Common.Ui.Styled
 					continue;
 				}
 
-				EmitRing(vh, center, quads.Min, quads.Max, quads.HoleMin, quads.HoleMax, layerAddress);
-
 				if (!quads.Solid) {
+					EmitRing(vh, center, quads.Min, quads.Max, quads.HoleMin, quads.HoleMax, quads.HoleCorner, layerAddress);
 					continue;
 				}
 
 				// A fill's middle is covered everywhere, so its pixels only take the fill's color. The part no layer
-				// in front draws over goes to the second submesh and the solid material. The rest stays in this
-				// mesh, marked solid, so the full shader skips its distance field.
+				// in front draws over goes to the second submesh and the solid material, and the fill's ring reaches
+				// in to meet it. Otherwise the middle stays in this mesh, marked solid, so the full shader skips its
+				// distance field.
 				var solidAddress = StyledRows.SolidAddress(layerAddress);
 				var middleMin = Vector2.Max(quads.HoleMin, quads.OpenMin);
 				var middleMax = Vector2.Min(quads.HoleMax, quads.OpenMax);
 
 				if (solidSubmesh && IsHoleWorthIt(quads.HoleMin, quads.HoleMax, middleMin, middleMax)) {
-					EmitRing(vh, center, quads.HoleMin, quads.HoleMax, middleMin, middleMax, solidAddress);
-					EmitSolidRect(center, middleMin, middleMax, solidAddress);
+					var middleCorner = FitCorner(middleMin, middleMax, Mathf.Max(quads.HoleCorner, quads.OpenCorner));
+					EmitRing(vh, center, quads.Min, quads.Max, middleMin, middleMax, middleCorner, layerAddress);
+					EmitCross(vh, center, middleMin, middleMax, middleCorner, solidAddress, true);
 				} else {
-					EmitRect(vh, center, quads.HoleMin, quads.HoleMax, solidAddress);
+					EmitRing(vh, center, quads.Min, quads.Max, quads.HoleMin, quads.HoleMax, quads.HoleCorner, layerAddress);
+					EmitCross(vh, center, quads.HoleMin, quads.HoleMax, quads.HoleCorner, solidAddress, false);
 				}
 			}
 		}
@@ -733,21 +727,26 @@ namespace Tekly.Common.Ui.Styled
 			public Vector2 Max;
 			public Vector2 HoleMin;
 			public Vector2 HoleMax;
+			public float HoleCorner;
 			public Vector2 OpenMin;
 			public Vector2 OpenMax;
+			public float OpenCorner;
 			public bool Ring;
 			public bool Solid;
 		}
 
 		/// <summary>
-		/// Where a layer can draw, as a rect relative to the shape center, and the rect in its middle that it
-		/// either does not draw or draws solid (empty when there is none). Drawing around an empty middle means
-		/// the GPU never shades it. A fill's middle is solid: covered everywhere, so the shader only colors it.
+		/// Where a layer can draw, as a rect relative to the shape center, and the cross in its middle that it
+		/// either does not draw or draws solid (empty when there is none): the rect from holeMin to holeMax with a
+		/// square holeCorner wide taken out of each corner (see TryGetInnerCross). Drawing around an empty
+		/// middle means the GPU never shades it. A fill's middle is solid: covered everywhere, so the shader only
+		/// colors it.
 		/// </summary>
 		private static void GetLayerBounds(in StyledLayer layer, Vector2 halfSize, Vector4 radii,
-			out Vector2 min, out Vector2 max, out Vector2 holeMin, out Vector2 holeMax, out bool solidHole)
+			out Vector2 min, out Vector2 max, out Vector2 holeMin, out Vector2 holeMax, out float holeCorner, out bool solidHole)
 		{
 			holeMin = holeMax = Vector2.zero;
+			holeCorner = 0f;
 			solidHole = false;
 
 			switch (layer.Kind) {
@@ -758,7 +757,7 @@ namespace Tekly.Common.Ui.Styled
 
 					// The shadow is cut out under the shape, so nothing is drawn well inside it.
 					if (!layer.ShowBehind) {
-						TryGetInnerRect(halfSize, radii, EDGE_PADDING, out holeMin, out holeMax);
+						TryGetInnerCross(halfSize, radii, EDGE_PADDING, out holeMin, out holeMax, out holeCorner);
 					}
 
 					break;
@@ -771,7 +770,7 @@ namespace Tekly.Common.Ui.Styled
 					// Shadowed where the offset shape, pushed in by the spread, is not. Deep inside that there is none.
 					var depth = Mathf.Max(layer.Spread, 0) + layer.SoftWidth * SOFT_REACH + EDGE_PADDING;
 
-					if (TryGetInnerRect(halfSize, SoftRadii(layer, halfSize, radii), depth, out holeMin, out holeMax)) {
+					if (TryGetInnerCross(halfSize, SoftRadii(layer, halfSize, radii), depth, out holeMin, out holeMax, out holeCorner)) {
 						holeMin += layer.ShadowOffset;
 						holeMax += layer.ShadowOffset;
 					}
@@ -784,7 +783,7 @@ namespace Tekly.Common.Ui.Styled
 					max = reach;
 
 					// Nothing is drawn deeper than the bevel's width and its soft inner edge.
-					TryGetInnerRect(halfSize, radii, Mathf.Max(0, layer.Width) + layer.SoftWidth * SOFT_REACH + EDGE_PADDING, out holeMin, out holeMax);
+					TryGetInnerCross(halfSize, radii, Mathf.Max(0, layer.Width) + layer.SoftWidth * SOFT_REACH + EDGE_PADDING, out holeMin, out holeMax, out holeCorner);
 					break;
 				}
 				default: {
@@ -795,7 +794,7 @@ namespace Tekly.Common.Ui.Styled
 
 					// A stroke leaves the middle of the shape empty. Stay clear of its anti-aliased inner edge.
 					if (band.x > StyledLayer.NO_INNER_EDGE) {
-						TryGetInnerRect(halfSize, radii, Mathf.Max(0f, -band.x + EDGE_PADDING), out holeMin, out holeMax);
+						TryGetInnerCross(halfSize, radii, Mathf.Max(0f, -band.x + EDGE_PADDING), out holeMin, out holeMax, out holeCorner);
 						break;
 					}
 
@@ -804,7 +803,7 @@ namespace Tekly.Common.Ui.Styled
 					// its soft radii.
 					if (layer.Paint.Gradient != StyledGradient.Edge) {
 						var depth = Mathf.Max(0f, -band.y) + layer.SoftWidth * SOFT_REACH + EDGE_PADDING;
-						solidHole = TryGetInnerRect(halfSize, SoftRadii(layer, halfSize, radii), depth, out holeMin, out holeMax);
+						solidHole = TryGetInnerCross(halfSize, SoftRadii(layer, halfSize, radii), depth, out holeMin, out holeMax, out holeCorner);
 					}
 
 					break;
@@ -880,44 +879,76 @@ namespace Tekly.Common.Ui.Styled
 		}
 
 		/// <summary>
-		/// The rect (relative to the shape center) whose every point is at least `depth` inside the shape.
+		/// The cross (relative to the shape center) whose every point is at least `depth` inside the shape: the
+		/// rect `depth` in from each side, with a square `corner` wide taken out of each of its corners, where
+		/// the round corners curve away. A corner curves away from its sides from its center on, a radius in
+		/// from each, so the square reaches that far: the radius less the depth. Along a straight side a ring
+		/// around the cross is only as thick as the edge needs, rather than as thick as the corners do.
 		/// </summary>
-		private static bool TryGetInnerRect(Vector2 halfSize, Vector4 radii, float depth, out Vector2 min, out Vector2 max)
+		private static bool TryGetInnerCross(Vector2 halfSize, Vector4 radii, float depth, out Vector2 min, out Vector2 max, out float corner)
 		{
-			var topLeft = CornerInset(radii.x, depth);
-			var topRight = CornerInset(radii.y, depth);
-			var bottomRight = CornerInset(radii.z, depth);
-			var bottomLeft = CornerInset(radii.w, depth);
-
-			min = new Vector2(-halfSize.x + Mathf.Max(bottomLeft, topLeft), -halfSize.y + Mathf.Max(bottomRight, bottomLeft));
-			max = new Vector2(halfSize.x - Mathf.Max(topRight, bottomRight), halfSize.y - Mathf.Max(topLeft, topRight));
+			var largest = Mathf.Max(Mathf.Max(radii.x, radii.y), Mathf.Max(radii.z, radii.w));
+			min = -halfSize + Vector2.one * depth;
+			max = halfSize - Vector2.one * depth;
+			corner = Mathf.Max(0f, largest - depth);
 
 			if (max.x > min.x && max.y > min.y) {
 				return true;
 			}
 
 			min = max = Vector2.zero;
+			corner = 0f;
 			return false;
 		}
 
-		/// <summary>
-		/// How far in from both of a round corner's sides a point must be to sit `depth` inside the shape there.
-		/// Solved from the corner's distance function at the point (-k, -k) from the corner.
-		/// A smoothed corner is fuller than a circular one, so this bound is safe for it too.
-		/// </summary>
-		private static float CornerInset(float radius, float depth)
+		/// <summary>Keeps a cross's corner squares from meeting, so the pieces around and inside it never overlap.</summary>
+		private static float FitCorner(Vector2 min, Vector2 max, float corner)
 		{
-			const float invSqrt2 = 0.70710678f;
-			return Mathf.Max(depth, (1f - invSqrt2) * radius + invSqrt2 * depth);
+			var size = max - min;
+			return Mathf.Clamp(corner, 0f, Mathf.Min(size.x, size.y) * 0.5f);
 		}
 
-		/// <summary>Draws a layer as four rects around a hole: full-width bottom and top, then left and right between them.</summary>
-		private void EmitRing(VertexHelper vh, Vector2 center, Vector2 min, Vector2 max, Vector2 holeMin, Vector2 holeMax, int layerAddress)
+
+		/// <summary>
+		/// Draws a layer around a cross shaped hole (see TryGetInnerCross): four rects around the hole's rect,
+		/// full-width bottom and top, then left and right between them, and a square in each of its corners.
+		/// </summary>
+		private void EmitRing(VertexHelper vh, Vector2 center, Vector2 min, Vector2 max, Vector2 holeMin, Vector2 holeMax, float holeCorner, int layerAddress)
 		{
 			EmitRect(vh, center, min, new Vector2(max.x, holeMin.y), layerAddress);
 			EmitRect(vh, center, new Vector2(min.x, holeMax.y), max, layerAddress);
 			EmitRect(vh, center, new Vector2(min.x, holeMin.y), new Vector2(holeMin.x, holeMax.y), layerAddress);
 			EmitRect(vh, center, new Vector2(holeMax.x, holeMin.y), new Vector2(max.x, holeMax.y), layerAddress);
+
+			if (holeCorner <= 0.0001f) {
+				return;
+			}
+
+			var corner = Vector2.one * holeCorner;
+			EmitRect(vh, center, holeMin, holeMin + corner, layerAddress);
+			EmitRect(vh, center, new Vector2(holeMax.x - holeCorner, holeMin.y), new Vector2(holeMax.x, holeMin.y + holeCorner), layerAddress);
+			EmitRect(vh, center, holeMax - corner, holeMax, layerAddress);
+			EmitRect(vh, center, new Vector2(holeMin.x, holeMax.y - holeCorner), new Vector2(holeMin.x + holeCorner, holeMax.y), layerAddress);
+		}
+
+		/// <summary>
+		/// The three rects that make up a cross: the full-height middle column, then the left and right pieces
+		/// between the corner squares. Into this mesh, or into the solid submesh.
+		/// </summary>
+		private void EmitCross(VertexHelper vh, Vector2 center, Vector2 min, Vector2 max, float corner, int address, bool toSolidSubmesh)
+		{
+			EmitPiece(vh, center, new Vector2(min.x + corner, min.y), new Vector2(max.x - corner, max.y), address, toSolidSubmesh);
+			EmitPiece(vh, center, new Vector2(min.x, min.y + corner), new Vector2(min.x + corner, max.y - corner), address, toSolidSubmesh);
+			EmitPiece(vh, center, new Vector2(max.x - corner, min.y + corner), new Vector2(max.x, max.y - corner), address, toSolidSubmesh);
+		}
+
+		private void EmitPiece(VertexHelper vh, Vector2 center, Vector2 min, Vector2 max, int address, bool toSolidSubmesh)
+		{
+			if (toSolidSubmesh) {
+				EmitSolidRect(center, min, max, address);
+			} else {
+				EmitRect(vh, center, min, max, address);
+			}
 		}
 
 		/// <summary>
@@ -1023,7 +1054,7 @@ namespace Tekly.Common.Ui.Styled
 		}
 
 		/// <summary>
-		/// Whether the rect needs the Extended shader: its shape wobbles, or a stroke is dashed or wobbles.
+		/// Whether the rect needs the Extended shader: its shape wobbles, or a stroke is dashed.
 		/// Everything else draws with the Core shader.
 		/// </summary>
 		private bool UsesExtendedShader()
@@ -1105,7 +1136,7 @@ namespace Tekly.Common.Ui.Styled
 			m_store.Write(m_address + StyledRows.SHAPE_RADII, radii);
 			m_store.Write(m_address + StyledRows.SHAPE_CORNER_EXPONENTS, Vector4.one * CornerExponent());
 			m_store.Write(m_address + StyledRows.SHAPE_REVEAL, GetRevealRow(halfSize));
-			m_store.Write(m_address + StyledRows.SHAPE_WOBBLE, new Vector4(Mathf.Max(0, m_wobbleAmount), Mathf.Max(1, m_wobbleLength), m_wobbleSeed, m_wobbleSpeed));
+			m_store.Write(m_address + StyledRows.SHAPE_WOBBLE, new Vector4(Mathf.Max(0, m_wobbleAmount), Mathf.Max(1, m_wobbleLength), m_wobbleSeed, 0));
 			WriteTextureRows(halfSize);
 
 			// Front to back. A fill under an opaque layer that sits on the shape's edge ends a pixel early.
@@ -1142,8 +1173,6 @@ namespace Tekly.Common.Ui.Styled
 					Mathf.Min(rangeStart, rangeEnd), Mathf.Max(rangeStart, rangeEnd)));
 				m_store.Write(address + StyledRows.LAYER_CURVE_DASHES, new Vector4(layer.Paint.BiasExponent, Mathf.Max(0, layer.StrokeStyle.DashSpacing),
 					Mathf.Clamp01(layer.StrokeStyle.DashLength) + (layer.StrokeStyle.DashRoundCaps ? 2f : 0f), layer.StrokeStyle.DashSpeed));
-				m_store.Write(address + StyledRows.LAYER_STROKE_WOBBLE, new Vector4(Mathf.Max(0, layer.StrokeStyle.WobbleWidth), Mathf.Max(0, layer.StrokeStyle.WobbleDrift),
-					Mathf.Max(0, layer.StrokeStyle.WobbleLength), layer.StrokeStyle.WobbleSeed));
 
 				if (CoversEdge(layer, band)) {
 					if (revealing && !layer.IgnoreReveal) {
@@ -1357,9 +1386,6 @@ namespace Tekly.Common.Ui.Styled
 				layer.Width = Mathf.Max(0, layer.Width);
 				layer.Blur = Mathf.Max(0, layer.Blur);
 				layer.StrokeStyle.DashSpacing = Mathf.Max(0, layer.StrokeStyle.DashSpacing);
-				layer.StrokeStyle.WobbleWidth = Mathf.Max(0, layer.StrokeStyle.WobbleWidth);
-				layer.StrokeStyle.WobbleDrift = Mathf.Max(0, layer.StrokeStyle.WobbleDrift);
-				layer.StrokeStyle.WobbleLength = Mathf.Max(0, layer.StrokeStyle.WobbleLength);
 				m_layers[i] = layer;
 			}
 

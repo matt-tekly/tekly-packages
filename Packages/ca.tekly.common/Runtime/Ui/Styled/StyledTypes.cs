@@ -237,7 +237,7 @@ namespace Tekly.Common.Ui.Styled
 	}
 
 	/// <summary>
-	/// What only a stroke layer uses: where it sits against the shape's edge, its dashes and its own wobble.
+	/// What only a stroke layer uses: where it sits against the shape's edge, and its dashes.
 	/// </summary>
 	[Serializable]
 	public struct StyledStrokeStyle
@@ -255,26 +255,11 @@ namespace Tekly.Common.Ui.Styled
 		[Tooltip("Moves the dashes along the edge, in units per second. Clockwise when positive. Uses game time.")]
 		public float DashSpeed;
 
-		[Tooltip("How much the stroke's width varies along the edge, for a hand-drawn look.")]
-		public float WobbleWidth;
-
-		[Tooltip("How far the stroke drifts in and out from its position along the edge.")]
-		public float WobbleDrift;
-
-		[Tooltip("Distance between this stroke's wobbles along the edge. 0 uses the shape's Lobe Length. Adjusted slightly so the wobble loops evenly.")]
-		public float WobbleLength;
-
-		[Tooltip("Picks a different wobble pattern for this stroke, so two strokes do not move together.")]
-		public float WobbleSeed;
-
 		[Tooltip("Round the ends of each dash. The caps fit inside the dash length.")]
 		public bool DashRoundCaps;
 
-		/// <summary>How far the stroke's own wobble can push it past its band.</summary>
-		public float WobbleReach => Mathf.Max(0, WobbleWidth) + Mathf.Max(0, WobbleDrift);
-
-		/// <summary>Whether the stroke is dashed or wobbles, which needs the position along the shape's edge.</summary>
-		public bool UsesEdgePosition => DashSpacing > 0 || WobbleWidth > 0 || WobbleDrift > 0;
+		/// <summary>Whether the stroke is dashed, which needs the position along the shape's edge.</summary>
+		public bool UsesEdgePosition => DashSpacing > 0;
 	}
 
 	/// <summary>
@@ -299,7 +284,7 @@ namespace Tekly.Common.Ui.Styled
 		[Tooltip("Moves the layer's edge. Fill: how far it is pulled in from the shape's edge. Stroke: extra distance from the shape's edge, in the direction of the alignment. Shadow: how much it grows before blurring, or how much further in an inner shadow is pushed. Not used by bevels.")]
 		public float EdgeOffset;
 
-		[Tooltip("Stroke only. Where the stroke sits, its dashes and its wobble.")]
+		[Tooltip("Stroke only. Where the stroke sits, and its dashes.")]
 		public StyledStrokeStyle StrokeStyle;
 
 		[Tooltip("Shadows only. How far the shadow is moved from the shape.")]
@@ -328,12 +313,9 @@ namespace Tekly.Common.Ui.Styled
 		/// <summary>A fill's inset, which is its EdgeOffset. 0 for everything else.</summary>
 		public float Inset => Kind == StyledLayerKind.Fill ? EdgeOffset : 0f;
 
-		/// <summary>How far a stroke's own wobble can push it past its band. 0 for everything else.</summary>
-		public float WobbleReach => Kind == StyledLayerKind.Stroke ? StrokeStyle.WobbleReach : 0f;
-
 		/// <summary>
 		/// Whether the layer needs the position along the shape's edge, which only the Extended shader works
-		/// out: a dashed stroke, or a stroke that wobbles.
+		/// out: a dashed stroke.
 		/// </summary>
 		public bool UsesEdgePosition => Draws && Kind == StyledLayerKind.Stroke && StrokeStyle.UsesEdgePosition;
 
@@ -376,21 +358,6 @@ namespace Tekly.Common.Ui.Styled
 			layer.StrokeStyle.DashLength = length;
 			layer.StrokeStyle.DashRoundCaps = roundCaps;
 			layer.StrokeStyle.DashSpeed = speed;
-			return layer;
-		}
-
-		/// <summary>
-		/// A copy of this stroke with a wobble of its own: its width varies and it drifts in and out along
-		/// the edge. Give two strokes different seeds and they move independently.
-		/// </summary>
-		/// <param name="length">Distance between wobbles. 0 uses the shape's Lobe Length.</param>
-		public StyledLayer WithWobble(float width, float drift, float length = 0, float seed = 0)
-		{
-			var layer = this;
-			layer.StrokeStyle.WobbleWidth = width;
-			layer.StrokeStyle.WobbleDrift = drift;
-			layer.StrokeStyle.WobbleLength = length;
-			layer.StrokeStyle.WobbleSeed = seed;
 			return layer;
 		}
 
@@ -499,7 +466,7 @@ namespace Tekly.Common.Ui.Styled
 				return true;
 			}
 
-			if (a.Kind != b.Kind || a.GetBand() != b.GetBand() || a.WobbleReach != b.WobbleReach) {
+			if (a.Kind != b.Kind || a.GetBand() != b.GetBand()) {
 				return false;
 			}
 
@@ -526,7 +493,7 @@ namespace Tekly.Common.Ui.Styled
 	///   0  half size x, half size y, unused, unused
 	///   1  corner radii: top-left, top-right, bottom-right, bottom-left (already fitted to the size)
 	///   2  corner exponents, one per corner in the order of the radii: 2 is a circular corner, 4 a squircle
-	///   3  shape wobble: amount, lobe length, seed, changes per second
+	///   3  shape wobble: amount, lobe length, seed, unused
 	///   4  reveal: mode, then by mode. 0 = none. 1 = slide: the shape's copy is moved by x, y. 2 = straight cut:
 	///      direction x, y and position. 3 = radial: start angle and signed sweep in radians. 5 = nothing shows.
 	///   5  texture matrix: uv.x = dot(xy, position), uv.y = dot(zw, position)
@@ -546,7 +513,6 @@ namespace Tekly.Common.Ui.Styled
 	///   4  gradient type, angle in radians, range start, range end
 	///   5  gradient exponent (1 leaves the gradient straight, see StyledPaint.BiasExponent), then a stroke's
 	///      dashes: spacing (0 = solid), dash length as a fraction of the spacing plus 2 for round caps, speed
-	///   6  stroke wobble: width variation, drift, length (0 = the shape's lobe length), seed
 	/// </summary>
 	public static class StyledRows
 	{
@@ -560,14 +526,13 @@ namespace Tekly.Common.Ui.Styled
 		public const int SHAPE_TEXTURE_OFFSET = 6;
 		public const int SHAPE_TEXTURE_LIMITS = 7;
 
-		public const int LAYER_TEXELS = 7;
+		public const int LAYER_TEXELS = 6;
 		public const int LAYER_HEADER = 0;
 		public const int LAYER_SHADOW = 1;
 		public const int LAYER_COLOR_A = 2;
 		public const int LAYER_COLOR_B = 3;
 		public const int LAYER_GRADIENT = 4;
 		public const int LAYER_CURVE_DASHES = 5;
-		public const int LAYER_STROKE_WOBBLE = 6;
 
 		// The flags share the header's first value with the layer kind, which stays below this.
 		public const int FLAG_SCALE = 8;
